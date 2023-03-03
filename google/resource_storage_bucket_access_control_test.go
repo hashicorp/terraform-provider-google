@@ -11,14 +11,14 @@ func TestAccStorageBucketAccessControl_update(t *testing.T) {
 	t.Parallel()
 
 	bucketName := testBucketName(t)
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck: func() {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckStorageObjectAccessControlDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

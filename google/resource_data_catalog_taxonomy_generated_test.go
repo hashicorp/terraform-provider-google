@@ -27,12 +27,12 @@ func TestAccDataCatalogTaxonomy_dataCatalogTaxonomyBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDataCatalogTaxonomyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -68,7 +68,7 @@ func testAccCheckDataCatalogTaxonomyDestroyProducer(t *testing.T) func(s *terraf
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{DataCatalogBasePath}}{{name}}")
 			if err != nil {

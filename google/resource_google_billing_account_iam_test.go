@@ -12,21 +12,21 @@ import (
 
 func TestAccBillingAccountIam(t *testing.T) {
 	// Deletes two fine-grained resources in same step
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	billing := getTestMasterBillingAccountFromEnv(t)
-	account := fmt.Sprintf("tf-test-%d", randInt(t))
+	billing := GetTestMasterBillingAccountFromEnv(t)
+	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/billing.viewer"
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
 				Config: testAccBillingAccountIamBinding_basic(account, billing, role),
 				Check: testAccCheckGoogleBillingAccountIamBindingExists(t, "foo", role, []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
 				}),
 			},
 			{
@@ -39,8 +39,8 @@ func TestAccBillingAccountIam(t *testing.T) {
 				// Test Iam Binding update
 				Config: testAccBillingAccountIamBinding_update(account, billing, role),
 				Check: testAccCheckGoogleBillingAccountIamBindingExists(t, "foo", role, []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
-					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
 				}),
 			},
 			{
@@ -59,12 +59,12 @@ func TestAccBillingAccountIam(t *testing.T) {
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccBillingAccountIamMember_basic(account, billing, role),
 				Check: testAccCheckGoogleBillingAccountIamMemberExists(t, "foo", "roles/billing.viewer",
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
 				),
 			},
 			{
 				ResourceName:      "google_billing_account_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("%s roles/billing.viewer serviceAccount:%s@%s.iam.gserviceaccount.com", billing, account, getTestProjectFromEnv()),
+				ImportStateId:     fmt.Sprintf("%s roles/billing.viewer serviceAccount:%s@%s.iam.gserviceaccount.com", billing, account, GetTestProjectFromEnv()),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -79,7 +79,7 @@ func testAccCheckGoogleBillingAccountIamBindingExists(t *testing.T, bindingResou
 			return fmt.Errorf("Not found: %s", bindingResourceName)
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		p, err := config.NewBillingClient(config.UserAgent).BillingAccounts.GetIamPolicy("billingAccounts/" + bindingRs.Primary.Attributes["billing_account_id"]).Do()
 		if err != nil {
 			return err
@@ -109,7 +109,7 @@ func testAccCheckGoogleBillingAccountIamMemberExists(t *testing.T, n, role, memb
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		p, err := config.NewBillingClient(config.UserAgent).BillingAccounts.GetIamPolicy("billingAccounts/" + rs.Primary.Attributes["billing_account_id"]).Do()
 		if err != nil {
 			return err

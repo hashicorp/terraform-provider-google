@@ -10,32 +10,32 @@ func TestAccDataSourceGoogleComputeInstanceGroupManager(t *testing.T) {
 	t.Parallel()
 
 	zoneName := "us-central1-a"
-	igmName := "tf-tst-igm" + randString(t, 6)
+	igmName := "tf-tst-igm" + RandString(t, 6)
 
 	context := map[string]interface{}{
 		"zoneName":     zoneName,
 		"igmName":      igmName,
-		"baseName":     "tf-tst-igm-base" + randString(t, 6),
-		"poolName":     "tf-tst-pool" + randString(t, 6),
-		"templateName": "tf-tst-templt" + randString(t, 6),
-		"autoHealName": "tf-tst-ah-name" + randString(t, 6),
+		"baseName":     "tf-tst-igm-base" + RandString(t, 6),
+		"poolName":     "tf-tst-pool" + RandString(t, 6),
+		"templateName": "tf-tst-templt" + RandString(t, 6),
+		"autoHealName": "tf-tst-ah-name" + RandString(t, 6),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleComputeInstanceGroupManager_basic1(context),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "project", getTestProjectFromEnv()),
+					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "project", GetTestProjectFromEnv()),
 					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "zone", zoneName),
 					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "name", igmName)),
 			},
 			{
 				Config: testAccDataSourceGoogleComputeInstanceGroupManager_basic2(context),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "project", getTestProjectFromEnv()),
+					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "project", GetTestProjectFromEnv()),
 					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "zone", zoneName),
 					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "name", igmName)),
 			},

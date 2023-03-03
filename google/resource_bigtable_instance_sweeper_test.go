@@ -22,7 +22,7 @@ func testSweepBigtableInstance(region string) error {
 	resourceName := "BigtableInstance"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := sharedConfigForRegion(region)
+	config, err := SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -60,7 +60,7 @@ func testSweepBigtableInstance(region string) error {
 
 		id := obj["displayName"].(string)
 		// Increment count and skip if resource is not sweepable.
-		if !isSweepableTestResource(id) {
+		if !IsSweepableTestResource(id) {
 			nonPrefixCount++
 			continue
 		}

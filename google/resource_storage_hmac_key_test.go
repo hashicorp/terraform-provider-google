@@ -10,10 +10,10 @@ import (
 func TestAccStorageHmacKey_update(t *testing.T) {
 	t.Parallel()
 
-	saName := fmt.Sprintf("%v%v", "service-account", randString(t, 10))
-	vcrTest(t, resource.TestCase{
+	saName := fmt.Sprintf("%v%v", "service-account", RandString(t, 10))
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckStorageHmacKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

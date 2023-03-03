@@ -10,12 +10,12 @@ import (
 func TestAccComputeSnapshot_encryption(t *testing.T) {
 	t.Parallel()
 
-	snapshotName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	snapshotName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	diskName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeSnapshotDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -34,14 +34,14 @@ func TestAccComputeSnapshot_encryption(t *testing.T) {
 func TestAccComputeSnapshot_encryptionCMEK(t *testing.T) {
 	t.Parallel()
 	// KMS causes errors due to rotation
-	skipIfVcr(t)
+	SkipIfVcr(t)
 
-	snapshotName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	snapshotName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	diskName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeSnapshotDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

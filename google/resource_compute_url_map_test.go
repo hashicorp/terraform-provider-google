@@ -11,12 +11,12 @@ import (
 func TestAccComputeUrlMap_update_path_matcher(t *testing.T) {
 	t.Parallel()
 
-	bsName := fmt.Sprintf("urlmap-test-%s", randString(t, 10))
-	hcName := fmt.Sprintf("urlmap-test-%s", randString(t, 10))
-	umName := fmt.Sprintf("urlmap-test-%s", randString(t, 10))
-	vcrTest(t, resource.TestCase{
+	bsName := fmt.Sprintf("urlmap-test-%s", RandString(t, 10))
+	hcName := fmt.Sprintf("urlmap-test-%s", RandString(t, 10))
+	umName := fmt.Sprintf("urlmap-test-%s", RandString(t, 10))
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -41,13 +41,13 @@ func TestAccComputeUrlMap_update_path_matcher(t *testing.T) {
 func TestAccComputeUrlMap_advanced(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeUrlMap_advanced1(randString(t, 10)),
+				Config: testAccComputeUrlMap_advanced1(RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
 						t, "google_compute_url_map.foobar"),
@@ -55,7 +55,7 @@ func TestAccComputeUrlMap_advanced(t *testing.T) {
 			},
 
 			{
-				Config: testAccComputeUrlMap_advanced2(randString(t, 10)),
+				Config: testAccComputeUrlMap_advanced2(RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
 						t, "google_compute_url_map.foobar"),
@@ -68,20 +68,20 @@ func TestAccComputeUrlMap_advanced(t *testing.T) {
 func TestAccComputeUrlMap_defaultRouteActionPathUrlRewrite(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeUrlMap_defaultRouteActionPathUrlRewrite(randString(t, 10)),
+				Config: testAccComputeUrlMap_defaultRouteActionPathUrlRewrite(RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
 						t, "google_compute_url_map.foobar"),
 				),
 			},
 			{
-				Config: testAccComputeUrlMap_defaultRouteActionPathUrlRewrite_update(randString(t, 10)),
+				Config: testAccComputeUrlMap_defaultRouteActionPathUrlRewrite_update(RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
 						t, "google_compute_url_map.foobar"),
@@ -94,13 +94,13 @@ func TestAccComputeUrlMap_defaultRouteActionPathUrlRewrite(t *testing.T) {
 func TestAccComputeUrlMap_defaultRouteActionUrlRewrite(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeUrlMap_defaultRouteActionUrlRewrite(randString(t, 10)),
+				Config: testAccComputeUrlMap_defaultRouteActionUrlRewrite(RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
 						t, "google_compute_url_map.foobar"),
@@ -108,7 +108,7 @@ func TestAccComputeUrlMap_defaultRouteActionUrlRewrite(t *testing.T) {
 			},
 
 			{
-				Config: testAccComputeUrlMap_defaultRouteActionUrlRewrite_update(randString(t, 10)),
+				Config: testAccComputeUrlMap_defaultRouteActionUrlRewrite_update(RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeUrlMapExists(
 						t, "google_compute_url_map.foobar"),
@@ -121,12 +121,12 @@ func TestAccComputeUrlMap_defaultRouteActionUrlRewrite(t *testing.T) {
 func TestAccComputeUrlMap_noPathRulesWithUpdate(t *testing.T) {
 	t.Parallel()
 
-	bsName := fmt.Sprintf("urlmap-test-%s", randString(t, 10))
-	hcName := fmt.Sprintf("urlmap-test-%s", randString(t, 10))
-	umName := fmt.Sprintf("urlmap-test-%s", randString(t, 10))
-	vcrTest(t, resource.TestCase{
+	bsName := fmt.Sprintf("urlmap-test-%s", RandString(t, 10))
+	hcName := fmt.Sprintf("urlmap-test-%s", RandString(t, 10))
+	umName := fmt.Sprintf("urlmap-test-%s", RandString(t, 10))
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -158,7 +158,7 @@ func testAccCheckComputeUrlMapExists(t *testing.T, n string) resource.TestCheckF
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		name := rs.Primary.Attributes["name"]
 
 		found, err := config.NewComputeClient(config.UserAgent).UrlMaps.Get(
@@ -177,14 +177,14 @@ func testAccCheckComputeUrlMapExists(t *testing.T, n string) resource.TestCheckF
 func TestAccComputeUrlMap_defaultRouteActionTrafficDirectorPathUpdate(t *testing.T) {
 	t.Parallel()
 
-	randString := randString(t, 10)
+	randString := RandString(t, 10)
 
 	bsName := fmt.Sprintf("urlmap-test-%s", randString)
 	hcName := fmt.Sprintf("urlmap-test-%s", randString)
 	umName := fmt.Sprintf("urlmap-test-%s", randString)
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -210,14 +210,14 @@ func TestAccComputeUrlMap_defaultRouteActionTrafficDirectorPathUpdate(t *testing
 func TestAccComputeUrlMap_defaultRouteActionTrafficDirectorUpdate(t *testing.T) {
 	t.Parallel()
 
-	randString := randString(t, 10)
+	randString := RandString(t, 10)
 
 	bsName := fmt.Sprintf("urlmap-test-%s", randString)
 	hcName := fmt.Sprintf("urlmap-test-%s", randString)
 	umName := fmt.Sprintf("urlmap-test-%s", randString)
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -243,14 +243,14 @@ func TestAccComputeUrlMap_defaultRouteActionTrafficDirectorUpdate(t *testing.T) 
 func TestAccComputeUrlMap_trafficDirectorUpdate(t *testing.T) {
 	t.Parallel()
 
-	randString := randString(t, 10)
+	randString := RandString(t, 10)
 
 	bsName := fmt.Sprintf("urlmap-test-%s", randString)
 	hcName := fmt.Sprintf("urlmap-test-%s", randString)
 	umName := fmt.Sprintf("urlmap-test-%s", randString)
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -276,14 +276,14 @@ func TestAccComputeUrlMap_trafficDirectorUpdate(t *testing.T) {
 func TestAccComputeUrlMap_trafficDirectorPathUpdate(t *testing.T) {
 	t.Parallel()
 
-	randString := randString(t, 10)
+	randString := RandString(t, 10)
 
 	bsName := fmt.Sprintf("urlmap-test-%s", randString)
 	hcName := fmt.Sprintf("urlmap-test-%s", randString)
 	umName := fmt.Sprintf("urlmap-test-%s", randString)
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -309,14 +309,14 @@ func TestAccComputeUrlMap_trafficDirectorPathUpdate(t *testing.T) {
 func TestAccComputeUrlMap_trafficDirectorRemoveRouteRule(t *testing.T) {
 	t.Parallel()
 
-	randString := randString(t, 10)
+	randString := RandString(t, 10)
 
 	bsName := fmt.Sprintf("urlmap-test-%s", randString)
 	hcName := fmt.Sprintf("urlmap-test-%s", randString)
 	umName := fmt.Sprintf("urlmap-test-%s", randString)
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -342,11 +342,11 @@ func TestAccComputeUrlMap_trafficDirectorRemoveRouteRule(t *testing.T) {
 func TestAccComputeUrlMap_defaultUrlRedirect(t *testing.T) {
 	t.Parallel()
 
-	randomSuffix := randString(t, 10)
+	randomSuffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

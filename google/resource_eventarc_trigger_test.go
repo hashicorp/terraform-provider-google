@@ -15,23 +15,23 @@ import (
 func TestAccEventarcTrigger_channel(t *testing.T) {
 	t.Parallel()
 
-	region := getTestRegionFromEnv()
+	region := GetTestRegionFromEnv()
 	key1 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-key1")
 	key2 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-key2")
 
 	context := map[string]interface{}{
 		"region":          region,
-		"project_name":    getTestProjectFromEnv(),
-		"service_account": getTestServiceAccountFromEnv(t),
+		"project_name":    GetTestProjectFromEnv(),
+		"service_account": GetTestServiceAccountFromEnv(t),
 		"key_ring":        GetResourceNameFromSelfLink(key1.KeyRing.Name),
 		"key1":            GetResourceNameFromSelfLink(key1.CryptoKey.Name),
 		"key2":            GetResourceNameFromSelfLink(key2.CryptoKey.Name),
-		"random_suffix":   randString(t, 10),
+		"random_suffix":   RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckEventarcChannelTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -137,7 +137,7 @@ func testAccCheckEventarcChannelTriggerDestroyProducer(t *testing.T) func(s *ter
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			billingProject := ""
 			if config.BillingProject != "" {

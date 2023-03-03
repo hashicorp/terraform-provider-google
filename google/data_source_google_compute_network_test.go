@@ -11,10 +11,10 @@ import (
 func TestAccDataSourceGoogleNetwork(t *testing.T) {
 	t.Parallel()
 
-	networkName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	vcrTest(t, resource.TestCase{
+	networkName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleNetworkConfig(networkName),

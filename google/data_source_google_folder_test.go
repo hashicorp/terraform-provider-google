@@ -10,14 +10,14 @@ import (
 )
 
 func TestAccDataSourceGoogleFolder_byFullName(t *testing.T) {
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
-	displayName := "tf-test-" + randString(t, 10)
+	displayName := "tf-test-" + RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleFolder_byFullNameConfig(parent, displayName),
@@ -30,14 +30,14 @@ func TestAccDataSourceGoogleFolder_byFullName(t *testing.T) {
 }
 
 func TestAccDataSourceGoogleFolder_byShortName(t *testing.T) {
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
-	displayName := "tf-test-" + randString(t, 10)
+	displayName := "tf-test-" + RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleFolder_byShortNameConfig(parent, displayName),
@@ -50,14 +50,14 @@ func TestAccDataSourceGoogleFolder_byShortName(t *testing.T) {
 }
 
 func TestAccDataSourceGoogleFolder_lookupOrganization(t *testing.T) {
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
-	displayName := "tf-test-" + randString(t, 10)
+	displayName := "tf-test-" + RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleFolder_lookupOrganizationConfig(parent, displayName),
@@ -71,11 +71,11 @@ func TestAccDataSourceGoogleFolder_lookupOrganization(t *testing.T) {
 }
 
 func TestAccDataSourceGoogleFolder_byFullNameNotFound(t *testing.T) {
-	name := "folders/" + randString(t, 16)
+	name := "folders/" + RandString(t, 16)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccCheckGoogleFolder_byFullNameNotFoundConfig(name),

@@ -10,12 +10,12 @@ import (
 func TestAccComputeForwardingRule_update(t *testing.T) {
 	t.Parallel()
 
-	poolName := fmt.Sprintf("tf-%s", randString(t, 10))
-	ruleName := fmt.Sprintf("tf-%s", randString(t, 10))
+	poolName := fmt.Sprintf("tf-%s", RandString(t, 10))
+	ruleName := fmt.Sprintf("tf-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -41,15 +41,15 @@ func TestAccComputeForwardingRule_update(t *testing.T) {
 func TestAccComputeForwardingRule_ip(t *testing.T) {
 	t.Parallel()
 
-	addrName := fmt.Sprintf("tf-%s", randString(t, 10))
-	poolName := fmt.Sprintf("tf-%s", randString(t, 10))
-	ruleName := fmt.Sprintf("tf-%s", randString(t, 10))
+	addrName := fmt.Sprintf("tf-%s", RandString(t, 10))
+	poolName := fmt.Sprintf("tf-%s", RandString(t, 10))
+	ruleName := fmt.Sprintf("tf-%s", RandString(t, 10))
 	addressRefFieldRaw := "address"
 	addressRefFieldID := "id"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -76,12 +76,12 @@ func TestAccComputeForwardingRule_ip(t *testing.T) {
 func TestAccComputeForwardingRule_networkTier(t *testing.T) {
 	t.Parallel()
 
-	poolName := fmt.Sprintf("tf-%s", randString(t, 10))
-	ruleName := fmt.Sprintf("tf-%s", randString(t, 10))
+	poolName := fmt.Sprintf("tf-%s", RandString(t, 10))
+	ruleName := fmt.Sprintf("tf-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeForwardingRuleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

@@ -11,10 +11,10 @@ import (
 func TestAccComputeRouterInterface_basic(t *testing.T) {
 	t.Parallel()
 
-	routerName := fmt.Sprintf("tf-test-router-%s", randString(t, 10))
-	vcrTest(t, resource.TestCase{
+	routerName := fmt.Sprintf("tf-test-router-%s", RandString(t, 10))
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRouterInterfaceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -39,10 +39,10 @@ func TestAccComputeRouterInterface_basic(t *testing.T) {
 func TestAccComputeRouterInterface_redundant(t *testing.T) {
 	t.Parallel()
 
-	routerName := fmt.Sprintf("tf-test-router-%s", randString(t, 10))
-	vcrTest(t, resource.TestCase{
+	routerName := fmt.Sprintf("tf-test-router-%s", RandString(t, 10))
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRouterInterfaceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -62,10 +62,10 @@ func TestAccComputeRouterInterface_redundant(t *testing.T) {
 func TestAccComputeRouterInterface_withTunnel(t *testing.T) {
 	t.Parallel()
 
-	routerName := fmt.Sprintf("tf-test-router-%s", randString(t, 10))
-	vcrTest(t, resource.TestCase{
+	routerName := fmt.Sprintf("tf-test-router-%s", RandString(t, 10))
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRouterInterfaceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -85,10 +85,10 @@ func TestAccComputeRouterInterface_withTunnel(t *testing.T) {
 func TestAccComputeRouterInterface_withPrivateIpAddress(t *testing.T) {
 	t.Parallel()
 
-	routerName := fmt.Sprintf("tf-test-router-%s", randString(t, 10))
-	vcrTest(t, resource.TestCase{
+	routerName := fmt.Sprintf("tf-test-router-%s", RandString(t, 10))
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeRouterInterfaceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -107,7 +107,7 @@ func TestAccComputeRouterInterface_withPrivateIpAddress(t *testing.T) {
 
 func testAccCheckComputeRouterInterfaceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		routersService := config.NewComputeClient(config.UserAgent).Routers
 
@@ -116,12 +116,12 @@ func testAccCheckComputeRouterInterfaceDestroyProducer(t *testing.T) func(s *ter
 				continue
 			}
 
-			project, err := getTestProject(rs.Primary, config)
+			project, err := GetTestProject(rs.Primary, config)
 			if err != nil {
 				return err
 			}
 
-			region, err := getTestRegion(rs.Primary, config)
+			region, err := GetTestRegion(rs.Primary, config)
 			if err != nil {
 				return err
 			}
@@ -142,7 +142,7 @@ func testAccCheckComputeRouterInterfaceDestroyProducer(t *testing.T) func(s *ter
 
 func testAccCheckComputeRouterInterfaceDelete(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		routersService := config.NewComputeClient(config.UserAgent).Routers
 
@@ -151,12 +151,12 @@ func testAccCheckComputeRouterInterfaceDelete(t *testing.T, n string) resource.T
 				continue
 			}
 
-			project, err := getTestProject(rs.Primary, config)
+			project, err := GetTestProject(rs.Primary, config)
 			if err != nil {
 				return err
 			}
 
-			region, err := getTestRegion(rs.Primary, config)
+			region, err := GetTestRegion(rs.Primary, config)
 			if err != nil {
 				return err
 			}
@@ -194,14 +194,14 @@ func testAccCheckComputeRouterInterfaceExists(t *testing.T, n string) resource.T
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
-		project, err := getTestProject(rs.Primary, config)
+		project, err := GetTestProject(rs.Primary, config)
 		if err != nil {
 			return err
 		}
 
-		region, err := getTestRegion(rs.Primary, config)
+		region, err := GetTestRegion(rs.Primary, config)
 		if err != nil {
 			return err
 		}

@@ -28,12 +28,12 @@ func TestAccDataCatalogTagTemplate_dataCatalogTagTemplateBasicExample(t *testing
 
 	context := map[string]interface{}{
 		"force_delete":  true,
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDataCatalogTagTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -106,7 +106,7 @@ func testAccCheckDataCatalogTagTemplateDestroyProducer(t *testing.T) func(s *ter
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{DataCatalogBasePath}}{{name}}")
 			if err != nil {

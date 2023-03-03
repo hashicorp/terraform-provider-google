@@ -34,7 +34,7 @@ func init() {
 func testSweepClouddeployDeliveryPipeline(region string) error {
 	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for ClouddeployDeliveryPipeline")
 
-	config, err := sharedConfigForRegion(region)
+	config, err := SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -47,7 +47,7 @@ func testSweepClouddeployDeliveryPipeline(region string) error {
 	}
 
 	t := &testing.T{}
-	billingId := getTestBillingAccountFromEnv(t)
+	billingId := GetTestBillingAccountFromEnv(t)
 
 	// Setup variables to be used for Delete arguments.
 	d := map[string]string{
@@ -67,5 +67,5 @@ func testSweepClouddeployDeliveryPipeline(region string) error {
 }
 
 func isDeletableClouddeployDeliveryPipeline(r *clouddeploy.DeliveryPipeline) bool {
-	return isSweepableTestResource(*r.Name)
+	return IsSweepableTestResource(*r.Name)
 }

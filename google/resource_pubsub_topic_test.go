@@ -10,11 +10,11 @@ import (
 func TestAccPubsubTopic_update(t *testing.T) {
 	t.Parallel()
 
-	topic := fmt.Sprintf("tf-test-topic-%s", randString(t, 10))
+	topic := fmt.Sprintf("tf-test-topic-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckPubsubTopicDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -43,11 +43,11 @@ func TestAccPubsubTopic_cmek(t *testing.T) {
 	t.Parallel()
 
 	kms := BootstrapKMSKey(t)
-	topicName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	topicName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckPubsubTopicDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

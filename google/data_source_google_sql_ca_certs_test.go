@@ -11,11 +11,11 @@ import (
 func TestAccDataSourceGoogleSQLCaCerts_basic(t *testing.T) {
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("data-ssl-ca-cert-test-%s", randString(t, 10))
+	instanceName := fmt.Sprintf("data-ssl-ca-cert-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

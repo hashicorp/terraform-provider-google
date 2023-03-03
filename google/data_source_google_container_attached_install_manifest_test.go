@@ -11,12 +11,12 @@ import (
 func TestAccDataSourceGoogleContainerAttachedInstallManifest(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceGoogleContainerAttachedInstallManifestConfig(randString(t, 10)),
+				Config: testAccDataSourceGoogleContainerAttachedInstallManifestConfig(RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleContainerAttachedInstallManifestCheck("data.google_container_attached_install_manifest.manifest"),
 				),

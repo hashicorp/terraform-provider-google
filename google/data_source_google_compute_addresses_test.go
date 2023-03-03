@@ -11,7 +11,7 @@ import (
 func TestAccDataSourceComputeAddresses(t *testing.T) {
 	t.Parallel()
 
-	addressName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	addressName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	region := "europe-west8"
 	region_bis := "asia-east1"
@@ -20,9 +20,9 @@ func TestAccDataSourceComputeAddresses(t *testing.T) {
 	dsAllName := "all_addresses"
 	dsAllFullName := fmt.Sprintf("data.google_compute_addresses.%s", dsAllName)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeAddressesConfig(addressName, region, region_bis),

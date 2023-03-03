@@ -13,20 +13,20 @@ import (
 func TestAccHealthcareHl7V2StoreIamBinding(t *testing.T) {
 	t.Parallel()
 
-	projectId := getTestProjectFromEnv()
-	account := fmt.Sprintf("tf-test-%d", randInt(t))
+	projectId := GetTestProjectFromEnv()
+	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/healthcare.hl7V2StoreAdmin"
-	datasetName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	datasetId := &healthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
 	}
-	hl7V2StoreName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	hl7V2StoreName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
@@ -62,20 +62,20 @@ func TestAccHealthcareHl7V2StoreIamBinding(t *testing.T) {
 func TestAccHealthcareHl7V2StoreIamMember(t *testing.T) {
 	t.Parallel()
 
-	projectId := getTestProjectFromEnv()
-	account := fmt.Sprintf("tf-test-%d", randInt(t))
+	projectId := GetTestProjectFromEnv()
+	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/healthcare.hl7V2Editor"
-	datasetName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	datasetId := &healthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
 	}
-	hl7V2StoreName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	hl7V2StoreName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -97,20 +97,20 @@ func TestAccHealthcareHl7V2StoreIamMember(t *testing.T) {
 func TestAccHealthcareHl7V2StoreIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	projectId := getTestProjectFromEnv()
-	account := fmt.Sprintf("tf-test-%d", randInt(t))
+	projectId := GetTestProjectFromEnv()
+	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/healthcare.hl7V2Consumer"
-	datasetName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	datasetId := &healthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
 	}
-	hl7V2StoreName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	hl7V2StoreName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Policy creation (no update for policy, no need to test)
@@ -136,7 +136,7 @@ func testAccCheckGoogleHealthcareHl7V2StoreIamBindingExists(t *testing.T, bindin
 			return fmt.Errorf("Not found: %s", bindingResourceName)
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		hl7V2StoreId, err := parseHealthcareHl7V2StoreId(bindingRs.Primary.Attributes["hl7_v2_store_id"], config)
 
 		if err != nil {
@@ -172,7 +172,7 @@ func testAccCheckGoogleHealthcareHl7V2StoreIamMemberExists(t *testing.T, n, role
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		hl7V2StoreId, err := parseHealthcareHl7V2StoreId(rs.Primary.Attributes["hl7_v2_store_id"], config)
 
 		if err != nil {
@@ -207,7 +207,7 @@ func testAccCheckGoogleHealthcareHl7V2StoreIamPolicyExists(t *testing.T, n, role
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		hl7V2StoreId, err := parseHealthcareHl7V2StoreId(rs.Primary.Attributes["hl7_v2_store_id"], config)
 
 		if err != nil {

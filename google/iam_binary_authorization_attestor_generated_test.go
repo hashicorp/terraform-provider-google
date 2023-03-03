@@ -25,20 +25,20 @@ func TestAccBinaryAuthorizationAttestorIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBinaryAuthorizationAttestorIamBinding_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -48,7 +48,7 @@ func TestAccBinaryAuthorizationAttestorIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer", getTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -60,13 +60,13 @@ func TestAccBinaryAuthorizationAttestorIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -74,7 +74,7 @@ func TestAccBinaryAuthorizationAttestorIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer user:admin@hashicorptest.com", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -86,20 +86,20 @@ func TestAccBinaryAuthorizationAttestorIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBinaryAuthorizationAttestorIamPolicy_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s", getTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -108,7 +108,7 @@ func TestAccBinaryAuthorizationAttestorIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s", getTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

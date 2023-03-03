@@ -11,11 +11,11 @@ import (
 func TestAccTPUNode_tpuNodeBUpdateTensorFlowVersion(t *testing.T) {
 	t.Parallel()
 
-	nodeId := fmt.Sprintf("tf-test-%d", randInt(t))
+	nodeId := fmt.Sprintf("tf-test-%d", RandInt(t))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckTPUNodeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

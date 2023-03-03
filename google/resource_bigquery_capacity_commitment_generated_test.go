@@ -27,12 +27,12 @@ func TestAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCom
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
 			"time":   {},
@@ -79,7 +79,7 @@ func testAccCheckBigqueryReservationCapacityCommitmentDestroyProducer(t *testing
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{BigqueryReservationBasePath}}{{name}}")
 			if err != nil {

@@ -13,13 +13,13 @@ import (
 func TestAccComputeImage_withLicense(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeImage_license("image-test-" + randString(t, 10)),
+				Config: testAccComputeImage_license("image-test-" + RandString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_image.foobar",
@@ -35,11 +35,11 @@ func TestAccComputeImage_update(t *testing.T) {
 
 	var image compute.Image
 
-	name := "image-test-" + randString(t, 10)
+	name := "image-test-" + RandString(t, 10)
 	// Only labels supports an update
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -76,13 +76,13 @@ func TestAccComputeImage_basedondisk(t *testing.T) {
 
 	var image compute.Image
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeImage_basedondisk(randString(t, 10), randString(t, 10)),
+				Config: testAccComputeImage_basedondisk(RandString(t, 10), RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
 						t, "google_compute_image.foobar", &image),
@@ -102,11 +102,11 @@ func TestAccComputeImage_sourceImage(t *testing.T) {
 	t.Parallel()
 
 	var image compute.Image
-	imageName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	imageName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -131,13 +131,13 @@ func TestAccComputeImage_sourceSnapshot(t *testing.T) {
 
 	var image compute.Image
 
-	diskName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	snapshotName := fmt.Sprintf("tf-test-%s", randString(t, 10))
-	imageName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	diskName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	snapshotName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	imageName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -168,7 +168,7 @@ func testAccCheckComputeImageExists(t *testing.T, n string, image *compute.Image
 			return fmt.Errorf("No name is set")
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		found, err := config.NewComputeClient(config.UserAgent).Images.Get(
 			config.Project, rs.Primary.Attributes["name"]).Do()
@@ -190,13 +190,13 @@ func TestAccComputeImage_resolveImage(t *testing.T) {
 	t.Parallel()
 
 	var image compute.Image
-	rand := randString(t, 10)
+	rand := RandString(t, 10)
 	name := fmt.Sprintf("test-image-%s", rand)
 	fam := fmt.Sprintf("test-image-family-%s", rand)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -218,13 +218,13 @@ func TestAccComputeImage_imageEncryptionKey(t *testing.T) {
 	kmsKeyName := GetResourceNameFromSelfLink(kmsKey.CryptoKey.Name)
 	kmsRingName := GetResourceNameFromSelfLink(kmsKey.KeyRing.Name)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeImage_imageEncryptionKey(kmsRingName, kmsKeyName, randString(t, 10)),
+				Config: testAccComputeImage_imageEncryptionKey(kmsRingName, kmsKeyName, RandString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_image.image",
@@ -237,7 +237,7 @@ func TestAccComputeImage_imageEncryptionKey(t *testing.T) {
 
 func testAccCheckComputeImageResolution(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		project := config.Project
 
 		rs, ok := s.RootModule().Resources[n]

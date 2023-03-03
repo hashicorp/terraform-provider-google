@@ -23,22 +23,22 @@ var SharedCryptoKey = map[string]string{
 	"ASYMMETRIC_DECRYPT": "tftest-shared-decrypt-key-1",
 }
 
-type bootstrappedKMS struct {
+type BootstrappedKMS struct {
 	*cloudkms.KeyRing
 	*cloudkms.CryptoKey
 }
 
-func BootstrapKMSKey(t *testing.T) bootstrappedKMS {
+func BootstrapKMSKey(t *testing.T) BootstrappedKMS {
 	return BootstrapKMSKeyInLocation(t, "global")
 }
 
-func BootstrapKMSKeyInLocation(t *testing.T, locationID string) bootstrappedKMS {
+func BootstrapKMSKeyInLocation(t *testing.T, locationID string) BootstrappedKMS {
 	return BootstrapKMSKeyWithPurposeInLocation(t, "ENCRYPT_DECRYPT", locationID)
 }
 
 // BootstrapKMSKeyWithPurpose returns a KMS key in the "global" location.
 // See BootstrapKMSKeyWithPurposeInLocation.
-func BootstrapKMSKeyWithPurpose(t *testing.T, purpose string) bootstrappedKMS {
+func BootstrapKMSKeyWithPurpose(t *testing.T, purpose string) BootstrappedKMS {
 	return BootstrapKMSKeyWithPurposeInLocation(t, purpose, "global")
 }
 
@@ -53,20 +53,20 @@ func BootstrapKMSKeyWithPurpose(t *testing.T, purpose string) bootstrappedKMS {
 * to incur the overhead of creating a new project for each test that needs to use
 * a KMS key.
 **/
-func BootstrapKMSKeyWithPurposeInLocation(t *testing.T, purpose, locationID string) bootstrappedKMS {
+func BootstrapKMSKeyWithPurposeInLocation(t *testing.T, purpose, locationID string) BootstrappedKMS {
 	return BootstrapKMSKeyWithPurposeInLocationAndName(t, purpose, locationID, SharedCryptoKey[purpose])
 }
 
-func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, locationID, keyShortName string) bootstrappedKMS {
+func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, locationID, keyShortName string) BootstrappedKMS {
 	config := BootstrapConfig(t)
 	if config == nil {
-		return bootstrappedKMS{
+		return BootstrappedKMS{
 			&cloudkms.KeyRing{},
 			&cloudkms.CryptoKey{},
 		}
 	}
 
-	projectID := getTestProjectFromEnv()
+	projectID := GetTestProjectFromEnv()
 	keyRingParent := fmt.Sprintf("projects/%s/locations/%s", projectID, locationID)
 	keyRingName := fmt.Sprintf("%s/keyRings/%s", keyRingParent, SharedKeyRing)
 	keyParent := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s", projectID, locationID, SharedKeyRing)
@@ -124,7 +124,7 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 		t.Fatalf("Unable to bootstrap KMS key. CryptoKey is nil!")
 	}
 
-	return bootstrappedKMS{
+	return BootstrappedKMS{
 		keyRing,
 		cryptoKey,
 	}
@@ -215,7 +215,7 @@ func BootstrapServiceAccount(t *testing.T, project, testRunner string) string {
 const SharedTestADDomainPrefix = "tf-bootstrap-ad"
 
 func BootstrapSharedTestADDomain(t *testing.T, testId string, networkName string) string {
-	project := getTestProjectFromEnv()
+	project := GetTestProjectFromEnv()
 	sharedADDomain := fmt.Sprintf("%s.%s.com", SharedTestADDomainPrefix, testId)
 	adDomainName := fmt.Sprintf("projects/%s/locations/global/domains/%s", project, sharedADDomain)
 
@@ -264,7 +264,7 @@ const SharedTestNetworkPrefix = "tf-bootstrap-net-"
 // testId specifies the test/suite for which a shared network is used/initialized.
 // Returns the name of an network, creating it if hasn't been created in the test projcet.
 func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
-	project := getTestProjectFromEnv()
+	project := GetTestProjectFromEnv()
 	networkName := SharedTestNetworkPrefix + testId
 
 	config := BootstrapConfig(t)
@@ -312,7 +312,7 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 		return nil
 	}
 
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 
 	// The filter endpoint works differently if you provide both the parent id and parent type, and
 	// doesn't seem to allow for prefix matching. Don't change this to include the parent type unless
@@ -325,7 +325,7 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 
 	projects := res.Projects
 	for len(projects) < desiredProjects {
-		pid := SharedServicePerimeterProjectPrefix + randString(t, 10)
+		pid := SharedServicePerimeterProjectPrefix + RandString(t, 10)
 		project := &cloudresourcemanager.Project{
 			ProjectId: pid,
 			Name:      "TF Service Perimeter Test",
@@ -431,7 +431,7 @@ func BootstrapProject(t *testing.T, projectID, billingAccount string, services [
 		if !IsGoogleApiErrorWithCode(err, 403) {
 			t.Fatalf("Error getting bootstrapped project: %s", err)
 		}
-		org := getTestOrgFromEnv(t)
+		org := GetTestOrgFromEnv(t)
 
 		op, err := crmClient.Projects.Create(&cloudresourcemanager.Project{
 			ProjectId: projectID,
@@ -530,7 +530,7 @@ func BootstrapAllPSARoles(t *testing.T, agentNames, roles []string) bool {
 	client := config.NewResourceManagerClient(config.UserAgent)
 
 	// Get the project since we need its number, id, and policy.
-	project, err := client.Projects.Get(getTestProjectFromEnv()).Do()
+	project, err := client.Projects.Get(GetTestProjectFromEnv()).Do()
 	if err != nil {
 		t.Fatalf("Error getting project with id %q: %s", project.ProjectId, err)
 		return false
@@ -599,10 +599,10 @@ func BootstrapConfig(t *testing.T) *Config {
 	}
 
 	config := &Config{
-		Credentials: getTestCredsFromEnv(),
-		Project:     getTestProjectFromEnv(),
-		Region:      getTestRegionFromEnv(),
-		Zone:        getTestZoneFromEnv(),
+		Credentials: GetTestCredsFromEnv(),
+		Project:     GetTestProjectFromEnv(),
+		Region:      GetTestRegionFromEnv(),
+		Zone:        GetTestZoneFromEnv(),
 	}
 
 	ConfigureBasePaths(config)
@@ -619,7 +619,7 @@ const SharedTestSQLInstanceNamePrefix = "tf-bootstrap-"
 // BootstrapSharedSQLInstanceBackupRun will return a shared SQL db instance that
 // has a backup created for it.
 func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
-	project := getTestProjectFromEnv()
+	project := GetTestProjectFromEnv()
 
 	config := BootstrapConfig(t)
 	if config == nil {
@@ -644,7 +644,7 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 	}
 
 	if bootstrapInstance == nil {
-		bootstrapInstanceName := SharedTestSQLInstanceNamePrefix + randString(t, 10)
+		bootstrapInstanceName := SharedTestSQLInstanceNamePrefix + RandString(t, 10)
 		log.Printf("[DEBUG] Bootstrap SQL Instance not found, bootstrapping new instance %s", bootstrapInstanceName)
 
 		backupConfig := &sqladmin.BackupConfiguration{
@@ -706,7 +706,7 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 }
 
 func BootstrapSharedCaPoolInLocation(t *testing.T, location string) string {
-	project := getTestProjectFromEnv()
+	project := GetTestProjectFromEnv()
 	poolName := "static-ca-pool"
 
 	config := BootstrapConfig(t)

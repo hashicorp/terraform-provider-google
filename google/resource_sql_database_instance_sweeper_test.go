@@ -18,7 +18,7 @@ func init() {
 }
 
 func testSweepSQLDatabaseInstance(region string) error {
-	config, err := sharedConfigForRegion(region)
+	config, err := SharedConfigForRegion(region)
 	if err != nil {
 		return fmt.Errorf("error getting shared config for region: %s", err)
 	}
@@ -42,7 +42,7 @@ func testSweepSQLDatabaseInstance(region string) error {
 	running := map[string]struct{}{}
 
 	for _, d := range found.Items {
-		if !isSweepableTestResource(d.Name) {
+		if !IsSweepableTestResource(d.Name) {
 			continue
 		}
 

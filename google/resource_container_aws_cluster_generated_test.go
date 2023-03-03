@@ -38,15 +38,15 @@ func TestAccContainerAwsCluster_BasicHandWritten(t *testing.T) {
 		"aws_vol_key":    "00000000-0000-0000-0000-17aad2f0f61f",
 		"aws_vpc":        "vpc-0b3f63cb91b247628",
 		"byo_prefix":     "mmv2",
-		"project_name":   getTestProjectFromEnv(),
+		"project_name":   GetTestProjectFromEnv(),
 		"project_number": getTestProjectNumberFromEnv(),
-		"service_acct":   getTestServiceAccountFromEnv(t),
-		"random_suffix":  randString(t, 10),
+		"service_acct":   GetTestServiceAccountFromEnv(t),
+		"random_suffix":  RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckContainerAwsClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -261,7 +261,7 @@ func testAccCheckContainerAwsClusterDestroyProducer(t *testing.T) func(s *terraf
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			billingProject := ""
 			if config.BillingProject != "" {

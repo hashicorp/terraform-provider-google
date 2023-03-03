@@ -36,9 +36,9 @@ func TestAccStorageObject_basic(t *testing.T) {
 	if err := ioutil.WriteFile(testFile.Name(), data, 0644); err != nil {
 		t.Errorf("error writing file: %v", err)
 	}
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -71,9 +71,9 @@ func TestAccStorageObject_recreate(t *testing.T) {
 	updatedName := testFile.Name() + ".update"
 	updatedDataMd5 := writeFile(updatedName, []byte("datum"))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -109,9 +109,9 @@ func TestAccStorageObject_content(t *testing.T) {
 	if err := ioutil.WriteFile(testFile.Name(), data, 0644); err != nil {
 		t.Errorf("error writing file: %v", err)
 	}
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -144,9 +144,9 @@ func TestAccStorageObject_withContentCharacteristics(t *testing.T) {
 	}
 
 	disposition, encoding, language, content_type := "inline", "compress", "en", "binary/octet-stream"
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -171,9 +171,9 @@ func TestAccStorageObject_withContentCharacteristics(t *testing.T) {
 func TestAccStorageObject_dynamicContent(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -205,9 +205,9 @@ func TestAccStorageObject_cacheControl(t *testing.T) {
 	}
 
 	cacheControl := "private"
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -238,9 +238,9 @@ func TestAccStorageObject_storageClass(t *testing.T) {
 	}
 
 	storageClass := "MULTI_REGIONAL"
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -270,9 +270,9 @@ func TestAccStorageObject_metadata(t *testing.T) {
 		t.Errorf("error writing file: %v", err)
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -303,9 +303,9 @@ func TestAccStorageObjectKms(t *testing.T) {
 	if err := ioutil.WriteFile(testFile.Name(), data, 0644); err != nil {
 		t.Errorf("error writing file: %v", err)
 	}
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -332,9 +332,9 @@ func TestAccStorageObject_customerEncryption(t *testing.T) {
 	}
 
 	customerEncryptionKey := "qI6+xvCZE9jUm94nJWIulFc8rthN64ybkGCsLUY9Do4="
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -364,9 +364,9 @@ func TestAccStorageObject_holds(t *testing.T) {
 		t.Errorf("error writing file: %v", err)
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -399,7 +399,7 @@ func testAccCheckGoogleStorageObject(t *testing.T, bucket, object, md5 string) r
 
 func testAccCheckGoogleStorageObjectWithEncryption(t *testing.T, bucket, object, md5 string, customerEncryptionKey string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		objectsService := storage.NewObjectsService(config.NewStorageClient(config.UserAgent))
 
@@ -428,7 +428,7 @@ func testAccCheckGoogleStorageObjectWithEncryption(t *testing.T, bucket, object,
 
 func testAccStorageObjectDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_storage_bucket_object" {

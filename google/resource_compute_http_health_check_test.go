@@ -15,11 +15,11 @@ func TestAccComputeHttpHealthCheck_update(t *testing.T) {
 
 	var healthCheck compute.HttpHealthCheck
 
-	hhckName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	hhckName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeHttpHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -59,7 +59,7 @@ func testAccCheckComputeHttpHealthCheckExists(t *testing.T, n string, healthChec
 			return fmt.Errorf("No name is set")
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		found, err := config.NewComputeClient(config.UserAgent).HttpHealthChecks.Get(
 			config.Project, rs.Primary.Attributes["name"]).Do()

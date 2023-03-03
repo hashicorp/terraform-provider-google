@@ -10,13 +10,13 @@ import (
 func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceDnsManagedZone_basic(randString(t, 10)),
+				Config: testAccDataSourceDnsManagedZone_basic(RandString(t, 10)),
 				Check: checkDataSourceStateMatchesResourceStateWithIgnores(
 					"data.google_dns_managed_zone.qa",
 					"google_dns_managed_zone.foo",

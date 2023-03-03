@@ -8,12 +8,12 @@ import (
 )
 
 func TestAccDataSourceGoogleFolderOrganizationPolicy_basic(t *testing.T) {
-	folder := fmt.Sprintf("tf-test-%d", randInt(t))
-	org := getTestOrgFromEnv(t)
+	folder := fmt.Sprintf("tf-test-%d", RandInt(t))
+	org := GetTestOrgFromEnv(t)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleFolderOrganizationPolicy_basic(org, folder),

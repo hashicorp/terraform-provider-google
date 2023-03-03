@@ -27,12 +27,12 @@ func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingBasicExample(
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigqueryAnalyticsHubListingDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -88,7 +88,7 @@ func testAccCheckBigqueryAnalyticsHubListingDestroyProducer(t *testing.T) func(s
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings/{{listing_id}}")
 			if err != nil {

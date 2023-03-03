@@ -28,12 +28,12 @@ func TestAccDataCatalogTag_dataCatalogEntryTagBasicExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"force_delete":  true,
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDataCatalogTagDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -123,12 +123,12 @@ func TestAccDataCatalogTag_dataCatalogEntryGroupTagExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"force_delete":  true,
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDataCatalogTagDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -222,17 +222,17 @@ resource "google_data_catalog_tag" "entry_group_tag" {
 }
 
 func TestAccDataCatalogTag_dataCatalogEntryTagFullExample(t *testing.T) {
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
 		"force_delete":  true,
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDataCatalogTagDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -390,12 +390,12 @@ func TestAccDataCatalogTag_dataCatalogEntryTagFalseExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"force_delete":  true,
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDataCatalogTagDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -490,7 +490,7 @@ func testAccCheckDataCatalogTagDestroyProducer(t *testing.T) func(s *terraform.S
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{DataCatalogBasePath}}{{parent}}/tags")
 			if err != nil {

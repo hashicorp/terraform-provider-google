@@ -25,20 +25,20 @@ func TestAccComputeDiskIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDiskIamBinding_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_compute_disk_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/disks/%s roles/viewer", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("tf-test-test-disk%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/disks/%s roles/viewer", GetTestProjectFromEnv(), GetTestZoneFromEnv(), fmt.Sprintf("tf-test-test-disk%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -48,7 +48,7 @@ func TestAccComputeDiskIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_disk_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/disks/%s roles/viewer", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("tf-test-test-disk%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/disks/%s roles/viewer", GetTestProjectFromEnv(), GetTestZoneFromEnv(), fmt.Sprintf("tf-test-test-disk%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -60,13 +60,13 @@ func TestAccComputeDiskIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -74,7 +74,7 @@ func TestAccComputeDiskIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_disk_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/disks/%s roles/viewer user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("tf-test-test-disk%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/disks/%s roles/viewer user:admin@hashicorptest.com", GetTestProjectFromEnv(), GetTestZoneFromEnv(), fmt.Sprintf("tf-test-test-disk%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -86,20 +86,20 @@ func TestAccComputeDiskIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDiskIamPolicy_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_compute_disk_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/disks/%s", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("tf-test-test-disk%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/disks/%s", GetTestProjectFromEnv(), GetTestZoneFromEnv(), fmt.Sprintf("tf-test-test-disk%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -108,7 +108,7 @@ func TestAccComputeDiskIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_disk_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/disks/%s", getTestProjectFromEnv(), getTestZoneFromEnv(), fmt.Sprintf("tf-test-test-disk%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/zones/%s/disks/%s", GetTestProjectFromEnv(), GetTestZoneFromEnv(), fmt.Sprintf("tf-test-test-disk%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

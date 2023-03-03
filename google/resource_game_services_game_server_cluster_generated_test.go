@@ -28,12 +28,12 @@ func TestAccGameServicesGameServerCluster_gameServiceClusterBasicExample(t *test
 
 	context := map[string]interface{}{
 		"agones_cluster": "bootstrapped-agones-cluster",
-		"random_suffix":  randString(t, 10),
+		"random_suffix":  RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckGameServicesGameServerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -83,7 +83,7 @@ func testAccCheckGameServicesGameServerClusterDestroyProducer(t *testing.T) func
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters/{{cluster_id}}")
 			if err != nil {

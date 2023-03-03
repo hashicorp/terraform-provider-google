@@ -11,9 +11,9 @@ func TestAccDataSourceGoogleBigqueryDefaultServiceAccount_basic(t *testing.T) {
 
 	resourceName := "data.google_bigquery_default_service_account.bq_account"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleBigqueryDefaultServiceAccount_basic,

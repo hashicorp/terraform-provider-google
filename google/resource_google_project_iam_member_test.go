@@ -21,14 +21,14 @@ func projectIamMemberImportStep(resourceName, pid, role, member string) resource
 func TestAccProjectIamMember_basic(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	resourceName := "google_project_iam_member.acceptance"
 	role := "roles/compute.instanceAdmin"
 	member := "user:admin@hashicorptest.com"
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -49,22 +49,22 @@ func TestAccProjectIamMember_basic(t *testing.T) {
 // Test that multiple IAM bindings can be applied to a project
 func TestAccProjectIamMember_multiple(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 	SkipIfEnvNotSet(t, "GOOGLE_ORG")
 
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	resourceName := "google_project_iam_member.acceptance"
 	resourceName2 := "google_project_iam_member.multiple"
 	role := "roles/compute.instanceAdmin"
 	member := "user:admin@hashicorptest.com"
 	member2 := "user:gterraformtest1@gmail.com"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -92,21 +92,21 @@ func TestAccProjectIamMember_multiple(t *testing.T) {
 // Test that an IAM binding can be removed from a project
 func TestAccProjectIamMember_remove(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 	SkipIfEnvNotSet(t, "GOOGLE_ORG")
 
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	resourceName := "google_project_iam_member.acceptance"
 	role := "roles/compute.instanceAdmin"
 	member := "user:admin@hashicorptest.com"
 	member2 := "user:gterraformtest1@gmail.com"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -137,15 +137,15 @@ func TestAccProjectIamMember_remove(t *testing.T) {
 func TestAccProjectIamMember_withCondition(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	resourceName := "google_project_iam_member.acceptance"
 	role := "roles/compute.instanceAdmin"
 	member := "user:admin@hashicorptest.com"
 	conditionTitle := "expires_after_2019_12_31"
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -171,13 +171,13 @@ func TestAccProjectIamMember_withCondition(t *testing.T) {
 func TestAccProjectIamMember_invalidMembers(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	pid := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/compute.instanceAdmin"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccProjectAssociateMemberBasic(pid, pname, org, role, "admin@hashicorptest.com"),

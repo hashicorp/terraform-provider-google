@@ -13,10 +13,10 @@ import (
 // can exist, they need to be run serially. See AccessPolicy for the test runner.
 
 func testAccAccessContextManagerAccessLevelCondition_basicTest(t *testing.T) {
-	org := getTestOrgFromEnv(t)
-	project := getTestProjectFromEnv()
+	org := GetTestOrgFromEnv(t)
+	project := GetTestProjectFromEnv()
 
-	serviceAccountName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	serviceAccountName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	expected := map[string]interface{}{
 		"ipSubnetworks": []interface{}{"192.0.4.0/24"},
@@ -32,9 +32,9 @@ func testAccAccessContextManagerAccessLevelCondition_basicTest(t *testing.T) {
 		"regions": []interface{}{"IT", "US"},
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckAccessContextManagerAccessLevelConditionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -52,7 +52,7 @@ func testAccCheckAccessContextManagerAccessLevelConditionPresent(t *testing.T, n
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{access_level}}")
 		if err != nil {
 			return err
@@ -79,7 +79,7 @@ func testAccCheckAccessContextManagerAccessLevelConditionDestroyProducer(t *test
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{access_level}}")
 			if err != nil {

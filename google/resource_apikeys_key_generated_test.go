@@ -30,14 +30,14 @@ func TestAccApikeysKey_AndroidKey(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
-		"org_id":        getTestOrgFromEnv(t),
-		"random_suffix": randString(t, 10),
+		"billing_acct":  GetTestBillingAccountFromEnv(t),
+		"org_id":        GetTestOrgFromEnv(t),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckApikeysKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -63,14 +63,14 @@ func TestAccApikeysKey_BasicKey(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
-		"org_id":        getTestOrgFromEnv(t),
-		"random_suffix": randString(t, 10),
+		"billing_acct":  GetTestBillingAccountFromEnv(t),
+		"org_id":        GetTestOrgFromEnv(t),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckApikeysKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -96,14 +96,14 @@ func TestAccApikeysKey_IosKey(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
-		"org_id":        getTestOrgFromEnv(t),
-		"random_suffix": randString(t, 10),
+		"billing_acct":  GetTestBillingAccountFromEnv(t),
+		"org_id":        GetTestOrgFromEnv(t),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckApikeysKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -129,14 +129,14 @@ func TestAccApikeysKey_MinimalKey(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
-		"org_id":        getTestOrgFromEnv(t),
-		"random_suffix": randString(t, 10),
+		"billing_acct":  GetTestBillingAccountFromEnv(t),
+		"org_id":        GetTestOrgFromEnv(t),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckApikeysKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -154,14 +154,14 @@ func TestAccApikeysKey_ServerKey(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  getTestBillingAccountFromEnv(t),
-		"org_id":        getTestOrgFromEnv(t),
-		"random_suffix": randString(t, 10),
+		"billing_acct":  GetTestBillingAccountFromEnv(t),
+		"org_id":        GetTestOrgFromEnv(t),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckApikeysKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -450,7 +450,7 @@ func testAccCheckApikeysKeyDestroyProducer(t *testing.T) func(s *terraform.State
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			billingProject := ""
 			if config.BillingProject != "" {

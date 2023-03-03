@@ -10,14 +10,14 @@ func TestAccDataSourceAccessApprovalOrganizationServiceAccount_basic(t *testing.
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id": getTestOrgFromEnv(t),
+		"org_id": GetTestOrgFromEnv(t),
 	}
 
 	resourceName := "data.google_access_approval_organization_service_account.aa_account"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceAccessApprovalOrganizationServiceAccount_basic(context),

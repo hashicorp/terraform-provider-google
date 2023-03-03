@@ -12,11 +12,11 @@ import (
 // can exist, they need to be run serially. See AccessPolicy for the test runner.
 
 func testAccAccessContextManagerAccessLevel_basicTest(t *testing.T) {
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -40,11 +40,11 @@ func testAccAccessContextManagerAccessLevel_basicTest(t *testing.T) {
 }
 
 func testAccAccessContextManagerAccessLevel_fullTest(t *testing.T) {
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -66,7 +66,7 @@ func testAccCheckAccessContextManagerAccessLevelDestroyProducer(t *testing.T) fu
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{name}}")
 			if err != nil {
@@ -84,11 +84,11 @@ func testAccCheckAccessContextManagerAccessLevelDestroyProducer(t *testing.T) fu
 }
 
 func testAccAccessContextManagerAccessLevel_customTest(t *testing.T) {
-	org := getTestOrgFromEnv(t)
+	org := GetTestOrgFromEnv(t)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

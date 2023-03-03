@@ -102,9 +102,9 @@ func TestUrlData_SignedUrl(t *testing.T) {
 func TestAccStorageSignedUrl_basic(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleSignedUrlConfig,
@@ -118,19 +118,19 @@ func TestAccStorageSignedUrl_basic(t *testing.T) {
 
 func TestAccStorageSignedUrl_accTest(t *testing.T) {
 	// URL includes an expires time
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	bucketName := fmt.Sprintf("tf-test-bucket-%d", randInt(t))
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", RandInt(t))
 
 	headers := map[string]string{
 		"x-goog-test":                    "foo",
 		"x-goog-if-metageneration-match": "1",
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccTestGoogleStorageObjectSignedURL(bucketName),

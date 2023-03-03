@@ -10,17 +10,17 @@ import (
 func TestAccDataprocJobIamBinding(t *testing.T) {
 	t.Parallel()
 
-	cluster := "tf-dataproc-iam-cluster" + randString(t, 10)
-	job := "tf-dataproc-iam-job-" + randString(t, 10)
-	account := "tf-dataproc-iam-" + randString(t, 10)
+	cluster := "tf-dataproc-iam-cluster" + RandString(t, 10)
+	job := "tf-dataproc-iam-job-" + RandString(t, 10)
+	account := "tf-dataproc-iam-" + RandString(t, 10)
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/jobs/%s %s",
-		getTestProjectFromEnv(), "us-central1", job, role)
+		GetTestProjectFromEnv(), "us-central1", job, role)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
@@ -49,21 +49,21 @@ func TestAccDataprocJobIamBinding(t *testing.T) {
 func TestAccDataprocJobIamMember(t *testing.T) {
 	t.Parallel()
 
-	cluster := "tf-dataproc-iam-cluster" + randString(t, 10)
-	job := "tf-dataproc-iam-jobid-" + randString(t, 10)
-	account := "tf-dataproc-iam-" + randString(t, 10)
+	cluster := "tf-dataproc-iam-cluster" + RandString(t, 10)
+	job := "tf-dataproc-iam-jobid-" + RandString(t, 10)
+	account := "tf-dataproc-iam-" + RandString(t, 10)
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/jobs/%s %s serviceAccount:%s",
-		getTestProjectFromEnv(),
+		GetTestProjectFromEnv(),
 		"us-central1",
 		job,
 		role,
 		serviceAccountCanonicalEmail(account))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
@@ -82,17 +82,17 @@ func TestAccDataprocJobIamMember(t *testing.T) {
 func TestAccDataprocJobIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	cluster := "tf-dataproc-iam-cluster" + randString(t, 10)
-	job := "tf-dataproc-iam-jobid-" + randString(t, 10)
-	account := "tf-dataproc-iam-" + randString(t, 10)
+	cluster := "tf-dataproc-iam-cluster" + RandString(t, 10)
+	job := "tf-dataproc-iam-jobid-" + RandString(t, 10)
+	account := "tf-dataproc-iam-" + RandString(t, 10)
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/jobs/%s",
-		getTestProjectFromEnv(), "us-central1", job)
+		GetTestProjectFromEnv(), "us-central1", job)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation

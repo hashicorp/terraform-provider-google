@@ -10,16 +10,16 @@ import (
 func TestAccDataprocClusterIamBinding(t *testing.T) {
 	t.Parallel()
 
-	cluster := "tf-dataproc-iam-" + randString(t, 10)
-	account := "tf-dataproc-iam-" + randString(t, 10)
+	cluster := "tf-dataproc-iam-" + RandString(t, 10)
+	account := "tf-dataproc-iam-" + RandString(t, 10)
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s %s",
-		getTestProjectFromEnv(), "us-central1", cluster, role)
+		GetTestProjectFromEnv(), "us-central1", cluster, role)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
@@ -52,20 +52,20 @@ func TestAccDataprocClusterIamBinding(t *testing.T) {
 func TestAccDataprocClusterIamMember(t *testing.T) {
 	t.Parallel()
 
-	cluster := "tf-dataproc-iam-" + randString(t, 10)
-	account := "tf-dataproc-iam-" + randString(t, 10)
+	cluster := "tf-dataproc-iam-" + RandString(t, 10)
+	account := "tf-dataproc-iam-" + RandString(t, 10)
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s %s serviceAccount:%s",
-		getTestProjectFromEnv(),
+		GetTestProjectFromEnv(),
 		"us-central1",
 		cluster,
 		role,
 		serviceAccountCanonicalEmail(account))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
@@ -90,16 +90,16 @@ func TestAccDataprocClusterIamMember(t *testing.T) {
 func TestAccDataprocClusterIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	cluster := "tf-dataproc-iam-" + randString(t, 10)
-	account := "tf-dataproc-iam-" + randString(t, 10)
+	cluster := "tf-dataproc-iam-" + RandString(t, 10)
+	account := "tf-dataproc-iam-" + RandString(t, 10)
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s",
-		getTestProjectFromEnv(), "us-central1", cluster)
+		GetTestProjectFromEnv(), "us-central1", cluster)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation

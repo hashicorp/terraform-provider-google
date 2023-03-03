@@ -21,7 +21,7 @@ func testSweepCertificateAuthority(region string) error {
 	resourceName := "CertificateAuthority"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := sharedConfigForRegion(region)
+	config, err := SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -90,7 +90,7 @@ func testSweepCertificateAuthority(region string) error {
 			// Increment count and skip if resource is not sweepable.
 			nameParts := strings.Split(caName, "/")
 			id := nameParts[len(nameParts)-1]
-			if !isSweepableTestResource(id) {
+			if !IsSweepableTestResource(id) {
 				nonPrefixCount++
 				continue
 			}

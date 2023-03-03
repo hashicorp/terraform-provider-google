@@ -66,13 +66,13 @@ func TestAccCloudRunDomainMapping_foregroundDeletion(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"namespace":     getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+		"namespace":     GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudRunDomainMappingDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

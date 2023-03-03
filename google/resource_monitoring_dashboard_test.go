@@ -12,9 +12,9 @@ import (
 func TestAccMonitoringDashboard_basic(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckMonitoringDashboardDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -39,9 +39,9 @@ func TestAccMonitoringDashboard_gridLayout(t *testing.T) {
 	t.Skip()
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckMonitoringDashboardDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -60,9 +60,9 @@ func TestAccMonitoringDashboard_gridLayout(t *testing.T) {
 func TestAccMonitoringDashboard_rowLayout(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckMonitoringDashboardDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -83,9 +83,9 @@ func TestAccMonitoringDashboard_update(t *testing.T) {
 	t.Skip()
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckMonitoringDashboardDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -129,7 +129,7 @@ func testAccCheckMonitoringDashboardDestroyProducer(t *testing.T) func(s *terraf
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{MonitoringBasePath}}v1/{{name}}")
 			if err != nil {

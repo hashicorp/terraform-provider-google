@@ -13,15 +13,15 @@ import (
 
 func testAccAccessContextManagerServicePerimeterResource_basicTest(t *testing.T) {
 	// Multiple fine-grained resources
-	skipIfVcr(t)
-	org := getTestOrgFromEnv(t)
+	SkipIfVcr(t)
+	org := GetTestOrgFromEnv(t)
 	projects := BootstrapServicePerimeterProjects(t, 2)
 	policyTitle := "my policy"
 	perimeterTitle := "perimeter"
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessContextManagerServicePerimeterResource_basic(org, policyTitle, perimeterTitle, projects[0].ProjectNumber, projects[1].ProjectNumber),
@@ -52,7 +52,7 @@ func testAccCheckAccessContextManagerServicePerimeterResourceDestroyProducer(t *
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
 			if err != nil {

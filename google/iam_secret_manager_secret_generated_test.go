@@ -25,20 +25,20 @@ func TestAccSecretManagerSecretIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/secretmanager.secretAccessor",
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSecretManagerSecretIamBinding_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor", getTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor", GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -48,7 +48,7 @@ func TestAccSecretManagerSecretIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor", getTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor", GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -60,13 +60,13 @@ func TestAccSecretManagerSecretIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/secretmanager.secretAccessor",
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -74,7 +74,7 @@ func TestAccSecretManagerSecretIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor user:admin@hashicorptest.com", getTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s roles/secretmanager.secretAccessor user:admin@hashicorptest.com", GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -86,20 +86,20 @@ func TestAccSecretManagerSecretIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/secretmanager.secretAccessor",
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSecretManagerSecretIamPolicy_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s", getTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s", GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -108,7 +108,7 @@ func TestAccSecretManagerSecretIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_secret_manager_secret_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s", getTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/secrets/%s", GetTestProjectFromEnv(), fmt.Sprintf("secret%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

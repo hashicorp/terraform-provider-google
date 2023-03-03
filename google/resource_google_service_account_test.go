@@ -12,17 +12,17 @@ import (
 func TestAccServiceAccount_basic(t *testing.T) {
 	t.Parallel()
 
-	accountId := "a" + randString(t, 10)
+	accountId := "a" + RandString(t, 10)
 	uniqueId := ""
 	displayName := "Terraform Test"
 	displayName2 := "Terraform Test Update"
 	desc := "test description"
 	desc2 := ""
-	project := getTestProjectFromEnv()
+	project := GetTestProjectFromEnv()
 	expectedEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", accountId, project)
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// The first step creates a basic service account
 			{
@@ -89,15 +89,15 @@ func TestAccServiceAccount_basic(t *testing.T) {
 func TestAccServiceAccount_Disabled(t *testing.T) {
 	t.Parallel()
 
-	accountId := "a" + randString(t, 10)
+	accountId := "a" + RandString(t, 10)
 	uniqueId := ""
 	displayName := "Terraform Test"
 	desc := "test description"
-	project := getTestProjectFromEnv()
+	project := GetTestProjectFromEnv()
 	expectedEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", accountId, project)
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			// The first step creates a basic service account
 			{

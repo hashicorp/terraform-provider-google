@@ -10,13 +10,13 @@ import (
 func TestAccComputeProjectDefaultNetworkTier_basic(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	billingId := getTestBillingAccountFromEnv(t)
-	projectID := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	billingId := GetTestBillingAccountFromEnv(t)
+	projectID := fmt.Sprintf("tf-test-%d", RandInt(t))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeProject_defaultNetworkTier_premium(projectID, pname, org, billingId),
@@ -33,13 +33,13 @@ func TestAccComputeProjectDefaultNetworkTier_basic(t *testing.T) {
 func TestAccComputeProjectDefaultNetworkTier_modify(t *testing.T) {
 	t.Parallel()
 
-	org := getTestOrgFromEnv(t)
-	billingId := getTestBillingAccountFromEnv(t)
-	projectID := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	billingId := GetTestBillingAccountFromEnv(t)
+	projectID := fmt.Sprintf("tf-test-%d", RandInt(t))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeProject_defaultNetworkTier_premium(projectID, pname, org, billingId),

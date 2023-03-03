@@ -44,18 +44,18 @@ func TestAccOrganizationIamMembersAndBindings(t *testing.T) {
 }
 
 func testAccOrganizationIamBinding_basic(t *testing.T) {
-	org := getTestOrgFromEnv(t)
-	account := fmt.Sprintf("tf-test-%d", randInt(t))
-	roleId := "tfIamTest" + randString(t, 10)
-	vcrTest(t, resource.TestCase{
+	org := GetTestOrgFromEnv(t)
+	account := fmt.Sprintf("tf-test-%d", RandInt(t))
+	roleId := "tfIamTest" + RandString(t, 10)
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
 				Config: testAccOrganizationIamBinding_basicConfig(account, roleId, org),
 				Check: testAccCheckGoogleOrganizationIamBindingExists(t, "foo", "test-role", []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
 				}),
 			},
 			{
@@ -68,8 +68,8 @@ func testAccOrganizationIamBinding_basic(t *testing.T) {
 				// Test Iam Binding update
 				Config: testAccOrganizationIamBinding_update(account, roleId, org),
 				Check: testAccCheckGoogleOrganizationIamBindingExists(t, "foo", "test-role", []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
-					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
 				}),
 			},
 			{
@@ -83,19 +83,19 @@ func testAccOrganizationIamBinding_basic(t *testing.T) {
 }
 
 func testAccOrganizationIamBinding_condition(t *testing.T) {
-	org := getTestOrgFromEnv(t)
-	account := fmt.Sprintf("tf-test-%d", randInt(t))
-	roleId := "tfIamTest" + randString(t, 10)
+	org := GetTestOrgFromEnv(t)
+	account := fmt.Sprintf("tf-test-%d", RandInt(t))
+	roleId := "tfIamTest" + RandString(t, 10)
 	conditionTitle := "expires_after_2019_12_31"
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
 				Config: testAccOrganizationIamBinding_conditionConfig(account, roleId, org, conditionTitle),
 				Check: testAccCheckGoogleOrganizationIamBindingExists(t, "foo", "test-role", []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
 				}),
 			},
 			{
@@ -109,22 +109,22 @@ func testAccOrganizationIamBinding_condition(t *testing.T) {
 }
 
 func testAccOrganizationIamMember_basic(t *testing.T) {
-	org := getTestOrgFromEnv(t)
-	account := fmt.Sprintf("tf-test-%d", randInt(t))
-	vcrTest(t, resource.TestCase{
+	org := GetTestOrgFromEnv(t)
+	account := fmt.Sprintf("tf-test-%d", RandInt(t))
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccOrganizationIamMember_basicConfig(account, org),
 				Check: testAccCheckGoogleOrganizationIamMemberExists(t, "foo", "roles/browser",
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
 				),
 			},
 			{
 				ResourceName:      "google_organization_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("%s roles/browser serviceAccount:%s@%s.iam.gserviceaccount.com", org, account, getTestProjectFromEnv()),
+				ImportStateId:     fmt.Sprintf("%s roles/browser serviceAccount:%s@%s.iam.gserviceaccount.com", org, account, GetTestProjectFromEnv()),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -133,18 +133,18 @@ func testAccOrganizationIamMember_basic(t *testing.T) {
 }
 
 func testAccOrganizationIamMember_condition(t *testing.T) {
-	org := getTestOrgFromEnv(t)
-	account := fmt.Sprintf("tf-test-%d", randInt(t))
+	org := GetTestOrgFromEnv(t)
+	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	conditionTitle := "expires_after_2019_12_31"
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccOrganizationIamMember_conditionConfig(account, org, conditionTitle),
 				Check: testAccCheckGoogleOrganizationIamMemberExists(t, "foo", "roles/browser",
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
 				),
 			},
 			{
@@ -153,7 +153,7 @@ func testAccOrganizationIamMember_condition(t *testing.T) {
 					"%s roles/browser serviceAccount:%s@%s.iam.gserviceaccount.com %s",
 					org,
 					account,
-					getTestProjectFromEnv(),
+					GetTestProjectFromEnv(),
 					conditionTitle,
 				),
 				ImportState:       true,
@@ -175,7 +175,7 @@ func testAccCheckGoogleOrganizationIamBindingExists(t *testing.T, bindingResourc
 			return fmt.Errorf("Not found: %s", roleResourceName)
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		p, err := config.NewResourceManagerClient(config.UserAgent).Organizations.GetIamPolicy(
 			"organizations/"+bindingRs.Primary.Attributes["org_id"],
 			&cloudresourcemanager.GetIamPolicyRequest{
@@ -212,7 +212,7 @@ func testAccCheckGoogleOrganizationIamMemberExists(t *testing.T, n, role, member
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		p, err := config.NewResourceManagerClient(config.UserAgent).Organizations.GetIamPolicy(
 			"organizations/"+rs.Primary.Attributes["org_id"],
 			&cloudresourcemanager.GetIamPolicyRequest{

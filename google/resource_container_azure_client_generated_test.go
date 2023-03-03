@@ -32,13 +32,13 @@ func TestAccContainerAzureClient_BasicHandWritten(t *testing.T) {
 	context := map[string]interface{}{
 		"azure_app":     "00000000-0000-0000-0000-17aad2f0f61f",
 		"azure_tenant":  "00000000-0000-0000-0000-17aad2f0f61f",
-		"project_name":  getTestProjectFromEnv(),
-		"random_suffix": randString(t, 10),
+		"project_name":  GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckContainerAzureClientDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -76,7 +76,7 @@ func testAccCheckContainerAzureClientDestroyProducer(t *testing.T) func(s *terra
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			billingProject := ""
 			if config.BillingProject != "" {

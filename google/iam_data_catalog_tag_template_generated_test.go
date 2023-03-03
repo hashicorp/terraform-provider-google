@@ -25,21 +25,21 @@ func TestAccDataCatalogTagTemplateIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
 		"force_delete":  true,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogTagTemplateIamBinding_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_data_catalog_tag_template_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s roles/viewer", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf_test_my_template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf_test_my_template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -49,7 +49,7 @@ func TestAccDataCatalogTagTemplateIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_catalog_tag_template_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s roles/viewer", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf_test_my_template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf_test_my_template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -61,14 +61,14 @@ func TestAccDataCatalogTagTemplateIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
 		"force_delete":  true,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -76,7 +76,7 @@ func TestAccDataCatalogTagTemplateIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_catalog_tag_template_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s roles/viewer user:admin@hashicorptest.com", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf_test_my_template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s roles/viewer user:admin@hashicorptest.com", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf_test_my_template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -88,21 +88,21 @@ func TestAccDataCatalogTagTemplateIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
 		"force_delete":  true,
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogTagTemplateIamPolicy_basicGenerated(context),
 			},
 			{
 				ResourceName:      "google_data_catalog_tag_template_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf_test_my_template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf_test_my_template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -111,7 +111,7 @@ func TestAccDataCatalogTagTemplateIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_catalog_tag_template_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s", getTestProjectFromEnv(), getTestRegionFromEnv(), fmt.Sprintf("tf_test_my_template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/tagTemplates/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf_test_my_template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

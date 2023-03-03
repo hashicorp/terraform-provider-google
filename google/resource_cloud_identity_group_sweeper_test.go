@@ -22,7 +22,7 @@ func testSweepCloudIdentityGroup(region string) error {
 	resourceName := "CloudIdentityGroup"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := sharedConfigForRegion(region)
+	config, err := SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -35,7 +35,7 @@ func testSweepCloudIdentityGroup(region string) error {
 	}
 
 	t := &testing.T{}
-	custId := getTestCustIdFromEnv(t)
+	custId := GetTestCustIdFromEnv(t)
 
 	// Setup variables to replace in list template
 	d := &ResourceDataMock{
@@ -81,7 +81,7 @@ func testSweepCloudIdentityGroup(region string) error {
 
 		name := obj["name"].(string)
 		// Skip resources that shouldn't be sweeped
-		if !isSweepableTestResource(obj["displayName"].(string)) {
+		if !IsSweepableTestResource(obj["displayName"].(string)) {
 			nonPrefixCount++
 			continue
 		}

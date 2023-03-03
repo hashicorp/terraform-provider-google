@@ -11,15 +11,15 @@ import (
 func TestAccComputeTargetHttpProxy_update(t *testing.T) {
 	t.Parallel()
 
-	target := fmt.Sprintf("thttp-test-%s", randString(t, 10))
-	backend := fmt.Sprintf("thttp-test-%s", randString(t, 10))
-	hc := fmt.Sprintf("thttp-test-%s", randString(t, 10))
-	urlmap1 := fmt.Sprintf("thttp-test-%s", randString(t, 10))
-	urlmap2 := fmt.Sprintf("thttp-test-%s", randString(t, 10))
+	target := fmt.Sprintf("thttp-test-%s", RandString(t, 10))
+	backend := fmt.Sprintf("thttp-test-%s", RandString(t, 10))
+	hc := fmt.Sprintf("thttp-test-%s", RandString(t, 10))
+	urlmap1 := fmt.Sprintf("thttp-test-%s", RandString(t, 10))
+	urlmap2 := fmt.Sprintf("thttp-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeTargetHttpProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -52,7 +52,7 @@ func testAccCheckComputeTargetHttpProxyExists(t *testing.T, n string) resource.T
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		name := rs.Primary.Attributes["name"]
 
 		found, err := config.NewComputeClient(config.UserAgent).TargetHttpProxies.Get(

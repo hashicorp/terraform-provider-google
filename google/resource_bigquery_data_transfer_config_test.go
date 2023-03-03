@@ -174,15 +174,15 @@ func TestAccBigqueryDataTransferConfig(t *testing.T) {
 
 func testAccBigqueryDataTransferConfig_scheduledQuery_basic(t *testing.T) {
 	// Uses time.Now
-	skipIfVcr(t)
-	random_suffix := randString(t, 10)
+	SkipIfVcr(t)
+	random_suffix := RandString(t, 10)
 	now := time.Now().UTC()
 	start_time := now.Add(1 * time.Hour).Format(time.RFC3339)
 	end_time := now.AddDate(0, 1, 0).Format(time.RFC3339)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -200,18 +200,18 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_basic(t *testing.T) {
 
 func testAccBigqueryDataTransferConfig_scheduledQuery_update(t *testing.T) {
 	// Uses time.Now
-	skipIfVcr(t)
-	random_suffix := randString(t, 10)
+	SkipIfVcr(t)
+	random_suffix := RandString(t, 10)
 	now := time.Now().UTC()
 	first_start_time := now.Add(1 * time.Hour).Format(time.RFC3339)
 	first_end_time := now.AddDate(0, 1, 0).Format(time.RFC3339)
 	second_start_time := now.Add(2 * time.Hour).Format(time.RFC3339)
 	second_end_time := now.AddDate(0, 2, 0).Format(time.RFC3339)
-	random_suffix2 := randString(t, 10)
+	random_suffix2 := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -241,15 +241,15 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_update(t *testing.T) {
 
 func testAccBigqueryDataTransferConfig_scheduledQuery_no_destination(t *testing.T) {
 	// Uses time.Now
-	skipIfVcr(t)
-	random_suffix := randString(t, 10)
+	SkipIfVcr(t)
+	random_suffix := RandString(t, 10)
 	now := time.Now().UTC()
 	start_time := now.Add(1 * time.Hour).Format(time.RFC3339)
 	end_time := now.AddDate(0, 1, 0).Format(time.RFC3339)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -266,11 +266,11 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_no_destination(t *testing.
 }
 
 func testAccBigqueryDataTransferConfig_scheduledQuery_with_service_account(t *testing.T) {
-	random_suffix := randString(t, 10)
+	random_suffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -287,11 +287,11 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_with_service_account(t *te
 }
 
 func testAccBigqueryDataTransferConfig_copy_booleanParam(t *testing.T) {
-	random_suffix := randString(t, 10)
+	random_suffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -308,11 +308,11 @@ func testAccBigqueryDataTransferConfig_copy_booleanParam(t *testing.T) {
 }
 
 func testAccBigqueryDataTransferConfig_force_new_update_params(t *testing.T) {
-	random_suffix := randString(t, 10)
+	random_suffix := RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -356,7 +356,7 @@ func testAccCheckBigqueryDataTransferConfigDestroyProducer(t *testing.T) func(s 
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{BigqueryDataTransferBasePath}}{{name}}")
 			if err != nil {

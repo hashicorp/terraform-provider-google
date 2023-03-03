@@ -13,14 +13,14 @@ func TestAccDataprocWorkflowTemplate_basic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"project":       getTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+		"project":       GetTestProjectFromEnv(),
 		"version":       "2.0.35-debian10",
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: funcAccTestDataprocWorkflowTemplateCheckDestroy(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
@@ -42,14 +42,14 @@ func TestAccDataprocWorkflowTemplate_withShieldedVMs(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": randString(t, 10),
-		"project":       getTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+		"project":       GetTestProjectFromEnv(),
 		"version":       "2.0.35-debian10",
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: funcAccTestDataprocWorkflowTemplateCheckDestroy(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
@@ -194,7 +194,7 @@ func funcAccTestDataprocWorkflowTemplateCheckDestroy(t *testing.T) func(s *terra
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{DataprocBasePath}}projects/{{project}}/locations/{{location}}/workflowTemplates/{{name}}")
 			if err != nil {

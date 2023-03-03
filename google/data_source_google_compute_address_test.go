@@ -72,16 +72,16 @@ func TestComputeAddressIdParsing(t *testing.T) {
 func TestAccDataSourceComputeAddress(t *testing.T) {
 	t.Parallel()
 
-	addressName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	addressName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	rsName := "foobar"
 	rsFullName := fmt.Sprintf("google_compute_address.%s", rsName)
 	dsName := "my_address"
 	dsFullName := fmt.Sprintf("data.google_compute_address.%s", dsName)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckDataSourceComputeAddressDestroy(t, rsFullName),
 		Steps: []resource.TestStep{
 			{
@@ -148,7 +148,7 @@ func testAccCheckDataSourceComputeAddressDestroy(t *testing.T, name string) reso
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			addressId, err := parseComputeAddressId(rs.Primary.ID, nil)
 			if err != nil {

@@ -31,13 +31,13 @@ func TestAccLoggingBillingAccountExclusion(t *testing.T) {
 }
 
 func testAccLoggingBillingAccountExclusion_basic(t *testing.T) {
-	billingAccount := getTestMasterBillingAccountFromEnv(t)
-	exclusionName := "tf-test-exclusion-" + randString(t, 10)
-	description := "Description " + randString(t, 10)
+	billingAccount := GetTestMasterBillingAccountFromEnv(t)
+	exclusionName := "tf-test-exclusion-" + RandString(t, 10)
+	description := "Description " + RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckLoggingBillingAccountExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -53,14 +53,14 @@ func testAccLoggingBillingAccountExclusion_basic(t *testing.T) {
 }
 
 func testAccLoggingBillingAccountExclusion_update(t *testing.T) {
-	billingAccount := getTestMasterBillingAccountFromEnv(t)
-	exclusionName := "tf-test-exclusion-" + randString(t, 10)
-	descriptionBefore := "Basic BillingAccount Logging Exclusion" + randString(t, 10)
-	descriptionAfter := "Updated Basic BillingAccount Logging Exclusion" + randString(t, 10)
+	billingAccount := GetTestMasterBillingAccountFromEnv(t)
+	exclusionName := "tf-test-exclusion-" + RandString(t, 10)
+	descriptionBefore := "Basic BillingAccount Logging Exclusion" + RandString(t, 10)
+	descriptionAfter := "Updated Basic BillingAccount Logging Exclusion" + RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckLoggingBillingAccountExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -84,15 +84,15 @@ func testAccLoggingBillingAccountExclusion_update(t *testing.T) {
 }
 
 func testAccLoggingBillingAccountExclusion_multiple(t *testing.T) {
-	billingAccount := getTestMasterBillingAccountFromEnv(t)
+	billingAccount := GetTestMasterBillingAccountFromEnv(t)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckLoggingBillingAccountExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingBillingAccountExclusion_multipleCfg("tf-test-exclusion-"+randString(t, 10), billingAccount),
+				Config: testAccLoggingBillingAccountExclusion_multipleCfg("tf-test-exclusion-"+RandString(t, 10), billingAccount),
 			},
 			{
 				ResourceName:      "google_logging_billing_account_exclusion.basic0",
@@ -115,7 +115,7 @@ func testAccLoggingBillingAccountExclusion_multiple(t *testing.T) {
 
 func testAccCheckLoggingBillingAccountExclusionDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_logging_billing_account_exclusion" {
@@ -142,7 +142,7 @@ resource "google_logging_billing_account_exclusion" "basic" {
   description     = "%s"
   filter          = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
-`, exclusionName, billingAccount, description, getTestProjectFromEnv())
+`, exclusionName, billingAccount, description, GetTestProjectFromEnv())
 }
 
 func testAccLoggingBillingAccountExclusion_multipleCfg(exclusionName, billingAccount string) string {
@@ -155,7 +155,7 @@ resource "google_logging_billing_account_exclusion" "basic%d" {
 	description      = "Basic BillingAccount Logging Exclusion"
 	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
-`, i, exclusionName, i, billingAccount, getTestProjectFromEnv())
+`, i, exclusionName, i, billingAccount, GetTestProjectFromEnv())
 	}
 	return s
 }

@@ -9,12 +9,12 @@ import (
 )
 
 func TestAccDataSourceGoogleBillingAccount_byFullName(t *testing.T) {
-	billingId := getTestMasterBillingAccountFromEnv(t)
+	billingId := GetTestMasterBillingAccountFromEnv(t)
 	name := "billingAccounts/" + billingId
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleBillingAccount_byName(name),
@@ -29,12 +29,12 @@ func TestAccDataSourceGoogleBillingAccount_byFullName(t *testing.T) {
 }
 
 func TestAccDataSourceGoogleBillingAccount_byShortName(t *testing.T) {
-	billingId := getTestMasterBillingAccountFromEnv(t)
+	billingId := GetTestMasterBillingAccountFromEnv(t)
 	name := "billingAccounts/" + billingId
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleBillingAccount_byName(billingId),
@@ -49,12 +49,12 @@ func TestAccDataSourceGoogleBillingAccount_byShortName(t *testing.T) {
 }
 
 func TestAccDataSourceGoogleBillingAccount_byFullNameClosed(t *testing.T) {
-	billingId := getTestMasterBillingAccountFromEnv(t)
+	billingId := GetTestMasterBillingAccountFromEnv(t)
 	name := "billingAccounts/" + billingId
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccCheckGoogleBillingAccount_byNameClosed(name),
@@ -65,11 +65,11 @@ func TestAccDataSourceGoogleBillingAccount_byFullNameClosed(t *testing.T) {
 }
 
 func TestAccDataSourceGoogleBillingAccount_byDisplayName(t *testing.T) {
-	name := randString(t, 16)
+	name := RandString(t, 16)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccCheckGoogleBillingAccount_byDisplayName(name),

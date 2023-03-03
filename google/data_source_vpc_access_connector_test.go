@@ -10,12 +10,12 @@ import (
 func TestAccVPCAccessConnectorDatasource_basic(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVPCAccessConnectorDatasourceConfig(randString(t, 10)),
+				Config: testAccVPCAccessConnectorDatasourceConfig(RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					checkDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_vpc_access_connector.connector",

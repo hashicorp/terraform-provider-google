@@ -29,7 +29,7 @@ func getTestOccurrenceAttestationPayload(t *testing.T) string {
 
 func getSignedTestOccurrenceAttestationPayload(
 	t *testing.T, config *Config,
-	signingKey bootstrappedKMS, rawPayload string) string {
+	signingKey BootstrappedKMS, rawPayload string) string {
 	pbytes := []byte(rawPayload)
 	ssum := sha512.Sum512(pbytes)
 	hashed := base64.StdEncoding.EncodeToString(ssum[:])
@@ -50,7 +50,7 @@ func getSignedTestOccurrenceAttestationPayload(
 
 func TestAccContainerAnalysisOccurrence_basic(t *testing.T) {
 	t.Parallel()
-	randSuffix := randString(t, 10)
+	randSuffix := RandString(t, 10)
 
 	config := BootstrapConfig(t)
 	if config == nil {
@@ -69,9 +69,9 @@ func TestAccContainerAnalysisOccurrence_basic(t *testing.T) {
 		"signature":     base64.StdEncoding.EncodeToString([]byte(signed)),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckContainerAnalysisNoteDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -88,7 +88,7 @@ func TestAccContainerAnalysisOccurrence_basic(t *testing.T) {
 
 func TestAccContainerAnalysisOccurrence_multipleSignatures(t *testing.T) {
 	t.Parallel()
-	randSuffix := randString(t, 10)
+	randSuffix := RandString(t, 10)
 
 	config := BootstrapConfig(t)
 	if config == nil {
@@ -121,9 +121,9 @@ func TestAccContainerAnalysisOccurrence_multipleSignatures(t *testing.T) {
 		"signature":     base64.StdEncoding.EncodeToString([]byte(signature1)),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckContainerAnalysisNoteDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

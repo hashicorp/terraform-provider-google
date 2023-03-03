@@ -14,11 +14,11 @@ func TestAccComputeSslPolicy_update(t *testing.T) {
 	t.Parallel()
 
 	var sslPolicy compute.SslPolicy
-	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", randString(t, 10))
+	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeSslPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -61,11 +61,11 @@ func TestAccComputeSslPolicy_update_to_custom(t *testing.T) {
 	t.Parallel()
 
 	var sslPolicy compute.SslPolicy
-	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", randString(t, 10))
+	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeSslPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -108,11 +108,11 @@ func TestAccComputeSslPolicy_update_from_custom(t *testing.T) {
 	t.Parallel()
 
 	var sslPolicy compute.SslPolicy
-	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", randString(t, 10))
+	sslPolicyName := fmt.Sprintf("test-ssl-policy-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeSslPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -162,9 +162,9 @@ func testAccCheckComputeSslPolicyExists(t *testing.T, n string, sslPolicy *compu
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 
-		project, err := getTestProject(rs.Primary, config)
+		project, err := GetTestProject(rs.Primary, config)
 		if err != nil {
 			return err
 		}

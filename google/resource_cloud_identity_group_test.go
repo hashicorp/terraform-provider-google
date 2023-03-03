@@ -41,14 +41,14 @@ func TestAccCloudIdentityGroup(t *testing.T) {
 
 func testAccCloudIdentityGroup_updateTest(t *testing.T) {
 	context := map[string]interface{}{
-		"org_domain":    getTestOrgDomainFromEnv(t),
-		"cust_id":       getTestCustIdFromEnv(t),
-		"random_suffix": randString(t, 10),
+		"org_domain":    GetTestOrgDomainFromEnv(t),
+		"cust_id":       GetTestCustIdFromEnv(t),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudIdentityGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -83,14 +83,14 @@ resource "google_cloud_identity_group" "cloud_identity_group_basic" {
 
 func testAccCloudIdentityGroup_cloudIdentityGroupsBasicExampleTest(t *testing.T) {
 	context := map[string]interface{}{
-		"org_domain":    getTestOrgDomainFromEnv(t),
-		"cust_id":       getTestCustIdFromEnv(t),
-		"random_suffix": randString(t, 10),
+		"org_domain":    GetTestOrgDomainFromEnv(t),
+		"cust_id":       GetTestCustIdFromEnv(t),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckCloudIdentityGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -135,7 +135,7 @@ func testAccCheckCloudIdentityGroupDestroyProducer(t *testing.T) func(s *terrafo
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{CloudIdentityBasePath}}{{name}}")
 			if err != nil {

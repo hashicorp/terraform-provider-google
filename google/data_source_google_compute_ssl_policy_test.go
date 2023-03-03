@@ -11,12 +11,12 @@ import (
 func TestAccDataSourceGoogleSslPolicy(t *testing.T) {
 	t.Parallel()
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceGoogleSslPolicy(fmt.Sprintf("test-ssl-policy-%d", randInt(t))),
+				Config: testAccDataSourceGoogleSslPolicy(fmt.Sprintf("test-ssl-policy-%d", RandInt(t))),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleSslPolicyCheck("data.google_compute_ssl_policy.ssl_policy", "google_compute_ssl_policy.foobar"),
 				),

@@ -27,14 +27,14 @@ func TestAccApigeeEnvReferences_apigeeEnvironmentReferenceTestExample(t *testing
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":          getTestOrgFromEnv(t),
-		"billing_account": getTestBillingAccountFromEnv(t),
-		"random_suffix":   randString(t, 10),
+		"org_id":          GetTestOrgFromEnv(t),
+		"billing_account": GetTestBillingAccountFromEnv(t),
+		"random_suffix":   RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckApigeeEnvReferencesDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -139,7 +139,7 @@ func testAccCheckApigeeEnvReferencesDestroyProducer(t *testing.T) func(s *terraf
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{ApigeeBasePath}}{{env_id}}/references/{{name}}")
 			if err != nil {

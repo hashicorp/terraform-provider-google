@@ -12,9 +12,9 @@ func TestAccMonitoringMetricDescriptor_update(t *testing.T) {
 	t.Skip()
 
 	t.Parallel()
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckMonitoringMetricDescriptorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

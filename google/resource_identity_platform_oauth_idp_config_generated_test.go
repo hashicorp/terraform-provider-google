@@ -27,13 +27,13 @@ func TestAccIdentityPlatformOauthIdpConfig_identityPlatformOauthIdpConfigBasicEx
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"name":          "oidc.oauth-idp-config-" + randString(t, 10),
-		"random_suffix": randString(t, 10),
+		"name":          "oidc.oauth-idp-config-" + RandString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckIdentityPlatformOauthIdpConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -71,7 +71,7 @@ func testAccCheckIdentityPlatformOauthIdpConfigDestroyProducer(t *testing.T) fun
 				continue
 			}
 
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			url, err := replaceVarsForTest(config, rs, "{{IdentityPlatformBasePath}}projects/{{project}}/oauthIdpConfigs/{{name}}")
 			if err != nil {

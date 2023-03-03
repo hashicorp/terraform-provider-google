@@ -10,11 +10,11 @@ import (
 func TestAccComputeHttpsHealthCheck_update(t *testing.T) {
 	t.Parallel()
 
-	hhckName := fmt.Sprintf("tf-test-%s", randString(t, 10))
+	hhckName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeHttpsHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

@@ -50,12 +50,12 @@ func TestAccSqlDatabase_basic(t *testing.T) {
 	var database sqladmin.Database
 
 	resourceName := "google_sql_database.database"
-	instanceName := fmt.Sprintf("tf-test-%d", randInt(t))
-	dbName := fmt.Sprintf("tf-test-%d", randInt(t))
+	instanceName := fmt.Sprintf("tf-test-%d", RandInt(t))
+	dbName := fmt.Sprintf("tf-test-%d", RandInt(t))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccSqlDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -85,14 +85,14 @@ func TestAccSqlDatabase_basic(t *testing.T) {
 			},
 			{
 				ResourceName:            resourceName,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", getTestProjectFromEnv(), instanceName, dbName),
+				ImportStateId:           fmt.Sprintf("%s/%s/%s", GetTestProjectFromEnv(), instanceName, dbName),
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				ResourceName:            resourceName,
-				ImportStateId:           fmt.Sprintf("projects/%s/instances/%s/databases/%s", getTestProjectFromEnv(), instanceName, dbName),
+				ImportStateId:           fmt.Sprintf("projects/%s/instances/%s/databases/%s", GetTestProjectFromEnv(), instanceName, dbName),
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
@@ -106,12 +106,12 @@ func TestAccSqlDatabase_update(t *testing.T) {
 
 	var database sqladmin.Database
 
-	instance_name := fmt.Sprintf("tf-test-%d", randInt(t))
-	database_name := fmt.Sprintf("tf-test-%d", randInt(t))
+	instance_name := fmt.Sprintf("tf-test-%d", RandInt(t))
+	database_name := fmt.Sprintf("tf-test-%d", RandInt(t))
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccSqlDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -172,7 +172,7 @@ func testAccCheckGoogleSqlDatabaseEquals(n string, database *sqladmin.Database) 
 
 func testAccCheckGoogleSqlDatabaseExists(t *testing.T, n string, database *sqladmin.Database) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
+		config := GoogleProviderConfig(t)
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
 			return fmt.Errorf("Resource not found: %s", n)
@@ -196,7 +196,7 @@ func testAccCheckGoogleSqlDatabaseExists(t *testing.T, n string, database *sqlad
 func testAccSqlDatabaseDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for _, rs := range s.RootModule().Resources {
-			config := googleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 			if rs.Type != "google_sql_database" {
 				continue
 			}

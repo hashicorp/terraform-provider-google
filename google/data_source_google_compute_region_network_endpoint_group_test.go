@@ -9,14 +9,14 @@ import (
 func TestAccDataSourceRegionNetworkEndpointGroup_basic(t *testing.T) {
 	t.Parallel()
 	context := map[string]interface{}{
-		"project":       getTestProjectFromEnv(),
+		"project":       GetTestProjectFromEnv(),
 		"region":        "us-central1",
-		"random_suffix": randString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceRegionNetworkEndpointGroup_basic(context),

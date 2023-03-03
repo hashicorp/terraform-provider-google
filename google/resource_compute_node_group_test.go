@@ -14,13 +14,13 @@ import (
 func TestAccComputeNodeGroup_updateNodeTemplate(t *testing.T) {
 	t.Parallel()
 
-	groupName := fmt.Sprintf("group--%d", randInt(t))
-	tmplPrefix := fmt.Sprintf("tmpl--%d", randInt(t))
+	groupName := fmt.Sprintf("group--%d", RandInt(t))
+	tmplPrefix := fmt.Sprintf("tmpl--%d", RandInt(t))
 
 	var timeCreated time.Time
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckComputeNodeGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

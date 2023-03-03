@@ -13,23 +13,23 @@ import (
 func TestAccPubsubTopicIamBinding(t *testing.T) {
 	t.Parallel()
 
-	topic := "tf-test-topic-iam-" + randString(t, 10)
-	account := "tf-test-topic-iam-" + randString(t, 10)
+	topic := "tf-test-topic-iam-" + RandString(t, 10)
+	account := "tf-test-topic-iam-" + RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
 				Config: testAccPubsubTopicIamBinding_basic(topic, account),
 				Check: testAccCheckPubsubTopicIam(t, topic, "roles/pubsub.publisher", []string{
-					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
 				}),
 			},
 			{
 				ResourceName:      "google_pubsub_topic_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s roles/pubsub.publisher", getComputedTopicName(getTestProjectFromEnv(), topic)),
+				ImportStateId:     fmt.Sprintf("%s roles/pubsub.publisher", getComputedTopicName(GetTestProjectFromEnv(), topic)),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -37,13 +37,13 @@ func TestAccPubsubTopicIamBinding(t *testing.T) {
 				// Test IAM Binding update
 				Config: testAccPubsubTopicIamBinding_update(topic, account),
 				Check: testAccCheckPubsubTopicIam(t, topic, "roles/pubsub.publisher", []string{
-					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
-					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
 				}),
 			},
 			{
 				ResourceName:      "google_pubsub_topic_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s roles/pubsub.publisher", getComputedTopicName(getTestProjectFromEnv(), topic)),
+				ImportStateId:     fmt.Sprintf("%s roles/pubsub.publisher", getComputedTopicName(GetTestProjectFromEnv(), topic)),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -54,18 +54,18 @@ func TestAccPubsubTopicIamBinding(t *testing.T) {
 func TestAccPubsubTopicIamBinding_topicName(t *testing.T) {
 	t.Parallel()
 
-	topic := "tf-test-topic-iam-" + randString(t, 10)
-	account := "tf-test-topic-iam-" + randString(t, 10)
+	topic := "tf-test-topic-iam-" + RandString(t, 10)
+	account := "tf-test-topic-iam-" + RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
 				Config: testAccPubsubTopicIamBinding_topicName(topic, account),
 				Check: testAccCheckPubsubTopicIam(t, topic, "roles/pubsub.publisher", []string{
-					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
 				}),
 			},
 			// No import step- imports want the resource to be defined using the full id as the topic
@@ -76,13 +76,13 @@ func TestAccPubsubTopicIamBinding_topicName(t *testing.T) {
 func TestAccPubsubTopicIamMember(t *testing.T) {
 	t.Parallel()
 
-	topic := "tf-test-topic-iam-" + randString(t, 10)
-	account := "tf-test-topic-iam-" + randString(t, 10)
-	accountEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv())
+	topic := "tf-test-topic-iam-" + RandString(t, 10)
+	account := "tf-test-topic-iam-" + RandString(t, 10)
+	accountEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv())
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -93,7 +93,7 @@ func TestAccPubsubTopicIamMember(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_topic_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("%s roles/pubsub.publisher serviceAccount:%s", getComputedTopicName(getTestProjectFromEnv(), topic), accountEmail),
+				ImportStateId:     fmt.Sprintf("%s roles/pubsub.publisher serviceAccount:%s", getComputedTopicName(GetTestProjectFromEnv(), topic), accountEmail),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -104,28 +104,28 @@ func TestAccPubsubTopicIamMember(t *testing.T) {
 func TestAccPubsubTopicIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	topic := "tf-test-topic-iam-" + randString(t, 10)
-	account := "tf-test-topic-iam-" + randString(t, 10)
+	topic := "tf-test-topic-iam-" + RandString(t, 10)
+	account := "tf-test-topic-iam-" + RandString(t, 10)
 
-	vcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		Providers: TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubTopicIamPolicy_basic(topic, account, "roles/pubsub.publisher"),
 				Check: testAccCheckPubsubTopicIam(t, topic, "roles/pubsub.publisher", []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
 				}),
 			},
 			{
 				Config: testAccPubsubTopicIamPolicy_basic(topic, account, "roles/pubsub.subscriber"),
 				Check: testAccCheckPubsubTopicIam(t, topic, "roles/pubsub.subscriber", []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, getTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
 				}),
 			},
 			{
 				ResourceName:      "google_pubsub_topic_iam_policy.foo",
-				ImportStateId:     getComputedTopicName(getTestProjectFromEnv(), topic),
+				ImportStateId:     getComputedTopicName(GetTestProjectFromEnv(), topic),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -135,8 +135,8 @@ func TestAccPubsubTopicIamPolicy(t *testing.T) {
 
 func testAccCheckPubsubTopicIam(t *testing.T, topic, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := googleProviderConfig(t)
-		p, err := config.NewPubsubClient(config.UserAgent).Projects.Topics.GetIamPolicy(getComputedTopicName(getTestProjectFromEnv(), topic)).Do()
+		config := GoogleProviderConfig(t)
+		p, err := config.NewPubsubClient(config.UserAgent).Projects.Topics.GetIamPolicy(getComputedTopicName(GetTestProjectFromEnv(), topic)).Do()
 		if err != nil {
 			return err
 		}
@@ -177,7 +177,7 @@ resource "google_pubsub_topic_iam_binding" "foo" {
     "serviceAccount:${google_service_account.test-account-1.email}",
   ]
 }
-`, topic, account, getTestProjectFromEnv())
+`, topic, account, GetTestProjectFromEnv())
 }
 
 func testAccPubsubTopicIamBinding_basic(topic, account string) string {
