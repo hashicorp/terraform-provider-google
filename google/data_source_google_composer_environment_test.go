@@ -86,6 +86,9 @@ resource "google_composer_environment" "test" {
 			subnetwork = google_compute_subnetwork.test.self_link
 			zone       = "us-central1-a"
 		}
+		software_config {
+			image_version = "composer-1-airflow-2"
+		}
 	}
 }
 
