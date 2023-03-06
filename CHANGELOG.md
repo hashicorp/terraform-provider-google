@@ -1,6 +1,8 @@
 ## 4.56.0 (Unreleased)
 
 FEATURES:
+* **New Resource:** google_data_catalog_policy_tag ([#13818](https://github.com/hashicorp/terraform-provider-google/pull/13848))
+* **New Resource:** google_data_catalog_taxonomy ([#13818](https://github.com/hashicorp/terraform-provider-google/pull/13848))
 * **New Resource:** google_scc_mute_config ([#13818](https://github.com/hashicorp/terraform-provider-google/pull/13818))
 * **New Resource:** google_workstations_workstation_config ([#13832](https://github.com/hashicorp/terraform-provider-google/pull/13832))
 
@@ -10,7 +12,6 @@ IMPROVEMENTS:
 * compute: added `max_distance` field to `resource-policy` resource ([#13853](https://github.com/hashicorp/terraform-provider-google/pull/13853))
 * compute: added field `deletion_policy` to resource `google_compute_shared_vpc_service_project` ([#13822](https://github.com/hashicorp/terraform-provider-google/pull/13822))
 * containerazure: added `azure_services_authentication` to `google_container_azure_cluster` ([#13854](https://github.com/hashicorp/terraform-provider-google/pull/13854))
-* datacatalog: promoted Taxonomy and PolicyTag to ga ([#13848](https://github.com/hashicorp/terraform-provider-google/pull/13848))
 * networkservices: increased maximum `allow_origins` from 5 to 25 on `network_services_edge_cache_service` ([#13808](https://github.com/hashicorp/terraform-provider-google/pull/13808))
 * storagetransfer: added general field `sink_agent_pool_name` and `source_agent_pool_name` to `google_storage_transfer_job` ([#13865](https://github.com/hashicorp/terraform-provider-google/pull/13865))
 
