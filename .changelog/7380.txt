@@ -1,0 +1,4 @@
+```release-note:none
+docs: use proper subcategory for Artifact Registry Repository data-source (just
+a minor fix on the docs website)
+```
