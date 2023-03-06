@@ -1,5 +1,5 @@
 ---
-subcategory: "Artifact Registry Repository"
+subcategory: "Artifact Registry"
 description: |-
   Get information about a Google Artifact Registry Repository.
 ---
