@@ -1,0 +1,3 @@
+```release-note:bug
+firebase: allowed specifying a `project` field on datasources for `google_firebase_android_app`, `google_firebase_web_app`, and `google_firebase_apple_app`.
+```
