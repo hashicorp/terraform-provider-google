@@ -29,6 +29,55 @@ To get more information about Backup, see:
     * [AlloyDB](https://cloud.google.com/alloydb/docs/)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=alloydb_backup_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Alloydb Backup Basic
+
+
+```hcl
+resource "google_alloydb_backup" "default" {
+  location     = "us-central1"
+  backup_id    = "alloydb-backup"
+  cluster_name = google_alloydb_cluster.default.name
+
+  depends_on = [google_alloydb_instance.default]
+}
+
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "alloydb-cluster"
+  location   = "us-central1"
+  network    = data.google_compute_network.default.id
+}
+
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "alloydb-instance"
+  instance_type = "PRIMARY"
+
+  depends_on = [google_service_networking_connection.vpc_connection]
+}
+
+resource "google_compute_global_address" "private_ip_alloc" {
+  name          =  "alloydb-cluster"
+  address_type  = "INTERNAL"
+  purpose       = "VPC_PEERING"
+  prefix_length = 16
+  network       = data.google_compute_network.default.id
+}
+
+resource "google_service_networking_connection" "vpc_connection" {
+  network                 = data.google_compute_network.default.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+}
+
+data "google_compute_network" "default" {
+  name = "alloydb-network"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=alloydb_backup_full&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
