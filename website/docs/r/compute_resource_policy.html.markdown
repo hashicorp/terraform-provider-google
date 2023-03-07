@@ -33,7 +33,7 @@ A policy that can be attached to a resource to specify or schedule actions on th
 
 ```hcl
 resource "google_compute_resource_policy" "foo" {
-  name   = "policy"
+  name   = "gce-policy"
   region = "us-central1"
   snapshot_schedule_policy {
     schedule {
@@ -55,7 +55,7 @@ resource "google_compute_resource_policy" "foo" {
 
 ```hcl
 resource "google_compute_resource_policy" "bar" {
-  name   = "policy"
+  name   = "gce-policy"
   region = "us-central1"
   snapshot_schedule_policy {
     schedule {
@@ -88,7 +88,7 @@ resource "google_compute_resource_policy" "bar" {
 
 ```hcl
 resource "google_compute_resource_policy" "baz" {
-  name   = "policy"
+  name   = "gce-policy"
   region = "us-central1"
   group_placement_policy {
     vm_count = 2
@@ -106,7 +106,7 @@ resource "google_compute_resource_policy" "baz" {
 
 ```hcl
 resource "google_compute_resource_policy" "baz" {
-  name   = "policy"
+  name   = "gce-policy"
   region = "us-central1"
   provider = google-beta
   group_placement_policy {
@@ -126,7 +126,7 @@ resource "google_compute_resource_policy" "baz" {
 
 ```hcl
 resource "google_compute_resource_policy" "hourly" {
-  name   = "policy"
+  name   = "gce-policy"
   region = "us-central1"
   description = "Start and stop instances"
   instance_schedule_policy {
@@ -150,7 +150,7 @@ resource "google_compute_resource_policy" "hourly" {
 
 ```hcl
 resource "google_compute_resource_policy" "hourly" {
-  name   = "policy"
+  name   = "gce-policy"
   region = "us-central1"
   description = "chain name snapshot"
   snapshot_schedule_policy {
