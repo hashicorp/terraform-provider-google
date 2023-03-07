@@ -255,14 +255,23 @@ func BootstrapSharedTestADDomain(t *testing.T, testId string, networkName string
 
 const SharedTestNetworkPrefix = "tf-bootstrap-net-"
 
-// BootstrapSharedTestNetwork will return a shared compute network
-// for a test or set of tests. Often resources create complementing
-// tenant network resources, which we don't control and which don't get cleaned
-// up after our owned resource is deleted in test. These tenant resources
-// have quotas, so creating a shared test network prevents hitting these limits.
+// BootstrapSharedTestNetwork will return a persistent compute network for a
+// test or set of tests.
 //
-// testId specifies the test/suite for which a shared network is used/initialized.
-// Returns the name of an network, creating it if hasn't been created in the test projcet.
+// Resources like service_networking_connection use a consumer network and
+// create a complementing tenant network which we don't control. These tenant
+// networks never get cleaned up and they can accumulate to the point where a
+// limit is reached for the organization. By reusing a consumer network across
+// test runs, we can reduce the number of tenant networks that are needed.
+// See b/146351146 for more context.
+//
+// testId specifies the test for which a shared network is used/initialized.
+// Note that if the network is being used for a service_networking_connection,
+// the same testId should generally not be used across tests, to avoid race
+// conditions where multiple tests attempt to modify the connection at once.
+//
+// Returns the name of a network, creating it if it hasn't been created in the
+// test project.
 func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 	project := GetTestProjectFromEnv()
 	networkName := SharedTestNetworkPrefix + testId

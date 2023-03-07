@@ -29,7 +29,7 @@ func TestAccVertexAIEndpoint_vertexAiEndpointNetwork(t *testing.T) {
 	context := map[string]interface{}{
 		"endpoint_name": fmt.Sprint(RandInt(t) % 9999999999),
 		"kms_key_name":  BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"network_name":  BootstrapSharedTestNetwork(t, "vertex"),
+		"network_name":  BootstrapSharedTestNetwork(t, "vertex-ai-endpoint-update"),
 		"random_suffix": RandString(t, 10),
 	}
 

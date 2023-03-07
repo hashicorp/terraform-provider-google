@@ -135,7 +135,7 @@ func TestAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(t *testi
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  BootstrapSharedTestNetwork(t, "redis-mrr"),
+		"network_name":  BootstrapSharedTestNetwork(t, "redis-full-persis"),
 		"random_suffix": RandString(t, 10),
 	}
 
