@@ -447,6 +447,65 @@ func compareBindings(a, b []*cloudresourcemanager.Binding) bool {
 	return reflect.DeepEqual(aMap, bMap)
 }
 
+// Returns a map representing iam bindings that are in one map but not the other.
+func missingBindingsMap(aMap, bMap map[iamBindingKey]map[string]struct{}) map[iamBindingKey]map[string]struct{} {
+	results := make(map[iamBindingKey]map[string]struct{})
+	for key, aMembers := range aMap {
+		if bMembers, ok := bMap[key]; ok {
+			// The key is in both maps.
+			resultMembers := make(map[string]struct{})
+
+			for aMember := range aMembers {
+				if _, ok := bMembers[aMember]; !ok {
+					// The member is in a but not in b.
+					resultMembers[aMember] = struct{}{}
+				}
+			}
+			for bMember := range bMembers {
+				if _, ok := aMembers[bMember]; !ok {
+					// The member is in b but not in a.
+					resultMembers[bMember] = struct{}{}
+				}
+			}
+
+			if len(resultMembers) > 0 {
+				results[key] = resultMembers
+			}
+		} else {
+			// The key is in map a but not map b.
+			results[key] = aMembers
+		}
+	}
+
+	for key, bMembers := range bMap {
+		if _, ok := aMap[key]; !ok {
+			// The key is in map b but not map a.
+			results[key] = bMembers
+		}
+	}
+
+	return results
+}
+
+// Returns the bindings that are in one set of bindings and not the other.
+func missingBindings(a, b []*cloudresourcemanager.Binding) []*cloudresourcemanager.Binding {
+	aMap := createIamBindingsMap(a)
+	bMap := createIamBindingsMap(b)
+
+	var results []*cloudresourcemanager.Binding
+	for key, membersSet := range missingBindingsMap(aMap, bMap) {
+		members := make([]string, 0, len(membersSet))
+		for member := range membersSet {
+			members = append(members, member)
+		}
+		results = append(results, &cloudresourcemanager.Binding{
+			Role:    key.Role,
+			Members: members,
+		})
+	}
+	return results
+}
+
 func compareAuditConfigs(a, b []*cloudresourcemanager.AuditConfig) bool {
 	aMap := createIamAuditConfigsMap(a)
 	bMap := createIamAuditConfigsMap(b)

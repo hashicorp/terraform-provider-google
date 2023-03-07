@@ -570,7 +570,11 @@ func BootstrapAllPSARoles(t *testing.T, agentNames, roles []string) bool {
 	mergedBindings := MergeBindings(append(policy.Bindings, newBindings...))
 
 	if !compareBindings(policy.Bindings, mergedBindings) {
+		for _, missingBinding := range missingBindings(policy.Bindings, mergedBindings) {
+			log.Printf("[DEBUG] Missing binding: %v", missingBinding)
+		}
 		// The policy must change.
+		policy.Bindings = mergedBindings
 		setPolicyRequest := &cloudresourcemanager.SetIamPolicyRequest{Policy: policy}
 		policy, err = client.Projects.SetIamPolicy(project.ProjectId, setPolicyRequest).Do()
 		if err != nil {
