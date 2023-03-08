@@ -1438,6 +1438,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 		map[string]*schema.Resource{
 			// ####### START handwritten resources ###########
 			"google_app_engine_application":                ResourceAppEngineApplication(),
+			"google_apigee_sharedflow":                     ResourceApigeeSharedFlow(),
+			"google_apigee_sharedflow_deployment":          ResourceApigeeSharedFlowDeployment(),
+			"google_apigee_flowhook":                       ResourceApigeeFlowhook(),
 			"google_bigquery_table":                        ResourceBigQueryTable(),
 			"google_bigtable_gc_policy":                    ResourceBigtableGCPolicy(),
 			"google_bigtable_instance":                     ResourceBigtableInstance(),
