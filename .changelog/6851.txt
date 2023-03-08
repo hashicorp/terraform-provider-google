@@ -1,0 +1,3 @@
+```release-note:enhancement
+datafusion: added support for `accelerators` field to `google_datafusion_instance` resource.
+```

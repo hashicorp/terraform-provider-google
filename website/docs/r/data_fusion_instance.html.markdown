@@ -73,6 +73,10 @@ resource "google_data_fusion_instance" "extended_instance" {
     ip_allocation = "${google_compute_global_address.private_ip_alloc.address}/${google_compute_global_address.private_ip_alloc.prefix_length}"
   }
 
+  accelerators {
+    accelerator_type = "CDC"
+    state = "ENABLED"
+  }
   
 }
 
@@ -280,6 +284,13 @@ The following arguments are supported:
   Option to enable and pass metadata for event publishing.
   Structure is [documented below](#nested_event_publish_config).
 
+* `accelerators` -
+  (Optional)
+  List of accelerators enabled for this CDF instance.
+  If accelerators are enabled it is possible a permadiff will be created with the Options field. 
+  Users will need to either manually update their state file to include these diffed options, or include the field in a [lifecycle ignore changes block](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle#ignore_changes).
+  Structure is [documented below](#nested_accelerators).
+
 * `region` -
   (Optional)
   The region of the Data Fusion instance.
@@ -316,6 +327,18 @@ The following arguments are supported:
 * `topic` -
   (Required)
   The resource name of the Pub/Sub topic. Format: projects/{projectId}/topics/{topic_id}
+
+<a name="nested_accelerators"></a>The `accelerators` block supports:
+
+* `accelerator_type` -
+  (Required)
+  The type of an accelator for a CDF instance.
+  Possible values are `CDC`, `HEALTHCARE`, and `CCAI_INSIGHTS`.
+
+* `state` -
+  (Optional)
+  The type of an accelator for a CDF instance.
+  Possible values are `ENABLED` and `DISABLED`.
 
 ## Attributes Reference
 
