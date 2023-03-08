@@ -149,13 +149,13 @@ func TestAccSpannerInstance_update(t *testing.T) {
 
 func TestAccSpannerInstance_virtualUpdate(t *testing.T) {
 	// Randomness
-	skipIfVcr(t)
+	SkipIfVcr(t)
 	t.Parallel()
 
-	dName := fmt.Sprintf("spanner-dname1-%s", randString(t, 10))
-	vcrTest(t, resource.TestCase{
+	dName := fmt.Sprintf("spanner-dname1-%s", RandString(t, 10))
+	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		Providers:    TestAccProviders,
 		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
