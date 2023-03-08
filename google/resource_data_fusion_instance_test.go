@@ -48,6 +48,10 @@ resource "google_data_fusion_instance" "foobar" {
   options = {
   	prober_test_run = "true"
   }
+  accelerators {
+    accelerator_type = "CDC"
+    state = "DISABLED"
+  }
 }
 `, instanceName)
 }
@@ -66,6 +70,11 @@ resource "google_data_fusion_instance" "foobar" {
     label2 = "value2"
   }
   version = "6.8.0"
+
+  accelerators {
+    accelerator_type = "CCAI_INSIGHTS"
+    state = "ENABLED"
+  }
   # Mark for testing to avoid service networking connection usage that is not cleaned up
   options = {
   	prober_test_run = "true"
