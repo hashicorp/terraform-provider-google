@@ -104,23 +104,24 @@ specified, it is assumed to be PREMIUM. Possible values: ["PREMIUM", "STANDARD"]
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
-				Description: `The purpose of this resource, which can be one of the following values:
+				Description: `The purpose of this resource, which can be one of the following values.
 
 * GCE_ENDPOINT for addresses that are used by VM instances, alias IP
-  ranges, internal load balancers, and similar resources.
+ranges, load balancers, and similar resources.
 
 * SHARED_LOADBALANCER_VIP for an address that can be used by multiple
-  internal load balancers.
+internal load balancers.
 
 * VPC_PEERING for addresses that are reserved for VPC peer networks.
 
-* IPSEC_INTERCONNECT for addresses created from a private IP range
-  that are reserved for a VLAN attachment in an IPsec-encrypted Cloud
-  Interconnect configuration. These addresses are regional resources.
+* IPSEC_INTERCONNECT for addresses created from a private IP range that
+are reserved for a VLAN attachment in an HA VPN over Cloud Interconnect
+configuration. These addresses are regional resources.
 
-* PRIVATE_SERVICE_CONNECT for a private network address that is used
-to configure Private Service Connect. Only global internal addresses
-can use this purpose.
+* PRIVATE_SERVICE_CONNECT for a private network address that is used to
+configure Private Service Connect. Only global internal addresses can use
+this purpose.
+
 
 This should only be set when using an Internal address.`,
 			},
