@@ -1,0 +1,3 @@
+```release-note:bug
+alloydb: fix permadiff on `automated_backup_policy.weekly_schedule` of `google_alloydb_cluster`
+```

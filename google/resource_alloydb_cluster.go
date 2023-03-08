@@ -58,6 +58,7 @@ func ResourceAlloydbCluster() *schema.Resource {
 			},
 			"automated_backup_policy": {
 				Type:     schema.TypeList,
+				Computed: true,
 				Optional: true,
 				Description: `The automated backup policy for this cluster.
 
@@ -67,7 +68,8 @@ If no policy is provided then the default policy will be used. The default polic
 					Schema: map[string]*schema.Schema{
 						"weekly_schedule": {
 							Type:        schema.TypeList,
-							Required:    true,
+							Computed:    true,
+							Optional:    true,
 							ForceNew:    true,
 							Description: `Weekly schedule for the Backup.`,
 							MaxItems:    1,
