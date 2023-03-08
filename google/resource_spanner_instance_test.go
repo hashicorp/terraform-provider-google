@@ -147,6 +147,35 @@ func TestAccSpannerInstance_update(t *testing.T) {
 	})
 }
 
+func TestAccSpannerInstance_virtualUpdate(t *testing.T) {
+	// Randomness
+	skipIfVcr(t)
+	t.Parallel()
+
+	dName := fmt.Sprintf("spanner-dname1-%s", randString(t, 10))
+	vcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSpannerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerInstance_virtualUpdate(dName, "true"),
+			},
+			{
+				ResourceName: "google_spanner_instance.basic",
+				ImportState:  true,
+			},
+			{
+				Config: testAccSpannerInstance_virtualUpdate(dName, "false"),
+			},
+			{
+				ResourceName: "google_spanner_instance.basic",
+				ImportState:  true,
+			},
+		},
+	})
+}
+
 func testAccSpannerInstance_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_spanner_instance" "basic" {
@@ -195,4 +224,16 @@ resource "google_spanner_instance" "updater" {
   }
 }
 `, name, nodes, extraLabel)
+}
+
+func testAccSpannerInstance_virtualUpdate(name, virtual string) string {
+	return fmt.Sprintf(`
+resource "google_spanner_instance" "basic" {
+  name         = "%s"
+  config       = "regional-us-central1"
+  display_name = "%s"
+  processing_units = 100
+  force_destroy    = "%s"
+}
+`, name, name, virtual)
 }
