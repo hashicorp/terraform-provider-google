@@ -22,6 +22,13 @@ func TestAccSpannerDatabase_basic(t *testing.T) {
 		CheckDestroy: testAccCheckSpannerDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
+				Config: testAccSpannerDatabase_virtualUpdate(instanceName, databaseName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_database.basic", "state"),
+					resource.TestCheckResourceAttr("google_spanner_database.basic", "version_retention_period", "1h"), // default set by API
+				),
+			},
+			{
 				Config: testAccSpannerDatabase_basic(instanceName, databaseName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("google_spanner_database.basic", "state"),
@@ -115,6 +122,27 @@ resource "google_spanner_database" "basic" {
 	"CREATE TABLE t4 (t4 INT64 NOT NULL,) PRIMARY KEY(t4)",
   ]
   deletion_protection = false
+}
+`, instanceName, instanceName, databaseName)
+}
+
+func testAccSpannerDatabase_virtualUpdate(instanceName, databaseName string) string {
+	return fmt.Sprintf(`
+resource "google_spanner_instance" "basic" {
+  name         = "%s"
+  config       = "regional-us-central1"
+  display_name = "%s-display"
+  num_nodes    = 1
+}
+
+resource "google_spanner_database" "basic" {
+  instance = google_spanner_instance.basic.name
+  name     = "%s"
+  ddl = [
+	"CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
+	"CREATE TABLE t2 (t2 INT64 NOT NULL,) PRIMARY KEY(t2)",
+  ]
+  deletion_protection = true
 }
 `, instanceName, instanceName, databaseName)
 }
