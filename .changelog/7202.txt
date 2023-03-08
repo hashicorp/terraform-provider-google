@@ -1,0 +1,12 @@
+```release-note:enhancement
+apigee: Added support for resource apigee sharedflow
+https://cloud.google.com/apigee/docs/reference/apis/apigee/rest/v1/organizations.sharedflows
+
+Using handwritten approach as create API requires a file to be uploaded as `octet-stream` and mmv1 does not support this pattern
+
+Using direct api call instead of golang library because golang library for this api is broken see: b/265084250
+
+Other relevant background/bugs:
+Apigee Sharedflow get method response missing `latestRevisionId` field b/266146203
+(recently fixed) Apigee SharedFlow Create Documentation issue b/256739387
+```
