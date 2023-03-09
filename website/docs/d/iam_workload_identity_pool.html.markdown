@@ -4,7 +4,7 @@ description: |-
   Get a IAM workload identity pool from Google Cloud
 ---
 
-# google\_iam\_workload_\identity\_pool
+# google\_iam\_workload\_identity\_pool
 
 Get a IAM workload identity pool from Google Cloud by its id.
 
