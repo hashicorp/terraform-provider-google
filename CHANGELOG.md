@@ -1,4 +1,21 @@
 ## 4.57.0 (Unreleased)
+
+NOTES:
+
+FEATURES:
+* **New Resource:** `google_access_context_manager_authorized_orgs_desc` ([#13925](https://github.com/hashicorp/terraform-provider-google/pull/13925))
+* **New Resource:** `google_bigquery_capacity_commitment` ([#13902](https://github.com/hashicorp/terraform-provider-google/pull/13902))
+* **New Resource:** `google_workstations_workstation` ([#13885](https://github.com/hashicorp/terraform-provider-google/pull/13885))
+* **New Resource:** google_apigee_env_keystore ([#13876](https://github.com/hashicorp/terraform-provider-google/pull/13876))
+* **New Resource:** google_apigee_env_references ([#13876](https://github.com/hashicorp/terraform-provider-google/pull/13876))
+* **New Resource:** google_firestore_database ([#13874](https://github.com/hashicorp/terraform-provider-google/pull/13874))
+
+BUG FIXES:
+* cloudidentity: fixed an issue on `google_cloud_identity_group` `initial_group_config` field when importing ([#13875](https://github.com/hashicorp/terraform-provider-google/pull/13875))
+* compute: fixed the error of invalid value for field `failover_policy` when UDP is selected on `google_compute_region_backend_service` ([#13897](https://github.com/hashicorp/terraform-provider-google/pull/13897))
+* firebase: allowed specifying a `project` field on datasources for `google_firebase_android_app`, `google_firebase_web_app`, and `google_firebase_apple_app`. ([#13927](https://github.com/hashicorp/terraform-provider-google/pull/13927))
+* tags: fixed a bug preventing use of `google_tags_location_tag_binding` with zonal parent resources ([#13880](https://github.com/hashicorp/terraform-provider-google/pull/13880))
+
 ## 4.56.0 (March 6, 2023)
 
 FEATURES:
