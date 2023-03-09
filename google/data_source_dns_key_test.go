@@ -72,7 +72,7 @@ func testAccDataSourceDNSKeysConfig(dnsZoneName, dnssecStatus string) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foo" {
   name     = "%s"
-  dns_name = "dnssec.tf-test.club."
+  dns_name = "dnssec.gcp.tfacc.hashicorptest.com."
 
   dnssec_config {
     state         = "%s"
