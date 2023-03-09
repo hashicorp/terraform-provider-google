@@ -1,0 +1,3 @@
+```release-note:bug
+redis: fixed a bug causing diff detection on `reserved_ip_range` in `google_redis_instance`
+```
