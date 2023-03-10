@@ -254,6 +254,17 @@ resource "google_privateca_certificate_authority" "default" {
           server_auth = false
         }
       }
+      name_constraints {
+        critical                  = true
+        permitted_dns_names       = ["*.example.com"]
+        excluded_dns_names        = ["*.deny.example.com"]
+        permitted_ip_ranges       = ["10.0.0.0/8"]
+        excluded_ip_ranges        = ["10.1.1.0/24"]
+        permitted_email_addresses = [".example.com"]
+        excluded_email_addresses  = [".deny.example.com"]
+        permitted_uris            = [".example.com"]
+        excluded_uris             = [".deny.example.com"]
+      }
     }
   }
 
@@ -334,6 +345,11 @@ The following arguments are supported:
   (Required)
   Indicates the intended use for keys that correspond to a certificate.
   Structure is [documented below](#nested_key_usage).
+
+* `name_constraints` -
+  (Optional)
+  Describes the X.509 name constraints extension.
+  Structure is [documented below](#nested_name_constraints).
 
 
 <a name="nested_additional_extensions"></a>The `additional_extensions` block supports:
@@ -475,6 +491,68 @@ The following arguments are supported:
 * `object_id_path` -
   (Required)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
+
+<a name="nested_name_constraints"></a>The `name_constraints` block supports:
+
+* `critical` -
+  (Required)
+  Indicates whether or not the name constraints are marked critical.
+
+* `permitted_dns_names` -
+  (Optional)
+  Contains permitted DNS names. Any DNS name that can be
+  constructed by simply adding zero or more labels to
+  the left-hand side of the name satisfies the name constraint.
+  For example, `example.com`, `www.example.com`, `www.sub.example.com`
+  would satisfy `example.com` while `example1.com` does not.
+
+* `excluded_dns_names` -
+  (Optional)
+  Contains excluded DNS names. Any DNS name that can be
+  constructed by simply adding zero or more labels to
+  the left-hand side of the name satisfies the name constraint.
+  For example, `example.com`, `www.example.com`, `www.sub.example.com`
+  would satisfy `example.com` while `example1.com` does not.
+
+* `permitted_ip_ranges` -
+  (Optional)
+  Contains the permitted IP ranges. For IPv4 addresses, the ranges
+  are expressed using CIDR notation as specified in RFC 4632.
+  For IPv6 addresses, the ranges are expressed in similar encoding as IPv4
+  addresses.
+
+* `excluded_ip_ranges` -
+  (Optional)
+  Contains the excluded IP ranges. For IPv4 addresses, the ranges
+  are expressed using CIDR notation as specified in RFC 4632.
+  For IPv6 addresses, the ranges are expressed in similar encoding as IPv4
+  addresses.
+
+* `permitted_email_addresses` -
+  (Optional)
+  Contains the permitted email addresses. The value can be a particular
+  email address, a hostname to indicate all email addresses on that host or
+  a domain with a leading period (e.g. `.example.com`) to indicate
+  all email addresses in that domain.
+
+* `excluded_email_addresses` -
+  (Optional)
+  Contains the excluded email addresses. The value can be a particular
+  email address, a hostname to indicate all email addresses on that host or
+  a domain with a leading period (e.g. `.example.com`) to indicate
+  all email addresses in that domain.
+
+* `permitted_uris` -
+  (Optional)
+  Contains the permitted URIs that apply to the host part of the name.
+  The value can be a hostname or a domain with a
+  leading period (like `.example.com`)
+
+* `excluded_uris` -
+  (Optional)
+  Contains the excluded URIs that apply to the host part of the name.
+  The value can be a hostname or a domain with a
+  leading period (like `.example.com`)
 
 <a name="nested_subject_config"></a>The `subject_config` block supports:
 
