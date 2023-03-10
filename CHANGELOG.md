@@ -1,6 +1,5 @@
 ## 4.57.0 (Unreleased)
 
-NOTES:
 
 FEATURES:
 * **New Resource:** `google_access_context_manager_authorized_orgs_desc` ([#13925](https://github.com/hashicorp/terraform-provider-google/pull/13925))
