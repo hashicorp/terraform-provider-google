@@ -103,9 +103,8 @@ Users will need to either manually update their state file to include these diff
 						},
 						"state": {
 							Type:         schema.TypeString,
-							Computed:     true,
-							Optional:     true,
-							ValidateFunc: validateEnum([]string{"ENABLED", "DISABLED", ""}),
+							Required:     true,
+							ValidateFunc: validateEnum([]string{"ENABLED", "DISABLED"}),
 							Description:  `The type of an accelator for a CDF instance. Possible values: ["ENABLED", "DISABLED"]`,
 						},
 					},

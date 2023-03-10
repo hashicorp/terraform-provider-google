@@ -336,7 +336,7 @@ The following arguments are supported:
   Possible values are `CDC`, `HEALTHCARE`, and `CCAI_INSIGHTS`.
 
 * `state` -
-  (Optional)
+  (Required)
   The type of an accelator for a CDF instance.
   Possible values are `ENABLED` and `DISABLED`.
 
