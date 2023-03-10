@@ -16,8 +16,8 @@ func TestAccEventarcTrigger_channel(t *testing.T) {
 	t.Parallel()
 
 	region := GetTestRegionFromEnv()
-	key1 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-key1")
-	key2 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-key2")
+	key1 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-trigger-key1")
+	key2 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-trigger-key2")
 
 	context := map[string]interface{}{
 		"region":          region,
