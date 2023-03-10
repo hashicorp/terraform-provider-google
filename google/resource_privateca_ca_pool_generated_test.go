@@ -166,6 +166,17 @@ resource "google_privateca_ca_pool" "default" {
           time_stamping = true
         }
       }
+      name_constraints {
+        critical                  = true
+        permitted_dns_names       = ["*.example1.com", "*.example2.com"]
+        excluded_dns_names        = ["*.deny.example1.com", "*.deny.example2.com"]
+        permitted_ip_ranges       = ["10.0.0.0/8", "11.0.0.0/8"]
+        excluded_ip_ranges        = ["10.1.1.0/24", "11.1.1.0/24"]
+        permitted_email_addresses = [".example1.com", ".example2.com"]
+        excluded_email_addresses  = [".deny.example1.com", ".deny.example2.com"]
+        permitted_uris            = [".example1.com", ".example2.com"]
+        excluded_uris             = [".deny.example1.com", ".deny.example2.com"]
+      }
     }
   }
 }

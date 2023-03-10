@@ -80,7 +80,7 @@ resource "google_privateca_certificate" "default" {
   location = "us-central1"
   pool = google_privateca_ca_pool.default.name
   certificate_authority = google_privateca_certificate_authority.default.certificate_authority_id
-  lifetime = "860s"
+  lifetime = "86000s"
   name = "my-certificate"
   config {
     subject_config  {
@@ -101,7 +101,7 @@ resource "google_privateca_certificate" "default" {
     }
     x509_config {
       ca_options {
-        is_ca = false
+        is_ca = true
       }
       key_usage {
         base_key_usage {
@@ -111,6 +111,17 @@ resource "google_privateca_certificate" "default" {
         extended_key_usage {
           server_auth = false
         }
+      }
+      name_constraints {
+        critical                  = true
+        permitted_dns_names       = ["*.example.com"]
+        excluded_dns_names        = ["*.deny.example.com"]
+        permitted_ip_ranges       = ["10.0.0.0/8"]
+        excluded_ip_ranges        = ["10.1.1.0/24"]
+        permitted_email_addresses = [".example.com"]
+        excluded_email_addresses  = [".deny.example.com"]
+        permitted_uris            = [".example.com"]
+        excluded_uris             = [".deny.example.com"]
       }
     }
     public_key {
@@ -517,6 +528,11 @@ The following arguments are supported:
   Indicates the intended use for keys that correspond to a certificate.
   Structure is [documented below](#nested_key_usage).
 
+* `name_constraints` -
+  (Optional)
+  Describes the X.509 name constraints extension.
+  Structure is [documented below](#nested_name_constraints).
+
 
 <a name="nested_additional_extensions"></a>The `additional_extensions` block supports:
 
@@ -656,6 +672,68 @@ The following arguments are supported:
 * `object_id_path` -
   (Required)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
+
+<a name="nested_name_constraints"></a>The `name_constraints` block supports:
+
+* `critical` -
+  (Required)
+  Indicates whether or not the name constraints are marked critical.
+
+* `permitted_dns_names` -
+  (Optional)
+  Contains permitted DNS names. Any DNS name that can be
+  constructed by simply adding zero or more labels to
+  the left-hand side of the name satisfies the name constraint.
+  For example, `example.com`, `www.example.com`, `www.sub.example.com`
+  would satisfy `example.com` while `example1.com` does not.
+
+* `excluded_dns_names` -
+  (Optional)
+  Contains excluded DNS names. Any DNS name that can be
+  constructed by simply adding zero or more labels to
+  the left-hand side of the name satisfies the name constraint.
+  For example, `example.com`, `www.example.com`, `www.sub.example.com`
+  would satisfy `example.com` while `example1.com` does not.
+
+* `permitted_ip_ranges` -
+  (Optional)
+  Contains the permitted IP ranges. For IPv4 addresses, the ranges
+  are expressed using CIDR notation as specified in RFC 4632.
+  For IPv6 addresses, the ranges are expressed in similar encoding as IPv4
+  addresses.
+
+* `excluded_ip_ranges` -
+  (Optional)
+  Contains the excluded IP ranges. For IPv4 addresses, the ranges
+  are expressed using CIDR notation as specified in RFC 4632.
+  For IPv6 addresses, the ranges are expressed in similar encoding as IPv4
+  addresses.
+
+* `permitted_email_addresses` -
+  (Optional)
+  Contains the permitted email addresses. The value can be a particular
+  email address, a hostname to indicate all email addresses on that host or
+  a domain with a leading period (e.g. `.example.com`) to indicate
+  all email addresses in that domain.
+
+* `excluded_email_addresses` -
+  (Optional)
+  Contains the excluded email addresses. The value can be a particular
+  email address, a hostname to indicate all email addresses on that host or
+  a domain with a leading period (e.g. `.example.com`) to indicate
+  all email addresses in that domain.
+
+* `permitted_uris` -
+  (Optional)
+  Contains the permitted URIs that apply to the host part of the name.
+  The value can be a hostname or a domain with a
+  leading period (like `.example.com`)
+
+* `excluded_uris` -
+  (Optional)
+  Contains the excluded URIs that apply to the host part of the name.
+  The value can be a hostname or a domain with a
+  leading period (like `.example.com`)
 
 <a name="nested_subject_config"></a>The `subject_config` block supports:
 
@@ -962,6 +1040,11 @@ In addition to the arguments listed above, the following computed attributes are
   Indicates the intended use for keys that correspond to a certificate.
   Structure is [documented below](#nested_key_usage).
 
+* `name_constraints` -
+  (Output)
+  Describes the X.509 name constraints extension.
+  Structure is [documented below](#nested_name_constraints).
+
 
 <a name="nested_additional_extensions"></a>The `additional_extensions` block contains:
 
@@ -1090,6 +1173,68 @@ In addition to the arguments listed above, the following computed attributes are
 * `object_id_path` -
   (Output)
   An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
+
+<a name="nested_name_constraints"></a>The `name_constraints` block contains:
+
+* `critical` -
+  (Output)
+  Indicates whether or not the name constraints are marked critical.
+
+* `permitted_dns_names` -
+  (Output)
+  Contains permitted DNS names. Any DNS name that can be
+  constructed by simply adding zero or more labels to
+  the left-hand side of the name satisfies the name constraint.
+  For example, `example.com`, `www.example.com`, `www.sub.example.com`
+  would satisfy `example.com` while `example1.com` does not.
+
+* `excluded_dns_names` -
+  (Output)
+  Contains excluded DNS names. Any DNS name that can be
+  constructed by simply adding zero or more labels to
+  the left-hand side of the name satisfies the name constraint.
+  For example, `example.com`, `www.example.com`, `www.sub.example.com`
+  would satisfy `example.com` while `example1.com` does not.
+
+* `permitted_ip_ranges` -
+  (Output)
+  Contains the permitted IP ranges. For IPv4 addresses, the ranges
+  are expressed using CIDR notation as specified in RFC 4632.
+  For IPv6 addresses, the ranges are expressed in similar encoding as IPv4
+  addresses.
+
+* `excluded_ip_ranges` -
+  (Output)
+  Contains the excluded IP ranges. For IPv4 addresses, the ranges
+  are expressed using CIDR notation as specified in RFC 4632.
+  For IPv6 addresses, the ranges are expressed in similar encoding as IPv4
+  addresses.
+
+* `permitted_email_addresses` -
+  (Output)
+  Contains the permitted email addresses. The value can be a particular
+  email address, a hostname to indicate all email addresses on that host or
+  a domain with a leading period (e.g. `.example.com`) to indicate
+  all email addresses in that domain.
+
+* `excluded_email_addresses` -
+  (Output)
+  Contains the excluded email addresses. The value can be a particular
+  email address, a hostname to indicate all email addresses on that host or
+  a domain with a leading period (e.g. `.example.com`) to indicate
+  all email addresses in that domain.
+
+* `permitted_uris` -
+  (Output)
+  Contains the permitted URIs that apply to the host part of the name.
+  The value can be a hostname or a domain with a
+  leading period (like `.example.com`)
+
+* `excluded_uris` -
+  (Output)
+  Contains the excluded URIs that apply to the host part of the name.
+  The value can be a hostname or a domain with a
+  leading period (like `.example.com`)
 
 <a name="nested_config_values"></a>The `config_values` block contains:
 
