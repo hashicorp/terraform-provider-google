@@ -42,8 +42,8 @@ func TestAccEventarcChannel_cryptoKeyUpdate(t *testing.T) {
 	t.Parallel()
 
 	region := GetTestRegionFromEnv()
-	key1 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-key1")
-	key2 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-key2")
+	key1 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-channel-key1")
+	key2 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-channel-key2")
 
 	context := map[string]interface{}{
 		"region":        region,
