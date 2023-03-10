@@ -7,8 +7,8 @@ FEATURES:
 * **New Resource:** `google_bigquery_capacity_commitment` ([#13902](https://github.com/hashicorp/terraform-provider-google/pull/13902))
 * **New Resource:** `google_workstations_workstation` ([#13885](https://github.com/hashicorp/terraform-provider-google/pull/13885))
 * **New Resource:** `google_apigee_env_keystore` ([#13876](https://github.com/hashicorp/terraform-provider-google/pull/13876))
-* **New Resource:** google_apigee_env_references ([#13876](https://github.com/hashicorp/terraform-provider-google/pull/13876))
-* **New Resource:** google_firestore_database ([#13874](https://github.com/hashicorp/terraform-provider-google/pull/13874))
+* **New Resource:** `google_apigee_env_references` ([#13876](https://github.com/hashicorp/terraform-provider-google/pull/13876))
+* **New Resource:** `google_firestore_database` ([#13874](https://github.com/hashicorp/terraform-provider-google/pull/13874))
 
 BUG FIXES:
 * cloudidentity: fixed an issue on `google_cloud_identity_group` `initial_group_config` field when importing ([#13875](https://github.com/hashicorp/terraform-provider-google/pull/13875))
