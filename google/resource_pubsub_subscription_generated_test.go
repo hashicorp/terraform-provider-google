@@ -215,7 +215,7 @@ resource "google_pubsub_subscription" "example" {
   topic = google_pubsub_topic.example.name
 
   bigquery_config {
-    table = "${google_bigquery_table.test.project}:${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
+    table = "${google_bigquery_table.test.project}.${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
   }
 
   depends_on = [google_project_iam_member.viewer, google_project_iam_member.editor]
