@@ -29,7 +29,6 @@ func init() {
 	// already be in-progress.
 	// Example: SKIP_PROJECT_SWEEPER=1 go test ./google -v -sweep=us-central1 -sweep-run=
 	if os.Getenv("SKIP_PROJECT_SWEEPER") != "" {
-		log.Printf("[INFO][SWEEPER_LOG] skipping the project sweeper because SKIP_PROJECT_SWEEPER is set")
 		return
 	}
 
