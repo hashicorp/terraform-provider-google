@@ -424,7 +424,7 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	friendlyNameProp, err := expandBigQueryDatasetFriendlyName(d.Get("friendly_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("friendly_name"); !isEmptyValue(reflect.ValueOf(friendlyNameProp)) && (ok || !reflect.DeepEqual(v, friendlyNameProp)) {
+	} else if v, ok := d.GetOkExists("friendly_name"); ok || !reflect.DeepEqual(v, friendlyNameProp) {
 		obj["friendlyName"] = friendlyNameProp
 	}
 	labelsProp, err := expandBigQueryDatasetLabels(d.Get("labels"), d, config)
@@ -635,7 +635,7 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 	friendlyNameProp, err := expandBigQueryDatasetFriendlyName(d.Get("friendly_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("friendly_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, friendlyNameProp)) {
+	} else if v, ok := d.GetOkExists("friendly_name"); ok || !reflect.DeepEqual(v, friendlyNameProp) {
 		obj["friendlyName"] = friendlyNameProp
 	}
 	labelsProp, err := expandBigQueryDatasetLabels(d.Get("labels"), d, config)

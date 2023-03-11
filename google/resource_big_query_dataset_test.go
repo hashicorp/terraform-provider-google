@@ -35,6 +35,14 @@ func TestAccBigQueryDataset_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccBigQueryDatasetUpdated2(datasetID),
+			},
+			{
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -199,6 +207,24 @@ func testAccBigQueryDatasetUpdated(datasetID string) string {
 resource "google_bigquery_dataset" "test" {
   dataset_id                      = "%s"
   friendly_name                   = "bar"
+  description                     = "This is a bar description"
+  location                        = "EU"
+  default_partition_expiration_ms = 7200000
+  default_table_expiration_ms     = 7200000
+
+  labels = {
+    env                         = "bar"
+    default_table_expiration_ms = 7200000
+  }
+}
+`, datasetID)
+}
+
+func testAccBigQueryDatasetUpdated2(datasetID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id                      = "%s"
+  # friendly_name                   = "bar"
   description                     = "This is a bar description"
   location                        = "EU"
   default_partition_expiration_ms = 7200000
