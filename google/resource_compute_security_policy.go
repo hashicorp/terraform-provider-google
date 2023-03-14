@@ -961,6 +961,7 @@ func expandSecurityPolicyRuleRateLimitOptions(configured []interface{}) *compute
 		EnforceOnKeyName:      data["enforce_on_key_name"].(string),
 		BanDurationSec:        int64(data["ban_duration_sec"].(int)),
 		ExceedRedirectOptions: expandSecurityPolicyRuleRedirectOptions(data["exceed_redirect_options"].([]interface{})),
+		ForceSendFields:       []string{"EnforceOnKey", "EnforceOnKeyName"},
 	}
 }
 
@@ -982,13 +983,12 @@ func flattenSecurityPolicyRuleRateLimitOptions(conf *compute.SecurityPolicyRuleR
 	}
 
 	data := map[string]interface{}{
-		"ban_threshold":        flattenThreshold(conf.BanThreshold),
-		"rate_limit_threshold": flattenThreshold(conf.RateLimitThreshold),
-		"exceed_action":        conf.ExceedAction,
-		"conform_action":       conf.ConformAction,
-		"enforce_on_key":       conf.EnforceOnKey,
-		"enforce_on_key_name":  conf.EnforceOnKeyName,
-
+		"ban_threshold":           flattenThreshold(conf.BanThreshold),
+		"rate_limit_threshold":    flattenThreshold(conf.RateLimitThreshold),
+		"exceed_action":           conf.ExceedAction,
+		"conform_action":          conf.ConformAction,
+		"enforce_on_key":          conf.EnforceOnKey,
+		"enforce_on_key_name":     conf.EnforceOnKeyName,
 		"ban_duration_sec":        conf.BanDurationSec,
 		"exceed_redirect_options": flattenSecurityPolicyRedirectOptions(conf.ExceedRedirectOptions),
 	}
