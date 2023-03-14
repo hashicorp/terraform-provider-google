@@ -79,10 +79,11 @@ automatically, for as long as it's authorized to do so.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"dns_authorizations": {
-							Type:        schema.TypeList,
-							Optional:    true,
-							ForceNew:    true,
-							Description: `Authorizations that will be used for performing domain authorization`,
+							Type:             schema.TypeList,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: projectNumberDiffSuppress,
+							Description:      `Authorizations that will be used for performing domain authorization`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -545,7 +546,7 @@ func flattenCertificateManagerCertificateManagedDomains(v interface{}, d *schema
 }
 
 func flattenCertificateManagerCertificateManagedDnsAuthorizations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
-	return d.Get("managed.0.dns_authorizations")
+	return v
 }
 
 func flattenCertificateManagerCertificateManagedState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
