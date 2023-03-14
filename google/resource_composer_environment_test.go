@@ -26,6 +26,16 @@ func init() {
 	})
 }
 
+func allComposerServiceAgents() []string {
+	return []string{
+		"cloudcomposer-accounts",
+		"compute-system",
+		"container-engine-robot",
+		"gcp-sa-artifactregistry",
+		"gcp-sa-pubsub",
+	}
+}
+
 func TestComposerImageVersionDiffSuppress(t *testing.T) {
 	t.Parallel()
 
@@ -307,6 +317,8 @@ func TestAccComposerEnvironment_withWebServerConfig(t *testing.T) {
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, RandInt(t))
 	subnetwork := network + "-1"
 
+	grantServiceAgentsRole(t, "service-", []string{"gcp-sa-cloudbuild"}, "roles/cloudbuild.builds.builder")
+
 	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    TestAccProviders,
@@ -341,7 +353,7 @@ func TestAccComposerEnvironment_withEncryptionConfigComposer1(t *testing.T) {
 
 	kms := BootstrapKMSKeyInLocation(t, "us-central1")
 	pid := GetTestProjectFromEnv()
-	grantEncrypterDecrypterRoleToServiceAgents(t)
+	grantServiceAgentsRole(t, "service-", allComposerServiceAgents(), "roles/cloudkms.cryptoKeyEncrypterDecrypter")
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, RandInt(t))
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, RandInt(t))
 	subnetwork := network + "-1"
@@ -377,7 +389,7 @@ func TestAccComposerEnvironment_withEncryptionConfigComposer2(t *testing.T) {
 
 	kms := BootstrapKMSKeyInLocation(t, "us-central1")
 	pid := GetTestProjectFromEnv()
-	grantEncrypterDecrypterRoleToServiceAgents(t)
+	grantServiceAgentsRole(t, "service-", allComposerServiceAgents(), "roles/cloudkms.cryptoKeyEncrypterDecrypter")
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, RandInt(t))
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, RandInt(t))
 	subnetwork := network + "-1"
@@ -923,19 +935,11 @@ func TestAccComposerEnvironment_fixPyPiPackages(t *testing.T) {
 	})
 }
 
-// This bootstraps the IAM roles needed for the service agents when using encryption.
-func grantEncrypterDecrypterRoleToServiceAgents(t *testing.T) {
-	serviceAgents := []string{
-		"cloudcomposer-accounts",
-		"compute-system",
-		"container-engine-robot",
-		"gcp-sa-artifactregistry",
-		"gcp-sa-pubsub",
-	}
-	role := "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-	if policyChanged := BootstrapAllPSARole(t, serviceAgents, role); policyChanged {
+// This bootstraps the IAM roles needed for the service agents.
+func grantServiceAgentsRole(t *testing.T, prefix string, agentNames []string, role string) {
+	if BootstrapAllPSARole(t, prefix, agentNames, role) {
 		// Fail this test run because the policy needs time to reconcile.
-		t.Fatalf("Granted crypto key encrypter/decrypter role for service agents %v in test project's IAM policy. Retry the test in a few minutes.", serviceAgents)
+		t.Fatal("Stopping test because permissions were added.")
 	}
 }
 

@@ -57,18 +57,18 @@ resource "google_storage_bucket" "bucket" {
   location = "US"
   uniform_bucket_level_access = true
 }
- 
+
 resource "google_storage_bucket_object" "object" {
   name   = "function-source.zip"
   bucket = google_storage_bucket.bucket.name
   source = "%{zip_path}"
 }
- 
+
 resource "google_cloudfunctions2_function" "terraform-test2" {
   name = "tf-test-test-function%{random_suffix}"
   location = "us-central1"
   description = "a new function"
- 
+
   build_config {
     runtime = "nodejs12"
     entry_point = "helloHttp"
@@ -79,7 +79,7 @@ resource "google_cloudfunctions2_function" "terraform-test2" {
       }
     }
   }
- 
+
   service_config {
     max_instance_count  = 1
     available_memory    = "1536Mi"
@@ -96,18 +96,18 @@ resource "google_storage_bucket" "bucket" {
   location = "US"
   uniform_bucket_level_access = true
 }
- 
+
 resource "google_storage_bucket_object" "object" {
   name   = "function-source.zip"
   bucket = google_storage_bucket.bucket.name
   source = "%{zip_path}"
 }
- 
+
 resource "google_cloudfunctions2_function" "terraform-test2" {
   name = "tf-test-test-function%{random_suffix}"
   location = "us-central1"
   description = "an updated function"
- 
+
   build_config {
     runtime = "nodejs12"
     entry_point = "helloHttp"
@@ -118,7 +118,7 @@ resource "google_cloudfunctions2_function" "terraform-test2" {
       }
     }
   }
- 
+
   service_config {
     max_instance_count  = 1
     available_memory    = "1536Mi"
@@ -135,18 +135,18 @@ resource "google_storage_bucket" "bucket" {
   location = "US"
   uniform_bucket_level_access = true
 }
- 
+
 resource "google_storage_bucket_object" "object" {
   name   = "function-source.zip"
   bucket = google_storage_bucket.bucket.name
   source = "%{zip_path}"
 }
- 
+
 resource "google_cloudfunctions2_function" "terraform-test2" {
   name = "tf-test-test-function%{random_suffix}"
   location = "us-west1"
   description = "function test"
- 
+
   build_config {
     runtime = "nodejs16"
     entry_point = "helloHttp"
@@ -160,7 +160,7 @@ resource "google_cloudfunctions2_function" "terraform-test2" {
       }
     }
   }
- 
+
   service_config {
     max_instance_count  = 5
     min_instance_count = 1
@@ -181,6 +181,10 @@ func TestAccCloudFunctions2Function_fullUpdate(t *testing.T) {
 		"project":       GetTestProjectFromEnv(),
 		"zip_path":      "./test-fixtures/cloudfunctions2/function-source-eventarc-gcs.zip",
 		"random_suffix": RandString(t, 10),
+	}
+
+	if BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
+		t.Fatal("Stopping the test because a binding was added.")
 	}
 
 	VcrTest(t, resource.TestCase{
@@ -212,7 +216,7 @@ resource "google_storage_bucket" "source-bucket" {
   location = "US"
   uniform_bucket_level_access = true
 }
- 
+
 resource "google_storage_bucket_object" "object" {
   name   = "function-source.zip"
   bucket = google_storage_bucket.source-bucket.name
@@ -262,7 +266,7 @@ resource "google_cloudfunctions2_function" "function" {
   name = "tf-test-gcf-function%{random_suffix}"
   location = "us-central1"
   description = "a new function"
- 
+
   build_config {
     runtime     = "nodejs12"
     entry_point = "entryPoint" # Set the entry point in the code
@@ -276,7 +280,7 @@ resource "google_cloudfunctions2_function" "function" {
       }
     }
   }
- 
+
   service_config {
     max_instance_count  = 3
     min_instance_count = 1
