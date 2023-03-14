@@ -116,6 +116,8 @@ The following arguments are supported:
 * `port` -
   (Optional)
   Port number of network endpoint.
+  **Note** `port` is required unless the Network Endpoint Group is created
+  with the type of `GCE_VM_IP`
 
 * `zone` -
   (Optional)
