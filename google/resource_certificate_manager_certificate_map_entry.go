@@ -76,6 +76,7 @@ names must be unique globally and match pattern
 			"hostname": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 				Description: `A Hostname (FQDN, e.g. example.com) or a wildcard hostname expression (*.example.com)
 for a set of hostnames with common suffix. Used as Server Name Indication (SNI) for
 selecting a proper certificate.`,
@@ -93,6 +94,7 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 			"matcher": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				ForceNew:     true,
 				Description:  `A predefined matcher for particular cases, other than SNI selection`,
 				ExactlyOneOf: []string{"hostname", "matcher"},
 			},
@@ -316,18 +318,6 @@ func resourceCertificateManagerCertificateMapEntryUpdate(d *schema.ResourceData,
 	} else if v, ok := d.GetOkExists("certificates"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, certificatesProp)) {
 		obj["certificates"] = certificatesProp
 	}
-	hostnameProp, err := expandCertificateManagerCertificateMapEntryHostname(d.Get("hostname"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("hostname"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, hostnameProp)) {
-		obj["hostname"] = hostnameProp
-	}
-	matcherProp, err := expandCertificateManagerCertificateMapEntryMatcher(d.Get("matcher"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("matcher"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, matcherProp)) {
-		obj["matcher"] = matcherProp
-	}
 
 	url, err := replaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}")
 	if err != nil {
@@ -347,14 +337,6 @@ func resourceCertificateManagerCertificateMapEntryUpdate(d *schema.ResourceData,
 
 	if d.HasChange("certificates") {
 		updateMask = append(updateMask, "certificates")
-	}
-
-	if d.HasChange("hostname") {
-		updateMask = append(updateMask, "hostname")
-	}
-
-	if d.HasChange("matcher") {
-		updateMask = append(updateMask, "matcher")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it

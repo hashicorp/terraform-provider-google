@@ -1,0 +1,3 @@
+```release-note:bug
+certificatemanager: fixed a bug where modifying non-updatable fields `hostname` and `matcher` in `google_certificate_manager_certificate_map_entry` would fail with API errors. Now updating them will recreate the resource
+```
