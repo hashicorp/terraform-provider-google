@@ -1138,8 +1138,12 @@ func TestAccComputeInstanceTemplate_sourceSnapshotEncryptionKey(t *testing.T) {
 
 	var instanceTemplate compute.InstanceTemplate
 	kmsKey := BootstrapKMSKeyInLocation(t, "us-central1")
-	kmsKeyName := GetResourceNameFromSelfLink(kmsKey.CryptoKey.Name)
-	kmsRingName := GetResourceNameFromSelfLink(kmsKey.KeyRing.Name)
+
+	context := map[string]interface{}{
+		"kms_ring_name": GetResourceNameFromSelfLink(kmsKey.KeyRing.Name),
+		"kms_key_name":  GetResourceNameFromSelfLink(kmsKey.CryptoKey.Name),
+		"random_suffix": RandString(t, 10),
+	}
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -1147,7 +1151,7 @@ func TestAccComputeInstanceTemplate_sourceSnapshotEncryptionKey(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstanceTemplate_sourceSnapshotEncryptionKey(kmsRingName, kmsKeyName, RandString(t, 10)),
+				Config: testAccComputeInstanceTemplate_sourceSnapshotEncryptionKey(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
 						t, "google_compute_instance_template.template", &instanceTemplate),
@@ -1168,8 +1172,12 @@ func TestAccComputeInstanceTemplate_sourceImageEncryptionKey(t *testing.T) {
 
 	var instanceTemplate compute.InstanceTemplate
 	kmsKey := BootstrapKMSKeyInLocation(t, "us-central1")
-	kmsKeyName := GetResourceNameFromSelfLink(kmsKey.CryptoKey.Name)
-	kmsRingName := GetResourceNameFromSelfLink(kmsKey.KeyRing.Name)
+
+	context := map[string]interface{}{
+		"kms_ring_name": GetResourceNameFromSelfLink(kmsKey.KeyRing.Name),
+		"kms_key_name":  GetResourceNameFromSelfLink(kmsKey.CryptoKey.Name),
+		"random_suffix": RandString(t, 10),
+	}
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -1177,7 +1185,7 @@ func TestAccComputeInstanceTemplate_sourceImageEncryptionKey(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstanceTemplate_sourceImageEncryptionKey(kmsRingName, kmsKeyName, RandString(t, 10)),
+				Config: testAccComputeInstanceTemplate_sourceImageEncryptionKey(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(
 						t, "google_compute_instance_template.template", &instanceTemplate),
@@ -3013,20 +3021,20 @@ resource "google_compute_instance_template" "foobar" {
 `, suffix)
 }
 
-func testAccComputeInstanceTemplate_sourceSnapshotEncryptionKey(kmsRingName, kmsKeyName, suffix string) string {
-	return fmt.Sprintf(`
+func testAccComputeInstanceTemplate_sourceSnapshotEncryptionKey(context map[string]interface{}) string {
+	return Nprintf(`
 data "google_kms_key_ring" "ring" {
-  name     = "%s"
+  name     = "%{kms_ring_name}"
   location = "us-central1"
 }
 
 data "google_kms_crypto_key" "key" {
-  name     = "%s"
+  name     = "%{kms_key_name}"
   key_ring = data.google_kms_key_ring.ring.id
 }
 
 resource "google_service_account" "test" {
-  account_id   = "test-sa-%s"
+  account_id   = "tf-test-sa-%{random_suffix}"
   display_name = "KMS Ops Account"
 }
 
@@ -3042,7 +3050,7 @@ data "google_compute_image" "debian" {
 }
 
 resource "google_compute_disk" "persistent" {
-  name  = "debian-disk"
+  name  = "tf-test-debian-disk-%{random_suffix}"
   image = data.google_compute_image.debian.self_link
   size  = 10
   type  = "pd-ssd"
@@ -3060,7 +3068,7 @@ resource "google_compute_snapshot" "snapshot" {
 }
 
 resource "google_compute_instance_template" "template" {
-  name           = "tf-test-instance-template-%s"
+  name           = "tf-test-instance-template-%{random_suffix}"
   machine_type   = "e2-medium"
 
   disk {
@@ -3077,23 +3085,23 @@ resource "google_compute_instance_template" "template" {
     network = "default"
   }
 }
-`, kmsRingName, kmsKeyName, suffix, suffix)
+`, context)
 }
 
-func testAccComputeInstanceTemplate_sourceImageEncryptionKey(kmsRingName, kmsKeyName, suffix string) string {
-	return fmt.Sprintf(`
+func testAccComputeInstanceTemplate_sourceImageEncryptionKey(context map[string]interface{}) string {
+	return Nprintf(`
 data "google_kms_key_ring" "ring" {
-  name     = "%s"
+  name     = "%{kms_ring_name}"
   location = "us-central1"
 }
 
 data "google_kms_crypto_key" "key" {
-  name     = "%s"
+  name     = "%{kms_key_name}"
   key_ring = data.google_kms_key_ring.ring.id
 }
 
 resource "google_service_account" "test" {
-  account_id   = "tf-test-sa-%s"
+  account_id   = "tf-test-sa-%{random_suffix}"
   display_name = "KMS Ops Account"
 }
 
@@ -3119,7 +3127,7 @@ resource "google_compute_image" "image" {
 
 
 resource "google_compute_instance_template" "template" {
-  name           = "tf-test-instance-template-%s"
+  name           = "tf-test-instance-template-%{random_suffix}"
   machine_type   = "e2-medium"
 
   disk {
@@ -3136,5 +3144,5 @@ resource "google_compute_instance_template" "template" {
     network = "default"
   }
 }
-`, kmsRingName, kmsKeyName, suffix, suffix)
+`, context)
 }
