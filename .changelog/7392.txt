@@ -1,0 +1,3 @@
+```release-note:bug
+Changing name field on google_compute_disk for TestAccComputeInstanceTemplate_sourceSnapshotEncryptionKey to include randomly generated string
+```
