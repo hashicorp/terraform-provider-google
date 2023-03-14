@@ -84,7 +84,7 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreStreamingConfigExample(t *tes
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"policyChanged": BootstrapPSARoles(t, "gcp-sa-healthcare", []string{"roles/bigquery.dataEditor", "roles/bigquery.jobUser"}),
+		"policyChanged": BootstrapPSARoles(t, "service-", "gcp-sa-healthcare", []string{"roles/bigquery.dataEditor", "roles/bigquery.jobUser"}),
 		"random_suffix": RandString(t, 10),
 	}
 
