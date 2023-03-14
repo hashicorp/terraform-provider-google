@@ -23,6 +23,64 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
+func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertificateExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    TestAccProviders,
+		CheckDestroy: testAccCheckCertificateManagerCertificateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCertificateManagerCertificate_certificateManagerGoogleManagedCertificateExample(context),
+			},
+			{
+				ResourceName:            "google_certificate_manager_certificate.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"self_managed", "name"},
+			},
+		},
+	})
+}
+
+func testAccCertificateManagerCertificate_certificateManagerGoogleManagedCertificateExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_certificate_manager_certificate" "default" {
+  name        = "tf-test-dns-cert%{random_suffix}"
+  description = "The default cert"
+  scope       = "EDGE_CACHE"
+  managed {
+    domains = [
+      google_certificate_manager_dns_authorization.instance.domain,
+      google_certificate_manager_dns_authorization.instance2.domain,
+      ]
+    dns_authorizations = [
+      google_certificate_manager_dns_authorization.instance.id,
+      google_certificate_manager_dns_authorization.instance2.id,
+      ]
+  }
+}
+
+
+resource "google_certificate_manager_dns_authorization" "instance" {
+  name        = "tf-test-dns-auth%{random_suffix}"
+  description = "The default dnss"
+  domain      = "subdomain%{random_suffix}.hashicorptest.com"
+}
+
+resource "google_certificate_manager_dns_authorization" "instance2" {
+  name        = "tf-test-dns-auth2%{random_suffix}"
+  description = "The default dnss"
+  domain      = "subdomain2%{random_suffix}.hashicorptest.com"
+}
+`, context)
+}
+
 func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateExample(t *testing.T) {
 	t.Parallel()
 
