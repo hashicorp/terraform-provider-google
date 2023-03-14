@@ -29,6 +29,7 @@ func configureTestBasePaths(c *Config, url string) {
 	c.BigQueryBasePath = url
 	c.BigqueryAnalyticsHubBasePath = url
 	c.BigqueryConnectionBasePath = url
+	c.BigqueryDatapolicyBasePath = url
 	c.BigqueryDataTransferBasePath = url
 	c.BigqueryReservationBasePath = url
 	c.BigtableBasePath = url
