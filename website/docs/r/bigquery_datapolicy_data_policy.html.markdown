@@ -21,8 +21,6 @@ description: |-
 
 A BigQuery Data Policy
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about DataPolicy, see:
 
@@ -40,7 +38,6 @@ To get more information about DataPolicy, see:
 
 ```hcl
 resource "google_bigquery_datapolicy_data_policy" "data_policy" {
-    provider = google-beta
     location         = "us-central1"
     data_policy_id   = "data_policy"
     policy_tag       = google_data_catalog_policy_tag.policy_tag.name
@@ -48,14 +45,12 @@ resource "google_bigquery_datapolicy_data_policy" "data_policy" {
   }
 
   resource "google_data_catalog_policy_tag" "policy_tag" {
-    provider = google-beta
     taxonomy     = google_data_catalog_taxonomy.taxonomy.id
     display_name = "Low security"
     description  = "A policy tag normally associated with low security items"
   }
   
   resource "google_data_catalog_taxonomy" "taxonomy" {
-    provider = google-beta
     region                 = "us-central1"
     display_name           = "taxonomy"
     description            = "A collection of policy tags"
