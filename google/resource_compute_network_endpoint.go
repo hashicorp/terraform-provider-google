@@ -64,10 +64,12 @@ This is required for network endpoints of type GCE_VM_IP_PORT.
 The instance must be in the same zone of network endpoint group.`,
 			},
 			"port": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Port number of network endpoint.`,
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Description: `Port number of network endpoint.
+**Note** 'port' is required unless the Network Endpoint Group is created
+with the type of 'GCE_VM_IP'`,
 			},
 			"zone": {
 				Type:             schema.TypeString,
