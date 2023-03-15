@@ -43,7 +43,7 @@ To get more information about MachineImage, see:
 ```hcl
 resource "google_compute_instance" "vm" {
   provider     = google-beta
-  name         = "vm"
+  name         = "my-vm"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -59,7 +59,7 @@ resource "google_compute_instance" "vm" {
 
 resource "google_compute_machine_image" "image" {
   provider        = google-beta
-  name            = "image"
+  name            = "my-image"
   source_instance = google_compute_instance.vm.self_link
 }
 ```
@@ -74,7 +74,7 @@ resource "google_compute_machine_image" "image" {
 ```hcl
 resource "google_compute_instance" "vm" {
   provider     = google-beta
-  name         = "vm"
+  name         = "my-vm"
   machine_type = "e2-medium"
 
   boot_disk {
@@ -90,7 +90,7 @@ resource "google_compute_instance" "vm" {
 
 resource "google_compute_machine_image" "image" {
   provider        = google-beta
-  name            = "image"
+  name            = "my-image"
   source_instance = google_compute_instance.vm.self_link
   machine_image_encryption_key {
     kms_key_name = google_kms_crypto_key.crypto_key.id

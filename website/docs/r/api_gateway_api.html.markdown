@@ -41,7 +41,7 @@ To get more information about Api, see:
 ```hcl
 resource "google_api_gateway_api" "api" {
   provider = google-beta
-  api_id = "api"
+  api_id = "my-api"
 }
 ```
 
