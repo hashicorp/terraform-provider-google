@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
@@ -78,6 +79,20 @@ func waitForDatastreamStreamReady(d *schema.ResourceData, config *Config, timeou
 	})
 }
 
+func resourceDatastreamStreamDatabaseIdDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	re := regexp.MustCompile(`projects/(.+)/datasets/([^\.\?\#]+)`)
+	paths := re.FindStringSubmatch(new)
+
+	// db returns value in form <project>:<dataset_id>
+	if len(paths) == 3 {
+		project := paths[1]
+		datasetId := paths[2]
+		new = fmt.Sprintf("%s:%s", project, datasetId)
+	}
+
+	return old == new
+}
+
 func ResourceDatastreamStream() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDatastreamStreamCreate,
@@ -135,9 +150,11 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"dataset_id": {
-													Type:        schema.TypeString,
-													Required:    true,
-													Description: `Dataset ID in the format projects/{project}/datasets/{dataset_id}`,
+													Type:             schema.TypeString,
+													Required:         true,
+													DiffSuppressFunc: resourceDatastreamStreamDatabaseIdDiffSuppress,
+													Description: `Dataset ID in the format projects/{project}/datasets/{dataset_id} or
+{project}:{dataset_id}`,
 												},
 											},
 										},
@@ -5086,7 +5103,16 @@ func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSingleTarge
 }
 
 func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSingleTargetDatasetDatasetId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return v, nil
+	s := v.(string)
+	re := regexp.MustCompile(`projects/(.+)/datasets/([^\.\?\#]+)`)
+	paths := re.FindStringSubmatch(s)
+	if len(paths) == 3 {
+		project := paths[1]
+		datasetId := paths[2]
+		return fmt.Sprintf("%s:%s", project, datasetId), nil
+	}
+
+	return s, nil
 }
 
 func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasets(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
