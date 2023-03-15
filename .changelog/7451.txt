@@ -1,0 +1,3 @@
+```release-note:bug
+datastream: fixed bug where field `dataset_id` could not utilize the id from bigquery directly
+```
