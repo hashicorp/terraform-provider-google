@@ -1110,6 +1110,60 @@ func TestAccContainerNodePool_concurrent(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_localNvmeSsdBlockConfig(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", RandString(t, 10))
+	np := fmt.Sprintf("tf-test-nodepool-%s", RandString(t, 10))
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    TestAccProviders,
+		CheckDestroy: testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_localNvmeSsdBlockConfig(cluster, np),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_localNvmeSsdBlockConfig(cluster, np string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+	location       = "us-central1-a"
+	// this feature became available in 1.25.3-gke.1800, not sure if theres a better way to do
+	version_prefix = "1.25"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  initial_node_count = 1
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+
+  node_config {
+    machine_type = "n1-standard-1"
+    local_nvme_ssd_block_config {
+      local_ssd_count = 1
+    }
+  }
+}
+`, cluster, np)
+}
+
 func TestAccContainerNodePool_gcfsConfig(t *testing.T) {
 	t.Parallel()
 
