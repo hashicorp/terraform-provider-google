@@ -742,6 +742,8 @@ ephemeral_storage_config {
 }
 ```
 
+* `local_nvme_ssd_block_config` - (Optional) Parameters for the local NVMe SSDs. Structure is [documented below](#nested_local_nvme_ssd_block_config).
+
 * `logging_variant` (Optional) Parameter for specifying the type of logging agent used in a node pool. This will override any [cluster-wide default value](#nested_node_pool_defaults). Valid values include DEFAULT and MAX_THROUGHPUT. See [Increasing logging agent throughput](https://cloud.google.com/stackdriver/docs/solutions/gke/managing-logs#throughput) for more information.
 
 * `gcfs_config` - (Optional) Parameters for the Google Container Filesystem (GCFS).
@@ -877,6 +879,11 @@ linux_node_config {
 <a name="nested_ephemeral_storage_config"></a>The `ephemeral_storage_config` block supports:
 
 * `local_ssd_count` (Required) - Number of local SSDs to use to back ephemeral storage. Uses NVMe interfaces. Each local SSD is 375 GB in size. If zero, it means to disable using local SSDs as ephemeral storage.
+
+<a name="nested_local_nvme_ssd_block_config"></a>The `local_nvme_ssd_block_config` block supports:
+
+* `local_ssd_count` (Required) - Number of raw-block local NVMe SSD disks to be attached to the node. Each local SSD is 375 GB in size. If zero, it means no raw-block local NVMe SSD disks to be attached to the node.
+-> Note: Local NVMe SSD storage available in GKE versions v1.25.3-gke.1800 and later.
 
 <a name="nested_gcfs_config"></a>The `gcfs_config` block supports:
 

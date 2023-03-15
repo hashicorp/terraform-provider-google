@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `local_nvme_ssd_block` to `node_config` block in the `google_container_node_pool`.
+```
