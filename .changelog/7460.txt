@@ -1,0 +1,3 @@
+```release-note:none
+firestore: Updated docs to mention the new `google_firestore_database` resource
+```
