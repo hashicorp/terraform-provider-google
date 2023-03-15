@@ -41,13 +41,13 @@ To get more information about ApiConfig, see:
 ```hcl
 resource "google_api_gateway_api" "api_cfg" {
   provider = google-beta
-  api_id = "api-cfg"
+  api_id = "my-api"
 }
 
 resource "google_api_gateway_api_config" "api_cfg" {
   provider = google-beta
   api = google_api_gateway_api.api_cfg.api_id
-  api_config_id = "cfg"
+  api_config_id = "my-config"
 
   openapi_documents {
     document {
@@ -71,13 +71,13 @@ resource "google_api_gateway_api_config" "api_cfg" {
 ```hcl
 resource "google_api_gateway_api" "api_cfg" {
   provider = google-beta
-  api_id = "api-cfg"
+  api_id = "my-api"
 }
 
 resource "google_api_gateway_api_config" "api_cfg" {
   provider = google-beta
   api = google_api_gateway_api.api_cfg.api_id
-  api_config_id = "cfg"
+  api_config_id = "my-config"
 
   grpc_services {
     file_descriptor_set {
