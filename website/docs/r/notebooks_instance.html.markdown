@@ -394,6 +394,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `proxy_uri` -
   The proxy endpoint that is used to access the Jupyter notebook.
+  Only returned when the resource is in a `PROVISIONED` state. If
+  needed you can utilize `terraform apply -refresh-only` to await
+  the population of this value.
 
 * `state` -
   The state of this instance.
