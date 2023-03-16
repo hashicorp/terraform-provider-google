@@ -415,9 +415,12 @@ Format: projects/{project_id}`,
 				Description: `Instance creation time`,
 			},
 			"proxy_uri": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The proxy endpoint that is used to access the Jupyter notebook.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The proxy endpoint that is used to access the Jupyter notebook.
+Only returned when the resource is in a 'PROVISIONED' state. If
+needed you can utilize 'terraform apply -refresh-only' to await
+the population of this value.`,
 			},
 			"state": {
 				Type:        schema.TypeString,
