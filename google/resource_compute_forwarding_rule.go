@@ -262,6 +262,13 @@ func ComputeForwardingRuleServiceDirectoryRegistrationsSchema() *schema.Resource
 				ForceNew:    true,
 				Description: "Service Directory service to register the forwarding rule under.",
 			},
+			
+			"serviceDirectoryRegion": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Service Directory region to register this global forwarding rule under. Default to "us-central1". Only used for PSC for Google APIs. All PSC for Google APIs Forwarding Rules on the same network should use the same Service Directory region.",
+			},
 		},
 	}
 }
