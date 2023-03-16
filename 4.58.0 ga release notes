@@ -1,7 +1,9 @@
 ## 4.58.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-* Add support for Apigee Sharedflow ([#13938](https://github.com/hashicorp/terraform-provider-google/pull/13938))
+FEATURES:
+* **New Resource:** `google_apigee_sharedflow` ([#13938](https://github.com/hashicorp/terraform-provider-google/pull/13938))
+* **New Resource:** `google_apigee_sharedflow_deployment` ([#13938](https://github.com/hashicorp/terraform-provider-google/pull/13938))
+* **New Resource:** `google_apigee_flowhook` ([#13938](https://github.com/hashicorp/terraform-provider-google/pull/13938))
 
 IMPROVEMENTS:
 * datafusion: added support for `accelerators` field to `google_datafusion_instance` resource. ([#13946](https://github.com/hashicorp/terraform-provider-google/pull/13946))
