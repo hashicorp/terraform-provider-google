@@ -46,9 +46,9 @@ resource "google_storage_bucket_object" "object" {
 	source = "./test-fixtures/appengine/hello-world.zip"
 }
 
-resource "google_app_engine_standard_app_version" "liveapp_v1" {
+resource "google_app_engine_standard_app_version" "internalapp" {
   version_id = "v1"
-  service = "liveapp"
+  service = "internalapp"
   delete_service_on_destroy = true
 
   runtime = "nodejs10"
@@ -65,8 +65,8 @@ resource "google_app_engine_standard_app_version" "liveapp_v1" {
   }
 }
 
-resource "google_app_engine_service_network_settings" "liveapp" {
-  service = google_app_engine_standard_app_version.liveapp_v1.service
+resource "google_app_engine_service_network_settings" "internalapp" {
+  service = google_app_engine_standard_app_version.internalapp.service
   network_settings {
     ingress_traffic_allowed = "INGRESS_TRAFFIC_ALLOWED_INTERNAL_ONLY"
   }
