@@ -14,9 +14,9 @@ func TestAccDataprocMetastoreService_updateAndImport(t *testing.T) {
 	tier := [2]string{"DEVELOPER", "ENTERPRISE"}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigqueryReservationReservationDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryReservationReservationDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocMetastoreService_updateAndImport(name, tier[0]),
@@ -61,9 +61,9 @@ func TestAccDataprocMetastoreService_PrivateServiceConnect(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataprocMetastoreServiceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocMetastoreServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocMetastoreService_PrivateServiceConnect(context),

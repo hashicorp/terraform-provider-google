@@ -14,9 +14,9 @@ func TestAccDataSourceGoogleCloudRunService_basic(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudRunServiceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleCloudRunService_basic(context),
@@ -36,9 +36,9 @@ func TestAccDataSourceGoogleCloudRunService_optionalProject(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudRunServiceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleCloudRunService_optionalProject(context),

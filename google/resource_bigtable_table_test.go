@@ -19,9 +19,9 @@ func TestAccBigtableTable_basic(t *testing.T) {
 	tableName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigtableTableDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableTable(instanceName, tableName),
@@ -44,9 +44,9 @@ func TestAccBigtableTable_splitKeys(t *testing.T) {
 	tableName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigtableTableDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableTable_splitKeys(instanceName, tableName),
@@ -71,9 +71,9 @@ func TestAccBigtableTable_family(t *testing.T) {
 	family := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigtableTableDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableTable_family(instanceName, tableName, family),
@@ -97,9 +97,9 @@ func TestAccBigtableTable_deletion_protection_protected(t *testing.T) {
 	family := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigtableTableDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			// creating a table with a column family and deletion protection equals to protected
 			{
@@ -157,9 +157,9 @@ func TestAccBigtableTable_deletion_protection_unprotected(t *testing.T) {
 	family := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigtableTableDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			// creating a table with a column family and deletion protection equals to unprotected
 			{
@@ -216,9 +216,9 @@ func TestAccBigtableTable_familyMany(t *testing.T) {
 	family := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigtableTableDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableTable_familyMany(instanceName, tableName, family),
@@ -242,9 +242,9 @@ func TestAccBigtableTable_familyUpdate(t *testing.T) {
 	family := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigtableTableDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableTable_familyMany(instanceName, tableName, family),

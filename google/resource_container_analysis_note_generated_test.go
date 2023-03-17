@@ -31,9 +31,9 @@ func TestAccContainerAnalysisNote_containerAnalysisNoteBasicExample(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckContainerAnalysisNoteDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerAnalysisNoteDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerAnalysisNote_containerAnalysisNoteBasicExample(context),
@@ -68,9 +68,9 @@ func TestAccContainerAnalysisNote_containerAnalysisNoteAttestationFullExample(t 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckContainerAnalysisNoteDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerAnalysisNoteDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerAnalysisNote_containerAnalysisNoteAttestationFullExample(context),

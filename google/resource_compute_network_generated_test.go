@@ -31,9 +31,9 @@ func TestAccComputeNetwork_networkBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeNetworkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNetwork_networkBasicExample(context),
@@ -64,9 +64,9 @@ func TestAccComputeNetwork_networkCustomMtuExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeNetworkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNetwork_networkCustomMtuExample(context),

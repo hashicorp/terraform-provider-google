@@ -21,8 +21,8 @@ func TestAccBigtableInstanceIamBinding(t *testing.T) {
 		GetTestProjectFromEnv(), instance, role)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
@@ -69,8 +69,8 @@ func TestAccBigtableInstanceIamMember(t *testing.T) {
 		serviceAccountCanonicalEmail(account))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
@@ -106,8 +106,8 @@ func TestAccBigtableInstanceIamPolicy(t *testing.T) {
 		GetTestProjectFromEnv(), instance)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation

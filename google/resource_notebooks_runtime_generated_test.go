@@ -31,9 +31,9 @@ func TestAccNotebooksRuntime_notebookRuntimeBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckNotebooksRuntimeDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNotebooksRuntimeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNotebooksRuntime_notebookRuntimeBasicExample(context),
@@ -80,9 +80,9 @@ func TestAccNotebooksRuntime_notebookRuntimeBasicGpuExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckNotebooksRuntimeDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNotebooksRuntimeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNotebooksRuntime_notebookRuntimeBasicGpuExample(context),
@@ -136,9 +136,9 @@ func TestAccNotebooksRuntime_notebookRuntimeBasicContainerExample(t *testing.T) 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckNotebooksRuntimeDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNotebooksRuntimeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNotebooksRuntime_notebookRuntimeBasicContainerExample(context),
@@ -193,9 +193,9 @@ func TestAccNotebooksRuntime_notebookRuntimeKernelsExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckNotebooksRuntimeDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNotebooksRuntimeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNotebooksRuntime_notebookRuntimeKernelsExample(context),
@@ -248,9 +248,9 @@ func TestAccNotebooksRuntime_notebookRuntimeScriptExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckNotebooksRuntimeDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNotebooksRuntimeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNotebooksRuntime_notebookRuntimeScriptExample(context),

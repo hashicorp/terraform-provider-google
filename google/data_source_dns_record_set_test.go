@@ -11,9 +11,9 @@ func TestAcccDataSourceDnsRecordSet_basic(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDnsRecordSetDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDnsRecordSetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceDnsRecordSet_basic(RandString(t, 10), RandString(t, 10)),

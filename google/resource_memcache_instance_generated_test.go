@@ -33,9 +33,9 @@ func TestAccMemcacheInstance_memcacheInstanceBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMemcacheInstanceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMemcacheInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMemcacheInstance_memcacheInstanceBasicExample(context),

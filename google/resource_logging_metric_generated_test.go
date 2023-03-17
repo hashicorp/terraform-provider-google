@@ -31,9 +31,9 @@ func TestAccLoggingMetric_loggingMetricBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingMetricDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingMetric_loggingMetricBasicExample(context),
@@ -92,9 +92,9 @@ func TestAccLoggingMetric_loggingMetricCounterBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingMetricDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingMetric_loggingMetricCounterBasicExample(context),
@@ -129,9 +129,9 @@ func TestAccLoggingMetric_loggingMetricCounterLabelsExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingMetricDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingMetric_loggingMetricCounterLabelsExample(context),
@@ -175,9 +175,9 @@ func TestAccLoggingMetric_loggingMetricLoggingBucketExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingMetricDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingMetricDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingMetric_loggingMetricLoggingBucketExample(context),

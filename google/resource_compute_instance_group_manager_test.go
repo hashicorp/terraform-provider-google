@@ -76,9 +76,9 @@ func TestAccInstanceGroupManager_basic(t *testing.T) {
 	igm2 := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_basic(template, target, igm1, igm2),
@@ -106,9 +106,9 @@ func TestAccInstanceGroupManager_targetSizeZero(t *testing.T) {
 	igmName := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_targetSizeZero(templateName, igmName),
@@ -135,9 +135,9 @@ func TestAccInstanceGroupManager_update(t *testing.T) {
 	description2 := "Manager 2"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_update(template1, target1, description, igm),
@@ -180,9 +180,9 @@ func TestAccInstanceGroupManager_updateLifecycle(t *testing.T) {
 	igm := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_updateLifecycle(tag1, igm),
@@ -214,9 +214,9 @@ func TestAccInstanceGroupManager_updatePolicy(t *testing.T) {
 	igm := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_rollingUpdatePolicy(igm),
@@ -277,9 +277,9 @@ func TestAccInstanceGroupManager_separateRegions(t *testing.T) {
 	igm2 := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_separateRegions(igm1, igm2),
@@ -308,9 +308,9 @@ func TestAccInstanceGroupManager_versions(t *testing.T) {
 	igm := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_versions(primaryTemplate, canaryTemplate, igm),
@@ -334,9 +334,9 @@ func TestAccInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 	hck := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_autoHealingPolicies(template, target, igm, hck),
@@ -370,9 +370,9 @@ func TestAccInstanceGroupManager_stateful(t *testing.T) {
 	network := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_stateful(network, template, target, igm, hck),
@@ -414,9 +414,9 @@ func TestAccInstanceGroupManager_waitForStatus(t *testing.T) {
 	perInstanceConfig := fmt.Sprintf("tf-test-config-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_waitForStatus(template, target, igm, perInstanceConfig),

@@ -31,9 +31,9 @@ func TestAccAppEngineApplicationUrlDispatchRules_appEngineApplicationUrlDispatch
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckAppEngineApplicationUrlDispatchRulesDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAppEngineApplicationUrlDispatchRulesDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAppEngineApplicationUrlDispatchRules_appEngineApplicationUrlDispatchRulesBasicExample(context),

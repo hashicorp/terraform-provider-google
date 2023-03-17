@@ -15,9 +15,9 @@ func TestAccAppEngineFlexibleAppVersion_update(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckAppEngineFlexibleAppVersionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAppEngineFlexibleAppVersionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAppEngineFlexibleAppVersion_python(context),

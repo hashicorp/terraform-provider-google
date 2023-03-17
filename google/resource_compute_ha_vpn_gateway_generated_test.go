@@ -31,9 +31,9 @@ func TestAccComputeHaVpnGateway_haVpnGatewayBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeHaVpnGatewayDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHaVpnGatewayDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHaVpnGateway_haVpnGatewayBasicExample(context),

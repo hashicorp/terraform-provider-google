@@ -25,8 +25,8 @@ func TestAccProjectIamAuditConfig_basic(t *testing.T) {
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	service := "cloudkms.googleapis.com"
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -54,8 +54,8 @@ func TestAccProjectIamAuditConfig_multiple(t *testing.T) {
 	service2 := "cloudsql.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -90,8 +90,8 @@ func TestAccProjectIamAuditConfig_multipleAtOnce(t *testing.T) {
 	service2 := "cloudsql.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -119,8 +119,8 @@ func TestAccProjectIamAuditConfig_update(t *testing.T) {
 	service := "cloudkms.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -162,8 +162,8 @@ func TestAccProjectIamAuditConfig_remove(t *testing.T) {
 	service2 := "cloudsql.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -201,8 +201,8 @@ func TestAccProjectIamAuditConfig_addFirstExemptMember(t *testing.T) {
 	members2 := []string{"user:gterraformtest1@gmail.com"}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -237,8 +237,8 @@ func TestAccProjectIamAuditConfig_removeLastExemptMember(t *testing.T) {
 	members := []string{"user:gterraformtest1@gmail.com"}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -273,8 +273,8 @@ func TestAccProjectIamAuditConfig_updateNoExemptMembers(t *testing.T) {
 	service := "cloudkms.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{

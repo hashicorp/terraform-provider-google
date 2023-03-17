@@ -32,9 +32,9 @@ func TestAccFirestoreIndex_firestoreIndexBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckFirestoreIndexDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFirestoreIndexDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFirestoreIndex_firestoreIndexBasicExample(context),

@@ -37,9 +37,9 @@ func testAccIAM2AccessBoundaryPolicy_iamAccessBoundaryPolicyBasic(t *testing.T) 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckIAM2AccessBoundaryPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIAM2AccessBoundaryPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIAM2AccessBoundaryPolicy_iamAccessBoundaryPolicyBasicExample(context),

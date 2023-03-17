@@ -17,9 +17,9 @@ func TestAccComputeTargetGrpcProxy_update(t *testing.T) {
 	healthcheck := fmt.Sprintf("tf-manual-healthcheck-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeTargetGrpcProxyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeTargetGrpcProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeTargetGrpcProxy_basic(proxy, urlmap1, backend, healthcheck),

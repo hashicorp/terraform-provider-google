@@ -31,9 +31,9 @@ func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeBas
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigqueryAnalyticsHubDataExchangeDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryAnalyticsHubDataExchangeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeBasicExample(context),

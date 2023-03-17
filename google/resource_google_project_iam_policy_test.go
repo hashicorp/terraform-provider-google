@@ -19,8 +19,8 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	member := "user:evanbrown@google.com"
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -49,8 +49,8 @@ func TestAccProjectIamPolicy_emptyMembers(t *testing.T) {
 	org := GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectIamPolicyEmptyMembers(pid, pname, org),
@@ -66,8 +66,8 @@ func TestAccProjectIamPolicy_expanded(t *testing.T) {
 	org := GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectAssociatePolicyExpanded(pid, pname, org),
@@ -86,8 +86,8 @@ func TestAccProjectIamPolicy_basicAuditConfig(t *testing.T) {
 	org := GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -116,8 +116,8 @@ func TestAccProjectIamPolicy_expandedAuditConfig(t *testing.T) {
 	org := GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectAssociatePolicyAuditConfigExpanded(pid, pname, org),
@@ -135,8 +135,8 @@ func TestAccProjectIamPolicy_withCondition(t *testing.T) {
 	org := GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -166,8 +166,8 @@ func TestAccProjectIamPolicy_invalidMembers(t *testing.T) {
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccProjectAssociatePolicyBasic(pid, pname, org, "admin@hashicorptest.com"),

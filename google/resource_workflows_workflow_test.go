@@ -15,9 +15,9 @@ func TestAccWorkflowsWorkflow_Update(t *testing.T) {
 	workflowName := fmt.Sprintf("tf-test-acc-workflow-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckWorkflowsWorkflowDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckWorkflowsWorkflowDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWorkflowsWorkflow_Update(workflowName),

@@ -14,9 +14,9 @@ func TestAccDataSourceSqlDatabaseInstance_basic(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceSqlDatabaseInstance_basic(context),

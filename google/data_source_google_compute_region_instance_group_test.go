@@ -13,8 +13,8 @@ func TestAccDataSourceRegionInstanceGroup(t *testing.T) {
 	t.Parallel()
 	name := "tf-test-" + RandString(t, 6)
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceRegionInstanceGroup_basic(fmt.Sprintf("tf-test-rigm--%d", RandInt(t)), name),

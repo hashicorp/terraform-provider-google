@@ -31,9 +31,9 @@ func TestAccComputeAddress_addressBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_addressBasicExample(context),
@@ -64,9 +64,9 @@ func TestAccComputeAddress_addressWithSubnetworkExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_addressWithSubnetworkExample(context),
@@ -112,9 +112,9 @@ func TestAccComputeAddress_addressWithGceEndpointExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_addressWithGceEndpointExample(context),
@@ -147,9 +147,9 @@ func TestAccComputeAddress_addressWithSharedLoadbalancerVipExample(t *testing.T)
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_addressWithSharedLoadbalancerVipExample(context),
@@ -182,9 +182,9 @@ func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_instanceWithIpExample(context),
@@ -239,9 +239,9 @@ func TestAccComputeAddress_computeAddressIpsecInterconnectExample(t *testing.T) 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_computeAddressIpsecInterconnectExample(context),

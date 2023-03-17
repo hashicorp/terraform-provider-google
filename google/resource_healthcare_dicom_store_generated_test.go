@@ -31,9 +31,9 @@ func TestAccHealthcareDicomStore_healthcareDicomStoreBasicExample(t *testing.T) 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckHealthcareDicomStoreDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckHealthcareDicomStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccHealthcareDicomStore_healthcareDicomStoreBasicExample(context),

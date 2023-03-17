@@ -32,9 +32,9 @@ func TestAccFirestoreDocument_firestoreDocumentBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckFirestoreDocumentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFirestoreDocumentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFirestoreDocument_firestoreDocumentBasicExample(context),
@@ -69,9 +69,9 @@ func TestAccFirestoreDocument_firestoreDocumentNestedDocumentExample(t *testing.
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckFirestoreDocumentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFirestoreDocumentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFirestoreDocument_firestoreDocumentNestedDocumentExample(context),

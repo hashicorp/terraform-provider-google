@@ -15,9 +15,9 @@ func testAccAccessContextManagerAccessLevel_basicTest(t *testing.T) {
 	org := GetTestOrgFromEnv(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessContextManagerAccessLevel_basic(org, "my policy", "level"),
@@ -43,9 +43,9 @@ func testAccAccessContextManagerAccessLevel_fullTest(t *testing.T) {
 	org := GetTestOrgFromEnv(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessContextManagerAccessLevel_full(org, "my policy", "level"),
@@ -87,9 +87,9 @@ func testAccAccessContextManagerAccessLevel_customTest(t *testing.T) {
 	org := GetTestOrgFromEnv(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessContextManagerAccessLevel_custom(org, "my policy", "level"),

@@ -31,9 +31,9 @@ func TestAccBigQueryDataset_bigqueryDatasetBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigQueryDatasetDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryDataset_bigqueryDatasetBasicExample(context),
@@ -85,9 +85,9 @@ func TestAccBigQueryDataset_bigqueryDatasetWithMaxTimeTravelHoursExample(t *test
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigQueryDatasetDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryDataset_bigqueryDatasetWithMaxTimeTravelHoursExample(context),
@@ -140,9 +140,9 @@ func TestAccBigQueryDataset_bigqueryDatasetAuthorizedDatasetExample(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigQueryDatasetDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryDataset_bigqueryDatasetAuthorizedDatasetExample(context),
@@ -227,9 +227,9 @@ func TestAccBigQueryDataset_bigqueryDatasetAuthorizedRoutineExample(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigQueryDatasetDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryDataset_bigqueryDatasetAuthorizedRoutineExample(context),

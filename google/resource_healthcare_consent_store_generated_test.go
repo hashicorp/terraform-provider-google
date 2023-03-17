@@ -31,9 +31,9 @@ func TestAccHealthcareConsentStore_healthcareConsentStoreBasicExample(t *testing
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckHealthcareConsentStoreDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckHealthcareConsentStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccHealthcareConsentStore_healthcareConsentStoreBasicExample(context),
@@ -70,9 +70,9 @@ func TestAccHealthcareConsentStore_healthcareConsentStoreFullExample(t *testing.
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckHealthcareConsentStoreDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckHealthcareConsentStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccHealthcareConsentStore_healthcareConsentStoreFullExample(context),
@@ -117,9 +117,9 @@ func TestAccHealthcareConsentStore_healthcareConsentStoreIamExample(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckHealthcareConsentStoreDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckHealthcareConsentStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccHealthcareConsentStore_healthcareConsentStoreIamExample(context),

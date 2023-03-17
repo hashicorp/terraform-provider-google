@@ -31,9 +31,9 @@ func TestAccIdentityPlatformTenantDefaultSupportedIdpConfig_identityPlatformTena
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckIdentityPlatformTenantDefaultSupportedIdpConfigDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIdentityPlatformTenantDefaultSupportedIdpConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityPlatformTenantDefaultSupportedIdpConfig_identityPlatformTenantDefaultSupportedIdpConfigBasicExample(context),

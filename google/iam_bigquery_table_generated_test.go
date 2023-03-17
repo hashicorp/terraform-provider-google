@@ -36,8 +36,8 @@ func TestAccBigQueryTableIamBindingGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableIamBinding_basicGenerated(context),
@@ -76,8 +76,8 @@ func TestAccBigQueryTableIamMemberGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -107,8 +107,8 @@ func TestAccBigQueryTableIamPolicyGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableIamPolicy_basicGenerated(context),
@@ -146,8 +146,8 @@ func TestAccBigQueryTableIamBindingGenerated_withCondition(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableIamBinding_withConditionGenerated(context),
@@ -178,8 +178,8 @@ func TestAccBigQueryTableIamBindingGenerated_withAndWithoutCondition(t *testing.
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableIamBinding_withAndWithoutConditionGenerated(context),
@@ -220,8 +220,8 @@ func TestAccBigQueryTableIamMemberGenerated_withCondition(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableIamMember_withConditionGenerated(context),
@@ -252,8 +252,8 @@ func TestAccBigQueryTableIamMemberGenerated_withAndWithoutCondition(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableIamMember_withAndWithoutConditionGenerated(context),
@@ -298,8 +298,8 @@ func TestAccBigQueryTableIamPolicyGenerated_withCondition(t *testing.T) {
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableIamPolicy_withConditionGenerated(context),

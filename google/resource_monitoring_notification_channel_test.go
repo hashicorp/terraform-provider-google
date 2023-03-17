@@ -11,9 +11,9 @@ func TestAccMonitoringNotificationChannel_update(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringNotificationChannelDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringNotificationChannelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringNotificationChannel_update("email", `email_address = "fake_email@blahblah.com"`, "true"),
@@ -39,9 +39,9 @@ func TestAccMonitoringNotificationChannel_updateSensitiveLabels(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringNotificationChannelDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringNotificationChannelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringNotificationChannel_updateSensitiveLabels(),

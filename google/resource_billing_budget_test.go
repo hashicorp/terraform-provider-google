@@ -16,9 +16,9 @@ func TestAccBillingBudget_billingBudgetCurrencycode(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBillingBudgetDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBillingBudgetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBillingBudget_billingBudgetCurrencycode(context),
@@ -74,9 +74,9 @@ func TestAccBillingBudget_billingBudgetUpdate(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBillingBudgetDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBillingBudgetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBillingBudget_billingBudgetUpdateStart(context),
@@ -131,9 +131,9 @@ func TestAccBillingBudget_billingFilterSubaccounts(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBillingBudgetDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBillingBudgetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBillingBudget_billingFilterSubaccounts(context),
@@ -548,9 +548,9 @@ func TestAccBillingBudget_budgetFilterProjectsOrdering(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBillingBudgetDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBillingBudgetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBillingBudget_budgetFilterProjectsOrdering1(context),

@@ -16,9 +16,9 @@ func TestAccComputeProjectMetadataItem_basic(t *testing.T) {
 	key := "myKey" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckProjectMetadataItemDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProjectMetadataItemDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectMetadataItem_basic("foobar", key, "myValue"),
@@ -44,9 +44,9 @@ func TestAccComputeProjectMetadataItem_basicMultiple(t *testing.T) {
 		testAccProjectMetadataItem_basic("foobar2", key2, "myOtherValue")
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckProjectMetadataItemDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProjectMetadataItemDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: config,
@@ -72,9 +72,9 @@ func TestAccComputeProjectMetadataItem_basicWithEmptyVal(t *testing.T) {
 	key := "myKey" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckProjectMetadataItemDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProjectMetadataItemDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectMetadataItem_basic("foobar", key, ""),
@@ -95,9 +95,9 @@ func TestAccComputeProjectMetadataItem_basicUpdate(t *testing.T) {
 	key := "myKey" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckProjectMetadataItemDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProjectMetadataItemDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectMetadataItem_basic("foobar", key, "myValue"),
@@ -127,9 +127,9 @@ func TestAccComputeProjectMetadataItem_exists(t *testing.T) {
 	originalConfig := testAccProjectMetadataItem_basic("foobar", key, "myValue")
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckProjectMetadataItemDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProjectMetadataItemDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: originalConfig,

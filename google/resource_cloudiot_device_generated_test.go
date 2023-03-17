@@ -33,9 +33,9 @@ func TestAccCloudIotDevice_cloudiotDeviceBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudIotDeviceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudIotDeviceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudIotDevice_cloudiotDeviceBasicExample(context),
@@ -73,9 +73,9 @@ func TestAccCloudIotDevice_cloudiotDeviceFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudIotDeviceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudIotDeviceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudIotDevice_cloudiotDeviceFullExample(context),

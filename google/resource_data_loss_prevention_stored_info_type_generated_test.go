@@ -32,9 +32,9 @@ func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeBasicExample(t *te
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataLossPreventionStoredInfoTypeDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionStoredInfoTypeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeBasicExample(context),
@@ -73,9 +73,9 @@ func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeDictionaryExample(
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataLossPreventionStoredInfoTypeDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionStoredInfoTypeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeDictionaryExample(context),
@@ -115,9 +115,9 @@ func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeLargeCustomDiction
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataLossPreventionStoredInfoTypeDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionStoredInfoTypeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeLargeCustomDictionaryExample(context),

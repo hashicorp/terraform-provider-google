@@ -17,8 +17,8 @@ func TestAccServiceNetworkingPeeredDNSDomain_basic(t *testing.T) {
 	service := "servicenetworking.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceNetworkingPeeredDNSDomain_basic(project, org, billingId, name, service),

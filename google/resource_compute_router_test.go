@@ -14,9 +14,9 @@ func TestAccComputeRouter_basic(t *testing.T) {
 	routerName := fmt.Sprintf("tf-test-router-%s", testId)
 	resourceRegion := "europe-west1"
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRouterDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterBasic(routerName, resourceRegion),
@@ -37,9 +37,9 @@ func TestAccComputeRouter_noRegion(t *testing.T) {
 	routerName := fmt.Sprintf("tf-test-router-%s", testId)
 	providerRegion := "us-central1"
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRouterDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterNoRegion(routerName, providerRegion),
@@ -59,9 +59,9 @@ func TestAccComputeRouter_full(t *testing.T) {
 	testId := RandString(t, 10)
 	routerName := fmt.Sprintf("tf-test-router-%s", testId)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRouterDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterFull(routerName),
@@ -82,9 +82,9 @@ func TestAccComputeRouter_update(t *testing.T) {
 	routerName := fmt.Sprintf("tf-test-router-%s", testId)
 	region := GetTestRegionFromEnv()
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRouterDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterBasic(routerName, region),
@@ -121,9 +121,9 @@ func TestAccComputeRouter_updateAddRemoveBGP(t *testing.T) {
 	routerName := fmt.Sprintf("tf-test-router-%s", testId)
 	region := GetTestRegionFromEnv()
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRouterDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterBasic(routerName, region),

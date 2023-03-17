@@ -16,9 +16,9 @@ func TestAccDataSourceGoogleCloudFunctions2Function_basic(t *testing.T) {
 	zipFilePath := "./test-fixtures/cloudfunctions2/function-source.zip"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudfunctions2functionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudfunctions2functionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleCloudFunctions2FunctionConfig(functionName,

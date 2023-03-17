@@ -15,9 +15,9 @@ func TestAccAlloydbBackup_update(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckAlloydbBackupDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbBackupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAlloydbBackup_alloydbBackupFullExample(context),

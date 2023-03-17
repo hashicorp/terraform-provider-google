@@ -31,9 +31,9 @@ func TestAccComputeRouterBgpPeer_routerPeerRouterApplianceExample(t *testing.T) 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRouterBgpPeerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterBgpPeerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterBgpPeer_routerPeerRouterApplianceExample(context),

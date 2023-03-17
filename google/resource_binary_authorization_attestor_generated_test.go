@@ -31,9 +31,9 @@ func TestAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBinaryAuthorizationAttestorDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBinaryAuthorizationAttestorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(context),

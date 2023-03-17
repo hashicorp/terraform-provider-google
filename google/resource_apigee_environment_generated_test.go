@@ -34,9 +34,9 @@ func TestAccApigeeEnvironment_apigeeEnvironmentBasicTestExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckApigeeEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckApigeeEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeEnvironment_apigeeEnvironmentBasicTestExample(context),
@@ -129,9 +129,9 @@ func TestAccApigeeEnvironment_apigeeEnvironmentBasicDeploymentApiproxyTypeTestEx
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckApigeeEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckApigeeEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeEnvironment_apigeeEnvironmentBasicDeploymentApiproxyTypeTestExample(context),

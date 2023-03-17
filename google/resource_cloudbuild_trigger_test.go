@@ -13,9 +13,9 @@ func TestAccCloudBuildTrigger_basic(t *testing.T) {
 	name := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudBuildTrigger_basic(name),
@@ -42,9 +42,9 @@ func TestAccCloudBuildTrigger_available_secrets_config(t *testing.T) {
 	name := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudBuildTrigger_available_secrets_config(name),
@@ -71,9 +71,9 @@ func TestAccCloudBuildTrigger_pubsub_config(t *testing.T) {
 	name := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudBuildTrigger_pubsub_config(name),
@@ -100,9 +100,9 @@ func TestAccCloudBuildTrigger_webhook_config(t *testing.T) {
 	name := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudBuildTrigger_webhook_config(name),
@@ -130,9 +130,9 @@ func TestAccCloudBuildTrigger_customizeDiffTimeoutSum(t *testing.T) {
 	name := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccCloudBuildTrigger_customizeDiffTimeoutSum(name),
@@ -148,9 +148,9 @@ func TestAccCloudBuildTrigger_customizeDiffTimeoutFormat(t *testing.T) {
 	name := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccCloudBuildTrigger_customizeDiffTimeoutFormat(name),
@@ -165,9 +165,9 @@ func TestAccCloudBuildTrigger_disable(t *testing.T) {
 	name := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudBuildTrigger_basic(name),
@@ -193,9 +193,9 @@ func TestAccCloudBuildTrigger_fullStep(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudBuildTrigger_fullStep(),
@@ -214,9 +214,9 @@ func TestAccCloudBuildTrigger_basic_bitbucket(t *testing.T) {
 	name := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudBuildTrigger_basic_bitbucket(name),

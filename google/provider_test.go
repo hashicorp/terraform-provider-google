@@ -1,29 +1,16 @@
 package google
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"math/rand"
-	"net/http"
 	"os"
-	"path/filepath"
-	"reflect"
 	"regexp"
-	"strconv"
 	"strings"
-	"sync"
 	"testing"
 	"time"
 
-	"github.com/dnaeon/go-vcr/cassette"
-	"github.com/dnaeon/go-vcr/recorder"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -105,24 +92,11 @@ var billingAccountEnvVars = []string{
 	"GOOGLE_BILLING_ACCOUNT",
 }
 
-var configs map[string]*Config
-
-// A source for a given VCR test with the value that seeded it
-type VcrSource struct {
-	seed   int64
-	source rand.Source
-}
-
-var sources map[string]VcrSource
-
 // This is the billing account that will be modified to test billing-related functionality. It is
 // expected to have more permissions granted to the test user and support subaccounts.
 var masterBillingAccountEnvVars = []string{
 	"GOOGLE_MASTER_BILLING_ACCOUNT",
 }
-
-var configsLock = sync.RWMutex{}
-var sourcesLock = sync.RWMutex{}
 
 func init() {
 	configs = make(map[string]*Config)
@@ -133,133 +107,6 @@ func init() {
 	}
 }
 
-// Returns a cached config if VCR testing is enabled. This enables us to use a single HTTP transport
-// for a given test, allowing for recording of HTTP interactions.
-// Why this exists: schema.Provider.ConfigureFunc is called multiple times for a given test
-// ConfigureFunc on our provider creates a new HTTP client and sets base paths (config.go LoadAndValidate)
-// VCR requires a single HTTP client to handle all interactions so it can record and replay responses so
-// this caches HTTP clients per test by replacing ConfigureFunc
-func getCachedConfig(ctx context.Context, d *schema.ResourceData, configureFunc schema.ConfigureContextFunc, testName string) (*Config, diag.Diagnostics) {
-	configsLock.RLock()
-	v, ok := configs[testName]
-	configsLock.RUnlock()
-	if ok {
-		return v, nil
-	}
-	c, diags := configureFunc(ctx, d)
-	if diags.HasError() {
-		return nil, diags
-	}
-	config := c.(*Config)
-	var vcrMode recorder.Mode
-	switch vcrEnv := os.Getenv("VCR_MODE"); vcrEnv {
-	case "RECORDING":
-		vcrMode = recorder.ModeRecording
-	case "REPLAYING":
-		vcrMode = recorder.ModeReplaying
-		// When replaying, set the poll interval low to speed up tests
-		config.PollInterval = 10 * time.Millisecond
-	default:
-		log.Printf("[DEBUG] No valid environment var set for VCR_MODE, expected RECORDING or REPLAYING, skipping VCR. VCR_MODE: %s", vcrEnv)
-		return config, nil
-	}
-
-	envPath := os.Getenv("VCR_PATH")
-	if envPath == "" {
-		log.Print("[DEBUG] No environment var set for VCR_PATH, skipping VCR")
-		return config, nil
-	}
-	path := filepath.Join(envPath, vcrFileName(testName))
-
-	rec, err := recorder.NewAsMode(path, vcrMode, config.Client.Transport)
-	if err != nil {
-		return nil, diag.FromErr(err)
-	}
-	// Defines how VCR will match requests to responses.
-	rec.SetMatcher(func(r *http.Request, i cassette.Request) bool {
-		// Default matcher compares method and URL only
-		if !cassette.DefaultMatcher(r, i) {
-			return false
-		}
-		if r.Body == nil {
-			return true
-		}
-		contentType := r.Header.Get("Content-Type")
-		// If body contains media, don't try to compare
-		if strings.Contains(contentType, "multipart/related") {
-			return true
-		}
-
-		var b bytes.Buffer
-		if _, err := b.ReadFrom(r.Body); err != nil {
-			log.Printf("[DEBUG] Failed to read request body from cassette: %v", err)
-			return false
-		}
-		r.Body = ioutil.NopCloser(&b)
-		reqBody := b.String()
-		// If body matches identically, we are done
-		if reqBody == i.Body {
-			return true
-		}
-
-		// JSON might be the same, but reordered. Try parsing json and comparing
-		if strings.Contains(contentType, "application/json") {
-			var reqJson, cassetteJson interface{}
-			if err := json.Unmarshal([]byte(reqBody), &reqJson); err != nil {
-				log.Printf("[DEBUG] Failed to unmarshall request json: %v", err)
-				return false
-			}
-			if err := json.Unmarshal([]byte(i.Body), &cassetteJson); err != nil {
-				log.Printf("[DEBUG] Failed to unmarshall cassette json: %v", err)
-				return false
-			}
-			return reflect.DeepEqual(reqJson, cassetteJson)
-		}
-		return false
-	})
-	config.Client.Transport = rec
-	configsLock.Lock()
-	configs[testName] = config
-	configsLock.Unlock()
-	return config, nil
-}
-
-// We need to explicitly close the VCR recorder to save the cassette
-func closeRecorder(t *testing.T) {
-	configsLock.RLock()
-	config, ok := configs[t.Name()]
-	configsLock.RUnlock()
-	if ok {
-		// We did not cache the config if it does not use VCR
-		if !t.Failed() && isVcrEnabled() {
-			// If a test succeeds, write new seed/yaml to files
-			err := config.Client.Transport.(*recorder.Recorder).Stop()
-			if err != nil {
-				t.Error(err)
-			}
-			envPath := os.Getenv("VCR_PATH")
-
-			sourcesLock.RLock()
-			vcrSource, ok := sources[t.Name()]
-			sourcesLock.RUnlock()
-			if ok {
-				err = writeSeedToFile(vcrSource.seed, vcrSeedFile(envPath, t.Name()))
-				if err != nil {
-					t.Error(err)
-				}
-			}
-		}
-		// Clean up test config
-		configsLock.Lock()
-		delete(configs, t.Name())
-		configsLock.Unlock()
-
-		sourcesLock.Lock()
-		delete(sources, t.Name())
-		sourcesLock.Unlock()
-	}
-}
-
 func GoogleProviderConfig(t *testing.T) *Config {
 	configsLock.RLock()
 	config, ok := configs[t.Name()]
@@ -267,162 +114,11 @@ func GoogleProviderConfig(t *testing.T) *Config {
 	if ok {
 		return config
 	}
-	return testAccProvider.Meta().(*Config)
-}
 
-func getTestAccProviders(testName string, c resource.TestCase) map[string]*schema.Provider {
-	prov := Provider()
-	if isVcrEnabled() {
-		old := prov.ConfigureContextFunc
-		prov.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-			return getCachedConfig(ctx, d, old, testName)
-		}
-	} else {
-		log.Print("[DEBUG] VCR_PATH or VCR_MODE not set, skipping VCR")
-	}
-	var testProvider string
-	providerMapKeys := reflect.ValueOf(c.Providers).MapKeys()
-	if strings.Contains(providerMapKeys[0].String(), "google-beta") {
-		testProvider = "google-beta"
-	} else {
-		testProvider = "google"
-	}
-	return map[string]*schema.Provider{
-		testProvider: prov,
-	}
-}
-
-func isVcrEnabled() bool {
-	envPath := os.Getenv("VCR_PATH")
-	vcrMode := os.Getenv("VCR_MODE")
-	return envPath != "" && vcrMode != ""
-}
-
-// Wrapper for resource.Test to swap out providers for VCR providers and handle VCR specific things
-// Can be called when VCR is not enabled, and it will behave as normal
-func VcrTest(t *testing.T, c resource.TestCase) {
-	if isVcrEnabled() {
-		providers := getTestAccProviders(t.Name(), c)
-		c.Providers = providers
-		defer closeRecorder(t)
-	} else if isReleaseDiffEnabled() {
-		c = initializeReleaseDiffTest(c)
-	}
-	resource.Test(t, c)
-}
-
-// Retrieves a unique test name used for writing files
-// replaces all `/` characters that would cause filepath issues
-// This matters during tests that dispatch multiple tests, for example TestAccLoggingFolderExclusion
-func vcrSeedFile(path, name string) string {
-	return filepath.Join(path, fmt.Sprintf("%s.seed", vcrFileName(name)))
-}
-
-func vcrFileName(name string) string {
-	return strings.ReplaceAll(name, "/", "_")
-}
-
-// Produces a rand.Source for VCR testing based on the given mode.
-// In RECORDING mode, generates a new seed and saves it to a file, using the seed for the source
-// In REPLAYING mode, reads a seed from a file and creates a source from it
-func vcrSource(t *testing.T, path, mode string) (*VcrSource, error) {
-	sourcesLock.RLock()
-	s, ok := sources[t.Name()]
-	sourcesLock.RUnlock()
-	if ok {
-		return &s, nil
-	}
-	switch mode {
-	case "RECORDING":
-		seed := rand.Int63()
-		s := rand.NewSource(seed)
-		vcrSource := VcrSource{seed: seed, source: s}
-		sourcesLock.Lock()
-		sources[t.Name()] = vcrSource
-		sourcesLock.Unlock()
-		return &vcrSource, nil
-	case "REPLAYING":
-		seed, err := readSeedFromFile(vcrSeedFile(path, t.Name()))
-		if err != nil {
-			return nil, fmt.Errorf("no cassette found on disk for %s, please replay this testcase in recording mode - %w", t.Name(), err)
-		}
-		s := rand.NewSource(seed)
-		vcrSource := VcrSource{seed: seed, source: s}
-		sourcesLock.Lock()
-		sources[t.Name()] = vcrSource
-		sourcesLock.Unlock()
-		return &vcrSource, nil
-	default:
-		log.Printf("[DEBUG] No valid environment var set for VCR_MODE, expected RECORDING or REPLAYING, skipping VCR. VCR_MODE: %s", mode)
-		return nil, errors.New("No valid VCR_MODE set")
-	}
-}
-
-func readSeedFromFile(fileName string) (int64, error) {
-	// Max number of digits for int64 is 19
-	data := make([]byte, 19)
-	f, err := os.Open(fileName)
-	if err != nil {
-		return 0, err
-	}
-	defer f.Close()
-	_, err = f.Read(data)
-	if err != nil {
-		return 0, err
-	}
-	// Remove NULL characters from seed
-	data = bytes.Trim(data, "\x00")
-	seed := string(data)
-	return StringToFixed64(seed)
-}
-
-func writeSeedToFile(seed int64, fileName string) error {
-	f, err := os.Create(fileName)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	_, err = f.WriteString(strconv.FormatInt(seed, 10))
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func RandString(t *testing.T, length int) string {
-	if !isVcrEnabled() {
-		return acctest.RandString(length)
-	}
-	envPath := os.Getenv("VCR_PATH")
-	vcrMode := os.Getenv("VCR_MODE")
-	s, err := vcrSource(t, envPath, vcrMode)
-	if err != nil {
-		// At this point we haven't created any resources, so fail fast
-		t.Fatal(err)
-	}
-
-	r := rand.New(s.source)
-	result := make([]byte, length)
-	set := "abcdefghijklmnopqrstuvwxyz012346789"
-	for i := 0; i < length; i++ {
-		result[i] = set[r.Intn(len(set))]
-	}
-	return string(result)
-}
-
-func RandInt(t *testing.T) int {
-	if !isVcrEnabled() {
-		return acctest.RandInt()
-	}
-	envPath := os.Getenv("VCR_PATH")
-	vcrMode := os.Getenv("VCR_MODE")
-	s, err := vcrSource(t, envPath, vcrMode)
-	if err != nil {
-		// At this point we haven't created any resources, so fail fast
-		t.Fatal(err)
-	}
-
-	return rand.New(s.source).Int()
+	sdkProvider := Provider()
+	rc := terraform.ResourceConfig{}
+	sdkProvider.Configure(context.Background(), &rc)
+	return sdkProvider.Meta().(*Config)
 }
 
 func TestProvider(t *testing.T) {
@@ -504,9 +200,9 @@ func TestAccProviderBasePath_setBasePath(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProviderBasePath_setBasePath("https://www.googleapis.com/compute/beta/", RandString(t, 10)),
@@ -524,9 +220,9 @@ func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", RandString(t, 10)),
@@ -541,9 +237,9 @@ func TestAccProviderMeta_setModuleName(t *testing.T) {
 
 	moduleName := "my-module"
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProviderMeta_setModuleName(moduleName, RandString(t, 10)),
@@ -574,8 +270,8 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		// No TestDestroy since that's not really the point of this test
 		Steps: []resource.TestStep{
 			{
@@ -615,8 +311,8 @@ func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		// No TestDestroy since that's not really the point of this test
 		Steps: []resource.TestStep{
 			{
@@ -1053,74 +749,6 @@ func setupProjectsAndGetAccessToken(org, billing, pid, service string, config *C
 	accessToken := atResp.AccessToken
 
 	return accessToken, nil
-}
-
-func isReleaseDiffEnabled() bool {
-	releaseDiff := os.Getenv("RELEASE_DIFF")
-	return releaseDiff != ""
-}
-
-func initializeReleaseDiffTest(c resource.TestCase) resource.TestCase {
-	var releaseProvider string
-	packagePath := fmt.Sprint(reflect.TypeOf(Config{}).PkgPath())
-	if strings.Contains(packagePath, "google-beta") {
-		releaseProvider = "google-beta"
-	} else {
-		releaseProvider = "google"
-	}
-
-	if c.ExternalProviders != nil {
-		c.ExternalProviders[releaseProvider] = resource.ExternalProvider{}
-	} else {
-		c.ExternalProviders = map[string]resource.ExternalProvider{
-			releaseProvider: {},
-		}
-	}
-
-	localProviderName := "google-local"
-	localProvider := map[string]*schema.Provider{
-		localProviderName: testAccProvider,
-	}
-	c.Providers = localProvider
-
-	var replacementSteps []resource.TestStep
-	for _, testStep := range c.Steps {
-		if testStep.Config != "" {
-			ogConfig := testStep.Config
-			testStep.Config = reformConfigWithProvider(ogConfig, localProviderName)
-			if testStep.ExpectError == nil && testStep.PlanOnly == false {
-				newStep := resource.TestStep{
-					Config: reformConfigWithProvider(ogConfig, releaseProvider),
-				}
-				testStep.PlanOnly = true
-				testStep.ExpectNonEmptyPlan = false
-				replacementSteps = append(replacementSteps, newStep)
-			}
-			replacementSteps = append(replacementSteps, testStep)
-		} else {
-			replacementSteps = append(replacementSteps, testStep)
-		}
-	}
-
-	c.Steps = replacementSteps
-
-	return c
-}
-
-func reformConfigWithProvider(config, provider string) string {
-	configBytes := []byte(config)
-	providerReplacement := fmt.Sprintf("provider = %s", provider)
-	providerReplacementBytes := []byte(providerReplacement)
-	providerBlock := regexp.MustCompile(`provider *=.*google-beta.*`)
-
-	if providerBlock.Match(configBytes) {
-		return string(providerBlock.ReplaceAll(configBytes, providerReplacementBytes))
-	}
-
-	providerReplacement = fmt.Sprintf("${1}\n\t%s", providerReplacement)
-	providerReplacementBytes = []byte(providerReplacement)
-	resourceHeader := regexp.MustCompile(`(resource .*google_.* .*\w+.*\{.*)`)
-	return string(resourceHeader.ReplaceAll(configBytes, providerReplacementBytes))
 }
 
 func SkipIfEnvNotSet(t *testing.T, envs ...string) {

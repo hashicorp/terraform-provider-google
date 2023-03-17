@@ -31,9 +31,9 @@ func TestAccComputeImage_imageBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeImageDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeImage_imageBasicExample(context),
@@ -68,9 +68,9 @@ func TestAccComputeImage_imageGuestOsExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeImageDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeImageDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeImage_imageGuestOsExample(context),

@@ -14,9 +14,9 @@ func TestAccDataSourceGoogleBeyondcorpAppConnection_basic(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBeyondcorpAppConnectionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBeyondcorpAppConnectionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleBeyondcorpAppConnection_basic(context),
@@ -36,9 +36,9 @@ func TestAccDataSourceGoogleBeyondcorpAppConnection_full(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBeyondcorpAppConnectionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBeyondcorpAppConnectionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleBeyondcorpAppConnection_full(context),

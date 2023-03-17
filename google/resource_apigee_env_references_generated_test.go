@@ -33,9 +33,9 @@ func TestAccApigeeEnvReferences_apigeeEnvironmentReferenceTestExample(t *testing
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckApigeeEnvReferencesDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckApigeeEnvReferencesDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeEnvReferences_apigeeEnvironmentReferenceTestExample(context),

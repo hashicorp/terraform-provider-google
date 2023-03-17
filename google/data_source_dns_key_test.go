@@ -14,9 +14,9 @@ func TestAccDataSourceDNSKeys_basic(t *testing.T) {
 	dnsZoneName := fmt.Sprintf("data-dnskey-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceDNSKeysConfig(dnsZoneName, "on"),
@@ -38,9 +38,9 @@ func TestAccDataSourceDNSKeys_noDnsSec(t *testing.T) {
 	dnsZoneName := fmt.Sprintf("data-dnskey-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceDNSKeysConfig(dnsZoneName, "off"),

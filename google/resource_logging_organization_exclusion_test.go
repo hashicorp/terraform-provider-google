@@ -36,9 +36,9 @@ func testAccLoggingOrganizationExclusion_basic(t *testing.T) {
 	description := "Description " + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingOrganizationExclusionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingOrganizationExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingOrganizationExclusion_basicCfg(exclusionName, description, org),
@@ -59,9 +59,9 @@ func testAccLoggingOrganizationExclusion_update(t *testing.T) {
 	descriptionAfter := "Updated Basic Organization Logging Exclusion" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingOrganizationExclusionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingOrganizationExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingOrganizationExclusion_basicCfg(exclusionName, descriptionBefore, org),
@@ -87,9 +87,9 @@ func testAccLoggingOrganizationExclusion_multiple(t *testing.T) {
 	org := GetTestOrgFromEnv(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingOrganizationExclusionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingOrganizationExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingOrganizationExclusion_multipleCfg("tf-test-exclusion-"+RandString(t, 10), org),

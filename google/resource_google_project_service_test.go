@@ -58,8 +58,8 @@ func TestAccProjectService_basic(t *testing.T) {
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	services := []string{"iam.googleapis.com", "cloudresourcemanager.googleapis.com"}
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectService_basic(services, pid, pname, org),
@@ -115,8 +115,8 @@ func TestAccProjectService_disableDependentServices(t *testing.T) {
 	services := []string{"cloudbuild.googleapis.com", "containerregistry.googleapis.com"}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectService_disableDependentServices(services, pid, pname, org, billingId, "false"),
@@ -155,8 +155,8 @@ func TestAccProjectService_handleNotFound(t *testing.T) {
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	service := "iam.googleapis.com"
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectService_handleNotFound(service, pid, pname, org),
@@ -188,8 +188,8 @@ func TestAccProjectService_renamedService(t *testing.T) {
 	org := GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectService_single(newName, pid, pname, org),

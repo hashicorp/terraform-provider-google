@@ -33,9 +33,9 @@ func testAccAccessContextManagerAccessLevelCondition_basicTest(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckAccessContextManagerAccessLevelConditionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAccessContextManagerAccessLevelConditionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessContextManagerAccessLevelCondition_basic(org, "my policy", "level", serviceAccountName),

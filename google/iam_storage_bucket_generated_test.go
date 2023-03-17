@@ -37,8 +37,8 @@ func TestAccStorageBucketIamBindingGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketIamBinding_basicGenerated(context),
@@ -78,8 +78,8 @@ func TestAccStorageBucketIamMemberGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -113,8 +113,8 @@ func TestAccStorageBucketIamPolicyGenerated(t *testing.T) {
 	context["service_account"] = sa
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketIamPolicy_basicGenerated(context),
@@ -153,8 +153,8 @@ func TestAccStorageBucketIamBindingGenerated_withCondition(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketIamBinding_withConditionGenerated(context),
@@ -186,8 +186,8 @@ func TestAccStorageBucketIamBindingGenerated_withAndWithoutCondition(t *testing.
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketIamBinding_withAndWithoutConditionGenerated(context),
@@ -229,8 +229,8 @@ func TestAccStorageBucketIamMemberGenerated_withCondition(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketIamMember_withConditionGenerated(context),
@@ -262,8 +262,8 @@ func TestAccStorageBucketIamMemberGenerated_withAndWithoutCondition(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketIamMember_withAndWithoutConditionGenerated(context),
@@ -312,8 +312,8 @@ func TestAccStorageBucketIamPolicyGenerated_withCondition(t *testing.T) {
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketIamPolicy_withConditionGenerated(context),

@@ -31,9 +31,9 @@ func TestAccComputeHealthCheck_healthCheckTcpExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHealthCheck_healthCheckTcpExample(context),
@@ -70,9 +70,9 @@ func TestAccComputeHealthCheck_healthCheckTcpFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHealthCheck_healthCheckTcpFullExample(context),
@@ -116,9 +116,9 @@ func TestAccComputeHealthCheck_healthCheckSslExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHealthCheck_healthCheckSslExample(context),
@@ -155,9 +155,9 @@ func TestAccComputeHealthCheck_healthCheckSslFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHealthCheck_healthCheckSslFullExample(context),
@@ -201,9 +201,9 @@ func TestAccComputeHealthCheck_healthCheckHttpExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHealthCheck_healthCheckHttpExample(context),
@@ -240,9 +240,9 @@ func TestAccComputeHealthCheck_healthCheckHttpFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHealthCheck_healthCheckHttpFullExample(context),
@@ -287,9 +287,9 @@ func TestAccComputeHealthCheck_healthCheckHttpsExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHealthCheck_healthCheckHttpsExample(context),
@@ -326,9 +326,9 @@ func TestAccComputeHealthCheck_healthCheckHttpsFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHealthCheck_healthCheckHttpsFullExample(context),
@@ -373,9 +373,9 @@ func TestAccComputeHealthCheck_healthCheckHttp2Example(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHealthCheck_healthCheckHttp2Example(context),
@@ -412,9 +412,9 @@ func TestAccComputeHealthCheck_healthCheckHttp2FullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHealthCheck_healthCheckHttp2FullExample(context),
@@ -459,9 +459,9 @@ func TestAccComputeHealthCheck_healthCheckGrpcExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHealthCheck_healthCheckGrpcExample(context),
@@ -498,9 +498,9 @@ func TestAccComputeHealthCheck_healthCheckGrpcFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeHealthCheckDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeHealthCheck_healthCheckGrpcFullExample(context),

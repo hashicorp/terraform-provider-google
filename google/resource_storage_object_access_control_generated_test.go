@@ -31,9 +31,9 @@ func TestAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExa
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckStorageObjectAccessControlDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckStorageObjectAccessControlDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExample(context),

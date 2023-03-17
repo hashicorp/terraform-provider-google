@@ -31,9 +31,9 @@ func TestAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstanceBasic
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckSQLSourceRepresentationInstanceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSQLSourceRepresentationInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstanceBasicExample(context),

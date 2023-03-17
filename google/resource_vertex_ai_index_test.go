@@ -18,9 +18,9 @@ func TestAccVertexAIIndex_updated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckVertexAIIndexDestroyProducer_basic(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIIndexDestroyProducer_basic(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVertexAIIndex_basic(context),

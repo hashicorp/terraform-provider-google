@@ -16,8 +16,8 @@ func TestAccBinaryAuthorizationPolicy_basic(t *testing.T) {
 	pid := "tf-test-" + RandString(t, 10)
 	billingId := GetTestBillingAccountFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBinaryAuthorizationPolicyBasic(pid, pname, org, billingId),
@@ -47,8 +47,8 @@ func TestAccBinaryAuthorizationPolicy_full(t *testing.T) {
 	attestor := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBinaryAuthorizationPolicyFull(pid, pname, org, billingId, note, attestor, "ENABLE"),
@@ -79,8 +79,8 @@ func TestAccBinaryAuthorizationPolicy_separateProject(t *testing.T) {
 	attestor := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBinaryAuthorizationPolicy_separateProject(pid, pname, org, billingId, note, attestor),
@@ -110,8 +110,8 @@ func TestAccBinaryAuthorizationPolicy_update(t *testing.T) {
 	attestor := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBinaryAuthorizationPolicyBasic(pid, pname, org, billingId),

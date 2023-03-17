@@ -61,9 +61,9 @@ func TestAccComputeSubnetwork_basic(t *testing.T) {
 	subnetwork3Name := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSubnetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSubnetwork_basic(cnName, subnetwork1Name, subnetwork2Name, subnetwork3Name),
@@ -97,9 +97,9 @@ func TestAccComputeSubnetwork_update(t *testing.T) {
 	subnetworkName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSubnetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSubnetwork_update1(cnName, "10.2.0.0/24", subnetworkName),
@@ -154,9 +154,9 @@ func TestAccComputeSubnetwork_secondaryIpRanges(t *testing.T) {
 	subnetworkName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSubnetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSubnetwork_secondaryIpRanges_update1(cnName, subnetworkName),
@@ -210,9 +210,9 @@ func TestAccComputeSubnetwork_flowLogs(t *testing.T) {
 	subnetworkName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSubnetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSubnetwork_flowLogs(cnName, subnetworkName),
@@ -287,9 +287,9 @@ func TestAccComputeSubnetwork_flowLogsMigrate(t *testing.T) {
 	subnetworkName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSubnetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSubnetwork_flowLogsMigrate(cnName, subnetworkName),
@@ -338,9 +338,9 @@ func TestAccComputeSubnetwork_ipv6(t *testing.T) {
 	subnetworkName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeSubnetworkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSubnetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeSubnetwork_ipv4(cnName, subnetworkName),

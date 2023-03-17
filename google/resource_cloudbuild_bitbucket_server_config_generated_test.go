@@ -31,9 +31,9 @@ func TestAccCloudBuildBitbucketServerConfig_cloudbuildBitbucketServerConfigExamp
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudBuildBitbucketServerConfigDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildBitbucketServerConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudBuildBitbucketServerConfig_cloudbuildBitbucketServerConfigExample(context),
@@ -74,9 +74,9 @@ func TestAccCloudBuildBitbucketServerConfig_cloudbuildBitbucketServerConfigPeere
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudBuildBitbucketServerConfigDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildBitbucketServerConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudBuildBitbucketServerConfig_cloudbuildBitbucketServerConfigPeeredNetworkExample(context),

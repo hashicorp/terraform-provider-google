@@ -16,9 +16,9 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionBasic(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigqueryConnectionConnectionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryConnectionConnectionDestroyProducer(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
 		},
@@ -147,8 +147,8 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionAwsUpdate(t *testing.
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
 			"time":   {},

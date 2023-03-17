@@ -19,9 +19,9 @@ func TestAccLoggingBillingAccountSink_basic(t *testing.T) {
 	var sink logging.LogSink
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBillingAccountSink_basic(sinkName, bucketName, billingAccount),
@@ -49,9 +49,9 @@ func TestAccLoggingBillingAccountSink_update(t *testing.T) {
 	var sinkBefore, sinkAfter logging.LogSink
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBillingAccountSink_update(sinkName, bucketName, billingAccount),
@@ -91,9 +91,9 @@ func TestAccLoggingBillingAccountSink_described(t *testing.T) {
 	billingAccount := GetTestMasterBillingAccountFromEnv(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBillingAccountSink_described(sinkName, bucketName, billingAccount),
@@ -114,9 +114,9 @@ func TestAccLoggingBillingAccountSink_disabled(t *testing.T) {
 	billingAccount := GetTestMasterBillingAccountFromEnv(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBillingAccountSink_disabled(sinkName, bucketName, billingAccount),
@@ -137,9 +137,9 @@ func TestAccLoggingBillingAccountSink_updateBigquerySink(t *testing.T) {
 	billingAccount := GetTestMasterBillingAccountFromEnv(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBillingAccountSink_bigquery_before(sinkName, bqDatasetID, billingAccount),
@@ -171,9 +171,9 @@ func TestAccLoggingBillingAccountSink_heredoc(t *testing.T) {
 	var sink logging.LogSink
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingBillingAccountSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBillingAccountSink_heredoc(sinkName, bucketName, billingAccount),

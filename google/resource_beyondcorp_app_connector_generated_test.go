@@ -31,9 +31,9 @@ func TestAccBeyondcorpAppConnector_beyondcorpAppConnectorBasicExample(t *testing
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBeyondcorpAppConnectorDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBeyondcorpAppConnectorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBeyondcorpAppConnector_beyondcorpAppConnectorBasicExample(context),
@@ -74,9 +74,9 @@ func TestAccBeyondcorpAppConnector_beyondcorpAppConnectorFullExample(t *testing.
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBeyondcorpAppConnectorDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBeyondcorpAppConnectorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBeyondcorpAppConnector_beyondcorpAppConnectorFullExample(context),

@@ -17,9 +17,9 @@ func TestAccStorageTransferAgentPool_agentPoolUpdate(t *testing.T) {
 	displayNameUpdate := fmt.Sprintf("tf-test-display-name-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckStorageTransferAgentPoolDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckStorageTransferAgentPoolDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageTransferAgentPool_agentPoolBasic(GetTestProjectFromEnv(), agentPoolName, displayName),

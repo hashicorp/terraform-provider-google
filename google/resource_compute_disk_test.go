@@ -325,8 +325,8 @@ func TestAccComputeDisk_update(t *testing.T) {
 	diskName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_basic(diskName),
@@ -357,9 +357,9 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 	projectName := GetTestProjectFromEnv()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, "self_link"),
@@ -388,9 +388,9 @@ func TestAccComputeDisk_encryption(t *testing.T) {
 	var disk compute.Disk
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_encryption(diskName),
@@ -415,9 +415,9 @@ func TestAccComputeDisk_encryptionKMS(t *testing.T) {
 	var disk compute.Disk
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_encryptionKMS(pid, diskName, kms.CryptoKey.Name),
@@ -445,9 +445,9 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_deleteDetach(instanceName, diskName),
@@ -483,9 +483,9 @@ func TestAccComputeDisk_deleteDetachIGM(t *testing.T) {
 	mgrName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_deleteDetachIGM(diskName, mgrName),
@@ -535,8 +535,8 @@ func TestAccComputeDisk_pdExtremeImplicitProvisionedIops(t *testing.T) {
 	diskName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_pdExtremeImplicitProvisionedIops(diskName),
@@ -605,9 +605,9 @@ func TestAccComputeDisk_cloneDisk(t *testing.T) {
 	var disk compute.Disk
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_diskClone(diskName, "self_link"),
@@ -891,9 +891,9 @@ func TestAccComputeDisk_encryptionWithRSAEncryptedKey(t *testing.T) {
 	var disk compute.Disk
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeDiskDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDisk_encryptionWithRSAEncryptedKey(diskName),

@@ -32,9 +32,9 @@ func TestAccSpannerDatabase_spannerDatabaseBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckSpannerDatabaseDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSpannerDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSpannerDatabase_spannerDatabaseBasicExample(context),

@@ -35,9 +35,9 @@ func TestAccRecaptchaEnterpriseKey_AndroidKey(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckRecaptchaEnterpriseKeyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRecaptchaEnterpriseKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRecaptchaEnterpriseKey_AndroidKey(context),
@@ -67,9 +67,9 @@ func TestAccRecaptchaEnterpriseKey_IosKey(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckRecaptchaEnterpriseKeyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRecaptchaEnterpriseKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRecaptchaEnterpriseKey_IosKey(context),
@@ -99,9 +99,9 @@ func TestAccRecaptchaEnterpriseKey_MinimalKey(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckRecaptchaEnterpriseKeyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRecaptchaEnterpriseKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRecaptchaEnterpriseKey_MinimalKey(context),
@@ -123,9 +123,9 @@ func TestAccRecaptchaEnterpriseKey_WebKey(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckRecaptchaEnterpriseKeyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRecaptchaEnterpriseKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRecaptchaEnterpriseKey_WebKey(context),
@@ -155,9 +155,9 @@ func TestAccRecaptchaEnterpriseKey_WebScoreKey(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckRecaptchaEnterpriseKeyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRecaptchaEnterpriseKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRecaptchaEnterpriseKey_WebScoreKey(context),

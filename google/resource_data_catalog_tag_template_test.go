@@ -16,9 +16,9 @@ func TestAccDataCatalogTagTemplate_dataCatalogTagTemplate_updateFields(t *testin
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataCatalogTagTemplateDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataCatalogTagTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogTagTemplate_dataCatalogTagTemplateBasicExample(context),

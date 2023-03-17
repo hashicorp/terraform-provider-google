@@ -17,8 +17,8 @@ func TestAccLoggingBucketConfigFolder_basic(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBucketConfigFolder_basic(context, 30),
@@ -52,8 +52,8 @@ func TestAccLoggingBucketConfigProject_basic(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBucketConfigProject_basic(context, 30),
@@ -101,8 +101,8 @@ func TestAccLoggingBucketConfigProject_cmekSettings(t *testing.T) {
 	cryptoKeyNameUpdate := fmt.Sprintf("tf-test-crypto-key-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBucketConfigProject_cmekSettings(context, bucketId, keyRingName, cryptoKeyName, cryptoKeyNameUpdate),
@@ -136,8 +136,8 @@ func TestAccLoggingBucketConfigBillingAccount_basic(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBucketConfigBillingAccount_basic(context, 30),
@@ -170,8 +170,8 @@ func TestAccLoggingBucketConfigOrganization_basic(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBucketConfigOrganization_basic(context, 30),
@@ -333,8 +333,8 @@ func TestAccLoggingBucketConfig_CreateBuckets_withCustomId(t *testing.T) {
 
 	for res, config := range configList {
 		VcrTest(t, resource.TestCase{
-			PreCheck:  func() { testAccPreCheck(t) },
-			Providers: TestAccProviders,
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 			Steps: []resource.TestStep{
 				{
 					Config: config,

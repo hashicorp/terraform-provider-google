@@ -13,9 +13,9 @@ func TestAccMonitoringDashboard_basic(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringDashboardDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringDashboardDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringDashboard_basic(),
@@ -40,9 +40,9 @@ func TestAccMonitoringDashboard_gridLayout(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringDashboardDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringDashboardDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringDashboard_gridLayout(),
@@ -61,9 +61,9 @@ func TestAccMonitoringDashboard_rowLayout(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringDashboardDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringDashboardDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringDashboard_rowLayout(),
@@ -84,9 +84,9 @@ func TestAccMonitoringDashboard_update(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringDashboardDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringDashboardDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringDashboard_rowLayout(),

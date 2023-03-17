@@ -31,9 +31,9 @@ func TestAccGameServicesRealm_gameServiceRealmBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGameServicesRealmDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGameServicesRealmDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGameServicesRealm_gameServiceRealmBasicExample(context),

@@ -15,8 +15,8 @@ func TestAccFolderIamMember_basic(t *testing.T) {
 	org := GetTestOrgFromEnv(t)
 	fname := "tf-test-" + RandString(t, 10)
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
@@ -47,8 +47,8 @@ func TestAccFolderIamMember_multiple(t *testing.T) {
 	org := GetTestOrgFromEnv(t)
 	fname := "tf-test-" + RandString(t, 10)
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
@@ -89,8 +89,8 @@ func TestAccFolderIamMember_remove(t *testing.T) {
 	org := GetTestOrgFromEnv(t)
 	fname := "tf-test-" + RandString(t, 10)
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{

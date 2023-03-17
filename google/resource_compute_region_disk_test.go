@@ -18,9 +18,9 @@ func TestAccComputeRegionDisk_basic(t *testing.T) {
 	var disk compute.Disk
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionDiskDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionDisk_basic(diskName, "self_link"),
@@ -58,9 +58,9 @@ func TestAccComputeRegionDisk_basicUpdate(t *testing.T) {
 	var disk compute.Disk
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionDiskDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionDisk_basic(diskName, "self_link"),
@@ -101,9 +101,9 @@ func TestAccComputeRegionDisk_encryption(t *testing.T) {
 	var disk compute.Disk
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionDiskDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionDisk_encryption(diskName),
@@ -128,9 +128,9 @@ func TestAccComputeRegionDisk_deleteDetach(t *testing.T) {
 	var disk compute.Disk
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionDiskDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionDisk_deleteDetach(instanceName, diskName, regionDiskName),
@@ -182,9 +182,9 @@ func TestAccComputeRegionDisk_cloneDisk(t *testing.T) {
 	var disk compute.Disk
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionDiskDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionDisk_diskClone(diskName, "self_link"),

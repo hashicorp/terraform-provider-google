@@ -16,9 +16,9 @@ func TestAccServiceNetworkingConnection_create(t *testing.T) {
 	service := "servicenetworking.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testServiceNetworkingConnectionDestroy(t, service, network),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testServiceNetworkingConnectionDestroy(t, service, network),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceNetworkingConnection(network, addr, "servicenetworking.googleapis.com"),
@@ -41,9 +41,9 @@ func TestAccServiceNetworkingConnection_update(t *testing.T) {
 	service := "servicenetworking.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testServiceNetworkingConnectionDestroy(t, service, network),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testServiceNetworkingConnectionDestroy(t, service, network),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceNetworkingConnection(network, addr1, "servicenetworking.googleapis.com"),

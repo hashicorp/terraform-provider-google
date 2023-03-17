@@ -54,9 +54,9 @@ func TestAccSqlDatabase_basic(t *testing.T) {
 	dbName := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccSqlDatabaseDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(testGoogleSqlDatabase_basic, instanceName, dbName),
@@ -110,9 +110,9 @@ func TestAccSqlDatabase_update(t *testing.T) {
 	database_name := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccSqlDatabaseDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(

@@ -16,8 +16,8 @@ func TestAccFolderIamAuditConfig_basic(t *testing.T) {
 	fname := "tf-test-" + RandString(t, 10)
 	service := "cloudkms.googleapis.com"
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
@@ -46,8 +46,8 @@ func TestAccFolderIamAuditConfig_multiple(t *testing.T) {
 	service2 := "cloudsql.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
@@ -80,8 +80,8 @@ func TestAccFolderIamAuditConfig_multipleAtOnce(t *testing.T) {
 	service2 := "cloudsql.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
@@ -107,8 +107,8 @@ func TestAccFolderIamAuditConfig_update(t *testing.T) {
 	service := "cloudkms.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
@@ -145,8 +145,8 @@ func TestAccFolderIamAuditConfig_remove(t *testing.T) {
 	service2 := "cloudsql.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
@@ -181,8 +181,8 @@ func TestAccFolderIamAuditConfig_addFirstExemptMember(t *testing.T) {
 	members2 := []string{"user:gterraformtest1@gmail.com"}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
@@ -214,8 +214,8 @@ func TestAccFolderIamAuditConfig_removeLastExemptMember(t *testing.T) {
 	members := []string{"user:gterraformtest1@gmail.com"}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{
@@ -247,8 +247,8 @@ func TestAccFolderIamAuditConfig_updateNoExemptMembers(t *testing.T) {
 	service := "cloudkms.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
 			{

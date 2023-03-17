@@ -31,9 +31,9 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderA
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderAwsBasicExample(context),
@@ -72,9 +72,9 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderA
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderAwsFullExample(context),
@@ -122,9 +122,9 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderO
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderOidcBasicExample(context),
@@ -166,9 +166,9 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderO
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderOidcFullExample(context),

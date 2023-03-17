@@ -31,9 +31,9 @@ func TestAccComputeRegionUrlMap_regionUrlMapBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionUrlMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionUrlMap_regionUrlMapBasicExample(context),
@@ -129,9 +129,9 @@ func TestAccComputeRegionUrlMap_regionUrlMapDefaultRouteActionExample(t *testing
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionUrlMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionUrlMap_regionUrlMapDefaultRouteActionExample(context),
@@ -328,9 +328,9 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionUrlMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionUrlMap_regionUrlMapL7IlbPathExample(context),
@@ -459,9 +459,9 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathPartialExample(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionUrlMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionUrlMap_regionUrlMapL7IlbPathPartialExample(context),
@@ -558,9 +558,9 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRouteExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionUrlMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionUrlMap_regionUrlMapL7IlbRouteExample(context),
@@ -670,9 +670,9 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRoutePartialExample(t *testing.
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionUrlMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionUrlMap_regionUrlMapL7IlbRoutePartialExample(context),

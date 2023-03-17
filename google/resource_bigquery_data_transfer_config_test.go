@@ -181,9 +181,9 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_basic(t *testing.T) {
 	end_time := now.AddDate(0, 1, 0).Format(time.RFC3339)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, random_suffix, "third", start_time, end_time, "y"),
@@ -210,9 +210,9 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_update(t *testing.T) {
 	random_suffix2 := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, random_suffix, "first", first_start_time, first_end_time, "y"),
@@ -248,9 +248,9 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_no_destination(t *testing.
 	end_time := now.AddDate(0, 1, 0).Format(time.RFC3339)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigqueryDataTransferConfig_scheduledQueryNoDestination(random_suffix, "third", start_time, end_time, "y"),
@@ -269,9 +269,9 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_with_service_account(t *te
 	random_suffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigqueryDataTransferConfig_scheduledQuery_service_account(random_suffix),
@@ -290,9 +290,9 @@ func testAccBigqueryDataTransferConfig_copy_booleanParam(t *testing.T) {
 	random_suffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigqueryDataTransferConfig_booleanParam(random_suffix),
@@ -311,9 +311,9 @@ func testAccBigqueryDataTransferConfig_force_new_update_params(t *testing.T) {
 	random_suffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigqueryDataTransferConfig_update_params_force_new(random_suffix, "old", "old"),

@@ -14,9 +14,9 @@ func TestAccDataSourceGameServicesGameServerDeploymentRollout_basic(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGameServicesGameServerDeploymentRolloutDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGameServicesGameServerDeploymentRolloutDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGameServicesGameServerDeploymentRollout_basic(context),

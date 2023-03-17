@@ -31,9 +31,9 @@ func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionDiskDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionDisk_regionDiskBasicExample(context),

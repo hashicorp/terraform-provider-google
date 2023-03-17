@@ -31,9 +31,9 @@ func TestAccCloudRunV2Job_cloudrunv2JobBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudRunV2JobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudRunV2Job_cloudrunv2JobBasicExample(context),
@@ -75,9 +75,9 @@ func TestAccCloudRunV2Job_cloudrunv2JobSqlExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudRunV2JobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudRunV2Job_cloudrunv2JobSqlExample(context),
@@ -176,9 +176,9 @@ func TestAccCloudRunV2Job_cloudrunv2JobVpcaccessExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudRunV2JobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudRunV2Job_cloudrunv2JobVpcaccessExample(context),
@@ -244,9 +244,9 @@ func TestAccCloudRunV2Job_cloudrunv2JobSecretExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudRunV2JobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudRunV2Job_cloudrunv2JobSecretExample(context),

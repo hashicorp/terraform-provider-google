@@ -31,9 +31,9 @@ func TestAccDataCatalogEntryGroup_dataCatalogEntryGroupBasicExample(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataCatalogEntryGroupDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataCatalogEntryGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogEntryGroup_dataCatalogEntryGroupBasicExample(context),
@@ -64,9 +64,9 @@ func TestAccDataCatalogEntryGroup_dataCatalogEntryGroupFullExample(t *testing.T)
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataCatalogEntryGroupDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataCatalogEntryGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogEntryGroup_dataCatalogEntryGroupFullExample(context),

@@ -13,9 +13,9 @@ func TestAccPubsubLiteTopic_pubsubLiteTopic_count_update(t *testing.T) {
 	topic := fmt.Sprintf("tf-test-topic-foo-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckPubsubLiteTopicDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubLiteTopicDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubLiteTopic_pubsubLiteTopic_count_update(topic, "1"),

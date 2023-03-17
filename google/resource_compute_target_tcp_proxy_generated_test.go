@@ -31,9 +31,9 @@ func TestAccComputeTargetTcpProxy_targetTcpProxyBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeTargetTcpProxyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeTargetTcpProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeTargetTcpProxy_targetTcpProxyBasicExample(context),

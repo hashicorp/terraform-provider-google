@@ -22,8 +22,8 @@ func TestAccDeploymentManagerDeployment_basicFile(t *testing.T) {
 	})
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckDeploymentManagerDeploymentDestroyProducer(t),
 			testDeploymentManagerDeploymentVerifyServiceAccountMissing(t, accountId)),
@@ -49,9 +49,9 @@ func TestAccDeploymentManagerDeployment_deleteInvalidOnCreate(t *testing.T) {
 	accountId := "tf-dm-" + randStr
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDeploymentManagerDestroyInvalidDeployment(t, deploymentName),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDeploymentManagerDestroyInvalidDeployment(t, deploymentName),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccDeploymentManagerDeployment_invalidCreatePolicy(deploymentName, accountId),
@@ -69,9 +69,9 @@ func TestAccDeploymentManagerDeployment_createDeletePolicy(t *testing.T) {
 	accountId := "tf-dm-" + randStr
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDeploymentManagerDeploymentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDeploymentManagerDeploymentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDeploymentManagerDeployment_createDeletePolicy(deploymentName, accountId),
@@ -97,8 +97,8 @@ func TestAccDeploymentManagerDeployment_imports(t *testing.T) {
 	})
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckDeploymentManagerDeploymentDestroyProducer(t),
 			testDeploymentManagerDeploymentVerifyServiceAccountMissing(t, accountId)),
@@ -126,8 +126,8 @@ func TestAccDeploymentManagerDeployment_update(t *testing.T) {
 	accountId2 := "tf-dm-second" + randStr
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckDeploymentManagerDeploymentDestroyProducer(t),
 			testDeploymentManagerDeploymentVerifyServiceAccountMissing(t, accountId)),

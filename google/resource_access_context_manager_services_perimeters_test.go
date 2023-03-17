@@ -14,9 +14,9 @@ func testAccAccessContextManagerServicePerimeters_basicTest(t *testing.T) {
 	org := GetTestOrgFromEnv(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckAccessContextManagerServicePerimetersDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAccessContextManagerServicePerimetersDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessContextManagerServicePerimeters_basic(org, "my policy", "level", "storage_perimeter", "bigtable_perimeter", "bigquery_omni_perimeter"),

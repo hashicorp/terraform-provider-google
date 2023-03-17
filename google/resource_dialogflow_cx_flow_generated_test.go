@@ -31,9 +31,9 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDialogflowCXFlowDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDialogflowCXFlowDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDialogflowCXFlow_dialogflowcxFlowFullExample(context),

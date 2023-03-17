@@ -31,9 +31,9 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceBasicExample(t *tes
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataprocMetastoreServiceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocMetastoreServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocMetastoreService_dataprocMetastoreServiceBasicExample(context),
@@ -76,9 +76,9 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceCmekTestExample(t *
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataprocMetastoreServiceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocMetastoreServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocMetastoreService_dataprocMetastoreServiceCmekTestExample(context),
@@ -147,9 +147,9 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceTelemetryExample(t 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataprocMetastoreServiceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocMetastoreServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocMetastoreService_dataprocMetastoreServiceTelemetryExample(context),

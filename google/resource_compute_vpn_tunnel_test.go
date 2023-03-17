@@ -18,9 +18,9 @@ func TestAccComputeVpnTunnel_regionFromGateway(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeVpnTunnelDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeVpnTunnelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeVpnTunnel_regionFromGateway(RandString(t, 10), region),
@@ -41,9 +41,9 @@ func TestAccComputeVpnTunnel_router(t *testing.T) {
 
 	router := fmt.Sprintf("tf-test-tunnel-%s", RandString(t, 10))
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeVpnTunnelDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeVpnTunnelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeVpnTunnelRouter(RandString(t, 10), router),
@@ -62,9 +62,9 @@ func TestAccComputeVpnTunnel_defaultTrafficSelectors(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeVpnTunnelDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeVpnTunnelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeVpnTunnelDefaultTrafficSelectors(RandString(t, 10)),

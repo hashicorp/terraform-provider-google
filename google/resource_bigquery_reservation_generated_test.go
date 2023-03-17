@@ -31,9 +31,9 @@ func TestAccBigqueryReservationReservation_bigqueryReservationBasicExample(t *te
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigqueryReservationReservationDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryReservationReservationDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigqueryReservationReservation_bigqueryReservationBasicExample(context),

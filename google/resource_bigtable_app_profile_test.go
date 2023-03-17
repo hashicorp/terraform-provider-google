@@ -15,9 +15,9 @@ func TestAccBigtableAppProfile_update(t *testing.T) {
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigtableAppProfileDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableAppProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableAppProfile_update1(instanceName),
@@ -49,9 +49,9 @@ func TestAccBigtableAppProfile_ignoreWarnings(t *testing.T) {
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigtableAppProfileDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableAppProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableAppProfile_warningsProduced(instanceName),
@@ -74,9 +74,9 @@ func TestAccBigtableAppProfile_multiClusterIds(t *testing.T) {
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigtableAppProfileDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableAppProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableAppProfile_updateMC1(instanceName),
@@ -108,9 +108,9 @@ func TestAccBigtableAppProfile_updateSingleToMulti(t *testing.T) {
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigtableAppProfileDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableAppProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableAppProfile_update1(instanceName),

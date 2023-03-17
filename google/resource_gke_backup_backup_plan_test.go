@@ -15,9 +15,9 @@ func TestAccGKEBackupBackupPlan_update(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGKEBackupBackupPlanDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEBackupBackupPlanDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGKEBackupBackupPlan_basic(context),

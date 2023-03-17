@@ -35,9 +35,9 @@ func TestAccFirebaserulesRelease_BasicRelease(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckFirebaserulesReleaseDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFirebaserulesReleaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFirebaserulesRelease_BasicRelease(context),
@@ -67,9 +67,9 @@ func TestAccFirebaserulesRelease_MinimalRelease(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckFirebaserulesReleaseDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFirebaserulesReleaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFirebaserulesRelease_MinimalRelease(context),

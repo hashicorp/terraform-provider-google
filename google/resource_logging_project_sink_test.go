@@ -15,9 +15,9 @@ func TestAccLoggingProjectSink_basic(t *testing.T) {
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectSink_basic(sinkName, GetTestProjectFromEnv(), bucketName),
@@ -38,9 +38,9 @@ func TestAccLoggingProjectSink_described(t *testing.T) {
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectSink_described(sinkName, GetTestProjectFromEnv(), bucketName),
@@ -61,9 +61,9 @@ func TestAccLoggingProjectSink_described_update(t *testing.T) {
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectSink_described(sinkName, GetTestProjectFromEnv(), bucketName),
@@ -92,9 +92,9 @@ func TestAccLoggingProjectSink_disabled(t *testing.T) {
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectSink_disabled(sinkName, GetTestProjectFromEnv(), bucketName),
@@ -116,9 +116,9 @@ func TestAccLoggingProjectSink_updatePreservesUniqueWriter(t *testing.T) {
 	updatedBucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectSink_uniqueWriter(sinkName, bucketName),
@@ -147,9 +147,9 @@ func TestAccLoggingProjectSink_updateBigquerySink(t *testing.T) {
 	bqDatasetID := "tf_test_sink_" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectSink_bigquery_before(sinkName, bqDatasetID),
@@ -178,9 +178,9 @@ func TestAccLoggingProjectSink_heredoc(t *testing.T) {
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectSink_heredoc(sinkName, GetTestProjectFromEnv(), bucketName),
@@ -200,9 +200,9 @@ func TestAccLoggingProjectSink_loggingbucket(t *testing.T) {
 	sinkName := "tf-test-sink-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectSink_loggingbucket(sinkName, GetTestProjectFromEnv()),
@@ -279,9 +279,9 @@ func TestAccLoggingProjectSink_disabled_update(t *testing.T) {
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectSink_disabled_update(sinkName, GetTestProjectFromEnv(), bucketName, "true"),

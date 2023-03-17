@@ -15,8 +15,8 @@ func TestAccAccessContextManagerAccessPolicyIamBinding(t *testing.T) {
 	role := "roles/accesscontextmanager.policyAdmin"
 	policy := createScopedPolicy(t, org)
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
@@ -38,8 +38,8 @@ func TestAccAccessContextManagerAccessPolicyIamMember(t *testing.T) {
 	role := "roles/accesscontextmanager.policyAdmin"
 	policy := createScopedPolicy(t, org)
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
@@ -63,8 +63,8 @@ func TestAccAccessContextManagerAccessPolicyIamPolicy(t *testing.T) {
 	role := "roles/accesscontextmanager.policyAdmin"
 	policy := createScopedPolicy(t, org)
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation

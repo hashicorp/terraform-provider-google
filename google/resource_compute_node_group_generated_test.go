@@ -31,9 +31,9 @@ func TestAccComputeNodeGroup_nodeGroupBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeNodeGroupDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNodeGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNodeGroup_nodeGroupBasicExample(context),
@@ -75,9 +75,9 @@ func TestAccComputeNodeGroup_nodeGroupAutoscalingPolicyExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeNodeGroupDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNodeGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNodeGroup_nodeGroupAutoscalingPolicyExample(context),
@@ -128,9 +128,9 @@ func TestAccComputeNodeGroup_nodeGroupShareSettingsExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeNodeGroupDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNodeGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNodeGroup_nodeGroupShareSettingsExample(context),

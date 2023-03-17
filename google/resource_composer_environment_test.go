@@ -74,9 +74,9 @@ func TestAccComposerEnvironment_basic(t *testing.T) {
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, RandInt(t))
 	subnetwork := network + "-1"
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_basic(envName, network, subnetwork),
@@ -121,9 +121,9 @@ func TestAccComposerEnvironment_update(t *testing.T) {
 	subnetwork := network + "-1"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_basic(envName, network, subnetwork),
@@ -158,9 +158,9 @@ func TestAccComposerEnvironmentComposer1_private(t *testing.T) {
 	subnetwork := network + "-1"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironmentComposer1_private(envName, network, subnetwork),
@@ -197,9 +197,9 @@ func TestAccComposerEnvironmentComposer2_private(t *testing.T) {
 	subnetwork := network + "-1"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironmentComposer2_private(envName, network, subnetwork),
@@ -237,9 +237,9 @@ func TestAccComposerEnvironment_privateWithWebServerControl(t *testing.T) {
 	subnetwork := network + "-1"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_privateWithWebServerControl(envName, network, subnetwork),
@@ -283,9 +283,9 @@ func TestAccComposerEnvironment_withDatabaseConfig(t *testing.T) {
 	subnetwork := network + "-1"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_databaseCfg(envName, network, subnetwork),
@@ -320,9 +320,9 @@ func TestAccComposerEnvironment_withWebServerConfig(t *testing.T) {
 	grantServiceAgentsRole(t, "service-", []string{"gcp-sa-cloudbuild"}, "roles/cloudbuild.builds.builder")
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_webServerCfg(envName, network, subnetwork),
@@ -359,9 +359,9 @@ func TestAccComposerEnvironment_withEncryptionConfigComposer1(t *testing.T) {
 	subnetwork := network + "-1"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_encryptionCfg(pid, "1", "1", envName, kms.CryptoKey.Name, network, subnetwork),
@@ -395,9 +395,9 @@ func TestAccComposerEnvironment_withEncryptionConfigComposer2(t *testing.T) {
 	subnetwork := network + "-1"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_encryptionCfg(pid, "2", "2", envName, kms.CryptoKey.Name, network, subnetwork),
@@ -428,9 +428,9 @@ func TestAccComposerEnvironment_withMaintenanceWindow(t *testing.T) {
 	subnetwork := network + "-1"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_maintenanceWindow(envName, network, subnetwork),
@@ -461,9 +461,9 @@ func TestAccComposerEnvironment_maintenanceWindowUpdate(t *testing.T) {
 	subnetwork := network + "-1"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_maintenanceWindow(envName, network, subnetwork),
@@ -497,9 +497,9 @@ func TestAccComposerEnvironment_ComposerV2(t *testing.T) {
 	subnetwork := network + "-1"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_composerV2(envName, network, subnetwork),
@@ -530,9 +530,9 @@ func TestAccComposerEnvironment_UpdateComposerV2(t *testing.T) {
 	subnetwork := network + "-1"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_composerV2(envName, network, subnetwork),
@@ -565,9 +565,9 @@ func TestAccComposerEnvironment_composerV2PrivateServiceConnect(t *testing.T) {
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, RandInt(t))
 	subnetwork := network + "-1"
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_composerV2PrivateServiceConnect(envName, network, subnetwork),
@@ -597,9 +597,9 @@ func TestAccComposerEnvironment_composerV1MasterAuthNetworks(t *testing.T) {
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, RandInt(t))
 	subnetwork := network + "-1"
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_MasterAuthNetworks("1", "1", envName, network, subnetwork),
@@ -629,9 +629,9 @@ func TestAccComposerEnvironment_composerV2MasterAuthNetworks(t *testing.T) {
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, RandInt(t))
 	subnetwork := network + "-1"
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_MasterAuthNetworks("2", "2", envName, network, subnetwork),
@@ -661,9 +661,9 @@ func TestAccComposerEnvironment_composerV1MasterAuthNetworksUpdate(t *testing.T)
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, RandInt(t))
 	subnetwork := network + "-1"
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_MasterAuthNetworks("1", "1", envName, network, subnetwork),
@@ -696,9 +696,9 @@ func TestAccComposerEnvironment_composerV2MasterAuthNetworksUpdate(t *testing.T)
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, RandInt(t))
 	subnetwork := network + "-1"
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_MasterAuthNetworks("2", "2", envName, network, subnetwork),
@@ -734,9 +734,9 @@ func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 	serviceAccount := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_nodeCfg(envName, network, subnetwork, serviceAccount),
@@ -766,9 +766,9 @@ func TestAccComposerEnvironmentAirflow2_withRecoveryConfig(t *testing.T) {
 	subnetwork := network + "-1"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_airflow2RecoveryCfg(envName, network, subnetwork),
@@ -806,9 +806,9 @@ func TestAccComposerEnvironment_withSoftwareConfig(t *testing.T) {
 	subnetwork := network + "-1"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_softwareCfg(envName, network, subnetwork),
@@ -838,9 +838,9 @@ func TestAccComposerEnvironmentAirflow2_withSoftwareConfig(t *testing.T) {
 	subnetwork := network + "-1"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_airflow2SoftwareCfg(envName, network, subnetwork),
@@ -881,9 +881,9 @@ func TestAccComposerEnvironment_withUpdateOnCreate(t *testing.T) {
 	subnetwork := network + "-1"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComposerEnvironment_updateOnlyFields(envName, network, subnetwork),
@@ -915,9 +915,9 @@ func TestAccComposerEnvironment_fixPyPiPackages(t *testing.T) {
 	serviceAccount := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccComposerEnvironmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccComposerEnvironment_fixPyPiPackages(envName, network, subnetwork, serviceAccount),

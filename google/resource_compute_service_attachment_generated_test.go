@@ -31,9 +31,9 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExample(t *testing.T)
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeServiceAttachmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeServiceAttachmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExample(context),
@@ -140,9 +140,9 @@ func TestAccComputeServiceAttachment_serviceAttachmentExplicitProjectsExample(t 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeServiceAttachmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeServiceAttachmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeServiceAttachment_serviceAttachmentExplicitProjectsExample(context),

@@ -21,9 +21,9 @@ func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
 	resourceSuffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeTargetHttpsProxyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeTargetHttpsProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeTargetHttpsProxy_basic1(resourceSuffix),
@@ -56,9 +56,9 @@ func TestAccComputeTargetHttpsProxy_certificateMap(t *testing.T) {
 	resourceSuffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeTargetHttpsProxyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeTargetHttpsProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeTargetHttpsProxy_certificateMap(resourceSuffix),

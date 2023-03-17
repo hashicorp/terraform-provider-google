@@ -34,9 +34,9 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExam
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExample(context),
@@ -116,9 +116,9 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordina
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordinateExample(context),

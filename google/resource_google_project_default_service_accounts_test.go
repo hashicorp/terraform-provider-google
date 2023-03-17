@@ -19,8 +19,8 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsBasic(t *testing.T) {
 	billingAccount := GetTestBillingAccountFromEnv(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleProjectDefaultServiceAccountsBasic(org, project, billingAccount),
@@ -61,9 +61,9 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsDisable(t *testing.T) {
 	restorePolicy := "REVERT"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectDefaultServiceAccountsRevert(t, project, action),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleProjectDefaultServiceAccountsRevert(t, project, action),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleProjectDefaultServiceAccountsAdvanced(org, project, billingAccount, action, restorePolicy),
@@ -90,9 +90,9 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsDelete(t *testing.T) {
 	restorePolicy := "REVERT"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectDefaultServiceAccountsRevert(t, project, action),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleProjectDefaultServiceAccountsRevert(t, project, action),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleProjectDefaultServiceAccountsAdvanced(org, project, billingAccount, action, restorePolicy),
@@ -119,8 +119,8 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsDeleteRevertIgnoreFailure
 	restorePolicy := "REVERT_AND_IGNORE_FAILURE"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleProjectDefaultServiceAccountsAdvanced(org, project, billingAccount, action, restorePolicy),
@@ -147,9 +147,9 @@ func TestAccResourceGoogleProjectDefaultServiceAccountsDeprivilege(t *testing.T)
 	restorePolicy := "REVERT"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectDefaultServiceAccountsRevert(t, project, action),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleProjectDefaultServiceAccountsRevert(t, project, action),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleProjectDefaultServiceAccountsAdvanced(org, project, billingAccount, action, restorePolicy),

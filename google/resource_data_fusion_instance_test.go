@@ -13,8 +13,8 @@ func TestAccDataFusionInstance_update(t *testing.T) {
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataFusionInstance_basic(instanceName),
@@ -89,8 +89,8 @@ func TestAccDataFusionInstanceEnterprise_update(t *testing.T) {
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataFusionInstanceEnterprise_basic(instanceName),
@@ -162,9 +162,9 @@ func TestAccDataFusionInstanceVersion_dataFusionInstanceUpdate(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataFusionInstanceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataFusionInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataFusionInstanceVersion_dataFusionInstanceUpdate(context),

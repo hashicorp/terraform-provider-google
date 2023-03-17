@@ -32,9 +32,9 @@ func TestAccSecurityCenterNotificationConfig_sccNotificationConfigBasicExample(t
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckSecurityCenterNotificationConfigDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecurityCenterNotificationConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSecurityCenterNotificationConfig_sccNotificationConfigBasicExample(context),

@@ -31,9 +31,9 @@ func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendBucket_backendBucketBasicExample(context),
@@ -71,9 +71,9 @@ func TestAccComputeBackendBucket_backendBucketFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendBucket_backendBucketFullExample(context),
@@ -122,9 +122,9 @@ func TestAccComputeBackendBucket_backendBucketSecurityPolicyExample(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendBucket_backendBucketSecurityPolicyExample(context),
@@ -169,9 +169,9 @@ func TestAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(t *tes
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(context),
@@ -214,9 +214,9 @@ func TestAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(t *testi
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(context),
@@ -259,9 +259,9 @@ func TestAccComputeBackendBucket_externalCdnLbWithBackendBucketExample(t *testin
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendBucket_externalCdnLbWithBackendBucketExample(context),
@@ -389,9 +389,9 @@ func TestAccComputeBackendBucket_backendBucketBypassCacheExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendBucket_backendBucketBypassCacheExample(context),
@@ -434,9 +434,9 @@ func TestAccComputeBackendBucket_backendBucketCoalescingExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeBackendBucketDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeBackendBucket_backendBucketCoalescingExample(context),

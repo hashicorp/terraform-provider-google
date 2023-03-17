@@ -15,9 +15,9 @@ func TestAccSqlUser_mysql(t *testing.T) {
 
 	instance := fmt.Sprintf("tf-test-%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccSqlUserDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleSqlUser_mysql(instance, "password"),
@@ -52,9 +52,9 @@ func TestAccSqlUser_iamUser(t *testing.T) {
 
 	instance := fmt.Sprintf("tf-test-%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccSqlUserDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleSqlUser_iamUser(instance),
@@ -77,9 +77,9 @@ func TestAccSqlUser_postgres(t *testing.T) {
 
 	instance := fmt.Sprintf("tf-test-%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccSqlUserDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleSqlUser_postgres(instance, "password"),
@@ -110,9 +110,9 @@ func TestAccSqlUser_postgresIAM(t *testing.T) {
 
 	instance := fmt.Sprintf("tf-test-%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccSqlUserDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleSqlUser_postgresIAM(instance),
@@ -137,9 +137,9 @@ func TestAccSqlUser_postgresAbandon(t *testing.T) {
 	instance := fmt.Sprintf("tf-test-%d", RandInt(t))
 	userName := "admin"
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccSqlUserDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleSqlUser_postgresAbandon(instance, userName),
@@ -252,9 +252,9 @@ func TestAccSqlUser_mysqlPasswordPolicy(t *testing.T) {
 
 	instance := fmt.Sprintf("tf-test-i%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccSqlUserDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleSqlUser_mysqlPasswordPolicy(instance, "password"),

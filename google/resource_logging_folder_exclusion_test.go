@@ -38,9 +38,9 @@ func testAccLoggingFolderExclusion_basic(t *testing.T) {
 	description := "Description " + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderExclusionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingFolderExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderExclusion_basicCfg(exclusionName, description, folderName, "organizations/"+org),
@@ -75,9 +75,9 @@ func testAccLoggingFolderExclusion_folderAcceptsFullFolderPath(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderExclusionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingFolderExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderExclusion_withFullFolderPath(exclusionName, description, folderName, "organizations/"+org),
@@ -106,9 +106,9 @@ func testAccLoggingFolderExclusion_update(t *testing.T) {
 	descriptionAfter := "Updated Basic Folder Logging Exclusion" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderExclusionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingFolderExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderExclusion_basicCfg(exclusionName, descriptionBefore, folderName, parent),
@@ -136,9 +136,9 @@ func testAccLoggingFolderExclusion_multiple(t *testing.T) {
 	parent := "organizations/" + org
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderExclusionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingFolderExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderExclusion_multipleCfg(folderName, parent, "tf-test-exclusion-"+RandString(t, 10)),

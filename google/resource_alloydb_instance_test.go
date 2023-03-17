@@ -14,9 +14,9 @@ func TestAccAlloydbInstance_update(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckAlloydbInstanceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAlloydbInstance_alloydbInstanceBasicExample(context),

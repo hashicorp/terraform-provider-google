@@ -22,9 +22,9 @@ func TestAccBigtableGCPolicy_basic(t *testing.T) {
 	familyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigtableGCPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableGCPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableGCPolicy(instanceName, tableName, familyName),
@@ -47,9 +47,9 @@ func TestAccBigtableGCPolicy_abandoned(t *testing.T) {
 	familyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigtableGCPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableGCPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableGCPolicyToBeAbandoned(instanceName, tableName, familyName),
@@ -80,9 +80,9 @@ func TestAccBigtableGCPolicy_swapOffDeprecated(t *testing.T) {
 	familyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigtableGCPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableGCPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableGCPolicy_days(instanceName, tableName, familyName),
@@ -118,9 +118,9 @@ func TestAccBigtableGCPolicy_union(t *testing.T) {
 	familyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigtableGCPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableGCPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableGCPolicyUnion(instanceName, tableName, familyName),
@@ -144,9 +144,9 @@ func TestAccBigtableGCPolicy_multiplePolicies(t *testing.T) {
 	familyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigtableGCPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableGCPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableGCPolicy_multiplePolicies(instanceName, tableName, familyName),
@@ -175,9 +175,9 @@ func TestAccBigtableGCPolicy_gcRulesPolicy(t *testing.T) {
 	gcRulesUpdate := "{\"mode\":\"intersection\",\"rules\":[{\"max_age\":\"16h\"},{\"max_version\":1}]}"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigtableGCPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableGCPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigtableGCPolicy_gcRulesCreate(instanceName, tableName, familyName),

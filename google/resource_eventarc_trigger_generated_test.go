@@ -36,9 +36,9 @@ func TestAccEventarcTrigger_BasicHandWritten(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckEventarcTriggerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckEventarcTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEventarcTrigger_BasicHandWritten(context),

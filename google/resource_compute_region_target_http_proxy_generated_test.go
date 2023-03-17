@@ -31,9 +31,9 @@ func TestAccComputeRegionTargetHttpProxy_regionTargetHttpProxyBasicExample(t *te
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionTargetHttpProxyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionTargetHttpProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionTargetHttpProxy_regionTargetHttpProxyBasicExample(context),
@@ -105,9 +105,9 @@ func TestAccComputeRegionTargetHttpProxy_regionTargetHttpProxyHttpsRedirectExamp
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionTargetHttpProxyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionTargetHttpProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionTargetHttpProxy_regionTargetHttpProxyHttpsRedirectExample(context),

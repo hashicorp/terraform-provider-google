@@ -11,9 +11,9 @@ func TestAccComputeResourcePolicy_attached(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeResourcePolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeResourcePolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeResourcePolicy_attached(RandString(t, 10)),

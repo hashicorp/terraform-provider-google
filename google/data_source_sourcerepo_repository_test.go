@@ -13,9 +13,9 @@ func TestAccDataSourceGoogleSourceRepoRepository_basic(t *testing.T) {
 	name := "tf-repository-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckSourceRepoRepositoryDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSourceRepoRepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleSourceRepoRepositoryConfig(name),

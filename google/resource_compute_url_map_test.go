@@ -15,9 +15,9 @@ func TestAccComputeUrlMap_update_path_matcher(t *testing.T) {
 	hcName := fmt.Sprintf("urlmap-test-%s", RandString(t, 10))
 	umName := fmt.Sprintf("urlmap-test-%s", RandString(t, 10))
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_basic1(bsName, hcName, umName),
@@ -42,9 +42,9 @@ func TestAccComputeUrlMap_advanced(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_advanced1(RandString(t, 10)),
@@ -69,9 +69,9 @@ func TestAccComputeUrlMap_defaultRouteActionPathUrlRewrite(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_defaultRouteActionPathUrlRewrite(RandString(t, 10)),
@@ -95,9 +95,9 @@ func TestAccComputeUrlMap_defaultRouteActionUrlRewrite(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_defaultRouteActionUrlRewrite(RandString(t, 10)),
@@ -125,9 +125,9 @@ func TestAccComputeUrlMap_noPathRulesWithUpdate(t *testing.T) {
 	hcName := fmt.Sprintf("urlmap-test-%s", RandString(t, 10))
 	umName := fmt.Sprintf("urlmap-test-%s", RandString(t, 10))
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_noPathRules(bsName, hcName, umName),
@@ -183,9 +183,9 @@ func TestAccComputeUrlMap_defaultRouteActionTrafficDirectorPathUpdate(t *testing
 	hcName := fmt.Sprintf("urlmap-test-%s", randString)
 	umName := fmt.Sprintf("urlmap-test-%s", randString)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_defaultRouteActionTrafficDirectorPath(bsName, hcName, umName),
@@ -216,9 +216,9 @@ func TestAccComputeUrlMap_defaultRouteActionTrafficDirectorUpdate(t *testing.T) 
 	hcName := fmt.Sprintf("urlmap-test-%s", randString)
 	umName := fmt.Sprintf("urlmap-test-%s", randString)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_defaultRouteActionTrafficDirector(bsName, hcName, umName),
@@ -249,9 +249,9 @@ func TestAccComputeUrlMap_trafficDirectorUpdate(t *testing.T) {
 	hcName := fmt.Sprintf("urlmap-test-%s", randString)
 	umName := fmt.Sprintf("urlmap-test-%s", randString)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_trafficDirector(bsName, hcName, umName),
@@ -282,9 +282,9 @@ func TestAccComputeUrlMap_trafficDirectorPathUpdate(t *testing.T) {
 	hcName := fmt.Sprintf("urlmap-test-%s", randString)
 	umName := fmt.Sprintf("urlmap-test-%s", randString)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_trafficDirectorPath(bsName, hcName, umName),
@@ -315,9 +315,9 @@ func TestAccComputeUrlMap_trafficDirectorRemoveRouteRule(t *testing.T) {
 	hcName := fmt.Sprintf("urlmap-test-%s", randString)
 	umName := fmt.Sprintf("urlmap-test-%s", randString)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_trafficDirector(bsName, hcName, umName),
@@ -345,9 +345,9 @@ func TestAccComputeUrlMap_defaultUrlRedirect(t *testing.T) {
 	randomSuffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeUrlMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_defaultUrlRedirectConfig(randomSuffix),

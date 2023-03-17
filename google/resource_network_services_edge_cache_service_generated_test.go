@@ -31,9 +31,9 @@ func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceBasic
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckNetworkServicesEdgeCacheServiceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkServicesEdgeCacheServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceBasicExample(context),
@@ -111,9 +111,9 @@ func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceAdvan
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckNetworkServicesEdgeCacheServiceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkServicesEdgeCacheServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceAdvancedExample(context),
@@ -325,9 +325,9 @@ func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceDualT
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckNetworkServicesEdgeCacheServiceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkServicesEdgeCacheServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceDualTokenExample(context),

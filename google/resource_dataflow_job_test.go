@@ -31,9 +31,9 @@ func TestAccDataflowJob_basic(t *testing.T) {
 	zone := "us-central1-f"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataflowJobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataflowJob_zone(bucket, job, zone),
@@ -63,9 +63,9 @@ func TestAccDataflowJobSkipWait_basic(t *testing.T) {
 	zone := "us-central1-f"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataflowJobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataflowJobSkipWait_zone(bucket, job, zone),
@@ -94,9 +94,9 @@ func TestAccDataflowJob_withRegion(t *testing.T) {
 	job := "tf-test-dataflow-job-" + randStr
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataflowJobRegionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataflowJobRegionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataflowJob_region(bucket, job),
@@ -126,9 +126,9 @@ func TestAccDataflowJob_withServiceAccount(t *testing.T) {
 	accountId := "tf-test-dataflow-sa" + randStr
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataflowJobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataflowJob_serviceAccount(bucket, job, accountId),
@@ -159,9 +159,9 @@ func TestAccDataflowJob_withNetwork(t *testing.T) {
 	network := "tf-test-dataflow-net" + randStr
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataflowJobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataflowJob_network(bucket, job, network),
@@ -193,9 +193,9 @@ func TestAccDataflowJob_withSubnetwork(t *testing.T) {
 	subnetwork := "tf-test-dataflow-subnet" + randStr
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataflowJobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataflowJob_subnetwork(bucket, job, network, subnetwork),
@@ -227,9 +227,9 @@ func TestAccDataflowJob_withLabels(t *testing.T) {
 	value := "my-value"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataflowJobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataflowJob_labels(bucket, job, key, value),
@@ -259,9 +259,9 @@ func TestAccDataflowJob_withIpConfig(t *testing.T) {
 	job := "tf-test-dataflow-job-" + randStr
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataflowJobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataflowJob_ipConfig(bucket, job),
@@ -293,9 +293,9 @@ func TestAccDataflowJob_withKmsKey(t *testing.T) {
 	zone := "us-central1-f"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataflowJobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataflowJob_kms(key_ring, crypto_key, bucket, job, zone),
@@ -324,9 +324,9 @@ func TestAccDataflowJobWithAdditionalExperiments(t *testing.T) {
 	additionalExperiments := []string{"enable_stackdriver_agent_metrics", "shuffle_mode=service"}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataflowJobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataflowJob_additionalExperiments(bucket, job, additionalExperiments),
@@ -353,9 +353,9 @@ func TestAccDataflowJob_streamUpdate(t *testing.T) {
 
 	suffix := RandString(t, 10)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataflowJobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataflowJob_updateStream(suffix, "google_storage_bucket.bucket1.url"),
@@ -390,9 +390,9 @@ func TestAccDataflowJob_virtualUpdate(t *testing.T) {
 	// If the update is virtual-only, the ID should remain the same after updating.
 	var id string
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataflowJobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataflowJob_virtualUpdate(suffix, "drain"),

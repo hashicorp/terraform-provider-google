@@ -31,9 +31,9 @@ func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginBasicEx
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckNetworkServicesEdgeCacheOriginDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkServicesEdgeCacheOriginDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginBasicExample(context),
@@ -66,9 +66,9 @@ func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginAdvance
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckNetworkServicesEdgeCacheOriginDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkServicesEdgeCacheOriginDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginAdvancedExample(context),
@@ -153,9 +153,9 @@ func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginV4authE
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckNetworkServicesEdgeCacheOriginDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkServicesEdgeCacheOriginDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginV4authExample(context),

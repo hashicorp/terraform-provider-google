@@ -15,9 +15,9 @@ func TestAccDNSManagedZone_update(t *testing.T) {
 	zoneSuffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDnsManagedZone_basic(zoneSuffix, "description1", map[string]string{"foo": "bar", "ping": "pong"}),
@@ -45,9 +45,9 @@ func TestAccDNSManagedZone_privateUpdate(t *testing.T) {
 	zoneSuffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDnsManagedZone_privateUpdate(zoneSuffix, "network-1", "network-2"),
@@ -75,9 +75,9 @@ func TestAccDNSManagedZone_dnssec_update(t *testing.T) {
 	zoneSuffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDnsManagedZone_dnssec_on(zoneSuffix),
@@ -105,9 +105,9 @@ func TestAccDNSManagedZone_dnssec_empty(t *testing.T) {
 	zoneSuffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDnsManagedZone_dnssec_empty(zoneSuffix),
@@ -127,9 +127,9 @@ func TestAccDNSManagedZone_privateForwardingUpdate(t *testing.T) {
 	zoneSuffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDnsManagedZone_privateForwardingUpdate(zoneSuffix, "172.16.1.10", "172.16.1.20", "default", "private"),
@@ -157,9 +157,9 @@ func TestAccDNSManagedZone_cloudLoggingConfigUpdate(t *testing.T) {
 	zoneSuffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDnsManagedZone_cloudLoggingConfig_basic(zoneSuffix),
@@ -196,9 +196,9 @@ func TestAccDNSManagedZone_forceDestroy(t *testing.T) {
 	project := GetTestProjectFromEnv()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDNSManagedZone_forceDestroy(zoneSuffix),
@@ -580,9 +580,9 @@ func TestAccDNSManagedZone_importWithProject(t *testing.T) {
 	project := GetTestProjectFromEnv()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDnsManagedZone_basicWithProject(zoneSuffix, "description1", project),

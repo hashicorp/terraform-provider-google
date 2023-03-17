@@ -32,9 +32,9 @@ func TestAccIAMWorkforcePoolWorkforcePool_iamWorkforcePoolBasicExample(t *testin
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckIAMWorkforcePoolWorkforcePoolDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIAMWorkforcePoolWorkforcePoolDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIAMWorkforcePoolWorkforcePool_iamWorkforcePoolBasicExample(context),
@@ -68,9 +68,9 @@ func TestAccIAMWorkforcePoolWorkforcePool_iamWorkforcePoolFullExample(t *testing
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckIAMWorkforcePoolWorkforcePoolDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIAMWorkforcePoolWorkforcePoolDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIAMWorkforcePoolWorkforcePool_iamWorkforcePoolFullExample(context),

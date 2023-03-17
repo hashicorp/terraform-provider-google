@@ -17,9 +17,9 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityUpdate(t 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicRoot(context),
@@ -87,9 +87,9 @@ func TestAccPrivatecaCertificateAuthority_rootCaManageDesiredState(t *testing.T)
 
 	resourceName := "google_privateca_certificate_authority.default"
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityWithDesiredState(context_staged),

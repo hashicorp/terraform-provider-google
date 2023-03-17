@@ -22,9 +22,9 @@ func TestAccLoggingFolderSink_basic(t *testing.T) {
 	var sink logging.LogSink
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderSink_basic(sinkName, bucketName, folderName, "organizations/"+org),
@@ -50,9 +50,9 @@ func TestAccLoggingFolderSink_described(t *testing.T) {
 	folderName := "tf-test-folder-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderSink_described(sinkName, bucketName, folderName, "organizations/"+org),
@@ -74,9 +74,9 @@ func TestAccLoggingFolderSink_disabled(t *testing.T) {
 	folderName := "tf-test-folder-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderSink_disabled(sinkName, bucketName, folderName, "organizations/"+org),
@@ -98,9 +98,9 @@ func TestAccLoggingFolderSink_removeOptionals(t *testing.T) {
 	folderName := "tf-test-folder-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderSink_basic(sinkName, bucketName, folderName, "organizations/"+org),
@@ -133,9 +133,9 @@ func TestAccLoggingFolderSink_folderAcceptsFullFolderPath(t *testing.T) {
 	var sink logging.LogSink
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderSink_withFullFolderPath(sinkName, bucketName, folderName, "organizations/"+org),
@@ -165,9 +165,9 @@ func TestAccLoggingFolderSink_update(t *testing.T) {
 	var sinkBefore, sinkAfter logging.LogSink
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderSink_basic(sinkName, bucketName, folderName, parent),
@@ -208,9 +208,9 @@ func TestAccLoggingFolderSink_updateBigquerySink(t *testing.T) {
 	folderName := "tf-test-folder-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderSink_bigquery_before(sinkName, bqDatasetID, folderName, "organizations/"+org),
@@ -243,9 +243,9 @@ func TestAccLoggingFolderSink_heredoc(t *testing.T) {
 	var sink logging.LogSink
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingFolderSinkDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingFolderSink_heredoc(sinkName, bucketName, folderName, "organizations/"+org),

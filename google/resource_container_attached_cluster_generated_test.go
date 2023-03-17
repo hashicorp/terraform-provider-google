@@ -31,9 +31,9 @@ func TestAccContainerAttachedCluster_containerAttachedClusterBasicExample(t *tes
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckContainerAttachedClusterDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerAttachedClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerAttachedCluster_containerAttachedClusterBasicExample(context),
@@ -83,9 +83,9 @@ func TestAccContainerAttachedCluster_containerAttachedClusterFullExample(t *test
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckContainerAttachedClusterDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerAttachedClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerAttachedCluster_containerAttachedClusterFullExample(context),
@@ -152,9 +152,9 @@ func TestAccContainerAttachedCluster_containerAttachedClusterIgnoreErrorsExample
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckContainerAttachedClusterDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerAttachedClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerAttachedCluster_containerAttachedClusterIgnoreErrorsExample(context),

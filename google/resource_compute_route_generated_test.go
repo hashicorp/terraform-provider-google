@@ -31,9 +31,9 @@ func TestAccComputeRoute_routeBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRouteDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouteDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRoute_routeBasicExample(context),
@@ -72,9 +72,9 @@ func TestAccComputeRoute_routeIlbExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRouteDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouteDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRoute_routeIlbExample(context),

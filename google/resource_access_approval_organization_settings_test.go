@@ -39,9 +39,9 @@ func testAccAccessApprovalOrganizationSettings(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckAccessApprovalOrganizationSettingsDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAccessApprovalOrganizationSettingsDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessApprovalOrganizationSettings_full(context),

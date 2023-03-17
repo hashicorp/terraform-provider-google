@@ -33,9 +33,9 @@ func TestAccIapClient_iapClientExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckIapClientDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIapClientDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapClient_iapClientExample(context),

@@ -31,9 +31,9 @@ func TestAccFilestoreInstance_filestoreInstanceBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckFilestoreInstanceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFilestoreInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFilestoreInstance_filestoreInstanceBasicExample(context),
@@ -76,9 +76,9 @@ func TestAccFilestoreInstance_filestoreInstanceFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckFilestoreInstanceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFilestoreInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFilestoreInstance_filestoreInstanceFullExample(context),

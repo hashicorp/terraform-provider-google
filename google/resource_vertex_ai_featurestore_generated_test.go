@@ -34,9 +34,9 @@ func TestAccVertexAIFeaturestore_vertexAiFeaturestoreExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckVertexAIFeaturestoreDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIFeaturestoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVertexAIFeaturestore_vertexAiFeaturestoreExample(context),
@@ -81,9 +81,9 @@ func TestAccVertexAIFeaturestore_vertexAiFeaturestoreScalingExample(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckVertexAIFeaturestoreDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIFeaturestoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVertexAIFeaturestore_vertexAiFeaturestoreScalingExample(context),

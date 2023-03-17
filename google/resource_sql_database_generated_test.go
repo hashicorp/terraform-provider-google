@@ -32,9 +32,9 @@ func TestAccSQLDatabase_sqlDatabaseBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckSQLDatabaseDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSQLDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSQLDatabase_sqlDatabaseBasicExample(context),
@@ -78,9 +78,9 @@ func TestAccSQLDatabase_sqlDatabaseDeletionPolicyExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckSQLDatabaseDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSQLDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSQLDatabase_sqlDatabaseDeletionPolicyExample(context),

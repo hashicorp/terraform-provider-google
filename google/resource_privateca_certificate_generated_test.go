@@ -32,9 +32,9 @@ func TestAccPrivatecaCertificate_privatecaCertificateConfigExample(t *testing.T)
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckPrivatecaCertificateDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPrivatecaCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificate_privatecaCertificateConfigExample(context),
@@ -162,9 +162,9 @@ func TestAccPrivatecaCertificate_privatecaCertificateWithTemplateExample(t *test
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckPrivatecaCertificateDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPrivatecaCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificate_privatecaCertificateWithTemplateExample(context),
@@ -325,9 +325,9 @@ func TestAccPrivatecaCertificate_privatecaCertificateCsrExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckPrivatecaCertificateDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPrivatecaCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificate_privatecaCertificateCsrExample(context),
@@ -412,9 +412,9 @@ func TestAccPrivatecaCertificate_privatecaCertificateNoAuthorityExample(t *testi
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckPrivatecaCertificateDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPrivatecaCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificate_privatecaCertificateNoAuthorityExample(context),

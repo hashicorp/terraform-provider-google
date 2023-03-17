@@ -37,9 +37,9 @@ func TestAccContainerAzureClient_BasicHandWritten(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckContainerAzureClientDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerAzureClientDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerAzureClient_BasicHandWritten(context),

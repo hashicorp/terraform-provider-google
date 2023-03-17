@@ -17,9 +17,9 @@ func TestAccCloudIdsEndpoint_basic(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudIdsEndpointDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudIdsEndpointDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testCloudIds_basic(context),

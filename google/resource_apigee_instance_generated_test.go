@@ -34,9 +34,9 @@ func TestAccApigeeInstance_apigeeInstanceBasicTestExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckApigeeInstanceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckApigeeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeInstance_apigeeInstanceBasicTestExample(context),
@@ -126,9 +126,9 @@ func TestAccApigeeInstance_apigeeInstanceCidrRangeTestExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckApigeeInstanceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckApigeeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeInstance_apigeeInstanceCidrRangeTestExample(context),
@@ -219,9 +219,9 @@ func TestAccApigeeInstance_apigeeInstanceIpRangeTestExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckApigeeInstanceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckApigeeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeInstance_apigeeInstanceIpRangeTestExample(context),
@@ -312,9 +312,9 @@ func TestAccApigeeInstance_apigeeInstanceServiceAttachmentBasicTestExample(t *te
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckApigeeInstanceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckApigeeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeInstance_apigeeInstanceServiceAttachmentBasicTestExample(context),

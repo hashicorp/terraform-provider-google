@@ -31,9 +31,9 @@ func TestAccComputeNetworkEndpointGroup_networkEndpointGroupExample(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeNetworkEndpointGroupDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNetworkEndpointGroup_networkEndpointGroupExample(context),
@@ -80,9 +80,9 @@ func TestAccComputeNetworkEndpointGroup_networkEndpointGroupNonGcpExample(t *tes
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeNetworkEndpointGroupDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeNetworkEndpointGroup_networkEndpointGroupNonGcpExample(context),

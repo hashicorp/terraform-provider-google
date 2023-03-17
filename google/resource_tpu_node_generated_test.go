@@ -31,9 +31,9 @@ func TestAccTPUNode_tpuNodeBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckTPUNodeDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckTPUNodeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccTPUNode_tpuNodeBasicExample(context),
@@ -73,9 +73,9 @@ func TestAccTPUNode_tpuNodeFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckTPUNodeDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckTPUNodeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccTPUNode_tpuNodeFullExample(context),

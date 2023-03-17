@@ -31,9 +31,9 @@ func TestAccDNSManagedZone_dnsManagedZoneQuickstartExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDNSManagedZone_dnsManagedZoneQuickstartExample(context),
@@ -115,9 +115,9 @@ func TestAccDNSManagedZone_dnsRecordSetBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDNSManagedZone_dnsRecordSetBasicExample(context),
@@ -158,8 +158,8 @@ func TestAccDNSManagedZone_dnsManagedZoneBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
 			"time":   {},
@@ -203,9 +203,9 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDNSManagedZone_dnsManagedZonePrivateExample(context),
@@ -261,9 +261,9 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateGkeExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDNSManagedZone_dnsManagedZonePrivateGkeExample(context),
@@ -360,9 +360,9 @@ func TestAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(context),
@@ -418,9 +418,9 @@ func TestAccDNSManagedZone_dnsManagedZoneCloudLoggingExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDNSManagedZone_dnsManagedZoneCloudLoggingExample(context),
