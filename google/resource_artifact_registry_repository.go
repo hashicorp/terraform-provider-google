@@ -126,7 +126,7 @@ snapshot versions.`,
 				Type:     schema.TypeString,
 				Computed: true,
 				Description: `The name of the repository, for example:
-"projects/p1/locations/us-central1/repositories/repo1"`,
+"repo1"`,
 			},
 			"update_time": {
 				Type:        schema.TypeString,
