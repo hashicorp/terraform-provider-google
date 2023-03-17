@@ -87,6 +87,21 @@ underscores (_). The maximum length is 1,024 characters.`,
 				Elem:        bigqueryDatasetAccessSchema(),
 				// Default schema.HashSchema is used.
 			},
+			"default_collation": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				Description: `Defines the default collation specification of future tables created
+in the dataset. If a table is created in this dataset without table-level
+default collation, then the table inherits the dataset default collation,
+which is applied to the string fields that do not have explicit collation
+specified. A change to this field affects only tables created afterwards,
+and does not alter the existing tables.
+
+The following values are supported:
+- 'und:ci': undetermined locale, case insensitive.
+- '': empty string. Default to case-sensitive behavior.`,
+			},
 			"default_encryption_configuration": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -152,6 +167,14 @@ expiration time indicated by this property.`,
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `A descriptive name for the dataset`,
+			},
+			"is_case_insensitive": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+				Description: `TRUE if the dataset and its table names are case-insensitive, otherwise FALSE.
+By default, this is FALSE, which means the dataset and its table names are
+case-sensitive. This field does not affect routine references.`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -445,6 +468,18 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("default_encryption_configuration"); !isEmptyValue(reflect.ValueOf(defaultEncryptionConfigurationProp)) && (ok || !reflect.DeepEqual(v, defaultEncryptionConfigurationProp)) {
 		obj["defaultEncryptionConfiguration"] = defaultEncryptionConfigurationProp
 	}
+	isCaseInsensitiveProp, err := expandBigQueryDatasetIsCaseInsensitive(d.Get("is_case_insensitive"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("is_case_insensitive"); !isEmptyValue(reflect.ValueOf(isCaseInsensitiveProp)) && (ok || !reflect.DeepEqual(v, isCaseInsensitiveProp)) {
+		obj["isCaseInsensitive"] = isCaseInsensitiveProp
+	}
+	defaultCollationProp, err := expandBigQueryDatasetDefaultCollation(d.Get("default_collation"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("default_collation"); !isEmptyValue(reflect.ValueOf(defaultCollationProp)) && (ok || !reflect.DeepEqual(v, defaultCollationProp)) {
+		obj["defaultCollation"] = defaultCollationProp
+	}
 
 	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets")
 	if err != nil {
@@ -573,6 +608,12 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("default_encryption_configuration", flattenBigQueryDatasetDefaultEncryptionConfiguration(res["defaultEncryptionConfiguration"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
+	if err := d.Set("is_case_insensitive", flattenBigQueryDatasetIsCaseInsensitive(res["isCaseInsensitive"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
+	if err := d.Set("default_collation", flattenBigQueryDatasetDefaultCollation(res["defaultCollation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
 	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
@@ -655,6 +696,18 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("default_encryption_configuration"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, defaultEncryptionConfigurationProp)) {
 		obj["defaultEncryptionConfiguration"] = defaultEncryptionConfigurationProp
+	}
+	isCaseInsensitiveProp, err := expandBigQueryDatasetIsCaseInsensitive(d.Get("is_case_insensitive"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("is_case_insensitive"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, isCaseInsensitiveProp)) {
+		obj["isCaseInsensitive"] = isCaseInsensitiveProp
+	}
+	defaultCollationProp, err := expandBigQueryDatasetDefaultCollation(d.Get("default_collation"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("default_collation"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, defaultCollationProp)) {
+		obj["defaultCollation"] = defaultCollationProp
 	}
 
 	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
@@ -1019,6 +1072,14 @@ func flattenBigQueryDatasetDefaultEncryptionConfigurationKmsKeyName(v interface{
 	return v
 }
 
+func flattenBigQueryDatasetIsCaseInsensitive(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenBigQueryDatasetDefaultCollation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandBigQueryDatasetMaxTimeTravelHours(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -1336,5 +1397,13 @@ func expandBigQueryDatasetDefaultEncryptionConfiguration(v interface{}, d Terraf
 }
 
 func expandBigQueryDatasetDefaultEncryptionConfigurationKmsKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigQueryDatasetIsCaseInsensitive(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigQueryDatasetDefaultCollation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

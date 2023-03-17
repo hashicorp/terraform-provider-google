@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `is_case_insensitive` and `default_collation` fields to `google_bigquery_dataset` resource
+```
