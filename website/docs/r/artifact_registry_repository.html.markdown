@@ -306,7 +306,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `name` -
   The name of the repository, for example:
-  "projects/p1/locations/us-central1/repositories/repo1"
+  "repo1"
 
 * `create_time` -
   The time when the repository was created.
