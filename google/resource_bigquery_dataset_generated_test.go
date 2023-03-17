@@ -286,6 +286,116 @@ resource "google_bigquery_dataset" "private" {
 `, context)
 }
 
+func TestAccBigQueryDataset_bigqueryDatasetCaseInsensitiveNamesExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDataset_bigqueryDatasetCaseInsensitiveNamesExample(context),
+			},
+			{
+				ResourceName:      "google_bigquery_dataset.dataset",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccBigQueryDataset_bigqueryDatasetCaseInsensitiveNamesExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id                  = "tf_test_example_dataset%{random_suffix}"
+  friendly_name               = "test"
+  description                 = "This is a test description"
+  location                    = "EU"
+  default_table_expiration_ms = 3600000
+  is_case_insensitive         = true
+
+  labels = {
+    env = "default"
+  }
+
+  access {
+    role          = "OWNER"
+    user_by_email = google_service_account.bqowner.email
+  }
+
+  access {
+    role   = "READER"
+    domain = "hashicorp.com"
+  }
+}
+
+resource "google_service_account" "bqowner" {
+  account_id = "bqowner%{random_suffix}"
+}
+`, context)
+}
+
+func TestAccBigQueryDataset_bigqueryDatasetDefaultCollationSetExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDataset_bigqueryDatasetDefaultCollationSetExample(context),
+			},
+			{
+				ResourceName:      "google_bigquery_dataset.dataset",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccBigQueryDataset_bigqueryDatasetDefaultCollationSetExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id                  = "tf_test_example_dataset%{random_suffix}"
+  friendly_name               = "test"
+  description                 = "This is a test description"
+  location                    = "EU"
+  default_table_expiration_ms = 3600000
+  default_collation           = "und:ci"
+
+  labels = {
+    env = "default"
+  }
+
+  access {
+    role          = "OWNER"
+    user_by_email = google_service_account.bqowner.email
+  }
+
+  access {
+    role   = "READER"
+    domain = "hashicorp.com"
+  }
+}
+
+resource "google_service_account" "bqowner" {
+  account_id = "bqowner%{random_suffix}"
+}
+`, context)
+}
+
 func testAccCheckBigQueryDatasetDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
