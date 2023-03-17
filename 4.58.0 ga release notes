@@ -7,7 +7,7 @@ FEATURES:
 
 IMPROVEMENTS:
 * datafusion: added support for `accelerators` field to `google_datafusion_instance` resource. ([#13946](https://github.com/hashicorp/terraform-provider-google/pull/13946))
-* privateca: added support for X.509 name constraints ([#13969](https://github.com/hashicorp/terraform-provider-google/pull/13969))
+* privateca: added support for X.509 name constraints to `google_privateca_pool`, `google_privateca_certificate`, and `google_privateca_certificate_authority` ([#13969](https://github.com/hashicorp/terraform-provider-google/pull/13969))
 
 BUG FIXES:
 * alloydb: fixed permadiff on `automated_backup_policy.weekly_schedule` of `google_alloydb_cluster` ([#13948](https://github.com/hashicorp/terraform-provider-google/pull/13948))
