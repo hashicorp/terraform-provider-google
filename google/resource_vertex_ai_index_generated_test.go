@@ -32,9 +32,9 @@ func TestAccVertexAIIndex_vertexAiIndexExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckVertexAIIndexDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIIndexDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVertexAIIndex_vertexAiIndexExample(context),
@@ -103,9 +103,9 @@ func TestAccVertexAIIndex_vertexAiIndexStreamingExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckVertexAIIndexDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIIndexDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVertexAIIndex_vertexAiIndexStreamingExample(context),

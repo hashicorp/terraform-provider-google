@@ -13,9 +13,9 @@ func TestAccSqlClientCert_mysql(t *testing.T) {
 
 	instance := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccSqlClientCertDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlClientCertDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleSqlClientCert_mysql(instance),
@@ -33,9 +33,9 @@ func TestAccSqlClientCert_postgres(t *testing.T) {
 
 	instance := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccSqlClientCertDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlClientCertDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleSqlClientCert_postgres(instance),

@@ -36,9 +36,9 @@ func TestAccDataplexAsset_BasicAssetHandWritten(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataplexAssetDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataplexAssetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataplexAsset_BasicAssetHandWritten(context),

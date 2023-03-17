@@ -31,9 +31,9 @@ func TestAccPubsubLiteSubscription_pubsubLiteSubscriptionBasicExample(t *testing
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckPubsubLiteSubscriptionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubLiteSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubLiteSubscription_pubsubLiteSubscriptionBasicExample(context),

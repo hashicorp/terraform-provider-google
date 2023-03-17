@@ -34,9 +34,9 @@ func TestAccApigeeEnvgroupAttachment_apigeeEnvironmentGroupAttachmentBasicTestEx
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckApigeeEnvgroupAttachmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckApigeeEnvgroupAttachmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeEnvgroupAttachment_apigeeEnvironmentGroupAttachmentBasicTestExample(context),

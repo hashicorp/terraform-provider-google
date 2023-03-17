@@ -15,9 +15,9 @@ func TestAccProjectIamCustomRole_basic(t *testing.T) {
 	roleId := "tfIamCustomRole" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectIamCustomRoleDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleProjectIamCustomRoleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleProjectIamCustomRole_basic(roleId),
@@ -58,9 +58,9 @@ func TestAccProjectIamCustomRole_undelete(t *testing.T) {
 	roleId := "tfIamCustomRole" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectIamCustomRoleDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleProjectIamCustomRoleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleProjectIamCustomRole_basic(roleId),
@@ -97,9 +97,9 @@ func TestAccProjectIamCustomRole_createAfterDestroy(t *testing.T) {
 
 	roleId := "tfIamCustomRole" + RandString(t, 10)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectIamCustomRoleDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleProjectIamCustomRoleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckGoogleProjectIamCustomRole_basic(roleId),

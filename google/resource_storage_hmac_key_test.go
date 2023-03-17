@@ -12,9 +12,9 @@ func TestAccStorageHmacKey_update(t *testing.T) {
 
 	saName := fmt.Sprintf("%v%v", "service-account", RandString(t, 10))
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckStorageHmacKeyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckStorageHmacKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGoogleStorageHmacKeyBasic(saName, "ACTIVE"),

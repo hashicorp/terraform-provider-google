@@ -31,9 +31,9 @@ func TestAccMonitoringSlo_monitoringSloAppengineExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSlo_monitoringSloAppengineExample(context),
@@ -86,9 +86,9 @@ func TestAccMonitoringSlo_monitoringSloRequestBasedExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSlo_monitoringSloRequestBasedExample(context),
@@ -138,9 +138,9 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(t 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(context),
@@ -188,9 +188,9 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(t *testing.
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(context),
@@ -244,9 +244,9 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(context),
@@ -300,9 +300,9 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(t *test
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(context),

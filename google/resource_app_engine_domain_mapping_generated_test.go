@@ -31,9 +31,9 @@ func TestAccAppEngineDomainMapping_appEngineDomainMappingBasicExample(t *testing
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckAppEngineDomainMappingDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAppEngineDomainMappingDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAppEngineDomainMapping_appEngineDomainMappingBasicExample(context),

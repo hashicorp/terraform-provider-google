@@ -23,9 +23,9 @@ func TestAccActiveDirectoryDomainTrust_activeDirectoryDomainTrustBasicExample(t 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckActiveDirectoryDomainTrustDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckActiveDirectoryDomainTrustDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccActiveDirectoryDomainTrust_activeDirectoryDomainTrustBasicExample(context),

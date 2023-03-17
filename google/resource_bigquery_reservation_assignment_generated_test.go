@@ -35,9 +35,9 @@ func TestAccBigqueryReservationAssignment_BasicHandWritten(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckBigqueryReservationAssignmentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryReservationAssignmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigqueryReservationAssignment_BasicHandWritten(context),

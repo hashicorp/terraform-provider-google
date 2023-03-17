@@ -36,9 +36,9 @@ func testAccLoggingBillingAccountExclusion_basic(t *testing.T) {
 	description := "Description " + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingBillingAccountExclusionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingBillingAccountExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBillingAccountExclusion_basicCfg(exclusionName, description, billingAccount),
@@ -59,9 +59,9 @@ func testAccLoggingBillingAccountExclusion_update(t *testing.T) {
 	descriptionAfter := "Updated Basic BillingAccount Logging Exclusion" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingBillingAccountExclusionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingBillingAccountExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBillingAccountExclusion_basicCfg(exclusionName, descriptionBefore, billingAccount),
@@ -87,9 +87,9 @@ func testAccLoggingBillingAccountExclusion_multiple(t *testing.T) {
 	billingAccount := GetTestMasterBillingAccountFromEnv(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingBillingAccountExclusionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingBillingAccountExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingBillingAccountExclusion_multipleCfg("tf-test-exclusion-"+RandString(t, 10), billingAccount),

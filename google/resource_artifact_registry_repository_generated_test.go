@@ -31,9 +31,9 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryBasicExample(t 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArtifactRegistryRepository_artifactRegistryRepositoryBasicExample(context),
@@ -68,9 +68,9 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryCmekExample(t *
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArtifactRegistryRepository_artifactRegistryRepositoryCmekExample(context),

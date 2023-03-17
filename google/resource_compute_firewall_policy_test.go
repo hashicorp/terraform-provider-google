@@ -15,9 +15,9 @@ func TestAccComputeFirewallPolicy_update(t *testing.T) {
 	folderName := fmt.Sprintf("tf-test-folder-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewallPolicy_basic(org, policyName, folderName),

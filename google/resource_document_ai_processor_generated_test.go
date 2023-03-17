@@ -31,9 +31,9 @@ func TestAccDocumentAIProcessor_documentaiProcessorExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDocumentAIProcessorDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDocumentAIProcessorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDocumentAIProcessor_documentaiProcessorExample(context),
@@ -66,9 +66,9 @@ func TestAccDocumentAIProcessor_documentaiProcessorEuExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDocumentAIProcessorDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDocumentAIProcessorDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDocumentAIProcessor_documentaiProcessorEuExample(context),

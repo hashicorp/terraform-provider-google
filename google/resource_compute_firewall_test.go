@@ -15,9 +15,9 @@ func TestAccComputeFirewall_update(t *testing.T) {
 	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_basic(networkName, firewallName),
@@ -54,9 +54,9 @@ func TestAccComputeFirewall_localRanges(t *testing.T) {
 	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_localRanges(networkName, firewallName),
@@ -93,9 +93,9 @@ func TestAccComputeFirewall_priority(t *testing.T) {
 	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_priority(networkName, firewallName, 1001),
@@ -116,9 +116,9 @@ func TestAccComputeFirewall_noSource(t *testing.T) {
 	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccComputeFirewall_noSource(networkName, firewallName),
@@ -135,9 +135,9 @@ func TestAccComputeFirewall_denied(t *testing.T) {
 	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_denied(networkName, firewallName),
@@ -158,9 +158,9 @@ func TestAccComputeFirewall_egress(t *testing.T) {
 	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_egress(networkName, firewallName),
@@ -184,9 +184,9 @@ func TestAccComputeFirewall_serviceAccounts(t *testing.T) {
 	targetSa := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_serviceAccounts(sourceSa, targetSa, networkName, firewallName),
@@ -207,9 +207,9 @@ func TestAccComputeFirewall_disabled(t *testing.T) {
 	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_disabled(networkName, firewallName),
@@ -238,9 +238,9 @@ func TestAccComputeFirewall_enableLogging(t *testing.T) {
 	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_enableLogging(networkName, firewallName, ""),
@@ -285,9 +285,9 @@ func TestAccComputeFirewall_moduleOutput(t *testing.T) {
 	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeFirewallDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeFirewall_moduleOutput(networkName, firewallName),

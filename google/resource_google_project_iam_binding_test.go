@@ -26,8 +26,8 @@ func TestAccProjectIamBinding_basic(t *testing.T) {
 	role := "roles/compute.instanceAdmin"
 	member := "user:admin@hashicorptest.com"
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -56,8 +56,8 @@ func TestAccProjectIamBinding_multiple(t *testing.T) {
 	member := "user:admin@hashicorptest.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -92,8 +92,8 @@ func TestAccProjectIamBinding_multipleAtOnce(t *testing.T) {
 	role2 := "roles/viewer"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -122,8 +122,8 @@ func TestAccProjectIamBinding_update(t *testing.T) {
 	member := "user:admin@hashicorptest.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -165,8 +165,8 @@ func TestAccProjectIamBinding_remove(t *testing.T) {
 	role2 := "roles/viewer"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -201,8 +201,8 @@ func TestAccProjectIamBinding_noMembers(t *testing.T) {
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/compute.instanceAdmin"
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -228,8 +228,8 @@ func TestAccProjectIamBinding_withCondition(t *testing.T) {
 	role := "roles/compute.instanceAdmin"
 	conditionTitle := "expires_after_2019_12_31"
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
@@ -260,8 +260,8 @@ func TestAccProjectIamBinding_invalidMembers(t *testing.T) {
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/compute.instanceAdmin"
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccProjectAssociateBindingBasic(pid, pname, org, role, "admin@hashicorptest.com"),

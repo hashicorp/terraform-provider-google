@@ -34,9 +34,9 @@ func TestAccVertexAIEndpoint_vertexAiEndpointNetwork(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckVertexAIEndpointDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIEndpointDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVertexAIEndpoint_vertexAiEndpointNetwork(context),

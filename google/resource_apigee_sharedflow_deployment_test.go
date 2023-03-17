@@ -20,9 +20,9 @@ func TestAccApigeeSharedflowDeployment_apigeeSharedflowDeploymentTestExample(t *
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckApigeeSharedflowDeploymentDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckApigeeSharedflowDeploymentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeSharedflowDeployment_apigeeSharedflowDeploymentTestExample(context),

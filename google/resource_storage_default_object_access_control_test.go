@@ -18,8 +18,8 @@ func TestAccStorageDefaultObjectAccessControl_update(t *testing.T) {
 			}
 			testAccPreCheck(t)
 		},
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckStorageDefaultObjectAccessControlDestroyProducer(t),
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckStorageDefaultObjectAccessControlDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleStorageDefaultObjectAccessControlBasic(bucketName, "READER", "allUsers"),

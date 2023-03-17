@@ -13,9 +13,9 @@ func TestAccNetworkServicesEdgeCacheService_updateAndImport(t *testing.T) {
 	nameorigin := "tf-test-origin-" + RandString(t, 10)
 	nameservice := "tf-test-service-" + RandString(t, 10)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckNetworkServicesEdgeCacheServiceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkServicesEdgeCacheServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkServicesEdgeCacheService_update_0(namebkt, nameorigin, nameservice),

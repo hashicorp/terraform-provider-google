@@ -17,9 +17,9 @@ func TestAccComputeProjectMetadata_basic(t *testing.T) {
 	projectID := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeProjectMetadataDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeProjectMetadataDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeProject_basic0_metadata(projectID, pname, org, billingId),
@@ -42,9 +42,9 @@ func TestAccComputeProjectMetadata_modify_1(t *testing.T) {
 	projectID := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeProjectMetadataDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeProjectMetadataDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeProject_modify0_metadata(projectID, pname, org, billingId),
@@ -76,9 +76,9 @@ func TestAccComputeProjectMetadata_modify_2(t *testing.T) {
 	projectID := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeProjectMetadataDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeProjectMetadataDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeProject_basic0_metadata(projectID, pname, org, billingId),

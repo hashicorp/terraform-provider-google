@@ -31,9 +31,9 @@ func TestAccCloudTasksQueue_queueBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudTasksQueueDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudTasksQueueDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudTasksQueue_queueBasicExample(context),
@@ -65,9 +65,9 @@ func TestAccCloudTasksQueue_cloudTasksQueueAdvancedExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudTasksQueueDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudTasksQueueDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudTasksQueue_cloudTasksQueueAdvancedExample(context),

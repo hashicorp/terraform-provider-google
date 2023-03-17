@@ -41,9 +41,9 @@ func testAccProjectOrganizationPolicy_boolean(t *testing.T) {
 	projectId := GetTestProjectFromEnv()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				// Test creation of an enforced boolean policy
@@ -77,9 +77,9 @@ func testAccProjectOrganizationPolicy_list_allowAll(t *testing.T) {
 	projectId := GetTestProjectFromEnv()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectOrganizationPolicyConfig_list_allowAll(projectId),
@@ -98,9 +98,9 @@ func testAccProjectOrganizationPolicy_list_allowSome(t *testing.T) {
 	project := GetTestProjectFromEnv()
 	canonicalProject := canonicalProjectId(project)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectOrganizationPolicyConfig_list_allowSome(project),
@@ -118,9 +118,9 @@ func testAccProjectOrganizationPolicy_list_allowSome(t *testing.T) {
 func testAccProjectOrganizationPolicy_list_denySome(t *testing.T) {
 	projectId := GetTestProjectFromEnv()
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectOrganizationPolicyConfig_list_denySome(projectId),
@@ -138,9 +138,9 @@ func testAccProjectOrganizationPolicy_list_denySome(t *testing.T) {
 func testAccProjectOrganizationPolicy_list_update(t *testing.T) {
 	projectId := GetTestProjectFromEnv()
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectOrganizationPolicyConfig_list_allowAll(projectId),
@@ -163,9 +163,9 @@ func testAccProjectOrganizationPolicy_restore_defaultTrue(t *testing.T) {
 	projectId := GetTestProjectFromEnv()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectOrganizationPolicyConfig_restore_defaultTrue(projectId),
@@ -184,9 +184,9 @@ func testAccProjectOrganizationPolicy_none(t *testing.T) {
 	projectId := GetTestProjectFromEnv()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProjectOrganizationPolicyConfig_none(projectId),

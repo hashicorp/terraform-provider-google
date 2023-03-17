@@ -34,9 +34,9 @@ func TestAccApigeeNatAddress_apigeeNatAddressBasicTestExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckApigeeNatAddressDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckApigeeNatAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeNatAddress_apigeeNatAddressBasicTestExample(context),

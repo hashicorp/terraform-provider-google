@@ -14,14 +14,15 @@ func TestAccBillingSubaccount_renameOnDestroy(t *testing.T) {
 
 	masterBilling := GetTestMasterBillingAccountFromEnv(t)
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleBillingSubaccountRenameOnDestroy,
+
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleBillingSubaccountRenameOnDestroy(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Billing Subaccount creation
 				Config: testAccBillingSubccount_renameOnDestroy(masterBilling),
-				Check:  testAccCheckGoogleBillingSubaccountExists("subaccount_with_rename_on_destroy"),
+				Check:  testAccCheckGoogleBillingSubaccountExists(t, "subaccount_with_rename_on_destroy"),
 			},
 		},
 	})
@@ -32,13 +33,13 @@ func TestAccBillingSubaccount_basic(t *testing.T) {
 
 	masterBilling := GetTestMasterBillingAccountFromEnv(t)
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Billing Subaccount creation
 				Config: testAccBillingSubccount_basic(masterBilling),
-				Check:  testAccCheckGoogleBillingSubaccountExists("subaccount"),
+				Check:  testAccCheckGoogleBillingSubaccountExists(t, "subaccount"),
 			},
 			{
 				ResourceName:            "google_billing_subaccount.subaccount",
@@ -49,7 +50,7 @@ func TestAccBillingSubaccount_basic(t *testing.T) {
 			{
 				// Test Billing Subaccount update
 				Config: testAccBillingSubccount_update(masterBilling),
-				Check:  testAccCheckGoogleBillingSubaccountExists("subaccount"),
+				Check:  testAccCheckGoogleBillingSubaccountExists(t, "subaccount"),
 			},
 			{
 				ResourceName:            "google_billing_subaccount.subaccount",
@@ -89,14 +90,14 @@ resource "google_billing_subaccount" "subaccount_with_rename_on_destroy" {
 `, masterBillingAccountId)
 }
 
-func testAccCheckGoogleBillingSubaccountExists(bindingResourceName string) resource.TestCheckFunc {
+func testAccCheckGoogleBillingSubaccountExists(t *testing.T, bindingResourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		subaccount, ok := s.RootModule().Resources["google_billing_subaccount."+bindingResourceName]
 		if !ok {
 			return fmt.Errorf("Not found: %s", bindingResourceName)
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := GoogleProviderConfig(t)
 		_, err := config.NewBillingClient(config.UserAgent).BillingAccounts.Get(subaccount.Primary.ID).Do()
 		if err != nil {
 			return err
@@ -106,26 +107,28 @@ func testAccCheckGoogleBillingSubaccountExists(bindingResourceName string) resou
 	}
 }
 
-func testAccCheckGoogleBillingSubaccountRenameOnDestroy(s *terraform.State) error {
-	for name, rs := range s.RootModule().Resources {
-		if rs.Type != "google_billing_subaccount" {
-			continue
-		}
-		if strings.HasPrefix(name, "data.") {
-			continue
+func testAccCheckGoogleBillingSubaccountRenameOnDestroy(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_billing_subaccount" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := GoogleProviderConfig(t)
+
+			res, err := config.NewBillingClient(config.UserAgent).BillingAccounts.Get(rs.Primary.ID).Do()
+			if err != nil {
+				return err
+			}
+
+			if !strings.HasPrefix(res.DisplayName, "Terraform Destroyed") {
+				return fmt.Errorf("Billing account %s was not renamed on destroy", rs.Primary.ID)
+			}
 		}
 
-		config := testAccProvider.Meta().(*Config)
-
-		res, err := config.NewBillingClient(config.UserAgent).BillingAccounts.Get(rs.Primary.ID).Do()
-		if err != nil {
-			return err
-		}
-
-		if !strings.HasPrefix(res.DisplayName, "Terraform Destroyed") {
-			return fmt.Errorf("Billing account %s was not renamed on destroy", rs.Primary.ID)
-		}
+		return nil
 	}
-
-	return nil
 }

@@ -78,9 +78,9 @@ func TestAccHealthcareFhirStore_basic(t *testing.T) {
 	resourceName := "google_healthcare_fhir_store.default"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckHealthcareFhirStoreDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckHealthcareFhirStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleHealthcareFhirStore_basic(fhirStoreName, datasetName),

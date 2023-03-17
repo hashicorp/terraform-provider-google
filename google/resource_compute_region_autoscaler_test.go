@@ -14,9 +14,9 @@ func TestAccComputeRegionAutoscaler_update(t *testing.T) {
 	var autoscalerName = fmt.Sprintf("tf-test-region-autoscaler-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionAutoscaler_basic(itName, tpName, igmName, autoscalerName),
@@ -47,9 +47,9 @@ func TestAccComputeRegionAutoscaler_scaleDownControl(t *testing.T) {
 	var autoscalerName = fmt.Sprintf("tf-test-region-autoscaler-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionAutoscaler_scaleDownControl(itName, tpName, igmName, autoscalerName),
@@ -72,9 +72,9 @@ func TestAccComputeRegionAutoscaler_scalingSchedule(t *testing.T) {
 	var autoscalerName = fmt.Sprintf("tf-test-region-autoscaler-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionAutoscaler_scalingSchedule(itName, tpName, igmName, autoscalerName),
@@ -97,9 +97,9 @@ func TestAccComputeRegionAutoscaler_scaleInControl(t *testing.T) {
 	var autoscalerName = fmt.Sprintf("tf-test-region-autoscaler-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRegionAutoscalerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionAutoscalerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionAutoscaler_scaleInControl(itName, tpName, igmName, autoscalerName),

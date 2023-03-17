@@ -18,9 +18,9 @@ func TestAccResourceManagerLien_basic(t *testing.T) {
 	var lien resourceManager.Lien
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckResourceManagerLienDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckResourceManagerLienDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceManagerLien_basic(projectName, org),

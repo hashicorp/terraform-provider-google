@@ -31,9 +31,9 @@ func TestAccMonitoringGenericService_monitoringServiceExampleExample(t *testing.
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringGenericServiceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringGenericServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringGenericService_monitoringServiceExampleExample(context),

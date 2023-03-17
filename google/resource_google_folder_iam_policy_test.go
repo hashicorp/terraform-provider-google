@@ -17,9 +17,9 @@ func TestAccFolderIamPolicy_basic(t *testing.T) {
 	parent := "organizations/" + org
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleFolderIamPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleFolderIamPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFolderIamPolicy_basic(folderDisplayName, parent, "roles/viewer", "user:admin@hashicorptest.com"),
@@ -49,9 +49,9 @@ func TestAccFolderIamPolicy_auditConfigs(t *testing.T) {
 	parent := "organizations/" + org
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleFolderIamPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleFolderIamPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFolderIamPolicy_auditConfigs(folderDisplayName, parent, "roles/viewer", "user:admin@hashicorptest.com"),

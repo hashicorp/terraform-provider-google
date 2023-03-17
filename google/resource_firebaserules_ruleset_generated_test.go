@@ -35,9 +35,9 @@ func TestAccFirebaserulesRuleset_BasicRuleset(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckFirebaserulesRulesetDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFirebaserulesRulesetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFirebaserulesRuleset_BasicRuleset(context),
@@ -59,9 +59,9 @@ func TestAccFirebaserulesRuleset_MinimalRuleset(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckFirebaserulesRulesetDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFirebaserulesRulesetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFirebaserulesRuleset_MinimalRuleset(context),

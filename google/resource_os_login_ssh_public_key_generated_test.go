@@ -31,9 +31,9 @@ func TestAccOSLoginSSHPublicKey_osLoginSshKeyBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckOSLoginSSHPublicKeyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckOSLoginSSHPublicKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOSLoginSSHPublicKey_osLoginSshKeyBasicExample(context),

@@ -31,9 +31,9 @@ func TestAccDataCatalogPolicyTag_dataCatalogTaxonomiesPolicyTagBasicExample(t *t
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataCatalogPolicyTagDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataCatalogPolicyTagDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogPolicyTag_dataCatalogTaxonomiesPolicyTagBasicExample(context),
@@ -72,9 +72,9 @@ func TestAccDataCatalogPolicyTag_dataCatalogTaxonomiesPolicyTagChildPoliciesExam
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataCatalogPolicyTagDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataCatalogPolicyTagDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogPolicyTag_dataCatalogTaxonomiesPolicyTagChildPoliciesExample(context),

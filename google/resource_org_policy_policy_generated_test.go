@@ -35,9 +35,9 @@ func TestAccOrgPolicyPolicy_EnforcePolicy(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckOrgPolicyPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckOrgPolicyPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOrgPolicyPolicy_EnforcePolicy(context),
@@ -60,9 +60,9 @@ func TestAccOrgPolicyPolicy_FolderPolicy(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckOrgPolicyPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckOrgPolicyPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOrgPolicyPolicy_FolderPolicy(context),
@@ -94,9 +94,9 @@ func TestAccOrgPolicyPolicy_OrganizationPolicy(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckOrgPolicyPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckOrgPolicyPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOrgPolicyPolicy_OrganizationPolicy(context),
@@ -128,9 +128,9 @@ func TestAccOrgPolicyPolicy_ProjectPolicy(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckOrgPolicyPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckOrgPolicyPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOrgPolicyPolicy_ProjectPolicy(context),

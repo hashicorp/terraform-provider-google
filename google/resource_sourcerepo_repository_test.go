@@ -12,9 +12,9 @@ func TestAccSourceRepoRepository_basic(t *testing.T) {
 
 	repositoryName := fmt.Sprintf("source-repo-repository-test-%s", RandString(t, 10))
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckSourceRepoRepositoryDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSourceRepoRepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSourceRepoRepository_basic(repositoryName),
@@ -35,9 +35,9 @@ func TestAccSourceRepoRepository_update(t *testing.T) {
 	accountId := fmt.Sprintf("account-id-%s", RandString(t, 10))
 	topicName := fmt.Sprintf("topic-name-%s", RandString(t, 10))
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckSourceRepoRepositoryDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSourceRepoRepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSourceRepoRepository_basic(repositoryName),

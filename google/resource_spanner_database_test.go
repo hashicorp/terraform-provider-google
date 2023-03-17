@@ -17,9 +17,9 @@ func TestAccSpannerDatabase_basic(t *testing.T) {
 	databaseName := fmt.Sprintf("tfgen_%s", rnd)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckSpannerDatabaseDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSpannerDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSpannerDatabase_virtualUpdate(instanceName, databaseName),
@@ -155,9 +155,9 @@ func TestAccSpannerDatabase_postgres(t *testing.T) {
 	databaseName := fmt.Sprintf("tfgen_%s", rnd)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckSpannerDatabaseDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSpannerDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSpannerDatabase_postgres(instanceName, databaseName),
@@ -244,9 +244,9 @@ func TestAccSpannerDatabase_versionRetentionPeriod(t *testing.T) {
 	databaseName := fmt.Sprintf("tfgen_%s", rnd)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckSpannerDatabaseDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSpannerDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				// Test creating a database with `version_retention_period` set
@@ -556,9 +556,9 @@ func TestAccSpannerDatabase_deletionProtection(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckSpannerDatabaseDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSpannerDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSpannerDatabase_deletionProtection(context),

@@ -36,9 +36,9 @@ func TestAccDataplexLake_BasicLake(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataplexLakeDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataplexLakeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataplexLake_BasicLake(context),

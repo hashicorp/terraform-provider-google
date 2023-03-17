@@ -75,9 +75,9 @@ func TestAccRegionInstanceGroupManager_basic(t *testing.T) {
 	igm2 := fmt.Sprintf("tf-test-rigm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRegionInstanceGroupManager_basic(template, target, igm1, igm2),
@@ -105,9 +105,9 @@ func TestAccRegionInstanceGroupManager_targetSizeZero(t *testing.T) {
 	igmName := fmt.Sprintf("tf-test-rigm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRegionInstanceGroupManager_targetSizeZero(templateName, igmName),
@@ -132,9 +132,9 @@ func TestAccRegionInstanceGroupManager_update(t *testing.T) {
 	igm := fmt.Sprintf("tf-test-rigm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRegionInstanceGroupManager_update(template1, target1, igm),
@@ -177,9 +177,9 @@ func TestAccRegionInstanceGroupManager_updateLifecycle(t *testing.T) {
 	igm := fmt.Sprintf("tf-test-rigm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRegionInstanceGroupManager_updateLifecycle(tag1, igm),
@@ -211,9 +211,9 @@ func TestAccRegionInstanceGroupManager_rollingUpdatePolicy(t *testing.T) {
 	igm := fmt.Sprintf("tf-test-rigm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRegionInstanceGroupManager_rollingUpdatePolicy(igm),
@@ -260,9 +260,9 @@ func TestAccRegionInstanceGroupManager_separateRegions(t *testing.T) {
 	igm2 := fmt.Sprintf("tf-test-rigm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRegionInstanceGroupManager_separateRegions(igm1, igm2),
@@ -291,9 +291,9 @@ func TestAccRegionInstanceGroupManager_versions(t *testing.T) {
 	igm := fmt.Sprintf("tf-test-rigm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRegionInstanceGroupManager_versions(primaryTemplate, canaryTemplate, igm),
@@ -317,9 +317,9 @@ func TestAccRegionInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 	hck := fmt.Sprintf("tf-test-rigm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRegionInstanceGroupManager_autoHealingPolicies(template, target, igm, hck),
@@ -351,9 +351,9 @@ func TestAccRegionInstanceGroupManager_distributionPolicy(t *testing.T) {
 	zones := []string{"us-central1-a", "us-central1-b"}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRegionInstanceGroupManager_distributionPolicy(template, igm, zones),
@@ -378,9 +378,9 @@ func TestAccRegionInstanceGroupManager_stateful(t *testing.T) {
 	network := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRegionInstanceGroupManager_stateful(template, network, igm),

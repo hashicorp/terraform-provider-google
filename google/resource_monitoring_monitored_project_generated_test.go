@@ -36,9 +36,9 @@ func TestAccMonitoringMonitoredProject_BasicMonitoredProject(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringMonitoredProjectDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringMonitoredProjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringMonitoredProject_BasicMonitoredProject(context),

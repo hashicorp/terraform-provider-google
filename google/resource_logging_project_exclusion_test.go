@@ -35,9 +35,9 @@ func testAccLoggingProjectExclusion_basic(t *testing.T) {
 	exclusionName := "tf-test-exclusion-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectExclusionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingProjectExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectExclusion_basicCfg(exclusionName),
@@ -55,9 +55,9 @@ func testAccLoggingProjectExclusion_disablePreservesFilter(t *testing.T) {
 	exclusionName := "tf-test-exclusion-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectExclusionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingProjectExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectExclusion_basicCfg(exclusionName),
@@ -83,9 +83,9 @@ func testAccLoggingProjectExclusion_update(t *testing.T) {
 	exclusionName := "tf-test-exclusion-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectExclusionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingProjectExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectExclusion_basicCfg(exclusionName),
@@ -109,9 +109,9 @@ func testAccLoggingProjectExclusion_update(t *testing.T) {
 
 func testAccLoggingProjectExclusion_multiple(t *testing.T) {
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingProjectExclusionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingProjectExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectExclusion_multipleCfg("tf-test-exclusion-" + RandString(t, 10)),

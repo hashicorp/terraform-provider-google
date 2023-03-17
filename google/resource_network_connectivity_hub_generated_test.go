@@ -35,9 +35,9 @@ func TestAccNetworkConnectivityHub_BasicHub(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckNetworkConnectivityHubDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkConnectivityHubDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkConnectivityHub_BasicHub(context),

@@ -31,9 +31,9 @@ func TestAccCertificateManagerCertificateMap_certificateManagerCertificateMapBas
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCertificateManagerCertificateMapDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCertificateManagerCertificateMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCertificateManagerCertificateMap_certificateManagerCertificateMapBasicExample(context),

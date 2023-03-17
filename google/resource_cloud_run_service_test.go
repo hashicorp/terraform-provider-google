@@ -14,8 +14,8 @@ func TestAccCloudRunService_cloudRunServiceUpdate(t *testing.T) {
 	name := "tftest-cloudrun-" + RandString(t, 6)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudRunService_cloudRunServiceUpdate(name, project, "10", "600"),
@@ -47,8 +47,8 @@ func TestAccCloudRunService_foregroundDeletion(t *testing.T) {
 	name := "tftest-cloudrun-" + RandString(t, 6)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudRunService_cloudRunServiceUpdate(name, project, "10", "600"),
@@ -123,8 +123,8 @@ func TestAccCloudRunService_secretVolume(t *testing.T) {
 	name := "tftest-cloudrun-" + RandString(t, 6)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudRunService_cloudRunServiceUpdateWithSecretVolume(name, project, "secret-"+RandString(t, 5), "secret-"+RandString(t, 6), "google_secret_manager_secret.secret1.secret_id"),
@@ -247,8 +247,8 @@ func TestAccCloudRunService_secretEnvironmentVariable(t *testing.T) {
 	name := "tftest-cloudrun-" + RandString(t, 6)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudRunService_cloudRunServiceUpdateWithSecretEnvVar(name, project, "secret-"+RandString(t, 5), "secret-"+RandString(t, 6), "google_secret_manager_secret.secret1.secret_id"),

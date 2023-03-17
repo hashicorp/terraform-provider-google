@@ -31,9 +31,9 @@ func TestAccVertexAIDataset_vertexAiDatasetExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckVertexAIDatasetDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIDatasetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVertexAIDataset_vertexAiDatasetExample(context),

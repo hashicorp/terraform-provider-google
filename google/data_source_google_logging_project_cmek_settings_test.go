@@ -18,8 +18,8 @@ func TestAccLoggingProjectCmekSettings_basic(t *testing.T) {
 	resourceName := "data.google_logging_project_cmek_settings.cmek_settings"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingProjectCmekSettings_basic(context),

@@ -14,9 +14,9 @@ func TestAccFilestoreBackup_update(t *testing.T) {
 	bkupName := fmt.Sprintf("tf-fs-bkup-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckFilestoreBackupDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckFilestoreBackupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFilestoreBackup_create(instName, bkupName),

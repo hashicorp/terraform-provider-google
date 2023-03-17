@@ -13,9 +13,9 @@ func TestAccStorageDefaultObjectAcl_basic(t *testing.T) {
 
 	bucketName := testBucketName(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccStorageDefaultObjectAclDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageDefaultObjectAclDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleStorageDefaultObjectsAclBasic(bucketName, roleEntityBasic1, roleEntityBasic2),
@@ -33,9 +33,9 @@ func TestAccStorageDefaultObjectAcl_noRoleEntity(t *testing.T) {
 
 	bucketName := testBucketName(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccStorageDefaultObjectAclDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageDefaultObjectAclDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleStorageDefaultObjectsAclNoRoleEntity(bucketName),
@@ -50,9 +50,9 @@ func TestAccStorageDefaultObjectAcl_upgrade(t *testing.T) {
 	bucketName := testBucketName(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccStorageDefaultObjectAclDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageDefaultObjectAclDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleStorageDefaultObjectsAclBasic(bucketName, roleEntityBasic1, roleEntityBasic2),
@@ -88,9 +88,9 @@ func TestAccStorageDefaultObjectAcl_downgrade(t *testing.T) {
 	bucketName := testBucketName(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccStorageDefaultObjectAclDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageDefaultObjectAclDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleStorageDefaultObjectsAclBasic(bucketName, roleEntityBasic2, roleEntityBasic3_owner),
@@ -127,9 +127,9 @@ func TestAccStorageDefaultObjectAcl_unordered(t *testing.T) {
 	bucketName := testBucketName(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccStorageDefaultObjectAclDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageDefaultObjectAclDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleStorageDefaultObjectAclUnordered(bucketName),

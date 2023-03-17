@@ -18,9 +18,9 @@ func TestAccFolderOrganizationPolicy_boolean(t *testing.T) {
 
 	org := GetTestOrgFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleFolderOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleFolderOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				// Test creation of an enforced boolean policy
@@ -57,9 +57,9 @@ func TestAccFolderOrganizationPolicy_list_allowAll(t *testing.T) {
 
 	org := GetTestOrgFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleFolderOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleFolderOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFolderOrganizationPolicy_list_allowAll(org, folder),
@@ -81,9 +81,9 @@ func TestAccFolderOrganizationPolicy_list_allowSome(t *testing.T) {
 	org := GetTestOrgFromEnv(t)
 	project := GetTestProjectFromEnv()
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleFolderOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleFolderOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFolderOrganizationPolicy_list_allowSome(org, folder, project),
@@ -104,9 +104,9 @@ func TestAccFolderOrganizationPolicy_list_denySome(t *testing.T) {
 	folder := fmt.Sprintf("tf-test-%d", RandInt(t))
 	org := GetTestOrgFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleFolderOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleFolderOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFolderOrganizationPolicy_list_denySome(org, folder),
@@ -127,9 +127,9 @@ func TestAccFolderOrganizationPolicy_list_update(t *testing.T) {
 	folder := fmt.Sprintf("tf-test-%d", RandInt(t))
 	org := GetTestOrgFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleFolderOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleFolderOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFolderOrganizationPolicy_list_allowAll(org, folder),
@@ -154,9 +154,9 @@ func TestAccFolderOrganizationPolicy_restore_defaultTrue(t *testing.T) {
 	folder := fmt.Sprintf("tf-test-%d", RandInt(t))
 	org := GetTestOrgFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFolderOrganizationPolicy_restore_defaultTrue(org, folder),

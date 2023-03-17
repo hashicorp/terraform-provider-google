@@ -31,9 +31,9 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfileBasicExample(
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDatastreamConnectionProfileDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDatastreamConnectionProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDatastreamConnectionProfile_datastreamConnectionProfileBasicExample(context),
@@ -71,9 +71,9 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryPriva
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDatastreamConnectionProfileDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDatastreamConnectionProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryPrivateConnectionExample(context),
@@ -131,9 +131,9 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfileFullExample(t
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDatastreamConnectionProfileDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDatastreamConnectionProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDatastreamConnectionProfile_datastreamConnectionProfileFullExample(context),

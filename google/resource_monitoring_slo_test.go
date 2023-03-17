@@ -74,9 +74,9 @@ func TestAccMonitoringSlo_basic(t *testing.T) {
 
 	var generatedId string
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSlo_basic(),
@@ -109,9 +109,9 @@ func TestAccMonitoringSlo_availabilitySli(t *testing.T) {
 
 	var generatedId string
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSlo_availabilitySli(),
@@ -144,9 +144,9 @@ func TestAccMonitoringSlo_requestBased(t *testing.T) {
 	randomSuffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSloForSli(
@@ -194,9 +194,9 @@ func TestAccMonitoringSlo_windowBased_updateSlis(t *testing.T) {
 	randomSuffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSloForSli(
@@ -260,9 +260,9 @@ func TestAccMonitoringSlo_windowBasedGoodTotalRatioThresholdSlis(t *testing.T) {
 	randomSuffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSloForSli(
@@ -336,9 +336,9 @@ func TestAccMonitoringSlo_windowBasedMetricMeanRangeSlis(t *testing.T) {
 	randomSuffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSloForSli(
@@ -376,9 +376,9 @@ func TestAccMonitoringSlo_windowBasedMetricSumRangeSlis(t *testing.T) {
 	randomSuffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSloForSli(
@@ -416,9 +416,9 @@ func TestAccMonitoringSlo_genericService(t *testing.T) {
 	randomSuffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMonitoringSloDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitoringSlo_generic(randomSuffix),

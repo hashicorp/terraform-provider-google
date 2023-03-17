@@ -18,9 +18,9 @@ func TestAccCloudbuildWorkerPool_basic(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: funcAccTestCloudbuildWorkerPoolCheckDestroy(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             funcAccTestCloudbuildWorkerPoolCheckDestroy(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudbuildWorkerPool_basic(context),
@@ -96,9 +96,9 @@ func TestAccCloudbuildWorkerPool_withNetwork(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: funcAccTestCloudbuildWorkerPoolCheckDestroy(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             funcAccTestCloudbuildWorkerPoolCheckDestroy(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudbuildWorkerPool_withNetwork(context),

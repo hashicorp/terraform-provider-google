@@ -31,9 +31,9 @@ func TestAccDatastoreIndex_datastoreIndexExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDatastoreIndexDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDatastoreIndexDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDatastoreIndex_datastoreIndexExample(context),

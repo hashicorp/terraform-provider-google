@@ -13,9 +13,9 @@ func TestAccComputeRouterInterface_basic(t *testing.T) {
 
 	routerName := fmt.Sprintf("tf-test-router-%s", RandString(t, 10))
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRouterInterfaceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterInterfaceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterInterfaceBasic(routerName),
@@ -41,9 +41,9 @@ func TestAccComputeRouterInterface_redundant(t *testing.T) {
 
 	routerName := fmt.Sprintf("tf-test-router-%s", RandString(t, 10))
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRouterInterfaceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterInterfaceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterInterfaceRedundant(routerName),
@@ -64,9 +64,9 @@ func TestAccComputeRouterInterface_withTunnel(t *testing.T) {
 
 	routerName := fmt.Sprintf("tf-test-router-%s", RandString(t, 10))
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRouterInterfaceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterInterfaceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterInterfaceWithTunnel(routerName),
@@ -87,9 +87,9 @@ func TestAccComputeRouterInterface_withPrivateIpAddress(t *testing.T) {
 
 	routerName := fmt.Sprintf("tf-test-router-%s", RandString(t, 10))
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeRouterInterfaceDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterInterfaceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRouterInterfaceWithPrivateIpAddress(routerName),

@@ -31,9 +31,9 @@ func TestAccMLEngineModel_mlModelBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMLEngineModelDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMLEngineModelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMLEngineModel_mlModelBasicExample(context),
@@ -65,9 +65,9 @@ func TestAccMLEngineModel_mlModelFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckMLEngineModelDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMLEngineModelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMLEngineModel_mlModelFullExample(context),

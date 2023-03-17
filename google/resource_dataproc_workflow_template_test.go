@@ -19,9 +19,9 @@ func TestAccDataprocWorkflowTemplate_basic(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: funcAccTestDataprocWorkflowTemplateCheckDestroy(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             funcAccTestDataprocWorkflowTemplateCheckDestroy(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
 		},
@@ -48,9 +48,9 @@ func TestAccDataprocWorkflowTemplate_withShieldedVMs(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: funcAccTestDataprocWorkflowTemplateCheckDestroy(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             funcAccTestDataprocWorkflowTemplateCheckDestroy(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
 		},

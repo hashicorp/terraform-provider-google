@@ -15,9 +15,9 @@ func TestAccPubsubSubscription_emptyTTL(t *testing.T) {
 	subscription := fmt.Sprintf("tf-test-sub-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckPubsubSubscriptionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSubscription_emptyTTL(topic, subscription),
@@ -39,9 +39,9 @@ func TestAccPubsubSubscription_basic(t *testing.T) {
 	subscription := fmt.Sprintf("tf-test-sub-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckPubsubSubscriptionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSubscription_basic(topic, subscription, "bar", 20, false),
@@ -63,9 +63,9 @@ func TestAccPubsubSubscription_update(t *testing.T) {
 	subscriptionShort := fmt.Sprintf("tf-test-sub-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckPubsubSubscriptionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSubscription_basic(topic, subscriptionShort, "bar", 20, false),
@@ -97,9 +97,9 @@ func TestAccPubsubSubscription_push(t *testing.T) {
 	saAccount := fmt.Sprintf("tf-test-pubsub-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckPubsubSubscriptionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSubscription_push(topicFoo, saAccount, subscription),
@@ -125,9 +125,9 @@ func TestAccPubsubSubscription_pollOnCreate(t *testing.T) {
 	subscription := fmt.Sprintf("tf-test-topic-foo-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckPubsubSubscriptionDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				// Create only the topic

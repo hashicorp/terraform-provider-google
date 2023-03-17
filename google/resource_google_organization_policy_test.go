@@ -44,9 +44,9 @@ func TestAccOrganizationPolicy(t *testing.T) {
 func testAccOrganizationPolicy_boolean(t *testing.T) {
 	org := GetTestOrgTargetFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				// Test creation of an enforced boolean policy
@@ -85,9 +85,9 @@ func testAccOrganizationPolicy_boolean(t *testing.T) {
 func testAccOrganizationPolicy_list_allowAll(t *testing.T) {
 	org := GetTestOrgTargetFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOrganizationPolicyConfig_list_allowAll(org),
@@ -106,9 +106,9 @@ func testAccOrganizationPolicy_list_allowSome(t *testing.T) {
 	org := GetTestOrgTargetFromEnv(t)
 	project := GetTestProjectFromEnv()
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOrganizationPolicyConfig_list_allowSome(org, project),
@@ -126,9 +126,9 @@ func testAccOrganizationPolicy_list_allowSome(t *testing.T) {
 func testAccOrganizationPolicy_list_denySome(t *testing.T) {
 	org := GetTestOrgTargetFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOrganizationPolicyConfig_list_denySome(org),
@@ -146,9 +146,9 @@ func testAccOrganizationPolicy_list_denySome(t *testing.T) {
 func testAccOrganizationPolicy_list_update(t *testing.T) {
 	org := GetTestOrgTargetFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOrganizationPolicyConfig_list_allowAll(org),
@@ -170,9 +170,9 @@ func testAccOrganizationPolicy_list_update(t *testing.T) {
 func testAccOrganizationPolicy_list_inheritFromParent(t *testing.T) {
 	org := GetTestOrgTargetFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOrganizationPolicyConfig_list_inheritFromParent(org),
@@ -189,9 +189,9 @@ func testAccOrganizationPolicy_list_inheritFromParent(t *testing.T) {
 func testAccOrganizationPolicy_restore_defaultTrue(t *testing.T) {
 	org := GetTestOrgTargetFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckGoogleOrganizationPolicyDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGoogleOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOrganizationPolicyConfig_restore_defaultTrue(org),

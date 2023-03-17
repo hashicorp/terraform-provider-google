@@ -15,8 +15,8 @@ func TestAccComputeProjectDefaultNetworkTier_basic(t *testing.T) {
 	projectID := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeProject_defaultNetworkTier_premium(projectID, pname, org, billingId),
@@ -38,8 +38,8 @@ func TestAccComputeProjectDefaultNetworkTier_modify(t *testing.T) {
 	projectID := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeProject_defaultNetworkTier_premium(projectID, pname, org, billingId),

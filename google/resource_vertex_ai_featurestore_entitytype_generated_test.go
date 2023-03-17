@@ -34,9 +34,9 @@ func TestAccVertexAIFeaturestoreEntitytype_vertexAiFeaturestoreEntitytypeExample
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckVertexAIFeaturestoreEntitytypeDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIFeaturestoreEntitytypeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVertexAIFeaturestoreEntitytype_vertexAiFeaturestoreEntitytypeExample(context),

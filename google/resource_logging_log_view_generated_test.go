@@ -35,9 +35,9 @@ func TestAccLoggingLogView_BasicHandWritten(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckLoggingLogViewDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingLogViewDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccLoggingLogView_BasicHandWritten(context),

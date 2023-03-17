@@ -36,9 +36,9 @@ func TestAccDataplexZone_BasicZone(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckDataplexZoneDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataplexZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataplexZone_BasicZone(context),

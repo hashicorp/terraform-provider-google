@@ -19,8 +19,8 @@ func TestAccBigQueryJob_withLocation(t *testing.T) {
 	importID := fmt.Sprintf("projects/%s/jobs/tf_test_job_query%s/location/%s", GetTestProjectFromEnv(), context["random_suffix"], context["location"])
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: TestAccProviders,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryJob_withLocation(context),

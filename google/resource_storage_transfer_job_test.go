@@ -20,9 +20,9 @@ func TestAccStorageTransferJob_basic(t *testing.T) {
 	testPubSubTopicName := fmt.Sprintf("tf-test-topic-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccStorageTransferJobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageTransferJob_omitNotificationConfig(GetTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testTransferJobDescription),
@@ -84,9 +84,9 @@ func TestAccStorageTransferJob_omitScheduleEndDate(t *testing.T) {
 	testTransferJobDescription := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccStorageTransferJobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageTransferJob_omitScheduleEndDate(GetTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testTransferJobDescription),
@@ -108,9 +108,9 @@ func TestAccStorageTransferJob_posixSource(t *testing.T) {
 	testSourceAgentPoolName := fmt.Sprintf("tf-test-source-agent-pool-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccStorageTransferJobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageTransferJob_posixSource(GetTestProjectFromEnv(), testDataSinkName, testTransferJobDescription, testSourceAgentPoolName),
@@ -131,9 +131,9 @@ func TestAccStorageTransferJob_posixSink(t *testing.T) {
 	testSinkAgentPoolName := fmt.Sprintf("tf-test-sink-agent-pool-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccStorageTransferJobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageTransferJob_posixSink(GetTestProjectFromEnv(), testDataSourceName, testTransferJobDescription, testSinkAgentPoolName),
@@ -157,9 +157,9 @@ func TestAccStorageTransferJob_transferOptions(t *testing.T) {
 	testPubSubTopicName := fmt.Sprintf("tf-test-topic-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccStorageTransferJobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageTransferJob_basic(GetTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testTransferJobDescription, testPubSubTopicName),
@@ -208,9 +208,9 @@ func TestAccStorageTransferJob_notificationConfig(t *testing.T) {
 	testPubSubTopicNameUpdate := fmt.Sprintf("tf-test-topic-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccStorageTransferJobDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageTransferJob_basic(GetTestProjectFromEnv(), testDataSourceBucketName, testDataSinkName, testTransferJobDescription, testPubSubTopicName),

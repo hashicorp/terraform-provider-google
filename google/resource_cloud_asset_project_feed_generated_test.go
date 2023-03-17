@@ -32,9 +32,9 @@ func TestAccCloudAssetProjectFeed_cloudAssetProjectFeedExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckCloudAssetProjectFeedDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudAssetProjectFeedDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudAssetProjectFeed_cloudAssetProjectFeedExample(context),
