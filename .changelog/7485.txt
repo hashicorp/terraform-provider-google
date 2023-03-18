@@ -1,0 +1,3 @@
+```release-note:note
+updated google golang api to v0.114.0 to support oauth2 token exchange over mTLS
+```
