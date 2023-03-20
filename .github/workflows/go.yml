@@ -28,7 +28,6 @@ jobs:
     - name: Build
       run: |
         make lint
-        make generate
         go build
 
     - name: Test
