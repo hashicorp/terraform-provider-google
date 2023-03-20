@@ -314,7 +314,7 @@ The following arguments are supported:
 * `request_headers_to_add` -
   (Optional)
   Describes a header to add.
-  You may add a maximum of 5 request headers.
+  You may add a maximum of 25 request headers.
   Structure is [documented below](#nested_request_headers_to_add).
 
 

@@ -263,7 +263,7 @@ to which you could add rules numbered from 6 to 8, 10 to 11, and 13 to 15 in the
 																Optional:    true,
 																Description: `Describes a header to add.`,
 																MinItems:    1,
-																MaxItems:    5,
+																MaxItems:    25,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"header_name": {
@@ -290,7 +290,7 @@ to which you could add rules numbered from 6 to 8, 10 to 11, and 13 to 15 in the
 																Optional:    true,
 																Description: `A list of header names for headers that need to be removed from the request prior to forwarding the request to the origin.`,
 																MinItems:    1,
-																MaxItems:    10,
+																MaxItems:    25,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"header_name": {
@@ -308,7 +308,7 @@ to which you could add rules numbered from 6 to 8, 10 to 11, and 13 to 15 in the
 
 Response headers are only sent to the client, and do not have an effect on the cache serving the response.`,
 																MinItems: 1,
-																MaxItems: 5,
+																MaxItems: 25,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"header_name": {
@@ -335,7 +335,7 @@ Response headers are only sent to the client, and do not have an effect on the c
 																Optional:    true,
 																Description: `A list of header names for headers that need to be removed from the request prior to forwarding the request to the origin.`,
 																MinItems:    1,
-																MaxItems:    10,
+																MaxItems:    25,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"header_name": {
@@ -729,7 +729,7 @@ This translates to the Access-Control-Allow-Credentials response header.`,
 																			Type:        schema.TypeList,
 																			Optional:    true,
 																			Description: `Specifies the content for the Access-Control-Allow-Headers response header.`,
-																			MaxItems:    5,
+																			MaxItems:    25,
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
 																			},
@@ -763,7 +763,7 @@ This translates to the Access-Control-Allow-Origin response header.`,
 																			Type:        schema.TypeList,
 																			Optional:    true,
 																			Description: `Specifies the content for the Access-Control-Allow-Headers response header.`,
-																			MaxItems:    5,
+																			MaxItems:    25,
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
 																			},

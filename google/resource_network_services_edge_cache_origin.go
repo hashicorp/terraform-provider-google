@@ -147,9 +147,9 @@ headers, for request handled by this origin.`,
 										Optional: true,
 										Description: `Describes a header to add.
 
-You may add a maximum of 5 request headers.`,
+You may add a maximum of 25 request headers.`,
 										MinItems: 1,
-										MaxItems: 5,
+										MaxItems: 25,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"header_name": {
