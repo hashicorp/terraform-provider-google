@@ -14,7 +14,6 @@ BUG FIXES:
 * bigquery: fixed a permadiff when `friendly_name` is removed from `google_bigquery_dataset` ([#13973](https://github.com/hashicorp/terraform-provider-google/pull/13973))
 * redis: fixed a bug causing diff detection on `reserved_ip_range` in `google_redis_instance` ([#13958](https://github.com/hashicorp/terraform-provider-google/pull/13958))
 
-
 ## 4.57.0 (March 13, 2023)
 
 FEATURES:
