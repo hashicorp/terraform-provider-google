@@ -512,7 +512,7 @@ func TestDnsManagedZoneImport_parseImportId(t *testing.T) {
 	}{
 		"full self_link": {
 			IdRegexes: zoneRegexes,
-			ImportId:  "https://www.googleapis.com/dns/v1/projects/my-project/managedZones/my-zone",
+			ImportId:  "https://dns.googleapis.com/dns/v1/projects/my-project/managedZones/my-zone",
 			ExpectedSchemaValues: map[string]interface{}{
 				"project": "my-project",
 				"name":    "my-zone",
