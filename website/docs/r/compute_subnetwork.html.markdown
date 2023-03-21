@@ -225,17 +225,18 @@ The following arguments are supported:
   (Optional)
   The purpose of the resource. A subnetwork with purpose set to
   INTERNAL_HTTPS_LOAD_BALANCER is a user-created subnetwork that is
-  reserved for Internal HTTP(S) Load Balancing.
-  If set to INTERNAL_HTTPS_LOAD_BALANCER you must also set the `role` field.
+  reserved for Internal HTTP(S) Load Balancing, and REGIONAL_MANAGED_PROXY is
+  for proxy-only subnets.
+  If set to INTERNAL_HTTPS_LOAD_BALANCER or REGIONAL_MANAGED_PROXY you must also set the `role` field.
 
 * `role` -
   (Optional)
   The role of subnetwork. Currently, this field is only used when
-  purpose = INTERNAL_HTTPS_LOAD_BALANCER. The value can be set to ACTIVE
-  or BACKUP. An ACTIVE subnetwork is one that is currently being used
-  for Internal HTTP(S) Load Balancing. A BACKUP subnetwork is one that
-  is ready to be promoted to ACTIVE or is currently draining.
-  Possible values are `ACTIVE` and `BACKUP`.
+  purpose = INTERNAL_HTTPS_LOAD_BALANCER or REGIONAL_MANAGED_PROXY. 
+  The value can be set to ACTIVE or BACKUP. An ACTIVE subnetwork is 
+  one that is currently being used for Internal HTTP(S) Load Balancing. 
+  A BACKUP subnetwork is one that is ready to be promoted to ACTIVE or 
+  is currently draining. Possible values are `ACTIVE` and `BACKUP`.
 
 * `secondary_ip_range` -
   (Optional)
