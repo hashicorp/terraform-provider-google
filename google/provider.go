@@ -429,6 +429,14 @@ func Provider() *schema.Provider {
 					"GOOGLE_DATA_LOSS_PREVENTION_CUSTOM_ENDPOINT",
 				}, DefaultBasePaths[DataLossPreventionBasePathKey]),
 			},
+			"dataplex_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCustomEndpoint,
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"GOOGLE_DATAPLEX_CUSTOM_ENDPOINT",
+				}, DefaultBasePaths[DataplexBasePathKey]),
+			},
 			"dataproc_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1000,8 +1008,8 @@ func Provider() *schema.Provider {
 }
 
 // Generated resources: 274
-// Generated IAM resources: 177
-// Total generated resources: 451
+// Generated IAM resources: 186
+// Total generated resources: 460
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1244,6 +1252,15 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_data_loss_prevention_inspect_template":                 ResourceDataLossPreventionInspectTemplate(),
 			"google_data_loss_prevention_job_trigger":                      ResourceDataLossPreventionJobTrigger(),
 			"google_data_loss_prevention_stored_info_type":                 ResourceDataLossPreventionStoredInfoType(),
+			"google_dataplex_asset_iam_binding":                            ResourceIamBinding(DataplexAssetIamSchema, DataplexAssetIamUpdaterProducer, DataplexAssetIdParseFunc),
+			"google_dataplex_asset_iam_member":                             ResourceIamMember(DataplexAssetIamSchema, DataplexAssetIamUpdaterProducer, DataplexAssetIdParseFunc),
+			"google_dataplex_asset_iam_policy":                             ResourceIamPolicy(DataplexAssetIamSchema, DataplexAssetIamUpdaterProducer, DataplexAssetIdParseFunc),
+			"google_dataplex_lake_iam_binding":                             ResourceIamBinding(DataplexLakeIamSchema, DataplexLakeIamUpdaterProducer, DataplexLakeIdParseFunc),
+			"google_dataplex_lake_iam_member":                              ResourceIamMember(DataplexLakeIamSchema, DataplexLakeIamUpdaterProducer, DataplexLakeIdParseFunc),
+			"google_dataplex_lake_iam_policy":                              ResourceIamPolicy(DataplexLakeIamSchema, DataplexLakeIamUpdaterProducer, DataplexLakeIdParseFunc),
+			"google_dataplex_zone_iam_binding":                             ResourceIamBinding(DataplexZoneIamSchema, DataplexZoneIamUpdaterProducer, DataplexZoneIdParseFunc),
+			"google_dataplex_zone_iam_member":                              ResourceIamMember(DataplexZoneIamSchema, DataplexZoneIamUpdaterProducer, DataplexZoneIdParseFunc),
+			"google_dataplex_zone_iam_policy":                              ResourceIamPolicy(DataplexZoneIamSchema, DataplexZoneIamUpdaterProducer, DataplexZoneIdParseFunc),
 			"google_dataproc_autoscaling_policy":                           ResourceDataprocAutoscalingPolicy(),
 			"google_dataproc_autoscaling_policy_iam_binding":               ResourceIamBinding(DataprocAutoscalingPolicyIamSchema, DataprocAutoscalingPolicyIamUpdaterProducer, DataprocAutoscalingPolicyIdParseFunc),
 			"google_dataproc_autoscaling_policy_iam_member":                ResourceIamMember(DataprocAutoscalingPolicyIamSchema, DataprocAutoscalingPolicyIamUpdaterProducer, DataprocAutoscalingPolicyIdParseFunc),
@@ -1710,6 +1727,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.DataCatalogBasePath = d.Get("data_catalog_custom_endpoint").(string)
 	config.DataFusionBasePath = d.Get("data_fusion_custom_endpoint").(string)
 	config.DataLossPreventionBasePath = d.Get("data_loss_prevention_custom_endpoint").(string)
+	config.DataplexBasePath = d.Get("dataplex_custom_endpoint").(string)
 	config.DataprocBasePath = d.Get("dataproc_custom_endpoint").(string)
 	config.DataprocMetastoreBasePath = d.Get("dataproc_metastore_custom_endpoint").(string)
 	config.DatastoreBasePath = d.Get("datastore_custom_endpoint").(string)
