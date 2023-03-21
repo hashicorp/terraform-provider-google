@@ -1,0 +1,3 @@
+```release-note:bug
+cloudscheduler: updated http_target uri of scheduler_job_http_tf
+```
