@@ -10,7 +10,7 @@ import (
 
 // List of prefixes used for test resource names
 var testResourcePrefixes = []string{
-	// tf-test and tf_test are automatically prepended to resource ids in terraform.yaml that
+	// tf-test and tf_test are automatically prepended to resource ids in examples that
 	// include a "-" or "_" respectively, and they are the preferred prefix for our test resources to use
 	"tf-test",
 	"tf_test",
