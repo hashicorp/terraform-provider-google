@@ -155,6 +155,33 @@ resource "google_compute_region_health_check" "health_check" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_backend_service_external_weighted&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Backend Service External Weighted
+
+
+```hcl
+resource "google_compute_region_backend_service" "default" {
+  region                = "us-central1"
+  name                  = "region-service"
+  health_checks         = [google_compute_region_health_check.health_check.id]
+  protocol              = "TCP"
+  load_balancing_scheme = "EXTERNAL"
+  locality_lb_policy    = "WEIGHTED_MAGLEV"
+}
+
+resource "google_compute_region_health_check" "health_check" {
+  name               = "rbs-health-check"
+  region             = "us-central1"
+
+  http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_backend_service_ilb_ring_hash&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -432,18 +459,33 @@ The following arguments are supported:
               Maglev is not as stable as ring hash but has faster table lookup
               build times and host selection times. For more information about
               Maglev, refer to https://ai.google/research/pubs/pub44824
+  * `WEIGHTED_MAGLEV`: Per-instance weighted Load Balancing via health check
+                       reported weights. If set, the Backend Service must
+                       configure a non legacy HTTP-based Health Check, and
+                       health check replies are expected to contain
+                       non-standard HTTP response header field
+                       X-Load-Balancing-Endpoint-Weight to specify the
+                       per-instance weights. If set, Load Balancing is weight
+                       based on the per-instance weights reported in the last
+                       processed health check replies, as long as every
+                       instance either reported a valid weight or had
+                       UNAVAILABLE_WEIGHT. Otherwise, Load Balancing remains
+                       equal-weight.
 
   This field is applicable to either:
   * A regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2,
     and loadBalancingScheme set to INTERNAL_MANAGED.
   * A global backend service with the load_balancing_scheme set to INTERNAL_SELF_MANAGED.
+  * A regional backend service with loadBalancingScheme set to EXTERNAL (External Network
+    Load Balancing). Only MAGLEV and WEIGHTED_MAGLEV values are possible for External
+    Network Load Balancing. The default is MAGLEV.
 
-  If session_affinity is not NONE, and this field is not set to MAGLEV or RING_HASH,
-  session affinity settings will not take effect.
+  If session_affinity is not NONE, and this field is not set to MAGLEV, WEIGHTED_MAGLEV,
+  or RING_HASH, session affinity settings will not take effect.
   Only ROUND_ROBIN and RING_HASH are supported when the backend service is referenced
   by a URL map that is bound to target gRPC proxy that has validate_for_proxyless
   field set to true.
-  Possible values are `ROUND_ROBIN`, `LEAST_REQUEST`, `RING_HASH`, `RANDOM`, `ORIGINAL_DESTINATION`, and `MAGLEV`.
+  Possible values are `ROUND_ROBIN`, `LEAST_REQUEST`, `RING_HASH`, `RANDOM`, `ORIGINAL_DESTINATION`, `MAGLEV`, and `WEIGHTED_MAGLEV`.
 
 * `outlier_detection` -
   (Optional)
