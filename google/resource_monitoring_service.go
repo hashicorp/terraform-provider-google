@@ -54,7 +54,7 @@ service ID.`,
 				Optional: true,
 				ForceNew: true,
 				Description: `A well-known service type, defined by its service type and service labels.
-Valid values are described at
+Valid values of service types and services labels are described at
 https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring/api/api-structures#basic-svc-w-basic-sli`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
