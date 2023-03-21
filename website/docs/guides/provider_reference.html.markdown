@@ -321,6 +321,18 @@ Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
 * `enable_batching` - (Optional) Defaults to true. If false, disables global
 batching and each request is sent normally.
 
+---
+
+You can extend the user agent header for each request made by the provider by setting the `GOOGLE_TERRAFORM_USERAGENT_EXTENSION` environment variable. This can be helpful for tracking (e.g. compliance through [audit logs](https://cloud.google.com/logging/docs/audit)) or debugging purposes.
+
+Example:
+
+```sh
+export GOOGLE_TERRAFORM_USERAGENT_EXTENSION="my-extension/1.0"
+```
+
+See [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#field.user-agent) for format compliance of user agent header fields. 
+
 [OAuth 2.0 access token]: https://developers.google.com/identity/protocols/OAuth2
 [service account key file]: https://cloud.google.com/iam/docs/creating-managing-service-account-keys
 [manage key files using the Cloud Console]: https://console.cloud.google.com/apis/credentials/serviceaccountkey
