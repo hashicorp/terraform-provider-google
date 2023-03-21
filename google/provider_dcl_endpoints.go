@@ -67,15 +67,6 @@ var CloudResourceManagerEndpointEntry = &schema.Schema{
 	}, ""),
 }
 
-var DataplexEndpointEntryKey = "dataplex_custom_endpoint"
-var DataplexEndpointEntry = &schema.Schema{
-	Type:     schema.TypeString,
-	Optional: true,
-	DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-		"GOOGLE_DATAPLEX_CUSTOM_ENDPOINT",
-	}, ""),
-}
-
 var EventarcEndpointEntryKey = "eventarc_custom_endpoint"
 var EventarcEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -127,7 +118,6 @@ type DCLConfig struct {
 	CloudBuildWorkerPoolBasePath string
 	ClouddeployBasePath          string
 	CloudResourceManagerBasePath string
-	DataplexBasePath             string
 	EventarcBasePath             string
 	FirebaserulesBasePath        string
 	NetworkConnectivityBasePath  string
@@ -141,7 +131,6 @@ func ConfigureDCLProvider(provider *schema.Provider) {
 	provider.Schema[CloudBuildWorkerPoolEndpointEntryKey] = CloudBuildWorkerPoolEndpointEntry
 	provider.Schema[ClouddeployEndpointEntryKey] = ClouddeployEndpointEntry
 	provider.Schema[CloudResourceManagerEndpointEntryKey] = CloudResourceManagerEndpointEntry
-	provider.Schema[DataplexEndpointEntryKey] = DataplexEndpointEntry
 	provider.Schema[EventarcEndpointEntryKey] = EventarcEndpointEntry
 	provider.Schema[FirebaserulesEndpointEntryKey] = FirebaserulesEndpointEntry
 	provider.Schema[NetworkConnectivityEndpointEntryKey] = NetworkConnectivityEndpointEntry
@@ -155,7 +144,6 @@ func ProviderDCLConfigure(d *schema.ResourceData, config *Config) interface{} {
 	config.CloudBuildWorkerPoolBasePath = d.Get(CloudBuildWorkerPoolEndpointEntryKey).(string)
 	config.ClouddeployBasePath = d.Get(ClouddeployEndpointEntryKey).(string)
 	config.CloudResourceManagerBasePath = d.Get(CloudResourceManagerEndpointEntryKey).(string)
-	config.DataplexBasePath = d.Get(DataplexEndpointEntryKey).(string)
 	config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
 	config.FirebaserulesBasePath = d.Get(FirebaserulesEndpointEntryKey).(string)
 	config.NetworkConnectivityBasePath = d.Get(NetworkConnectivityEndpointEntryKey).(string)

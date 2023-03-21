@@ -1,0 +1,9 @@
+```release-note:new-resource
+`google_dataplex_lake_iam_*`
+```
+```release-note:new-resource
+`google_dataplex_zone_iam_*`
+```
+```release-note:new-resource
+`google_dataplex_asset_iam_*`
+```
