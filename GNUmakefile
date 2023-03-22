@@ -5,13 +5,13 @@ DIR_NAME=google
 
 default: build
 
-build: lint generate
+build: lint
 	go install
 
-test: lint generate
+test: lint
 	go test $(TESTARGS) -timeout=30s $(TEST)
 
-testacc: generate
+testacc:
 	TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test $(TEST) -v $(TESTARGS) -timeout 240m -ldflags="-X=github.com/hashicorp/terraform-provider-google/version.ProviderVersion=acc"
 
 fmt:
@@ -26,9 +26,6 @@ vet:
 	go vet
 
 lint: fmtcheck vet
-
-generate:
-	go generate  ./...
 
 test-compile:
 	@if [ "$(TEST)" = "./..." ]; then \
@@ -48,4 +45,4 @@ endif
 docscheck:
 	@sh -c "'$(CURDIR)/scripts/docscheck.sh'"
 
-.PHONY: build test testacc fmt fmtcheck vet lint test-compile website website-test docscheck generate
+.PHONY: build test testacc fmt fmtcheck vet lint test-compile website website-test docscheck
