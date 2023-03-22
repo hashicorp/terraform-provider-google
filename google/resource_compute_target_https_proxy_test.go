@@ -31,7 +31,7 @@ func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
 					testAccCheckComputeTargetHttpsProxyExists(
 						t, "google_compute_target_https_proxy.foobar", &proxy),
 					testAccComputeTargetHttpsProxyDescription("Resource created for Terraform acceptance testing", &proxy),
-					testAccComputeTargetHttpsProxyHasSslCertificate(t, "httpsproxy-test-cert1-"+resourceSuffix, &proxy),
+					testAccComputeTargetHttpsProxyHasSslCertificate(t, "tf-test-httpsproxy-cert1-"+resourceSuffix, &proxy),
 				),
 			},
 
@@ -41,8 +41,8 @@ func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
 					testAccCheckComputeTargetHttpsProxyExists(
 						t, "google_compute_target_https_proxy.foobar", &proxy),
 					testAccComputeTargetHttpsProxyDescription("Resource created for Terraform acceptance testing", &proxy),
-					testAccComputeTargetHttpsProxyHasSslCertificate(t, "httpsproxy-test-cert1-"+resourceSuffix, &proxy),
-					testAccComputeTargetHttpsProxyHasSslCertificate(t, "httpsproxy-test-cert2-"+resourceSuffix, &proxy),
+					testAccComputeTargetHttpsProxyHasSslCertificate(t, "tf-test-httpsproxy-cert1-"+resourceSuffix, &proxy),
+					testAccComputeTargetHttpsProxyHasSslCertificate(t, "tf-test-httpsproxy-cert2-"+resourceSuffix, &proxy),
 				),
 			},
 		},
@@ -66,7 +66,7 @@ func TestAccComputeTargetHttpsProxy_certificateMap(t *testing.T) {
 					testAccCheckComputeTargetHttpsProxyExists(
 						t, "google_compute_target_https_proxy.foobar", &proxy),
 					testAccComputeTargetHttpsProxyDescription("Resource created for Terraform acceptance testing", &proxy),
-					testAccComputeTargetHttpsProxyHasCertificateMap(t, "certificatemap-test-"+resourceSuffix, &proxy),
+					testAccComputeTargetHttpsProxyHasCertificateMap(t, "tf-test-certmap-"+resourceSuffix, &proxy),
 				),
 			},
 		},
@@ -144,26 +144,26 @@ func testAccComputeTargetHttpsProxy_basic1(id string) string {
 	return fmt.Sprintf(`
 resource "google_compute_target_https_proxy" "foobar" {
   description      = "Resource created for Terraform acceptance testing"
-  name             = "httpsproxy-test-%s"
+  name             = "tf-test-httpsproxy-%s"
   url_map          = google_compute_url_map.foobar.self_link
   ssl_certificates = [google_compute_ssl_certificate.foobar1.self_link]
   ssl_policy       = google_compute_ssl_policy.foobar.self_link
 }
 
 resource "google_compute_backend_service" "foobar" {
-  name          = "httpsproxy-test-backend-%s"
+  name          = "tf-test-httpsproxy-backend-%s"
   health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-  name               = "httpsproxy-test-health-check-%s"
+  name               = "tf-test-httpsproxy-check-%s"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_url_map" "foobar" {
-  name            = "httpsproxy-test-url-map-%s"
+  name            = "tf-test-httpsproxy-urlmap-%s"
   default_service = google_compute_backend_service.foobar.self_link
   host_rule {
     hosts        = ["mysite.com", "myothersite.com"]
@@ -185,21 +185,21 @@ resource "google_compute_url_map" "foobar" {
 }
 
 resource "google_compute_ssl_policy" "foobar" {
-  name            = "sslproxy-test-%s"
+  name            = "tf-test-sslproxy-%s"
   description     = "my-description"
   min_tls_version = "TLS_1_2"
   profile         = "MODERN"
 }
 
 resource "google_compute_ssl_certificate" "foobar1" {
-  name        = "httpsproxy-test-cert1-%s"
+  name        = "tf-test-httpsproxy-cert1-%s"
   description = "very descriptive"
   private_key = file("test-fixtures/ssl_cert/test.key")
   certificate = file("test-fixtures/ssl_cert/test.crt")
 }
 
 resource "google_compute_ssl_certificate" "foobar2" {
-  name        = "httpsproxy-test-cert2-%s"
+  name        = "tf-test-httpsproxy-cert2-%s"
   description = "very descriptive"
   private_key = file("test-fixtures/ssl_cert/test.key")
   certificate = file("test-fixtures/ssl_cert/test.crt")
@@ -211,7 +211,7 @@ func testAccComputeTargetHttpsProxy_basic2(id string) string {
 	return fmt.Sprintf(`
 resource "google_compute_target_https_proxy" "foobar" {
   description = "Resource created for Terraform acceptance testing"
-  name        = "httpsproxy-test-%s"
+  name        = "tf-test-httpsproxy-%s"
   url_map     = google_compute_url_map.foobar.self_link
   ssl_certificates = [
     google_compute_ssl_certificate.foobar1.self_link,
@@ -221,19 +221,19 @@ resource "google_compute_target_https_proxy" "foobar" {
 }
 
 resource "google_compute_backend_service" "foobar" {
-  name          = "httpsproxy-test-backend-%s"
+  name          = "tf-test-httpsproxy-backend-%s"
   health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-  name               = "httpsproxy-test-health-check-%s"
+  name               = "tf-test-httpsproxy-check-%s"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_url_map" "foobar" {
-  name            = "httpsproxy-test-url-map-%s"
+  name            = "tf-test-httpsproxy-urlmap-%s"
   default_service = google_compute_backend_service.foobar.self_link
   host_rule {
     hosts        = ["mysite.com", "myothersite.com"]
@@ -255,21 +255,21 @@ resource "google_compute_url_map" "foobar" {
 }
 
 resource "google_compute_ssl_policy" "foobar" {
-  name            = "sslproxy-test-%s"
+  name            = "tf-test-sslproxy-%s"
   description     = "my-description"
   min_tls_version = "TLS_1_2"
   profile         = "MODERN"
 }
 
 resource "google_compute_ssl_certificate" "foobar1" {
-  name        = "httpsproxy-test-cert1-%s"
+  name        = "tf-test-httpsproxy-cert1-%s"
   description = "very descriptive"
   private_key = file("test-fixtures/ssl_cert/test.key")
   certificate = file("test-fixtures/ssl_cert/test.crt")
 }
 
 resource "google_compute_ssl_certificate" "foobar2" {
-  name        = "httpsproxy-test-cert2-%s"
+  name        = "tf-test-httpsproxy-cert2-%s"
   description = "very descriptive"
   private_key = file("test-fixtures/ssl_cert/test.key")
   certificate = file("test-fixtures/ssl_cert/test.crt")
@@ -281,41 +281,41 @@ func testAccComputeTargetHttpsProxy_certificateMap(id string) string {
 	return fmt.Sprintf(`
 resource "google_compute_target_https_proxy" "foobar" {
   description      = "Resource created for Terraform acceptance testing"
-  name             = "httpsproxy-test-%s"
+  name             = "tf-test-httpsproxy-%s"
   url_map          = google_compute_url_map.foobar.self_link
   certificate_map = "//certificatemanager.googleapis.com/${google_certificate_manager_certificate_map.map.id}"
 }
 
 resource "google_compute_backend_service" "foobar" {
-  name          = "httpsproxy-test-backend-%s"
+  name          = "tf-test-httpsproxy-backend-%s"
   health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-  name               = "httpsproxy-test-health-check-%s"
+  name               = "tf-test-httpsproxy-check-%s"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_url_map" "foobar" {
-  name            = "httpsproxy-test-url-map-%s"
+  name            = "tf-test-httpsproxy-urlmap-%s"
   default_service = google_compute_backend_service.foobar.self_link
 }
 
 resource "google_certificate_manager_certificate_map" "map" {
-  name = "certificatemap-test-%s"
+  name = "tf-test-certmap-%s"
 }
 
 resource "google_certificate_manager_certificate_map_entry" "map_entry" {
-  name         = "certificatemapentry-test-%s"
+  name         = "tf-test-certmapentry-%s"
   map          = google_certificate_manager_certificate_map.map.name
   certificates = [google_certificate_manager_certificate.certificate.id]
   matcher      = "PRIMARY"
 }
 
 resource "google_certificate_manager_certificate" "certificate" {
-  name        = "certificate-test-%s"
+  name        = "tf-test-cert-%s"
   scope       = "DEFAULT"
   managed {
     domains = [
@@ -328,7 +328,7 @@ resource "google_certificate_manager_certificate" "certificate" {
 }
 
 resource "google_certificate_manager_dns_authorization" "instance" {
-  name   = "dnsauthorization-test-%s"
+  name   = "tf-test-dnsauthz-%s"
   domain = "mysite.com"
 }
 
