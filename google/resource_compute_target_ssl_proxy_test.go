@@ -11,13 +11,13 @@ import (
 )
 
 func TestAccComputeTargetSslProxy_update(t *testing.T) {
-	target := fmt.Sprintf("tssl-test-%s", RandString(t, 10))
-	sslPolicy := fmt.Sprintf("tssl-test-%s", RandString(t, 10))
-	cert1 := fmt.Sprintf("tssl-test-%s", RandString(t, 10))
-	cert2 := fmt.Sprintf("tssl-test-%s", RandString(t, 10))
-	backend1 := fmt.Sprintf("tssl-test-%s", RandString(t, 10))
-	backend2 := fmt.Sprintf("tssl-test-%s", RandString(t, 10))
-	hc := fmt.Sprintf("tssl-test-%s", RandString(t, 10))
+	target := fmt.Sprintf("tf-test-tssl-%s", RandString(t, 10))
+	sslPolicy := fmt.Sprintf("tf-test-tssl-%s", RandString(t, 10))
+	cert1 := fmt.Sprintf("tf-test-tssl-%s", RandString(t, 10))
+	cert2 := fmt.Sprintf("tf-test-tssl-%s", RandString(t, 10))
+	backend1 := fmt.Sprintf("tf-test-tssl-%s", RandString(t, 10))
+	backend2 := fmt.Sprintf("tf-test-tssl-%s", RandString(t, 10))
+	hc := fmt.Sprintf("tf-test-tssl-%s", RandString(t, 10))
 
 	resourceSuffix := RandString(t, 10)
 	var proxy compute.TargetSslProxy
@@ -50,7 +50,7 @@ func TestAccComputeTargetSslProxy_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetSslProxyExists(
 						t, "google_compute_target_ssl_proxy.with_certificate_map", &proxy),
-					testAccCheckComputeTargetSslProxyHasCertificateMap(t, "certificatemap-test-1-"+resourceSuffix, &proxy),
+					testAccCheckComputeTargetSslProxyHasCertificateMap(t, "tf-test-certmap-1-"+resourceSuffix, &proxy),
 				),
 			},
 			{
@@ -58,7 +58,7 @@ func TestAccComputeTargetSslProxy_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetSslProxyExists(
 						t, "google_compute_target_ssl_proxy.with_certificate_map", &proxy),
-					testAccCheckComputeTargetSslProxyHasCertificateMap(t, "certificatemap-test-2-"+resourceSuffix, &proxy),
+					testAccCheckComputeTargetSslProxyHasCertificateMap(t, "tf-test-certmap-2-"+resourceSuffix, &proxy),
 				),
 			},
 		},
@@ -228,19 +228,19 @@ func testAccComputeTargetSslProxy_certificateMap1(id string) string {
 	return fmt.Sprintf(`
 resource "google_compute_target_ssl_proxy" "with_certificate_map" {
   description      = "Resource created for Terraform acceptance testing"
-  name             = "ssl-proxy-%s"
+  name             = "tf-test-ssl-proxy-%s"
   backend_service  = google_compute_backend_service.foo.self_link
 	certificate_map = "//certificatemanager.googleapis.com/${google_certificate_manager_certificate_map.map1.id}"
 }
 
 resource "google_compute_backend_service" "foo" {
-  name          = "backend-service-%s"
+  name          = "tf-test-backend-%s"
   protocol      = "SSL"
   health_checks = [google_compute_health_check.zero.self_link]
 }
 
 resource "google_compute_health_check" "zero" {
-  name               = "health-check-%s"
+  name               = "tf-test-check-%s"
   check_interval_sec = 1
   timeout_sec        = 1
   tcp_health_check {
@@ -249,17 +249,17 @@ resource "google_compute_health_check" "zero" {
 }
 
 resource "google_certificate_manager_certificate_map" "map1" {
-  name = "certificatemap-test-1-%s"
+  name = "tf-test-certmap-1-%s"
 }
 resource "google_certificate_manager_certificate_map_entry" "map_entry" {
-  name         = "certificatemapentry-test-%s"
+  name         = "tf-test-certmapentry-%s"
   map          = google_certificate_manager_certificate_map.map1.name
   certificates = [google_certificate_manager_certificate.certificate.id]
   matcher      = "PRIMARY"
 }
 
 resource "google_certificate_manager_certificate" "certificate" {
-  name        = "certificate-test-%s"
+  name        = "tf-test-cert-%s"
   scope       = "DEFAULT"
   managed {
     domains = [
@@ -272,7 +272,7 @@ resource "google_certificate_manager_certificate" "certificate" {
 }
 
 resource "google_certificate_manager_dns_authorization" "instance" {
-  name   = "dnsauthorization-test-%s"
+  name   = "tf-test-dnsauthz-%s"
   domain = "mysite.com"
 }
 `, id, id, id, id, id, id, id)
@@ -282,19 +282,19 @@ func testAccComputeTargetSslProxy_certificateMap2(id string) string {
 	return fmt.Sprintf(`
 resource "google_compute_target_ssl_proxy" "with_certificate_map" {
   description      = "Resource created for Terraform acceptance testing"
-  name             = "ssl-proxy-%s"
+  name             = "tf-test-ssl-proxy-%s"
   backend_service  = google_compute_backend_service.foo.self_link
 	certificate_map = "//certificatemanager.googleapis.com/${google_certificate_manager_certificate_map.map2.id}"
 }
 
 resource "google_compute_backend_service" "foo" {
-  name          = "backend-service-%s"
+  name          = "tf-test-backend-%s"
   protocol      = "SSL"
   health_checks = [google_compute_health_check.zero.self_link]
 }
 
 resource "google_compute_health_check" "zero" {
-  name               = "health-check-%s"
+  name               = "tf-test-check-%s"
   check_interval_sec = 1
   timeout_sec        = 1
   tcp_health_check {
@@ -303,22 +303,22 @@ resource "google_compute_health_check" "zero" {
 }
 
 resource "google_certificate_manager_certificate_map" "map1" {
-  name = "certificatemap-test-1-%s"
+  name = "tf-test-certmap-1-%s"
 }
 
 resource "google_certificate_manager_certificate_map" "map2" {
-  name = "certificatemap-test-2-%s"
+  name = "tf-test-certmap-2-%s"
 }
 
 resource "google_certificate_manager_certificate_map_entry" "map_entry" {
-  name         = "certificatemapentry-test-%s"
+  name         = "tf-test-certmapentry-%s"
   map          = google_certificate_manager_certificate_map.map1.name
   certificates = [google_certificate_manager_certificate.certificate.id]
   matcher      = "PRIMARY"
 }
 
 resource "google_certificate_manager_certificate" "certificate" {
-  name        = "certificate-test-%s"
+  name        = "tf-test-cert-%s"
   scope       = "DEFAULT"
   managed {
     domains = [
@@ -331,7 +331,7 @@ resource "google_certificate_manager_certificate" "certificate" {
 }
 
 resource "google_certificate_manager_dns_authorization" "instance" {
-  name   = "dnsauthorization-test-%s"
+  name   = "tf-test-dnsauthz-%s"
   domain = "mysite.com"
 }
 `, id, id, id, id, id, id, id, id)
