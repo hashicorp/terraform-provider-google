@@ -721,7 +721,7 @@ func TestAccComputeInstance_bootDisk_mode(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstance_scratchDisk(t *testing.T) {
+func TestAccComputeInstance_with375GbScratchDisk(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
@@ -733,11 +733,38 @@ func TestAccComputeInstance_scratchDisk(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstance_scratchDisk(instanceName),
+				Config: testAccComputeInstance_with375GbScratchDisk(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceScratchDisk(&instance, []string{"NVME", "SCSI"}),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+		},
+	})
+}
+
+func TestAccComputeInstance_with18TbScratchDisk(t *testing.T) {
+	// Skip this test until the quota for the GitHub presubmit GCP project is increased
+	// to handle the size of the resource this test spins up.
+	t.Skip()
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_with18TbScratchDisk(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceScratchDisk(&instance, []string{"NVME", "NVME", "NVME", "NVME", "NVME", "NVME"}),
 				),
 			},
 			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
@@ -4389,7 +4416,7 @@ resource "google_compute_instance" "foobar" {
 `, instance, diskMode)
 }
 
-func testAccComputeInstance_scratchDisk(instance string) string {
+func testAccComputeInstance_with375GbScratchDisk(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-11"
@@ -4420,6 +4447,60 @@ resource "google_compute_instance" "foobar" {
   }
 }
 `, instance)
+}
+
+func testAccComputeInstance_with18TbScratchDisk(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "n2-standard-64"   // must be a large n2 to be paired with 18Tb local-ssd
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  scratch_disk {
+    interface = "NVME"
+    size      = 3000
+  }
+
+  scratch_disk {
+    interface = "NVME"
+    size      = 3000
+  }
+
+  scratch_disk {
+    interface = "NVME"
+    size      = 3000
+  }
+
+  scratch_disk {
+    interface = "NVME"
+    size      = 3000
+  }
+
+  scratch_disk {
+    interface = "NVME"
+    size      = 3000
+  }
+
+  scratch_disk {
+    interface = "NVME"
+    size      = 3000
+  }
+
+  network_interface {
+    network = "default"
+  }
+}`, instance)
 }
 
 func testAccComputeInstance_serviceAccount(instance string) string {
