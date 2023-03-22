@@ -167,24 +167,42 @@ func TestComputeInstanceTemplate_scratchDiskSizeCustomizeDiff(t *testing.T) {
 		Typee       string // misspelled on purpose, type is a special symbol
 		DiskType    string
 		DiskSize    int
+		Interfacee  string
 		ExpectError bool
 	}{
-		"scratch disk correct size": {
+		"scratch disk correct size 1": {
 			Typee:       "SCRATCH",
 			DiskType:    "local-ssd",
 			DiskSize:    375,
+			Interfacee:  "NVME",
+			ExpectError: false,
+		},
+		"scratch disk correct size 2": {
+			Typee:       "SCRATCH",
+			DiskType:    "local-ssd",
+			DiskSize:    3000,
+			Interfacee:  "NVME",
 			ExpectError: false,
 		},
 		"scratch disk incorrect size": {
 			Typee:       "SCRATCH",
 			DiskType:    "local-ssd",
 			DiskSize:    300,
+			Interfacee:  "NVME",
+			ExpectError: true,
+		},
+		"scratch disk incorrect interface": {
+			Typee:       "SCRATCH",
+			DiskType:    "local-ssd",
+			DiskSize:    3000,
+			Interfacee:  "SCSI",
 			ExpectError: true,
 		},
 		"non-scratch disk": {
 			Typee:       "PERSISTENT",
 			DiskType:    "",
 			DiskSize:    300,
+			Interfacee:  "NVME",
 			ExpectError: false,
 		},
 	}
@@ -196,6 +214,7 @@ func TestComputeInstanceTemplate_scratchDiskSizeCustomizeDiff(t *testing.T) {
 				"disk.0.type":         tc.Typee,
 				"disk.0.disk_type":    tc.DiskType,
 				"disk.0.disk_size_gb": tc.DiskSize,
+				"disk.0.interface":    tc.Interfacee,
 			},
 		}
 		err := resourceComputeInstanceTemplateScratchDiskCustomizeDiffFunc(d)
@@ -953,7 +972,27 @@ func TestAccComputeInstanceTemplate_withScratchDisk(t *testing.T) {
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstanceTemplate_withScratchDisk(RandString(t, 10)),
+				Config: testAccComputeInstanceTemplate_with375GbScratchDisk(RandString(t, 10)),
+			},
+			{
+				ResourceName:            "google_compute_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name_prefix"},
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceTemplate_with18TbScratchDisk(t *testing.T) {
+	t.Parallel()
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_with18TbScratchDisk(RandString(t, 10)),
 			},
 			{
 				ResourceName:            "google_compute_instance_template.foobar",
@@ -1977,7 +2016,7 @@ resource "google_compute_instance_template" "foobar" {
 `, suffix, suffix)
 }
 
-func testAccComputeInstanceTemplate_withScratchDisk(suffix string) string {
+func testAccComputeInstanceTemplate_with375GbScratchDisk(suffix string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
 	family  = "centos-7"
@@ -2003,6 +2042,70 @@ resource "google_compute_instance_template" "foobar" {
   }
 }
 `, suffix)
+}
+
+func testAccComputeInstanceTemplate_with18TbScratchDisk(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "centos-7"
+	project = "centos-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name           = "tf-test-instance-template-%s"
+  machine_type   = "n2-standard-16"
+  can_ip_forward = false
+  disk {
+    source_image = data.google_compute_image.my_image.name
+    auto_delete  = true
+    boot         = true
+  }
+  disk {
+    auto_delete  = true
+    disk_size_gb = 3000
+    type         = "SCRATCH"
+    disk_type    = "local-ssd"
+    interface    = "NVME"
+  }
+  disk {
+    auto_delete  = true
+    disk_size_gb = 3000
+    type         = "SCRATCH"
+    disk_type    = "local-ssd"
+    interface    = "NVME"
+  }
+  disk {
+    auto_delete  = true
+    disk_size_gb = 3000
+    type         = "SCRATCH"
+    disk_type    = "local-ssd"
+    interface    = "NVME"
+  }
+  disk {
+    auto_delete  = true
+    disk_size_gb = 3000
+    type         = "SCRATCH"
+    disk_type    = "local-ssd"
+    interface    = "NVME"
+  }
+  disk {
+    auto_delete  = true
+    disk_size_gb = 3000
+    type         = "SCRATCH"
+    disk_type    = "local-ssd"
+    interface    = "NVME"
+  }
+  disk {
+    auto_delete  = true
+    disk_size_gb = 3000
+    type         = "SCRATCH"
+    disk_type    = "local-ssd"
+    interface    = "NVME"
+  }
+  network_interface {
+    network = "default"
+  }
+}`, suffix)
 }
 
 func testAccComputeInstanceTemplate_regionDisks(suffix string) string {

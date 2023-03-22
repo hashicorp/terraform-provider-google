@@ -34,7 +34,8 @@ var (
 	}
 )
 
-var REQUIRED_SCRATCH_DISK_SIZE_GB = 375
+var DEFAULT_SCRATCH_DISK_SIZE_GB = 375
+var VALID_SCRATCH_DISK_SIZES_GB [2]int = [2]int{375, 3000}
 
 func ResourceComputeInstanceTemplate() *schema.Resource {
 	return &schema.Resource{
@@ -132,7 +133,7 @@ func ResourceComputeInstanceTemplate() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 							Computed:    true,
-							Description: `The size of the image in gigabytes. If not specified, it will inherit the size of its base image. For SCRATCH disks, the size must be exactly 375GB.`,
+							Description: `The size of the image in gigabytes. If not specified, it will inherit the size of its base image. For SCRATCH disks, the size must be one of 375 or 3000 GB, with a default of 375 GB.`,
 						},
 
 						"disk_type": {
@@ -902,8 +903,13 @@ func resourceComputeInstanceTemplateScratchDiskCustomizeDiffFunc(diff TerraformR
 		}
 
 		diskSize := diff.Get(fmt.Sprintf("disk.%d.disk_size_gb", i)).(int)
-		if typee == "SCRATCH" && diskSize != REQUIRED_SCRATCH_DISK_SIZE_GB {
-			return fmt.Errorf("SCRATCH disks must be exactly %dGB, disk %d is %d", REQUIRED_SCRATCH_DISK_SIZE_GB, i, diskSize)
+		if typee == "SCRATCH" && !(diskSize == 375 || diskSize == 3000) { // see VALID_SCRATCH_DISK_SIZES_GB
+			return fmt.Errorf("SCRATCH disks must be one of %v GB, disk %d is %d", VALID_SCRATCH_DISK_SIZES_GB, i, diskSize)
+		}
+
+		interfacee := diff.Get(fmt.Sprintf("disk.%d.interface", i)).(string)
+		if typee == "SCRATCH" && diskSize == 3000 && interfacee != "NVME" {
+			return fmt.Errorf("SCRATCH disks with a size of 3000 GB must have an interface of NVME. disk %d has interface %s", i, interfacee)
 		}
 	}
 
@@ -1234,7 +1240,7 @@ func flattenDisk(disk *compute.AttachedDisk, configDisk map[string]any, defaultP
 		// The API does not return a disk size value for scratch disks. They can only be one size,
 		// so we can assume that size here.
 		if disk.InitializeParams.DiskSizeGb == 0 && disk.Type == "SCRATCH" {
-			diskMap["disk_size_gb"] = REQUIRED_SCRATCH_DISK_SIZE_GB
+			diskMap["disk_size_gb"] = DEFAULT_SCRATCH_DISK_SIZE_GB
 		} else {
 			diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
 		}

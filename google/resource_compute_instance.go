@@ -635,6 +635,14 @@ func ResourceComputeInstance() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"SCSI", "NVME"}, false),
 							Description:  `The disk interface used for attaching this disk. One of SCSI or NVME.`,
 						},
+						"size": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.IntAtLeast(375),
+							Default:      375,
+							Description:  `The size of the disk in gigabytes. One of 375 or 3000.`,
+						},
 					},
 				},
 			},
@@ -2455,6 +2463,7 @@ func expandScratchDisks(d *schema.ResourceData, config *Config, project string) 
 			AutoDelete: true,
 			Type:       "SCRATCH",
 			Interface:  d.Get(fmt.Sprintf("scratch_disk.%d.interface", i)).(string),
+			DiskSizeGb: int64(d.Get(fmt.Sprintf("scratch_disk.%d.size", i)).(int)),
 			InitializeParams: &compute.AttachedDiskInitializeParams{
 				DiskType: diskType.RelativeLink(),
 			},
@@ -2467,6 +2476,7 @@ func expandScratchDisks(d *schema.ResourceData, config *Config, project string) 
 func flattenScratchDisk(disk *compute.AttachedDisk) map[string]interface{} {
 	result := map[string]interface{}{
 		"interface": disk.Interface,
+		"size":      disk.DiskSizeGb,
 	}
 	return result
 }
