@@ -1245,6 +1245,15 @@ func ResourceContainerCluster() *schema.Resource {
 							ConflictsWith: ipAllocationCidrBlockFields,
 							Description:   `The name of the existing secondary range in the cluster's subnetwork to use for service ClusterIPs. Alternatively, services_ipv4_cidr_block can be used to automatically create a GKE-managed one.`,
 						},
+
+						"stack_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							Default:      "IPV4",
+							ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV4_IPV6"}, false),
+							Description:  `The IP Stack type of the cluster. Choose between IPV4 and IPV4_IPV6. Default type is IPV4 Only if not set`,
+						},
 					},
 				},
 			},
@@ -3489,6 +3498,7 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 }
 
 func expandIPAllocationPolicy(configured interface{}, networkingMode string) (*container.IPAllocationPolicy, error) {
+
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		if networkingMode == "VPC_NATIVE" {
@@ -3497,20 +3507,23 @@ func expandIPAllocationPolicy(configured interface{}, networkingMode string) (*c
 		return &container.IPAllocationPolicy{
 			UseIpAliases:    false,
 			UseRoutes:       true,
+			StackType:       "IPV4",
 			ForceSendFields: []string{"UseIpAliases"},
 		}, nil
 	}
 
 	config := l[0].(map[string]interface{})
-	return &container.IPAllocationPolicy{
-		UseIpAliases:          networkingMode == "VPC_NATIVE" || networkingMode == "",
-		ClusterIpv4CidrBlock:  config["cluster_ipv4_cidr_block"].(string),
-		ServicesIpv4CidrBlock: config["services_ipv4_cidr_block"].(string),
+	stackType := config["stack_type"].(string)
 
+	return &container.IPAllocationPolicy{
+		UseIpAliases:               networkingMode == "VPC_NATIVE" || networkingMode == "",
+		ClusterIpv4CidrBlock:       config["cluster_ipv4_cidr_block"].(string),
+		ServicesIpv4CidrBlock:      config["services_ipv4_cidr_block"].(string),
 		ClusterSecondaryRangeName:  config["cluster_secondary_range_name"].(string),
 		ServicesSecondaryRangeName: config["services_secondary_range_name"].(string),
 		ForceSendFields:            []string{"UseIpAliases"},
 		UseRoutes:                  networkingMode == "ROUTES",
+		StackType:                  stackType,
 	}, nil
 }
 
@@ -4477,12 +4490,14 @@ func flattenIPAllocationPolicy(c *container.Cluster, d *schema.ResourceData, con
 	}
 
 	p := c.IpAllocationPolicy
+
 	return []map[string]interface{}{
 		{
 			"cluster_ipv4_cidr_block":       p.ClusterIpv4CidrBlock,
 			"services_ipv4_cidr_block":      p.ServicesIpv4CidrBlock,
 			"cluster_secondary_range_name":  p.ClusterSecondaryRangeName,
 			"services_secondary_range_name": p.ServicesSecondaryRangeName,
+			"stack_type":                    p.StackType,
 		},
 	}, nil
 }
