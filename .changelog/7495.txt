@@ -1,0 +1,3 @@
+```release-note:bug
+datacatalog: fixed `google_data_catalog_tag` only allowing 10 tags.. increased to 1000
+```
