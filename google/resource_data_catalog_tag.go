@@ -209,7 +209,7 @@ func resourceDataCatalogTagRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{parent}}/tags")
+	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{parent}}/tags?pageSize=1000")
 	if err != nil {
 		return err
 	}
