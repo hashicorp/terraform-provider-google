@@ -1958,6 +1958,62 @@ func TestAccContainerCluster_withIPAllocationPolicy_specificSizes(t *testing.T) 
 	})
 }
 
+func TestAccContainerCluster_stackType_withDualStack(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", RandString(t, 10))
+	containerNetName := fmt.Sprintf("tf-test-cluster-%s", RandString(t, 10))
+	resourceName := "google_container_cluster.with_stack_type"
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_stackType_withDualStack(containerNetName, clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "ip_allocation_policy.0.stack_type", "IPV4_IPV6"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_stackType_withSingleStack(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", RandString(t, 10))
+	containerNetName := fmt.Sprintf("tf-test-cluster-%s", RandString(t, 10))
+	resourceName := "google_container_cluster.with_stack_type"
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_stackType_withSingleStack(containerNetName, clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "ip_allocation_policy.0.stack_type", "IPV4"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_nodeAutoprovisioning(t *testing.T) {
 	t.Parallel()
 
@@ -5440,6 +5496,77 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
     cluster_ipv4_cidr_block  = "/16"
     services_ipv4_cidr_block = "/22"
   }
+}
+`, containerNetName, clusterName)
+}
+
+func testAccContainerCluster_stackType_withDualStack(containerNetName string, clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+    name                    = "%s"
+    auto_create_subnetworks = false
+}
+	
+    resource "google_compute_subnetwork" "container_subnetwork" {
+    name    = google_compute_network.container_network.name
+    network = google_compute_network.container_network.name
+    region  = "us-central1"
+	
+    ip_cidr_range = "10.2.0.0/16"
+    stack_type = "IPV4_IPV6"
+    ipv6_access_type = "EXTERNAL"
+}
+	
+resource "google_container_cluster" "with_stack_type" {
+    name       = "%s"
+    location   = "us-central1-a"
+    network    = google_compute_network.container_network.name
+    subnetwork = google_compute_subnetwork.container_subnetwork.name
+	
+    min_master_version = "1.25"
+    initial_node_count = 1
+    datapath_provider = "ADVANCED_DATAPATH"
+    enable_l4_ilb_subsetting = true
+	
+    ip_allocation_policy {
+        cluster_ipv4_cidr_block  = "10.0.0.0/16"
+        services_ipv4_cidr_block = "10.1.0.0/16"
+        stack_type = "IPV4_IPV6"
+    }
+}
+`, containerNetName, clusterName)
+}
+
+func testAccContainerCluster_stackType_withSingleStack(containerNetName string, clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+    name                    = "%s"
+    auto_create_subnetworks = false
+}
+	
+    resource "google_compute_subnetwork" "container_subnetwork" {
+    name    = google_compute_network.container_network.name
+    network = google_compute_network.container_network.name
+    region  = "us-central1"
+	
+    ip_cidr_range = "10.2.0.0/16"
+}
+	
+resource "google_container_cluster" "with_stack_type" {
+    name       = "%s"
+    location   = "us-central1-a"
+    network    = google_compute_network.container_network.name
+    subnetwork = google_compute_subnetwork.container_subnetwork.name
+	
+    min_master_version = "1.25"
+    initial_node_count = 1
+    enable_l4_ilb_subsetting = true
+	
+    ip_allocation_policy {
+        cluster_ipv4_cidr_block  = "10.0.0.0/16"
+        services_ipv4_cidr_block = "10.1.0.0/16"
+        stack_type = "IPV4"
+    }
 }
 `, containerNetName, clusterName)
 }
