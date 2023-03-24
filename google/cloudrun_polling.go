@@ -61,7 +61,7 @@ func PollCheckKnativeStatusFunc(knativeRestResponse map[string]interface{}) func
 		if err != nil {
 			return ErrorPollResult(errwrap.Wrapf("unable to find Knative generation: {{err}}", err))
 		}
-		if int(s.Status.ObservedGeneration) != gen {
+		if int(s.Status.ObservedGeneration) < gen {
 			return PendingStatusPollResult("waiting for observed generation to match")
 		}
 		for _, condition := range s.Status.Conditions {

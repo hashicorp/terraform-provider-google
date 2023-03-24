@@ -1,0 +1,3 @@
+```release-note:bug
+cloudrun: Fixed race condition when polling for status during an update of a `google_cloud_run_service`
+```
