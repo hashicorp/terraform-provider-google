@@ -1029,6 +1029,34 @@ func TestAccSqlDatabaseInstance_cloneWithSettings(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_cloneWithDatabaseNames(t *testing.T) {
+	// Sqladmin client
+	SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":    RandString(t, 10),
+		"original_db_name": BootstrapSharedSQLInstanceBackupRun(t),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    TestAccProviders,
+		CheckDestroy: testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_cloneWithDatabaseNames(context),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "clone"},
+			},
+		},
+	})
+}
+
 func testAccSqlDatabaseInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for _, rs := range s.RootModule().Resources {
@@ -3169,6 +3197,34 @@ resource "google_sql_database_instance" "instance" {
   clone {
     source_instance_name = data.google_sql_backup_run.backup.instance
     point_in_time = data.google_sql_backup_run.backup.start_time
+  }
+
+  deletion_protection = false
+
+  // Ignore changes, since the most recent backup may change during the test
+  lifecycle{
+	ignore_changes = [clone[0].point_in_time]
+  }
+}
+
+data "google_sql_backup_run" "backup" {
+	instance = "%{original_db_name}"
+	most_recent = true
+}
+`, context)
+}
+
+func testAccSqlDatabaseInstance_cloneWithDatabaseNames(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "tf-test-%{random_suffix}"
+  database_version = "POSTGRES_11"
+  region           = "us-central1"
+
+  clone {
+    source_instance_name = data.google_sql_backup_run.backup.instance
+    point_in_time = data.google_sql_backup_run.backup.start_time
+    database_names = ["userdb1"]
   }
 
   deletion_protection = false

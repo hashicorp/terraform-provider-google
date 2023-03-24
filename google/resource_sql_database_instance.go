@@ -867,6 +867,14 @@ is set to true. Defaults to ZONAL.`,
 							DiffSuppressFunc: timestampDiffSuppress(time.RFC3339Nano),
 							Description:      `The timestamp of the point in time that should be restored.`,
 						},
+						"database_names": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Description: `(SQL Server only, use with point_in_time) clone only the specified databases from the source instance. Clone all databases if empty.`,
+						},
 						"allocated_ip_range": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -1198,8 +1206,15 @@ func expandCloneContext(configured []interface{}) (*sqladmin.CloneContext, strin
 
 	_cloneConfiguration := configured[0].(map[string]interface{})
 
+	databaseNames := []string{}
+	rawDatabaseNames := _cloneConfiguration["database_names"].([]interface{})
+	for _, db := range rawDatabaseNames {
+		databaseNames = append(databaseNames, db.(string))
+	}
+
 	return &sqladmin.CloneContext{
 		PointInTime:      _cloneConfiguration["point_in_time"].(string),
+		DatabaseNames:    databaseNames,
 		AllocatedIpRange: _cloneConfiguration["allocated_ip_range"].(string),
 	}, _cloneConfiguration["source_instance_name"].(string)
 }

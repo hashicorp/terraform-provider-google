@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: added support of single-database-recovery for SQL Server PITR with `database_names` attribute to `google_sql_instance`
+```
