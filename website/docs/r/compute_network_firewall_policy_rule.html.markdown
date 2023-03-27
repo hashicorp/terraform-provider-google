@@ -39,7 +39,7 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
   firewall_policy         = google_compute_network_firewall_policy.basic_network_firewall_policy.name
   priority                = 1000
   rule_name               = "test-rule"
-  target_service_accounts = ["emailAddress:my@service-account.com"]
+  target_service_accounts = ["my@service-account.com"]
 
   match {
     src_ip_ranges = ["10.100.0.1/32"]
