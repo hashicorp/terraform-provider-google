@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
 	"github.com/hashicorp/terraform-plugin-mux/tf5muxserver"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -171,7 +172,8 @@ func MuxedProviders(testName string) (func() tfprotov5.ProviderServer, error) {
 	ctx := context.Background()
 
 	providers := []func() tfprotov5.ProviderServer{
-		GetSDKProvider(testName).GRPCProvider, // sdk provider
+		providerserver.NewProtocol5(NewFrameworkTestProvider(testName)), // framework provider
+		GetSDKProvider(testName).GRPCProvider,                           // sdk provider
 	}
 
 	muxServer, err := tf5muxserver.NewMuxServer(ctx, providers...)
