@@ -52,6 +52,17 @@ resource "google_compute_network" "vpc_network" {
   mtu                     = 1460
 }
 ```
+## Example Usage - Network Custom Firewall Enforcement Order
+
+
+```hcl
+resource "google_compute_network" "vpc_network" {
+  project                 = "my-project-name"
+  name                    = "vpc-network"
+  auto_create_subnetworks = true
+  network_firewall_policy_enforcement_order = "BEFORE_CLASSIC_FIREWALL"
+}
+```
 
 ## Argument Reference
 
@@ -114,6 +125,12 @@ The following arguments are supported:
   valid /48 ULA IPv6 address and must be within the fd20::/20. Operation will 
   fail if the speficied /48 is already in used by another resource. 
   If the field is not speficied, then a /48 range will be randomly allocated from fd20::/20 and returned via this field.
+
+* `network_firewall_policy_enforcement_order` -
+  (Optional)
+  Set the order that Firewall Rules and Firewall Policies are evaluated. Needs to be either 'AFTER_CLASSIC_FIREWALL' or 'BEFORE_CLASSIC_FIREWALL' Default 'AFTER_CLASSIC_FIREWALL'
+  Default value is `AFTER_CLASSIC_FIREWALL`.
+  Possible values are `BEFORE_CLASSIC_FIREWALL` and `AFTER_CLASSIC_FIREWALL`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

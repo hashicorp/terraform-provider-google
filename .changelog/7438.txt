@@ -1,0 +1,4 @@
+```release-note:enhancement
+compute: added `network_firewall_policy_enforcement_order` field to `google_compute_network` resource
+
+```

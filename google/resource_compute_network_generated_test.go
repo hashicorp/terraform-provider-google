@@ -91,6 +91,42 @@ resource "google_compute_network" "vpc_network" {
 `, context)
 }
 
+func TestAccComputeNetwork_networkCustomFirewallEnforcementOrderExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_networkCustomFirewallEnforcementOrderExample(context),
+			},
+			{
+				ResourceName:      "google_compute_network.vpc_network",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeNetwork_networkCustomFirewallEnforcementOrderExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_network" "vpc_network" {
+  project                 = "%{project}"
+  name                    = "tf-test-vpc-network%{random_suffix}"
+  auto_create_subnetworks = true
+  network_firewall_policy_enforcement_order = "BEFORE_CLASSIC_FIREWALL"
+}
+`, context)
+}
+
 func testAccCheckComputeNetworkDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
