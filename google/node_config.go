@@ -451,6 +451,24 @@ func schemaNodeConfig() *schema.Schema {
 					ForceNew:    true,
 					Description: `Setting this field will assign instances of this pool to run on the specified node group. This is useful for running workloads on sole tenant nodes.`,
 				},
+
+				"advanced_machine_features": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					MaxItems:    1,
+					Description: `Specifies options for controlling advanced machine features.`,
+					ForceNew:    true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"threads_per_core": {
+								Type:        schema.TypeInt,
+								Required:    true,
+								ForceNew:    true,
+								Description: `The number of threads per physical core. To disable simultaneous multithreading (SMT) set this to 1. If unset, the maximum number of threads supported per core by the underlying processor is assumed.`,
+							},
+						},
+					},
+				},
 			},
 		},
 	}
@@ -679,6 +697,13 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		nc.NodeGroup = v.(string)
 	}
 
+	if v, ok := nodeConfig["advanced_machine_features"]; ok && len(v.([]interface{})) > 0 {
+		advanced_machine_features := v.([]interface{})[0].(map[string]interface{})
+		nc.AdvancedMachineFeatures = &container.AdvancedMachineFeatures{
+			ThreadsPerCore: int64(advanced_machine_features["threads_per_core"].(int)),
+		}
+	}
+
 	return nc
 }
 
@@ -797,6 +822,7 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 		"kubelet_config":              flattenKubeletConfig(c.KubeletConfig),
 		"linux_node_config":           flattenLinuxNodeConfig(c.LinuxNodeConfig),
 		"node_group":                  c.NodeGroup,
+		"advanced_machine_features":   flattenAdvancedMachineFeaturesConfig(c.AdvancedMachineFeatures),
 	})
 
 	if len(c.OauthScopes) > 0 {
@@ -804,6 +830,16 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 	}
 
 	return config
+}
+
+func flattenAdvancedMachineFeaturesConfig(c *container.AdvancedMachineFeatures) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"threads_per_core": c.ThreadsPerCore,
+		})
+	}
+	return result
 }
 
 func flattenContainerGuestAccelerators(c []*container.AcceleratorConfig) []map[string]interface{} {

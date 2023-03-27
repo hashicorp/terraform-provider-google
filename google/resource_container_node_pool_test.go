@@ -759,7 +759,7 @@ func TestAccContainerNodePool_regionalAutoscaling(t *testing.T) {
 	})
 }
 
-//This test exists to validate a node pool with total size *and* and update to it.
+// This test exists to validate a node pool with total size *and* and update to it.
 func TestAccContainerNodePool_totalSize(t *testing.T) {
 	t.Parallel()
 
@@ -1305,6 +1305,60 @@ resource "google_container_node_pool" "np" {
   }
 }
 `, cluster, np, placementType)
+}
+
+func TestAccContainerNodePool_threadsPerCore(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", RandString(t, 10))
+	np := fmt.Sprintf("tf-test-nodepool-%s", RandString(t, 10))
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_threadsPerCore(cluster, np, 1),
+			},
+			{
+				ResourceName:      "google_container_cluster.cluster",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_threadsPerCore(cluster, np string, threadsPerCore int) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  node_config {
+    machine_type = "c2-standard-4"
+	advanced_machine_features {
+		threads_per_core = "%v"
+	}
+  }
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 2
+
+  node_config {
+    machine_type = "c2-standard-4"
+	advanced_machine_features {
+		threads_per_core = "%v"
+	}
+  }
+}
+`, cluster, threadsPerCore, np, threadsPerCore)
 }
 
 func testAccCheckContainerNodePoolDestroyProducer(t *testing.T) func(s *terraform.State) error {
