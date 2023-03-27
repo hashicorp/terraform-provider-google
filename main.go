@@ -5,10 +5,21 @@ import (
 	"flag"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5/tf5server"
 	"github.com/hashicorp/terraform-plugin-mux/tf5muxserver"
 	"github.com/hashicorp/terraform-provider-google/google"
+	ver "github.com/hashicorp/terraform-provider-google/version"
+)
+
+var (
+	// these will be set by the goreleaser configuration
+	// to appropriate values for the compiled binary
+	version string = ver.ProviderVersion
+
+	// goreleaser can also pass the specific commit if you want
+	// commit  string = ""
 )
 
 func main() {
@@ -19,7 +30,8 @@ func main() {
 
 	// concat with sdkv2 provider
 	providers := []func() tfprotov5.ProviderServer{
-		google.Provider().GRPCProvider, // sdk provider
+		providerserver.NewProtocol5(google.New(version)), // framework provider
+		google.Provider().GRPCProvider,                   // sdk provider
 	}
 
 	// use the muxer

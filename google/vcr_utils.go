@@ -23,7 +23,10 @@ import (
 	"github.com/dnaeon/go-vcr/cassette"
 	"github.com/dnaeon/go-vcr/recorder"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	fwDiags "github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -35,6 +38,7 @@ var configsLock = sync.RWMutex{}
 var sourcesLock = sync.RWMutex{}
 
 var configs map[string]*Config
+var fwProviders map[string]*frameworkTestProvider
 
 var sources map[string]VcrSource
 
@@ -168,6 +172,39 @@ func closeRecorder(t *testing.T) {
 		// Clean up test config
 		configsLock.Lock()
 		delete(configs, t.Name())
+		configsLock.Unlock()
+
+		sourcesLock.Lock()
+		delete(sources, t.Name())
+		sourcesLock.Unlock()
+	}
+
+	configsLock.RLock()
+	fwProvider, fwOk := fwProviders[t.Name()]
+	configsLock.RUnlock()
+	if fwOk {
+		// We did not cache the config if it does not use VCR
+		if !t.Failed() && isVcrEnabled() {
+			// If a test succeeds, write new seed/yaml to files
+			err := fwProvider.client.Transport.(*recorder.Recorder).Stop()
+			if err != nil {
+				t.Error(err)
+			}
+			envPath := os.Getenv("VCR_PATH")
+
+			sourcesLock.RLock()
+			vcrSource, ok := sources[t.Name()]
+			sourcesLock.RUnlock()
+			if ok {
+				err = writeSeedToFile(vcrSource.seed, vcrSeedFile(envPath, t.Name()))
+				if err != nil {
+					t.Error(err)
+				}
+			}
+		}
+		// Clean up test config
+		configsLock.Lock()
+		delete(fwProviders, t.Name())
 		configsLock.Unlock()
 
 		sourcesLock.Lock()
@@ -333,6 +370,66 @@ func HandleVCRConfiguration(ctx context.Context, testName string, rndTripper htt
 	return pollInterval, rec, diags
 }
 
+// MuxedProviders configures the providers, thus, if we want the providers to be configured
+// to use VCR, the configure functions need to be altered. The only way to do this is to create
+// test versions of the provider that will call the same configure function, only append the VCR
+// configuration to it.
+
+func NewFrameworkTestProvider(testName string) *frameworkTestProvider {
+	return &frameworkTestProvider{
+		frameworkProvider: frameworkProvider{
+			version: "test",
+		},
+		TestName: testName,
+	}
+}
+
+// frameworkTestProvider is a test version of the plugin-framework version of the provider
+// that embeds frameworkProvider whose configure function we can use
+// the Configure function is overwritten in the framework_provider_test file
+type frameworkTestProvider struct {
+	frameworkProvider
+	TestName string
+}
+
+// Configure is here to overwrite the frameworkProvider configure function for VCR testing
+func (p *frameworkTestProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+	p.frameworkProvider.Configure(ctx, req, resp)
+	if isVcrEnabled() {
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		var diags fwDiags.Diagnostics
+		p.pollInterval, p.client.Transport, diags = HandleVCRConfiguration(ctx, p.TestName, p.client.Transport, p.pollInterval)
+		if diags.HasError() {
+			resp.Diagnostics.Append(diags...)
+			return
+		}
+
+		configsLock.Lock()
+		fwProviders[p.TestName] = p
+		configsLock.Unlock()
+		return
+	} else {
+		tflog.Debug(ctx, "VCR_PATH or VCR_MODE not set, skipping VCR")
+	}
+}
+
+func configureApiClient(ctx context.Context, p *frameworkProvider, diags *fwDiags.Diagnostics) {
+	var data ProviderModel
+	var d fwDiags.Diagnostics
+
+	// Set defaults if needed - the only attribute without a default is ImpersonateServiceAccountDelegates
+	// this is a bit of a hack, but we'll just initialize it here so that it's been initialized at least
+	data.ImpersonateServiceAccountDelegates, d = types.ListValue(types.StringType, []attr.Value{})
+	diags.Append(d...)
+	if diags.HasError() {
+		return
+	}
+	p.LoadAndValidateFramework(ctx, data, "test", diags)
+}
+
 // GetSDKProvider gets the SDK provider with an overwritten configure function to be called by MuxedProviders
 func GetSDKProvider(testName string) *schema.Provider {
 	prov := Provider()
@@ -369,7 +466,7 @@ func getCachedConfig(ctx context.Context, d *schema.ResourceData, configureFunc 
 	config := c.(*Config)
 	config.PollInterval, config.Client.Transport, fwD = HandleVCRConfiguration(ctx, testName, config.Client.Transport, config.PollInterval)
 	if fwD.HasError() {
-		diags = append(diags, frameworkDiagsToSdkDiags(fwD)...)
+		diags = append(diags, *frameworkDiagsToSdkDiags(fwD)...)
 		return nil, diags
 	}
 
