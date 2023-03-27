@@ -114,8 +114,8 @@ resource "google_notebooks_instance" "instance" {
     image_family = "tf-latest-cpu"
   }
 
-  instance_owners = ["admin@hashicorptest.com"]
-  service_account = "emailAddress:my@service-account.com"
+  instance_owners = [ "my@service-account.com"]
+  service_account = "my@service-account.com"
 
   install_gpu_driver = true
   boot_disk_type = "PD_SSD"

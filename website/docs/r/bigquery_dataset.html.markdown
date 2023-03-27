@@ -192,7 +192,7 @@ resource "google_bigquery_dataset" "private" {
   description = "This dataset is private"
   access {
     role          = "OWNER"
-    user_by_email = "emailAddress:my@service-account.com"
+    user_by_email = "my@service-account.com"
   }
   access {
     routine {

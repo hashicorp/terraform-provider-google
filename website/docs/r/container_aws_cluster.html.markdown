@@ -35,7 +35,7 @@ data "google_container_aws_versions" "versions" {
 resource "google_container_aws_cluster" "primary" {
   authorization {
     admin_users {
-      username = "emailAddress:my@service-account.com"
+      username = "my@service-account.com"
     }
   }
 
@@ -86,7 +86,7 @@ resource "google_container_aws_cluster" "primary" {
     }
 
     tags = {
-      owner = "emailAddress:my@service-account.com"
+      owner = "my@service-account.com"
     }
   }
 
