@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
@@ -21,6 +22,19 @@ func diffSuppressIamUserName(_, old, new string, d *schema.ResourceData) bool {
 	}
 
 	return false
+}
+
+func handleUserNotFoundError(err error, d *schema.ResourceData, resource string) error {
+	if IsGoogleApiErrorWithCode(err, 404) || IsGoogleApiErrorWithCode(err, 403) {
+		log.Printf("[WARN] Removing %s because it's gone", resource)
+		// The resource doesn't exist anymore
+		d.SetId("")
+
+		return nil
+	}
+
+	return errwrap.Wrapf(
+		fmt.Sprintf("Error when reading or editing %s: {{err}}", resource), err)
 }
 
 func ResourceSqlUser() *schema.Resource {
@@ -306,7 +320,8 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}, 5)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("SQL User %q in instance %q", name, instance))
+		// move away from handleNotFoundError() as we need to handle both 404 and 403
+		return handleUserNotFoundError(err, d, fmt.Sprintf("SQL User %q in instance %q", name, instance))
 	}
 
 	var user *sqladmin.User
