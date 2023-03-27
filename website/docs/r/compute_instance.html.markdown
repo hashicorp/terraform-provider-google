@@ -397,6 +397,7 @@ specified, then this instance will have no external IPv6 Internet access. Struct
    sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years.
 
 * `maintenance_interval` - (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Specifies the frequency of planned maintenance events. The accepted values are: `PERIODIC`.
+
 <a name="nested_guest_accelerator"></a>The `guest_accelerator` block supports:
 
 * `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
