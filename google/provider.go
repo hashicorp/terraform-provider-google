@@ -1488,6 +1488,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_project_metadata":              ResourceComputeProjectMetadata(),
 			"google_compute_project_metadata_item":         ResourceComputeProjectMetadataItem(),
 			"google_compute_region_instance_group_manager": ResourceComputeRegionInstanceGroupManager(),
+			"google_compute_region_instance_template":      ResourceComputeRegionInstanceTemplate(),
 			"google_compute_router_interface":              ResourceComputeRouterInterface(),
 			"google_compute_security_policy":               ResourceComputeSecurityPolicy(),
 			"google_compute_shared_vpc_host_project":       ResourceComputeSharedVpcHostProject(),
