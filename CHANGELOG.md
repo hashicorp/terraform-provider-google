@@ -1,4 +1,30 @@
 ## 4.59.0 (Unreleased)
+
+FEATURES:
+* **New Resource:** `google_dataplex_asset_iam_*` ([#14046](https://github.com/hashicorp/terraform-provider-google/pull/14046))
+* **New Resource:** `google_dataplex_lake_iam_*` ([#14046](https://github.com/hashicorp/terraform-provider-google/pull/14046))
+* **New Resource:** `google_dataplex_zone_iam_*` ([#14046](https://github.com/hashicorp/terraform-provider-google/pull/14046))
+* **New Resource:** `google_network_services_gateway` ([#14057](https://github.com/hashicorp/terraform-provider-google/pull/14057))
+
+IMPROVEMENTS:
+* auth: added support for oauth2 token exchange over mTLS ([#14032](https://github.com/hashicorp/terraform-provider-google/pull/14032))
+* bigquery: added `is_case_insensitive` and `default_collation` fields to `google_bigquery_dataset` resource ([#14031](https://github.com/hashicorp/terraform-provider-google/pull/14031))
+* bigquerydatapolicy: promoted `google_bigquery_datapolicy_data_policy` to GA ([#13991](https://github.com/hashicorp/terraform-provider-google/pull/13991))
+* compute: added `scratch_disk.size` field on `google_compute_instance` ([#14061](https://github.com/hashicorp/terraform-provider-google/pull/14061))
+* compute: added 3000 as allowable value for `disk_size_gb` for SCRATCH disks in `google_compute_instance_template` ([#14061](https://github.com/hashicorp/terraform-provider-google/pull/14061))
+* compute: added `WEIGHED_MAGLEV` to `locality_lb_policy` enum for backend service resources ([#14055](https://github.com/hashicorp/terraform-provider-google/pull/14055))
+* container: added `local_nvme_ssd_block` to `node_config` block in the `google_container_node_pool` ([#14008](https://github.com/hashicorp/terraform-provider-google/pull/14008))
+* logging: added `enable_analytics` field to `google_logging_project_bucket_config` ([#14043](https://github.com/hashicorp/terraform-provider-google/pull/14043))
+* networkservices: updated max allowed items to 25 for `expose_headers`, `allow_headers`, `request_header_to_remove`, `request_header_to_add`, `response_header_to_add` and `response_header_to_remove` of `google_network_services_edge_cache_service` ([#14041](https://github.com/hashicorp/terraform-provider-google/pull/14041))
+* networkservices: updated max allowed items to 25 for `request_headers_to_add` of `google_network_services_edge_cache_origin` ([#14041](https://github.com/hashicorp/terraform-provider-google/pull/14041))
+
+BUG FIXES:
+* certificatemanager: fixed `managed.dns_authorizations` not being included during import of `google_certificate_manager_certificate` ([#13992](https://github.com/hashicorp/terraform-provider-google/pull/13992))
+* certificatemanager: fixed a bug where modifying non-updatable fields `hostname` and `matcher` in `google_certificate_manager_certificate_map_entry` would fail with API errors; now updating them will recreate the resource ([#13994](https://github.com/hashicorp/terraform-provider-google/pull/13994))
+* compute: fixed bug where `enforce_on_key_name` could not be unset on `google_compute_security_policy` ([#13993](https://github.com/hashicorp/terraform-provider-google/pull/13993))
+* datastream: fixed bug where field `dataset_id` could not utilize the id from bigquery directly ([#14003](https://github.com/hashicorp/terraform-provider-google/pull/14003))
+* workstations: fixed permadiff on `service_account` of `google_workstations_workstation_config` ([#13989](https://github.com/hashicorp/terraform-provider-google/pull/13989))
+
 ## 4.58.0 (March 21, 2023)
 
 FEATURES:
