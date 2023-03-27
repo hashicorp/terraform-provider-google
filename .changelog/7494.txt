@@ -1,0 +1,3 @@
+```release-note:bug
+cloudsql: fixed the error in any subsequent apply on `google_sql_user` after its `google_sql_database_instance` is deleted
+```
