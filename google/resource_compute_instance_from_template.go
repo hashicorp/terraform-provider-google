@@ -118,8 +118,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	sourceInstanceTemplate := d.Get("source_instance_template").(string)
-
+	sourceInstanceTemplate := ConvertToUniqueIdWhenPresent(d.Get("source_instance_template").(string))
 	tpl, err := ParseInstanceTemplateFieldValue(sourceInstanceTemplate, d, config)
 	if err != nil {
 		return err

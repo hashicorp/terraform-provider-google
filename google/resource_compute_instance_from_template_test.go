@@ -39,6 +39,34 @@ func TestAccComputeInstanceFromTemplate_basic(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceFromTemplate_self_link_unique(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	resourceName := "google_compute_instance_from_template.foobar"
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    TestAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceFromTemplate_self_link_unique(instanceName, templateName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, resourceName, &instance),
+
+					// Check that fields were set based on the template
+					resource.TestCheckResourceAttr(resourceName, "machine_type", "n1-standard-1"),
+					resource.TestCheckResourceAttr(resourceName, "attached_disk.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "scheduling.0.automatic_restart", "false"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceFromRegionTemplate_basic(t *testing.T) {
 	t.Parallel()
 
@@ -400,6 +428,80 @@ resource "google_compute_instance_from_template" "foobar" {
   zone = "us-central1-a"
 
   source_instance_template = google_compute_region_instance_template.foobar.id
+
+  // Overrides
+  can_ip_forward = false
+  labels = {
+    my_key = "my_value"
+  }
+  scheduling {
+    automatic_restart = false
+  }
+}
+`, template, template, instance)
+}
+
+func testAccComputeInstanceFromTemplate_self_link_unique(instance, template string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+  name  = "%s"
+  image = data.google_compute_image.my_image.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-1"  // can't be e2 because of local-ssd
+
+  disk {
+    source      = google_compute_disk.foobar.name
+    auto_delete = false
+    boot        = true
+  }
+
+  disk {
+    disk_type    = "local-ssd"
+    type         = "SCRATCH"
+    interface    = "NVME"
+    disk_size_gb = 375
+  }
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 100
+    boot         = false
+    disk_type    = "pd-ssd"
+    type         = "PERSISTENT"
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  scheduling {
+    automatic_restart = true
+  }
+
+  can_ip_forward = true
+}
+
+resource "google_compute_instance_from_template" "foobar" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  source_instance_template = google_compute_instance_template.foobar.self_link_unique
 
   // Overrides
   can_ip_forward = false

@@ -24,19 +24,28 @@ data "google_compute_instance_template" "generic-regex" {
   filter      = "name != generic-tpl-20200107"
   most_recent = true
 }
+
+# by unique ID
+data "google_compute_instance_template" "generic" {
+  self_link_unique    = "https://www.googleapis.com/compute/v1/projects/your-project-name/global/instanceTemplates/example-template-custom?uniqueId=1234"
+}
+
 ```
 
 ## Argument Reference
 
 The following arguments are supported:
 
-- `name` - (Optional) The name of the instance template. One of `name` or `filter` must be provided.
+- `name` - (Optional) The name of the instance template. One of `name`, `filter` or `self_link_unique` must be provided.
 
 - `filter` - (Optional) A filter to retrieve the instance templates.
     See [gcloud topic filters](https://cloud.google.com/sdk/gcloud/reference/topic/filters) for reference.
-    If multiple instance templates match, either adjust the filter or specify `most_recent`. One of `name` or `filter` must be provided.
+    If multiple instance templates match, either adjust the filter or specify `most_recent`.
+	One of `name`, `filter` or `self_link_unique` must be provided.
 
-- `most_recent` - (Optional) If `filter` is provided, ensures the most recent template is returned when multiple instance templates match. One of `name` or `filter` must be provided.
+- `self_link_unique` - (Optional) The self_link_unique URI of the instance template. One of `name`, `filter` or `self_link_unique` must be provided.
+
+- `most_recent` - (Optional) If `filter` is provided, ensures the most recent template is returned when multiple instance templates match. One of `name`, `filter` or `self_link_unique` must be provided.
 
 ---
 
@@ -302,6 +311,9 @@ The `disk_encryption_key` block supports:
 * `metadata_fingerprint` - The unique fingerprint of the metadata.
 
 * `self_link` - The URI of the created resource.
+
+* `self_link_unique` - A special URI of the created resource that uniquely identifies this instance template with the following format: `projects/{{project}}/global/instanceTemplates/{{name}}?uniqueId={{uniqueId}}`
+Referencing an instance template via this attribute prevents Time of Check to Time of Use attacks when the instance template resides in a shared/untrusted environment.
 
 * `tags_fingerprint` - The unique fingerprint of the tags.
 

@@ -45,7 +45,7 @@ resource "google_compute_instance_from_template" "tpl" {
   name = "instance-from-template"
   zone = "us-central1-a"
 
-  source_instance_template = google_compute_instance_template.tpl.id
+  source_instance_template = google_compute_instance_template.tpl.self_link_unique
 
   // Override fields from instance template
   can_ip_forward = false
@@ -63,7 +63,8 @@ The following arguments are supported:
     Changing this forces a new resource to be created.
 
 * `source_instance_template` - (Required) Name or self link of an instance
-  template to create the instance based on.
+  template to create the instance based on. It is recommended to reference
+  instance templates through their unique id (`self_link_unique` attribute).
 
 - - -
 

@@ -42,7 +42,7 @@ resource "google_compute_region_instance_group_manager" "appserver" {
   distribution_policy_zones  = ["us-central1-a", "us-central1-f"]
 
   version {
-    instance_template = google_compute_instance_template.appserver.id
+    instance_template = google_compute_instance_template.appserver.self_link_unique
   }
 
   all_instances_config {
@@ -80,11 +80,11 @@ resource "google_compute_region_instance_group_manager" "appserver" {
   target_size = 5
 
   version {
-    instance_template = google_compute_instance_template.appserver.id
+    instance_template = google_compute_instance_template.appserver.self_link_unique
   }
 
   version {
-    instance_template = google_compute_instance_template.appserver-canary.id
+    instance_template = google_compute_instance_template.appserver-canary.self_link_unique
     target_size {
       fixed = 1
     }
@@ -259,7 +259,7 @@ The `auto_healing_policies` block supports:
 ```hcl
 version {
   name              = "appserver-canary"
-  instance_template = google_compute_instance_template.appserver-canary.id
+  instance_template = google_compute_instance_template.appserver-canary.self_link_unique
 
   target_size {
     fixed = 1
@@ -270,7 +270,7 @@ version {
 ```hcl
 version {
   name              = "appserver-canary"
-  instance_template = google_compute_instance_template.appserver-canary.id
+  instance_template = google_compute_instance_template.appserver-canary.self_link_unique
 
   target_size {
     percent = 20
