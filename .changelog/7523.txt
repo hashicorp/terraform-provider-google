@@ -1,0 +1,3 @@
+```release-note:bug
+firebase: fix `google_firebase_project` to succeed on apply when the project already has firebase enabled
+```
