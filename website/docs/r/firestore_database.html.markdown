@@ -20,7 +20,11 @@ description: |-
 # google\_firestore\_database
 
 A Cloud Firestore Database. Currently only one database is allowed per
-cloud project; this database must have a `database_id` of '(default)'.
+Cloud project; this database must have a `database_id` of '(default)'.
+
+If you wish to use Firestore with App Engine, use the
+[`google_app_engine_application`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/app_engine_application)
+resource instead.
 
 
 To get more information about Database, see:
@@ -107,7 +111,7 @@ The following arguments are supported:
 
 * `name` -
   (Required)
-  Required. The ID to use for the database, which will become the final
+  The ID to use for the database, which will become the final
   component of the database's resource name. This value should be 4-63
   characters. Valid characters are /[a-z][0-9]-/ with first character
   a letter and the last a letter or a number. Must not be
