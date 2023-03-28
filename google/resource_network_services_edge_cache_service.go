@@ -62,7 +62,7 @@ and all following characters must be a dash, underscore, letter or digit.`,
 							Required:    true,
 							Description: `The list of hostRules to match against. These rules define which hostnames the EdgeCacheService will match against, and which route configurations apply.`,
 							MinItems:    1,
-							MaxItems:    5,
+							MaxItems:    10,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"hosts": {
