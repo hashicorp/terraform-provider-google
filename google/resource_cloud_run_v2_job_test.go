@@ -89,6 +89,12 @@ func testAccCloudRunV2Job_cloudrunv2JobFull(context map[string]interface{}) stri
         max_retries = 5
       }
     }
+
+    lifecycle {
+      ignore_changes = [
+        launch_stage,
+      ]
+    }
   }
   resource "google_service_account" "service_account" {
     account_id   = "tf-test-my-account%{random_suffix}"
@@ -153,6 +159,12 @@ resource "google_cloud_run_v2_job" "default" {
       }
       max_retries = 2
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      launch_stage,
+    ]
   }
 }
 resource "google_service_account" "service_account" {
