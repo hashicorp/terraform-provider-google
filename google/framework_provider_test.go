@@ -179,7 +179,6 @@ terraform {
   }
 }
 
-
 provider "google" {}
 
 resource "google_dns_managed_zone" "zone" {
