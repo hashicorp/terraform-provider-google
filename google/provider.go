@@ -586,8 +586,6 @@ func Provider() *schema.Provider {
 			"google_beyondcorp_app_gateway":                       DataSourceGoogleBeyondcorpAppGateway(),
 			"google_billing_account":                              DataSourceGoogleBillingAccount(),
 			"google_bigquery_default_service_account":             DataSourceGoogleBigqueryDefaultServiceAccount(),
-			"google_client_config":                                DataSourceGoogleClientConfig(),
-			"google_client_openid_userinfo":                       DataSourceGoogleClientOpenIDUserinfo(),
 			"google_cloudbuild_trigger":                           DataSourceGoogleCloudBuildTrigger(),
 			"google_cloudfunctions_function":                      DataSourceGoogleCloudFunctionsFunction(),
 			"google_cloudfunctions2_function":                     DataSourceGoogleCloudFunctions2Function(),

@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"golang.org/x/oauth2"
 
 	"google.golang.org/api/option"
 )
@@ -43,10 +44,12 @@ type frameworkProvider struct {
 	gRPCLoggingOptions         []option.ClientOption
 	pollInterval               time.Duration
 	project                    types.String
-	region                     string
+	region                     types.String
+	zone                       types.String
 	requestBatcherIam          *RequestBatcher
 	requestBatcherServiceUsage *RequestBatcher
 	scopes                     []string
+	tokenSource                oauth2.TokenSource
 	userAgent                  string
 	userProjectOverride        bool
 	version                    string
@@ -845,6 +848,8 @@ func (p *frameworkProvider) Configure(ctx context.Context, req provider.Configur
 // DataSources defines the data sources implemented in the provider.
 func (p *frameworkProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		NewGoogleClientConfigDataSource,
+		NewGoogleClientOpenIDUserinfoDataSource,
 		NewGoogleDnsManagedZoneDataSource,
 		NewGoogleDnsRecordSetDataSource,
 		NewGoogleDnsKeysDataSource,

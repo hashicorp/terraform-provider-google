@@ -150,7 +150,8 @@ func (p *frameworkProvider) LoadAndValidateFramework(ctx context.Context, data P
 	p.WorkflowsBasePath = data.WorkflowsCustomEndpoint.ValueString()
 
 	p.context = ctx
-	p.region = data.Region.String()
+	p.region = data.Region
+	p.zone = data.Zone
 	p.pollInterval = 10 * time.Second
 	p.project = data.Project
 	p.requestBatcherServiceUsage = NewRequestBatcher("Service Usage", ctx, batchingConfig)
@@ -1204,6 +1205,7 @@ func (p *frameworkProvider) SetupClient(ctx context.Context, data ProviderModel,
 	}
 	client.Timeout = timeout
 
+	p.tokenSource = tokenSource
 	p.client = client
 }
 
