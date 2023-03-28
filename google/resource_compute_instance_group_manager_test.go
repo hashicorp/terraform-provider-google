@@ -67,6 +67,79 @@ func testSweepComputeInstanceGroupManager(region string) error {
 	return nil
 }
 
+func TestInstanceGroupManager_parseUniqueId(t *testing.T) {
+	expectations := map[string][]string{
+		"projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=123":                                       {"projects/imre-test/global/instanceTemplates/example-template-custom", "123"},
+		"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=123": {"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom", "123"},
+		"projects/imre-test/global/instanceTemplates/example-template-custom":                                                    {"projects/imre-test/global/instanceTemplates/example-template-custom", ""},
+		"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom":              {"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom", ""},
+		"example-template-custom?uniqueId=123":                                                                                   {"example-template-custom", "123"},
+
+		// this test demonstrates that uniqueIds can't override eachother
+		"projects/imre-test/global/instanceTemplates/example?uniqueId=123?uniqueId=456": {"projects/imre-test/global/instanceTemplates/example", "123?uniqueId=456"},
+	}
+
+	for k, v := range expectations {
+		aName, aUniqueId := parseUniqueId(k)
+		if v[0] != aName {
+			t.Errorf("parseUniqueId failed; name of %v should be %v, not %v", k, v[0], aName)
+		}
+		if v[1] != aUniqueId {
+			t.Errorf("parseUniqueId failed; uniqueId of %v should be %v, not %v", k, v[1], aUniqueId)
+		}
+	}
+}
+
+func TestInstanceGroupManager_compareInstanceTemplate(t *testing.T) {
+	shouldAllMatch := []string{
+		// uniqueId not present
+		"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom",
+		"projects/imre-test/global/instanceTemplates/example-template-custom",
+		// uniqueId present
+		"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=123",
+		"projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=123",
+	}
+	shouldNotMatch := map[string]string{
+		// mismatching name
+		"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom": "projects/imre-test/global/instanceTemplates/example-template-custom2",
+		"projects/imre-test/global/instanceTemplates/example-template-custom":                                       "https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom2",
+		// matching name, but mismatching uniqueId
+		"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=123": "projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=1234",
+		"projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=123":                                       "https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=1234",
+	}
+	for _, v1 := range shouldAllMatch {
+		for _, v2 := range shouldAllMatch {
+			if !compareSelfLinkRelativePathsIgnoreParams("", v1, v2, nil) {
+				t.Fatalf("compareSelfLinkRelativePathsIgnoreParams did not match (and should have) %v and %v", v1, v2)
+			}
+		}
+	}
+
+	for v1, v2 := range shouldNotMatch {
+		if compareSelfLinkRelativePathsIgnoreParams("", v1, v2, nil) {
+			t.Fatalf("compareSelfLinkRelativePathsIgnoreParams did match (and shouldn't) %v and %v", v1, v2)
+		}
+	}
+}
+
+func TestInstanceGroupManager_convertUniqueId(t *testing.T) {
+	matches := map[string]string{
+		// uniqueId not present (should return the same)
+		"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom": "https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom",
+		"projects/imre-test/global/instanceTemplates/example-template-custom":                                       "projects/imre-test/global/instanceTemplates/example-template-custom",
+		// uniqueId present (should return the last component replaced)
+		"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=123": "https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/123",
+		"projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=123":                                       "projects/imre-test/global/instanceTemplates/123",
+		"tf-test-igm-8amncgtq22?uniqueId=8361222501423044003":                                                                    "8361222501423044003",
+	}
+	for input, expected := range matches {
+		actual := ConvertToUniqueIdWhenPresent(input)
+		if actual != expected {
+			t.Fatalf("invalid return value by ConvertToUniqueIdWhenPresent for input %v; expected: %v, actual: %v", input, expected, actual)
+		}
+	}
+}
+
 func TestAccInstanceGroupManager_basic(t *testing.T) {
 	t.Parallel()
 
@@ -82,6 +155,38 @@ func TestAccInstanceGroupManager_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceGroupManager_basic(template, target, igm1, igm2),
+			},
+			{
+				ResourceName:            "google_compute_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+			{
+				ResourceName:            "google_compute_instance_group_manager.igm-no-tp",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+		},
+	})
+}
+
+func TestAccInstanceGroupManager_self_link_unique(t *testing.T) {
+	t.Parallel()
+
+	template := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
+	target := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
+	igm1 := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
+	igm2 := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccInstanceGroupManager_self_link_unique(template, target, igm1, igm2),
 			},
 			{
 				ResourceName:            "google_compute_instance_group_manager.igm-basic",
@@ -500,6 +605,72 @@ resource "google_compute_instance_group_manager" "igm-basic" {
   version {
     name              = "prod"
     instance_template = google_compute_instance_template.igm-basic.self_link
+  }
+
+  target_pools                   = [google_compute_target_pool.igm-basic.self_link]
+  base_instance_name             = "tf-test-igm-basic"
+  zone                           = "us-central1-c"
+  target_size                    = 2
+  list_managed_instances_results = "PAGINATED"
+}
+
+resource "google_compute_instance_group_manager" "igm-no-tp" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+
+  version {
+    name              = "prod"
+    instance_template = google_compute_instance_template.igm-basic.self_link
+  }
+
+  base_instance_name = "tf-test-igm-no-tp"
+  zone               = "us-central1-c"
+  target_size        = 2
+}
+`, template, target, igm1, igm2)
+}
+
+func testAccInstanceGroupManager_self_link_unique(template, target, igm1, igm2 string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+
+resource "google_compute_target_pool" "igm-basic" {
+  description      = "Resource created for Terraform acceptance testing"
+  name             = "%s"
+  session_affinity = "CLIENT_IP_PROTO"
+}
+
+resource "google_compute_instance_group_manager" "igm-basic" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+
+  version {
+    name              = "prod"
+    instance_template = google_compute_instance_template.igm-basic.self_link_unique
   }
 
   target_pools                   = [google_compute_target_pool.igm-basic.self_link]

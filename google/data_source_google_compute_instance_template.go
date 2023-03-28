@@ -17,16 +17,22 @@ func DataSourceGoogleComputeInstanceTemplate() *schema.Resource {
 		Type:     schema.TypeString,
 		Optional: true,
 	}
+	dsSchema["self_link_unique"] = &schema.Schema{
+		Type:     schema.TypeString,
+		Optional: true,
+	}
 	dsSchema["most_recent"] = &schema.Schema{
 		Type:     schema.TypeBool,
 		Optional: true,
 	}
 
 	// Set 'Optional' schema elements
-	addOptionalFieldsToSchema(dsSchema, "name", "filter", "most_recent", "project")
+	addOptionalFieldsToSchema(dsSchema, "name", "filter", "most_recent", "project", "self_link_unique")
 
-	dsSchema["name"].ExactlyOneOf = []string{"name", "filter"}
-	dsSchema["filter"].ExactlyOneOf = []string{"name", "filter"}
+	mutuallyExclusive := []string{"name", "filter", "self_link_unique"}
+	for _, n := range mutuallyExclusive {
+		dsSchema[n].ExactlyOneOf = mutuallyExclusive
+	}
 
 	return &schema.Resource{
 		Read:   datasourceComputeInstanceTemplateRead,
@@ -68,12 +74,23 @@ func datasourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interfac
 
 		return fmt.Errorf("your filter has returned %d instance template(s). Please refine your filter or set most_recent to return exactly one instance template", len(templates.Items))
 	}
+	if v, ok := d.GetOk("self_link_unique"); ok {
+		return retrieveInstanceFromUniqueId(d, meta, project, v.(string))
+	}
 
-	return fmt.Errorf("one of name or filters must be set")
+	return fmt.Errorf("one of name, filters or self_link_unique must be set")
 }
 
 func retrieveInstance(d *schema.ResourceData, meta interface{}, project, name string) error {
 	d.SetId("projects/" + project + "/global/instanceTemplates/" + name)
+
+	return resourceComputeInstanceTemplateRead(d, meta)
+}
+
+func retrieveInstanceFromUniqueId(d *schema.ResourceData, meta interface{}, project, self_link_unique string) error {
+	normalId, _ := parseUniqueId(self_link_unique)
+	d.SetId(normalId)
+	d.Set("self_link_unique", self_link_unique)
 
 	return resourceComputeInstanceTemplateRead(d, meta)
 }

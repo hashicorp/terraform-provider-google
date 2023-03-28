@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added output-only attribute `self_link_unique` id for `google_compute_instance_template` to point to the unique id of the resource (instead of its name). It is recommended to use `self_link_unique` for references over `self_link` and `id` for `google_compute_instance_template`
+```

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -1292,6 +1293,20 @@ func testAccCheckComputeInstanceTemplateExistsInProject(t *testing.T, n, p strin
 
 		if found.Name != templateName {
 			return fmt.Errorf("Instance template not found")
+		}
+		if strings.Contains(rs.Primary.ID, "uniqueId") {
+			return fmt.Errorf("unique ID is not supposed to be present in the Terraform resource ID")
+		}
+		selfLink := rs.Primary.Attributes["self_link"]
+		if strings.Contains(selfLink, "uniqueId") {
+			return fmt.Errorf("unique ID is not supposed to be present in selfLink")
+		}
+
+		actualSelfLinkUnique := rs.Primary.Attributes["self_link_unique"]
+		foundId := strconv.FormatUint(found.Id, 10)
+		expectedSelfLinkUnique := selfLink + "?uniqueId=" + foundId
+		if actualSelfLinkUnique != expectedSelfLinkUnique {
+			return fmt.Errorf("self_link_unique should be %v but it is: %v", expectedSelfLinkUnique, actualSelfLinkUnique)
 		}
 
 		*instanceTemplate = *found
@@ -3161,7 +3176,7 @@ resource "google_compute_disk" "persistent" {
 }
 
 resource "google_compute_snapshot" "snapshot" {
-  name        = "my-snapshot"
+  name        = "tf-test-my-snapshot-%{random_suffix}"
   source_disk = google_compute_disk.persistent.id
   zone        = "us-central1-a"
   snapshot_encryption_key {

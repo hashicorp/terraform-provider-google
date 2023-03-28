@@ -50,7 +50,7 @@ func ResourceComputeInstanceGroupManager() *schema.Resource {
 						"instance_template": {
 							Type:             schema.TypeString,
 							Required:         true,
-							DiffSuppressFunc: compareSelfLinkRelativePaths,
+							DiffSuppressFunc: compareSelfLinkRelativePathsIgnoreParams,
 							Description:      `The full URL to an instance template from which all new instances of this version will be created.`,
 						},
 
@@ -369,6 +369,33 @@ func ResourceComputeInstanceGroupManager() *schema.Resource {
 		},
 		UseJSONNumber: true,
 	}
+}
+
+func parseUniqueId(s string) (string, string) {
+	splits := strings.SplitN(s, "?uniqueId=", 2)
+	if len(splits) == 2 {
+		return splits[0], splits[1]
+	}
+	return s, ""
+}
+
+func compareSelfLinkRelativePathsIgnoreParams(_unused1, old, new string, _unused2 *schema.ResourceData) bool {
+	oldName, oldUniqueId := parseUniqueId(old)
+	newName, newUniqueId := parseUniqueId(new)
+	if oldUniqueId != "" && newUniqueId != "" && oldUniqueId != newUniqueId {
+		return false
+	}
+	return compareSelfLinkRelativePaths(_unused1, oldName, newName, _unused2)
+}
+
+func ConvertToUniqueIdWhenPresent(s string) string {
+	original, uniqueId := parseUniqueId(s)
+	if uniqueId != "" {
+		splits := strings.Split(original, "/")
+		splits[len(splits)-1] = uniqueId
+		return strings.Join(splits, "/")
+	}
+	return s
 }
 
 func getNamedPorts(nps []interface{}) []*compute.NamedPort {
@@ -935,7 +962,7 @@ func expandVersions(configured []interface{}) []*compute.InstanceGroupManagerVer
 
 		version := compute.InstanceGroupManagerVersion{
 			Name:             data["name"].(string),
-			InstanceTemplate: data["instance_template"].(string),
+			InstanceTemplate: ConvertToUniqueIdWhenPresent(data["instance_template"].(string)),
 			TargetSize:       expandFixedOrPercent(data["target_size"].([]interface{})),
 		}
 

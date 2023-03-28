@@ -597,6 +597,12 @@ Google Cloud KMS.`,
 				Description: `The URI of the created resource.`,
 			},
 
+			"self_link_unique": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `A special URI of the created resource that uniquely identifies this instance template.`,
+			},
+
 			"service_account": {
 				Type:        schema.TypeList,
 				MaxItems:    1,
@@ -1170,6 +1176,8 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 
 	// Store the ID now
 	d.SetId(fmt.Sprintf("projects/%s/global/instanceTemplates/%s", project, instanceTemplate.Name))
+	// And also the unique ID
+	d.Set("self_link_unique", fmt.Sprintf("%v?uniqueId=%v", d.Id(), op.TargetId))
 
 	err = ComputeOperationWaitTime(config, op, project, "Creating Instance Template", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -1411,12 +1419,16 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	splits := strings.Split(d.Id(), "/")
+	idStr := d.Id()
+	if v, ok := d.GetOk("self_link_unique"); ok && v != "" {
+		idStr = ConvertToUniqueIdWhenPresent(v.(string))
+	}
+
+	splits := strings.Split(idStr, "/")
 	instanceTemplate, err := config.NewComputeClient(userAgent).InstanceTemplates.Get(project, splits[len(splits)-1]).Do()
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Instance Template %q", d.Get("name").(string)))
 	}
-
 	// Set the metadata fingerprint if there is one.
 	if instanceTemplate.Properties.Metadata != nil {
 		if err = d.Set("metadata_fingerprint", instanceTemplate.Properties.Metadata.Fingerprint); err != nil {
@@ -1457,6 +1469,9 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	}
 	if err = d.Set("self_link", instanceTemplate.SelfLink); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
+	}
+	if err = d.Set("self_link_unique", fmt.Sprintf("%v?uniqueId=%v", instanceTemplate.SelfLink, instanceTemplate.Id)); err != nil {
+		return fmt.Errorf("Error setting self_link_unique: %s", err)
 	}
 	if err = d.Set("name", instanceTemplate.Name); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)

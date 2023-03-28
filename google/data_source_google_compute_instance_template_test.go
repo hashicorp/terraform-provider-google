@@ -69,6 +69,31 @@ func TestAccInstanceTemplateDatasource_filter_mostRecent(t *testing.T) {
 	})
 }
 
+func TestAccInstanceTemplateDatasource_self_link_unique(t *testing.T) {
+	t.Parallel()
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccInstanceTemplate_self_link_unique(GetTestProjectFromEnv(), RandString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					checkDataSourceStateMatchesResourceStateWithIgnores(
+						"data.google_compute_instance_template.default",
+						"google_compute_instance_template.default",
+						// we don't compare the id here as we start this test from a self_link_unique url
+						// and the resource's ID will have the standard format project/projectname/global/instanceTemplates/tf-test-template-random
+						map[string]struct{}{
+							"id": {},
+						},
+					),
+				),
+			},
+		},
+	})
+}
+
 func testAccInstanceTemplate_name(project, suffix string) string {
 	return Nprintf(`
 resource "google_compute_instance_template" "default" {
@@ -235,6 +260,34 @@ data "google_compute_instance_template" "default" {
   project = "%{project}${replace(google_compute_instance_template.b.id, "/.*/", "")}"
   filter      = "(name != tf-test-template-%{suffix}-b) (description = tf-test-instance-template)"
   most_recent = true
+}
+`, map[string]interface{}{"project": project, "suffix": suffix})
+}
+
+func testAccInstanceTemplate_self_link_unique(project, suffix string) string {
+	return Nprintf(`
+resource "google_compute_instance_template" "default" {
+  name        = "tf-test-template-%{suffix}"
+  description = "Example template."
+
+  machine_type = "e2-small"
+
+  tags = ["foo", "bar"]
+
+  disk {
+    source_image = "cos-cloud/cos-stable"
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+
+data "google_compute_instance_template" "default" {
+  project = "%{project}"
+  self_link_unique = google_compute_instance_template.default.self_link_unique
 }
 `, map[string]interface{}{"project": project, "suffix": suffix})
 }

@@ -36,7 +36,7 @@ resource "google_compute_instance_group_manager" "appserver" {
   zone               = "us-central1-a"
 
   version {
-    instance_template  = google_compute_instance_template.appserver.id
+    instance_template  = google_compute_instance_template.appserver.self_link_unique
   }
 
   all_instances_config {
@@ -76,12 +76,12 @@ resource "google_compute_instance_group_manager" "appserver" {
 
   version {
     name              = "appserver"
-    instance_template = google_compute_instance_template.appserver.id
+    instance_template = google_compute_instance_template.appserver.self_link_unique
   }
 
   version {
     name              = "appserver-canary"
-    instance_template = google_compute_instance_template.appserver-canary.id
+    instance_template = google_compute_instance_template.appserver-canary.self_link_unique
     target_size {
       fixed = 1
     }
@@ -250,7 +250,7 @@ all_instances_config {
 ```hcl
 version {
   name              = "appserver-canary"
-  instance_template = google_compute_instance_template.appserver-canary.id
+  instance_template = google_compute_instance_template.appserver-canary.self_link_unique
 
   target_size {
     fixed = 1
@@ -261,7 +261,7 @@ version {
 ```hcl
 version {
   name              = "appserver-canary"
-  instance_template = google_compute_instance_template.appserver-canary.id
+  instance_template = google_compute_instance_template.appserver-canary.self_link_unique
 
   target_size {
     percent = 20
@@ -271,7 +271,7 @@ version {
 
 * `name` - (Required) - Version name.
 
-* `instance_template` - (Required) - The full URL to an instance template from which all new instances of this version will be created.
+* `instance_template` - (Required) - The full URL to an instance template from which all new instances of this version will be created. It is recommended to reference instance templates through their unique id (`self_link_unique` attribute).
 
 * `target_size` - (Optional) - The number of instances calculated as a fixed number or a percentage depending on the settings. Structure is [documented below](#nested_target_size).
 

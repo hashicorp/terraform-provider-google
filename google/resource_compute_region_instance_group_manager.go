@@ -51,7 +51,7 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 						"instance_template": {
 							Type:             schema.TypeString,
 							Required:         true,
-							DiffSuppressFunc: compareSelfLinkRelativePaths,
+							DiffSuppressFunc: compareSelfLinkRelativePathsIgnoreParams,
 							Description:      `The full URL to an instance template from which all new instances of this version will be created.`,
 						},
 
