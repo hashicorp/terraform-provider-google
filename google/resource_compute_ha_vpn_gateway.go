@@ -73,6 +73,15 @@ character, which cannot be a dash.`,
 				DiffSuppressFunc: compareSelfLinkOrResourceName,
 				Description:      `The region this gateway should sit in.`,
 			},
+			"stack_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateEnum([]string{"IPV4_ONLY", "IPV4_IPV6", ""}),
+				Description: `The stack type for this VPN gateway to identify the IP protocols that are enbaled.
+If not specified, IPV4_ONLY will be used. Default value: "IPV4_ONLY" Possible values: ["IPV4_ONLY", "IPV4_IPV6"]`,
+				Default: "IPV4_ONLY",
+			},
 			"vpn_interfaces": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -148,6 +157,12 @@ func resourceComputeHaVpnGatewayCreate(d *schema.ResourceData, meta interface{})
 		return err
 	} else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
+	}
+	stackTypeProp, err := expandComputeHaVpnGatewayStackType(d.Get("stack_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("stack_type"); !isEmptyValue(reflect.ValueOf(stackTypeProp)) && (ok || !reflect.DeepEqual(v, stackTypeProp)) {
+		obj["stackType"] = stackTypeProp
 	}
 	vpnInterfacesProp, err := expandComputeHaVpnGatewayVpnInterfaces(d.Get("vpn_interfaces"), d, config)
 	if err != nil {
@@ -251,6 +266,9 @@ func resourceComputeHaVpnGatewayRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("network", flattenComputeHaVpnGatewayNetwork(res["network"], d, config)); err != nil {
 		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
 	}
+	if err := d.Set("stack_type", flattenComputeHaVpnGatewayStackType(res["stackType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
+	}
 	if err := d.Set("vpn_interfaces", flattenComputeHaVpnGatewayVpnInterfaces(res["vpnInterfaces"], d, config)); err != nil {
 		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
 	}
@@ -345,6 +363,10 @@ func flattenComputeHaVpnGatewayNetwork(v interface{}, d *schema.ResourceData, co
 	return ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeHaVpnGatewayStackType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenComputeHaVpnGatewayVpnInterfaces(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -414,6 +436,10 @@ func expandComputeHaVpnGatewayNetwork(v interface{}, d TerraformResourceData, co
 		return nil, fmt.Errorf("Invalid value for network: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeHaVpnGatewayStackType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeHaVpnGatewayVpnInterfaces(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
