@@ -34,7 +34,7 @@ Four different resources help you manage your IAM policy for a organization. Eac
 
 ```hcl
 resource "google_organization_iam_policy" "organization" {
-  org_id      = "your-organization-id"
+  org_id      = "1234567890"
   policy_data = data.google_iam_policy.admin.policy_data
 }
 
@@ -53,7 +53,7 @@ With IAM Conditions:
 
 ```hcl
 resource "google_organization_iam_policy" "organization" {
-  org_id      = "your-organization-id"
+  org_id      = "1234567890"
   policy_data = "${data.google_iam_policy.admin.policy_data}"
 }
 
@@ -80,7 +80,7 @@ data "google_iam_policy" "admin" {
 
 ```hcl
 resource "google_organization_iam_binding" "organization" {
-  org_id  = "your-organization-id"
+  org_id  = "1234567890"
   role    = "roles/editor"
 
   members = [
@@ -93,7 +93,7 @@ With IAM Conditions:
 
 ```hcl
 resource "google_organization_iam_binding" "organization" {
-  org_id  = "your-organization-id"
+  org_id  = "1234567890"
   role    = "roles/editor"
 
   members = [
@@ -112,7 +112,7 @@ resource "google_organization_iam_binding" "organization" {
 
 ```hcl
 resource "google_organization_iam_member" "organization" {
-  org_id  = "your-organization-id"
+  org_id  = "1234567890"
   role    = "roles/editor"
   member  = "user:jane@example.com"
 }
@@ -122,7 +122,7 @@ With IAM Conditions:
 
 ```hcl
 resource "google_organization_iam_member" "organization" {
-  org_id  = "your-organization-id"
+  org_id  = "1234567890"
   role    = "roles/editor"
   member  = "user:jane@example.com"
 
@@ -138,7 +138,7 @@ resource "google_organization_iam_member" "organization" {
 
 ```hcl
 resource "google_organization_iam_audit_config" "organization" {
-  org_id = "your-organization-id"
+  org_id = "1234567890"
   service = "allServices"
   audit_log_config {
     log_type = "ADMIN_READ"
@@ -176,9 +176,7 @@ The following arguments are supported:
     Deleting this removes all policies from the organization, locking out users without
     organization-level access.
 
-* `org_id` - (Optional) The organization ID. If not specified for `google_organization_iam_binding`, `google_organization_iam_member`, or `google_organization_iam_audit_config`, uses the ID of the organization configured with the provider.
-Required for `google_organization_iam_policy` - you must explicitly set the organization, and it
-will not be inferred from the provider.
+* `org_id` - (Required) The organization id of the target organization.
 
 * `service` - (Required only by google\_organization\_iam\_audit\_config) Service which will be enabled for audit logging.  The special value `allServices` covers all services.  Note that if there are google\_organization\_iam\_audit\_config resources covering both `allServices` and a specific service then the union of the two AuditConfigs is used for that service: the `log_types` specified in each `audit_log_config` are enabled, and the `exempted_members` in each `audit_log_config` are exempted.
 
