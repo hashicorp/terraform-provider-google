@@ -48,9 +48,9 @@ func TestAccComputeInstanceFromTemplate_self_link_unique(t *testing.T) {
 	resourceName := "google_compute_instance_from_template.foobar"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceFromTemplate_self_link_unique(instanceName, templateName),
@@ -76,9 +76,9 @@ func TestAccComputeInstanceFromRegionTemplate_basic(t *testing.T) {
 	resourceName := "google_compute_instance_from_template.foobar"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeInstanceFromRegionTemplate_basic(instanceName, templateName),
