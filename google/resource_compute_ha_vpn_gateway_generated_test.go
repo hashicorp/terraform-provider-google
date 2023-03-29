@@ -63,6 +63,47 @@ resource "google_compute_network" "network1" {
 `, context)
 }
 
+func TestAccComputeHaVpnGateway_haVpnGatewayIpv6Example(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHaVpnGatewayDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHaVpnGateway_haVpnGatewayIpv6Example(context),
+			},
+			{
+				ResourceName:            "google_compute_ha_vpn_gateway.ha_gateway1",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeHaVpnGateway_haVpnGatewayIpv6Example(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_ha_vpn_gateway" "ha_gateway1" {
+  region   = "us-central1"
+  name     = "tf-test-ha-vpn-1%{random_suffix}"
+  network  = google_compute_network.network1.id
+  stack_type = "IPV4_IPV6"
+}
+
+resource "google_compute_network" "network1" {
+  name                    = "network1%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
 func testAccCheckComputeHaVpnGatewayDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
