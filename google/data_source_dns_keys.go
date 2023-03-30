@@ -14,7 +14,10 @@ import (
 )
 
 // Ensure the implementation satisfies the expected interfaces
-var _ datasource.DataSource = &GoogleDnsKeysDataSource{}
+var (
+	_ datasource.DataSource              = &GoogleDnsKeysDataSource{}
+	_ datasource.DataSourceWithConfigure = &GoogleDnsKeysDataSource{}
+)
 
 func NewGoogleDnsKeysDataSource() datasource.DataSource {
 	return &GoogleDnsKeysDataSource{}
