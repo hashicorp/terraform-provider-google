@@ -1,4 +1,26 @@
 ## 4.60.0 (Unreleased)
+
+FEATURES:
+* **New Data Source:** `google_compute_region_instance_template` ([#14132](https://github.com/hashicorp/terraform-provider-google/pull/14132))
+* **New Resource:** `google_apigee_keystores_aliases_key_cert_file` ([#14130](https://github.com/hashicorp/terraform-provider-google/pull/14130))
+* **New Resource:** `google_compute_region_instance_template` ([#14103](https://github.com/hashicorp/terraform-provider-google/pull/14103))
+
+IMPROVEMENTS:
+* compute: added `address_type`, `network`, `network_tier`, `prefix_length`, `purpose`, `subnetwork` and `users` field for `google_compute_address` and `google_compute_global_address` datasource ([#14078](https://github.com/hashicorp/terraform-provider-google/pull/14078))
+* compute: added `network_firewall_policy_enforcement_order` field to `google_compute_network` resource ([#14111](https://github.com/hashicorp/terraform-provider-google/pull/14111))
+* compute: added output-only attribute `self_link_unique` for `google_compute_instance_template` to point to the unique id of the resource instead of its name ([#14128](https://github.com/hashicorp/terraform-provider-google/pull/14128))
+* compute: added support for region instance template in`source_instance_template` field of `google_compute_instance_from_template` resource ([#14103](https://github.com/hashicorp/terraform-provider-google/pull/14103))
+* container: added `stack_type` field to `google_container_cluster` resource ([#14079](https://github.com/hashicorp/terraform-provider-google/pull/14079))
+* container: added `advanced_machine_features` field to `google_container_cluster` resource ([#14106](https://github.com/hashicorp/terraform-provider-google/pull/14106))
+* networkservice: updated the max number of `host_rule` on `google_network_services_edge_cache_service` ([#14112](https://github.com/hashicorp/terraform-provider-google/pull/14112))
+* sql: added support of single-database-recovery for SQL Server PITR with `database_names` attribute to `google_sql_instance` ([#14088](https://github.com/hashicorp/terraform-provider-google/pull/14088))
+
+BUG FIXES:
+* cloudrun: fixed race condition when polling for status during an update of a `google_cloud_run_service` ([#14087](https://github.com/hashicorp/terraform-provider-google/pull/14087))
+* cloudsql: fixed the error in any subsequent apply on `google_sql_user` after its `google_sql_database_instance` is deleted ([#14098](https://github.com/hashicorp/terraform-provider-google/pull/14098))
+* datacatalog: fixed `google_data_catalog_tag` only allowing 10 tags by increasing the page size to 1000 ([#14077](https://github.com/hashicorp/terraform-provider-google/pull/14077))
+* firebase: fixed `google_firebase_project` to succeed on apply when the project already has firebase enabled ([#14121](https://github.com/hashicorp/terraform-provider-google/pull/14121))
+
 ## 4.59.0 (March 28, 2023)
 
 FEATURES:
