@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added support for `ephemeral_storage_local_ssd_config` to `google_container_cluster.node_config`, `google_container_cluster.node_pools.node_config`, `google_container_node_pool.node_config`
+```
