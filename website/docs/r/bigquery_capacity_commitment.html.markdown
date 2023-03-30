@@ -37,9 +37,10 @@ To get more information about CapacityCommitment, see:
 resource "google_bigquery_capacity_commitment" "example" {
 	capacity_commitment_id = "example-commitment"
 
-	location   = "us-west1"
+	location   = "us-west2"
 	slot_count = 100
-	plan       = "FLEX"
+	plan       = "FLEX_FLAT_RATE"
+	edition    = "ENTERPRISE"
 }
 ```
 
@@ -54,7 +55,7 @@ The following arguments are supported:
 
 * `plan` -
   (Required)
-  Capacity commitment plan. Valid values are FLEX, TRIAL, MONTHLY, ANNUAL
+  Capacity commitment plan. Valid values are at https://cloud.google.com/bigquery/docs/reference/reservations/rpc/google.cloud.bigquery.reservation.v1#commitmentplan
 
 
 - - -
@@ -62,7 +63,11 @@ The following arguments are supported:
 
 * `renewal_plan` -
   (Optional)
-  The plan this capacity commitment is converted to after commitmentEndTime passes. Once the plan is changed, committed period is extended according to commitment plan. Only applicable for ANNUAL and TRIAL commitments.
+  The plan this capacity commitment is converted to after commitmentEndTime passes. Once the plan is changed, committed period is extended according to commitment plan. Only applicable some commitment plans.
+
+* `edition` -
+  (Optional)
+  The edition type. Valid values are STANDARD, ENTERPRISE, ENTERPRISE_PLUS
 
 * `capacity_commitment_id` -
   (Optional)

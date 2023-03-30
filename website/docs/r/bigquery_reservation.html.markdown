@@ -39,12 +39,16 @@ To get more information about Reservation, see:
 ```hcl
 resource "google_bigquery_reservation" "reservation" {
 	name           = "my-reservation"
-	location       = "asia-northeast1"
+	location       = "us-west2"
 	// Set to 0 for testing purposes
 	// In reality this would be larger than zero
 	slot_capacity     = 0
-	ignore_idle_slots = false
+	edition = "STANDARD"
+	ignore_idle_slots = true
 	concurrency       = 0
+	autoscale {
+   	  max_slots = 100
+    }
 }
 ```
 
@@ -81,6 +85,15 @@ The following arguments are supported:
   Applicable only for reservations located within one of the BigQuery multi-regions (US or EU).
   If set to true, this reservation is placed in the organization's secondary region which is designated for disaster recovery purposes. If false, this reservation is placed in the organization's default region.
 
+* `edition` -
+  (Optional)
+  The edition type. Valid values are STANDARD, ENTERPRISE, ENTERPRISE_PLUS
+
+* `autoscale` -
+  (Optional)
+  The configuration parameters for the auto scaling feature.
+  Structure is [documented below](#nested_autoscale).
+
 * `location` -
   (Optional)
   The geographic location where the transfer config should reside.
@@ -89,6 +102,16 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_autoscale"></a>The `autoscale` block supports:
+
+* `current_slots` -
+  (Output)
+  The slot capacity added to this reservation when autoscale happens. Will be between [0, max_slots].
+
+* `max_slots` -
+  (Optional)
+  Number of slots to be scaled when needed.
 
 ## Attributes Reference
 
