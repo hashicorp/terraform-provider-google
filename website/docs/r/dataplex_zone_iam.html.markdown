@@ -12,13 +12,13 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Dataplex"
+subcategory: "Dataplex"
 description: |-
-  Collection of resources to manage IAM policy for Cloud Dataplex Zone
+  Collection of resources to manage IAM policy for Dataplex Zone
 ---
 
-# IAM policy for Cloud Dataplex Zone
-Three different resources help you manage your IAM policy for Cloud Dataplex Zone. Each of these resources serves a different use case:
+# IAM policy for Dataplex Zone
+Three different resources help you manage your IAM policy for Dataplex Zone. Each of these resources serves a different use case:
 
 * `google_dataplex_zone_iam_policy`: Authoritative. Sets the IAM policy for the zone and replaces any existing policy already attached.
 * `google_dataplex_zone_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the zone are preserved.
@@ -126,7 +126,7 @@ For all import syntaxes, the "resource in question" can take any of the followin
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-Cloud Dataplex zone IAM resources can be imported using the resource identifiers, role, and member.
+Dataplex zone IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```
