@@ -14,7 +14,10 @@ import (
 )
 
 // Ensure the implementation satisfies the expected interfaces
-var _ datasource.DataSource = &GoogleDnsRecordSetDataSource{}
+var (
+	_ datasource.DataSource              = &GoogleDnsRecordSetDataSource{}
+	_ datasource.DataSourceWithConfigure = &GoogleDnsRecordSetDataSource{}
+)
 
 func NewGoogleDnsRecordSetDataSource() datasource.DataSource {
 	return &GoogleDnsRecordSetDataSource{}
@@ -54,6 +57,14 @@ func (d *GoogleDnsRecordSetDataSource) Schema(ctx context.Context, req datasourc
 				MarkdownDescription: "The DNS name for the resource.",
 				Required:            true,
 			},
+			"type": schema.StringAttribute{
+				MarkdownDescription: "The identifier of a supported record type. See the list of Supported DNS record types.",
+				Required:            true,
+			},
+			"project": schema.StringAttribute{
+				MarkdownDescription: "The ID of the project for the Google Cloud.",
+				Optional:            true,
+			},
 			"rrdatas": schema.ListAttribute{
 				MarkdownDescription: "The string data for the records in this record set.",
 				Computed:            true,
@@ -62,14 +73,6 @@ func (d *GoogleDnsRecordSetDataSource) Schema(ctx context.Context, req datasourc
 			"ttl": schema.Int64Attribute{
 				MarkdownDescription: "The time-to-live of this record set (seconds).",
 				Computed:            true,
-			},
-			"type": schema.StringAttribute{
-				MarkdownDescription: "The identifier of a supported record type. See the list of Supported DNS record types.",
-				Required:            true,
-			},
-			"project": schema.StringAttribute{
-				MarkdownDescription: "The ID of the project for the Google Cloud.",
-				Optional:            true,
 			},
 			"id": schema.StringAttribute{
 				MarkdownDescription: "DNS record set identifier",

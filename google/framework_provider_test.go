@@ -192,7 +192,7 @@ resource "google_dns_record_set" "rs" {
   type         = "A"
   ttl          = 300
   rrdatas      = [
-	"192.168.1.0",
+  "192.168.1.0",
   ]
 }
 
@@ -211,14 +211,14 @@ provider "google" {
 }
 
 resource "google_dns_managed_zone" "foo" {
-	provider    = "google.dns_custom_endpoint"
+  provider    = google.dns_custom_endpoint
   name        = "tf-test-zone-%s"
   dns_name    = "tf-test-zone-%s.hashicorptest.com."
   description = "QA DNS zone"
 }
 
 data "google_dns_managed_zone" "qa" {
-	provider    = "google.dns_custom_endpoint"
+  provider    = google.dns_custom_endpoint
   name = google_dns_managed_zone.foo.name
 }`, endpoint, name, name)
 }
