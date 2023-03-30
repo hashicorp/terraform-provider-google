@@ -1,0 +1,4 @@
+```release-note:enhancement
+
+storagetransfer: add support for 'last_modified_since' and 'last_modified_before' fields to 'google_storage_transfer_job' resource
+```
