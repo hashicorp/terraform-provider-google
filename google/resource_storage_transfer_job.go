@@ -19,6 +19,8 @@ var (
 		"transfer_spec.0.object_conditions.0.max_time_elapsed_since_last_modification",
 		"transfer_spec.0.object_conditions.0.include_prefixes",
 		"transfer_spec.0.object_conditions.0.exclude_prefixes",
+		"transfer_spec.0.object_conditions.0.last_modified_since",
+		"transfer_spec.0.object_conditions.0.last_modified_before",
 	}
 
 	transferOptionsKeys = []string{
@@ -292,6 +294,20 @@ func objectConditionsSchema() *schema.Schema {
 						Type:     schema.TypeString,
 					},
 					Description: `exclude_prefixes must follow the requirements described for include_prefixes.`,
+				},
+				"last_modified_since": {
+					Type:         schema.TypeString,
+					ValidateFunc: validateRFC3339Date,
+					Optional:     true,
+					AtLeastOneOf: objectConditionsKeys,
+					Description:  `If specified, only objects with a "last modification time" on or after this timestamp and objects that don't have a "last modification time" are transferred. A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+				},
+				"last_modified_before": {
+					Type:         schema.TypeString,
+					ValidateFunc: validateRFC3339Date,
+					Optional:     true,
+					AtLeastOneOf: objectConditionsKeys,
+					Description:  `If specified, only objects with a "last modification time" before this timestamp and objects that don't have a "last modification time" are transferred. A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 				},
 			},
 		},
@@ -1033,6 +1049,8 @@ func expandObjectConditions(conditions []interface{}) *storagetransfer.ObjectCon
 		IncludePrefixes:                     convertStringArr(condition["include_prefixes"].([]interface{})),
 		MaxTimeElapsedSinceLastModification: condition["max_time_elapsed_since_last_modification"].(string),
 		MinTimeElapsedSinceLastModification: condition["min_time_elapsed_since_last_modification"].(string),
+		LastModifiedSince:                   condition["last_modified_since"].(string),
+		LastModifiedBefore:                  condition["last_modified_before"].(string),
 	}
 }
 
@@ -1042,6 +1060,8 @@ func flattenObjectCondition(condition *storagetransfer.ObjectConditions) []map[s
 		"include_prefixes":                         condition.IncludePrefixes,
 		"max_time_elapsed_since_last_modification": condition.MaxTimeElapsedSinceLastModification,
 		"min_time_elapsed_since_last_modification": condition.MinTimeElapsedSinceLastModification,
+		"last_modified_since":                      condition.LastModifiedSince,
+		"last_modified_before":                     condition.LastModifiedBefore,
 	}
 	return []map[string]interface{}{data}
 }
