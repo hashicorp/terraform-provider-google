@@ -41,8 +41,7 @@ The following arguments are supported:
 
 * `org_id` -
   (Required)
-  The Apigee Organization associated with the Apigee instance,
-  in the format `organizations/{{org_name}}`.
+  The Apigee Organization name associated with the Apigee instance.
 
 
 - - -
