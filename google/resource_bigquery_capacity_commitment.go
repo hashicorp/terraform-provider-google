@@ -45,7 +45,7 @@ func ResourceBigqueryReservationCapacityCommitment() *schema.Resource {
 			"plan": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Capacity commitment plan. Valid values are FLEX, TRIAL, MONTHLY, ANNUAL`,
+				Description: `Capacity commitment plan. Valid values are at https://cloud.google.com/bigquery/docs/reference/reservations/rpc/google.cloud.bigquery.reservation.v1#commitmentplan`,
 			},
 			"slot_count": {
 				Type:        schema.TypeInt,
@@ -61,6 +61,12 @@ func ResourceBigqueryReservationCapacityCommitment() *schema.Resource {
 empty. This field must only contain lower case alphanumeric characters or dashes. The first and last character
 cannot be a dash. Max length is 64 characters. NOTE: this ID won't be kept if the capacity commitment is split
 or merged.`,
+			},
+			"edition": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The edition type. Valid values are STANDARD, ENTERPRISE, ENTERPRISE_PLUS`,
 			},
 			"enforce_single_admin_project_per_org": {
 				Type:        schema.TypeString,
@@ -79,7 +85,7 @@ Examples: US, EU, asia-northeast1. The default value is US.`,
 			"renewal_plan": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `The plan this capacity commitment is converted to after commitmentEndTime passes. Once the plan is changed, committed period is extended according to commitment plan. Only applicable for ANNUAL and TRIAL commitments.`,
+				Description: `The plan this capacity commitment is converted to after commitmentEndTime passes. Once the plan is changed, committed period is extended according to commitment plan. Only applicable some commitment plans.`,
 			},
 			"commitment_end_time": {
 				Type:        schema.TypeString,
@@ -137,6 +143,12 @@ func resourceBigqueryReservationCapacityCommitmentCreate(d *schema.ResourceData,
 		return err
 	} else if v, ok := d.GetOkExists("renewal_plan"); !isEmptyValue(reflect.ValueOf(renewalPlanProp)) && (ok || !reflect.DeepEqual(v, renewalPlanProp)) {
 		obj["renewalPlan"] = renewalPlanProp
+	}
+	editionProp, err := expandBigqueryReservationCapacityCommitmentEdition(d.Get("edition"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("edition"); !isEmptyValue(reflect.ValueOf(editionProp)) && (ok || !reflect.DeepEqual(v, editionProp)) {
+		obj["edition"] = editionProp
 	}
 
 	url, err := replaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/capacityCommitments?capacityCommitmentId={{capacity_commitment_id}}")
@@ -231,6 +243,9 @@ func resourceBigqueryReservationCapacityCommitmentRead(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
 	}
 	if err := d.Set("renewal_plan", flattenBigqueryReservationCapacityCommitmentRenewalPlan(res["renewalPlan"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
+	}
+	if err := d.Set("edition", flattenBigqueryReservationCapacityCommitmentEdition(res["edition"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CapacityCommitment: %s", err)
 	}
 
@@ -394,6 +409,10 @@ func flattenBigqueryReservationCapacityCommitmentRenewalPlan(v interface{}, d *s
 	return v
 }
 
+func flattenBigqueryReservationCapacityCommitmentEdition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandBigqueryReservationCapacityCommitmentSlotCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -403,5 +422,9 @@ func expandBigqueryReservationCapacityCommitmentPlan(v interface{}, d TerraformR
 }
 
 func expandBigqueryReservationCapacityCommitmentRenewalPlan(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryReservationCapacityCommitmentEdition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
