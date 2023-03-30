@@ -60,11 +60,10 @@ func ResourceApigeeSharedFlow() *schema.Resource {
 				Description: `The ID of the shared flow.`,
 			},
 			"org_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `The Apigee Organization associated with the Apigee instance,
-in the format 'organizations/{{org_name}}'.`,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The Apigee Organization name associated with the Apigee instance.`,
 			},
 			"latest_revision_id": {
 				Type:        schema.TypeString,
