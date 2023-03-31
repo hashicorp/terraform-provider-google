@@ -1177,6 +1177,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_apigee_sharedflow":                      ResourceApigeeSharedFlow(),
 			"google_apigee_sharedflow_deployment":           ResourceApigeeSharedFlowDeployment(),
 			"google_apigee_flowhook":                        ResourceApigeeFlowhook(),
+			"google_apigee_env_keystore_alias_pkcs12":       ResourceApigeeEnvKeystoreAliasPkcs12(),
 			"google_apigee_keystores_aliases_key_cert_file": ResourceApigeeKeystoresAliasesKeyCertFile(),
 			"google_bigquery_table":                         ResourceBigQueryTable(),
 			"google_bigtable_gc_policy":                     ResourceBigtableGCPolicy(),
