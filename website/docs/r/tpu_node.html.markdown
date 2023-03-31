@@ -33,7 +33,7 @@ To get more information about Node, see:
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - TPU Node Basic
+## Example Usage - Tpu Node Basic
 
 
 ```hcl
@@ -55,7 +55,7 @@ resource "google_tpu_node" "tpu" {
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - TPU Node Full
+## Example Usage - Tpu Node Full
 
 
 ```hcl
