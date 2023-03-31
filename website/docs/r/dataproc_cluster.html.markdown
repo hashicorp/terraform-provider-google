@@ -657,19 +657,7 @@ cluster_config {
    a cluster. For a list of valid properties please see
   [Cluster properties](https://cloud.google.com/dataproc/docs/concepts/cluster-properties)
 
-* `optional_components` - (Optional) The set of optional components to activate on the cluster.
-    Accepted values are:
-    * ANACONDA
-    * DRUID
-    * FLINK
-    * HBASE
-    * HIVE_WEBHCAT
-    * JUPYTER
-    * PRESTO
-    * RANGER
-    * SOLR
-    * ZEPPELIN
-    * ZOOKEEPER
+* `optional_components` - (Optional) The set of optional components to activate on the cluster. See [Available Optional Components](https://cloud.google.com/dataproc/docs/concepts/components/overview#available_optional_components).
 
 - - -
 
