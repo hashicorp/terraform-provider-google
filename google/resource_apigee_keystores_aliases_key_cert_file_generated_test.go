@@ -19,9 +19,9 @@ func TestAccApigeeKeystoresAliasesKeyCertFile_apigeeKeystoresAliasesKeyCertFileT
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccCheckApigeeKeystoresAliasesKeyCertFileDestroyProducer(t),
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckApigeeKeystoresAliasesKeyCertFileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeKeystoresAliasesKeyCertFile_apigeeKeystoresAliasesKeyCertFileTestExample(context),
