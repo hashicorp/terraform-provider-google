@@ -151,7 +151,7 @@ The following arguments are supported:
   (Optional)
   The enrollment level of the service.
   Default value is `BLOCK_ALL`.
-  Possible values are `BLOCK_ALL`.
+  Possible values are: `BLOCK_ALL`.
 
 - - -
 

@@ -190,14 +190,14 @@ The following arguments are supported:
   Either READ_ONLY, for allowing only read requests on the exported directory,
   or READ_WRITE, for allowing both read and write requests. The default is READ_WRITE.
   Default value is `READ_WRITE`.
-  Possible values are `READ_ONLY` and `READ_WRITE`.
+  Possible values are: `READ_ONLY`, `READ_WRITE`.
 
 * `squash_mode` -
   (Optional)
   Either NO_ROOT_SQUASH, for allowing root access on the exported directory, or ROOT_SQUASH,
   for not allowing root access. The default is NO_ROOT_SQUASH.
   Default value is `NO_ROOT_SQUASH`.
-  Possible values are `NO_ROOT_SQUASH` and `ROOT_SQUASH`.
+  Possible values are: `NO_ROOT_SQUASH`, `ROOT_SQUASH`.
 
 * `anon_uid` -
   (Optional)
@@ -222,7 +222,7 @@ The following arguments are supported:
   (Required)
   IP versions for which the instance has
   IP addresses assigned.
-  Each value may be one of `ADDRESS_MODE_UNSPECIFIED`, `MODE_IPV4`, and `MODE_IPV6`.
+  Each value may be one of: `ADDRESS_MODE_UNSPECIFIED`, `MODE_IPV4`, `MODE_IPV6`.
 
 * `reserved_ip_range` -
   (Optional)
@@ -239,7 +239,7 @@ The following arguments are supported:
   If not provided, the connect mode defaults to
   DIRECT_PEERING.
   Default value is `DIRECT_PEERING`.
-  Possible values are `DIRECT_PEERING` and `PRIVATE_SERVICE_ACCESS`.
+  Possible values are: `DIRECT_PEERING`, `PRIVATE_SERVICE_ACCESS`.
 
 - - -
 

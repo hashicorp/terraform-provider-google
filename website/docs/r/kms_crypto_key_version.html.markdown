@@ -68,7 +68,7 @@ The following arguments are supported:
 * `state` -
   (Optional)
   The current state of the CryptoKeyVersion.
-  Possible values are `PENDING_GENERATION`, `ENABLED`, `DISABLED`, `DESTROYED`, `DESTROY_SCHEDULED`, `PENDING_IMPORT`, and `IMPORT_FAILED`.
+  Possible values are: `PENDING_GENERATION`, `ENABLED`, `DISABLED`, `DESTROYED`, `DESTROY_SCHEDULED`, `PENDING_IMPORT`, `IMPORT_FAILED`.
 
 
 ## Attributes Reference

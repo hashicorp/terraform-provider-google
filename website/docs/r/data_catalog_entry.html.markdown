@@ -189,7 +189,7 @@ The following arguments are supported:
   (Optional)
   The type of the entry. Only used for Entries with types in the EntryType enum.
   Currently, only FILESET enum value is allowed. All other entries created through Data Catalog must use userSpecifiedType.
-  Possible values are `FILESET`.
+  Possible values are: `FILESET`.
 
 * `user_specified_type` -
   (Optional)

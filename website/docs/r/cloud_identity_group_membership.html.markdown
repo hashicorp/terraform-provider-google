@@ -134,7 +134,7 @@ The following arguments are supported:
 * `name` -
   (Required)
   The name of the MembershipRole. Must be one of OWNER, MANAGER, MEMBER.
-  Possible values are `OWNER`, `MANAGER`, and `MEMBER`.
+  Possible values are: `OWNER`, `MANAGER`, `MEMBER`.
 
 - - -
 

@@ -29,8 +29,9 @@ To get more information about VpnTunnel, see:
     * [Cloud VPN Overview](https://cloud.google.com/vpn/docs/concepts/overview)
     * [Networks and Tunnel Routing](https://cloud.google.com/vpn/docs/concepts/choosing-networks-routing)
 
-~> **Warning:** All arguments including `shared_secret` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
+~> **Warning:** All arguments including the following potentially sensitive
+values will be stored in the raw state as plain text: `shared_secret`.
+[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vpn_tunnel_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">

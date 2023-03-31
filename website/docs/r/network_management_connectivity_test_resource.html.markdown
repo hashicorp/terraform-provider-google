@@ -226,7 +226,7 @@ The following arguments are supported:
 * `network_type` -
   (Optional)
   Type of the network where the endpoint is located.
-  Possible values are `GCP_NETWORK` and `NON_GCP_NETWORK`.
+  Possible values are: `GCP_NETWORK`, `NON_GCP_NETWORK`.
 
 * `project_id` -
   (Optional)

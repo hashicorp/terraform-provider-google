@@ -85,7 +85,7 @@ The following arguments are supported:
   * KIND_MAP: Map entity types allow mapping of a group of synonyms to a canonical value.
   * KIND_LIST: List entity types contain a set of entries that do not map to canonical values. However, list entity types can contain references to other entity types (with or without aliases).
   * KIND_REGEXP: Regexp entity types allow to specify regular expressions in entries values.
-  Possible values are `KIND_MAP`, `KIND_LIST`, and `KIND_REGEXP`.
+  Possible values are: `KIND_MAP`, `KIND_LIST`, `KIND_REGEXP`.
 
 * `entities` -
   (Required)
@@ -114,7 +114,7 @@ The following arguments are supported:
   Represents kinds of entities.
   * AUTO_EXPANSION_MODE_UNSPECIFIED: Auto expansion disabled for the entity.
   * AUTO_EXPANSION_MODE_DEFAULT: Allows an agent to recognize values that have not been explicitly listed in the entity.
-  Possible values are `AUTO_EXPANSION_MODE_DEFAULT` and `AUTO_EXPANSION_MODE_UNSPECIFIED`.
+  Possible values are: `AUTO_EXPANSION_MODE_DEFAULT`, `AUTO_EXPANSION_MODE_UNSPECIFIED`.
 
 * `excluded_phrases` -
   (Optional)

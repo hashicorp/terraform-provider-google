@@ -143,7 +143,7 @@ The following arguments are supported:
   destinationRanges; For EGRESS traffic, it is NOT supported to specify
   `source_ranges` OR `source_tags`. For INGRESS traffic, one of `source_ranges`,
   `source_tags` or `source_service_accounts` is required.
-  Possible values are `INGRESS` and `EGRESS`.
+  Possible values are: `INGRESS`, `EGRESS`.
 
 * `disabled` -
   (Optional)
@@ -270,7 +270,7 @@ If logging is enabled, logs will be exported to Stackdriver. Deprecated in favor
 * `metadata` -
   (Required)
   This field denotes whether to include or exclude metadata for firewall logs.
-  Possible values are `EXCLUDE_ALL_METADATA` and `INCLUDE_ALL_METADATA`.
+  Possible values are: `EXCLUDE_ALL_METADATA`, `INCLUDE_ALL_METADATA`.
 
 ## Attributes Reference
 

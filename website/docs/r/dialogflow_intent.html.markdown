@@ -112,7 +112,7 @@ The following arguments are supported:
   * WEBHOOK_STATE_ENABLED: Webhook is enabled in the agent and in the intent.
   * WEBHOOK_STATE_ENABLED_FOR_SLOT_FILLING: Webhook is enabled in the agent and in the intent. Also, each slot
   filling prompt is forwarded to the webhook.
-  Possible values are `WEBHOOK_STATE_ENABLED` and `WEBHOOK_STATE_ENABLED_FOR_SLOT_FILLING`.
+  Possible values are: `WEBHOOK_STATE_ENABLED`, `WEBHOOK_STATE_ENABLED_FOR_SLOT_FILLING`.
 
 * `priority` -
   (Optional)
@@ -155,7 +155,7 @@ The following arguments are supported:
   (Optional)
   The list of platforms for which the first responses will be copied from the messages in PLATFORM_UNSPECIFIED
   (i.e. default platform).
-  Each value may be one of `FACEBOOK`, `SLACK`, `TELEGRAM`, `KIK`, `SKYPE`, `LINE`, `VIBER`, `ACTIONS_ON_GOOGLE`, and `GOOGLE_HANGOUTS`.
+  Each value may be one of: `FACEBOOK`, `SLACK`, `TELEGRAM`, `KIK`, `SKYPE`, `LINE`, `VIBER`, `ACTIONS_ON_GOOGLE`, `GOOGLE_HANGOUTS`.
 
 * `parent_followup_intent_name` -
   (Optional)

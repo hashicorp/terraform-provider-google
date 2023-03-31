@@ -69,7 +69,7 @@ The following arguments are supported:
   Whether the domain creation should override any existing mappings for this domain.
   By default, overrides are rejected.
   Default value is `STRICT`.
-  Possible values are `STRICT` and `OVERRIDE`.
+  Possible values are: `STRICT`, `OVERRIDE`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -90,7 +90,7 @@ The following arguments are supported:
   (Required)
   SSL management type for this domain. If `AUTOMATIC`, a managed certificate is automatically provisioned.
   If `MANUAL`, `certificateId` must be manually specified in order to configure SSL for this domain.
-  Possible values are `AUTOMATIC` and `MANUAL`.
+  Possible values are: `AUTOMATIC`, `MANUAL`.
 
 * `pending_managed_certificate_id` -
   (Output)
@@ -128,7 +128,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `type` -
   (Optional)
   Resource record type. Example: `AAAA`.
-  Possible values are `A`, `AAAA`, and `CNAME`.
+  Possible values are: `A`, `AAAA`, `CNAME`.
 
 ## Timeouts
 

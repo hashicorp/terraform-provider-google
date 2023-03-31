@@ -630,7 +630,7 @@ The following arguments are supported:
   (Optional)
   The algorithm to use for creating a managed Cloud KMS key for a for a simplified
   experience. All managed keys will be have their ProtectionLevel as HSM.
-  Possible values are `SIGN_HASH_ALGORITHM_UNSPECIFIED`, `RSA_PSS_2048_SHA256`, `RSA_PSS_3072_SHA256`, `RSA_PSS_4096_SHA256`, `RSA_PKCS1_2048_SHA256`, `RSA_PKCS1_3072_SHA256`, `RSA_PKCS1_4096_SHA256`, `EC_P256_SHA256`, and `EC_P384_SHA384`.
+  Possible values are: `SIGN_HASH_ALGORITHM_UNSPECIFIED`, `RSA_PSS_2048_SHA256`, `RSA_PSS_3072_SHA256`, `RSA_PSS_4096_SHA256`, `RSA_PKCS1_2048_SHA256`, `RSA_PKCS1_3072_SHA256`, `RSA_PKCS1_4096_SHA256`, `EC_P256_SHA256`, `EC_P384_SHA384`.
 
 - - -
 
@@ -657,7 +657,7 @@ The following arguments are supported:
   ~> **Note:** For `SUBORDINATE` Certificate Authorities, they need to
   be activated before they can issue certificates.
   Default value is `SELF_SIGNED`.
-  Possible values are `SELF_SIGNED` and `SUBORDINATE`.
+  Possible values are: `SELF_SIGNED`, `SUBORDINATE`.
 
 * `lifetime` -
   (Optional)

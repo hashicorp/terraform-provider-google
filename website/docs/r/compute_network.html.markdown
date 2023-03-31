@@ -103,7 +103,7 @@ The following arguments are supported:
   of this network in the same region as the router. If set to `GLOBAL`,
   this network's cloud routers will advertise routes with all
   subnetworks of this network, across regions.
-  Possible values are `REGIONAL` and `GLOBAL`.
+  Possible values are: `REGIONAL`, `GLOBAL`.
 
 * `mtu` -
   (Optional)
@@ -130,7 +130,7 @@ The following arguments are supported:
   (Optional)
   Set the order that Firewall Rules and Firewall Policies are evaluated. Needs to be either 'AFTER_CLASSIC_FIREWALL' or 'BEFORE_CLASSIC_FIREWALL' Default 'AFTER_CLASSIC_FIREWALL'
   Default value is `AFTER_CLASSIC_FIREWALL`.
-  Possible values are `BEFORE_CLASSIC_FIREWALL` and `AFTER_CLASSIC_FIREWALL`.
+  Possible values are: `BEFORE_CLASSIC_FIREWALL`, `AFTER_CLASSIC_FIREWALL`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

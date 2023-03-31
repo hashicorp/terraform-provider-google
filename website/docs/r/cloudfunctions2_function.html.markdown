@@ -760,13 +760,13 @@ The following arguments are supported:
 * `vpc_connector_egress_settings` -
   (Optional)
   Available egress settings.
-  Possible values are `VPC_CONNECTOR_EGRESS_SETTINGS_UNSPECIFIED`, `PRIVATE_RANGES_ONLY`, and `ALL_TRAFFIC`.
+  Possible values are: `VPC_CONNECTOR_EGRESS_SETTINGS_UNSPECIFIED`, `PRIVATE_RANGES_ONLY`, `ALL_TRAFFIC`.
 
 * `ingress_settings` -
   (Optional)
   Available ingress settings. Defaults to "ALLOW_ALL" if unspecified.
   Default value is `ALLOW_ALL`.
-  Possible values are `ALLOW_ALL`, `ALLOW_INTERNAL_ONLY`, and `ALLOW_INTERNAL_AND_GCLB`.
+  Possible values are: `ALLOW_ALL`, `ALLOW_INTERNAL_ONLY`, `ALLOW_INTERNAL_AND_GCLB`.
 
 * `uri` -
   (Output)
@@ -878,7 +878,7 @@ The following arguments are supported:
   (Optional)
   Describes the retry policy in case of function's execution failure.
   Retried execution is charged as any other execution.
-  Possible values are `RETRY_POLICY_UNSPECIFIED`, `RETRY_POLICY_DO_NOT_RETRY`, and `RETRY_POLICY_RETRY`.
+  Possible values are: `RETRY_POLICY_UNSPECIFIED`, `RETRY_POLICY_DO_NOT_RETRY`, `RETRY_POLICY_RETRY`.
 
 
 <a name="nested_event_filters"></a>The `event_filters` block supports:

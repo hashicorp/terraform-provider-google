@@ -196,7 +196,7 @@ The following arguments are supported:
     - ONLY_SCALE_OUT: Enables only scaling out.
     You must use this mode if your node groups are configured to
     restart their hosted VMs on minimal servers.
-  Possible values are `OFF`, `ON`, and `ONLY_SCALE_OUT`.
+  Possible values are: `OFF`, `ON`, `ONLY_SCALE_OUT`.
 
 * `min_nodes` -
   (Optional)
@@ -213,7 +213,7 @@ The following arguments are supported:
 * `share_type` -
   (Required)
   Node group sharing type.
-  Possible values are `ORGANIZATION`, `SPECIFIC_PROJECTS`, and `LOCAL`.
+  Possible values are: `ORGANIZATION`, `SPECIFIC_PROJECTS`, `LOCAL`.
 
 * `project_map` -
   (Optional)

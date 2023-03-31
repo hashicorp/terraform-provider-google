@@ -325,7 +325,7 @@ The following arguments are supported:
 * `execution_environment` -
   (Optional)
   The execution environment being used to host this Task.
-  Possible values are `EXECUTION_ENVIRONMENT_GEN1` and `EXECUTION_ENVIRONMENT_GEN2`.
+  Possible values are: `EXECUTION_ENVIRONMENT_GEN1`, `EXECUTION_ENVIRONMENT_GEN2`.
 
 * `encryption_key` -
   (Optional)
@@ -633,7 +633,7 @@ The following arguments are supported:
 * `egress` -
   (Optional)
   Traffic VPC egress settings.
-  Possible values are `ALL_TRAFFIC` and `PRIVATE_RANGES_ONLY`.
+  Possible values are: `ALL_TRAFFIC`, `PRIVATE_RANGES_ONLY`.
 
 - - -
 
@@ -653,7 +653,7 @@ The following arguments are supported:
 * `launch_stage` -
   (Optional)
   The launch stage as defined by Google Cloud Platform Launch Stages. Cloud Run supports ALPHA, BETA, and GA. If no value is specified, GA is assumed.
-  Possible values are `UNIMPLEMENTED`, `PRELAUNCH`, `EARLY_ACCESS`, `ALPHA`, `BETA`, `GA`, and `DEPRECATED`.
+  Possible values are: `UNIMPLEMENTED`, `PRELAUNCH`, `EARLY_ACCESS`, `ALPHA`, `BETA`, `GA`, `DEPRECATED`.
 
 * `binary_authorization` -
   (Optional)

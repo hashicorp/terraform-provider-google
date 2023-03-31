@@ -28,8 +28,9 @@ To get more information about DomainTrust, see:
 * How-to Guides
     * [Active Directory Trust](https://cloud.google.com/managed-microsoft-ad/docs/create-one-way-trust)
 
-~> **Warning:** All arguments including `trust_handshake_secret` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
+~> **Warning:** All arguments including the following potentially sensitive
+values will be stored in the raw state as plain text: `trust_handshake_secret`.
+[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 ## Example Usage - Active Directory Domain Trust Basic
 
@@ -57,12 +58,12 @@ The following arguments are supported:
 * `trust_type` -
   (Required)
   The type of trust represented by the trust resource.
-  Possible values are `FOREST` and `EXTERNAL`.
+  Possible values are: `FOREST`, `EXTERNAL`.
 
 * `trust_direction` -
   (Required)
   The trust direction, which decides if the current domain is trusted, trusting, or both.
-  Possible values are `INBOUND`, `OUTBOUND`, and `BIDIRECTIONAL`.
+  Possible values are: `INBOUND`, `OUTBOUND`, `BIDIRECTIONAL`.
 
 * `target_dns_ip_addresses` -
   (Required)

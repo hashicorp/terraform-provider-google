@@ -139,7 +139,7 @@ The following arguments are supported:
   (Optional)
   User-specified flag to indicate which mode to use for advertisement.
   Default value is `DEFAULT`.
-  Possible values are `DEFAULT` and `CUSTOM`.
+  Possible values are: `DEFAULT`, `CUSTOM`.
 
 * `advertised_groups` -
   (Optional)

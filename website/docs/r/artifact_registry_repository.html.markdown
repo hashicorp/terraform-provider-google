@@ -186,7 +186,7 @@ The following arguments are supported:
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The mode configures the repository to serve artifacts from different sources.
   Default value is `STANDARD_REPOSITORY`.
-  Possible values are `STANDARD_REPOSITORY`, `VIRTUAL_REPOSITORY`, and `REMOTE_REPOSITORY`.
+  Possible values are: `STANDARD_REPOSITORY`, `VIRTUAL_REPOSITORY`, `REMOTE_REPOSITORY`.
 
 * `virtual_repository_config` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
@@ -213,7 +213,7 @@ The following arguments are supported:
   (Optional)
   Version policy defines the versions that the registry will accept.
   Default value is `VERSION_POLICY_UNSPECIFIED`.
-  Possible values are `VERSION_POLICY_UNSPECIFIED`, `RELEASE`, and `SNAPSHOT`.
+  Possible values are: `VERSION_POLICY_UNSPECIFIED`, `RELEASE`, `SNAPSHOT`.
 
 <a name="nested_virtual_repository_config"></a>The `virtual_repository_config` block supports:
 
@@ -272,7 +272,7 @@ The following arguments are supported:
   (Optional)
   Address of the remote repository.
   Default value is `DOCKER_HUB`.
-  Possible values are `DOCKER_HUB`.
+  Possible values are: `DOCKER_HUB`.
 
 <a name="nested_maven_repository"></a>The `maven_repository` block supports:
 
@@ -280,7 +280,7 @@ The following arguments are supported:
   (Optional)
   Address of the remote repository.
   Default value is `MAVEN_CENTRAL`.
-  Possible values are `MAVEN_CENTRAL`.
+  Possible values are: `MAVEN_CENTRAL`.
 
 <a name="nested_npm_repository"></a>The `npm_repository` block supports:
 
@@ -288,7 +288,7 @@ The following arguments are supported:
   (Optional)
   Address of the remote repository.
   Default value is `NPMJS`.
-  Possible values are `NPMJS`.
+  Possible values are: `NPMJS`.
 
 <a name="nested_python_repository"></a>The `python_repository` block supports:
 
@@ -296,7 +296,7 @@ The following arguments are supported:
   (Optional)
   Address of the remote repository.
   Default value is `PYPI`.
-  Possible values are `PYPI`.
+  Possible values are: `PYPI`.
 
 ## Attributes Reference
 

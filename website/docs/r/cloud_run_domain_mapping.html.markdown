@@ -106,7 +106,7 @@ The following arguments are supported:
   (Optional)
   The mode of the certificate.
   Default value is `AUTOMATIC`.
-  Possible values are `NONE` and `AUTOMATIC`.
+  Possible values are: `NONE`, `AUTOMATIC`.
 
 <a name="nested_metadata"></a>The `metadata` block supports:
 
@@ -221,7 +221,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `type` -
   (Optional)
   Resource record type. Example: `AAAA`.
-  Possible values are `A`, `AAAA`, and `CNAME`.
+  Possible values are: `A`, `AAAA`, `CNAME`.
 
 * `rrdata` -
   (Output)

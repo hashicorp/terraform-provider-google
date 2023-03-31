@@ -103,7 +103,7 @@ The following arguments are supported:
 * `log_level` -
   (Optional)
   The logging verbosity for device activity.
-  Possible values are `NONE`, `ERROR`, `INFO`, and `DEBUG`.
+  Possible values are: `NONE`, `ERROR`, `INFO`, `DEBUG`.
 
 * `metadata` -
   (Optional)
@@ -132,7 +132,7 @@ The following arguments are supported:
 * `format` -
   (Required)
   The format of the key.
-  Possible values are `RSA_PEM`, `RSA_X509_PEM`, `ES256_PEM`, and `ES256_X509_PEM`.
+  Possible values are: `RSA_PEM`, `RSA_X509_PEM`, `ES256_PEM`, `ES256_X509_PEM`.
 
 * `key` -
   (Required)
@@ -144,12 +144,12 @@ The following arguments are supported:
   (Optional)
   Indicates whether the device is a gateway.
   Default value is `NON_GATEWAY`.
-  Possible values are `GATEWAY` and `NON_GATEWAY`.
+  Possible values are: `GATEWAY`, `NON_GATEWAY`.
 
 * `gateway_auth_method` -
   (Optional)
   Indicates whether the device is a gateway.
-  Possible values are `ASSOCIATION_ONLY`, `DEVICE_AUTH_TOKEN_ONLY`, and `ASSOCIATION_AND_DEVICE_AUTH_TOKEN`.
+  Possible values are: `ASSOCIATION_ONLY`, `DEVICE_AUTH_TOKEN_ONLY`, `ASSOCIATION_AND_DEVICE_AUTH_TOKEN`.
 
 * `last_accessed_gateway_id` -
   (Output)

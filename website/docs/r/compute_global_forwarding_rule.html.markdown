@@ -1000,12 +1000,12 @@ The following arguments are supported:
   INTERNAL_SELF_MANAGED, only TCP is valid. This field must not be set if the
   global address is configured as a purpose of PRIVATE_SERVICE_CONNECT
   and addressType of INTERNAL
-  Possible values are `TCP`, `UDP`, `ESP`, `AH`, `SCTP`, and `ICMP`.
+  Possible values are: `TCP`, `UDP`, `ESP`, `AH`, `SCTP`, `ICMP`.
 
 * `ip_version` -
   (Optional)
   The IP Version that will be used by this global forwarding rule.
-  Possible values are `IPV4` and `IPV6`.
+  Possible values are: `IPV4`, `IPV6`.
 
 * `labels` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
@@ -1022,7 +1022,7 @@ The following arguments are supported:
   ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) only) Note: This field must be set "" if the global address is
   configured as a purpose of PRIVATE_SERVICE_CONNECT and addressType of INTERNAL.
   Default value is `EXTERNAL`.
-  Possible values are `EXTERNAL`, `EXTERNAL_MANAGED`, and `INTERNAL_SELF_MANAGED`.
+  Possible values are: `EXTERNAL`, `EXTERNAL_MANAGED`, `INTERNAL_SELF_MANAGED`.
 
 * `metadata_filters` -
   (Optional)
@@ -1083,7 +1083,7 @@ The following arguments are supported:
   label in the provided metadata.
   MATCH_ALL - All filterLabels must have matching labels in the
   provided metadata.
-  Possible values are `MATCH_ANY` and `MATCH_ALL`.
+  Possible values are: `MATCH_ANY`, `MATCH_ALL`.
 
 * `filter_labels` -
   (Required)

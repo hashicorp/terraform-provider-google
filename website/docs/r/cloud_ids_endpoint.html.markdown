@@ -71,7 +71,7 @@ The following arguments are supported:
 * `severity` -
   (Required)
   The minimum alert severity level that is reported by the endpoint.
-  Possible values are `INFORMATIONAL`, `LOW`, `MEDIUM`, `HIGH`, and `CRITICAL`.
+  Possible values are: `INFORMATIONAL`, `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`.
 
 * `location` -
   (Required)

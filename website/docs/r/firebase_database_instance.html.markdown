@@ -115,7 +115,7 @@ The following arguments are supported:
   Creating user Databases is only available for projects on the Blaze plan.
   Projects can be upgraded using the Cloud Billing API https://cloud.google.com/billing/reference/rest/v1/projects/updateBillingInfo.
   Default value is `USER_DATABASE`.
-  Possible values are `DEFAULT_DATABASE` and `USER_DATABASE`.
+  Possible values are: `DEFAULT_DATABASE`, `USER_DATABASE`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

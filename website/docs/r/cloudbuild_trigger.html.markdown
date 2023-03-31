@@ -527,7 +527,7 @@ The following arguments are supported:
   Build logs will be sent back to GitHub as part of the checkrun
   result.  Values can be INCLUDE_BUILD_LOGS_UNSPECIFIED or
   INCLUDE_BUILD_LOGS_WITH_STATUS
-  Possible values are `INCLUDE_BUILD_LOGS_UNSPECIFIED` and `INCLUDE_BUILD_LOGS_WITH_STATUS`.
+  Possible values are: `INCLUDE_BUILD_LOGS_UNSPECIFIED`, `INCLUDE_BUILD_LOGS_WITH_STATUS`.
 
 * `filename` -
   (Optional)
@@ -650,7 +650,7 @@ The following arguments are supported:
   (Required)
   The type of the repo, since it may not be explicit from the repo field (e.g from a URL). 
   Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB, BITBUCKET_SERVER
-  Possible values are `UNKNOWN`, `CLOUD_SOURCE_REPOSITORIES`, `GITHUB`, and `BITBUCKET_SERVER`.
+  Possible values are: `UNKNOWN`, `CLOUD_SOURCE_REPOSITORIES`, `GITHUB`, `BITBUCKET_SERVER`.
 
 * `revision` -
   (Optional)
@@ -695,7 +695,7 @@ The following arguments are supported:
 * `comment_control` -
   (Optional)
   Configure builds to run whether a repository owner or collaborator need to comment `/gcbrun`.
-  Possible values are `COMMENTS_DISABLED`, `COMMENTS_ENABLED`, and `COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY`.
+  Possible values are: `COMMENTS_DISABLED`, `COMMENTS_ENABLED`, `COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY`.
 
 <a name="nested_push"></a>The `push` block supports:
 
@@ -729,7 +729,7 @@ The following arguments are supported:
   (Required)
   The type of the repo, since it may not be explicit from the repo field (e.g from a URL).
   Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB, BITBUCKET_SERVER
-  Possible values are `UNKNOWN`, `CLOUD_SOURCE_REPOSITORIES`, `GITHUB`, and `BITBUCKET_SERVER`.
+  Possible values are: `UNKNOWN`, `CLOUD_SOURCE_REPOSITORIES`, `GITHUB`, `BITBUCKET_SERVER`.
 
 * `github_enterprise_config` -
   (Optional)
@@ -809,7 +809,7 @@ The following arguments are supported:
 * `comment_control` -
   (Optional)
   Whether to block builds on a "/gcbrun" comment from a repository owner or collaborator.
-  Possible values are `COMMENTS_DISABLED`, `COMMENTS_ENABLED`, and `COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY`.
+  Possible values are: `COMMENTS_DISABLED`, `COMMENTS_ENABLED`, `COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY`.
 
 * `invert_regex` -
   (Optional)
@@ -865,7 +865,7 @@ The following arguments are supported:
 * `comment_control` -
   (Optional)
   Configure builds to run whether a repository owner or collaborator need to comment /gcbrun.
-  Possible values are `COMMENTS_DISABLED`, `COMMENTS_ENABLED`, and `COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY`.
+  Possible values are: `COMMENTS_DISABLED`, `COMMENTS_ENABLED`, `COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY`.
 
 * `invert_regex` -
   (Optional)
@@ -1263,17 +1263,17 @@ The following arguments are supported:
 * `source_provenance_hash` -
   (Optional)
   Requested hash for SourceProvenance.
-  Each value may be one of `NONE`, `SHA256`, and `MD5`.
+  Each value may be one of: `NONE`, `SHA256`, `MD5`.
 
 * `requested_verify_option` -
   (Optional)
   Requested verifiability options.
-  Possible values are `NOT_VERIFIED` and `VERIFIED`.
+  Possible values are: `NOT_VERIFIED`, `VERIFIED`.
 
 * `machine_type` -
   (Optional)
   Compute Engine machine type on which to run the build.
-  Possible values are `UNSPECIFIED`, `N1_HIGHCPU_8`, `N1_HIGHCPU_32`, `E2_HIGHCPU_8`, and `E2_HIGHCPU_32`.
+  Possible values are: `UNSPECIFIED`, `N1_HIGHCPU_8`, `N1_HIGHCPU_32`, `E2_HIGHCPU_8`, `E2_HIGHCPU_32`.
 
 * `disk_size_gb` -
   (Optional)
@@ -1288,7 +1288,7 @@ The following arguments are supported:
   Option to specify behavior when there is an error in the substitution checks.
   NOTE this is always set to ALLOW_LOOSE for triggered builds and cannot be overridden
   in the build configuration file.
-  Possible values are `MUST_MATCH` and `ALLOW_LOOSE`.
+  Possible values are: `MUST_MATCH`, `ALLOW_LOOSE`.
 
 * `dynamic_substitutions` -
   (Optional)
@@ -1298,7 +1298,7 @@ The following arguments are supported:
 * `log_streaming_option` -
   (Optional)
   Option to define build log streaming behavior to Google Cloud Storage.
-  Possible values are `STREAM_DEFAULT`, `STREAM_ON`, and `STREAM_OFF`.
+  Possible values are: `STREAM_DEFAULT`, `STREAM_ON`, `STREAM_OFF`.
 
 * `worker_pool` -
   (Optional)
@@ -1308,7 +1308,7 @@ The following arguments are supported:
 * `logging` -
   (Optional)
   Option to specify the logging mode, which determines if and where build logs are stored.
-  Possible values are `LOGGING_UNSPECIFIED`, `LEGACY`, `GCS_ONLY`, `STACKDRIVER_ONLY`, `CLOUD_LOGGING_ONLY`, and `NONE`.
+  Possible values are: `LOGGING_UNSPECIFIED`, `LEGACY`, `GCS_ONLY`, `STACKDRIVER_ONLY`, `CLOUD_LOGGING_ONLY`, `NONE`.
 
 * `env` -
   (Optional)

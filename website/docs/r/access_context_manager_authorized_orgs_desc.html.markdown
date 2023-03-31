@@ -93,7 +93,7 @@ The following arguments are supported:
   The type of entities that need to use the authorization relationship during
   evaluation, such as a device. Valid values are "ASSET_TYPE_DEVICE" and
   "ASSET_TYPE_CREDENTIAL_STRENGTH".
-  Possible values are `ASSET_TYPE_DEVICE` and `ASSET_TYPE_CREDENTIAL_STRENGTH`.
+  Possible values are: `ASSET_TYPE_DEVICE`, `ASSET_TYPE_CREDENTIAL_STRENGTH`.
 
 * `authorization_direction` -
   (Optional)
@@ -111,12 +111,12 @@ The following arguments are supported:
   direction, organizations B and C must specify
   "AUTHORIZATION_DIRECTION_FROM" as the authorization direction in their
   "AuthorizedOrgsDesc" resource.
-  Possible values are `AUTHORIZATION_DIRECTION_TO` and `AUTHORIZATION_DIRECTION_FROM`.
+  Possible values are: `AUTHORIZATION_DIRECTION_TO`, `AUTHORIZATION_DIRECTION_FROM`.
 
 * `authorization_type` -
   (Optional)
   A granular control type for authorization levels. Valid value is "AUTHORIZATION_TYPE_TRUST".
-  Possible values are `AUTHORIZATION_TYPE_TRUST`.
+  Possible values are: `AUTHORIZATION_TYPE_TRUST`.
 
 
 ## Attributes Reference

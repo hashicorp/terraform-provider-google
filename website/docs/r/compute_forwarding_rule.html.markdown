@@ -1179,7 +1179,7 @@ The following arguments are supported:
   The IP protocol to which this rule applies.
   When the load balancing scheme is INTERNAL, only TCP and UDP are
   valid.
-  Possible values are `TCP`, `UDP`, `ESP`, `AH`, `SCTP`, `ICMP`, and `L3_DEFAULT`.
+  Possible values are: `TCP`, `UDP`, `ESP`, `AH`, `SCTP`, `ICMP`, `L3_DEFAULT`.
 
 * `backend_service` -
   (Optional)
@@ -1199,7 +1199,7 @@ The following arguments are supported:
   ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) only) Note: This field must be set to ""
   if the target is an URI of a service attachment.
   Default value is `EXTERNAL`.
-  Possible values are `EXTERNAL`, `EXTERNAL_MANAGED`, `INTERNAL`, and `INTERNAL_MANAGED`.
+  Possible values are: `EXTERNAL`, `EXTERNAL_MANAGED`, `INTERNAL`, `INTERNAL_MANAGED`.
 
 * `network` -
   (Optional)
@@ -1277,7 +1277,7 @@ The following arguments are supported:
   (Optional)
   The networking tier used for configuring this address. If this field is not
   specified, it is assumed to be PREMIUM.
-  Possible values are `PREMIUM` and `STANDARD`.
+  Possible values are: `PREMIUM`, `STANDARD`.
 
 * `service_directory_registrations` -
   (Optional)

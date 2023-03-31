@@ -226,7 +226,7 @@ The following arguments are supported:
   Enum field whose value is always `MANAGED` - used to signal to the API
   which type this is.
   Default value is `MANAGED`.
-  Possible values are `MANAGED`.
+  Possible values are: `MANAGED`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

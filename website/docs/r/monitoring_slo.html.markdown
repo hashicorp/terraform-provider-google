@@ -274,7 +274,7 @@ The following arguments are supported:
   (Optional)
   A calendar period, semantically "since the start of the current
   <calendarPeriod>".
-  Possible values are `DAY`, `WEEK`, `FORTNIGHT`, and `MONTH`.
+  Possible values are: `DAY`, `WEEK`, `FORTNIGHT`, `MONTH`.
 
 * `user_labels` -
   (Optional)

@@ -91,13 +91,13 @@ The following arguments are supported:
   (Optional)
   Indicates that this field supports ordering by the specified order or comparing using =, <, <=, >, >=.
   Only one of `order` and `arrayConfig` can be specified.
-  Possible values are `ASCENDING` and `DESCENDING`.
+  Possible values are: `ASCENDING`, `DESCENDING`.
 
 * `array_config` -
   (Optional)
   Indicates that this field supports operations on arrayValues. Only one of `order` and `arrayConfig` can
   be specified.
-  Possible values are `CONTAINS`.
+  Possible values are: `CONTAINS`.
 
 - - -
 
@@ -110,7 +110,7 @@ The following arguments are supported:
   (Optional)
   The scope at which a query is run.
   Default value is `COLLECTION`.
-  Possible values are `COLLECTION` and `COLLECTION_GROUP`.
+  Possible values are: `COLLECTION`, `COLLECTION_GROUP`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

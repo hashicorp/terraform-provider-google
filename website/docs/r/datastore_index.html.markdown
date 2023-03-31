@@ -73,7 +73,7 @@ The following arguments are supported:
   (Optional)
   Policy for including ancestors in the index.
   Default value is `NONE`.
-  Possible values are `NONE` and `ALL_ANCESTORS`.
+  Possible values are: `NONE`, `ALL_ANCESTORS`.
 
 * `properties` -
   (Optional)
@@ -93,7 +93,7 @@ The following arguments are supported:
 * `direction` -
   (Required)
   The direction the index should optimize for sorting.
-  Possible values are `ASCENDING` and `DESCENDING`.
+  Possible values are: `ASCENDING`, `DESCENDING`.
 
 ## Attributes Reference
 

@@ -506,7 +506,7 @@ The following arguments are supported:
 * `reclaim_policy` -
   (Optional)
   What should happen to the disk after the workstation is deleted. Defaults to DELETE.
-  Possible values are `RECLAIM_POLICY_UNSPECIFIED`, `DELETE`, and `RETAIN`.
+  Possible values are: `RECLAIM_POLICY_UNSPECIFIED`, `DELETE`, `RETAIN`.
 
 <a name="nested_container"></a>The `container` block supports:
 

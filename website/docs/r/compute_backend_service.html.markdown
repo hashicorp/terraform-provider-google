@@ -34,8 +34,9 @@ To get more information about BackendService, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/compute/docs/load-balancing/http/backend-service)
 
-~> **Warning:** All arguments including `iap.oauth2_client_secret` and `iap.oauth2_client_secret_sha256` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
+~> **Warning:** All arguments including the following potentially sensitive
+values will be stored in the raw state as plain text: `iap.oauth2_client_secret`, `iap.oauth2_client_secret_sha256`.
+[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_service_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -334,7 +335,7 @@ The following arguments are supported:
 * `compression_mode` -
   (Optional)
   Compress text responses using Brotli or gzip compression, based on the client's Accept-Encoding header.
-  Possible values are `AUTOMATIC` and `DISABLED`.
+  Possible values are: `AUTOMATIC`, `DISABLED`.
 
 * `consistent_hash` -
   (Optional)
@@ -397,7 +398,7 @@ The following arguments are supported:
   load balancing cannot be used with the other. For more information, refer to
   [Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service).
   Default value is `EXTERNAL`.
-  Possible values are `EXTERNAL`, `INTERNAL_SELF_MANAGED`, and `EXTERNAL_MANAGED`.
+  Possible values are: `EXTERNAL`, `INTERNAL_SELF_MANAGED`, `EXTERNAL_MANAGED`.
 
 * `locality_lb_policy` -
   (Optional)
@@ -447,7 +448,7 @@ The following arguments are supported:
   Only ROUND_ROBIN and RING_HASH are supported when the backend service is referenced
   by a URL map that is bound to target gRPC proxy that has validate_for_proxyless
   field set to true.
-  Possible values are `ROUND_ROBIN`, `LEAST_REQUEST`, `RING_HASH`, `RANDOM`, `ORIGINAL_DESTINATION`, `MAGLEV`, and `WEIGHTED_MAGLEV`.
+  Possible values are: `ROUND_ROBIN`, `LEAST_REQUEST`, `RING_HASH`, `RANDOM`, `ORIGINAL_DESTINATION`, `MAGLEV`, `WEIGHTED_MAGLEV`.
 
 * `locality_lb_policies` -
   (Optional)
@@ -477,7 +478,7 @@ The following arguments are supported:
   The protocol this BackendService uses to communicate with backends.
   The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
   types and may result in errors if used with the GA API.
-  Possible values are `HTTP`, `HTTPS`, `HTTP2`, `TCP`, `SSL`, and `GRPC`.
+  Possible values are: `HTTP`, `HTTPS`, `HTTP2`, `TCP`, `SSL`, `GRPC`.
 
 * `security_policy` -
   (Optional)
@@ -499,7 +500,7 @@ The following arguments are supported:
   (Optional)
   Type of session affinity to use. The default is NONE. Session affinity is
   not applicable if the protocol is UDP.
-  Possible values are `NONE`, `CLIENT_IP`, `CLIENT_IP_PORT_PROTO`, `CLIENT_IP_PROTO`, `GENERATED_COOKIE`, `HEADER_FIELD`, and `HTTP_COOKIE`.
+  Possible values are: `NONE`, `CLIENT_IP`, `CLIENT_IP_PORT_PROTO`, `CLIENT_IP_PROTO`, `GENERATED_COOKIE`, `HEADER_FIELD`, `HTTP_COOKIE`.
 
 * `timeout_sec` -
   (Optional)
@@ -527,7 +528,7 @@ The following arguments are supported:
   See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
   for an explanation of load balancing modes.
   Default value is `UTILIZATION`.
-  Possible values are `UTILIZATION`, `RATE`, and `CONNECTION`.
+  Possible values are: `UTILIZATION`, `RATE`, `CONNECTION`.
 
 * `capacity_scaler` -
   (Optional)
@@ -763,7 +764,7 @@ The following arguments are supported:
   (Optional)
   Specifies the cache setting for all responses from this backend.
   The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC
-  Possible values are `USE_ORIGIN_HEADERS`, `FORCE_CACHE_ALL`, and `CACHE_ALL_STATIC`.
+  Possible values are: `USE_ORIGIN_HEADERS`, `FORCE_CACHE_ALL`, `CACHE_ALL_STATIC`.
 
 * `serve_while_stale` -
   (Optional)
@@ -886,7 +887,7 @@ The following arguments are supported:
               Maglev is not as stable as ring hash but has faster table lookup
               build times and host selection times. For more information about
               Maglev, refer to https://ai.google/research/pubs/pub44824
-  Possible values are `ROUND_ROBIN`, `LEAST_REQUEST`, `RING_HASH`, `RANDOM`, `ORIGINAL_DESTINATION`, and `MAGLEV`.
+  Possible values are: `ROUND_ROBIN`, `LEAST_REQUEST`, `RING_HASH`, `RANDOM`, `ORIGINAL_DESTINATION`, `MAGLEV`.
 
 <a name="nested_custom_policy"></a>The `custom_policy` block supports:
 

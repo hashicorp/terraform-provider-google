@@ -339,7 +339,7 @@ The following arguments are supported:
 * `execution_environment` -
   (Optional)
   The sandbox environment to host this Revision.
-  Possible values are `EXECUTION_ENVIRONMENT_GEN1` and `EXECUTION_ENVIRONMENT_GEN2`.
+  Possible values are: `EXECUTION_ENVIRONMENT_GEN1`, `EXECUTION_ENVIRONMENT_GEN2`.
 
 * `encryption_key` -
   (Optional)
@@ -369,7 +369,7 @@ The following arguments are supported:
 * `egress` -
   (Optional)
   Traffic VPC egress settings.
-  Possible values are `ALL_TRAFFIC` and `PRIVATE_RANGES_ONLY`.
+  Possible values are: `ALL_TRAFFIC`, `PRIVATE_RANGES_ONLY`.
 
 <a name="nested_containers"></a>The `containers` block supports:
 
@@ -716,12 +716,12 @@ The following arguments are supported:
 * `ingress` -
   (Optional)
   Provides the ingress settings for this Service. On output, returns the currently observed ingress settings, or INGRESS_TRAFFIC_UNSPECIFIED if no revision is active.
-  Possible values are `INGRESS_TRAFFIC_ALL`, `INGRESS_TRAFFIC_INTERNAL_ONLY`, and `INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER`.
+  Possible values are: `INGRESS_TRAFFIC_ALL`, `INGRESS_TRAFFIC_INTERNAL_ONLY`, `INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER`.
 
 * `launch_stage` -
   (Optional)
   The launch stage as defined by Google Cloud Platform Launch Stages. Cloud Run supports ALPHA, BETA, and GA. If no value is specified, GA is assumed.
-  Possible values are `UNIMPLEMENTED`, `PRELAUNCH`, `EARLY_ACCESS`, `ALPHA`, `BETA`, `GA`, and `DEPRECATED`.
+  Possible values are: `UNIMPLEMENTED`, `PRELAUNCH`, `EARLY_ACCESS`, `ALPHA`, `BETA`, `GA`, `DEPRECATED`.
 
 * `binary_authorization` -
   (Optional)
@@ -756,7 +756,7 @@ The following arguments are supported:
 * `type` -
   (Optional)
   The allocation type for this traffic target.
-  Possible values are `TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST` and `TRAFFIC_TARGET_ALLOCATION_TYPE_REVISION`.
+  Possible values are: `TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST`, `TRAFFIC_TARGET_ALLOCATION_TYPE_REVISION`.
 
 * `revision` -
   (Optional)

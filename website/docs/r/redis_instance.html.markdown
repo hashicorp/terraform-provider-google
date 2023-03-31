@@ -301,7 +301,7 @@ The following arguments are supported:
   (Optional)
   The connection mode of the Redis instance.
   Default value is `DIRECT_PEERING`.
-  Possible values are `DIRECT_PEERING` and `PRIVATE_SERVICE_ACCESS`.
+  Possible values are: `DIRECT_PEERING`, `PRIVATE_SERVICE_ACCESS`.
 
 * `display_name` -
   (Optional)
@@ -360,14 +360,14 @@ The following arguments are supported:
   - BASIC: standalone instance
   - STANDARD_HA: highly available primary/replica instances
   Default value is `BASIC`.
-  Possible values are `BASIC` and `STANDARD_HA`.
+  Possible values are: `BASIC`, `STANDARD_HA`.
 
 * `transit_encryption_mode` -
   (Optional)
   The TLS mode of the Redis instance, If not provided, TLS is disabled for the instance.
   - SERVER_AUTHENTICATION: Client to Server traffic encryption enabled with server authentication
   Default value is `DISABLED`.
-  Possible values are `SERVER_AUTHENTICATION` and `DISABLED`.
+  Possible values are: `SERVER_AUTHENTICATION`, `DISABLED`.
 
 * `replica_count` -
   (Optional)
@@ -384,7 +384,7 @@ The following arguments are supported:
   instance cannot scale up or down the number of replicas.
   - READ_REPLICAS_ENABLED: If enabled, read endpoint will be provided and the instance
   can scale up and down the number of replicas.
-  Possible values are `READ_REPLICAS_DISABLED` and `READ_REPLICAS_ENABLED`.
+  Possible values are: `READ_REPLICAS_DISABLED`, `READ_REPLICAS_ENABLED`.
 
 * `secondary_ip_range` -
   (Optional)
@@ -413,7 +413,7 @@ The following arguments are supported:
   Optional. Controls whether Persistence features are enabled. If not provided, the existing value will be used.
   - DISABLED: 	Persistence is disabled for the instance, and any existing snapshots are deleted.
   - RDB: RDB based Persistence is enabled.
-  Possible values are `DISABLED` and `RDB`.
+  Possible values are: `DISABLED`, `RDB`.
 
 * `rdb_snapshot_period` -
   (Optional)
@@ -422,7 +422,7 @@ The following arguments are supported:
   - SIX_HOURS:	Snapshot every 6 hours.
   - TWELVE_HOURS:	Snapshot every 12 hours.
   - TWENTY_FOUR_HOURS:	Snapshot every 24 hours.
-  Possible values are `ONE_HOUR`, `SIX_HOURS`, `TWELVE_HOURS`, and `TWENTY_FOUR_HOURS`.
+  Possible values are: `ONE_HOUR`, `SIX_HOURS`, `TWELVE_HOURS`, `TWENTY_FOUR_HOURS`.
 
 * `rdb_next_snapshot_time` -
   (Output)
@@ -481,7 +481,7 @@ The following arguments are supported:
   - FRIDAY: Friday
   - SATURDAY: Saturday
   - SUNDAY: Sunday
-  Possible values are `DAY_OF_WEEK_UNSPECIFIED`, `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+  Possible values are: `DAY_OF_WEEK_UNSPECIFIED`, `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 * `duration` -
   (Output)

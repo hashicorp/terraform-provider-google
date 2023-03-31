@@ -135,7 +135,7 @@ The following arguments are supported:
   (Optional)
   Represents primitive types - string, bool etc.
    Exactly one of `primitive_type` or `enum_type` must be set
-  Possible values are `DOUBLE`, `STRING`, `BOOL`, and `TIMESTAMP`.
+  Possible values are: `DOUBLE`, `STRING`, `BOOL`, `TIMESTAMP`.
 
 * `enum_type` -
   (Optional)

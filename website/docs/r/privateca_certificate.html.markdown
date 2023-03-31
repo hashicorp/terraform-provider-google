@@ -809,7 +809,7 @@ The following arguments are supported:
 * `format` -
   (Required)
   The format of the public key. Currently, only PEM format is supported.
-  Possible values are `KEY_TYPE_UNSPECIFIED` and `PEM`.
+  Possible values are: `KEY_TYPE_UNSPECIFIED`, `PEM`.
 
 ## Attributes Reference
 

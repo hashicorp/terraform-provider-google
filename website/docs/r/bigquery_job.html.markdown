@@ -470,7 +470,7 @@ The following arguments are supported:
   CREATE_NEVER: The table must already exist. If it does not, a 'notFound' error is returned in the job result.
   Creation, truncation and append actions occur as one atomic update upon job completion
   Default value is `CREATE_IF_NEEDED`.
-  Possible values are `CREATE_IF_NEEDED` and `CREATE_NEVER`.
+  Possible values are: `CREATE_IF_NEEDED`, `CREATE_NEVER`.
 
 * `write_disposition` -
   (Optional)
@@ -481,7 +481,7 @@ The following arguments are supported:
   Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
   Creation, truncation and append actions occur as one atomic update upon job completion.
   Default value is `WRITE_EMPTY`.
-  Possible values are `WRITE_TRUNCATE`, `WRITE_APPEND`, and `WRITE_EMPTY`.
+  Possible values are: `WRITE_TRUNCATE`, `WRITE_APPEND`, `WRITE_EMPTY`.
 
 * `default_dataset` -
   (Optional)
@@ -492,7 +492,7 @@ The following arguments are supported:
   (Optional)
   Specifies a priority for the query.
   Default value is `INTERACTIVE`.
-  Possible values are `INTERACTIVE` and `BATCH`.
+  Possible values are: `INTERACTIVE`, `BATCH`.
 
 * `allow_large_results` -
   (Optional)
@@ -613,7 +613,7 @@ The following arguments are supported:
   (Optional)
   Determines which statement in the script represents the "key result",
   used to populate the schema and query results of the script job.
-  Possible values are `LAST` and `FIRST_SELECT`.
+  Possible values are: `LAST`, `FIRST_SELECT`.
 
 <a name="nested_load"></a>The `load` block supports:
 
@@ -638,7 +638,7 @@ The following arguments are supported:
   CREATE_NEVER: The table must already exist. If it does not, a 'notFound' error is returned in the job result.
   Creation, truncation and append actions occur as one atomic update upon job completion
   Default value is `CREATE_IF_NEEDED`.
-  Possible values are `CREATE_IF_NEEDED` and `CREATE_NEVER`.
+  Possible values are: `CREATE_IF_NEEDED`, `CREATE_NEVER`.
 
 * `write_disposition` -
   (Optional)
@@ -649,7 +649,7 @@ The following arguments are supported:
   Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
   Creation, truncation and append actions occur as one atomic update upon job completion.
   Default value is `WRITE_EMPTY`.
-  Possible values are `WRITE_TRUNCATE`, `WRITE_APPEND`, and `WRITE_EMPTY`.
+  Possible values are: `WRITE_TRUNCATE`, `WRITE_APPEND`, `WRITE_EMPTY`.
 
 * `null_marker` -
   (Optional)
@@ -820,7 +820,7 @@ The following arguments are supported:
   CREATE_NEVER: The table must already exist. If it does not, a 'notFound' error is returned in the job result.
   Creation, truncation and append actions occur as one atomic update upon job completion
   Default value is `CREATE_IF_NEEDED`.
-  Possible values are `CREATE_IF_NEEDED` and `CREATE_NEVER`.
+  Possible values are: `CREATE_IF_NEEDED`, `CREATE_NEVER`.
 
 * `write_disposition` -
   (Optional)
@@ -831,7 +831,7 @@ The following arguments are supported:
   Each action is atomic and only occurs if BigQuery is able to complete the job successfully.
   Creation, truncation and append actions occur as one atomic update upon job completion.
   Default value is `WRITE_EMPTY`.
-  Possible values are `WRITE_TRUNCATE`, `WRITE_APPEND`, and `WRITE_EMPTY`.
+  Possible values are: `WRITE_TRUNCATE`, `WRITE_APPEND`, `WRITE_EMPTY`.
 
 * `destination_encryption_configuration` -
   (Optional)

@@ -103,7 +103,7 @@ The following arguments are supported:
 * `ip_version` -
   (Optional)
   The IP Version that will be used by this address. The default value is `IPV4`.
-  Possible values are `IPV4` and `IPV6`.
+  Possible values are: `IPV4`, `IPV6`.
 
 * `prefix_length` -
   (Optional)
@@ -118,7 +118,7 @@ The following arguments are supported:
   * EXTERNAL indicates public/external single IP address.
   * INTERNAL indicates internal IP ranges belonging to some network.
   Default value is `EXTERNAL`.
-  Possible values are `EXTERNAL` and `INTERNAL`.
+  Possible values are: `EXTERNAL`, `INTERNAL`.
 
 * `purpose` -
   (Optional)

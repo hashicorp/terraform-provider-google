@@ -96,7 +96,7 @@ The following arguments are supported:
 * `role` -
   (Required)
   The access permission for the entity.
-  Possible values are `OWNER` and `READER`.
+  Possible values are: `OWNER`, `READER`.
 
 
 - - -
@@ -135,7 +135,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `team` -
   (Optional)
   The team.
-  Possible values are `editors`, `owners`, and `viewers`.
+  Possible values are: `editors`, `owners`, `viewers`.
 
 ## Timeouts
 

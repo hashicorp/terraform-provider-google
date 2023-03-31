@@ -187,7 +187,7 @@ The following arguments are supported:
   How external IPs should be allocated for this NAT. Valid values are
   `AUTO_ONLY` for only allowing NAT IPs allocated by Google Cloud
   Platform, or `MANUAL_ONLY` for only user-allocated NAT IP addresses.
-  Possible values are `MANUAL_ONLY` and `AUTO_ONLY`.
+  Possible values are: `MANUAL_ONLY`, `AUTO_ONLY`.
 
 * `source_subnetwork_ip_ranges_to_nat` -
   (Required)
@@ -201,7 +201,7 @@ The following arguments are supported:
   contains ALL_SUBNETWORKS_ALL_IP_RANGES or
   ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES, then there should not be any
   other RouterNat section in any Router for this network in this region.
-  Possible values are `ALL_SUBNETWORKS_ALL_IP_RANGES`, `ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES`, and `LIST_OF_SUBNETWORKS`.
+  Possible values are: `ALL_SUBNETWORKS_ALL_IP_RANGES`, `ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES`, `LIST_OF_SUBNETWORKS`.
 
 * `router` -
   (Required)
@@ -320,7 +320,7 @@ The following arguments are supported:
 * `filter` -
   (Required)
   Specifies the desired filtering of logs on this NAT.
-  Possible values are `ERRORS_ONLY`, `TRANSLATIONS_ONLY`, and `ALL`.
+  Possible values are: `ERRORS_ONLY`, `TRANSLATIONS_ONLY`, `ALL`.
 
 <a name="nested_rules"></a>The `rules` block supports:
 

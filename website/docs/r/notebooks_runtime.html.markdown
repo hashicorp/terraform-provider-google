@@ -357,7 +357,7 @@ The following arguments are supported:
   (Optional)
   The type of vNIC to be used on this interface. This may be gVNIC
   or VirtioNet.
-  Possible values are `UNSPECIFIED_NIC_TYPE`, `VIRTIO_NET`, and `GVNIC`.
+  Possible values are: `UNSPECIFIED_NIC_TYPE`, `VIRTIO_NET`, `GVNIC`.
 
 * `reserved_ip_range` -
   (Optional)
@@ -600,7 +600,7 @@ The following arguments are supported:
 * `post_startup_script_behavior` -
   (Optional)
   Behavior for the post startup script.
-  Possible values are `POST_STARTUP_SCRIPT_BEHAVIOR_UNSPECIFIED`, `RUN_EVERY_START`, and `DOWNLOAD_AND_RUN_EVERY_START`.
+  Possible values are: `POST_STARTUP_SCRIPT_BEHAVIOR_UNSPECIFIED`, `RUN_EVERY_START`, `DOWNLOAD_AND_RUN_EVERY_START`.
 
 * `kernels` -
   (Optional)

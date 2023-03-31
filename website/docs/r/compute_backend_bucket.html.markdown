@@ -168,7 +168,7 @@ The following arguments are supported:
 * `compression_mode` -
   (Optional)
   Compress text responses using Brotli or gzip compression, based on the client's Accept-Encoding header.
-  Possible values are `AUTOMATIC` and `DISABLED`.
+  Possible values are: `AUTOMATIC`, `DISABLED`.
 
 * `edge_security_policy` -
   (Optional)
@@ -236,7 +236,7 @@ The following arguments are supported:
   (Optional)
   Specifies the cache setting for all responses from this backend.
   The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC
-  Possible values are `USE_ORIGIN_HEADERS`, `FORCE_CACHE_ALL`, and `CACHE_ALL_STATIC`.
+  Possible values are: `USE_ORIGIN_HEADERS`, `FORCE_CACHE_ALL`, `CACHE_ALL_STATIC`.
 
 * `serve_while_stale` -
   (Optional)

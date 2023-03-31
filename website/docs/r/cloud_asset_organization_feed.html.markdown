@@ -134,7 +134,7 @@ The following arguments are supported:
 * `content_type` -
   (Optional)
   Asset content type. If not specified, no content but the asset name and type will be returned.
-  Possible values are `CONTENT_TYPE_UNSPECIFIED`, `RESOURCE`, `IAM_POLICY`, `ORG_POLICY`, and `ACCESS_POLICY`.
+  Possible values are: `CONTENT_TYPE_UNSPECIFIED`, `RESOURCE`, `IAM_POLICY`, `ORG_POLICY`, `ACCESS_POLICY`.
 
 * `condition` -
   (Optional)

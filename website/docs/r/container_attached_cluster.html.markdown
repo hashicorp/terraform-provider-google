@@ -258,7 +258,7 @@ The following arguments are supported:
 * `enable_components` -
   (Optional)
   The components to be enabled.
-  Each value may be one of `SYSTEM_COMPONENTS` and `WORKLOADS`.
+  Each value may be one of: `SYSTEM_COMPONENTS`, `WORKLOADS`.
 
 <a name="nested_authorization"></a>The `authorization` block supports:
 
