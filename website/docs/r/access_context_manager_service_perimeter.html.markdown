@@ -195,7 +195,7 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
   }
 }
 ```
-## Example Usage - Access Context Manager Service Perimeter Dry Run
+## Example Usage - Access Context Manager Service Perimeter Dry-Run
 
 
 ```hcl

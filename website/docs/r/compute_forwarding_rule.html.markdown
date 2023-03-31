@@ -1011,7 +1011,7 @@ resource "google_compute_subnetwork" "proxy" {
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Forwarding Rule VPC Psc
+## Example Usage - Forwarding Rule Vpc Psc
 
 
 ```hcl

@@ -418,7 +418,7 @@ resource "google_datastream_stream" "stream5" {
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Datastream Stream Postgresql Bigquery Dataset
+## Example Usage - Datastream Stream Postgresql Bigquery Dataset Id
 
 
 ```hcl
