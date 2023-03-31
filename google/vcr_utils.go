@@ -246,9 +246,6 @@ func initializeReleaseDiffTest(c resource.TestCase, testName string) resource.Te
 			},
 		}
 	} else {
-		c.Providers = map[string]*schema.Provider{
-			localProviderName: {},
-		}
 		c.ProtoV5ProviderFactories = map[string]func() (tfprotov5.ProviderServer, error){
 			localProviderName: func() (tfprotov5.ProviderServer, error) {
 				provider, err := MuxedProviders(testName)
