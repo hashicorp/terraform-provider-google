@@ -696,7 +696,7 @@ resource "google_storage_transfer_job" "transfer_job" {
     google_project_iam_member.pubsub
   ]
 }
-`, project, dataSinkBucketName, project, transferJobDescription, sourceAgentPoolName, project)
+`, project, dataSinkBucketName, project, sourceAgentPoolName, transferJobDescription, project)
 }
 
 func testAccStorageTransferJob_posixSink(project string, dataSourceBucketName string, transferJobDescription string, sinkAgentPoolName string) string {
