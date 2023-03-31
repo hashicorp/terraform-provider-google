@@ -88,7 +88,7 @@ The following arguments are supported:
 * `instance_type` -
   (Required)
   The type of the instance.
-  Possible values are `PRIMARY` and `READ_POOL`.
+  Possible values are: `PRIMARY`, `READ_POOL`.
 
 * `cluster` -
   (Required)
@@ -126,7 +126,7 @@ The following arguments are supported:
 * `availability_type` -
   (Optional)
   Availability type of an Instance. Defaults to REGIONAL for both primary and read instances. Note that primary and read instances can have different availability types.
-  Possible values are `AVAILABILITY_TYPE_UNSPECIFIED`, `ZONAL`, and `REGIONAL`.
+  Possible values are: `AVAILABILITY_TYPE_UNSPECIFIED`, `ZONAL`, `REGIONAL`.
 
 * `read_pool_config` -
   (Optional)

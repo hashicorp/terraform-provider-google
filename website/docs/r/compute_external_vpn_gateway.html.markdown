@@ -168,7 +168,7 @@ The following arguments are supported:
 * `redundancy_type` -
   (Optional)
   Indicates the redundancy type of this external VPN gateway
-  Possible values are `FOUR_IPS_REDUNDANCY`, `SINGLE_IP_INTERNALLY_REDUNDANT`, and `TWO_IPS_REDUNDANCY`.
+  Possible values are: `FOUR_IPS_REDUNDANCY`, `SINGLE_IP_INTERNALLY_REDUNDANT`, `TWO_IPS_REDUNDANCY`.
 
 * `interface` -
   (Optional)

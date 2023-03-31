@@ -140,7 +140,7 @@ The following arguments are supported:
   CONNECTION balancing modes.
   Possible values include: GCE_VM_IP, GCE_VM_IP_PORT, and NON_GCP_PRIVATE_IP_PORT.
   Default value is `GCE_VM_IP_PORT`.
-  Possible values are `GCE_VM_IP`, `GCE_VM_IP_PORT`, and `NON_GCP_PRIVATE_IP_PORT`.
+  Possible values are: `GCE_VM_IP`, `GCE_VM_IP_PORT`, `NON_GCP_PRIVATE_IP_PORT`.
 
 * `subnetwork` -
   (Optional)

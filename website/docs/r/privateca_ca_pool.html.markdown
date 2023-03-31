@@ -158,7 +158,7 @@ The following arguments are supported:
 * `tier` -
   (Required)
   The Tier of this CaPool.
-  Possible values are `ENTERPRISE` and `DEVOPS`.
+  Possible values are: `ENTERPRISE`, `DEVOPS`.
 
 * `location` -
   (Required)
@@ -252,7 +252,7 @@ The following arguments are supported:
 * `signature_algorithm` -
   (Required)
   The algorithm used.
-  Possible values are `ECDSA_P256`, `ECDSA_P384`, and `EDDSA_25519`.
+  Possible values are: `ECDSA_P256`, `ECDSA_P384`, `EDDSA_25519`.
 
 <a name="nested_allowed_issuance_modes"></a>The `allowed_issuance_modes` block supports:
 

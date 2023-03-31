@@ -143,7 +143,7 @@ The following arguments are supported:
   with a common perimeter, but should not be able to share data among
   themselves.
   Default value is `PERIMETER_TYPE_REGULAR`.
-  Possible values are `PERIMETER_TYPE_REGULAR` and `PERIMETER_TYPE_BRIDGE`.
+  Possible values are: `PERIMETER_TYPE_REGULAR`, `PERIMETER_TYPE_BRIDGE`.
 
 * `status` -
   (Optional)
@@ -258,7 +258,7 @@ The following arguments are supported:
   Specifies the type of identities that are allowed access from outside the 
   perimeter. If left unspecified, then members of `identities` field will be 
   allowed access.
-  Possible values are `IDENTITY_TYPE_UNSPECIFIED`, `ANY_IDENTITY`, `ANY_USER_ACCOUNT`, and `ANY_SERVICE_ACCOUNT`.
+  Possible values are: `IDENTITY_TYPE_UNSPECIFIED`, `ANY_IDENTITY`, `ANY_USER_ACCOUNT`, `ANY_SERVICE_ACCOUNT`.
 
 * `identities` -
   (Optional)
@@ -365,7 +365,7 @@ The following arguments are supported:
   Specifies the type of identities that are allowed access to outside the 
   perimeter. If left unspecified, then members of `identities` field will 
   be allowed access.
-  Possible values are `IDENTITY_TYPE_UNSPECIFIED`, `ANY_IDENTITY`, `ANY_USER_ACCOUNT`, and `ANY_SERVICE_ACCOUNT`.
+  Possible values are: `IDENTITY_TYPE_UNSPECIFIED`, `ANY_IDENTITY`, `ANY_USER_ACCOUNT`, `ANY_SERVICE_ACCOUNT`.
 
 * `identities` -
   (Optional)
@@ -511,7 +511,7 @@ The following arguments are supported:
   Specifies the type of identities that are allowed access from outside the 
   perimeter. If left unspecified, then members of `identities` field will be 
   allowed access.
-  Possible values are `IDENTITY_TYPE_UNSPECIFIED`, `ANY_IDENTITY`, `ANY_USER_ACCOUNT`, and `ANY_SERVICE_ACCOUNT`.
+  Possible values are: `IDENTITY_TYPE_UNSPECIFIED`, `ANY_IDENTITY`, `ANY_USER_ACCOUNT`, `ANY_SERVICE_ACCOUNT`.
 
 * `identities` -
   (Optional)
@@ -618,7 +618,7 @@ The following arguments are supported:
   Specifies the type of identities that are allowed access to outside the 
   perimeter. If left unspecified, then members of `identities` field will 
   be allowed access.
-  Possible values are `IDENTITY_TYPE_UNSPECIFIED`, `ANY_IDENTITY`, `ANY_USER_ACCOUNT`, and `ANY_SERVICE_ACCOUNT`.
+  Possible values are: `IDENTITY_TYPE_UNSPECIFIED`, `ANY_IDENTITY`, `ANY_USER_ACCOUNT`, `ANY_SERVICE_ACCOUNT`.
 
 * `identities` -
   (Optional)

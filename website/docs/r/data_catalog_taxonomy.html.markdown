@@ -70,7 +70,7 @@ The following arguments are supported:
   (Optional)
   A list of policy types that are activated for this taxonomy. If not set,
   defaults to an empty list.
-  Each value may be one of `POLICY_TYPE_UNSPECIFIED` and `FINE_GRAINED_ACCESS_CONTROL`.
+  Each value may be one of: `POLICY_TYPE_UNSPECIFIED`, `FINE_GRAINED_ACCESS_CONTROL`.
 
 * `region` -
   (Optional)

@@ -95,7 +95,7 @@ The following arguments are supported:
 * `action_type` -
   (Required)
   The action to take if the condition is met.
-  Possible values are `ALLOW` and `DENY`.
+  Possible values are: `ALLOW`, `DENY`.
 
 * `method_types` -
   (Required)

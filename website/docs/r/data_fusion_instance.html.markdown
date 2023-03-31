@@ -216,7 +216,7 @@ The following arguments are supported:
   - DEVELOPER: Developer Data Fusion instance. In Developer type, the user will have all features available but
   with restrictive capabilities. This is to help enterprises design and develop their data ingestion and integration 
   pipelines at low cost.
-  Possible values are `BASIC`, `ENTERPRISE`, and `DEVELOPER`.
+  Possible values are: `BASIC`, `ENTERPRISE`, `DEVELOPER`.
 
 
 - - -
@@ -333,12 +333,12 @@ The following arguments are supported:
 * `accelerator_type` -
   (Required)
   The type of an accelator for a CDF instance.
-  Possible values are `CDC`, `HEALTHCARE`, and `CCAI_INSIGHTS`.
+  Possible values are: `CDC`, `HEALTHCARE`, `CCAI_INSIGHTS`.
 
 * `state` -
   (Required)
   The type of an accelator for a CDF instance.
-  Possible values are `ENABLED` and `DISABLED`.
+  Possible values are: `ENABLED`, `DISABLED`.
 
 ## Attributes Reference
 

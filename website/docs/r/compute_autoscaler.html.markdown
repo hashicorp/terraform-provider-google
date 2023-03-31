@@ -252,7 +252,7 @@ The following arguments are supported:
   (Optional)
   Defines operating mode for this policy.
   Default value is `ON`.
-  Possible values are `OFF`, `ONLY_UP`, and `ON`.
+  Possible values are: `OFF`, `ONLY_UP`, `ON`.
 
 * `scale_down_control` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
@@ -401,7 +401,7 @@ The following arguments are supported:
   (Optional)
   Defines how target utilization value is expressed for a
   Stackdriver Monitoring metric.
-  Possible values are `GAUGE`, `DELTA_PER_SECOND`, and `DELTA_PER_MINUTE`.
+  Possible values are: `GAUGE`, `DELTA_PER_SECOND`, `DELTA_PER_MINUTE`.
 
 * `filter` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))

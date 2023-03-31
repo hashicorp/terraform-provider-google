@@ -311,7 +311,7 @@ The following arguments are supported:
 * `desired_state` -
   (Optional)
   The desiredState the agent should maintain for this package. The default is to ensure the package is installed.
-  Possible values are `INSTALLED`, `UPDATED`, and `REMOVED`.
+  Possible values are: `INSTALLED`, `UPDATED`, `REMOVED`.
 
 * `manager` -
   (Optional)
@@ -321,7 +321,7 @@ The following arguments are supported:
   This is useful when creating a policy that applies to different types of systems.
   The default behavior is ANY.
   Default value is `ANY`.
-  Possible values are `ANY`, `APT`, `YUM`, `ZYPPER`, and `GOO`.
+  Possible values are: `ANY`, `APT`, `YUM`, `ZYPPER`, `GOO`.
 
 <a name="nested_package_repositories"></a>The `package_repositories` block supports:
 
@@ -352,7 +352,7 @@ The following arguments are supported:
   (Optional)
   Type of archive files in this repository. The default behavior is DEB.
   Default value is `DEB`.
-  Possible values are `DEB` and `DEB_SRC`.
+  Possible values are: `DEB`, `DEB_SRC`.
 
 * `uri` -
   (Required)
@@ -457,7 +457,7 @@ The following arguments are supported:
   if a higher version of the recipe is assigned to this instance.
   REMOVE: Remove is unsupported for software recipes and attempts to create or update a recipe to the REMOVE state is rejected.
   Default value is `INSTALLED`.
-  Possible values are `INSTALLED`, `UPDATED`, and `REMOVED`.
+  Possible values are: `INSTALLED`, `UPDATED`, `REMOVED`.
 
 
 <a name="nested_artifacts"></a>The `artifacts` block supports:
@@ -588,7 +588,7 @@ The following arguments are supported:
 * `type` -
   (Required)
   The type of the archive to extract.
-  Possible values are `TAR`, `TAR_GZIP`, `TAR_BZIP`, `TAR_LZMA`, `TAR_XZ`, and `ZIP`.
+  Possible values are: `TAR`, `TAR_GZIP`, `TAR_BZIP`, `TAR_LZMA`, `TAR_XZ`, `ZIP`.
 
 <a name="nested_msi_installation"></a>The `msi_installation` block supports:
 
@@ -648,7 +648,7 @@ The following arguments are supported:
   (Optional)
   The script interpreter to use to run the script. If no interpreter is specified the script is executed directly,
   which likely only succeed for scripts with shebang lines.
-  Possible values are `SHELL` and `POWERSHELL`.
+  Possible values are: `SHELL`, `POWERSHELL`.
 
 <a name="nested_update_steps"></a>The `update_steps` block supports:
 
@@ -725,7 +725,7 @@ The following arguments are supported:
 * `type` -
   (Required)
   The type of the archive to extract.
-  Possible values are `TAR`, `TAR_GZIP`, `TAR_BZIP`, `TAR_LZMA`, `TAR_XZ`, and `ZIP`.
+  Possible values are: `TAR`, `TAR_GZIP`, `TAR_BZIP`, `TAR_LZMA`, `TAR_XZ`, `ZIP`.
 
 <a name="nested_msi_installation"></a>The `msi_installation` block supports:
 
@@ -785,7 +785,7 @@ The following arguments are supported:
   (Optional)
   The script interpreter to use to run the script. If no interpreter is specified the script is executed directly,
   which likely only succeed for scripts with shebang lines.
-  Possible values are `SHELL` and `POWERSHELL`.
+  Possible values are: `SHELL`, `POWERSHELL`.
 
 ## Attributes Reference
 

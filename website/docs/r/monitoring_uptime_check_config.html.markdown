@@ -28,8 +28,9 @@ To get more information about UptimeCheckConfig, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/monitoring/uptime-checks/)
 
-~> **Warning:** All arguments including `http_check.auth_info.password` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
+~> **Warning:** All arguments including the following potentially sensitive
+values will be stored in the raw state as plain text: `http_check.auth_info.password`.
+[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 ## Example Usage - Uptime Check Config Http
 
@@ -208,7 +209,7 @@ The following arguments are supported:
 * `checker_type` -
   (Optional)
   The checker type to use for the check. If the monitored resource type is servicedirectory_service, checkerType must be set to VPC_CHECKERS.
-  Possible values are `STATIC_IP_CHECKERS` and `VPC_CHECKERS`.
+  Possible values are: `STATIC_IP_CHECKERS`, `VPC_CHECKERS`.
 
 * `http_check` -
   (Optional)
@@ -244,7 +245,7 @@ The following arguments are supported:
   (Optional)
   The type of content matcher that will be applied to the server output, compared to the content string when the check is run.
   Default value is `CONTAINS_STRING`.
-  Possible values are `CONTAINS_STRING`, `NOT_CONTAINS_STRING`, `MATCHES_REGEX`, `NOT_MATCHES_REGEX`, `MATCHES_JSON_PATH`, and `NOT_MATCHES_JSON_PATH`.
+  Possible values are: `CONTAINS_STRING`, `NOT_CONTAINS_STRING`, `MATCHES_REGEX`, `NOT_MATCHES_REGEX`, `MATCHES_JSON_PATH`, `NOT_MATCHES_JSON_PATH`.
 
 * `json_path_matcher` -
   (Optional)
@@ -262,7 +263,7 @@ The following arguments are supported:
   (Optional)
   Options to perform JSONPath content matching.
   Default value is `EXACT_MATCH`.
-  Possible values are `EXACT_MATCH` and `REGEX_MATCH`.
+  Possible values are: `EXACT_MATCH`, `REGEX_MATCH`.
 
 <a name="nested_http_check"></a>The `http_check` block supports:
 
@@ -270,12 +271,12 @@ The following arguments are supported:
   (Optional)
   The HTTP request method to use for the check. If set to METHOD_UNSPECIFIED then requestMethod defaults to GET.
   Default value is `GET`.
-  Possible values are `METHOD_UNSPECIFIED`, `GET`, and `POST`.
+  Possible values are: `METHOD_UNSPECIFIED`, `GET`, `POST`.
 
 * `content_type` -
   (Optional)
   The content type to use for the check.
-  Possible values are `TYPE_UNSPECIFIED` and `URL_ENCODED`.
+  Possible values are: `TYPE_UNSPECIFIED`, `URL_ENCODED`.
 
 * `auth_info` -
   (Optional)
@@ -336,7 +337,7 @@ The following arguments are supported:
 * `status_class` -
   (Optional)
   A class of status codes to accept.
-  Possible values are `STATUS_CLASS_1XX`, `STATUS_CLASS_2XX`, `STATUS_CLASS_3XX`, `STATUS_CLASS_4XX`, `STATUS_CLASS_5XX`, and `STATUS_CLASS_ANY`.
+  Possible values are: `STATUS_CLASS_1XX`, `STATUS_CLASS_2XX`, `STATUS_CLASS_3XX`, `STATUS_CLASS_4XX`, `STATUS_CLASS_5XX`, `STATUS_CLASS_ANY`.
 
 <a name="nested_tcp_check"></a>The `tcp_check` block supports:
 
@@ -349,7 +350,7 @@ The following arguments are supported:
 * `resource_type` -
   (Optional)
   The resource type of the group members.
-  Possible values are `RESOURCE_TYPE_UNSPECIFIED`, `INSTANCE`, and `AWS_ELB_LOAD_BALANCER`.
+  Possible values are: `RESOURCE_TYPE_UNSPECIFIED`, `INSTANCE`, `AWS_ELB_LOAD_BALANCER`.
 
 * `group_id` -
   (Optional)

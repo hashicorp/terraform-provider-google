@@ -145,7 +145,7 @@ The following arguments are supported:
   Currently the latest supported major version is MEMCACHE_1_5. The minor version will be automatically
   determined by our system based on the latest supported minor version.
   Default value is `MEMCACHE_1_5`.
-  Possible values are `MEMCACHE_1_5`.
+  Possible values are: `MEMCACHE_1_5`.
 
 * `memcache_parameters` -
   (Optional)
@@ -216,7 +216,7 @@ The following arguments are supported:
   - FRIDAY: Friday
   - SATURDAY: Saturday
   - SUNDAY: Sunday
-  Possible values are `DAY_OF_WEEK_UNSPECIFIED`, `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+  Possible values are: `DAY_OF_WEEK_UNSPECIFIED`, `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 * `duration` -
   (Required)

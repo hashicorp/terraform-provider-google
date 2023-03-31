@@ -249,7 +249,7 @@ The following arguments are supported:
   User-specified flag to indicate which mode to use for advertisement.
   Valid values of this enum field are: `DEFAULT`, `CUSTOM`
   Default value is `DEFAULT`.
-  Possible values are `DEFAULT` and `CUSTOM`.
+  Possible values are: `DEFAULT`, `CUSTOM`.
 
 * `advertised_groups` -
   (Optional)
@@ -321,7 +321,7 @@ The following arguments are supported:
   for this BGP peer. If set to `PASSIVE`, the Cloud Router will wait
   for the peer router to initiate the BFD session for this BGP peer.
   If set to `DISABLED`, BFD is disabled for this BGP peer.
-  Possible values are `ACTIVE`, `DISABLED`, and `PASSIVE`.
+  Possible values are: `ACTIVE`, `DISABLED`, `PASSIVE`.
 
 * `min_transmit_interval` -
   (Optional)

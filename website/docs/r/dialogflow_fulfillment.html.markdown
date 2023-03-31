@@ -90,7 +90,7 @@ The following arguments are supported:
   (Required)
   The type of the feature that enabled for fulfillment.
   * SMALLTALK: Fulfillment is enabled for SmallTalk.
-  Possible values are `SMALLTALK`.
+  Possible values are: `SMALLTALK`.
 
 <a name="nested_generic_web_service"></a>The `generic_web_service` block supports:
 

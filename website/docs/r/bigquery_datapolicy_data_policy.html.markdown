@@ -78,7 +78,7 @@ The following arguments are supported:
 * `data_policy_type` -
   (Required)
   The enrollment level of the service.
-  Possible values are `COLUMN_LEVEL_SECURITY_POLICY` and `DATA_MASKING_POLICY`.
+  Possible values are: `COLUMN_LEVEL_SECURITY_POLICY`, `DATA_MASKING_POLICY`.
 
 
 - - -
@@ -98,7 +98,7 @@ The following arguments are supported:
 * `predefined_expression` -
   (Required)
   The available masking rules. Learn more here: https://cloud.google.com/bigquery/docs/column-data-masking-intro#masking_options.
-  Possible values are `SHA256`, `ALWAYS_NULL`, `DEFAULT_MASKING_VALUE`, `LAST_FOUR_CHARACTERS`, `FIRST_FOUR_CHARACTERS`, `EMAIL_MASK`, and `DATE_YEAR_MASK`.
+  Possible values are: `SHA256`, `ALWAYS_NULL`, `DEFAULT_MASKING_VALUE`, `LAST_FOUR_CHARACTERS`, `FIRST_FOUR_CHARACTERS`, `EMAIL_MASK`, `DATE_YEAR_MASK`.
 
 ## Attributes Reference
 

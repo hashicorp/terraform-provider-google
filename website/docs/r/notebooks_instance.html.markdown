@@ -212,7 +212,7 @@ The following arguments are supported:
 * `nic_type` -
   (Optional)
   The type of vNIC driver.
-  Possible values are `UNSPECIFIED_NIC_TYPE`, `VIRTIO_NET`, and `GVNIC`.
+  Possible values are: `UNSPECIFIED_NIC_TYPE`, `VIRTIO_NET`, `GVNIC`.
 
 * `reservation_affinity` -
   (Optional)
@@ -233,7 +233,7 @@ The following arguments are supported:
 * `boot_disk_type` -
   (Optional)
   Possible disk types for notebook instances.
-  Possible values are `DISK_TYPE_UNSPECIFIED`, `PD_STANDARD`, `PD_SSD`, `PD_BALANCED`, and `PD_EXTREME`.
+  Possible values are: `DISK_TYPE_UNSPECIFIED`, `PD_STANDARD`, `PD_SSD`, `PD_BALANCED`, `PD_EXTREME`.
 
 * `boot_disk_size_gb` -
   (Optional)
@@ -244,7 +244,7 @@ The following arguments are supported:
 * `data_disk_type` -
   (Optional)
   Possible disk types for notebook instances.
-  Possible values are `DISK_TYPE_UNSPECIFIED`, `PD_STANDARD`, `PD_SSD`, `PD_BALANCED`, and `PD_EXTREME`.
+  Possible values are: `DISK_TYPE_UNSPECIFIED`, `PD_STANDARD`, `PD_SSD`, `PD_BALANCED`, `PD_EXTREME`.
 
 * `data_disk_size_gb` -
   (Optional)
@@ -260,7 +260,7 @@ The following arguments are supported:
 * `disk_encryption` -
   (Optional)
   Disk encryption method used on the boot and data disks, defaults to GMEK.
-  Possible values are `DISK_ENCRYPTION_UNSPECIFIED`, `GMEK`, and `CMEK`.
+  Possible values are: `DISK_ENCRYPTION_UNSPECIFIED`, `GMEK`, `CMEK`.
 
 * `kms_key` -
   (Optional)
@@ -318,7 +318,7 @@ The following arguments are supported:
 * `type` -
   (Required)
   Type of this accelerator.
-  Possible values are `ACCELERATOR_TYPE_UNSPECIFIED`, `NVIDIA_TESLA_K80`, `NVIDIA_TESLA_P100`, `NVIDIA_TESLA_V100`, `NVIDIA_TESLA_P4`, `NVIDIA_TESLA_T4`, `NVIDIA_TESLA_T4_VWS`, `NVIDIA_TESLA_P100_VWS`, `NVIDIA_TESLA_P4_VWS`, `NVIDIA_TESLA_A100`, `TPU_V2`, and `TPU_V3`.
+  Possible values are: `ACCELERATOR_TYPE_UNSPECIFIED`, `NVIDIA_TESLA_K80`, `NVIDIA_TESLA_P100`, `NVIDIA_TESLA_V100`, `NVIDIA_TESLA_P4`, `NVIDIA_TESLA_T4`, `NVIDIA_TESLA_T4_VWS`, `NVIDIA_TESLA_P100_VWS`, `NVIDIA_TESLA_P4_VWS`, `NVIDIA_TESLA_A100`, `TPU_V2`, `TPU_V3`.
 
 * `core_count` -
   (Required)
@@ -350,7 +350,7 @@ The following arguments are supported:
 * `consume_reservation_type` -
   (Required)
   The type of Compute Reservation.
-  Possible values are `NO_RESERVATION`, `ANY_RESERVATION`, and `SPECIFIC_RESERVATION`.
+  Possible values are: `NO_RESERVATION`, `ANY_RESERVATION`, `SPECIFIC_RESERVATION`.
 
 * `key` -
   (Optional)

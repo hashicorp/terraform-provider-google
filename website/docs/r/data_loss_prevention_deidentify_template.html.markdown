@@ -265,7 +265,7 @@ The following arguments are supported:
 * `day_of_week_value` -
   (Optional)
   Represents a day of the week.
-  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+  Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
 <a name="nested_time_value"></a>The `time_value` block supports:
@@ -333,7 +333,7 @@ The following arguments are supported:
 * `common_characters_to_ignore` -
   (Optional)
   Common characters to not transform when masking. Useful to avoid removing punctuation.
-  Possible values are `NUMERIC`, `ALPHA_UPPER_CASE`, `ALPHA_LOWER_CASE`, `PUNCTUATION`, and `WHITESPACE`.
+  Possible values are: `NUMERIC`, `ALPHA_UPPER_CASE`, `ALPHA_LOWER_CASE`, `PUNCTUATION`, `WHITESPACE`.
 
 <a name="nested_crypto_deterministic_config"></a>The `crypto_deterministic_config` block supports:
 
@@ -457,7 +457,7 @@ The following arguments are supported:
 * `common_alphabet` -
   (Optional)
   Common alphabets.
-  Possible values are `FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED`, `NUMERIC`, `HEXADECIMAL`, `UPPER_CASE_ALPHA_NUMERIC`, and `ALPHA_NUMERIC`.
+  Possible values are: `FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED`, `NUMERIC`, `HEXADECIMAL`, `UPPER_CASE_ALPHA_NUMERIC`, `ALPHA_NUMERIC`.
 
 * `custom_alphabet` -
   (Optional)
@@ -586,7 +586,7 @@ The following arguments are supported:
   (Optional)
   The operator to apply to the result of conditions. Default and currently only supported value is AND
   Default value is `AND`.
-  Possible values are `AND`.
+  Possible values are: `AND`.
 
 * `conditions` -
   (Optional)
@@ -612,7 +612,7 @@ The following arguments are supported:
 * `operator` -
   (Required)
   Operator used to compare the field or infoType to the value.
-  Possible values are `EQUAL_TO`, `NOT_EQUAL_TO`, `GREATER_THAN`, `LESS_THAN`, `GREATER_THAN_OR_EQUALS`, `LESS_THAN_OR_EQUALS`, and `EXISTS`.
+  Possible values are: `EQUAL_TO`, `NOT_EQUAL_TO`, `GREATER_THAN`, `LESS_THAN`, `GREATER_THAN_OR_EQUALS`, `LESS_THAN_OR_EQUALS`, `EXISTS`.
 
 * `value` -
   (Optional)
@@ -663,7 +663,7 @@ The following arguments are supported:
 * `day_of_week_value` -
   (Optional)
   Represents a day of the week.
-  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+  Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
 <a name="nested_time_value"></a>The `time_value` block supports:
@@ -810,7 +810,7 @@ The following arguments are supported:
 * `day_of_week_value` -
   (Optional)
   Represents a day of the week.
-  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+  Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
 <a name="nested_time_value"></a>The `time_value` block supports:
@@ -884,7 +884,7 @@ The following arguments are supported:
 * `common_characters_to_ignore` -
   (Optional)
   Common characters to not transform when masking. Useful to avoid removing punctuation.
-  Possible values are `NUMERIC`, `ALPHA_UPPER_CASE`, `ALPHA_LOWER_CASE`, `PUNCTUATION`, and `WHITESPACE`.
+  Possible values are: `NUMERIC`, `ALPHA_UPPER_CASE`, `ALPHA_LOWER_CASE`, `PUNCTUATION`, `WHITESPACE`.
 
 <a name="nested_crypto_replace_ffx_fpe_config"></a>The `crypto_replace_ffx_fpe_config` block supports:
 
@@ -917,7 +917,7 @@ The following arguments are supported:
 * `common_alphabet` -
   (Optional)
   Common alphabets.
-  Possible values are `FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED`, `NUMERIC`, `HEXADECIMAL`, `UPPER_CASE_ALPHA_NUMERIC`, and `ALPHA_NUMERIC`.
+  Possible values are: `FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED`, `NUMERIC`, `HEXADECIMAL`, `UPPER_CASE_ALPHA_NUMERIC`, `ALPHA_NUMERIC`.
 
 * `custom_alphabet` -
   (Optional)
@@ -1048,7 +1048,7 @@ The following arguments are supported:
 * `day_of_week_value` -
   (Optional)
   Represents a day of the week.
-  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+  Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
 <a name="nested_time_value"></a>The `time_value` block supports:
@@ -1118,7 +1118,7 @@ The following arguments are supported:
 * `day_of_week_value` -
   (Optional)
   Represents a day of the week.
-  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+  Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
 <a name="nested_time_value"></a>The `time_value` block supports:
@@ -1218,7 +1218,7 @@ The following arguments are supported:
 * `day_of_week_value` -
   (Optional)
   Represents a day of the week.
-  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+  Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
 <a name="nested_time_value"></a>The `time_value` block supports:
@@ -1288,7 +1288,7 @@ The following arguments are supported:
 * `day_of_week_value` -
   (Optional)
   Represents a day of the week.
-  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+  Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
 <a name="nested_time_value"></a>The `time_value` block supports:
@@ -1358,7 +1358,7 @@ The following arguments are supported:
 * `day_of_week_value` -
   (Optional)
   Represents a day of the week.
-  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+  Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
 <a name="nested_time_value"></a>The `time_value` block supports:
@@ -1398,7 +1398,7 @@ The following arguments are supported:
 * `part_to_extract` -
   (Optional)
   The part of the time to keep.
-  Possible values are `YEAR`, `MONTH`, `DAY_OF_MONTH`, `DAY_OF_WEEK`, `WEEK_OF_YEAR`, and `HOUR_OF_DAY`.
+  Possible values are: `YEAR`, `MONTH`, `DAY_OF_MONTH`, `DAY_OF_WEEK`, `WEEK_OF_YEAR`, `HOUR_OF_DAY`.
 
 <a name="nested_crypto_hash_config"></a>The `crypto_hash_config` block supports:
 
@@ -1654,7 +1654,7 @@ The following arguments are supported:
   (Optional)
   The operator to apply to the result of conditions. Default and currently only supported value is AND.
   Default value is `AND`.
-  Possible values are `AND`.
+  Possible values are: `AND`.
 
 * `conditions` -
   (Optional)
@@ -1680,7 +1680,7 @@ The following arguments are supported:
 * `operator` -
   (Required)
   Operator used to compare the field or infoType to the value.
-  Possible values are `EQUAL_TO`, `NOT_EQUAL_TO`, `GREATER_THAN`, `LESS_THAN`, `GREATER_THAN_OR_EQUALS`, `LESS_THAN_OR_EQUALS`, and `EXISTS`.
+  Possible values are: `EQUAL_TO`, `NOT_EQUAL_TO`, `GREATER_THAN`, `LESS_THAN`, `GREATER_THAN_OR_EQUALS`, `LESS_THAN_OR_EQUALS`, `EXISTS`.
 
 * `value` -
   (Optional)
@@ -1729,7 +1729,7 @@ The following arguments are supported:
 * `day_of_week_value` -
   (Optional)
   Represents a day of the week.
-  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+  Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 
 <a name="nested_time_value"></a>The `time_value` block supports:

@@ -133,7 +133,7 @@ The following arguments are supported:
   DEPLOY: A version was uploaded to Firebase Hosting and released. Output only.
   ROLLBACK: The release points back to a previously deployed version. Output only.
   SITE_DISABLE: The release prevents the site from serving content. Firebase Hosting acts as if the site never existed
-  Possible values are `DEPLOY`, `ROLLBACK`, and `SITE_DISABLE`.
+  Possible values are: `DEPLOY`, `ROLLBACK`, `SITE_DISABLE`.
 
 * `message` -
   (Optional)

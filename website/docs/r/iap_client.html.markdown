@@ -32,8 +32,9 @@ To get more information about Client, see:
 * How-to Guides
     * [Setting up IAP Client](https://cloud.google.com/iap/docs/authentication-howto)
 
-~> **Warning:** All arguments including `secret` will be stored in the raw
-state as plain-text. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
+~> **Warning:** All arguments including the following potentially sensitive
+values will be stored in the raw state as plain text: `secret`.
+[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 ## Example Usage - Iap Client
 

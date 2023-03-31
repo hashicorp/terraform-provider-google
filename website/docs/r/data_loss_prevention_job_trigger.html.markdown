@@ -198,7 +198,7 @@ The following arguments are supported:
   (Optional)
   Whether the trigger is currently active.
   Default value is `HEALTHY`.
-  Possible values are `PAUSED`, `HEALTHY`, and `CANCELLED`.
+  Possible values are: `PAUSED`, `HEALTHY`, `CANCELLED`.
 
 * `inspect_job` -
   (Optional)
@@ -336,13 +336,13 @@ The following arguments are supported:
   List of file type groups to include in the scan. If empty, all files are scanned and available data
   format processors are applied. In addition, the binary content of the selected files is always scanned as well.
   Images are scanned only as binary if the specified region does not support image inspection and no fileTypes were specified.
-  Each value may be one of `BINARY_FILE`, `TEXT_FILE`, `IMAGE`, `WORD`, `PDF`, `AVRO`, `CSV`, and `TSV`.
+  Each value may be one of: `BINARY_FILE`, `TEXT_FILE`, `IMAGE`, `WORD`, `PDF`, `AVRO`, `CSV`, `TSV`.
 
 * `sample_method` -
   (Optional)
   How to sample bytes if not all bytes are scanned. Meaningful only when used in conjunction with bytesLimitPerFile.
   If not specified, scanning would start from the top.
-  Possible values are `TOP` and `RANDOM_START`.
+  Possible values are: `TOP`, `RANDOM_START`.
 
 
 <a name="nested_file_set"></a>The `file_set` block supports:
@@ -403,7 +403,7 @@ The following arguments are supported:
   How to sample rows if not all rows are scanned. Meaningful only when used in conjunction with either 
   rowsLimit or rowsLimitPercent. If not specified, rows are scanned in the order BigQuery reads them.
   Default value is `TOP`.
-  Possible values are `TOP` and `RANDOM_START`.
+  Possible values are: `TOP`, `RANDOM_START`.
 
 * `identifying_fields` -
   (Optional)
@@ -477,7 +477,7 @@ The following arguments are supported:
   If unspecified, then all available columns will be used for a new table or an (existing)
   table with no schema, and no changes will be made to an existing table that has a schema.
   Only for use with external storage.
-  Possible values are `BASIC_COLUMNS`, `GCS_COLUMNS`, `DATASTORE_COLUMNS`, `BIG_QUERY_COLUMNS`, and `ALL_COLUMNS`.
+  Possible values are: `BASIC_COLUMNS`, `GCS_COLUMNS`, `DATASTORE_COLUMNS`, `BIG_QUERY_COLUMNS`, `ALL_COLUMNS`.
 
 
 <a name="nested_table"></a>The `table` block supports:

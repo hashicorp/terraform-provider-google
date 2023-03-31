@@ -100,7 +100,7 @@ The following arguments are supported:
 * `role` -
   (Optional)
   The access permission for the entity.
-  Possible values are `OWNER`, `READER`, and `WRITER`.
+  Possible values are: `OWNER`, `READER`, `WRITER`.
 
 
 ## Attributes Reference

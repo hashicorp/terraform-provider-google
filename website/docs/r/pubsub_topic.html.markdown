@@ -184,7 +184,7 @@ The following arguments are supported:
   (Optional)
   The encoding of messages validated against schema.
   Default value is `ENCODING_UNSPECIFIED`.
-  Possible values are `ENCODING_UNSPECIFIED`, `JSON`, and `BINARY`.
+  Possible values are: `ENCODING_UNSPECIFIED`, `JSON`, `BINARY`.
 
 ## Attributes Reference
 

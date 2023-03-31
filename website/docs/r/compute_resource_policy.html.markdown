@@ -301,7 +301,7 @@ The following arguments are supported:
 * `day` -
   (Required)
   The day of the week to create the snapshot. e.g. MONDAY
-  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+  Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 <a name="nested_retention_policy"></a>The `retention_policy` block supports:
 
@@ -314,7 +314,7 @@ The following arguments are supported:
   Specifies the behavior to apply to scheduled snapshots when
   the source disk is deleted.
   Default value is `KEEP_AUTO_SNAPSHOTS`.
-  Possible values are `KEEP_AUTO_SNAPSHOTS` and `APPLY_RETENTION_POLICY`.
+  Possible values are: `KEEP_AUTO_SNAPSHOTS`, `APPLY_RETENTION_POLICY`.
 
 <a name="nested_snapshot_properties"></a>The `snapshot_properties` block supports:
 
@@ -356,7 +356,7 @@ The following arguments are supported:
   Specify `COLLOCATED` to enable collocation. Can only be specified with `vm_count`. If compute instances are created
   with a COLLOCATED policy, then exactly `vm_count` instances must be created at the same time with the resource policy
   attached.
-  Possible values are `COLLOCATED`.
+  Possible values are: `COLLOCATED`.
 
 * `max_distance` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))

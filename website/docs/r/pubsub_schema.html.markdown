@@ -83,7 +83,7 @@ The following arguments are supported:
   (Optional)
   The type of the schema definition
   Default value is `TYPE_UNSPECIFIED`.
-  Possible values are `TYPE_UNSPECIFIED`, `PROTOCOL_BUFFER`, and `AVRO`.
+  Possible values are: `TYPE_UNSPECIFIED`, `PROTOCOL_BUFFER`, `AVRO`.
 
 * `definition` -
   (Optional)

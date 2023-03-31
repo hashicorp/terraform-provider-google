@@ -104,7 +104,7 @@ The following arguments are supported:
   (Optional)
   The dialect of the Cloud Spanner Database.
   If it is not provided, "GOOGLE_STANDARD_SQL" will be used.
-  Possible values are `GOOGLE_STANDARD_SQL` and `POSTGRESQL`.
+  Possible values are: `GOOGLE_STANDARD_SQL`, `POSTGRESQL`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

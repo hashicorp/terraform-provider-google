@@ -101,7 +101,7 @@ The following arguments are supported:
   Preconfigured versioned expression. For organization security policy rules,
   the only supported type is "FIREWALL".
   Default value is `FIREWALL`.
-  Possible values are `FIREWALL`.
+  Possible values are: `FIREWALL`.
 
 * `config` -
   (Required)
@@ -160,7 +160,7 @@ The following arguments are supported:
 * `direction` -
   (Optional)
   The direction in which this rule applies. If unspecified an INGRESS rule is created.
-  Possible values are `INGRESS` and `EGRESS`.
+  Possible values are: `INGRESS`, `EGRESS`.
 
 * `target_resources` -
   (Optional)

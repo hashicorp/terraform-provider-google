@@ -114,7 +114,7 @@ The following arguments are supported:
 * `evaluation_mode` -
   (Required)
   How this admission rule will be evaluated.
-  Possible values are `ALWAYS_ALLOW`, `REQUIRE_ATTESTATION`, and `ALWAYS_DENY`.
+  Possible values are: `ALWAYS_ALLOW`, `REQUIRE_ATTESTATION`, `ALWAYS_DENY`.
 
 * `require_attestations_by` -
   (Optional)
@@ -130,7 +130,7 @@ The following arguments are supported:
 * `enforcement_mode` -
   (Required)
   The action when a pod creation is denied by the admission rule.
-  Possible values are `ENFORCED_BLOCK_AND_AUDIT_LOG` and `DRYRUN_AUDIT_LOG_ONLY`.
+  Possible values are: `ENFORCED_BLOCK_AND_AUDIT_LOG`, `DRYRUN_AUDIT_LOG_ONLY`.
 
 - - -
 
@@ -144,7 +144,7 @@ The following arguments are supported:
   Controls the evaluation of a Google-maintained global admission policy
   for common system-level images. Images not covered by the global
   policy will be subject to the project admission policy.
-  Possible values are `ENABLE` and `DISABLE`.
+  Possible values are: `ENABLE`, `DISABLE`.
 
 * `admission_whitelist_patterns` -
   (Optional)
@@ -186,7 +186,7 @@ The following arguments are supported:
 * `evaluation_mode` -
   (Required)
   How this admission rule will be evaluated.
-  Possible values are `ALWAYS_ALLOW`, `REQUIRE_ATTESTATION`, and `ALWAYS_DENY`.
+  Possible values are: `ALWAYS_ALLOW`, `REQUIRE_ATTESTATION`, `ALWAYS_DENY`.
 
 * `require_attestations_by` -
   (Optional)
@@ -202,7 +202,7 @@ The following arguments are supported:
 * `enforcement_mode` -
   (Required)
   The action when a pod creation is denied by the admission rule.
-  Possible values are `ENFORCED_BLOCK_AND_AUDIT_LOG` and `DRYRUN_AUDIT_LOG_ONLY`.
+  Possible values are: `ENFORCED_BLOCK_AND_AUDIT_LOG`, `DRYRUN_AUDIT_LOG_ONLY`.
 
 ## Attributes Reference
 

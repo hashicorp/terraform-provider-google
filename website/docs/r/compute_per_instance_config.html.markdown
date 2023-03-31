@@ -188,7 +188,7 @@ State will be removed on the next instance recreation or update.
   (Optional)
   The mode of the disk.
   Default value is `READ_WRITE`.
-  Possible values are `READ_ONLY` and `READ_WRITE`.
+  Possible values are: `READ_ONLY`, `READ_WRITE`.
 
 * `delete_rule` -
   (Optional)
@@ -198,7 +198,7 @@ State will be removed on the next instance recreation or update.
   `ON_PERMANENT_INSTANCE_DELETION` will delete the stateful disk when the VM is permanently
   deleted from the instance group.
   Default value is `NEVER`.
-  Possible values are `NEVER` and `ON_PERMANENT_INSTANCE_DELETION`.
+  Possible values are: `NEVER`, `ON_PERMANENT_INSTANCE_DELETION`.
 
 <a name="nested_internal_ip"></a>The `internal_ip` block supports:
 
@@ -208,7 +208,7 @@ State will be removed on the next instance recreation or update.
   (Optional)
   These stateful IPs will never be released during autohealing, update or VM instance recreate operations. This flag is used to configure if the IP reservation should be deleted after it is no longer used by the group, e.g. when the given instance or the whole group is deleted.
   Default value is `NEVER`.
-  Possible values are `NEVER` and `ON_PERMANENT_INSTANCE_DELETION`.
+  Possible values are: `NEVER`, `ON_PERMANENT_INSTANCE_DELETION`.
 
 * `ip_address` -
   (Optional)
@@ -230,7 +230,7 @@ State will be removed on the next instance recreation or update.
   (Optional)
   These stateful IPs will never be released during autohealing, update or VM instance recreate operations. This flag is used to configure if the IP reservation should be deleted after it is no longer used by the group, e.g. when the given instance or the whole group is deleted.
   Default value is `NEVER`.
-  Possible values are `NEVER` and `ON_PERMANENT_INSTANCE_DELETION`.
+  Possible values are: `NEVER`, `ON_PERMANENT_INSTANCE_DELETION`.
 
 * `ip_address` -
   (Optional)

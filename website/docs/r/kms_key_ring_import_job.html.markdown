@@ -69,13 +69,13 @@ The following arguments are supported:
 * `import_method` -
   (Required)
   The wrapping method to be used for incoming key material.
-  Possible values are `RSA_OAEP_3072_SHA1_AES_256` and `RSA_OAEP_4096_SHA1_AES_256`.
+  Possible values are: `RSA_OAEP_3072_SHA1_AES_256`, `RSA_OAEP_4096_SHA1_AES_256`.
 
 * `protection_level` -
   (Required)
   The protection level of the ImportJob. This must match the protectionLevel of the
   versionTemplate on the CryptoKey you attempt to import into.
-  Possible values are `SOFTWARE`, `HSM`, and `EXTERNAL`.
+  Possible values are: `SOFTWARE`, `HSM`, `EXTERNAL`.
 
 * `key_ring` -
   (Required)

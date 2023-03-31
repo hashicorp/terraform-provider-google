@@ -394,7 +394,7 @@ The following arguments are supported:
 * `reboot_config` -
   (Optional)
   Post-patch reboot settings.
-  Possible values are `DEFAULT`, `ALWAYS`, and `NEVER`.
+  Possible values are: `DEFAULT`, `ALWAYS`, `NEVER`.
 
 * `apt` -
   (Optional)
@@ -437,7 +437,7 @@ The following arguments are supported:
 * `type` -
   (Optional)
   By changing the type to DIST, the patching is performed using apt-get dist-upgrade instead.
-  Possible values are `DIST` and `UPGRADE`.
+  Possible values are: `DIST`, `UPGRADE`.
 
 * `excludes` -
   (Optional)
@@ -507,7 +507,7 @@ The following arguments are supported:
 * `classifications` -
   (Optional)
   Only apply updates of these windows update classifications. If empty, all updates are applied.
-  Each value may be one of `CRITICAL`, `SECURITY`, `DEFINITION`, `DRIVER`, `FEATURE_PACK`, `SERVICE_PACK`, `TOOL`, `UPDATE_ROLLUP`, and `UPDATE`.
+  Each value may be one of: `CRITICAL`, `SECURITY`, `DEFINITION`, `DRIVER`, `FEATURE_PACK`, `SERVICE_PACK`, `TOOL`, `UPDATE_ROLLUP`, `UPDATE`.
 
 * `excludes` -
   (Optional)
@@ -541,7 +541,7 @@ The following arguments are supported:
   (Optional)
   The script interpreter to use to run the script. If no interpreter is specified the script will
   be executed directly, which will likely only succeed for scripts with shebang lines.
-  Possible values are `SHELL` and `POWERSHELL`.
+  Possible values are: `SHELL`, `POWERSHELL`.
 
 * `local_path` -
   (Optional)
@@ -577,7 +577,7 @@ The following arguments are supported:
   (Optional)
   The script interpreter to use to run the script. If no interpreter is specified the script will
   be executed directly, which will likely only succeed for scripts with shebang lines.
-  Possible values are `SHELL` and `POWERSHELL`.
+  Possible values are: `SHELL`, `POWERSHELL`.
 
 * `local_path` -
   (Optional)
@@ -626,7 +626,7 @@ The following arguments are supported:
   (Optional)
   The script interpreter to use to run the script. If no interpreter is specified the script will
   be executed directly, which will likely only succeed for scripts with shebang lines.
-  Possible values are `SHELL` and `POWERSHELL`.
+  Possible values are: `SHELL`, `POWERSHELL`.
 
 * `local_path` -
   (Optional)
@@ -662,7 +662,7 @@ The following arguments are supported:
   (Optional)
   The script interpreter to use to run the script. If no interpreter is specified the script will
   be executed directly, which will likely only succeed for scripts with shebang lines.
-  Possible values are `SHELL` and `POWERSHELL`.
+  Possible values are: `SHELL`, `POWERSHELL`.
 
 * `local_path` -
   (Optional)
@@ -773,7 +773,7 @@ The following arguments are supported:
 * `day_of_week` -
   (Required)
   IANA Time Zone Database time zone, e.g. "America/New_York".
-  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+  Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 <a name="nested_monthly"></a>The `monthly` block supports:
 
@@ -798,14 +798,14 @@ The following arguments are supported:
 * `day_of_week` -
   (Required)
   A day of the week.
-  Possible values are `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, and `SUNDAY`.
+  Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 <a name="nested_rollout"></a>The `rollout` block supports:
 
 * `mode` -
   (Required)
   Mode of the patch rollout.
-  Possible values are `ZONE_BY_ZONE` and `CONCURRENT_ZONES`.
+  Possible values are: `ZONE_BY_ZONE`, `CONCURRENT_ZONES`.
 
 * `disruption_budget` -
   (Required)

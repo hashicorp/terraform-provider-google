@@ -219,7 +219,7 @@ The following arguments are supported:
   (Optional)
   The FHIR specification version.
   Default value is `STU3`.
-  Possible values are `DSTU2`, `STU3`, and `R4`.
+  Possible values are: `DSTU2`, `STU3`, `R4`.
 
 * `enable_update_create` -
   (Optional)
@@ -340,7 +340,7 @@ The following arguments are supported:
    * ANALYTICS_V2: Analytics V2, similar to schema defined by the FHIR community, with added support for extensions with one or more occurrences and contained resources in stringified JSON.
    * LOSSLESS: A data-driven schema generated from the fields present in the FHIR data being exported, with no additional simplification.
   Default value is `ANALYTICS`.
-  Possible values are `ANALYTICS`, `ANALYTICS_V2`, and `LOSSLESS`.
+  Possible values are: `ANALYTICS`, `ANALYTICS_V2`, `LOSSLESS`.
 
 * `recursive_structure_depth` -
   (Required)

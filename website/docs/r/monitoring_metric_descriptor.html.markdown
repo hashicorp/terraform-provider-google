@@ -100,12 +100,12 @@ The following arguments are supported:
 * `metric_kind` -
   (Required)
   Whether the metric records instantaneous values, changes to a value, etc. Some combinations of metricKind and valueType might not be supported.
-  Possible values are `METRIC_KIND_UNSPECIFIED`, `GAUGE`, `DELTA`, and `CUMULATIVE`.
+  Possible values are: `METRIC_KIND_UNSPECIFIED`, `GAUGE`, `DELTA`, `CUMULATIVE`.
 
 * `value_type` -
   (Required)
   Whether the measurement is an integer, a floating-point number, etc. Some combinations of metricKind and valueType might not be supported.
-  Possible values are `BOOL`, `INT64`, `DOUBLE`, `STRING`, and `DISTRIBUTION`.
+  Possible values are: `BOOL`, `INT64`, `DOUBLE`, `STRING`, `DISTRIBUTION`.
 
 * `description` -
   (Required)
@@ -152,7 +152,7 @@ The following arguments are supported:
 * `launch_stage` -
   (Optional)
   The launch stage of the metric definition.
-  Possible values are `LAUNCH_STAGE_UNSPECIFIED`, `UNIMPLEMENTED`, `PRELAUNCH`, `EARLY_ACCESS`, `ALPHA`, `BETA`, `GA`, and `DEPRECATED`.
+  Possible values are: `LAUNCH_STAGE_UNSPECIFIED`, `UNIMPLEMENTED`, `PRELAUNCH`, `EARLY_ACCESS`, `ALPHA`, `BETA`, `GA`, `DEPRECATED`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -168,7 +168,7 @@ The following arguments are supported:
   (Optional)
   The type of data that can be assigned to the label.
   Default value is `STRING`.
-  Possible values are `STRING`, `BOOL`, and `INT64`.
+  Possible values are: `STRING`, `BOOL`, `INT64`.
 
 * `description` -
   (Optional)

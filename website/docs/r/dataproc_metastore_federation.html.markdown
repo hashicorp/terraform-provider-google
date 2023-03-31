@@ -128,7 +128,7 @@ The following arguments are supported:
 * `metastore_type` -
   (Required)
   The type of the backend metastore.
-  Possible values are `METASTORE_TYPE_UNSPECIFIED`, `DATAPROC_METASTORE`, and `BIGQUERY`.
+  Possible values are: `METASTORE_TYPE_UNSPECIFIED`, `DATAPROC_METASTORE`, `BIGQUERY`.
 
 - - -
 

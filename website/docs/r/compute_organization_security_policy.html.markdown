@@ -69,7 +69,7 @@ The following arguments are supported:
   For organization security policies, the only supported type
   is "FIREWALL".
   Default value is `FIREWALL`.
-  Possible values are `FIREWALL`.
+  Possible values are: `FIREWALL`.
 
 
 ## Attributes Reference

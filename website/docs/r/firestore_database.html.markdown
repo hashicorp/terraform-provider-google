@@ -128,7 +128,7 @@ The following arguments are supported:
   The type of the database.
   See https://cloud.google.com/datastore/docs/firestore-or-datastore
   for information about how to choose.
-  Possible values are `FIRESTORE_NATIVE` and `DATASTORE_MODE`.
+  Possible values are: `FIRESTORE_NATIVE`, `DATASTORE_MODE`.
 
 
 - - -
@@ -137,12 +137,12 @@ The following arguments are supported:
 * `concurrency_mode` -
   (Optional)
   The concurrency control mode to use for this database.
-  Possible values are `OPTIMISTIC`, `PESSIMISTIC`, and `OPTIMISTIC_WITH_ENTITY_GROUPS`.
+  Possible values are: `OPTIMISTIC`, `PESSIMISTIC`, `OPTIMISTIC_WITH_ENTITY_GROUPS`.
 
 * `app_engine_integration_mode` -
   (Optional)
   The App Engine integration mode to use for this database.
-  Possible values are `ENABLED` and `DISABLED`.
+  Possible values are: `ENABLED`, `DISABLED`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
