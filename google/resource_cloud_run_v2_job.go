@@ -1224,7 +1224,7 @@ func flattenCloudRunV2JobTemplateTemplate(v interface{}, d *schema.ResourceData,
 	transformed["encryption_key"] =
 		flattenCloudRunV2JobTemplateTemplateEncryptionKey(original["encryptionKey"], d, config)
 	transformed["vpc_access"] =
-		flattenCloudRunV2JobTemplateTemplateVPCAccess(original["vpcAccess"], d, config)
+		flattenCloudRunV2JobTemplateTemplateVpcAccess(original["vpcAccess"], d, config)
 	transformed["max_retries"] =
 		flattenCloudRunV2JobTemplateTemplateMaxRetries(original["maxRetries"], d, config)
 	return []interface{}{transformed}
@@ -1887,7 +1887,7 @@ func flattenCloudRunV2JobTemplateTemplateEncryptionKey(v interface{}, d *schema.
 	return v
 }
 
-func flattenCloudRunV2JobTemplateTemplateVPCAccess(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudRunV2JobTemplateTemplateVpcAccess(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1897,16 +1897,16 @@ func flattenCloudRunV2JobTemplateTemplateVPCAccess(v interface{}, d *schema.Reso
 	}
 	transformed := make(map[string]interface{})
 	transformed["connector"] =
-		flattenCloudRunV2JobTemplateTemplateVPCAccessConnector(original["connector"], d, config)
+		flattenCloudRunV2JobTemplateTemplateVpcAccessConnector(original["connector"], d, config)
 	transformed["egress"] =
-		flattenCloudRunV2JobTemplateTemplateVPCAccessEgress(original["egress"], d, config)
+		flattenCloudRunV2JobTemplateTemplateVpcAccessEgress(original["egress"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudRunV2JobTemplateTemplateVPCAccessConnector(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudRunV2JobTemplateTemplateVpcAccessConnector(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudRunV2JobTemplateTemplateVPCAccessEgress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudRunV2JobTemplateTemplateVpcAccessEgress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -2268,11 +2268,11 @@ func expandCloudRunV2JobTemplateTemplate(v interface{}, d TerraformResourceData,
 		transformed["encryptionKey"] = transformedEncryptionKey
 	}
 
-	transformedVPCAccess, err := expandCloudRunV2JobTemplateTemplateVPCAccess(original["vpc_access"], d, config)
+	transformedVpcAccess, err := expandCloudRunV2JobTemplateTemplateVpcAccess(original["vpc_access"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedVPCAccess); val.IsValid() && !isEmptyValue(val) {
-		transformed["vpcAccess"] = transformedVPCAccess
+	} else if val := reflect.ValueOf(transformedVpcAccess); val.IsValid() && !isEmptyValue(val) {
+		transformed["vpcAccess"] = transformedVpcAccess
 	}
 
 	transformedMaxRetries, err := expandCloudRunV2JobTemplateTemplateMaxRetries(original["max_retries"], d, config)
@@ -3106,7 +3106,7 @@ func expandCloudRunV2JobTemplateTemplateEncryptionKey(v interface{}, d Terraform
 	return v, nil
 }
 
-func expandCloudRunV2JobTemplateTemplateVPCAccess(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudRunV2JobTemplateTemplateVpcAccess(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3115,14 +3115,14 @@ func expandCloudRunV2JobTemplateTemplateVPCAccess(v interface{}, d TerraformReso
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedConnector, err := expandCloudRunV2JobTemplateTemplateVPCAccessConnector(original["connector"], d, config)
+	transformedConnector, err := expandCloudRunV2JobTemplateTemplateVpcAccessConnector(original["connector"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedConnector); val.IsValid() && !isEmptyValue(val) {
 		transformed["connector"] = transformedConnector
 	}
 
-	transformedEgress, err := expandCloudRunV2JobTemplateTemplateVPCAccessEgress(original["egress"], d, config)
+	transformedEgress, err := expandCloudRunV2JobTemplateTemplateVpcAccessEgress(original["egress"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedEgress); val.IsValid() && !isEmptyValue(val) {
@@ -3132,11 +3132,11 @@ func expandCloudRunV2JobTemplateTemplateVPCAccess(v interface{}, d TerraformReso
 	return transformed, nil
 }
 
-func expandCloudRunV2JobTemplateTemplateVPCAccessConnector(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudRunV2JobTemplateTemplateVpcAccessConnector(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudRunV2JobTemplateTemplateVPCAccessEgress(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudRunV2JobTemplateTemplateVpcAccessEgress(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

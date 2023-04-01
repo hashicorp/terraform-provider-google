@@ -1059,9 +1059,9 @@ func flattenCloudfunctions2functionServiceConfig(v interface{}, d *schema.Resour
 	transformed["min_instance_count"] =
 		flattenCloudfunctions2functionServiceConfigMinInstanceCount(original["minInstanceCount"], d, config)
 	transformed["vpc_connector"] =
-		flattenCloudfunctions2functionServiceConfigVPCConnector(original["vpcConnector"], d, config)
+		flattenCloudfunctions2functionServiceConfigVpcConnector(original["vpcConnector"], d, config)
 	transformed["vpc_connector_egress_settings"] =
-		flattenCloudfunctions2functionServiceConfigVPCConnectorEgressSettings(original["vpcConnectorEgressSettings"], d, config)
+		flattenCloudfunctions2functionServiceConfigVpcConnectorEgressSettings(original["vpcConnectorEgressSettings"], d, config)
 	transformed["ingress_settings"] =
 		flattenCloudfunctions2functionServiceConfigIngressSettings(original["ingressSettings"], d, config)
 	transformed["uri"] =
@@ -1162,11 +1162,11 @@ func flattenCloudfunctions2functionServiceConfigMinInstanceCount(v interface{}, 
 	return v // let terraform core handle it otherwise
 }
 
-func flattenCloudfunctions2functionServiceConfigVPCConnector(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudfunctions2functionServiceConfigVpcConnector(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenCloudfunctions2functionServiceConfigVPCConnectorEgressSettings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudfunctions2functionServiceConfigVpcConnectorEgressSettings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1701,18 +1701,18 @@ func expandCloudfunctions2functionServiceConfig(v interface{}, d TerraformResour
 		transformed["minInstanceCount"] = transformedMinInstanceCount
 	}
 
-	transformedVPCConnector, err := expandCloudfunctions2functionServiceConfigVPCConnector(original["vpc_connector"], d, config)
+	transformedVpcConnector, err := expandCloudfunctions2functionServiceConfigVpcConnector(original["vpc_connector"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedVPCConnector); val.IsValid() && !isEmptyValue(val) {
-		transformed["vpcConnector"] = transformedVPCConnector
+	} else if val := reflect.ValueOf(transformedVpcConnector); val.IsValid() && !isEmptyValue(val) {
+		transformed["vpcConnector"] = transformedVpcConnector
 	}
 
-	transformedVPCConnectorEgressSettings, err := expandCloudfunctions2functionServiceConfigVPCConnectorEgressSettings(original["vpc_connector_egress_settings"], d, config)
+	transformedVpcConnectorEgressSettings, err := expandCloudfunctions2functionServiceConfigVpcConnectorEgressSettings(original["vpc_connector_egress_settings"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedVPCConnectorEgressSettings); val.IsValid() && !isEmptyValue(val) {
-		transformed["vpcConnectorEgressSettings"] = transformedVPCConnectorEgressSettings
+	} else if val := reflect.ValueOf(transformedVpcConnectorEgressSettings); val.IsValid() && !isEmptyValue(val) {
+		transformed["vpcConnectorEgressSettings"] = transformedVpcConnectorEgressSettings
 	}
 
 	transformedIngressSettings, err := expandCloudfunctions2functionServiceConfigIngressSettings(original["ingress_settings"], d, config)
@@ -1806,11 +1806,11 @@ func expandCloudfunctions2functionServiceConfigMinInstanceCount(v interface{}, d
 	return v, nil
 }
 
-func expandCloudfunctions2functionServiceConfigVPCConnector(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudfunctions2functionServiceConfigVpcConnector(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudfunctions2functionServiceConfigVPCConnectorEgressSettings(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudfunctions2functionServiceConfigVpcConnectorEgressSettings(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
