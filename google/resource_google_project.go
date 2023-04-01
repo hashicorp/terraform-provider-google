@@ -179,19 +179,29 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
+	billingProject := project.ProjectId
+	// err == nil indicates that the billing_project value was found
+	if bp, err := getBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	// After creating this project no APIs will be enabled. If the user_project_override config is true
+	// and no billing_project is given, subsequent requests to list APIs via the serviceusage API will fail.
+	// This is caused by the list services request using this newly created project.ProjectId as the X-Goog-User-Project
+	// creating an impossbile to resovle situation without manuallying enabling the serviceusage API.
+	//
+	// Default enable serviceusage api to allow other services to be listed and enabled after project creation
+	// when enabling user_project_override without billing_project
+	if err = EnableServiceUsageProjectServices([]string{"serviceusage.googleapis.com"}, project.ProjectId, billingProject, userAgent, config, d.Timeout(schema.TimeoutCreate)); err != nil {
+		return errwrap.Wrapf("Error enabling the Service Usage API required to manage project services: {{err}} ", err)
+	}
+
 	// There's no such thing as "don't auto-create network", only "delete the network
 	// post-creation" - but that's what it's called in the UI and let's not confuse
 	// people if we don't have to.  The GCP Console is doing the same thing - creating
 	// a network and deleting it in the background.
 	if !d.Get("auto_create_network").(bool) {
 		// The compute API has to be enabled before we can delete a network.
-
-		billingProject := project.ProjectId
-		// err == nil indicates that the billing_project value was found
-		if bp, err := getBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
 		if err = EnableServiceUsageProjectServices([]string{"compute.googleapis.com"}, project.ProjectId, billingProject, userAgent, config, d.Timeout(schema.TimeoutCreate)); err != nil {
 			return errwrap.Wrapf("Error enabling the Compute Engine API required to delete the default network: {{err}} ", err)
 		}
