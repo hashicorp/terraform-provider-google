@@ -188,7 +188,7 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 	// After creating this project no APIs will be enabled. If the user_project_override config is true
 	// and no billing_project is given, subsequent requests to list APIs via the serviceusage API will fail.
 	// This is caused by the list services request using this newly created project.ProjectId as the X-Goog-User-Project
-	// creating an impossbile to resovle situation without manuallying enabling the serviceusage API.
+	// creating an impossible to resolve situation without manually enabling the serviceusage API.
 	//
 	// Default enable serviceusage api to allow other services to be listed and enabled after project creation
 	// when enabling user_project_override without billing_project
