@@ -1065,7 +1065,7 @@ func flattenAccessContextManagerServicePerimetersServicePerimetersStatus(v inter
 	transformed["restricted_services"] =
 		flattenAccessContextManagerServicePerimetersServicePerimetersStatusRestrictedServices(original["restrictedServices"], d, config)
 	transformed["vpc_accessible_services"] =
-		flattenAccessContextManagerServicePerimetersServicePerimetersStatusVPCAccessibleServices(original["vpcAccessibleServices"], d, config)
+		flattenAccessContextManagerServicePerimetersServicePerimetersStatusVpcAccessibleServices(original["vpcAccessibleServices"], d, config)
 	transformed["ingress_policies"] =
 		flattenAccessContextManagerServicePerimetersServicePerimetersStatusIngressPolicies(original["ingressPolicies"], d, config)
 	transformed["egress_policies"] =
@@ -1087,7 +1087,7 @@ func flattenAccessContextManagerServicePerimetersServicePerimetersStatusRestrict
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenAccessContextManagerServicePerimetersServicePerimetersStatusVPCAccessibleServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimetersServicePerimetersStatusVpcAccessibleServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1097,16 +1097,16 @@ func flattenAccessContextManagerServicePerimetersServicePerimetersStatusVPCAcces
 	}
 	transformed := make(map[string]interface{})
 	transformed["enable_restriction"] =
-		flattenAccessContextManagerServicePerimetersServicePerimetersStatusVPCAccessibleServicesEnableRestriction(original["enableRestriction"], d, config)
+		flattenAccessContextManagerServicePerimetersServicePerimetersStatusVpcAccessibleServicesEnableRestriction(original["enableRestriction"], d, config)
 	transformed["allowed_services"] =
-		flattenAccessContextManagerServicePerimetersServicePerimetersStatusVPCAccessibleServicesAllowedServices(original["allowedServices"], d, config)
+		flattenAccessContextManagerServicePerimetersServicePerimetersStatusVpcAccessibleServicesAllowedServices(original["allowedServices"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerServicePerimetersServicePerimetersStatusVPCAccessibleServicesEnableRestriction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimetersServicePerimetersStatusVpcAccessibleServicesEnableRestriction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimetersServicePerimetersStatusVPCAccessibleServicesAllowedServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimetersServicePerimetersStatusVpcAccessibleServicesAllowedServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1386,7 +1386,7 @@ func flattenAccessContextManagerServicePerimetersServicePerimetersSpec(v interfa
 	transformed["restricted_services"] =
 		flattenAccessContextManagerServicePerimetersServicePerimetersSpecRestrictedServices(original["restrictedServices"], d, config)
 	transformed["vpc_accessible_services"] =
-		flattenAccessContextManagerServicePerimetersServicePerimetersSpecVPCAccessibleServices(original["vpcAccessibleServices"], d, config)
+		flattenAccessContextManagerServicePerimetersServicePerimetersSpecVpcAccessibleServices(original["vpcAccessibleServices"], d, config)
 	transformed["ingress_policies"] =
 		flattenAccessContextManagerServicePerimetersServicePerimetersSpecIngressPolicies(original["ingressPolicies"], d, config)
 	transformed["egress_policies"] =
@@ -1405,7 +1405,7 @@ func flattenAccessContextManagerServicePerimetersServicePerimetersSpecRestricted
 	return v
 }
 
-func flattenAccessContextManagerServicePerimetersServicePerimetersSpecVPCAccessibleServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimetersServicePerimetersSpecVpcAccessibleServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1415,16 +1415,16 @@ func flattenAccessContextManagerServicePerimetersServicePerimetersSpecVPCAccessi
 	}
 	transformed := make(map[string]interface{})
 	transformed["enable_restriction"] =
-		flattenAccessContextManagerServicePerimetersServicePerimetersSpecVPCAccessibleServicesEnableRestriction(original["enableRestriction"], d, config)
+		flattenAccessContextManagerServicePerimetersServicePerimetersSpecVpcAccessibleServicesEnableRestriction(original["enableRestriction"], d, config)
 	transformed["allowed_services"] =
-		flattenAccessContextManagerServicePerimetersServicePerimetersSpecVPCAccessibleServicesAllowedServices(original["allowedServices"], d, config)
+		flattenAccessContextManagerServicePerimetersServicePerimetersSpecVpcAccessibleServicesAllowedServices(original["allowedServices"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerServicePerimetersServicePerimetersSpecVPCAccessibleServicesEnableRestriction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimetersServicePerimetersSpecVpcAccessibleServicesEnableRestriction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimetersServicePerimetersSpecVPCAccessibleServicesAllowedServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimetersServicePerimetersSpecVpcAccessibleServicesAllowedServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1822,11 +1822,11 @@ func expandAccessContextManagerServicePerimetersServicePerimetersStatus(v interf
 		transformed["restrictedServices"] = transformedRestrictedServices
 	}
 
-	transformedVPCAccessibleServices, err := expandAccessContextManagerServicePerimetersServicePerimetersStatusVPCAccessibleServices(original["vpc_accessible_services"], d, config)
+	transformedVpcAccessibleServices, err := expandAccessContextManagerServicePerimetersServicePerimetersStatusVpcAccessibleServices(original["vpc_accessible_services"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedVPCAccessibleServices); val.IsValid() && !isEmptyValue(val) {
-		transformed["vpcAccessibleServices"] = transformedVPCAccessibleServices
+	} else if val := reflect.ValueOf(transformedVpcAccessibleServices); val.IsValid() && !isEmptyValue(val) {
+		transformed["vpcAccessibleServices"] = transformedVpcAccessibleServices
 	}
 
 	transformedIngressPolicies, err := expandAccessContextManagerServicePerimetersServicePerimetersStatusIngressPolicies(original["ingress_policies"], d, config)
@@ -1859,7 +1859,7 @@ func expandAccessContextManagerServicePerimetersServicePerimetersStatusRestricte
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimetersServicePerimetersStatusVPCAccessibleServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimetersServicePerimetersStatusVpcAccessibleServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1868,14 +1868,14 @@ func expandAccessContextManagerServicePerimetersServicePerimetersStatusVPCAccess
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedEnableRestriction, err := expandAccessContextManagerServicePerimetersServicePerimetersStatusVPCAccessibleServicesEnableRestriction(original["enable_restriction"], d, config)
+	transformedEnableRestriction, err := expandAccessContextManagerServicePerimetersServicePerimetersStatusVpcAccessibleServicesEnableRestriction(original["enable_restriction"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedEnableRestriction); val.IsValid() && !isEmptyValue(val) {
 		transformed["enableRestriction"] = transformedEnableRestriction
 	}
 
-	transformedAllowedServices, err := expandAccessContextManagerServicePerimetersServicePerimetersStatusVPCAccessibleServicesAllowedServices(original["allowed_services"], d, config)
+	transformedAllowedServices, err := expandAccessContextManagerServicePerimetersServicePerimetersStatusVpcAccessibleServicesAllowedServices(original["allowed_services"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedAllowedServices); val.IsValid() && !isEmptyValue(val) {
@@ -1885,11 +1885,11 @@ func expandAccessContextManagerServicePerimetersServicePerimetersStatusVPCAccess
 	return transformed, nil
 }
 
-func expandAccessContextManagerServicePerimetersServicePerimetersStatusVPCAccessibleServicesEnableRestriction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimetersServicePerimetersStatusVpcAccessibleServicesEnableRestriction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimetersServicePerimetersStatusVPCAccessibleServicesAllowedServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimetersServicePerimetersStatusVpcAccessibleServicesAllowedServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
@@ -2305,11 +2305,11 @@ func expandAccessContextManagerServicePerimetersServicePerimetersSpec(v interfac
 		transformed["restrictedServices"] = transformedRestrictedServices
 	}
 
-	transformedVPCAccessibleServices, err := expandAccessContextManagerServicePerimetersServicePerimetersSpecVPCAccessibleServices(original["vpc_accessible_services"], d, config)
+	transformedVpcAccessibleServices, err := expandAccessContextManagerServicePerimetersServicePerimetersSpecVpcAccessibleServices(original["vpc_accessible_services"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedVPCAccessibleServices); val.IsValid() && !isEmptyValue(val) {
-		transformed["vpcAccessibleServices"] = transformedVPCAccessibleServices
+	} else if val := reflect.ValueOf(transformedVpcAccessibleServices); val.IsValid() && !isEmptyValue(val) {
+		transformed["vpcAccessibleServices"] = transformedVpcAccessibleServices
 	}
 
 	transformedIngressPolicies, err := expandAccessContextManagerServicePerimetersServicePerimetersSpecIngressPolicies(original["ingress_policies"], d, config)
@@ -2341,7 +2341,7 @@ func expandAccessContextManagerServicePerimetersServicePerimetersSpecRestrictedS
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimetersServicePerimetersSpecVPCAccessibleServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimetersServicePerimetersSpecVpcAccessibleServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2350,14 +2350,14 @@ func expandAccessContextManagerServicePerimetersServicePerimetersSpecVPCAccessib
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedEnableRestriction, err := expandAccessContextManagerServicePerimetersServicePerimetersSpecVPCAccessibleServicesEnableRestriction(original["enable_restriction"], d, config)
+	transformedEnableRestriction, err := expandAccessContextManagerServicePerimetersServicePerimetersSpecVpcAccessibleServicesEnableRestriction(original["enable_restriction"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedEnableRestriction); val.IsValid() && !isEmptyValue(val) {
 		transformed["enableRestriction"] = transformedEnableRestriction
 	}
 
-	transformedAllowedServices, err := expandAccessContextManagerServicePerimetersServicePerimetersSpecVPCAccessibleServicesAllowedServices(original["allowed_services"], d, config)
+	transformedAllowedServices, err := expandAccessContextManagerServicePerimetersServicePerimetersSpecVpcAccessibleServicesAllowedServices(original["allowed_services"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedAllowedServices); val.IsValid() && !isEmptyValue(val) {
@@ -2367,11 +2367,11 @@ func expandAccessContextManagerServicePerimetersServicePerimetersSpecVPCAccessib
 	return transformed, nil
 }
 
-func expandAccessContextManagerServicePerimetersServicePerimetersSpecVPCAccessibleServicesEnableRestriction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimetersServicePerimetersSpecVpcAccessibleServicesEnableRestriction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimetersServicePerimetersSpecVPCAccessibleServicesAllowedServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimetersServicePerimetersSpecVpcAccessibleServicesAllowedServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

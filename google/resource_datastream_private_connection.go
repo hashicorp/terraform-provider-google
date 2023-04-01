@@ -184,7 +184,7 @@ func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
-	vpcPeeringConfigProp, err := expandDatastreamPrivateConnectionVPCPeeringConfig(d.Get("vpc_peering_config"), d, config)
+	vpcPeeringConfigProp, err := expandDatastreamPrivateConnectionVpcPeeringConfig(d.Get("vpc_peering_config"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("vpc_peering_config"); !isEmptyValue(reflect.ValueOf(vpcPeeringConfigProp)) && (ok || !reflect.DeepEqual(v, vpcPeeringConfigProp)) {
@@ -304,7 +304,7 @@ func resourceDatastreamPrivateConnectionRead(d *schema.ResourceData, meta interf
 	if err := d.Set("error", flattenDatastreamPrivateConnectionError(res["error"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PrivateConnection: %s", err)
 	}
-	if err := d.Set("vpc_peering_config", flattenDatastreamPrivateConnectionVPCPeeringConfig(res["vpcPeeringConfig"], d, config)); err != nil {
+	if err := d.Set("vpc_peering_config", flattenDatastreamPrivateConnectionVpcPeeringConfig(res["vpcPeeringConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PrivateConnection: %s", err)
 	}
 
@@ -419,7 +419,7 @@ func flattenDatastreamPrivateConnectionErrorDetails(v interface{}, d *schema.Res
 	return v
 }
 
-func flattenDatastreamPrivateConnectionVPCPeeringConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamPrivateConnectionVpcPeeringConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -429,16 +429,16 @@ func flattenDatastreamPrivateConnectionVPCPeeringConfig(v interface{}, d *schema
 	}
 	transformed := make(map[string]interface{})
 	transformed["vpc"] =
-		flattenDatastreamPrivateConnectionVPCPeeringConfigVPC(original["vpc"], d, config)
+		flattenDatastreamPrivateConnectionVpcPeeringConfigVpc(original["vpc"], d, config)
 	transformed["subnet"] =
-		flattenDatastreamPrivateConnectionVPCPeeringConfigSubnet(original["subnet"], d, config)
+		flattenDatastreamPrivateConnectionVpcPeeringConfigSubnet(original["subnet"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDatastreamPrivateConnectionVPCPeeringConfigVPC(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamPrivateConnectionVpcPeeringConfigVpc(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenDatastreamPrivateConnectionVPCPeeringConfigSubnet(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamPrivateConnectionVpcPeeringConfigSubnet(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -457,7 +457,7 @@ func expandDatastreamPrivateConnectionDisplayName(v interface{}, d TerraformReso
 	return v, nil
 }
 
-func expandDatastreamPrivateConnectionVPCPeeringConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamPrivateConnectionVpcPeeringConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -466,14 +466,14 @@ func expandDatastreamPrivateConnectionVPCPeeringConfig(v interface{}, d Terrafor
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedVPC, err := expandDatastreamPrivateConnectionVPCPeeringConfigVPC(original["vpc"], d, config)
+	transformedVpc, err := expandDatastreamPrivateConnectionVpcPeeringConfigVpc(original["vpc"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedVPC); val.IsValid() && !isEmptyValue(val) {
-		transformed["vpc"] = transformedVPC
+	} else if val := reflect.ValueOf(transformedVpc); val.IsValid() && !isEmptyValue(val) {
+		transformed["vpc"] = transformedVpc
 	}
 
-	transformedSubnet, err := expandDatastreamPrivateConnectionVPCPeeringConfigSubnet(original["subnet"], d, config)
+	transformedSubnet, err := expandDatastreamPrivateConnectionVpcPeeringConfigSubnet(original["subnet"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedSubnet); val.IsValid() && !isEmptyValue(val) {
@@ -483,10 +483,10 @@ func expandDatastreamPrivateConnectionVPCPeeringConfig(v interface{}, d Terrafor
 	return transformed, nil
 }
 
-func expandDatastreamPrivateConnectionVPCPeeringConfigVPC(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamPrivateConnectionVpcPeeringConfigVpc(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamPrivateConnectionVPCPeeringConfigSubnet(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamPrivateConnectionVpcPeeringConfigSubnet(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }

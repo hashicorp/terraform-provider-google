@@ -1005,7 +1005,7 @@ func resourceAppEngineFlexibleAppVersionCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("entrypoint"); !isEmptyValue(reflect.ValueOf(entrypointProp)) && (ok || !reflect.DeepEqual(v, entrypointProp)) {
 		obj["entrypoint"] = entrypointProp
 	}
-	vpcAccessConnectorProp, err := expandAppEngineFlexibleAppVersionVPCAccessConnector(d.Get("vpc_access_connector"), d, config)
+	vpcAccessConnectorProp, err := expandAppEngineFlexibleAppVersionVpcAccessConnector(d.Get("vpc_access_connector"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("vpc_access_connector"); !isEmptyValue(reflect.ValueOf(vpcAccessConnectorProp)) && (ok || !reflect.DeepEqual(v, vpcAccessConnectorProp)) {
@@ -1187,7 +1187,7 @@ func resourceAppEngineFlexibleAppVersionRead(d *schema.ResourceData, meta interf
 	if err := d.Set("endpoints_api_service", flattenAppEngineFlexibleAppVersionEndpointsApiService(res["endpointsApiService"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FlexibleAppVersion: %s", err)
 	}
-	if err := d.Set("vpc_access_connector", flattenAppEngineFlexibleAppVersionVPCAccessConnector(res["vpcAccessConnector"], d, config)); err != nil {
+	if err := d.Set("vpc_access_connector", flattenAppEngineFlexibleAppVersionVpcAccessConnector(res["vpcAccessConnector"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FlexibleAppVersion: %s", err)
 	}
 	if err := d.Set("automatic_scaling", flattenAppEngineFlexibleAppVersionAutomaticScaling(res["automaticScaling"], d, config)); err != nil {
@@ -1348,7 +1348,7 @@ func resourceAppEngineFlexibleAppVersionUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("entrypoint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, entrypointProp)) {
 		obj["entrypoint"] = entrypointProp
 	}
-	vpcAccessConnectorProp, err := expandAppEngineFlexibleAppVersionVPCAccessConnector(d.Get("vpc_access_connector"), d, config)
+	vpcAccessConnectorProp, err := expandAppEngineFlexibleAppVersionVpcAccessConnector(d.Get("vpc_access_connector"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("vpc_access_connector"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, vpcAccessConnectorProp)) {
@@ -2051,7 +2051,7 @@ func flattenAppEngineFlexibleAppVersionEndpointsApiServiceDisableTraceSampling(v
 	return v
 }
 
-func flattenAppEngineFlexibleAppVersionVPCAccessConnector(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAppEngineFlexibleAppVersionVpcAccessConnector(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2061,10 +2061,10 @@ func flattenAppEngineFlexibleAppVersionVPCAccessConnector(v interface{}, d *sche
 	}
 	transformed := make(map[string]interface{})
 	transformed["name"] =
-		flattenAppEngineFlexibleAppVersionVPCAccessConnectorName(original["name"], d, config)
+		flattenAppEngineFlexibleAppVersionVpcAccessConnectorName(original["name"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAppEngineFlexibleAppVersionVPCAccessConnectorName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAppEngineFlexibleAppVersionVpcAccessConnectorName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -3382,7 +3382,7 @@ func expandAppEngineFlexibleAppVersionEntrypointShell(v interface{}, d Terraform
 	return v, nil
 }
 
-func expandAppEngineFlexibleAppVersionVPCAccessConnector(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAppEngineFlexibleAppVersionVpcAccessConnector(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3391,7 +3391,7 @@ func expandAppEngineFlexibleAppVersionVPCAccessConnector(v interface{}, d Terraf
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedName, err := expandAppEngineFlexibleAppVersionVPCAccessConnectorName(original["name"], d, config)
+	transformedName, err := expandAppEngineFlexibleAppVersionVpcAccessConnectorName(original["name"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
@@ -3401,7 +3401,7 @@ func expandAppEngineFlexibleAppVersionVPCAccessConnector(v interface{}, d Terraf
 	return transformed, nil
 }
 
-func expandAppEngineFlexibleAppVersionVPCAccessConnectorName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAppEngineFlexibleAppVersionVpcAccessConnectorName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

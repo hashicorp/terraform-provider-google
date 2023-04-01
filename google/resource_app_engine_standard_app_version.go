@@ -538,7 +538,7 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("entrypoint"); !isEmptyValue(reflect.ValueOf(entrypointProp)) && (ok || !reflect.DeepEqual(v, entrypointProp)) {
 		obj["entrypoint"] = entrypointProp
 	}
-	vpcAccessConnectorProp, err := expandAppEngineStandardAppVersionVPCAccessConnector(d.Get("vpc_access_connector"), d, config)
+	vpcAccessConnectorProp, err := expandAppEngineStandardAppVersionVpcAccessConnector(d.Get("vpc_access_connector"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("vpc_access_connector"); !isEmptyValue(reflect.ValueOf(vpcAccessConnectorProp)) && (ok || !reflect.DeepEqual(v, vpcAccessConnectorProp)) {
@@ -697,7 +697,7 @@ func resourceAppEngineStandardAppVersionRead(d *schema.ResourceData, meta interf
 	if err := d.Set("libraries", flattenAppEngineStandardAppVersionLibraries(res["libraries"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
-	if err := d.Set("vpc_access_connector", flattenAppEngineStandardAppVersionVPCAccessConnector(res["vpcAccessConnector"], d, config)); err != nil {
+	if err := d.Set("vpc_access_connector", flattenAppEngineStandardAppVersionVpcAccessConnector(res["vpcAccessConnector"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StandardAppVersion: %s", err)
 	}
 	if err := d.Set("inbound_services", flattenAppEngineStandardAppVersionInboundServices(res["inboundServices"], d, config)); err != nil {
@@ -801,7 +801,7 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("entrypoint"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, entrypointProp)) {
 		obj["entrypoint"] = entrypointProp
 	}
-	vpcAccessConnectorProp, err := expandAppEngineStandardAppVersionVPCAccessConnector(d.Get("vpc_access_connector"), d, config)
+	vpcAccessConnectorProp, err := expandAppEngineStandardAppVersionVpcAccessConnector(d.Get("vpc_access_connector"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("vpc_access_connector"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, vpcAccessConnectorProp)) {
@@ -1137,7 +1137,7 @@ func flattenAppEngineStandardAppVersionLibrariesVersion(v interface{}, d *schema
 	return v
 }
 
-func flattenAppEngineStandardAppVersionVPCAccessConnector(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAppEngineStandardAppVersionVpcAccessConnector(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1147,16 +1147,16 @@ func flattenAppEngineStandardAppVersionVPCAccessConnector(v interface{}, d *sche
 	}
 	transformed := make(map[string]interface{})
 	transformed["name"] =
-		flattenAppEngineStandardAppVersionVPCAccessConnectorName(original["name"], d, config)
+		flattenAppEngineStandardAppVersionVpcAccessConnectorName(original["name"], d, config)
 	transformed["egress_setting"] =
-		flattenAppEngineStandardAppVersionVPCAccessConnectorEgressSetting(original["egressSetting"], d, config)
+		flattenAppEngineStandardAppVersionVpcAccessConnectorEgressSetting(original["egressSetting"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAppEngineStandardAppVersionVPCAccessConnectorName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAppEngineStandardAppVersionVpcAccessConnectorName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenAppEngineStandardAppVersionVPCAccessConnectorEgressSetting(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAppEngineStandardAppVersionVpcAccessConnectorEgressSetting(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -1778,7 +1778,7 @@ func expandAppEngineStandardAppVersionEntrypointShell(v interface{}, d Terraform
 	return v, nil
 }
 
-func expandAppEngineStandardAppVersionVPCAccessConnector(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAppEngineStandardAppVersionVpcAccessConnector(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1787,14 +1787,14 @@ func expandAppEngineStandardAppVersionVPCAccessConnector(v interface{}, d Terraf
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedName, err := expandAppEngineStandardAppVersionVPCAccessConnectorName(original["name"], d, config)
+	transformedName, err := expandAppEngineStandardAppVersionVpcAccessConnectorName(original["name"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
 		transformed["name"] = transformedName
 	}
 
-	transformedEgressSetting, err := expandAppEngineStandardAppVersionVPCAccessConnectorEgressSetting(original["egress_setting"], d, config)
+	transformedEgressSetting, err := expandAppEngineStandardAppVersionVpcAccessConnectorEgressSetting(original["egress_setting"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedEgressSetting); val.IsValid() && !isEmptyValue(val) {
@@ -1804,11 +1804,11 @@ func expandAppEngineStandardAppVersionVPCAccessConnector(v interface{}, d Terraf
 	return transformed, nil
 }
 
-func expandAppEngineStandardAppVersionVPCAccessConnectorName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAppEngineStandardAppVersionVpcAccessConnectorName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppEngineStandardAppVersionVPCAccessConnectorEgressSetting(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAppEngineStandardAppVersionVpcAccessConnectorEgressSetting(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
