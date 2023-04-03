@@ -1,3 +1,0 @@
-```release-note:new-datasource
-`google_compute_region_instance_template`
-```
