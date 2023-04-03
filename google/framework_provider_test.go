@@ -34,6 +34,8 @@ func GetFwTestProvider(t *testing.T) *frameworkTestProvider {
 }
 
 func TestAccFrameworkProviderMeta_setModuleName(t *testing.T) {
+	// TODO: https://github.com/hashicorp/terraform-provider-google/issues/14158
+	SkipIfVcr(t)
 	t.Parallel()
 
 	moduleName := "my-module"
@@ -127,6 +129,8 @@ func TestAccFrameworkProviderBasePath_setInvalidBasePath(t *testing.T) {
 }
 
 func TestAccFrameworkProviderBasePath_setBasePath(t *testing.T) {
+	// TODO: https://github.com/hashicorp/terraform-provider-google/issues/14158
+	SkipIfVcr(t)
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
