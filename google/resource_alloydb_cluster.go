@@ -70,7 +70,6 @@ If no policy is provided then the default policy will be used. The default polic
 							Type:        schema.TypeList,
 							Computed:    true,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `Weekly schedule for the Backup.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -186,7 +185,6 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 			"initial_user": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Initial user to setup during cluster creation.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -465,6 +463,12 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
+	initialUserProp, err := expandAlloydbClusterInitialUser(d.Get("initial_user"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("initial_user"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, initialUserProp)) {
+		obj["initialUser"] = initialUserProp
+	}
 	automatedBackupPolicyProp, err := expandAlloydbClusterAutomatedBackupPolicy(d.Get("automated_backup_policy"), d, config)
 	if err != nil {
 		return err
@@ -490,6 +494,10 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("initial_user") {
+		updateMask = append(updateMask, "initialUser")
 	}
 
 	if d.HasChange("automated_backup_policy") {
