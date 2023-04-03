@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccDataSourceDNSKeys_basic(t *testing.T) {
+	// TODO: https://github.com/hashicorp/terraform-provider-google/issues/14158
+	SkipIfVcr(t)
 	t.Parallel()
 
 	dnsZoneName := fmt.Sprintf("tf-test-dnskey-test-%s", RandString(t, 10))
@@ -58,6 +60,8 @@ func TestAccDataSourceDNSKeys_basic(t *testing.T) {
 }
 
 func TestAccDataSourceDNSKeys_noDnsSec(t *testing.T) {
+	// TODO: https://github.com/hashicorp/terraform-provider-google/issues/14158
+	SkipIfVcr(t)
 	t.Parallel()
 
 	dnsZoneName := fmt.Sprintf("tf-test-dnskey-test-%s", RandString(t, 10))

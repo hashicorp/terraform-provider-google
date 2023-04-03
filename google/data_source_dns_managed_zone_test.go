@@ -10,6 +10,8 @@ import (
 )
 
 func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
+	// TODO: https://github.com/hashicorp/terraform-provider-google/issues/14158
+	SkipIfVcr(t)
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{

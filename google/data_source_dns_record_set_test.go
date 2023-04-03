@@ -10,6 +10,8 @@ import (
 )
 
 func TestAccDataSourceDnsRecordSet_basic(t *testing.T) {
+	// TODO: https://github.com/hashicorp/terraform-provider-google/issues/14158
+	SkipIfVcr(t)
 	t.Parallel()
 
 	var ttl1, ttl2 string // ttl is a computed string-type attribute that is easy to compare in the test
