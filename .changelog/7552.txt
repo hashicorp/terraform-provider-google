@@ -1,0 +1,4 @@
+```release-note:bug
+     AlloyDB: Deleted immutable flag for initalUser and weeklySchedule 
+
+```
