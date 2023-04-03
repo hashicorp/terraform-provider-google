@@ -53,6 +53,10 @@ func testSweepSQLDatabaseInstance(region string) error {
 	}
 
 	for _, d := range found.Items {
+		if !IsSweepableTestResource(d.Name) {
+			continue
+		}
+
 		// don't delete replicas, we'll take care of that
 		// when deleting the database they replicate
 		if d.ReplicaConfiguration != nil {
