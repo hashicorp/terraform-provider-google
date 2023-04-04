@@ -19,6 +19,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/option"
 
+	alloydb "cloud.google.com/go/alloydb/apiv1"
 	"golang.org/x/oauth2"
 	googleoauth "golang.org/x/oauth2/google"
 	appengine "google.golang.org/api/appengine/v1"
@@ -1344,6 +1345,17 @@ func (c *Config) NewSqlAdminClient(userAgent string) *sqladmin.Service {
 	clientSqlAdmin.BasePath = sqlClientBasePath
 
 	return clientSqlAdmin
+}
+
+func (c *Config) NewAlloydbClient(userAgent string) *alloydb.AlloyDBAdminClient {
+	alloydbBasePath := RemoveBasePathVersion(RemoveBasePathVersion(c.AlloydbBasePath))
+	log.Printf("[INFO] Instantiating Alloydb client for path %s", alloydbBasePath)
+	clientAlloydb, err := alloydb.NewAlloyDBAdminRESTClient(c.context, option.WithHTTPClient(c.Client), option.WithUserAgent(userAgent), option.WithEndpoint(alloydbBasePath))
+	if err != nil {
+		log.Printf("[WARN] Error creating client storage: %s", err)
+		return nil
+	}
+	return clientAlloydb
 }
 
 func (c *Config) NewPubsubClient(userAgent string) *pubsub.Service {

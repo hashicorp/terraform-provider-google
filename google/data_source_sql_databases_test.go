@@ -120,7 +120,7 @@ func checkDatabaseFieldsMatchForDataSourceStateAndResourceState(dsAttr, rsAttr m
 	}
 
 	if index == "-1" {
-		return errors.New("The newly created intance is not found in the data source")
+		return errors.New("The newly created instance is not found in the data source")
 	}
 
 	errMsg := ""
