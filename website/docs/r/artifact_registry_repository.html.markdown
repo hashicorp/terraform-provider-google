@@ -82,7 +82,6 @@ data "google_project" "project" {}
 
 ```hcl
 resource "google_artifact_registry_repository" "my-repo-upstream" {
-  provider      = google-beta
   location      = "us-central1"
   repository_id = "my-repository-upstream"
   description   = "example docker repository (upstream source)"
@@ -91,7 +90,6 @@ resource "google_artifact_registry_repository" "my-repo-upstream" {
 
 resource "google_artifact_registry_repository" "my-repo" {
   depends_on    = []
-  provider      = google-beta
   location      = "us-central1"
   repository_id = "my-repository"
   description   = "example virtual docker repository"
@@ -116,7 +114,6 @@ resource "google_artifact_registry_repository" "my-repo" {
 
 ```hcl
 resource "google_artifact_registry_repository" "my-repo" {
-  provider      = google-beta
   location      = "us-central1"
   repository_id = "my-repository"
   description   = "example remote docker repository"
@@ -183,18 +180,18 @@ The following arguments are supported:
   Structure is [documented below](#nested_maven_config).
 
 * `mode` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The mode configures the repository to serve artifacts from different sources.
   Default value is `STANDARD_REPOSITORY`.
   Possible values are: `STANDARD_REPOSITORY`, `VIRTUAL_REPOSITORY`, `REMOTE_REPOSITORY`.
 
 * `virtual_repository_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Configuration specific for a Virtual Repository.
   Structure is [documented below](#nested_virtual_repository_config).
 
 * `remote_repository_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Configuration specific for a Remote Repository.
   Structure is [documented below](#nested_remote_repository_config).
 

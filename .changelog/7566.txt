@@ -1,0 +1,3 @@
+```release-note:enhancement
+artifactregistry: promoted `mode`, `virtual_repository_config`, and `remote_repository_config` to GA
+```
