@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed a bug creating a diff adding a `stack_type` when GKE omitted `stackType` in API responses from older GKE clusters
+```
