@@ -15,6 +15,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -23,6 +24,29 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+func storedInfoTypeCustomizeDiffFunc(diff TerraformResourceDiff) error {
+	oldDict, newDict := diff.GetChange("dictionary")
+	oldRegex, newRegex := diff.GetChange("regex")
+	oldLargeCD, newLargeCD := diff.GetChange("large_custom_dictionary")
+	if !isEmptyValue(reflect.ValueOf(oldDict)) && isEmptyValue(reflect.ValueOf(newDict)) {
+		diff.ForceNew("dictionary")
+		return nil
+	}
+	if !isEmptyValue(reflect.ValueOf(oldRegex)) && isEmptyValue(reflect.ValueOf(newRegex)) {
+		diff.ForceNew("regex")
+		return nil
+	}
+	if !isEmptyValue(reflect.ValueOf(oldLargeCD)) && isEmptyValue(reflect.ValueOf(newLargeCD)) {
+		diff.ForceNew("large_custom_dictionary")
+		return nil
+	}
+	return nil
+}
+
+func storedInfoTypeCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+	return storedInfoTypeCustomizeDiffFunc(diff)
+}
 
 func ResourceDataLossPreventionStoredInfoType() *schema.Resource {
 	return &schema.Resource{
@@ -40,6 +64,8 @@ func ResourceDataLossPreventionStoredInfoType() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: storedInfoTypeCustomizeDiff,
 
 		Schema: map[string]*schema.Schema{
 			"parent": {
@@ -61,7 +87,6 @@ func ResourceDataLossPreventionStoredInfoType() *schema.Resource {
 			"dictionary": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Dictionary which defines the rule.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -114,7 +139,6 @@ phrase and every phrase must contain at least 2 characters that are letters or d
 			"large_custom_dictionary": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Dictionary which defines the rule.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -209,7 +233,6 @@ If any of these artifacts are modified, the dictionary is considered invalid and
 			"regex": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Regular expression which defines the rule.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -223,7 +246,6 @@ Its syntax (https://github.com/google/re2/wiki/Syntax) can be found under the go
 						"group_indexes": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `The index of the submatch to extract as findings. When not specified, the entire match is returned. No more than 3 may be included.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeInt,
@@ -442,6 +464,24 @@ func resourceDataLossPreventionStoredInfoTypeUpdate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
+	regexProp, err := expandDataLossPreventionStoredInfoTypeRegex(d.Get("regex"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("regex"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, regexProp)) {
+		obj["regex"] = regexProp
+	}
+	dictionaryProp, err := expandDataLossPreventionStoredInfoTypeDictionary(d.Get("dictionary"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dictionary"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dictionaryProp)) {
+		obj["dictionary"] = dictionaryProp
+	}
+	largeCustomDictionaryProp, err := expandDataLossPreventionStoredInfoTypeLargeCustomDictionary(d.Get("large_custom_dictionary"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("large_custom_dictionary"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, largeCustomDictionaryProp)) {
+		obj["largeCustomDictionary"] = largeCustomDictionaryProp
+	}
 
 	obj, err = resourceDataLossPreventionStoredInfoTypeEncoder(d, meta, obj)
 	if err != nil {
@@ -462,6 +502,18 @@ func resourceDataLossPreventionStoredInfoTypeUpdate(d *schema.ResourceData, meta
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("regex") {
+		updateMask = append(updateMask, "regex")
+	}
+
+	if d.HasChange("dictionary") {
+		updateMask = append(updateMask, "dictionary")
+	}
+
+	if d.HasChange("large_custom_dictionary") {
+		updateMask = append(updateMask, "largeCustomDictionary")
 	}
 	// updateMask is a URL parameter but not present in the schema, so replaceVars
 	// won't set it
