@@ -64,6 +64,21 @@ You can only create alpha formats if you are a member of the
 				Optional:    true,
 				Description: `The user-provided description of the repository.`,
 			},
+			"docker_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Docker repository config contains repository level configuration for the repositories of docker type.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"immutable_tags": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `The repository which enabled this flag prevents all tags from being modified, moved or deleted. This does not prevent tags from being created.`,
+						},
+					},
+				},
+			},
 			"kms_key_name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -323,6 +338,12 @@ func resourceArtifactRegistryRepositoryCreate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("kms_key_name"); !isEmptyValue(reflect.ValueOf(kmsKeyNameProp)) && (ok || !reflect.DeepEqual(v, kmsKeyNameProp)) {
 		obj["kmsKeyName"] = kmsKeyNameProp
 	}
+	dockerConfigProp, err := expandArtifactRegistryRepositoryDockerConfig(d.Get("docker_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("docker_config"); !isEmptyValue(reflect.ValueOf(dockerConfigProp)) && (ok || !reflect.DeepEqual(v, dockerConfigProp)) {
+		obj["dockerConfig"] = dockerConfigProp
+	}
 	mavenConfigProp, err := expandArtifactRegistryRepositoryMavenConfig(d.Get("maven_config"), d, config)
 	if err != nil {
 		return err
@@ -463,6 +484,9 @@ func resourceArtifactRegistryRepositoryRead(d *schema.ResourceData, meta interfa
 	if err := d.Set("update_time", flattenArtifactRegistryRepositoryUpdateTime(res["updateTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
+	if err := d.Set("docker_config", flattenArtifactRegistryRepositoryDockerConfig(res["dockerConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
 	if err := d.Set("maven_config", flattenArtifactRegistryRepositoryMavenConfig(res["mavenConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
@@ -507,6 +531,12 @@ func resourceArtifactRegistryRepositoryUpdate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
+	dockerConfigProp, err := expandArtifactRegistryRepositoryDockerConfig(d.Get("docker_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("docker_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dockerConfigProp)) {
+		obj["dockerConfig"] = dockerConfigProp
+	}
 	mavenConfigProp, err := expandArtifactRegistryRepositoryMavenConfig(d.Get("maven_config"), d, config)
 	if err != nil {
 		return err
@@ -534,6 +564,10 @@ func resourceArtifactRegistryRepositoryUpdate(d *schema.ResourceData, meta inter
 
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
+	}
+
+	if d.HasChange("docker_config") {
+		updateMask = append(updateMask, "dockerConfig")
 	}
 
 	if d.HasChange("maven_config") {
@@ -660,6 +694,23 @@ func flattenArtifactRegistryRepositoryCreateTime(v interface{}, d *schema.Resour
 }
 
 func flattenArtifactRegistryRepositoryUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenArtifactRegistryRepositoryDockerConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["immutable_tags"] =
+		flattenArtifactRegistryRepositoryDockerConfigImmutableTags(original["immutableTags"], d, config)
+	return []interface{}{transformed}
+}
+func flattenArtifactRegistryRepositoryDockerConfigImmutableTags(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -861,6 +912,29 @@ func expandArtifactRegistryRepositoryLabels(v interface{}, d TerraformResourceDa
 }
 
 func expandArtifactRegistryRepositoryKmsKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandArtifactRegistryRepositoryDockerConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedImmutableTags, err := expandArtifactRegistryRepositoryDockerConfigImmutableTags(original["immutable_tags"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedImmutableTags); val.IsValid() && !isEmptyValue(val) {
+		transformed["immutableTags"] = transformedImmutableTags
+	}
+
+	return transformed, nil
+}
+
+func expandArtifactRegistryRepositoryDockerConfigImmutableTags(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
