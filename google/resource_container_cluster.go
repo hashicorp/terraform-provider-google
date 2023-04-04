@@ -4491,6 +4491,13 @@ func flattenIPAllocationPolicy(c *container.Cluster, d *schema.ResourceData, con
 
 	p := c.IpAllocationPolicy
 
+	// handle older clusters that return JSON null
+	// corresponding to "STACK_TYPE_UNSPECIFIED" due to GKE declining to backfill
+	// equivalent to default_if_empty
+	if p.StackType == "" {
+		p.StackType = "IPV4"
+	}
+
 	return []map[string]interface{}{
 		{
 			"cluster_ipv4_cidr_block":       p.ClusterIpv4CidrBlock,
