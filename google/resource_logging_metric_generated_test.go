@@ -207,6 +207,44 @@ resource "google_logging_metric" "logging_metric" {
 `, context)
 }
 
+func TestAccLoggingMetric_loggingMetricDisabledExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingMetricDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingMetric_loggingMetricDisabledExample(context),
+			},
+			{
+				ResourceName:      "google_logging_metric.logging_metric",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccLoggingMetric_loggingMetricDisabledExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_logging_metric" "logging_metric" {
+  name   = "tf-test-my-(custom)/metric%{random_suffix}"
+  filter = "resource.type=gae_app AND severity>=ERROR"
+  metric_descriptor {
+    metric_kind = "DELTA"
+    value_type  = "INT64"
+  }
+  disabled = true
+}
+`, context)
+}
+
 func testAccCheckLoggingMetricDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
