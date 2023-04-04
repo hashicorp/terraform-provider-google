@@ -158,6 +158,11 @@ Each bucket represents a constant absolute uncertainty on the specific value in 
 				Description: `A description of this metric, which is used in documentation. The maximum length of the
 description is 8000 characters.`,
 			},
+			"disabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `If set to True, then this metric is disabled and it does not generate any points.`,
+			},
 			"label_extractors": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -296,6 +301,12 @@ func resourceLoggingMetricCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("bucket_name"); !isEmptyValue(reflect.ValueOf(bucketNameProp)) && (ok || !reflect.DeepEqual(v, bucketNameProp)) {
 		obj["bucketName"] = bucketNameProp
 	}
+	disabledProp, err := expandLoggingMetricDisabled(d.Get("disabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disabled"); !isEmptyValue(reflect.ValueOf(disabledProp)) && (ok || !reflect.DeepEqual(v, disabledProp)) {
+		obj["disabled"] = disabledProp
+	}
 	filterProp, err := expandLoggingMetricFilter(d.Get("filter"), d, config)
 	if err != nil {
 		return err
@@ -431,6 +442,9 @@ func resourceLoggingMetricRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("bucket_name", flattenLoggingMetricBucketName(res["bucketName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Metric: %s", err)
 	}
+	if err := d.Set("disabled", flattenLoggingMetricDisabled(res["disabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Metric: %s", err)
+	}
 	if err := d.Set("filter", flattenLoggingMetricFilter(res["filter"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Metric: %s", err)
 	}
@@ -483,6 +497,12 @@ func resourceLoggingMetricUpdate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("bucket_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bucketNameProp)) {
 		obj["bucketName"] = bucketNameProp
+	}
+	disabledProp, err := expandLoggingMetricDisabled(d.Get("disabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disabled"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disabledProp)) {
+		obj["disabled"] = disabledProp
 	}
 	filterProp, err := expandLoggingMetricFilter(d.Get("filter"), d, config)
 	if err != nil {
@@ -610,6 +630,10 @@ func flattenLoggingMetricDescription(v interface{}, d *schema.ResourceData, conf
 }
 
 func flattenLoggingMetricBucketName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenLoggingMetricDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -825,6 +849,10 @@ func expandLoggingMetricDescription(v interface{}, d TerraformResourceData, conf
 }
 
 func expandLoggingMetricBucketName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLoggingMetricDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
