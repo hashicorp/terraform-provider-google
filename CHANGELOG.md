@@ -1,4 +1,9 @@
-## 4.60.0 (Unreleased)
+## 4.61.0 (Unreleased)
+
+BUG FIXES:
+* container: fixed a bug creating a diff adding a `stack_type` when GKE omitted `stackType` in API responses from older GKE clusters
+
+## 4.60.0 (April 4, 2023)
 
 FEATURES:
 * **New Resource:** `google_apigee_keystores_aliases_key_cert_file` ([#14130](https://github.com/hashicorp/terraform-provider-google/pull/14130))
