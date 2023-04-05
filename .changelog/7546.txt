@@ -1,0 +1,3 @@
+```release-note:new-resource
+networksecurity: added resource `gatewaySecurityPolicies` and `gatewaySecurityPoliciesRules`
+```
