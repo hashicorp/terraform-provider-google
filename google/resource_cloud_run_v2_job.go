@@ -400,9 +400,9 @@ This field is not supported in Cloud Run Job currently.`,
 									},
 									"max_retries": {
 										Type:        schema.TypeInt,
-										Computed:    true,
 										Optional:    true,
 										Description: `Number of retries allowed per Task, before marking this Task failed.`,
+										Default:     3,
 									},
 									"service_account": {
 										Type:        schema.TypeString,
@@ -2278,7 +2278,7 @@ func expandCloudRunV2JobTemplateTemplate(v interface{}, d TerraformResourceData,
 	transformedMaxRetries, err := expandCloudRunV2JobTemplateTemplateMaxRetries(original["max_retries"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxRetries); val.IsValid() && !isEmptyValue(val) {
+	} else {
 		transformed["maxRetries"] = transformedMaxRetries
 	}
 

@@ -1,0 +1,6 @@
+```release-note:breaking-change
+cloudrunv2: set a default value of 3 for `max_retries` in `google_cloud_run_v2_job`. This should match the API's existing default, but may show a diff at plan time
+```
+```release-note:bug
+cloudrunv2: fixed the bug where setting `max_retries` to 0 in `google_cloud_run_v2_job` was not respected.
+```

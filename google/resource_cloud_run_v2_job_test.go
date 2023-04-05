@@ -157,7 +157,7 @@ resource "google_cloud_run_v2_job" "default" {
         connector = google_vpc_access_connector.connector.id
         egress = "ALL_TRAFFIC"
       }
-      max_retries = 2
+      max_retries = 0
     }
   }
 
