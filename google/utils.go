@@ -49,6 +49,9 @@ type TerraformResourceDiff interface {
 }
 
 // getRegionFromZone returns the region from a zone for Google cloud.
+// This is by removing the last two chars from the zone name to leave the region
+// If there aren't enough characters in the input string, an empty string is returned
+// e.g. southamerica-west1-a => southamerica-west1
 func getRegionFromZone(zone string) string {
 	if zone != "" && len(zone) > 2 {
 		region := zone[:len(zone)-2]

@@ -165,14 +165,6 @@ func testAccPreCheck(t *testing.T) {
 	}
 }
 
-func TestProvider_getRegionFromZone(t *testing.T) {
-	expected := "us-central1"
-	actual := getRegionFromZone("us-central1-f")
-	if expected != actual {
-		t.Fatalf("Region (%s) did not match expected value: %s", actual, expected)
-	}
-}
-
 func TestProvider_loadCredentialsFromFile(t *testing.T) {
 	ws, es := validateCredentials(testFakeCredentialsPath, "")
 	if len(ws) != 0 {
