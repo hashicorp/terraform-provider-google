@@ -486,54 +486,62 @@ var DefaultClientScopes = []string{
 	"https://www.googleapis.com/auth/userinfo.email",
 }
 
-func HandleSDKDefaults(d *schema.ResourceData) {
+func HandleSDKDefaults(d *schema.ResourceData) error {
 	if d.Get("impersonate_service_account") == "" {
-		d.Set("impersonate_service_account", MultiEnvSearch([]string{
+		d.Set("impersonate_service_account", MultiEnvDefault([]string{
 			"GOOGLE_IMPERSONATE_SERVICE_ACCOUNT",
-		}))
+		}, nil))
 	}
 
 	if d.Get("project") == "" {
-		d.Set("project", MultiEnvSearch([]string{
+		d.Set("project", MultiEnvDefault([]string{
 			"GOOGLE_PROJECT",
 			"GOOGLE_CLOUD_PROJECT",
 			"GCLOUD_PROJECT",
 			"CLOUDSDK_CORE_PROJECT",
-		}))
+		}, nil))
 	}
 
 	if d.Get("billing_project") == "" {
-		d.Set("billing_project", MultiEnvSearch([]string{
+		d.Set("billing_project", MultiEnvDefault([]string{
 			"GOOGLE_BILLING_PROJECT",
-		}))
+		}, nil))
 	}
 
 	if d.Get("region") == "" {
-		d.Set("region", MultiEnvSearch([]string{
+		d.Set("region", MultiEnvDefault([]string{
 			"GOOGLE_REGION",
 			"GCLOUD_REGION",
 			"CLOUDSDK_COMPUTE_REGION",
-		}))
+		}, nil))
 	}
 
 	if d.Get("zone") == "" {
-		d.Set("zone", MultiEnvSearch([]string{
+		d.Set("zone", MultiEnvDefault([]string{
 			"GOOGLE_ZONE",
 			"GCLOUD_ZONE",
 			"CLOUDSDK_COMPUTE_ZONE",
-		}))
+		}, nil))
 	}
 
-	if d.Get("user_project_override") == "" {
-		d.Set("user_project_override", MultiEnvSearch([]string{
+	if _, ok := d.GetOkExists("user_project_override"); !ok {
+		override := MultiEnvDefault([]string{
 			"USER_PROJECT_OVERRIDE",
-		}))
+		}, nil)
+
+		if override != nil {
+			b, err := strconv.ParseBool(override.(string))
+			if err != nil {
+				return err
+			}
+			d.Set("user_project_override", b)
+		}
 	}
 
 	if d.Get("request_reason") == "" {
-		d.Set("request_reason", MultiEnvSearch([]string{
+		d.Set("request_reason", MultiEnvDefault([]string{
 			"CLOUDSDK_CORE_REQUEST_REASON",
-		}))
+		}, nil))
 	}
 
 	// Generated Products
@@ -1033,6 +1041,8 @@ func HandleSDKDefaults(d *schema.ResourceData) {
 			"GOOGLE_CONTAINERAZURE_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[ContainerAzureBasePathKey]))
 	}
+
+	return nil
 }
 
 func (c *Config) LoadAndValidate(ctx context.Context) error {
