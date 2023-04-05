@@ -199,30 +199,32 @@ func TestReplaceVars(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		d := &ResourceDataMock{
-			FieldsInSchema: tc.SchemaValues,
-		}
-
-		config := tc.Config
-		if config == nil {
-			config = &Config{}
-		}
-
-		v, err := replaceVars(d, config, tc.Template)
-
-		if err != nil {
-			if !tc.ExpectedError {
-				t.Errorf("bad: %s; unexpected error %s", tn, err)
+		t.Run(tn, func(t *testing.T) {
+			d := &ResourceDataMock{
+				FieldsInSchema: tc.SchemaValues,
 			}
-			continue
-		}
 
-		if tc.ExpectedError {
-			t.Errorf("bad: %s; expected error", tn)
-		}
+			config := tc.Config
+			if config == nil {
+				config = &Config{}
+			}
 
-		if v != tc.Expected {
-			t.Errorf("bad: %s; expected %q, got %q", tn, tc.Expected, v)
-		}
+			v, err := replaceVars(d, config, tc.Template)
+
+			if err != nil {
+				if !tc.ExpectedError {
+					t.Errorf("bad: %s; unexpected error %s", tn, err)
+				}
+				return
+			}
+
+			if tc.ExpectedError {
+				t.Errorf("bad: %s; expected error", tn)
+			}
+
+			if v != tc.Expected {
+				t.Errorf("bad: %s; expected %q, got %q", tn, tc.Expected, v)
+			}
+		})
 	}
 }
