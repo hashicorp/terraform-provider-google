@@ -25,6 +25,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+// This customizeDiff allows updating the dictionary, regex, and large_custom_dictionary fields, but
+// it recreates the resource if changing between these fields. e.g., updating the regex field should
+// be allowed, while changing from regex to dictionary should trigger the recreation of the resource.
 func storedInfoTypeCustomizeDiffFunc(diff TerraformResourceDiff) error {
 	oldDict, newDict := diff.GetChange("dictionary")
 	oldRegex, newRegex := diff.GetChange("regex")
