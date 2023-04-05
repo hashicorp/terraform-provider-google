@@ -32,14 +32,14 @@ func TestAccProjectIamMember_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
-				Config: testAccProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccProjectExistingPolicy(t, pid),
 				),
 			},
 			// Apply an IAM binding
 			{
-				Config: testAccProjectAssociateMemberBasic(pid, pname, org, role, member),
+				Config: testAccProjectAssociateMemberBasic(pid, org, role, member),
 			},
 			projectIamMemberImportStep(resourceName, pid, role, member),
 		},
@@ -68,20 +68,20 @@ func TestAccProjectIamMember_multiple(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
-				Config: testAccProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccProjectExistingPolicy(t, pid),
 				),
 			},
 			// Apply an IAM binding
 			{
-				Config: testAccProjectAssociateMemberBasic(pid, pname, org, role, member),
+				Config: testAccProjectAssociateMemberBasic(pid, org, role, member),
 			},
 			projectIamMemberImportStep(resourceName, pid, role, member),
 
 			// Apply another IAM binding
 			{
-				Config: testAccProjectAssociateMemberMultiple(pid, pname, org, role, member, role, member2),
+				Config: testAccProjectAssociateMemberMultiple(pid, org, role, member, role, member2),
 			},
 			projectIamMemberImportStep(resourceName, pid, role, member),
 			projectIamMemberImportStep(resourceName2, pid, role, member2),
@@ -110,7 +110,7 @@ func TestAccProjectIamMember_remove(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
-				Config: testAccProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccProjectExistingPolicy(t, pid),
 				),
@@ -118,14 +118,14 @@ func TestAccProjectIamMember_remove(t *testing.T) {
 
 			// Apply multiple IAM bindings
 			{
-				Config: testAccProjectAssociateMemberMultiple(pid, pname, org, role, member, role, member2),
+				Config: testAccProjectAssociateMemberMultiple(pid, org, role, member, role, member2),
 			},
 			projectIamMemberImportStep(resourceName, pid, role, member),
 			projectIamMemberImportStep(resourceName, pid, role, member2),
 
 			// Remove the bindings
 			{
-				Config: testAccProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccProjectExistingPolicy(t, pid),
 				),
@@ -149,14 +149,14 @@ func TestAccProjectIamMember_withCondition(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a new project
 			{
-				Config: testAccProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccProjectExistingPolicy(t, pid),
 				),
 			},
 			// Apply an IAM binding
 			{
-				Config: testAccProjectAssociateMember_withCondition(pid, pname, org, role, member, conditionTitle),
+				Config: testAccProjectAssociateMember_withCondition(pid, org, role, member, conditionTitle),
 			},
 			{
 				ResourceName:      resourceName,
@@ -180,17 +180,17 @@ func TestAccProjectIamMember_invalidMembers(t *testing.T) {
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccProjectAssociateMemberBasic(pid, pname, org, role, "admin@hashicorptest.com"),
+				Config:      testAccProjectAssociateMemberBasic(pid, org, role, "admin@hashicorptest.com"),
 				ExpectError: regexp.MustCompile("invalid value for member \\(IAM members must have one of the values outlined here: https://cloud.google.com/billing/docs/reference/rest/v1/Policy#Binding\\)"),
 			},
 			{
-				Config: testAccProjectAssociateMemberBasic(pid, pname, org, role, "user:admin@hashicorptest.com"),
+				Config: testAccProjectAssociateMemberBasic(pid, org, role, "user:admin@hashicorptest.com"),
 			},
 		},
 	})
 }
 
-func testAccProjectAssociateMemberBasic(pid, name, org, role, member string) string {
+func testAccProjectAssociateMemberBasic(pid, org, role, member string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
@@ -203,10 +203,10 @@ resource "google_project_iam_member" "acceptance" {
   role    = "%s"
   member  = "%s"
 }
-`, pid, name, org, role, member)
+`, pid, pid, org, role, member)
 }
 
-func testAccProjectAssociateMemberMultiple(pid, name, org, role, member, role2, member2 string) string {
+func testAccProjectAssociateMemberMultiple(pid, org, role, member, role2, member2 string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
@@ -225,10 +225,10 @@ resource "google_project_iam_member" "multiple" {
   role    = "%s"
   member  = "%s"
 }
-`, pid, name, org, role, member, role2, member2)
+`, pid, pid, org, role, member, role2, member2)
 }
 
-func testAccProjectAssociateMember_withCondition(pid, name, org, role, member, conditionTitle string) string {
+func testAccProjectAssociateMember_withCondition(pid, org, role, member, conditionTitle string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
@@ -246,5 +246,5 @@ resource "google_project_iam_member" "acceptance" {
     expression  = "request.time < timestamp(\"2020-01-01T00:00:00Z\")"
   }
 }
-`, pid, name, org, role, member, conditionTitle)
+`, pid, pid, org, role, member, conditionTitle)
 }

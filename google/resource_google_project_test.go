@@ -17,7 +17,6 @@ import (
 )
 
 var (
-	pname          = "Terraform Acceptance Tests"
 	OriginalPolicy *cloudresourcemanager.Policy
 	TestPrefix     = "tf-test"
 )
@@ -98,7 +97,7 @@ func TestAccProject_createWithoutOrg(t *testing.T) {
 		Steps: []resource.TestStep{
 			// This step creates a new project
 			{
-				Config: testAccProject_createWithoutOrg(pid, pname),
+				Config: testAccProject_createWithoutOrg(pid),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 				),
@@ -120,7 +119,7 @@ func TestAccProject_create(t *testing.T) {
 		Steps: []resource.TestStep{
 			// This step creates a new project
 			{
-				Config: testAccProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 				),
@@ -146,7 +145,7 @@ func TestAccProject_billing(t *testing.T) {
 		Steps: []resource.TestStep{
 			// This step creates a new project with a billing account
 			{
-				Config: testAccProject_createBilling(pid, pname, org, billingId),
+				Config: testAccProject_createBilling(pid, org, billingId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasBillingAccount(t, "google_project.acceptance", pid, billingId),
 				),
@@ -160,14 +159,14 @@ func TestAccProject_billing(t *testing.T) {
 			},
 			// Update to a different  billing account
 			{
-				Config: testAccProject_createBilling(pid, pname, org, billingId2),
+				Config: testAccProject_createBilling(pid, org, billingId2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasBillingAccount(t, "google_project.acceptance", pid, billingId2),
 				),
 			},
 			// Unlink the billing account
 			{
-				Config: testAccProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasBillingAccount(t, "google_project.acceptance", pid, ""),
 				),
@@ -187,7 +186,7 @@ func TestAccProject_labels(t *testing.T) {
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProject_labels(pid, pname, org, map[string]string{"test": "that"}),
+				Config: testAccProject_labels(pid, org, map[string]string{"test": "that"}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasLabels(t, "google_project.acceptance", pid, map[string]string{"test": "that"}),
 				),
@@ -201,7 +200,7 @@ func TestAccProject_labels(t *testing.T) {
 			},
 			// update project with labels
 			{
-				Config: testAccProject_labels(pid, pname, org, map[string]string{"label": "label-value"}),
+				Config: testAccProject_labels(pid, org, map[string]string{"label": "label-value"}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 					testAccCheckGoogleProjectHasLabels(t, "google_project.acceptance", pid, map[string]string{"label": "label-value"}),
@@ -209,7 +208,7 @@ func TestAccProject_labels(t *testing.T) {
 			},
 			// update project delete labels
 			{
-				Config: testAccProject_create(pid, pname, org),
+				Config: testAccProject_create(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 					testAccCheckGoogleProjectHasNoLabels(t, "google_project.acceptance", pid),
@@ -230,7 +229,7 @@ func TestAccProject_deleteDefaultNetwork(t *testing.T) {
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProject_deleteDefaultNetwork(pid, pname, org, billingId),
+				Config: testAccProject_deleteDefaultNetwork(pid, org, billingId),
 			},
 		},
 	})
@@ -247,7 +246,7 @@ func TestAccProject_parentFolder(t *testing.T) {
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProject_parentFolder(pid, pname, folderDisplayName, org),
+				Config: testAccProject_parentFolder(pid, folderDisplayName, org),
 			},
 		},
 	})
@@ -264,7 +263,7 @@ func TestAccProject_migrateParent(t *testing.T) {
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProject_migrateParentFolder(pid, pname, folderDisplayName, org),
+				Config: testAccProject_migrateParentFolder(pid, folderDisplayName, org),
 			},
 			{
 				ResourceName:            "google_project.acceptance",
@@ -273,7 +272,7 @@ func TestAccProject_migrateParent(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"skip_delete"},
 			},
 			{
-				Config: testAccProject_migrateParentOrg(pid, pname, folderDisplayName, org),
+				Config: testAccProject_migrateParentOrg(pid, folderDisplayName, org),
 			},
 			{
 				ResourceName:            "google_project.acceptance",
@@ -282,7 +281,7 @@ func TestAccProject_migrateParent(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"skip_delete"},
 			},
 			{
-				Config: testAccProject_migrateParentFolder(pid, pname, folderDisplayName, org),
+				Config: testAccProject_migrateParentFolder(pid, folderDisplayName, org),
 			},
 			{
 				ResourceName:            "google_project.acceptance",
@@ -411,16 +410,16 @@ func testAccCheckGoogleProjectHasNoLabels(t *testing.T, r, pid string) resource.
 	}
 }
 
-func testAccProject_createWithoutOrg(pid, name string) string {
+func testAccProject_createWithoutOrg(pid string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
 }
-`, pid, name)
+`, pid, pid)
 }
 
-func testAccProject_createBilling(pid, name, org, billing string) string {
+func testAccProject_createBilling(pid, org, billing string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id      = "%s"
@@ -428,16 +427,16 @@ resource "google_project" "acceptance" {
   org_id          = "%s"
   billing_account = "%s"
 }
-`, pid, name, org, billing)
+`, pid, pid, org, billing)
 }
 
-func testAccProject_labels(pid, name, org string, labels map[string]string) string {
+func testAccProject_labels(pid, org string, labels map[string]string) string {
 	r := fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
   org_id     = "%s"
-  labels = {`, pid, name, org)
+  labels = {`, pid, pid, org)
 
 	l := ""
 	for key, value := range labels {
@@ -448,7 +447,7 @@ resource "google_project" "acceptance" {
 	return r + l
 }
 
-func testAccProject_deleteDefaultNetwork(pid, name, org, billing string) string {
+func testAccProject_deleteDefaultNetwork(pid, org, billing string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id          = "%s"
@@ -457,10 +456,10 @@ resource "google_project" "acceptance" {
   billing_account     = "%s" # requires billing to enable compute API
   auto_create_network = false
 }
-`, pid, name, org, billing)
+`, pid, pid, org, billing)
 }
 
-func testAccProject_parentFolder(pid, projectName, folderName, org string) string {
+func testAccProject_parentFolder(pid, folderName, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
@@ -473,10 +472,10 @@ resource "google_folder" "folder1" {
   display_name = "%s"
   parent       = "organizations/%s"
 }
-`, pid, projectName, folderName, org)
+`, pid, pid, folderName, org)
 }
 
-func testAccProject_migrateParentFolder(pid, projectName, folderName, org string) string {
+func testAccProject_migrateParentFolder(pid, folderName, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
@@ -489,10 +488,10 @@ resource "google_folder" "folder1" {
   display_name = "%s"
   parent       = "organizations/%s"
 }
-`, pid, projectName, folderName, org)
+`, pid, pid, folderName, org)
 }
 
-func testAccProject_migrateParentOrg(pid, projectName, folderName, org string) string {
+func testAccProject_migrateParentOrg(pid, folderName, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
@@ -505,5 +504,5 @@ resource "google_folder" "folder1" {
   display_name = "%s"
   parent       = "organizations/%s"
 }
-`, pid, projectName, org, folderName, org)
+`, pid, pid, org, folderName, org)
 }
