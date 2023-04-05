@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed the import logic in`google_bigquery_capacity_commitment`
+```

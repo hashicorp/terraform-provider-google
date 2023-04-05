@@ -93,7 +93,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `{{name}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}`
 
 * `name` -
   The resource name of the capacity commitment, e.g., projects/myproject/locations/US/capacityCommitments/123
@@ -123,7 +123,9 @@ This resource provides the following
 CapacityCommitment can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_bigquery_capacity_commitment.default {{name}}
+$ terraform import google_bigquery_capacity_commitment.default projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}
+$ terraform import google_bigquery_capacity_commitment.default {{project}}/{{location}}/{{capacity_commitment_id}}
+$ terraform import google_bigquery_capacity_commitment.default {{location}}/{{capacity_commitment_id}}
 ```
 
 ## User Project Overrides
