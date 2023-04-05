@@ -1,6 +1,10 @@
 package google
 
-import "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+import (
+	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+)
 
 func expandStringArray(v interface{}) []string {
 	arr, ok := v.([]string)
@@ -53,13 +57,18 @@ func expandEnumBool(v interface{}) *bool {
 	if !ok {
 		return nil
 	}
-	switch s {
-	case "TRUE":
-		b := true
-		return &b
-	case "FALSE":
-		b := false
-		return &b
+
+	switch {
+	case strings.EqualFold(s, "true"):
+		return boolPtr(true)
+	case strings.EqualFold(s, "false"):
+		return boolPtr(false)
+	default:
+		return nil
 	}
-	return nil
+}
+
+// boolPtr returns a pointer to the given boolean.
+func boolPtr(b bool) *bool {
+	return &b
 }
