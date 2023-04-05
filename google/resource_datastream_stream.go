@@ -1267,7 +1267,7 @@ will be encrypted using an internal Stream-specific encryption key provisioned t
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "NOT_STARTED",
-				Description: `Desired state of the Stream. Set this field to 'RUNNING' to start the stream, and 'PAUSED' to pause the stream.`,
+				Description: `Desired state of the Stream. Set this field to 'RUNNING' to start the stream, 'NOT_STARTED' to not start the stream and 'PAUSED' to pause the stream from a 'RUNNING' state.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

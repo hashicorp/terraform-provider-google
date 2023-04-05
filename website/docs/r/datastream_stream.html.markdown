@@ -1315,7 +1315,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-* `desired_state` - (Optional) Desired state of the Stream. Set this field to `RUNNING` to start the stream, and `PAUSED` to pause the stream.
+* `desired_state` - (Optional) Desired state of the Stream. Set this field to `RUNNING` to start the stream, `NOT_STARTED` to not start the stream and `PAUSED` to pause the stream from a `RUNNING` state.
 
 
 <a name="nested_backfill_all"></a>The `backfill_all` block supports:
