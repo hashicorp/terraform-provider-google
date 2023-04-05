@@ -123,7 +123,7 @@ When multiple hosts are specified, hosts are matched in the following priority:
 										Required:    true,
 										Description: `The routeRules to match against. routeRules support advanced routing behaviour, and can match on paths, headers and query parameters, as well as status codes and HTTP methods.`,
 										MinItems:    1,
-										MaxItems:    64,
+										MaxItems:    200,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"match_rule": {
