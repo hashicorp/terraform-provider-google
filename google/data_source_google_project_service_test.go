@@ -19,7 +19,7 @@ func TestAccDataSourceGoogleProjectService_basic(t *testing.T) {
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceGoogleProjectService_basic(services, pid, pname, org),
+				Config: testAccDataSourceGoogleProjectService_basic(services, pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceGoogleProjectServiceCheck("data.google_project_service.foo"),
 				),
@@ -28,7 +28,7 @@ func TestAccDataSourceGoogleProjectService_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceGoogleProjectService_basic(services []string, pid, name, org string) string {
+func testAccDataSourceGoogleProjectService_basic(services []string, pid, org string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
@@ -45,7 +45,7 @@ data "google_project_service" "foo" {
   project = google_project.acceptance.project_id
   service = google_project_service.foo.service
 }
-`, pid, name, org, services[0])
+`, pid, pid, org, services[0])
 }
 
 func testAccDataSourceGoogleProjectServiceCheck(datasourceName string) resource.TestCheckFunc {

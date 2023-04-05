@@ -20,7 +20,7 @@ func TestAccBinaryAuthorizationPolicy_basic(t *testing.T) {
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBinaryAuthorizationPolicyBasic(pid, pname, org, billingId),
+				Config: testAccBinaryAuthorizationPolicyBasic(pid, org, billingId),
 			},
 			{
 				ResourceName:      "google_binary_authorization_policy.policy",
@@ -30,7 +30,7 @@ func TestAccBinaryAuthorizationPolicy_basic(t *testing.T) {
 			// Destroy the policy without destroying the project so we can check
 			// that it was restored to the default.
 			{
-				Config: testAccBinaryAuthorizationPolicyDefault(pid, pname, org, billingId),
+				Config: testAccBinaryAuthorizationPolicyDefault(pid, org, billingId),
 				Check:  testAccCheckBinaryAuthorizationPolicyDefault(t, pid),
 			},
 		},
@@ -51,7 +51,7 @@ func TestAccBinaryAuthorizationPolicy_full(t *testing.T) {
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBinaryAuthorizationPolicyFull(pid, pname, org, billingId, note, attestor, "ENABLE"),
+				Config: testAccBinaryAuthorizationPolicyFull(pid, org, billingId, note, attestor, "ENABLE"),
 			},
 			{
 				ResourceName:      "google_binary_authorization_policy.policy",
@@ -61,7 +61,7 @@ func TestAccBinaryAuthorizationPolicy_full(t *testing.T) {
 			// Destroy the policy without destroying the project so we can check
 			// that it was restored to the default.
 			{
-				Config: testAccBinaryAuthorizationPolicyDefault(pid, pname, org, billingId),
+				Config: testAccBinaryAuthorizationPolicyDefault(pid, org, billingId),
 				Check:  testAccCheckBinaryAuthorizationPolicyDefault(t, pid),
 			},
 		},
@@ -83,7 +83,7 @@ func TestAccBinaryAuthorizationPolicy_separateProject(t *testing.T) {
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBinaryAuthorizationPolicy_separateProject(pid, pname, org, billingId, note, attestor),
+				Config: testAccBinaryAuthorizationPolicy_separateProject(pid, org, billingId, note, attestor),
 			},
 			{
 				ResourceName:      "google_binary_authorization_policy.policy",
@@ -93,7 +93,7 @@ func TestAccBinaryAuthorizationPolicy_separateProject(t *testing.T) {
 			// Destroy the policy without destroying the project so we can check
 			// that it was restored to the default.
 			{
-				Config: testAccBinaryAuthorizationPolicyDefault(pid, pname, org, billingId),
+				Config: testAccBinaryAuthorizationPolicyDefault(pid, org, billingId),
 				Check:  testAccCheckBinaryAuthorizationPolicyDefault(t, pid),
 			},
 		},
@@ -114,7 +114,7 @@ func TestAccBinaryAuthorizationPolicy_update(t *testing.T) {
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBinaryAuthorizationPolicyBasic(pid, pname, org, billingId),
+				Config: testAccBinaryAuthorizationPolicyBasic(pid, org, billingId),
 			},
 			{
 				ResourceName:      "google_binary_authorization_policy.policy",
@@ -122,7 +122,7 @@ func TestAccBinaryAuthorizationPolicy_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccBinaryAuthorizationPolicyFull(pid, pname, org, billingId, note, attestor, "ENABLE"),
+				Config: testAccBinaryAuthorizationPolicyFull(pid, org, billingId, note, attestor, "ENABLE"),
 			},
 			{
 				ResourceName:      "google_binary_authorization_policy.policy",
@@ -130,7 +130,7 @@ func TestAccBinaryAuthorizationPolicy_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccBinaryAuthorizationPolicyFull(pid, pname, org, billingId, note, attestor, "DISABLE"),
+				Config: testAccBinaryAuthorizationPolicyFull(pid, org, billingId, note, attestor, "DISABLE"),
 			},
 			{
 				ResourceName:      "google_binary_authorization_policy.policy",
@@ -138,7 +138,7 @@ func TestAccBinaryAuthorizationPolicy_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccBinaryAuthorizationPolicyBasic(pid, pname, org, billingId),
+				Config: testAccBinaryAuthorizationPolicyBasic(pid, org, billingId),
 			},
 			{
 				ResourceName:      "google_binary_authorization_policy.policy",
@@ -148,7 +148,7 @@ func TestAccBinaryAuthorizationPolicy_update(t *testing.T) {
 			// Destroy the policy without destroying the project so we can check
 			// that it was restored to the default.
 			{
-				Config: testAccBinaryAuthorizationPolicyDefault(pid, pname, org, billingId),
+				Config: testAccBinaryAuthorizationPolicyDefault(pid, org, billingId),
 				Check:  testAccCheckBinaryAuthorizationPolicyDefault(t, pid),
 			},
 		},
@@ -176,7 +176,7 @@ func testAccCheckBinaryAuthorizationPolicyDefault(t *testing.T, pid string) reso
 	}
 }
 
-func testAccBinaryAuthorizationPolicyDefault(pid, pname, org, billing string) string {
+func testAccBinaryAuthorizationPolicyDefault(pid, org, billing string) string {
 	return fmt.Sprintf(`
 // Use a separate project since each project can only have one policy
 resource "google_project" "project" {
@@ -190,10 +190,10 @@ resource "google_project_service" "binauthz" {
   project = google_project.project.project_id
   service = "binaryauthorization.googleapis.com"
 }
-`, pid, pname, org, billing)
+`, pid, pid, org, billing)
 }
 
-func testAccBinaryAuthorizationPolicyBasic(pid, pname, org, billing string) string {
+func testAccBinaryAuthorizationPolicyBasic(pid, org, billing string) string {
 	return fmt.Sprintf(`
 // Use a separate project since each project can only have one policy
 resource "google_project" "project" {
@@ -222,10 +222,10 @@ resource "google_binary_authorization_policy" "policy" {
 
   depends_on = [google_project_service.binauthz]
 }
-`, pid, pname, org, billing)
+`, pid, pid, org, billing)
 }
 
-func testAccBinaryAuthorizationPolicyFull(pid, pname, org, billing, note, attestor, gpmode string) string {
+func testAccBinaryAuthorizationPolicyFull(pid, org, billing, note, attestor, gpmode string) string {
 	return fmt.Sprintf(`
 // Use a separate project since each project can only have one policy
 resource "google_project" "project" {
@@ -286,10 +286,10 @@ resource "google_binary_authorization_policy" "policy" {
 
   global_policy_evaluation_mode = "%s"
 }
-`, pid, pname, org, billing, note, attestor, gpmode)
+`, pid, pid, org, billing, note, attestor, gpmode)
 }
 
-func testAccBinaryAuthorizationPolicy_separateProject(pid, pname, org, billing, note, attestor string) string {
+func testAccBinaryAuthorizationPolicy_separateProject(pid, org, billing, note, attestor string) string {
 	return fmt.Sprintf(`
 // Use a separate project since each project can only have one policy
 resource "google_project" "project" {
@@ -349,5 +349,5 @@ resource "google_binary_authorization_policy" "policy" {
     require_attestations_by = ["projects/${data.google_client_config.current.project}/attestors/${google_binary_authorization_attestor.attestor.name}"]
   }
 }
-`, pid, pname, org, billing, note, attestor)
+`, pid, pid, org, billing, note, attestor)
 }
