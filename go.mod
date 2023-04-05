@@ -2,7 +2,6 @@ module github.com/hashicorp/terraform-provider-google
 go 1.18
 
 require (
-	cloud.google.com/go/alloydb v0.2.0
 	cloud.google.com/go/bigtable v1.17.0
 	github.com/GoogleCloudPlatform/declarative-resource-client-library v1.34.0
 	github.com/apparentlymart/go-cidr v1.1.0
