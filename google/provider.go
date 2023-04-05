@@ -1321,7 +1321,10 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 }
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Provider) (interface{}, diag.Diagnostics) {
-	HandleSDKDefaults(d)
+	err := HandleSDKDefaults(d)
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
 	HandleDCLCustomEndpointDefaults(d)
 
 	config := Config{

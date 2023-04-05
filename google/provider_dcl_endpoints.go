@@ -112,54 +112,54 @@ func ConfigureDCLProvider(provider *schema.Provider) {
 
 func HandleDCLCustomEndpointDefaults(d *schema.ResourceData) {
 	if d.Get(ApikeysEndpointEntryKey) == "" {
-		d.Set(ApikeysEndpointEntryKey, MultiEnvSearch([]string{
+		d.Set(ApikeysEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_APIKEYS_CUSTOM_ENDPOINT",
-		}))
+		}, ""))
 	}
 	if d.Get(AssuredWorkloadsEndpointEntryKey) == "" {
-		d.Set(AssuredWorkloadsEndpointEntryKey, MultiEnvSearch([]string{
+		d.Set(AssuredWorkloadsEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_ASSURED_WORKLOADS_CUSTOM_ENDPOINT",
-		}))
+		}, ""))
 	}
 	if d.Get(CloudBuildWorkerPoolEndpointEntryKey) == "" {
-		d.Set(CloudBuildWorkerPoolEndpointEntryKey, MultiEnvSearch([]string{
+		d.Set(CloudBuildWorkerPoolEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_BUILD_WORKER_POOL_CUSTOM_ENDPOINT",
-		}))
+		}, ""))
 	}
 	if d.Get(ClouddeployEndpointEntryKey) == "" {
-		d.Set(ClouddeployEndpointEntryKey, MultiEnvSearch([]string{
+		d.Set(ClouddeployEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_CLOUDDEPLOY_CUSTOM_ENDPOINT",
-		}))
+		}, ""))
 	}
 	if d.Get(CloudResourceManagerEndpointEntryKey) == "" {
-		d.Set(CloudResourceManagerEndpointEntryKey, MultiEnvSearch([]string{
+		d.Set(CloudResourceManagerEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_RESOURCE_MANAGER_CUSTOM_ENDPOINT",
-		}))
+		}, ""))
 	}
 	if d.Get(EventarcEndpointEntryKey) == "" {
-		d.Set(EventarcEndpointEntryKey, MultiEnvSearch([]string{
+		d.Set(EventarcEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_EVENTARC_CUSTOM_ENDPOINT",
-		}))
+		}, ""))
 	}
 	if d.Get(FirebaserulesEndpointEntryKey) == "" {
-		d.Set(FirebaserulesEndpointEntryKey, MultiEnvSearch([]string{
+		d.Set(FirebaserulesEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_FIREBASERULES_CUSTOM_ENDPOINT",
-		}))
+		}, ""))
 	}
 	if d.Get(NetworkConnectivityEndpointEntryKey) == "" {
-		d.Set(NetworkConnectivityEndpointEntryKey, MultiEnvSearch([]string{
+		d.Set(NetworkConnectivityEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_NETWORK_CONNECTIVITY_CUSTOM_ENDPOINT",
-		}))
+		}, ""))
 	}
 	if d.Get(OrgPolicyEndpointEntryKey) == "" {
-		d.Set(OrgPolicyEndpointEntryKey, MultiEnvSearch([]string{
+		d.Set(OrgPolicyEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_ORG_POLICY_CUSTOM_ENDPOINT",
-		}))
+		}, ""))
 	}
 	if d.Get(RecaptchaEnterpriseEndpointEntryKey) == "" {
-		d.Set(RecaptchaEnterpriseEndpointEntryKey, MultiEnvSearch([]string{
+		d.Set(RecaptchaEnterpriseEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_RECAPTCHA_ENTERPRISE_CUSTOM_ENDPOINT",
-		}))
+		}, ""))
 	}
 }
 
