@@ -1,6 +1,7 @@
 package google
 
 import (
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -139,6 +140,11 @@ type ProviderModel struct {
 type ProviderBatching struct {
 	SendAfter      types.String `tfsdk:"send_after"`
 	EnableBatching types.Bool   `tfsdk:"enable_batching"`
+}
+
+var ProviderBatchingAttributes = map[string]attr.Type{
+	"send_after":      types.StringType,
+	"enable_batching": types.BoolType,
 }
 
 // ProviderMetaModel describes the provider meta model
