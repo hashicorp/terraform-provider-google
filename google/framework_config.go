@@ -249,7 +249,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 			pbConfigs[0].EnableBatching = types.BoolValue(true)
 		}
 
-		data.Batching, d = types.ListValueFrom(ctx, types.ObjectType{}, pbConfigs)
+		data.Batching, d = types.ListValueFrom(ctx, types.ObjectType{}.WithAttributeTypes(ProviderBatchingAttributes), pbConfigs)
 	}
 
 	if data.UserProjectOverride.IsNull() && os.Getenv("USER_PROJECT_OVERRIDE") != "" {
