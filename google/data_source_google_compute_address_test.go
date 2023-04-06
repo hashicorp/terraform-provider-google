@@ -80,7 +80,7 @@ func TestAccDataSourceComputeAddress(t *testing.T) {
 	dsFullName := fmt.Sprintf("data.google_compute_address.%s", dsName)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataSourceComputeAddressDestroy(t, rsFullName),
 		Steps: []resource.TestStep{

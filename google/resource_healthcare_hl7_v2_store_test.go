@@ -78,7 +78,7 @@ func TestAccHealthcareHl7V2Store_basic(t *testing.T) {
 	resourceName := "google_healthcare_hl7_v2_store.default"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckHealthcareHl7V2StoreDestroyProducer(t),
 		Steps: []resource.TestStep{

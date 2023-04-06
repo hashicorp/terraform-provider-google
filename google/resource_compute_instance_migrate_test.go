@@ -933,7 +933,7 @@ func getInitializedConfig(t *testing.T) *Config {
 	// Migrate tests are non standard and handle the config directly
 	SkipIfVcr(t)
 	// Check that all required environment variables are set
-	testAccPreCheck(t)
+	AccTestPreCheck(t)
 
 	config := &Config{
 		Project:     GetTestProjectFromEnv(),

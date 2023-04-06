@@ -31,7 +31,7 @@ func TestAccPubsubSchema_pubsubSchemaBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPubsubSchemaDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -67,7 +67,7 @@ func TestAccPubsubSchema_pubsubSchemaProtobufExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPubsubSchemaDestroyProducer(t),
 		Steps: []resource.TestStep{

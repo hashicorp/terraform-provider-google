@@ -27,7 +27,7 @@ func TestAccProjectIamMember_basic(t *testing.T) {
 	role := "roles/compute.instanceAdmin"
 	member := "user:admin@hashicorptest.com"
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
@@ -63,7 +63,7 @@ func TestAccProjectIamMember_multiple(t *testing.T) {
 	member2 := "user:gterraformtest1@gmail.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
@@ -105,7 +105,7 @@ func TestAccProjectIamMember_remove(t *testing.T) {
 	member2 := "user:gterraformtest1@gmail.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
@@ -144,7 +144,7 @@ func TestAccProjectIamMember_withCondition(t *testing.T) {
 	member := "user:admin@hashicorptest.com"
 	conditionTitle := "expires_after_2019_12_31"
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
@@ -176,7 +176,7 @@ func TestAccProjectIamMember_invalidMembers(t *testing.T) {
 	role := "roles/compute.instanceAdmin"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{

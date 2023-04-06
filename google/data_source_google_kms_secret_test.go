@@ -28,7 +28,7 @@ func TestAccKmsSecret_basic(t *testing.T) {
 
 	// The first test creates resources needed to encrypt plaintext and produce ciphertext
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -42,7 +42,7 @@ func TestAccKmsSecret_basic(t *testing.T) {
 
 					// The second test asserts that the data source has the correct plaintext, given the created ciphertext
 					VcrTest(t, resource.TestCase{
-						PreCheck:                 func() { testAccPreCheck(t) },
+						PreCheck:                 func() { AccTestPreCheck(t) },
 						ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 						Steps: []resource.TestStep{
 							{
@@ -67,7 +67,7 @@ func TestAccKmsSecret_basic(t *testing.T) {
 
 					// The second test asserts that the data source has the correct plaintext, given the created ciphertext
 					VcrTest(t, resource.TestCase{
-						PreCheck:                 func() { testAccPreCheck(t) },
+						PreCheck:                 func() { AccTestPreCheck(t) },
 						ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 						Steps: []resource.TestStep{
 							{

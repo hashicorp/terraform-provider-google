@@ -31,7 +31,7 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCertificateManagerCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -89,7 +89,7 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCertificateManagerCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{

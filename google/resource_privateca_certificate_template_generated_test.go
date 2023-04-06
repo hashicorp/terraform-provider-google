@@ -36,7 +36,7 @@ func TestAccPrivatecaCertificateTemplate_BasicCertificateTemplate(t *testing.T) 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPrivatecaCertificateTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{

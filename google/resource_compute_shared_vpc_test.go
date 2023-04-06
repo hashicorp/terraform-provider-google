@@ -19,7 +19,7 @@ func TestAccComputeSharedVpc_basic(t *testing.T) {
 	serviceProjectResourceName := "google_compute_shared_vpc_service_project.service"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			//Create resources with the deletion_policy flag

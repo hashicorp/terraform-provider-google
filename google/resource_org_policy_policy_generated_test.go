@@ -35,7 +35,7 @@ func TestAccOrgPolicyPolicy_EnforcePolicy(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckOrgPolicyPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -60,7 +60,7 @@ func TestAccOrgPolicyPolicy_FolderPolicy(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckOrgPolicyPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -94,7 +94,7 @@ func TestAccOrgPolicyPolicy_OrganizationPolicy(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckOrgPolicyPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -128,7 +128,7 @@ func TestAccOrgPolicyPolicy_ProjectPolicy(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckOrgPolicyPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{

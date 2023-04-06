@@ -17,7 +17,7 @@ func TestAccMemcacheInstance_update(t *testing.T) {
 	network := BootstrapSharedTestNetwork(t, "memcache-update")
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMemcacheInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{

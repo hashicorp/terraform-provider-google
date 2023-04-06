@@ -13,7 +13,7 @@ func TestAccDataSourceGoogleOrganization_byFullName(t *testing.T) {
 	name := "organizations/" + orgId
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -32,7 +32,7 @@ func TestAccDataSourceGoogleOrganization_byShortName(t *testing.T) {
 	name := "organizations/" + orgId
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -50,7 +50,7 @@ func TestAccDataSourceGoogleOrganization_byDomain(t *testing.T) {
 	name := RandString(t, 16) + ".com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{

@@ -34,7 +34,7 @@ func TestAccApigeeEnvgroup_apigeeEnvironmentGroupBasicTestExample(t *testing.T) 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApigeeEnvgroupDestroyProducer(t),
 		Steps: []resource.TestStep{

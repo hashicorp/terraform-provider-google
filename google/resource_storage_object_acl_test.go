@@ -36,7 +36,7 @@ func TestAccStorageObjectAcl_basic(t *testing.T) {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
-			testAccPreCheck(t)
+			AccTestPreCheck(t)
 		},
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
@@ -67,7 +67,7 @@ func TestAccStorageObjectAcl_upgrade(t *testing.T) {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
-			testAccPreCheck(t)
+			AccTestPreCheck(t)
 		},
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectAclDestroyProducer(t),
@@ -121,7 +121,7 @@ func TestAccStorageObjectAcl_downgrade(t *testing.T) {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
-			testAccPreCheck(t)
+			AccTestPreCheck(t)
 		},
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectAclDestroyProducer(t),
@@ -175,7 +175,7 @@ func TestAccStorageObjectAcl_predefined(t *testing.T) {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
-			testAccPreCheck(t)
+			AccTestPreCheck(t)
 		},
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectAclDestroyProducer(t),
@@ -201,7 +201,7 @@ func TestAccStorageObjectAcl_predefinedToExplicit(t *testing.T) {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
-			testAccPreCheck(t)
+			AccTestPreCheck(t)
 		},
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectAclDestroyProducer(t),
@@ -236,7 +236,7 @@ func TestAccStorageObjectAcl_explicitToPredefined(t *testing.T) {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
-			testAccPreCheck(t)
+			AccTestPreCheck(t)
 		},
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectAclDestroyProducer(t),
@@ -272,7 +272,7 @@ func TestAccStorageObjectAcl_unordered(t *testing.T) {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
-			testAccPreCheck(t)
+			AccTestPreCheck(t)
 		},
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectAclDestroyProducer(t),
@@ -354,7 +354,7 @@ func TestAccStorageObjectAcl_noOwner(t *testing.T) {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
-			testAccPreCheck(t)
+			AccTestPreCheck(t)
 		},
 		Providers: providers,
 		Steps: []resource.TestStep{
