@@ -95,7 +95,6 @@ resource "google_compute_machine_image" "image" {
   machine_image_encryption_key {
     kms_key_name = google_kms_crypto_key.crypto_key.id
   }
-  depends_on = [google_project_iam_member.kms-project-binding]
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
@@ -108,17 +107,6 @@ resource "google_kms_key_ring" "key_ring" {
   provider = google-beta
   name     = "keyring"
   location = "us"
-}
-
-data "google_project" "project" {
-  provider = google-beta
-}
-
-resource "google_project_iam_member" "kms-project-binding" {
-  provider = google-beta
-  project  = data.google_project.project.project_id
-  role     = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member   = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
 }
 ```
 

@@ -431,13 +431,17 @@ func TestAccComputeInstance_kmsDiskEncryption(t *testing.T) {
 		},
 	}
 
+	if BootstrapPSARole(t, "service-", "compute-system", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
+		t.Fatal("Stopping the test because a role was added to the policy.")
+	}
+
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstance_disks_kms(GetTestProjectFromEnv(), bootKmsKeyName, diskNameToEncryptionKey, instanceName, RandString(t, 10)),
+				Config: testAccComputeInstance_disks_kms(bootKmsKeyName, diskNameToEncryptionKey, instanceName, RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceDiskKmsEncryptionKey("google_compute_instance.foobar", &instance, bootKmsKeyName, diskNameToEncryptionKey),
@@ -3759,31 +3763,19 @@ resource "google_compute_instance" "foobar" {
 		diskNameToEncryptionKey[diskNames[0]].RawKey)
 }
 
-func testAccComputeInstance_disks_kms(pid string, bootEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey, instance, suffix string) string {
+func testAccComputeInstance_disks_kms(bootEncryptionKey string, diskNameToEncryptionKey map[string]*compute.CustomerEncryptionKey, instance, suffix string) string {
 	diskNames := []string{}
 	for k := range diskNameToEncryptionKey {
 		diskNames = append(diskNames, k)
 	}
 	sort.Strings(diskNames)
 	return fmt.Sprintf(`
-data "google_project" "project" {
-  project_id = "%s"
-}
-
 data "google_compute_image" "my_image" {
   family  = "debian-11"
   project = "debian-cloud"
 }
 
-resource "google_project_iam_member" "kms-project-binding" {
-  project = data.google_project.project.project_id
-  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member  = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
-}
-
 resource "google_compute_disk" "foobar" {
-  depends_on = [google_project_iam_member.kms-project-binding]
-
   name = "%s"
   size = 10
   type = "pd-ssd"
@@ -3795,8 +3787,6 @@ resource "google_compute_disk" "foobar" {
 }
 
 resource "google_compute_disk" "foobar2" {
-  depends_on = [google_project_iam_member.kms-project-binding]
-
   name = "%s"
   size = 10
   type = "pd-ssd"
@@ -3808,8 +3798,6 @@ resource "google_compute_disk" "foobar2" {
 }
 
 resource "google_compute_disk" "foobar3" {
-  depends_on = [google_project_iam_member.kms-project-binding]
-
   name = "%s"
   size = 10
   type = "pd-ssd"
@@ -3828,8 +3816,6 @@ resource "google_compute_disk" "foobar4" {
 }
 
 resource "google_compute_instance" "foobar" {
-  depends_on = [google_project_iam_member.kms-project-binding]
-
   name         = "%s"
   machine_type = "e2-medium"
   zone         = "us-central1-a"
@@ -3867,7 +3853,7 @@ resource "google_compute_instance" "foobar" {
     foo = "bar"
   }
 }
-`, pid, diskNames[0], diskNameToEncryptionKey[diskNames[0]].KmsKeyName,
+`, diskNames[0], diskNameToEncryptionKey[diskNames[0]].KmsKeyName,
 		diskNames[1], diskNameToEncryptionKey[diskNames[1]].KmsKeyName,
 		diskNames[2], diskNameToEncryptionKey[diskNames[2]].KmsKeyName,
 		"tf-testd-"+suffix,

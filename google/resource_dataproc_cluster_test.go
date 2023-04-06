@@ -859,7 +859,10 @@ func TestAccDataprocCluster_KMS(t *testing.T) {
 
 	rnd := RandString(t, 10)
 	kms := BootstrapKMSKey(t)
-	pid := GetTestProjectFromEnv()
+
+	if BootstrapPSARole(t, "service-", "compute-system", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
+		t.Fatal("Stopping the test because a role was added to the policy.")
+	}
 
 	var cluster dataproc.Cluster
 	VcrTest(t, resource.TestCase{
@@ -868,7 +871,7 @@ func TestAccDataprocCluster_KMS(t *testing.T) {
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_KMS(pid, rnd, kms.CryptoKey.Name),
+				Config: testAccDataprocCluster_KMS(rnd, kms.CryptoKey.Name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.kms", &cluster),
 				),
@@ -2043,21 +2046,9 @@ resource "google_dataproc_cluster" "with_net_ref_by_url" {
 `, netName, rnd, rnd, rnd)
 }
 
-func testAccDataprocCluster_KMS(pid, rnd, kmsKey string) string {
+func testAccDataprocCluster_KMS(rnd, kmsKey string) string {
 	return fmt.Sprintf(`
-data "google_project" "project" {
-  project_id = "%s"
-}
-
-resource "google_project_iam_member" "kms-project-binding" {
-  project = data.google_project.project.project_id
-  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member  = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
-}
-
 resource "google_dataproc_cluster" "kms" {
-  depends_on = [google_project_iam_member.kms-project-binding]
-
   name   = "tf-test-dproc-%s"
   region = "us-central1"
 
@@ -2067,7 +2058,7 @@ resource "google_dataproc_cluster" "kms" {
     }
   }
 }
-`, pid, rnd, kmsKey)
+`, rnd, kmsKey)
 }
 
 func testAccDataprocCluster_withKerberos(rnd, kmsKey string) string {
