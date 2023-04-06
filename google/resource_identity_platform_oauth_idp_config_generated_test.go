@@ -32,7 +32,7 @@ func TestAccIdentityPlatformOauthIdpConfig_identityPlatformOauthIdpConfigBasicEx
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckIdentityPlatformOauthIdpConfigDestroyProducer(t),
 		Steps: []resource.TestStep{

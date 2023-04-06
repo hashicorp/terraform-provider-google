@@ -35,7 +35,7 @@ func TestAccComputeNetworkFirewallPolicy_GlobalHandWritten(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeNetworkFirewallPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{

@@ -15,7 +15,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerUpdateExample(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -50,7 +50,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerUpdateExample2(t *testing.
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -84,7 +84,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerPubsub(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{

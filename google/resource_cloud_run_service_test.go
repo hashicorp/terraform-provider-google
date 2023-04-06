@@ -14,7 +14,7 @@ func TestAccCloudRunService_cloudRunServiceUpdate(t *testing.T) {
 	name := "tftest-cloudrun-" + RandString(t, 6)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -47,7 +47,7 @@ func TestAccCloudRunService_foregroundDeletion(t *testing.T) {
 	name := "tftest-cloudrun-" + RandString(t, 6)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -123,7 +123,7 @@ func TestAccCloudRunService_secretVolume(t *testing.T) {
 	name := "tftest-cloudrun-" + RandString(t, 6)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -247,7 +247,7 @@ func TestAccCloudRunService_secretEnvironmentVariable(t *testing.T) {
 	name := "tftest-cloudrun-" + RandString(t, 6)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{

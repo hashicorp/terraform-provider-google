@@ -38,7 +38,7 @@ func testAccLoggingFolderExclusion_basic(t *testing.T) {
 	description := "Description " + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingFolderExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -75,7 +75,7 @@ func testAccLoggingFolderExclusion_folderAcceptsFullFolderPath(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingFolderExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -106,7 +106,7 @@ func testAccLoggingFolderExclusion_update(t *testing.T) {
 	descriptionAfter := "Updated Basic Folder Logging Exclusion" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingFolderExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -136,7 +136,7 @@ func testAccLoggingFolderExclusion_multiple(t *testing.T) {
 	parent := "organizations/" + org
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingFolderExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{

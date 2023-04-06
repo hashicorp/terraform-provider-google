@@ -31,7 +31,7 @@ func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -81,7 +81,7 @@ func TestAccComputeFirewall_firewallWithTargetTagsExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{

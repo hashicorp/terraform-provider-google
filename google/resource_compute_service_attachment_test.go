@@ -14,7 +14,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(t *test
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeServiceAttachmentDestroyProducer(t),
 		Steps: []resource.TestStep{

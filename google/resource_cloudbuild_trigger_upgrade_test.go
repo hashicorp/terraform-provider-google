@@ -26,7 +26,7 @@ func TestAccCloudBuildTrigger_migration(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { AccTestPreCheck(t) },
 		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

@@ -16,7 +16,7 @@ func TestAccComputeAttachedDisk_basic(t *testing.T) {
 	importID := fmt.Sprintf("%s/us-central1-a/%s/%s", GetTestProjectFromEnv(), instanceName, diskName)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		// Check destroy isn't a good test here, see comment on testCheckAttachedDiskIsNowDetached
 		CheckDestroy: nil,
@@ -48,7 +48,7 @@ func TestAccComputeAttachedDisk_full(t *testing.T) {
 	importID := fmt.Sprintf("%s/us-central1-a/%s/%s", GetTestProjectFromEnv(), instanceName, diskName)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		// Check destroy isn't a good test here, see comment on testCheckAttachedDiskIsNowDetached
 		CheckDestroy: nil,
@@ -75,7 +75,7 @@ func TestAccComputeAttachedDisk_region(t *testing.T) {
 	importID := fmt.Sprintf("%s/us-central1-a/%s/%s", GetTestProjectFromEnv(), instanceName, diskName)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		// Check destroy isn't a good test here, see comment on testCheckAttachedDiskIsNowDetached
 		CheckDestroy: nil,
@@ -102,7 +102,7 @@ func TestAccComputeAttachedDisk_count(t *testing.T) {
 	count := 2
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             nil,
 		Steps: []resource.TestStep{

@@ -25,7 +25,7 @@ func TestAccStorageBucket_basic(t *testing.T) {
 	bucketName := testBucketName(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -59,7 +59,7 @@ func TestAccStorageBucket_basicWithAutoclass(t *testing.T) {
 	bucketName := testBucketName(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -86,7 +86,7 @@ func TestAccStorageBucket_requesterPays(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-requester-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -113,7 +113,7 @@ func TestAccStorageBucket_lowercaseLocation(t *testing.T) {
 	bucketName := testBucketName(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -136,7 +136,7 @@ func TestAccStorageBucket_dualLocation(t *testing.T) {
 	bucketName := testBucketName(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -159,7 +159,7 @@ func TestAccStorageBucket_customAttributes(t *testing.T) {
 	bucketName := testBucketName(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -187,7 +187,7 @@ func TestAccStorageBucket_lifecycleRulesMultiple(t *testing.T) {
 
 	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -220,7 +220,7 @@ func TestAccStorageBucket_lifecycleRuleStateLive(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -249,7 +249,7 @@ func TestAccStorageBucket_lifecycleRuleStateArchived(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -292,7 +292,7 @@ func TestAccStorageBucket_lifecycleRuleStateAny(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -364,7 +364,7 @@ func TestAccStorageBucket_storageClass(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -423,7 +423,7 @@ func TestAccStorageBucket_update_requesterPays(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-requester-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -467,7 +467,7 @@ func TestAccStorageBucket_update(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -577,7 +577,7 @@ func TestAccStorageBucket_forceDestroy(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -611,7 +611,7 @@ func TestAccStorageBucket_forceDestroyWithVersioning(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -644,7 +644,7 @@ func TestAccStorageBucket_forceDestroyObjectDeleteError(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -673,7 +673,7 @@ func TestAccStorageBucket_versioning(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -754,7 +754,7 @@ func TestAccStorageBucket_logging(t *testing.T) {
 
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -815,7 +815,7 @@ func TestAccStorageBucket_cors(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -847,7 +847,7 @@ func TestAccStorageBucket_defaultEventBasedHold(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -877,7 +877,7 @@ func TestAccStorageBucket_encryption(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -899,7 +899,7 @@ func TestAccStorageBucket_publicAccessPrevention(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -921,7 +921,7 @@ func TestAccStorageBucket_uniformBucketAccessOnly(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -952,7 +952,7 @@ func TestAccStorageBucket_labels(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acl-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -997,7 +997,7 @@ func TestAccStorageBucket_retentionPolicy(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -1026,7 +1026,7 @@ func TestAccStorageBucket_website(t *testing.T) {
 	errRe := regexp.MustCompile("one of\n`website.0.main_page_suffix,website.0.not_found_page` must be specified")
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -1082,7 +1082,7 @@ func TestAccStorageBucket_retentionPolicyLocked(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-acc-bucket-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{

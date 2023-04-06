@@ -20,7 +20,7 @@ func TestAccDataSourceComputeResourcePolicy(t *testing.T) {
 	dsFullName := fmt.Sprintf("data.google_compute_resource_policy.%s", dsName)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataSourceComputeResourcePolicyDestroy(t, rsFullName),
 		Steps: []resource.TestStep{

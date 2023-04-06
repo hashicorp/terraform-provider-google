@@ -18,7 +18,7 @@ func TestAccComputeRegionDisk_basic(t *testing.T) {
 	var disk compute.Disk
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -58,7 +58,7 @@ func TestAccComputeRegionDisk_basicUpdate(t *testing.T) {
 	var disk compute.Disk
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -101,7 +101,7 @@ func TestAccComputeRegionDisk_encryption(t *testing.T) {
 	var disk compute.Disk
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -128,7 +128,7 @@ func TestAccComputeRegionDisk_deleteDetach(t *testing.T) {
 	var disk compute.Disk
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -182,7 +182,7 @@ func TestAccComputeRegionDisk_cloneDisk(t *testing.T) {
 	var disk compute.Disk
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{

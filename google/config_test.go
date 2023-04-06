@@ -65,7 +65,7 @@ func TestAccConfigLoadValidate_credentials(t *testing.T) {
 	if os.Getenv(TestEnvVar) == "" {
 		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
-	testAccPreCheck(t)
+	AccTestPreCheck(t)
 
 	creds := GetTestCredsFromEnv()
 	proj := GetTestProjectFromEnv()
@@ -93,7 +93,7 @@ func TestAccConfigLoadValidate_impersonated(t *testing.T) {
 	if os.Getenv(TestEnvVar) == "" {
 		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
-	testAccPreCheck(t)
+	AccTestPreCheck(t)
 
 	serviceaccount := MultiEnvSearch([]string{"IMPERSONATE_SERVICE_ACCOUNT_ACCTEST"})
 	creds := GetTestCredsFromEnv()
@@ -123,7 +123,7 @@ func TestAccConfigLoadValidate_accessTokenImpersonated(t *testing.T) {
 	if os.Getenv(TestEnvVar) == "" {
 		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
-	testAccPreCheck(t)
+	AccTestPreCheck(t)
 
 	creds := GetTestCredsFromEnv()
 	proj := GetTestProjectFromEnv()
@@ -163,7 +163,7 @@ func TestAccConfigLoadValidate_accessToken(t *testing.T) {
 	if os.Getenv(TestEnvVar) == "" {
 		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
 	}
-	testAccPreCheck(t)
+	AccTestPreCheck(t)
 
 	creds := GetTestCredsFromEnv()
 	proj := GetTestProjectFromEnv()

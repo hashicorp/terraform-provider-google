@@ -32,7 +32,7 @@ func TestAccCloudRunService_cloudRunServiceBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -80,7 +80,7 @@ func TestAccCloudRunService_cloudRunServiceSqlExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -143,7 +143,7 @@ func TestAccCloudRunService_cloudRunServiceNoauthExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -204,7 +204,7 @@ func TestAccCloudRunService_cloudRunServiceMultipleEnvironmentVariablesExample(t
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -273,7 +273,7 @@ func TestAccCloudRunService_cloudRunServiceSecretEnvironmentVariablesExample(t *
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -367,7 +367,7 @@ func TestAccCloudRunService_cloudRunServiceSecretVolumesExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{

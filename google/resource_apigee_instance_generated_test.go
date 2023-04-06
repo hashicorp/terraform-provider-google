@@ -34,7 +34,7 @@ func TestAccApigeeInstance_apigeeInstanceBasicTestExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApigeeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -126,7 +126,7 @@ func TestAccApigeeInstance_apigeeInstanceCidrRangeTestExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApigeeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -219,7 +219,7 @@ func TestAccApigeeInstance_apigeeInstanceIpRangeTestExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApigeeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -312,7 +312,7 @@ func TestAccApigeeInstance_apigeeInstanceServiceAttachmentBasicTestExample(t *te
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApigeeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{

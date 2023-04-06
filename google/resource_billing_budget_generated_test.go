@@ -32,7 +32,7 @@ func TestAccBillingBudget_billingBudgetBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBillingBudgetDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -80,7 +80,7 @@ func TestAccBillingBudget_billingBudgetLastperiodExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBillingBudgetDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -137,7 +137,7 @@ func TestAccBillingBudget_billingBudgetFilterExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBillingBudgetDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -201,7 +201,7 @@ func TestAccBillingBudget_billingBudgetNotifyExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBillingBudgetDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -278,7 +278,7 @@ func TestAccBillingBudget_billingBudgetCustomperiodExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBillingBudgetDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -353,7 +353,7 @@ func TestAccBillingBudget_billingBudgetOptionalExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBillingBudgetDestroyProducer(t),
 		Steps: []resource.TestStep{

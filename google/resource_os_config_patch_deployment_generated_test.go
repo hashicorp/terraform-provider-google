@@ -31,7 +31,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentBasicExample(t *testi
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -72,7 +72,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyExample(t *testi
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -122,7 +122,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyMidnightExample(
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -172,7 +172,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentInstanceExample(t *te
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -261,7 +261,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentFullExample(t *testin
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
 		Steps: []resource.TestStep{

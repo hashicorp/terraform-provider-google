@@ -13,7 +13,7 @@ func TestAccCloudTasksQueue_update(t *testing.T) {
 	name := "cloudtasksqueuetest-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -44,7 +44,7 @@ func TestAccCloudTasksQueue_update2Basic(t *testing.T) {
 	name := "cloudtasksqueuetest-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -74,7 +74,7 @@ func TestAccCloudTasksQueue_MaxRetryDiffSuppress0s(t *testing.T) {
 	testID := RandString(t, 10)
 	cloudTaskName := fmt.Sprintf("tf-test-%s", testID)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{

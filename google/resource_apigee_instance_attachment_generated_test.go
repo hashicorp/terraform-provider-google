@@ -34,7 +34,7 @@ func TestAccApigeeInstanceAttachment_apigeeInstanceAttachmentBasicTestExample(t 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApigeeInstanceAttachmentDestroyProducer(t),
 		Steps: []resource.TestStep{

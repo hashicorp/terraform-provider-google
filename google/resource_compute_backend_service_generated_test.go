@@ -31,7 +31,7 @@ func TestAccComputeBackendService_backendServiceBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -71,7 +71,7 @@ func TestAccComputeBackendService_backendServiceCacheSimpleExample(t *testing.T)
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -115,7 +115,7 @@ func TestAccComputeBackendService_backendServiceCacheIncludeHttpHeadersExample(t
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -157,7 +157,7 @@ func TestAccComputeBackendService_backendServiceCacheIncludeNamedCookiesExample(
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -202,7 +202,7 @@ func TestAccComputeBackendService_backendServiceCacheExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -251,7 +251,7 @@ func TestAccComputeBackendService_backendServiceExternalManagedExample(t *testin
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{

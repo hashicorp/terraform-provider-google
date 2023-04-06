@@ -32,7 +32,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(t *testing.
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringUptimeCheckConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -93,7 +93,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigStatusCodeExample(t *te
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringUptimeCheckConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -164,7 +164,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpsExample(t *testing
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringUptimeCheckConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -221,7 +221,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckTcpExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringUptimeCheckConfigDestroyProducer(t),
 		Steps: []resource.TestStep{

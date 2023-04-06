@@ -32,7 +32,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupFunction
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -95,7 +95,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupCloudrun
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -152,7 +152,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengin
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -252,7 +252,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscExamp
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -289,7 +289,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscServi
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{

@@ -33,7 +33,7 @@ func TestAccApigeeEnvKeystore_apigeeEnvironmentKeystoreTestExample(t *testing.T)
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApigeeEnvKeystoreDestroyProducer(t),
 		Steps: []resource.TestStep{

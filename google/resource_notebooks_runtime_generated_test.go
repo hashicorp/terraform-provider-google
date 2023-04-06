@@ -31,7 +31,7 @@ func TestAccNotebooksRuntime_notebookRuntimeBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckNotebooksRuntimeDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -80,7 +80,7 @@ func TestAccNotebooksRuntime_notebookRuntimeBasicGpuExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckNotebooksRuntimeDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -136,7 +136,7 @@ func TestAccNotebooksRuntime_notebookRuntimeBasicContainerExample(t *testing.T) 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckNotebooksRuntimeDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -193,7 +193,7 @@ func TestAccNotebooksRuntime_notebookRuntimeKernelsExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckNotebooksRuntimeDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -248,7 +248,7 @@ func TestAccNotebooksRuntime_notebookRuntimeScriptExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckNotebooksRuntimeDestroyProducer(t),
 		Steps: []resource.TestStep{

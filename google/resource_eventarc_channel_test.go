@@ -22,7 +22,7 @@ func TestAccEventarcChannel_basic(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckEventarcChannelDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -55,7 +55,7 @@ func TestAccEventarcChannel_cryptoKeyUpdate(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckEventarcChannelDestroyProducer(t),
 		Steps: []resource.TestStep{

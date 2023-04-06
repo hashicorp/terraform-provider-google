@@ -12,7 +12,7 @@ func TestAccDataSourceGoogleComputeDefaultServiceAccount_basic(t *testing.T) {
 	resourceName := "data.google_compute_default_service_account.default"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{

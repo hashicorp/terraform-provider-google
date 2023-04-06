@@ -33,7 +33,7 @@ func TestAccApigeeEnvKeystoreAliasSelfSignedCert_apigeeEnvKeystoreAliasSelfSigne
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApigeeEnvKeystoreAliasSelfSignedCertDestroyProducer(t),
 		Steps: []resource.TestStep{

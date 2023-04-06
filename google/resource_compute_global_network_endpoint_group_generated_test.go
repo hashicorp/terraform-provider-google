@@ -31,7 +31,7 @@ func TestAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupExample(
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeGlobalNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -65,7 +65,7 @@ func TestAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupIpAddres
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeGlobalNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{

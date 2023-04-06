@@ -11,7 +11,7 @@ func TestAccComputeGlobalAddress_ipv6(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeGlobalAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -31,7 +31,7 @@ func TestAccComputeGlobalAddress_internal(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeGlobalAddressDestroyProducer(t),
 		Steps: []resource.TestStep{

@@ -21,7 +21,7 @@ func TestAccServiceAccount_basic(t *testing.T) {
 	project := GetTestProjectFromEnv()
 	expectedEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", accountId, project)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// The first step creates a basic service account
@@ -96,7 +96,7 @@ func TestAccServiceAccount_Disabled(t *testing.T) {
 	project := GetTestProjectFromEnv()
 	expectedEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", accountId, project)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// The first step creates a basic service account

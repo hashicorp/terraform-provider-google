@@ -31,7 +31,7 @@ func TestAccGKEHubMembership_gkehubMembershipBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGKEHubMembershipDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -76,7 +76,7 @@ func TestAccGKEHubMembership_gkehubMembershipIssuerExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGKEHubMembershipDestroyProducer(t),
 		Steps: []resource.TestStep{

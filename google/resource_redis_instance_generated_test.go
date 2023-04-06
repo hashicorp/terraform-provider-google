@@ -31,7 +31,7 @@ func TestAccRedisInstance_redisInstanceBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -66,7 +66,7 @@ func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -140,7 +140,7 @@ func TestAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(t *testi
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -184,7 +184,7 @@ func TestAccRedisInstance_redisInstancePrivateServiceExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -258,7 +258,7 @@ func TestAccRedisInstance_redisInstanceMrrExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{

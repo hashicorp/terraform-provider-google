@@ -16,7 +16,7 @@ func TestAccDataSourceGoogleFolder_byFullName(t *testing.T) {
 	displayName := "tf-test-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -36,7 +36,7 @@ func TestAccDataSourceGoogleFolder_byShortName(t *testing.T) {
 	displayName := "tf-test-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -56,7 +56,7 @@ func TestAccDataSourceGoogleFolder_lookupOrganization(t *testing.T) {
 	displayName := "tf-test-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -74,7 +74,7 @@ func TestAccDataSourceGoogleFolder_byFullNameNotFound(t *testing.T) {
 	name := "folders/" + RandString(t, 16)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{

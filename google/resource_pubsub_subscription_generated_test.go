@@ -31,7 +31,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -83,7 +83,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionPullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -140,7 +140,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(t *testing.T)
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -187,7 +187,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushBqExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{

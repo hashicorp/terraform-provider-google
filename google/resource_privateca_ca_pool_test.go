@@ -14,7 +14,7 @@ func TestAccPrivatecaCaPool_privatecaCapoolUpdate(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPrivatecaCaPoolDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -221,7 +221,7 @@ func TestAccPrivatecaCaPool_privatecaCapoolEmptyBaseline(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPrivatecaCaPoolDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -285,7 +285,7 @@ func TestAccPrivatecaCaPool_privatecaCapoolEmptyPublishingOptions(t *testing.T) 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPrivatecaCaPoolDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -327,7 +327,7 @@ func TestAccPrivatecaCaPool_updateCaOption(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPrivatecaCaPoolDestroyProducer(t),
 		Steps: []resource.TestStep{

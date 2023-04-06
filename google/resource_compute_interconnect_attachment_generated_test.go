@@ -31,7 +31,7 @@ func TestAccComputeInterconnectAttachment_interconnectAttachmentBasicExample(t *
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInterconnectAttachmentDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -81,7 +81,7 @@ func TestAccComputeInterconnectAttachment_computeInterconnectAttachmentIpsecEncr
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInterconnectAttachmentDestroyProducer(t),
 		Steps: []resource.TestStep{

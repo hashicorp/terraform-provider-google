@@ -31,7 +31,7 @@ func TestAccGameServicesGameServerConfig_gameServiceConfigBasicExample(t *testin
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGameServicesGameServerConfigDestroyProducer(t),
 		Steps: []resource.TestStep{

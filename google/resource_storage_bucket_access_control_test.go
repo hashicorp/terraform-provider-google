@@ -16,7 +16,7 @@ func TestAccStorageBucketAccessControl_update(t *testing.T) {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
-			testAccPreCheck(t)
+			AccTestPreCheck(t)
 		},
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckStorageObjectAccessControlDestroyProducer(t),

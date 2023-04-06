@@ -14,7 +14,7 @@ func TestAccDataSourceComputeNetworkPeering_basic(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComputeNetworkPeeringDestroyProducer(t),
 		Steps: []resource.TestStep{

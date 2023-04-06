@@ -15,7 +15,7 @@ func TestAccCloudIoTDevice_update(t *testing.T) {
 	resourceName := fmt.Sprintf("google_cloudiot_device.%s", deviceName)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudIotDeviceDestroyProducer(t),
 		Steps: []resource.TestStep{

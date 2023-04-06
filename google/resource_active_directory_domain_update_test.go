@@ -24,7 +24,7 @@ func TestAccActiveDirectoryDomain_update(t *testing.T) {
 	resourceName := Nprintf("google_active_directory_domain.%{resource_name}", context)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckActiveDirectoryDomainDestroyProducer(t),
 		Steps: []resource.TestStep{

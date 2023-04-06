@@ -18,7 +18,7 @@ func TestAccComputeTargetHttpProxy_update(t *testing.T) {
 	urlmap2 := fmt.Sprintf("thttp-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeTargetHttpProxyDestroyProducer(t),
 		Steps: []resource.TestStep{

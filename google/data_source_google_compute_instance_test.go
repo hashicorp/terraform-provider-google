@@ -14,7 +14,7 @@ func TestAccDataSourceComputeInstance_basic(t *testing.T) {
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{

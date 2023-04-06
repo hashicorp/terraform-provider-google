@@ -13,7 +13,7 @@ func TestAccDataSourceGoogleBillingAccount_byFullName(t *testing.T) {
 	name := "billingAccounts/" + billingId
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -33,7 +33,7 @@ func TestAccDataSourceGoogleBillingAccount_byShortName(t *testing.T) {
 	name := "billingAccounts/" + billingId
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -53,7 +53,7 @@ func TestAccDataSourceGoogleBillingAccount_byFullNameClosed(t *testing.T) {
 	name := "billingAccounts/" + billingId
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -68,7 +68,7 @@ func TestAccDataSourceGoogleBillingAccount_byDisplayName(t *testing.T) {
 	name := RandString(t, 16)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{

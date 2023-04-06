@@ -26,7 +26,7 @@ func TestAccStorageNotification_basic(t *testing.T) {
 	topic := fmt.Sprintf("//pubsub.googleapis.com/projects/%s/topics/%s", os.Getenv("GOOGLE_PROJECT"), topicName)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageNotificationDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -72,7 +72,7 @@ func TestAccStorageNotification_withEventsAndAttributes(t *testing.T) {
 	eventType2 := "OBJECT_ARCHIVE"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageNotificationDestroyProducer(t),
 		Steps: []resource.TestStep{

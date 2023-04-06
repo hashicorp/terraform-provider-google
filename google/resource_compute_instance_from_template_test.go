@@ -20,7 +20,7 @@ func TestAccComputeInstanceFromTemplate_basic(t *testing.T) {
 	resourceName := "google_compute_instance_from_template.foobar"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -48,7 +48,7 @@ func TestAccComputeInstanceFromTemplate_self_link_unique(t *testing.T) {
 	resourceName := "google_compute_instance_from_template.foobar"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -78,7 +78,7 @@ func TestAccComputeInstanceFromTemplate_overrideBootDisk(t *testing.T) {
 	resourceName := "google_compute_instance_from_template.inst"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -107,7 +107,7 @@ func TestAccComputeInstanceFromTemplate_overrideAttachedDisk(t *testing.T) {
 	resourceName := "google_compute_instance_from_template.inst"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -136,7 +136,7 @@ func TestAccComputeInstanceFromTemplate_overrideScratchDisk(t *testing.T) {
 	resourceName := "google_compute_instance_from_template.inst"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -164,7 +164,7 @@ func TestAccComputeInstanceFromTemplate_overrideScheduling(t *testing.T) {
 	resourceName := "google_compute_instance_from_template.inst"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -193,7 +193,7 @@ func TestAccComputeInstanceFromTemplate_012_removableFields(t *testing.T) {
 		testAccComputeInstanceFromTemplate_012_removableFields2(instanceName)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -228,7 +228,7 @@ func TestAccComputeInstanceFromTemplate_overrideMetadataDotStartupScript(t *test
 	resourceName := "google_compute_instance_from_template.inst"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{

@@ -31,7 +31,7 @@ func TestAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolBasicExample(t *t
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckIAMBetaWorkloadIdentityPoolDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -64,7 +64,7 @@ func TestAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolFullExample(t *te
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckIAMBetaWorkloadIdentityPoolDestroyProducer(t),
 		Steps: []resource.TestStep{

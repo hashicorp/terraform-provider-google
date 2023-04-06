@@ -31,7 +31,7 @@ func TestAccDatastreamPrivateConnection_datastreamPrivateConnectionFullExample(t
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDatastreamPrivateConnectionDestroyProducer(t),
 		Steps: []resource.TestStep{

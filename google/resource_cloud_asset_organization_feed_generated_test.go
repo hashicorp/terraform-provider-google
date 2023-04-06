@@ -33,7 +33,7 @@ func TestAccCloudAssetOrganizationFeed_cloudAssetOrganizationFeedExample(t *test
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudAssetOrganizationFeedDestroyProducer(t),
 		Steps: []resource.TestStep{

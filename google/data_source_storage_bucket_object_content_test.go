@@ -13,7 +13,7 @@ func TestAccDataSourceStorageBucketObjectContent_Basic(t *testing.T) {
 	content := "qwertyuioasdfghjk1234567!!@#$*"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{

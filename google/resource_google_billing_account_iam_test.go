@@ -19,7 +19,7 @@ func TestAccBillingAccountIam(t *testing.T) {
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/billing.viewer"
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{

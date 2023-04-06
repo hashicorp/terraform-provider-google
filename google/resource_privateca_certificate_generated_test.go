@@ -32,7 +32,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateConfigExample(t *testing.T)
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPrivatecaCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -162,7 +162,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateWithTemplateExample(t *test
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPrivatecaCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -325,7 +325,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateCsrExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPrivatecaCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -412,7 +412,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateNoAuthorityExample(t *testi
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPrivatecaCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{

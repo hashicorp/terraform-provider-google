@@ -31,7 +31,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -81,7 +81,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobSqlExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -188,7 +188,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobVpcaccessExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -262,7 +262,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobSecretExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
 		Steps: []resource.TestStep{

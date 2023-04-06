@@ -31,7 +31,7 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderA
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -72,7 +72,7 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderA
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -122,7 +122,7 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderO
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -166,7 +166,7 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderO
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
 		Steps: []resource.TestStep{

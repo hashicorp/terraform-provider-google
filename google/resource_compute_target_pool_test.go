@@ -12,7 +12,7 @@ func TestAccComputeTargetPool_basic(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeTargetPoolDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -44,7 +44,7 @@ func TestAccComputeTargetPool_update(t *testing.T) {
 	name2 := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeTargetPoolDestroyProducer(t),
 		Steps: []resource.TestStep{

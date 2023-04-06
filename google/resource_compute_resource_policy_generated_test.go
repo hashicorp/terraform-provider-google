@@ -31,7 +31,7 @@ func TestAccComputeResourcePolicy_resourcePolicyBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeResourcePolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -73,7 +73,7 @@ func TestAccComputeResourcePolicy_resourcePolicyFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeResourcePolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -126,7 +126,7 @@ func TestAccComputeResourcePolicy_resourcePolicyPlacementPolicyExample(t *testin
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeResourcePolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -164,7 +164,7 @@ func TestAccComputeResourcePolicy_resourcePolicyInstanceSchedulePolicyExample(t 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeResourcePolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -208,7 +208,7 @@ func TestAccComputeResourcePolicy_resourcePolicySnapshotScheduleChainNameExample
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeResourcePolicyDestroyProducer(t),
 		Steps: []resource.TestStep{

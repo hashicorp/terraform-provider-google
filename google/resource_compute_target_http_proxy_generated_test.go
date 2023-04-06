@@ -31,7 +31,7 @@ func TestAccComputeTargetHttpProxy_targetHttpProxyBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeTargetHttpProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -101,7 +101,7 @@ func TestAccComputeTargetHttpProxy_targetHttpProxyHttpsRedirectExample(t *testin
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeTargetHttpProxyDestroyProducer(t),
 		Steps: []resource.TestStep{

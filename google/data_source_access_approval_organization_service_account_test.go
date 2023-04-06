@@ -16,7 +16,7 @@ func TestAccDataSourceAccessApprovalOrganizationServiceAccount_basic(t *testing.
 	resourceName := "data.google_access_approval_organization_service_account.aa_account"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{

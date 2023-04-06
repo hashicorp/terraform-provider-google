@@ -13,7 +13,7 @@ func TestAccComputeRouterInterface_basic(t *testing.T) {
 
 	routerName := fmt.Sprintf("tf-test-router-%s", RandString(t, 10))
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRouterInterfaceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -41,7 +41,7 @@ func TestAccComputeRouterInterface_redundant(t *testing.T) {
 
 	routerName := fmt.Sprintf("tf-test-router-%s", RandString(t, 10))
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRouterInterfaceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -64,7 +64,7 @@ func TestAccComputeRouterInterface_withTunnel(t *testing.T) {
 
 	routerName := fmt.Sprintf("tf-test-router-%s", RandString(t, 10))
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRouterInterfaceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -87,7 +87,7 @@ func TestAccComputeRouterInterface_withPrivateIpAddress(t *testing.T) {
 
 	routerName := fmt.Sprintf("tf-test-router-%s", RandString(t, 10))
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRouterInterfaceDestroyProducer(t),
 		Steps: []resource.TestStep{

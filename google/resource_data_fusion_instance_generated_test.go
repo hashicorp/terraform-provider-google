@@ -32,7 +32,7 @@ func TestAccDataFusionInstance_dataFusionInstanceBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataFusionInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -69,7 +69,7 @@ func TestAccDataFusionInstance_dataFusionInstanceFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataFusionInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -140,7 +140,7 @@ func TestAccDataFusionInstance_dataFusionInstanceCmekExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataFusionInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -203,7 +203,7 @@ func TestAccDataFusionInstance_dataFusionInstanceEnterpriseExample(t *testing.T)
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataFusionInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -240,7 +240,7 @@ func TestAccDataFusionInstance_dataFusionInstanceEventExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataFusionInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -284,7 +284,7 @@ func TestAccDataFusionInstance_dataFusionInstanceZoneExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataFusionInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{

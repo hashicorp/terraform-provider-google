@@ -36,7 +36,7 @@ func TestAccApikeysKey_AndroidKey(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApikeysKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -69,7 +69,7 @@ func TestAccApikeysKey_BasicKey(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApikeysKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -102,7 +102,7 @@ func TestAccApikeysKey_IosKey(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApikeysKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -135,7 +135,7 @@ func TestAccApikeysKey_MinimalKey(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApikeysKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -160,7 +160,7 @@ func TestAccApikeysKey_ServerKey(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApikeysKeyDestroyProducer(t),
 		Steps: []resource.TestStep{

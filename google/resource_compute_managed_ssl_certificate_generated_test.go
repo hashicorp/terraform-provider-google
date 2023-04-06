@@ -31,7 +31,7 @@ func TestAccComputeManagedSslCertificate_managedSslCertificateBasicExample(t *te
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeManagedSslCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -118,7 +118,7 @@ func TestAccComputeManagedSslCertificate_managedSslCertificateRecreationExample(
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},

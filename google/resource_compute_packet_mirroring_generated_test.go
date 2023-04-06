@@ -31,7 +31,7 @@ func TestAccComputePacketMirroring_computePacketMirroringFullExample(t *testing.
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputePacketMirroringDestroyProducer(t),
 		Steps: []resource.TestStep{

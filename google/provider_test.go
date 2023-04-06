@@ -139,7 +139,7 @@ func TestProvider_noDuplicatesInResourceMap(t *testing.T) {
 	}
 }
 
-func testAccPreCheck(t *testing.T) {
+func AccTestPreCheck(t *testing.T) {
 	if v := os.Getenv("GOOGLE_CREDENTIALS_FILE"); v != "" {
 		creds, err := ioutil.ReadFile(v)
 		if err != nil {
@@ -193,7 +193,7 @@ func TestAccProviderBasePath_setBasePath(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -213,7 +213,7 @@ func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -230,7 +230,7 @@ func TestAccProviderMeta_setModuleName(t *testing.T) {
 
 	moduleName := "my-module"
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -263,7 +263,7 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		// No TestDestroy since that's not really the point of this test
 		Steps: []resource.TestStep{
@@ -304,7 +304,7 @@ func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		// No TestDestroy since that's not really the point of this test
 		Steps: []resource.TestStep{
@@ -450,17 +450,17 @@ func GetTestProject(is *terraform.InstanceState, config *Config) (string, error)
 	return "", fmt.Errorf("%q: required field is not set", "project")
 }
 
-// testAccPreCheck ensures at least one of the project env variables is set.
+// AccTestPreCheck ensures at least one of the project env variables is set.
 func getTestProjectNumberFromEnv() string {
 	return MultiEnvSearch(projectNumberEnvVars)
 }
 
-// testAccPreCheck ensures at least one of the project env variables is set.
+// AccTestPreCheck ensures at least one of the project env variables is set.
 func GetTestProjectFromEnv() string {
 	return MultiEnvSearch(ProjectEnvVars)
 }
 
-// testAccPreCheck ensures at least one of the credentials env variables is set.
+// AccTestPreCheck ensures at least one of the credentials env variables is set.
 func GetTestCredsFromEnv() string {
 	// Return empty string if GOOGLE_USE_DEFAULT_CREDENTIALS is set to true.
 	if MultiEnvSearch(CredsEnvVars) == "true" {
@@ -469,7 +469,7 @@ func GetTestCredsFromEnv() string {
 	return MultiEnvSearch(CredsEnvVars)
 }
 
-// testAccPreCheck ensures at least one of the region env variables is set.
+// AccTestPreCheck ensures at least one of the region env variables is set.
 func GetTestRegionFromEnv() string {
 	return MultiEnvSearch(regionEnvVars)
 }

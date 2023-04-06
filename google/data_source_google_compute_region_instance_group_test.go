@@ -13,7 +13,7 @@ func TestAccDataSourceRegionInstanceGroup(t *testing.T) {
 	t.Parallel()
 	name := "tf-test-" + RandString(t, 6)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{

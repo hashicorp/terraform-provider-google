@@ -31,7 +31,7 @@ func TestAccMonitoringGroup_monitoringGroupBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -65,7 +65,7 @@ func TestAccMonitoringGroup_monitoringGroupSubgroupExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringGroupDestroyProducer(t),
 		Steps: []resource.TestStep{

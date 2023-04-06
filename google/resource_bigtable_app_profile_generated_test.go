@@ -32,7 +32,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileAnyclusterExample(t *testing.T)
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigtableAppProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -96,7 +96,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(t *testing
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigtableAppProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -151,7 +151,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(t *testing.
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigtableAppProfileDestroyProducer(t),
 		Steps: []resource.TestStep{

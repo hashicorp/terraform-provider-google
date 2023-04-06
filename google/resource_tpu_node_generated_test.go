@@ -31,7 +31,7 @@ func TestAccTPUNode_tpuNodeBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckTPUNodeDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -73,7 +73,7 @@ func TestAccTPUNode_tpuNodeFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckTPUNodeDestroyProducer(t),
 		Steps: []resource.TestStep{

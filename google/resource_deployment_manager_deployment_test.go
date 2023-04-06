@@ -22,7 +22,7 @@ func TestAccDeploymentManagerDeployment_basicFile(t *testing.T) {
 	})
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckDeploymentManagerDeploymentDestroyProducer(t),
@@ -49,7 +49,7 @@ func TestAccDeploymentManagerDeployment_deleteInvalidOnCreate(t *testing.T) {
 	accountId := "tf-dm-" + randStr
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDeploymentManagerDestroyInvalidDeployment(t, deploymentName),
 		Steps: []resource.TestStep{
@@ -69,7 +69,7 @@ func TestAccDeploymentManagerDeployment_createDeletePolicy(t *testing.T) {
 	accountId := "tf-dm-" + randStr
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDeploymentManagerDeploymentDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -97,7 +97,7 @@ func TestAccDeploymentManagerDeployment_imports(t *testing.T) {
 	})
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckDeploymentManagerDeploymentDestroyProducer(t),
@@ -126,7 +126,7 @@ func TestAccDeploymentManagerDeployment_update(t *testing.T) {
 	accountId2 := "tf-dm-second" + randStr
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckDeploymentManagerDeploymentDestroyProducer(t),

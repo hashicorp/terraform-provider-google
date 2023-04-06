@@ -31,7 +31,7 @@ func TestAccPubsubLiteReservation_pubsubLiteReservationBasicExample(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPubsubLiteReservationDestroyProducer(t),
 		Steps: []resource.TestStep{

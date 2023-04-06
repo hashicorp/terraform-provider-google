@@ -34,7 +34,7 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudfunctions2functionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -112,7 +112,7 @@ func TestAccCloudfunctions2function_cloudfunctions2FullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudfunctions2functionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -214,7 +214,7 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicGcsExample(t *testing.T)
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudfunctions2functionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -354,7 +354,7 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicAuditlogsExample(t *test
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudfunctions2functionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -498,7 +498,7 @@ func TestAccCloudfunctions2function_cloudfunctions2SecretEnvExample(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudfunctions2functionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -597,7 +597,7 @@ func TestAccCloudfunctions2function_cloudfunctions2SecretVolumeExample(t *testin
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudfunctions2functionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -694,7 +694,7 @@ func TestAccCloudfunctions2function_cloudfunctions2PrivateWorkerpoolExample(t *t
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudfunctions2functionDestroyProducer(t),
 		Steps: []resource.TestStep{

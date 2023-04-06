@@ -32,7 +32,7 @@ func TestAccSpannerInstance_spannerInstanceBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -71,7 +71,7 @@ func TestAccSpannerInstance_spannerInstanceProcessingUnitsExample(t *testing.T) 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -110,7 +110,7 @@ func TestAccSpannerInstance_spannerInstanceMultiRegionalExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{

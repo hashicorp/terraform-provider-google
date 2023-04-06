@@ -31,7 +31,7 @@ func TestAccComputeNodeTemplate_nodeTemplateBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeNodeTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -66,7 +66,7 @@ func TestAccComputeNodeTemplate_nodeTemplateServerBindingExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeNodeTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{

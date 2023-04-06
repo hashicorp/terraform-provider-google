@@ -33,7 +33,7 @@ func TestAccCloudIotDevice_cloudiotDeviceBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudIotDeviceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -73,7 +73,7 @@ func TestAccCloudIotDevice_cloudiotDeviceFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudIotDeviceDestroyProducer(t),
 		Steps: []resource.TestStep{

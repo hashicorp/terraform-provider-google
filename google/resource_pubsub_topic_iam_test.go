@@ -17,7 +17,7 @@ func TestAccPubsubTopicIamBinding(t *testing.T) {
 	account := "tf-test-topic-iam-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -58,7 +58,7 @@ func TestAccPubsubTopicIamBinding_topicName(t *testing.T) {
 	account := "tf-test-topic-iam-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -81,7 +81,7 @@ func TestAccPubsubTopicIamMember(t *testing.T) {
 	accountEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv())
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -108,7 +108,7 @@ func TestAccPubsubTopicIamPolicy(t *testing.T) {
 	account := "tf-test-topic-iam-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{

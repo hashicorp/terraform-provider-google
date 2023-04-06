@@ -32,7 +32,7 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateBasicExample(t *test
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionSslCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -74,7 +74,7 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateRandomProviderExampl
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
@@ -134,7 +134,7 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateTargetHttpsProxiesEx
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionSslCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{

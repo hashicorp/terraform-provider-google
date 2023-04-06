@@ -31,7 +31,7 @@ func TestAccComputeForwardingRule_forwardingRuleGlobalInternallbExample(t *testi
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeForwardingRuleDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -95,7 +95,7 @@ func TestAccComputeForwardingRule_forwardingRuleBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeForwardingRuleDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -134,7 +134,7 @@ func TestAccComputeForwardingRule_forwardingRuleInternallbExample(t *testing.T) 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeForwardingRuleDestroyProducer(t),
 		Steps: []resource.TestStep{

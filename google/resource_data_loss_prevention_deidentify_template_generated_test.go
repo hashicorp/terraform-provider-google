@@ -32,7 +32,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateBasicExamp
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -159,7 +159,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateSkipCharac
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{

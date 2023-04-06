@@ -32,7 +32,7 @@ func TestAccComputeExternalVpnGateway_externalVpnGatewayExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeExternalVpnGatewayDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -162,7 +162,7 @@ func TestAccComputeExternalVpnGateway_onlyExternalVpnGatewayFullExample(t *testi
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeExternalVpnGatewayDestroyProducer(t),
 		Steps: []resource.TestStep{

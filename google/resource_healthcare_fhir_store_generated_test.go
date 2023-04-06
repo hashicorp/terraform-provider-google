@@ -31,7 +31,7 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckHealthcareFhirStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -89,7 +89,7 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreStreamingConfigExample(t *tes
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckHealthcareFhirStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -160,7 +160,7 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreNotificationConfigExample(t *
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckHealthcareFhirStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
