@@ -1,0 +1,3 @@
+```release-note:enhancement
+orgpolicy: accepted variable cases for booleans such as true, True, and TRUE in `google_org_policy_policy`
+```
