@@ -414,13 +414,17 @@ func TestAccComputeDisk_encryptionKMS(t *testing.T) {
 	importID := fmt.Sprintf("%s/%s/%s", pid, "us-central1-a", diskName)
 	var disk compute.Disk
 
+	if BootstrapPSARole(t, "service-", "compute-system", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
+		t.Fatal("Stopping the test because a role was added to the policy.")
+	}
+
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeDisk_encryptionKMS(pid, diskName, kms.CryptoKey.Name),
+				Config: testAccComputeDisk_encryptionKMS(diskName, kms.CryptoKey.Name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
 						t, "google_compute_disk.foobar", pid, &disk),
@@ -719,26 +723,14 @@ resource "google_compute_disk" "foobar" {
 `, diskName)
 }
 
-func testAccComputeDisk_encryptionKMS(pid, diskName, kmsKey string) string {
+func testAccComputeDisk_encryptionKMS(diskName, kmsKey string) string {
 	return fmt.Sprintf(`
-data "google_project" "project" {
-  project_id = "%s"
-}
-
 data "google_compute_image" "my_image" {
   family  = "debian-11"
   project = "debian-cloud"
 }
 
-resource "google_project_iam_member" "kms-project-binding" {
-  project = data.google_project.project.project_id
-  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member  = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
-}
-
 resource "google_compute_disk" "foobar" {
-  depends_on = [google_project_iam_member.kms-project-binding]
-
   name  = "%s"
   image = data.google_compute_image.my_image.self_link
   size  = 10
@@ -749,7 +741,7 @@ resource "google_compute_disk" "foobar" {
     kms_key_self_link = "%s"
   }
 }
-`, pid, diskName, kmsKey)
+`, diskName, kmsKey)
 }
 
 func testAccComputeDisk_deleteDetach(instanceName, diskName string) string {

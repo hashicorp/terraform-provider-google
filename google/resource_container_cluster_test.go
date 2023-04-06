@@ -1231,13 +1231,17 @@ func TestAccContainerCluster_withBootDiskKmsKey(t *testing.T) {
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", RandString(t, 10))
 	kms := BootstrapKMSKeyInLocation(t, "us-central1")
 
+	if BootstrapPSARole(t, "service-", "compute-system", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
+		t.Fatal("Stopping the test because a role was added to the policy.")
+	}
+
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withBootDiskKmsKey(GetTestProjectFromEnv(), clusterName, kms.CryptoKey.Name),
+				Config: testAccContainerCluster_withBootDiskKmsKey(clusterName, kms.CryptoKey.Name),
 			},
 			{
 				ResourceName:            "google_container_cluster.with_boot_disk_kms_key",
@@ -2547,13 +2551,17 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaultsBootDiskKmsKey(t *testi
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", RandString(t, 10))
 	kms := BootstrapKMSKeyInLocation(t, "us-central1")
 
+	if BootstrapPSARole(t, "service-", "compute-system", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
+		t.Fatal("Stopping the test because a role was added to the policy.")
+	}
+
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_autoprovisioningDefaultsBootDiskKmsKey(GetTestProjectFromEnv(), clusterName, kms.CryptoKey.Name),
+				Config: testAccContainerCluster_autoprovisioningDefaultsBootDiskKmsKey(clusterName, kms.CryptoKey.Name),
 			},
 			{
 				ResourceName:            "google_container_cluster.nap_boot_disk_kms_key",
@@ -4398,18 +4406,8 @@ resource "google_container_cluster" "with_workload_metadata_config" {
 `, clusterName)
 }
 
-func testAccContainerCluster_withBootDiskKmsKey(project, clusterName, kmsKeyName string) string {
+func testAccContainerCluster_withBootDiskKmsKey(clusterName, kmsKeyName string) string {
 	return fmt.Sprintf(`
-data "google_project" "project" {
-  project_id = "%s"
-}
-
-resource "google_project_iam_member" "kms-project-binding" {
-  project = data.google_project.project.project_id
-  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member  = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
-}
-
 resource "google_container_cluster" "with_boot_disk_kms_key" {
   name               = "%s"
   location           = "us-central1-a"
@@ -4427,7 +4425,7 @@ resource "google_container_cluster" "with_boot_disk_kms_key" {
     boot_disk_kms_key = "%s"
   }
 }
-`, project, clusterName, kmsKeyName)
+`, clusterName, kmsKeyName)
 }
 
 func testAccContainerCluster_networkRef(cluster, network string) string {
@@ -4928,18 +4926,8 @@ resource "google_container_cluster" "with_autoprovisioning" {
 }`, cluster, imageTypeCfg)
 }
 
-func testAccContainerCluster_autoprovisioningDefaultsBootDiskKmsKey(project, clusterName, kmsKeyName string) string {
+func testAccContainerCluster_autoprovisioningDefaultsBootDiskKmsKey(clusterName, kmsKeyName string) string {
 	return fmt.Sprintf(`
-data "google_project" "project" {
-  project_id = "%s"
-}
-
-resource "google_project_iam_member" "kms-project-binding" {
-  project = data.google_project.project.project_id
-  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member  = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
-}
-
 resource "google_container_cluster" "nap_boot_disk_kms_key" {
   name               = "%s"
   location           = "us-central1-a"
@@ -4962,7 +4950,7 @@ resource "google_container_cluster" "nap_boot_disk_kms_key" {
     }
   }
 }
-`, project, clusterName, kmsKeyName)
+`, clusterName, kmsKeyName)
 }
 
 func testAccContainerCluster_autoprovisioningDefaultsShieldedInstance(cluster string) string {
