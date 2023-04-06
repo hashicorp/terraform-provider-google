@@ -1,5 +1,5 @@
 ---
-subcategory: "Dataproc"
+subcategory: "Dataproc metastore"
 description: |-
   Get a Dataproc Metastore Service from Google Cloud
 ---
