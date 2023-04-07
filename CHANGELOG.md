@@ -1,5 +1,49 @@
 ## 4.61.0 (Unreleased)
 
+BREAKING CHANGES:
+* cloudrunv2: set a default value of 3 for `max_retries` in `google_cloud_run_v2_job`. This should match the API's existing default, but may show a diff at plan time in limited circumstances as drift is now detected ([#14223](https://github.com/hashicorp/terraform-provider-google/pull/14223))
+
+FEATURES:
+* **New Data Source:** `firebase_android_app_config` ([#14202](https://github.com/hashicorp/terraform-provider-google/pull/14202))
+* **New Resource:** `google_apigee_keystore_aliases_pkcs` ([#14168](https://github.com/hashicorp/terraform-provider-google/pull/14168))
+* **New Resource:** `google_apigee_env_keystore_alias_self_signed_cert` ([#14140](https://github.com/hashicorp/terraform-provider-google/pull/14140))
+* **New Resource:** `google_network_security_url_lists` ([#14232](https://github.com/hashicorp/terraform-provider-google/pull/14232))
+* **New Resource:** `google_network_services_mesh` ([#14139](https://github.com/hashicorp/terraform-provider-google/pull/14139))
+* **New Resource:** `google_network_security_gateway_security_policies` (beta) ([#14225](https://github.com/hashicorp/terraform-provider-google/pull/14225))
+* **New Resource:** `google_network_security_gateway_security_policies_rule` (beta) ([#14225](https://github.com/hashicorp/terraform-provider-google/pull/14225))
+
+IMPROVEMENTS:
+* alloydb: added update support for `initial_user` and `automated_backup_policy.weekly_schedule` to `google_alloydb_cluster` ([#14187](https://github.com/hashicorp/terraform-provider-google/pull/14187))
+* artifactregistry: added support fot tag immutability ([#14206](https://github.com/hashicorp/terraform-provider-google/pull/14206))
+* artifactregistry: promoted `mode`, `virtual_repository_config`, and `remote_repository_config` to GA ([#14204](https://github.com/hashicorp/terraform-provider-google/pull/14204))
+* bigqueryreservation: added `edition` and `autoscale` to `google_bigquery_reservation` and `edition` to `bigquery_capacity_commitment` ([#14148](https://github.com/hashicorp/terraform-provider-google/pull/14148))
+* compute: added SEV_LIVE_MIGRATABLE to guestOsFeatures enum. ([#14200](https://github.com/hashicorp/terraform-provider-google/pull/14200))
+* compute: added stack_type to resource `ha_vpn_gateway` ([#14141](https://github.com/hashicorp/terraform-provider-google/pull/14141))
+* container: added support for `ephemeral_storage_local_ssd_config` to `google_container_cluster.node_config`, `google_container_cluster.node_pools.node_config`, `google_container_node_pool.node_config` ([#14150](https://github.com/hashicorp/terraform-provider-google/pull/14150))
+* dlp: Changed `dictionary`, `regex`, `regex.group_indexes` and `large_custom_dictionary` fields in `google_data_loss_prevention_stored_info_type` to be update-in-place ([#14207](https://github.com/hashicorp/terraform-provider-google/pull/14207))
+* enhancement: increased the max count for `route_rule` to 200 on `google_network_services_edge_cache_service` ([#14224](https://github.com/hashicorp/terraform-provider-google/pull/14224))
+* logging: added support for `disabled` to `google_logging_metric` ([#14198](https://github.com/hashicorp/terraform-provider-google/pull/14198))
+* storagetransfer: added support for 'last_modified_since' and 'last_modified_before' fields to 'google_storage_transfer_job' resource ([#14147](https://github.com/hashicorp/terraform-provider-google/pull/14147))
+
+BUG FIXES:
+* bigquery: fixed the import logic in`google_bigquery_capacity_commitment` ([#14226](https://github.com/hashicorp/terraform-provider-google/pull/14226))
+* cloudrunv2: fixed the bug where setting `max_retries` to 0 in `google_cloud_run_v2_job` was not respected. ([#14223](https://github.com/hashicorp/terraform-provider-google/pull/14223))
+* container: fixed a bug creating a diff adding a `stack_type` when GKE omitted `stackType` in API responses from older GKE clusters ([#14208](https://github.com/hashicorp/terraform-provider-google/pull/14208))
+* dataproc: fixed validation of `optional_components` ([#14167](https://github.com/hashicorp/terraform-provider-google/pull/14167))
+* provider: fixed an issue where the `USER_PROJECT_OVERRIDE` environment variable was not being read ([#14238](https://github.com/hashicorp/terraform-provider-google/pull/14238))
+* provider: fixed an issue where the provider crashed when "batching" was set in `4.60.0`/`4.60.1` ([#14235](https://github.com/hashicorp/terraform-provider-google/pull/14235))
+
+## 4.60.2 (April 6, 2023)
+
+BUG FIXES:
+* provider: fixed an issue where the provider crashed when "batching" was set in `4.60.0`/`4.60.1`
+* provider: fixed an issue where the `USER_PROJECT_OVERRIDE` environment variable was not being read
+
+## 4.60.1 (April 5, 2023)
+
+BUG FIXES:
+* container: fixed a bug creating a diff adding a `stack_type` when GKE omitted `stackType` in API responses from older GKE clusters
+
 ## 4.60.0 (April 4, 2023)
 
 FEATURES:
