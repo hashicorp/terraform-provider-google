@@ -159,10 +159,44 @@ func ClouddeployDeliveryPipelineSerialPipelineStagesSchema() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
+			"strategy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. The strategy to use for a `Rollout` to this stage.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategySchema(),
+			},
+
 			"target_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The target_id to which this stage points. This field refers exclusively to the last segment of a target name. For example, this field would just be `my-target` (rather than `projects/project/locations/location/targets/my-target`). The location of the `Target` is inferred to be the same as the location of the `DeliveryPipeline` that contains this `Stage`.",
+			},
+		},
+	}
+}
+
+func ClouddeployDeliveryPipelineSerialPipelineStagesStrategySchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"standard": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Standard deployment strategy executes a single deploy and allows verifying the deployment.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardSchema(),
+			},
+		},
+	}
+}
+
+func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"verify": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Whether to verify a deployment.",
 			},
 		},
 	}
@@ -183,6 +217,13 @@ func ClouddeployDeliveryPipelineConditionSchema() *schema.Resource {
 				Computed:    true,
 				Description: "Details around targets enumerated in the pipeline.",
 				Elem:        ClouddeployDeliveryPipelineConditionTargetsPresentConditionSchema(),
+			},
+
+			"targets_type_condition": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "Details on the whether the targets enumerated in the pipeline are of the same type.",
+				Elem:        ClouddeployDeliveryPipelineConditionTargetsTypeConditionSchema(),
 			},
 		},
 	}
@@ -226,6 +267,24 @@ func ClouddeployDeliveryPipelineConditionTargetsPresentConditionSchema() *schema
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Last time the condition was updated.",
+			},
+		},
+	}
+}
+
+func ClouddeployDeliveryPipelineConditionTargetsTypeConditionSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"error_details": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Human readable error message.",
+			},
+
+			"status": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "True if the targets are all a comparable type. For example this is true if all targets are GKE clusters. This is false if some targets are Cloud Run targets and others are GKE clusters.",
 			},
 		},
 	}
@@ -534,6 +593,7 @@ func expandClouddeployDeliveryPipelineSerialPipelineStages(o interface{}) *cloud
 	obj := o.(map[string]interface{})
 	return &clouddeploy.DeliveryPipelineSerialPipelineStages{
 		Profiles: expandStringArray(obj["profiles"]),
+		Strategy: expandClouddeployDeliveryPipelineSerialPipelineStagesStrategy(obj["strategy"]),
 		TargetId: dcl.String(obj["target_id"].(string)),
 	}
 }
@@ -558,10 +618,63 @@ func flattenClouddeployDeliveryPipelineSerialPipelineStages(obj *clouddeploy.Del
 	}
 	transformed := map[string]interface{}{
 		"profiles":  obj.Profiles,
+		"strategy":  flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategy(obj.Strategy),
 		"target_id": obj.TargetId,
 	}
 
 	return transformed
+
+}
+
+func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategy(o interface{}) *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategy {
+	if o == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategy
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategy
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &clouddeploy.DeliveryPipelineSerialPipelineStagesStrategy{
+		Standard: expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandard(obj["standard"]),
+	}
+}
+
+func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategy(obj *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategy) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"standard": flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandard(obj.Standard),
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandard(o interface{}) *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyStandard {
+	if o == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategyStandard
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategyStandard
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyStandard{
+		Verify: dcl.Bool(obj["verify"].(bool)),
+	}
+}
+
+func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandard(obj *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyStandard) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"verify": obj.Verify,
+	}
+
+	return []interface{}{transformed}
 
 }
 
@@ -572,6 +685,7 @@ func flattenClouddeployDeliveryPipelineCondition(obj *clouddeploy.DeliveryPipeli
 	transformed := map[string]interface{}{
 		"pipeline_ready_condition":  flattenClouddeployDeliveryPipelineConditionPipelineReadyCondition(obj.PipelineReadyCondition),
 		"targets_present_condition": flattenClouddeployDeliveryPipelineConditionTargetsPresentCondition(obj.TargetsPresentCondition),
+		"targets_type_condition":    flattenClouddeployDeliveryPipelineConditionTargetsTypeCondition(obj.TargetsTypeCondition),
 	}
 
 	return []interface{}{transformed}
@@ -599,6 +713,19 @@ func flattenClouddeployDeliveryPipelineConditionTargetsPresentCondition(obj *clo
 		"missing_targets": obj.MissingTargets,
 		"status":          obj.Status,
 		"update_time":     obj.UpdateTime,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func flattenClouddeployDeliveryPipelineConditionTargetsTypeCondition(obj *clouddeploy.DeliveryPipelineConditionTargetsTypeCondition) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"error_details": obj.ErrorDetails,
+		"status":        obj.Status,
 	}
 
 	return []interface{}{transformed}

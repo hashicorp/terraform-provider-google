@@ -72,7 +72,7 @@ func ResourceClouddeployTarget() *schema.Resource {
 				Description:   "Information specifying an Anthos Cluster.",
 				MaxItems:      1,
 				Elem:          ClouddeployTargetAnthosClusterSchema(),
-				ConflictsWith: []string{"gke"},
+				ConflictsWith: []string{"gke", "run"},
 			},
 
 			"description": {
@@ -95,7 +95,7 @@ func ResourceClouddeployTarget() *schema.Resource {
 				Description:   "Information specifying a GKE Cluster.",
 				MaxItems:      1,
 				Elem:          ClouddeployTargetGkeSchema(),
-				ConflictsWith: []string{"anthos_cluster"},
+				ConflictsWith: []string{"anthos_cluster", "run"},
 			},
 
 			"labels": {
@@ -118,6 +118,15 @@ func ResourceClouddeployTarget() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "Optional. Whether or not the `Target` requires approval.",
+			},
+
+			"run": {
+				Type:          schema.TypeList,
+				Optional:      true,
+				Description:   "Information specifying a Cloud Run deployment target.",
+				MaxItems:      1,
+				Elem:          ClouddeployTargetRunSchema(),
+				ConflictsWith: []string{"gke", "anthos_cluster"},
 			},
 
 			"create_time": {
@@ -226,6 +235,18 @@ func ClouddeployTargetGkeSchema() *schema.Resource {
 	}
 }
 
+func ClouddeployTargetRunSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"location": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. The location where the Cloud Run Service should be located. Format is `projects/{project}/locations/{location}`.",
+			},
+		},
+	}
+}
+
 func resourceClouddeployTargetCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	project, err := getProject(d, config)
@@ -244,6 +265,7 @@ func resourceClouddeployTargetCreate(d *schema.ResourceData, meta interface{}) e
 		Labels:           checkStringMap(d.Get("labels")),
 		Project:          dcl.String(project),
 		RequireApproval:  dcl.Bool(d.Get("require_approval").(bool)),
+		Run:              expandClouddeployTargetRun(d.Get("run")),
 	}
 
 	id, err := obj.ID()
@@ -301,6 +323,7 @@ func resourceClouddeployTargetRead(d *schema.ResourceData, meta interface{}) err
 		Labels:           checkStringMap(d.Get("labels")),
 		Project:          dcl.String(project),
 		RequireApproval:  dcl.Bool(d.Get("require_approval").(bool)),
+		Run:              expandClouddeployTargetRun(d.Get("run")),
 	}
 
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
@@ -355,6 +378,9 @@ func resourceClouddeployTargetRead(d *schema.ResourceData, meta interface{}) err
 	if err = d.Set("require_approval", res.RequireApproval); err != nil {
 		return fmt.Errorf("error setting require_approval in state: %s", err)
 	}
+	if err = d.Set("run", flattenClouddeployTargetRun(res.Run)); err != nil {
+		return fmt.Errorf("error setting run in state: %s", err)
+	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
 	}
@@ -391,6 +417,7 @@ func resourceClouddeployTargetUpdate(d *schema.ResourceData, meta interface{}) e
 		Labels:           checkStringMap(d.Get("labels")),
 		Project:          dcl.String(project),
 		RequireApproval:  dcl.Bool(d.Get("require_approval").(bool)),
+		Run:              expandClouddeployTargetRun(d.Get("run")),
 	}
 	directive := UpdateDirective
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
@@ -443,6 +470,7 @@ func resourceClouddeployTargetDelete(d *schema.ResourceData, meta interface{}) e
 		Labels:           checkStringMap(d.Get("labels")),
 		Project:          dcl.String(project),
 		RequireApproval:  dcl.Bool(d.Get("require_approval").(bool)),
+		Run:              expandClouddeployTargetRun(d.Get("run")),
 	}
 
 	log.Printf("[DEBUG] Deleting Target %q", d.Id())
@@ -602,6 +630,32 @@ func flattenClouddeployTargetGke(obj *clouddeploy.TargetGke) interface{} {
 	transformed := map[string]interface{}{
 		"cluster":     obj.Cluster,
 		"internal_ip": obj.InternalIP,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandClouddeployTargetRun(o interface{}) *clouddeploy.TargetRun {
+	if o == nil {
+		return clouddeploy.EmptyTargetRun
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return clouddeploy.EmptyTargetRun
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &clouddeploy.TargetRun{
+		Location: dcl.String(obj["location"].(string)),
+	}
+}
+
+func flattenClouddeployTargetRun(obj *clouddeploy.TargetRun) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"location": obj.Location,
 	}
 
 	return []interface{}{transformed}
