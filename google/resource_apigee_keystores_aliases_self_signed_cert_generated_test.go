@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccApigeeEnvKeystoreAliasSelfSignedCert_apigeeEnvKeystoreAliasSelfSignedCertExample(t *testing.T) {
+func TestAccApigeeKeystoresAliasesSelfSignedCert_apigeeEnvKeystoreAliasSelfSignedCertExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -35,13 +35,13 @@ func TestAccApigeeEnvKeystoreAliasSelfSignedCert_apigeeEnvKeystoreAliasSelfSigne
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckApigeeEnvKeystoreAliasSelfSignedCertDestroyProducer(t),
+		CheckDestroy:             testAccCheckApigeeKeystoresAliasesSelfSignedCertDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApigeeEnvKeystoreAliasSelfSignedCert_apigeeEnvKeystoreAliasSelfSignedCertExample(context),
+				Config: testAccApigeeKeystoresAliasesSelfSignedCert_apigeeEnvKeystoreAliasSelfSignedCertExample(context),
 			},
 			{
-				ResourceName:            "google_apigee_env_keystore_alias_self_signed_cert.apigee_environment_keystore_ss_alias",
+				ResourceName:            "google_apigee_keystores_aliases_self_signed_cert.apigee_environment_keystore_ss_alias",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"org_id", "environment", "keystore", "key_size", "sig_alg", "subject", "cert_validity_in_days"},
@@ -50,7 +50,7 @@ func TestAccApigeeEnvKeystoreAliasSelfSignedCert_apigeeEnvKeystoreAliasSelfSigne
 	})
 }
 
-func testAccApigeeEnvKeystoreAliasSelfSignedCert_apigeeEnvKeystoreAliasSelfSignedCertExample(context map[string]interface{}) string {
+func testAccApigeeKeystoresAliasesSelfSignedCert_apigeeEnvKeystoreAliasSelfSignedCertExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test%{random_suffix}"
@@ -120,7 +120,7 @@ resource "google_apigee_env_keystore" "apigee_environment_keystore_alias" {
   env_id     = google_apigee_environment.apigee_environment_keystore_ss_alias.id
 }
 
-resource "google_apigee_env_keystore_alias_self_signed_cert" "apigee_environment_keystore_ss_alias" {
+resource "google_apigee_keystores_aliases_self_signed_cert" "apigee_environment_keystore_ss_alias" {
   environment			      = google_apigee_environment.apigee_environment_keystore_ss_alias.name
   org_id				        = google_apigee_organization.apigee_org.name
   keystore				      = google_apigee_env_keystore.apigee_environment_keystore_alias.name
@@ -139,10 +139,10 @@ resource "google_apigee_env_keystore_alias_self_signed_cert" "apigee_environment
 `, context)
 }
 
-func testAccCheckApigeeEnvKeystoreAliasSelfSignedCertDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckApigeeKeystoresAliasesSelfSignedCertDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "google_apigee_env_keystore_alias_self_signed_cert" {
+			if rs.Type != "google_apigee_keystores_aliases_self_signed_cert" {
 				continue
 			}
 			if strings.HasPrefix(name, "data.") {
@@ -164,7 +164,7 @@ func testAccCheckApigeeEnvKeystoreAliasSelfSignedCertDestroyProducer(t *testing.
 
 			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
 			if err == nil {
-				return fmt.Errorf("ApigeeEnvKeystoreAliasSelfSignedCert still exists at %s", url)
+				return fmt.Errorf("ApigeeKeystoresAliasesSelfSignedCert still exists at %s", url)
 			}
 		}
 

@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccApigeeEnvKeystoreAliasPkcs12_apigeeEnvKeystoreAliasPkcs12Example(t *testing.T) {
+func TestAccApigeeKeystoresAliasesPkcs12_ApigeeKeystoresAliasesPkcs12Example(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -21,13 +21,13 @@ func TestAccApigeeEnvKeystoreAliasPkcs12_apigeeEnvKeystoreAliasPkcs12Example(t *
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckApigeeEnvKeystoreAliasPkcs12DestroyProducer(t),
+		CheckDestroy:             testAccCheckApigeeKeystoresAliasesPkcs12DestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApigeeEnvKeystoreAliasPkcs12_apigeeEnvKeystoreAliasPkcs12Example(context),
+				Config: testAccApigeeKeystoresAliasesPkcs12_ApigeeKeystoresAliasesPkcs12Example(context),
 			},
 			{
-				ResourceName:            "google_apigee_env_keystore_alias_pkcs12.apigee_environment_keystore_aliases_pkcs",
+				ResourceName:            "google_apigee_keystores_aliases_pkcs12.apigee_environment_keystore_aliases_pkcs",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"file", "filehash", "password", "org_id", "environment"},
@@ -36,7 +36,7 @@ func TestAccApigeeEnvKeystoreAliasPkcs12_apigeeEnvKeystoreAliasPkcs12Example(t *
 	})
 }
 
-func testAccApigeeEnvKeystoreAliasPkcs12_apigeeEnvKeystoreAliasPkcs12Example(context map[string]interface{}) string {
+func testAccApigeeKeystoresAliasesPkcs12_ApigeeKeystoresAliasesPkcs12Example(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test%{random_suffix}"
@@ -106,7 +106,7 @@ resource "google_apigee_env_keystore" "apigee_environment_keystore_alias" {
   env_id     = google_apigee_environment.apigee_environment_keystore.id
 }
 
-resource "google_apigee_env_keystore_alias_pkcs12" "apigee_environment_keystore_aliases_pkcs" {
+resource "google_apigee_keystores_aliases_pkcs12" "apigee_environment_keystore_aliases_pkcs" {
   environment 			= google_apigee_environment.apigee_environment_keystore.name
   org_id				= google_apigee_organization.apigee_org.name
   keystore				= google_apigee_env_keystore.apigee_environment_keystore_alias.name
@@ -118,7 +118,7 @@ resource "google_apigee_env_keystore_alias_pkcs12" "apigee_environment_keystore_
 `, context)
 }
 
-func testAccCheckApigeeEnvKeystoreAliasPkcs12DestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckApigeeKeystoresAliasesPkcs12DestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
 			if rs.Type != "google_apigee_env_keystore_aliases_pkcs" {
