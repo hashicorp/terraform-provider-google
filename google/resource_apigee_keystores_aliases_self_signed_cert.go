@@ -23,14 +23,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func ResourceApigeeEnvKeystoreAliasSelfSignedCert() *schema.Resource {
+func ResourceApigeeKeystoresAliasesSelfSignedCert() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceApigeeEnvKeystoreAliasSelfSignedCertCreate,
-		Read:   resourceApigeeEnvKeystoreAliasSelfSignedCertRead,
-		Delete: resourceApigeeEnvKeystoreAliasSelfSignedCertDelete,
+		Create: resourceApigeeKeystoresAliasesSelfSignedCertCreate,
+		Read:   resourceApigeeKeystoresAliasesSelfSignedCertRead,
+		Delete: resourceApigeeKeystoresAliasesSelfSignedCertDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceApigeeEnvKeystoreAliasSelfSignedCertImport,
+			State: resourceApigeeKeystoresAliasesSelfSignedCertImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -240,7 +240,7 @@ Flag is set to Yes if the certificate is valid, No if expired, or Not yet if not
 	}
 }
 
-func resourceApigeeEnvKeystoreAliasSelfSignedCertCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceApigeeKeystoresAliasesSelfSignedCertCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -248,37 +248,37 @@ func resourceApigeeEnvKeystoreAliasSelfSignedCertCreate(d *schema.ResourceData, 
 	}
 
 	obj := make(map[string]interface{})
-	aliasProp, err := expandApigeeEnvKeystoreAliasSelfSignedCertAlias(d.Get("alias"), d, config)
+	aliasProp, err := expandApigeeKeystoresAliasesSelfSignedCertAlias(d.Get("alias"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("alias"); !isEmptyValue(reflect.ValueOf(aliasProp)) && (ok || !reflect.DeepEqual(v, aliasProp)) {
 		obj["alias"] = aliasProp
 	}
-	subjectAlternativeDnsNamesProp, err := expandApigeeEnvKeystoreAliasSelfSignedCertSubjectAlternativeDnsNames(d.Get("subject_alternative_dns_names"), d, config)
+	subjectAlternativeDnsNamesProp, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNames(d.Get("subject_alternative_dns_names"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("subject_alternative_dns_names"); !isEmptyValue(reflect.ValueOf(subjectAlternativeDnsNamesProp)) && (ok || !reflect.DeepEqual(v, subjectAlternativeDnsNamesProp)) {
 		obj["subjectAlternativeDnsNames"] = subjectAlternativeDnsNamesProp
 	}
-	keySizeProp, err := expandApigeeEnvKeystoreAliasSelfSignedCertKeySize(d.Get("key_size"), d, config)
+	keySizeProp, err := expandApigeeKeystoresAliasesSelfSignedCertKeySize(d.Get("key_size"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("key_size"); !isEmptyValue(reflect.ValueOf(keySizeProp)) && (ok || !reflect.DeepEqual(v, keySizeProp)) {
 		obj["keySize"] = keySizeProp
 	}
-	sigAlgProp, err := expandApigeeEnvKeystoreAliasSelfSignedCertSigAlg(d.Get("sig_alg"), d, config)
+	sigAlgProp, err := expandApigeeKeystoresAliasesSelfSignedCertSigAlg(d.Get("sig_alg"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("sig_alg"); !isEmptyValue(reflect.ValueOf(sigAlgProp)) && (ok || !reflect.DeepEqual(v, sigAlgProp)) {
 		obj["sigAlg"] = sigAlgProp
 	}
-	subjectProp, err := expandApigeeEnvKeystoreAliasSelfSignedCertSubject(d.Get("subject"), d, config)
+	subjectProp, err := expandApigeeKeystoresAliasesSelfSignedCertSubject(d.Get("subject"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("subject"); !isEmptyValue(reflect.ValueOf(subjectProp)) && (ok || !reflect.DeepEqual(v, subjectProp)) {
 		obj["subject"] = subjectProp
 	}
-	certValidityInDaysProp, err := expandApigeeEnvKeystoreAliasSelfSignedCertCertValidityInDays(d.Get("cert_validity_in_days"), d, config)
+	certValidityInDaysProp, err := expandApigeeKeystoresAliasesSelfSignedCertCertValidityInDays(d.Get("cert_validity_in_days"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("cert_validity_in_days"); !isEmptyValue(reflect.ValueOf(certValidityInDaysProp)) && (ok || !reflect.DeepEqual(v, certValidityInDaysProp)) {
@@ -290,7 +290,7 @@ func resourceApigeeEnvKeystoreAliasSelfSignedCertCreate(d *schema.ResourceData, 
 		return err
 	}
 
-	log.Printf("[DEBUG] Creating new EnvKeystoreAliasSelfSignedCert: %#v", obj)
+	log.Printf("[DEBUG] Creating new KeystoresAliasesSelfSignedCert: %#v", obj)
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
@@ -300,7 +300,7 @@ func resourceApigeeEnvKeystoreAliasSelfSignedCertCreate(d *schema.ResourceData, 
 
 	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return fmt.Errorf("Error creating EnvKeystoreAliasSelfSignedCert: %s", err)
+		return fmt.Errorf("Error creating KeystoresAliasesSelfSignedCert: %s", err)
 	}
 
 	// Store the ID now
@@ -310,12 +310,12 @@ func resourceApigeeEnvKeystoreAliasSelfSignedCertCreate(d *schema.ResourceData, 
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating EnvKeystoreAliasSelfSignedCert %q: %#v", d.Id(), res)
+	log.Printf("[DEBUG] Finished creating KeystoresAliasesSelfSignedCert %q: %#v", d.Id(), res)
 
-	return resourceApigeeEnvKeystoreAliasSelfSignedCertRead(d, meta)
+	return resourceApigeeKeystoresAliasesSelfSignedCertRead(d, meta)
 }
 
-func resourceApigeeEnvKeystoreAliasSelfSignedCertRead(d *schema.ResourceData, meta interface{}) error {
+func resourceApigeeKeystoresAliasesSelfSignedCertRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -336,26 +336,26 @@ func resourceApigeeEnvKeystoreAliasSelfSignedCertRead(d *schema.ResourceData, me
 
 	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ApigeeEnvKeystoreAliasSelfSignedCert %q", d.Id()))
+		return handleNotFoundError(err, d, fmt.Sprintf("ApigeeKeystoresAliasesSelfSignedCert %q", d.Id()))
 	}
 
-	if err := d.Set("certs_info", flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfo(res["certsInfo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvKeystoreAliasSelfSignedCert: %s", err)
+	if err := d.Set("certs_info", flattenApigeeKeystoresAliasesSelfSignedCertCertsInfo(res["certsInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading KeystoresAliasesSelfSignedCert: %s", err)
 	}
-	if err := d.Set("type", flattenApigeeEnvKeystoreAliasSelfSignedCertType(res["type"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvKeystoreAliasSelfSignedCert: %s", err)
+	if err := d.Set("type", flattenApigeeKeystoresAliasesSelfSignedCertType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading KeystoresAliasesSelfSignedCert: %s", err)
 	}
-	if err := d.Set("alias", flattenApigeeEnvKeystoreAliasSelfSignedCertAlias(res["alias"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvKeystoreAliasSelfSignedCert: %s", err)
+	if err := d.Set("alias", flattenApigeeKeystoresAliasesSelfSignedCertAlias(res["alias"], d, config)); err != nil {
+		return fmt.Errorf("Error reading KeystoresAliasesSelfSignedCert: %s", err)
 	}
-	if err := d.Set("subject_alternative_dns_names", flattenApigeeEnvKeystoreAliasSelfSignedCertSubjectAlternativeDnsNames(res["subjectAlternativeDnsNames"], d, config)); err != nil {
-		return fmt.Errorf("Error reading EnvKeystoreAliasSelfSignedCert: %s", err)
+	if err := d.Set("subject_alternative_dns_names", flattenApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNames(res["subjectAlternativeDnsNames"], d, config)); err != nil {
+		return fmt.Errorf("Error reading KeystoresAliasesSelfSignedCert: %s", err)
 	}
 
 	return nil
 }
 
-func resourceApigeeEnvKeystoreAliasSelfSignedCertDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceApigeeKeystoresAliasesSelfSignedCertDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -370,7 +370,7 @@ func resourceApigeeEnvKeystoreAliasSelfSignedCertDelete(d *schema.ResourceData, 
 	}
 
 	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting EnvKeystoreAliasSelfSignedCert %q", d.Id())
+	log.Printf("[DEBUG] Deleting KeystoresAliasesSelfSignedCert %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := getBillingProject(d, config); err == nil {
@@ -379,14 +379,14 @@ func resourceApigeeEnvKeystoreAliasSelfSignedCertDelete(d *schema.ResourceData, 
 
 	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "EnvKeystoreAliasSelfSignedCert")
+		return handleNotFoundError(err, d, "KeystoresAliasesSelfSignedCert")
 	}
 
-	log.Printf("[DEBUG] Finished deleting EnvKeystoreAliasSelfSignedCert %q: %#v", d.Id(), res)
+	log.Printf("[DEBUG] Finished deleting KeystoresAliasesSelfSignedCert %q: %#v", d.Id(), res)
 	return nil
 }
 
-func resourceApigeeEnvKeystoreAliasSelfSignedCertImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceApigeeKeystoresAliasesSelfSignedCertImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
@@ -407,7 +407,7 @@ func resourceApigeeEnvKeystoreAliasSelfSignedCertImport(d *schema.ResourceData, 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfo(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfo(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -417,10 +417,10 @@ func flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfo(v interface{}, d *sche
 	}
 	transformed := make(map[string]interface{})
 	transformed["cert_info"] =
-		flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfo(original["certInfo"], d, config)
+		flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfo(original["certInfo"], d, config)
 	return []interface{}{transformed}
 }
-func flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfo(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfo(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -433,22 +433,22 @@ func flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfo(v interface{},
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"version":                   flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoVersion(original["version"], d, config),
-			"subject":                   flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoSubject(original["subject"], d, config),
-			"issuer":                    flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoIssuer(original["issuer"], d, config),
-			"expiry_date":               flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoExpiryDate(original["expiryDate"], d, config),
-			"valid_from":                flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoValidFrom(original["validFrom"], d, config),
-			"is_valid":                  flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoIsValid(original["isValid"], d, config),
-			"subject_alternative_names": flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoSubjectAlternativeNames(original["subjectAlternativeNames"], d, config),
-			"sig_alg_name":              flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoSigAlgName(original["sigAlgName"], d, config),
-			"public_key":                flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoPublicKey(original["publicKey"], d, config),
-			"basic_constraints":         flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoBasicConstraints(original["basicConstraints"], d, config),
-			"serial_number":             flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoSerialNumber(original["serialNumber"], d, config),
+			"version":                   flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoVersion(original["version"], d, config),
+			"subject":                   flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoSubject(original["subject"], d, config),
+			"issuer":                    flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoIssuer(original["issuer"], d, config),
+			"expiry_date":               flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoExpiryDate(original["expiryDate"], d, config),
+			"valid_from":                flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoValidFrom(original["validFrom"], d, config),
+			"is_valid":                  flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoIsValid(original["isValid"], d, config),
+			"subject_alternative_names": flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoSubjectAlternativeNames(original["subjectAlternativeNames"], d, config),
+			"sig_alg_name":              flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoSigAlgName(original["sigAlgName"], d, config),
+			"public_key":                flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoPublicKey(original["publicKey"], d, config),
+			"basic_constraints":         flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoBasicConstraints(original["basicConstraints"], d, config),
+			"serial_number":             flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoSerialNumber(original["serialNumber"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -465,55 +465,55 @@ func flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoVersion(v inter
 	return v // let terraform core handle it otherwise
 }
 
-func flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoSubject(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoSubject(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoIssuer(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoIssuer(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoExpiryDate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoExpiryDate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoValidFrom(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoValidFrom(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoIsValid(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoIsValid(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoSubjectAlternativeNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoSubjectAlternativeNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoSigAlgName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoSigAlgName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoPublicKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoPublicKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoBasicConstraints(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoBasicConstraints(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvKeystoreAliasSelfSignedCertCertsInfoCertInfoSerialNumber(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoSerialNumber(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvKeystoreAliasSelfSignedCertType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvKeystoreAliasSelfSignedCertAlias(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertAlias(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvKeystoreAliasSelfSignedCertSubjectAlternativeDnsNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -523,18 +523,18 @@ func flattenApigeeEnvKeystoreAliasSelfSignedCertSubjectAlternativeDnsNames(v int
 	}
 	transformed := make(map[string]interface{})
 	transformed["subject_alternative_name"] =
-		flattenApigeeEnvKeystoreAliasSelfSignedCertSubjectAlternativeDnsNamesSubjectAlternativeName(original["subjectAlternativeName"], d, config)
+		flattenApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNamesSubjectAlternativeName(original["subjectAlternativeName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenApigeeEnvKeystoreAliasSelfSignedCertSubjectAlternativeDnsNamesSubjectAlternativeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNamesSubjectAlternativeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
-func expandApigeeEnvKeystoreAliasSelfSignedCertAlias(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertAlias(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvKeystoreAliasSelfSignedCertSubjectAlternativeDnsNames(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNames(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -543,7 +543,7 @@ func expandApigeeEnvKeystoreAliasSelfSignedCertSubjectAlternativeDnsNames(v inte
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedSubjectAlternativeName, err := expandApigeeEnvKeystoreAliasSelfSignedCertSubjectAlternativeDnsNamesSubjectAlternativeName(original["subject_alternative_name"], d, config)
+	transformedSubjectAlternativeName, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNamesSubjectAlternativeName(original["subject_alternative_name"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedSubjectAlternativeName); val.IsValid() && !isEmptyValue(val) {
@@ -553,19 +553,19 @@ func expandApigeeEnvKeystoreAliasSelfSignedCertSubjectAlternativeDnsNames(v inte
 	return transformed, nil
 }
 
-func expandApigeeEnvKeystoreAliasSelfSignedCertSubjectAlternativeDnsNamesSubjectAlternativeName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNamesSubjectAlternativeName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvKeystoreAliasSelfSignedCertKeySize(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertKeySize(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvKeystoreAliasSelfSignedCertSigAlg(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSigAlg(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvKeystoreAliasSelfSignedCertSubject(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubject(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -574,49 +574,49 @@ func expandApigeeEnvKeystoreAliasSelfSignedCertSubject(v interface{}, d Terrafor
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedCountryCode, err := expandApigeeEnvKeystoreAliasSelfSignedCertSubjectCountryCode(original["country_code"], d, config)
+	transformedCountryCode, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectCountryCode(original["country_code"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedCountryCode); val.IsValid() && !isEmptyValue(val) {
 		transformed["countryCode"] = transformedCountryCode
 	}
 
-	transformedState, err := expandApigeeEnvKeystoreAliasSelfSignedCertSubjectState(original["state"], d, config)
+	transformedState, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectState(original["state"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedState); val.IsValid() && !isEmptyValue(val) {
 		transformed["state"] = transformedState
 	}
 
-	transformedLocality, err := expandApigeeEnvKeystoreAliasSelfSignedCertSubjectLocality(original["locality"], d, config)
+	transformedLocality, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectLocality(original["locality"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedLocality); val.IsValid() && !isEmptyValue(val) {
 		transformed["locality"] = transformedLocality
 	}
 
-	transformedOrg, err := expandApigeeEnvKeystoreAliasSelfSignedCertSubjectOrg(original["org"], d, config)
+	transformedOrg, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectOrg(original["org"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedOrg); val.IsValid() && !isEmptyValue(val) {
 		transformed["org"] = transformedOrg
 	}
 
-	transformedOrgUnit, err := expandApigeeEnvKeystoreAliasSelfSignedCertSubjectOrgUnit(original["org_unit"], d, config)
+	transformedOrgUnit, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectOrgUnit(original["org_unit"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedOrgUnit); val.IsValid() && !isEmptyValue(val) {
 		transformed["orgUnit"] = transformedOrgUnit
 	}
 
-	transformedCommonName, err := expandApigeeEnvKeystoreAliasSelfSignedCertSubjectCommonName(original["common_name"], d, config)
+	transformedCommonName, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectCommonName(original["common_name"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedCommonName); val.IsValid() && !isEmptyValue(val) {
 		transformed["commonName"] = transformedCommonName
 	}
 
-	transformedEmail, err := expandApigeeEnvKeystoreAliasSelfSignedCertSubjectEmail(original["email"], d, config)
+	transformedEmail, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectEmail(original["email"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedEmail); val.IsValid() && !isEmptyValue(val) {
@@ -626,34 +626,34 @@ func expandApigeeEnvKeystoreAliasSelfSignedCertSubject(v interface{}, d Terrafor
 	return transformed, nil
 }
 
-func expandApigeeEnvKeystoreAliasSelfSignedCertSubjectCountryCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectCountryCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvKeystoreAliasSelfSignedCertSubjectState(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectState(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvKeystoreAliasSelfSignedCertSubjectLocality(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectLocality(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvKeystoreAliasSelfSignedCertSubjectOrg(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectOrg(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvKeystoreAliasSelfSignedCertSubjectOrgUnit(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectOrgUnit(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvKeystoreAliasSelfSignedCertSubjectCommonName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectCommonName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvKeystoreAliasSelfSignedCertSubjectEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvKeystoreAliasSelfSignedCertCertValidityInDays(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertCertValidityInDays(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
