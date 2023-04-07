@@ -120,7 +120,7 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureCreate(d *schema.ResourceData,
 		obj["valueType"] = valueTypeProp
 	}
 
-	url, err := replaceVars(d, config, "{{VertexAIBasePath}}{{entitytype}}/features?featureId={{name}}")
+	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}{{entitytype}}/features?featureId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -148,7 +148,7 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureCreate(d *schema.ResourceData,
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{entitytype}}/features/{{name}}")
+	id, err := ReplaceVars(d, config, "{{entitytype}}/features/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -168,7 +168,7 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureCreate(d *schema.ResourceData,
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{entitytype}}/features/{{name}}")
+	id, err = ReplaceVars(d, config, "{{entitytype}}/features/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -186,7 +186,7 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureRead(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{VertexAIBasePath}}{{entitytype}}/features/{{name}}")
+	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}{{entitytype}}/features/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -245,7 +245,7 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureUpdate(d *schema.ResourceData,
 		obj["description"] = descriptionProp
 	}
 
-	url, err := replaceVars(d, config, "{{VertexAIBasePath}}{{entitytype}}/features/{{name}}")
+	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}{{entitytype}}/features/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -260,9 +260,9 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureUpdate(d *schema.ResourceData,
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -293,7 +293,7 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureDelete(d *schema.ResourceData,
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{VertexAIBasePath}}{{entitytype}}/features/{{name}}")
+	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}{{entitytype}}/features/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -334,14 +334,14 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureDelete(d *schema.ResourceData,
 
 func resourceVertexAIFeaturestoreEntitytypeFeatureImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<entitytype>.+)/features/(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{entitytype}}/features/{{name}}")
+	id, err := ReplaceVars(d, config, "{{entitytype}}/features/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

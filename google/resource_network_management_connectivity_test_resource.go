@@ -275,7 +275,7 @@ func resourceNetworkManagementConnectivityTestCreate(d *schema.ResourceData, met
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{NetworkManagementBasePath}}projects/{{project}}/locations/global/connectivityTests?testId={{name}}")
+	url, err := ReplaceVars(d, config, "{{NetworkManagementBasePath}}projects/{{project}}/locations/global/connectivityTests?testId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -300,7 +300,7 @@ func resourceNetworkManagementConnectivityTestCreate(d *schema.ResourceData, met
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/global/connectivityTests/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/connectivityTests/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -324,7 +324,7 @@ func resourceNetworkManagementConnectivityTestCreate(d *schema.ResourceData, met
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/global/connectivityTests/{{name}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/global/connectivityTests/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -342,7 +342,7 @@ func resourceNetworkManagementConnectivityTestRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{NetworkManagementBasePath}}projects/{{project}}/locations/global/connectivityTests/{{name}}")
+	url, err := ReplaceVars(d, config, "{{NetworkManagementBasePath}}projects/{{project}}/locations/global/connectivityTests/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -447,7 +447,7 @@ func resourceNetworkManagementConnectivityTestUpdate(d *schema.ResourceData, met
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{NetworkManagementBasePath}}projects/{{project}}/locations/global/connectivityTests/{{name}}")
+	url, err := ReplaceVars(d, config, "{{NetworkManagementBasePath}}projects/{{project}}/locations/global/connectivityTests/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -487,9 +487,9 @@ func resourceNetworkManagementConnectivityTestUpdate(d *schema.ResourceData, met
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -533,7 +533,7 @@ func resourceNetworkManagementConnectivityTestDelete(d *schema.ResourceData, met
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{NetworkManagementBasePath}}projects/{{project}}/locations/global/connectivityTests/{{name}}")
+	url, err := ReplaceVars(d, config, "{{NetworkManagementBasePath}}projects/{{project}}/locations/global/connectivityTests/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -565,7 +565,7 @@ func resourceNetworkManagementConnectivityTestDelete(d *schema.ResourceData, met
 
 func resourceNetworkManagementConnectivityTestImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/global/connectivityTests/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -574,7 +574,7 @@ func resourceNetworkManagementConnectivityTestImport(d *schema.ResourceData, met
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/global/connectivityTests/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/connectivityTests/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

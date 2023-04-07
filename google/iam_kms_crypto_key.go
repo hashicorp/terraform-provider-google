@@ -25,28 +25,28 @@ type KmsCryptoKeyIamUpdater struct {
 
 func NewKmsCryptoKeyIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	cryptoKey := d.Get("crypto_key_id").(string)
-	cryptoKeyId, err := parseKmsCryptoKeyId(cryptoKey, config)
+	cryptoKeyId, err := ParseKmsCryptoKeyId(cryptoKey, config)
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error parsing resource ID for %s: {{err}}", cryptoKey), err)
 	}
 
 	return &KmsCryptoKeyIamUpdater{
-		resourceId: cryptoKeyId.cryptoKeyId(),
+		resourceId: cryptoKeyId.CryptoKeyId(),
 		d:          d,
 		Config:     config,
 	}, nil
 }
 
 func CryptoIdParseFunc(d *schema.ResourceData, config *Config) error {
-	cryptoKeyId, err := parseKmsCryptoKeyId(d.Id(), config)
+	cryptoKeyId, err := ParseKmsCryptoKeyId(d.Id(), config)
 	if err != nil {
 		return err
 	}
-	if err := d.Set("crypto_key_id", cryptoKeyId.cryptoKeyId()); err != nil {
+	if err := d.Set("crypto_key_id", cryptoKeyId.CryptoKeyId()); err != nil {
 		return fmt.Errorf("Error setting crypto_key_id: %s", err)
 	}
-	d.SetId(cryptoKeyId.cryptoKeyId())
+	d.SetId(cryptoKeyId.CryptoKeyId())
 	return nil
 }
 

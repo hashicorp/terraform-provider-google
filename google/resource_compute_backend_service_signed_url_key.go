@@ -95,14 +95,14 @@ func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, met
 		obj["backendService"] = backendServiceProp
 	}
 
-	lockName, err := replaceVars(d, config, "signedUrlKey/{{project}}/backendServices/{{backend_service}}/")
+	lockName, err := ReplaceVars(d, config, "signedUrlKey/{{project}}/backendServices/{{backend_service}}/")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}/addSignedUrlKey")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}/addSignedUrlKey")
 	if err != nil {
 		return err
 	}
@@ -127,7 +127,7 @@ func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, met
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/global/backendServices/{{backend_service}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/backendServices/{{backend_service}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -155,7 +155,7 @@ func resourceComputeBackendServiceSignedUrlKeyRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}")
 	if err != nil {
 		return err
 	}
@@ -216,14 +216,14 @@ func resourceComputeBackendServiceSignedUrlKeyDelete(d *schema.ResourceData, met
 	}
 	billingProject = project
 
-	lockName, err := replaceVars(d, config, "signedUrlKey/{{project}}/backendServices/{{backend_service}}/")
+	lockName, err := ReplaceVars(d, config, "signedUrlKey/{{project}}/backendServices/{{backend_service}}/")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}/deleteSignedUrlKey?keyName={{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}/deleteSignedUrlKey?keyName={{name}}")
 	if err != nil {
 		return err
 	}

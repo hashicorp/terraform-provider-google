@@ -26,29 +26,29 @@ type HealthcareDatasetIamUpdater struct {
 
 func NewHealthcareDatasetIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	dataset := d.Get("dataset_id").(string)
-	datasetId, err := parseHealthcareDatasetId(dataset, config)
+	datasetId, err := ParseHealthcareDatasetId(dataset, config)
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error parsing resource ID for %s: {{err}}", dataset), err)
 	}
 
 	return &HealthcareDatasetIamUpdater{
-		resourceId: datasetId.datasetId(),
+		resourceId: datasetId.DatasetId(),
 		d:          d,
 		Config:     config,
 	}, nil
 }
 
 func DatasetIdParseFunc(d *schema.ResourceData, config *Config) error {
-	datasetId, err := parseHealthcareDatasetId(d.Id(), config)
+	datasetId, err := ParseHealthcareDatasetId(d.Id(), config)
 	if err != nil {
 		return err
 	}
 
-	if err := d.Set("dataset_id", datasetId.datasetId()); err != nil {
+	if err := d.Set("dataset_id", datasetId.DatasetId()); err != nil {
 		return fmt.Errorf("Error setting dataset_id: %s", err)
 	}
-	d.SetId(datasetId.datasetId())
+	d.SetId(datasetId.DatasetId())
 	return nil
 }
 

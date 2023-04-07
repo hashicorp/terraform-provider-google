@@ -105,14 +105,14 @@ func resourceComputeNetworkPeeringRoutesConfigCreate(d *schema.ResourceData, met
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "projects/{{project}}/global/networks/{{network}}/peerings")
+	lockName, err := ReplaceVars(d, config, "projects/{{project}}/global/networks/{{network}}/peerings")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{network}}/updatePeering")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{network}}/updatePeering")
 	if err != nil {
 		return err
 	}
@@ -137,7 +137,7 @@ func resourceComputeNetworkPeeringRoutesConfigCreate(d *schema.ResourceData, met
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/global/networks/{{network}}/networkPeerings/{{peering}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/networks/{{network}}/networkPeerings/{{peering}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -165,7 +165,7 @@ func resourceComputeNetworkPeeringRoutesConfigRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{network}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{network}}")
 	if err != nil {
 		return err
 	}
@@ -257,14 +257,14 @@ func resourceComputeNetworkPeeringRoutesConfigUpdate(d *schema.ResourceData, met
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "projects/{{project}}/global/networks/{{network}}/peerings")
+	lockName, err := ReplaceVars(d, config, "projects/{{project}}/global/networks/{{network}}/peerings")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{network}}/updatePeering")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{network}}/updatePeering")
 	if err != nil {
 		return err
 	}
@@ -306,7 +306,7 @@ func resourceComputeNetworkPeeringRoutesConfigDelete(d *schema.ResourceData, met
 
 func resourceComputeNetworkPeeringRoutesConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/networks/(?P<network>[^/]+)/networkPeerings/(?P<peering>[^/]+)",
 		"(?P<project>[^/]+)/(?P<network>[^/]+)/(?P<peering>[^/]+)",
 		"(?P<network>[^/]+)/(?P<peering>[^/]+)",
@@ -315,7 +315,7 @@ func resourceComputeNetworkPeeringRoutesConfigImport(d *schema.ResourceData, met
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/global/networks/{{network}}/networkPeerings/{{peering}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/networks/{{network}}/networkPeerings/{{peering}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -203,7 +203,7 @@ func (u *DataprocMetastoreServiceIamUpdater) SetResourceIamPolicy(policy *cloudr
 
 func (u *DataprocMetastoreServiceIamUpdater) qualifyServiceUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{DataprocMetastoreBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/services/%s", u.project, u.location, u.serviceId), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

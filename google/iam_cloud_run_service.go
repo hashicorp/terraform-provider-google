@@ -156,7 +156,7 @@ func (u *CloudRunServiceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanage
 		return nil, err
 	}
 
-	policy, err := SendRequest(u.Config, "GET", project, url, userAgent, obj, isCloudRunCreationConflict)
+	policy, err := SendRequest(u.Config, "GET", project, url, userAgent, obj, IsCloudRunCreationConflict)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -193,7 +193,7 @@ func (u *CloudRunServiceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		return err
 	}
 
-	_, err = SendRequestWithTimeout(u.Config, "POST", project, url, userAgent, obj, u.d.Timeout(schema.TimeoutCreate), isCloudRunCreationConflict)
+	_, err = SendRequestWithTimeout(u.Config, "POST", project, url, userAgent, obj, u.d.Timeout(schema.TimeoutCreate), IsCloudRunCreationConflict)
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -203,7 +203,7 @@ func (u *CloudRunServiceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 
 func (u *CloudRunServiceIamUpdater) qualifyServiceUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{CloudRunBasePath}}%s:%s", fmt.Sprintf("v1/projects/%s/locations/%s/services/%s", u.project, u.location, u.service), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

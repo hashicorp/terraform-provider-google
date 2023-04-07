@@ -13,7 +13,7 @@ import (
 // CA related utilities.
 
 func enableCA(config *Config, d *schema.ResourceData, project string, billingProject string, userAgent string) error {
-	enableUrl, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:enable")
+	enableUrl, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:enable")
 	if err != nil {
 		return err
 	}
@@ -36,7 +36,7 @@ func enableCA(config *Config, d *schema.ResourceData, project string, billingPro
 }
 
 func disableCA(config *Config, d *schema.ResourceData, project string, billingProject string, userAgent string) error {
-	disableUrl, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:disable")
+	disableUrl, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:disable")
 	if err != nil {
 		return err
 	}
@@ -91,7 +91,7 @@ func activateSubCAWithThirdPartyIssuer(config *Config, d *schema.ResourceData, p
 	activateObj["subordinateConfig"].(map[string]interface{})["pemIssuerChain"] = make(map[string]interface{})
 	activateObj["subordinateConfig"].(map[string]interface{})["pemIssuerChain"].(map[string]interface{})["pemCertificates"] = pemIssuerChain
 
-	activateUrl, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:activate")
+	activateUrl, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:activate")
 	if err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func activateSubCAWithFirstPartyIssuer(config *Config, d *schema.ResourceData, p
 	issuer := ca.(string)
 
 	// 2. fetch CSR
-	fetchCSRUrl, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:fetch")
+	fetchCSRUrl, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:fetch")
 	if err != nil {
 		return err
 	}
@@ -176,12 +176,12 @@ func activateSubCAWithFirstPartyIssuer(config *Config, d *schema.ResourceData, p
 		return err
 	}
 
-	PrivatecaBasePath, err := replaceVars(d, config, "{{PrivatecaBasePath}}")
+	PrivatecaBasePath, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}")
 	if err != nil {
 		return err
 	}
 	signUrl := fmt.Sprintf("%v%v/certificates?certificateId=%v", PrivatecaBasePath, poolName, certId)
-	signUrl, err = addQueryParams(signUrl, map[string]string{"issuingCertificateAuthorityId": issuerId})
+	signUrl, err = AddQueryParams(signUrl, map[string]string{"issuingCertificateAuthorityId": issuerId})
 	if err != nil {
 		return err
 	}
@@ -199,7 +199,7 @@ func activateSubCAWithFirstPartyIssuer(config *Config, d *schema.ResourceData, p
 	activateObj["subordinateConfig"] = make(map[string]interface{})
 	activateObj["subordinateConfig"].(map[string]interface{})["certificateAuthority"] = issuer
 
-	activateUrl, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:activate")
+	activateUrl, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:activate")
 	if err != nil {
 		return err
 	}

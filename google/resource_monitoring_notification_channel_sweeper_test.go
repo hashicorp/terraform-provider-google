@@ -62,7 +62,7 @@ func testSweepMonitoringNotificationChannel(region string) error {
 	}
 
 	listTemplate := strings.Split("https://monitoring.googleapis.com/v3/projects/{{project}}/notificationChannels", "?")[0]
-	listUrl, err := replaceVars(d, config, listTemplate)
+	listUrl, err := ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 		return nil
@@ -100,7 +100,7 @@ func testSweepMonitoringNotificationChannel(region string) error {
 		}
 
 		deleteTemplate := "https://monitoring.googleapis.com/v3/{{name}}?force={{force_delete}}"
-		deleteUrl, err := replaceVars(d, config, deleteTemplate)
+		deleteUrl, err := ReplaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 			return nil

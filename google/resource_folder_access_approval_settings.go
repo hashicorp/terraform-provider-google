@@ -201,7 +201,7 @@ func resourceAccessApprovalFolderSettingsCreate(d *schema.ResourceData, meta int
 		obj["activeKeyVersion"] = activeKeyVersionProp
 	}
 
-	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}folders/{{folder_id}}/accessApprovalSettings")
+	url, err := ReplaceVars(d, config, "{{AccessApprovalBasePath}}folders/{{folder_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
@@ -227,9 +227,9 @@ func resourceAccessApprovalFolderSettingsCreate(d *schema.ResourceData, meta int
 	if d.HasChange("active_key_version") {
 		updateMask = append(updateMask, "activeKeyVersion")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -242,7 +242,7 @@ func resourceAccessApprovalFolderSettingsCreate(d *schema.ResourceData, meta int
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "folders/{{folder_id}}/accessApprovalSettings")
+	id, err := ReplaceVars(d, config, "folders/{{folder_id}}/accessApprovalSettings")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -260,7 +260,7 @@ func resourceAccessApprovalFolderSettingsRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}folders/{{folder_id}}/accessApprovalSettings")
+	url, err := ReplaceVars(d, config, "{{AccessApprovalBasePath}}folders/{{folder_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
@@ -331,7 +331,7 @@ func resourceAccessApprovalFolderSettingsUpdate(d *schema.ResourceData, meta int
 		obj["activeKeyVersion"] = activeKeyVersionProp
 	}
 
-	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}folders/{{folder_id}}/accessApprovalSettings")
+	url, err := ReplaceVars(d, config, "{{AccessApprovalBasePath}}folders/{{folder_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
@@ -350,9 +350,9 @@ func resourceAccessApprovalFolderSettingsUpdate(d *schema.ResourceData, meta int
 	if d.HasChange("active_key_version") {
 		updateMask = append(updateMask, "activeKeyVersion")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -385,7 +385,7 @@ func resourceAccessApprovalFolderSettingsDelete(d *schema.ResourceData, meta int
 	obj["enrolledServices"] = []string{}
 	obj["activeKeyVersion"] = ""
 
-	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}folders/{{folder_id}}/accessApprovalSettings")
+	url, err := ReplaceVars(d, config, "{{AccessApprovalBasePath}}folders/{{folder_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
@@ -397,9 +397,9 @@ func resourceAccessApprovalFolderSettingsDelete(d *schema.ResourceData, meta int
 	updateMask = append(updateMask, "enrolledServices")
 	updateMask = append(updateMask, "activeKeyVersion")
 
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -417,7 +417,7 @@ func resourceAccessApprovalFolderSettingsDelete(d *schema.ResourceData, meta int
 
 func resourceAccessApprovalFolderSettingsImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"folders/(?P<folder_id>[^/]+)/accessApprovalSettings",
 		"(?P<folder_id>[^/]+)",
 	}, d, config); err != nil {
@@ -425,7 +425,7 @@ func resourceAccessApprovalFolderSettingsImport(d *schema.ResourceData, meta int
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "folders/{{folder_id}}/accessApprovalSettings")
+	id, err := ReplaceVars(d, config, "folders/{{folder_id}}/accessApprovalSettings")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

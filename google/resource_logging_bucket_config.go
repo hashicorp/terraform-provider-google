@@ -164,7 +164,7 @@ func resourceLoggingBucketConfigAcquireOrCreate(parentType string, iDFunc loggin
 			//logging bucket can be created only at the project level, in future api may allow for folder, org and other parent resources
 
 			log.Printf("[DEBUG] Fetching logging bucket config: %#v", id)
-			url, err := replaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", id))
+			url, err := ReplaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", id))
 			if err != nil {
 				return err
 			}
@@ -198,7 +198,7 @@ func resourceLoggingBucketConfigCreate(d *schema.ResourceData, meta interface{},
 	obj["locked"] = d.Get("locked")
 	obj["cmekSettings"] = expandCmekSettings(d.Get("cmek_settings"))
 
-	url, err := replaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/locations/{{location}}/buckets?bucketId={{bucket_id}}")
+	url, err := ReplaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/locations/{{location}}/buckets?bucketId={{bucket_id}}")
 	if err != nil {
 		return err
 	}
@@ -238,7 +238,7 @@ func resourceLoggingBucketConfigRead(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[DEBUG] Fetching logging bucket config: %#v", d.Id())
 
-	url, err := replaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", d.Id()))
+	url, err := ReplaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", d.Id()))
 	if err != nil {
 		return err
 	}
@@ -280,7 +280,7 @@ func resourceLoggingBucketConfigUpdate(d *schema.ResourceData, meta interface{})
 
 	obj := make(map[string]interface{})
 
-	url, err := replaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", d.Id()))
+	url, err := ReplaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", d.Id()))
 	if err != nil {
 		return err
 	}
@@ -299,7 +299,7 @@ func resourceLoggingBucketConfigUpdate(d *schema.ResourceData, meta interface{})
 	if d.HasChange("cmek_settings") {
 		updateMask = append(updateMask, "cmekSettings")
 	}
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -326,7 +326,7 @@ func resourceLoggingBucketConfigDelete(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	url, err := replaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", d.Id()))
+	url, err := ReplaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", d.Id()))
 	if err != nil {
 		return err
 	}

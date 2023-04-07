@@ -2237,7 +2237,7 @@ func resourceDataLossPreventionDeidentifyTemplateCreate(d *schema.ResourceData, 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates")
+	url, err := ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates")
 	if err != nil {
 		return err
 	}
@@ -2259,7 +2259,7 @@ func resourceDataLossPreventionDeidentifyTemplateCreate(d *schema.ResourceData, 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{parent}}/deidentifyTemplates/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/deidentifyTemplates/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -2277,7 +2277,7 @@ func resourceDataLossPreventionDeidentifyTemplateRead(d *schema.ResourceData, me
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -2344,7 +2344,7 @@ func resourceDataLossPreventionDeidentifyTemplateUpdate(d *schema.ResourceData, 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -2363,9 +2363,9 @@ func resourceDataLossPreventionDeidentifyTemplateUpdate(d *schema.ResourceData, 
 	if d.HasChange("deidentify_config") {
 		updateMask = append(updateMask, "deidentifyConfig")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -2395,7 +2395,7 @@ func resourceDataLossPreventionDeidentifyTemplateDelete(d *schema.ResourceData, 
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -2421,7 +2421,7 @@ func resourceDataLossPreventionDeidentifyTemplateImport(d *schema.ResourceData, 
 	config := meta.(*Config)
 
 	// Custom import to handle parent possibilities
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 	parts := strings.Split(d.Get("name").(string), "/")
@@ -2443,7 +2443,7 @@ func resourceDataLossPreventionDeidentifyTemplateImport(d *schema.ResourceData, 
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{parent}}/deidentifyTemplates/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/deidentifyTemplates/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

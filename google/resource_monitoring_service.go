@@ -152,7 +152,7 @@ func resourceMonitoringGenericServiceCreate(d *schema.ResourceData, meta interfa
 		obj["basicService"] = basicServiceProp
 	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services?serviceId={{service_id}}")
+	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services?serviceId={{service_id}}")
 	if err != nil {
 		return err
 	}
@@ -171,7 +171,7 @@ func resourceMonitoringGenericServiceCreate(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IsMonitoringConcurrentEditError)
 	if err != nil {
 		return fmt.Errorf("Error creating GenericService: %s", err)
 	}
@@ -180,7 +180,7 @@ func resourceMonitoringGenericServiceCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/services/{{service_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/services/{{service_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -198,7 +198,7 @@ func resourceMonitoringGenericServiceRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services/{{service_id}}")
+	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services/{{service_id}}")
 	if err != nil {
 		return err
 	}
@@ -216,7 +216,7 @@ func resourceMonitoringGenericServiceRead(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, isMonitoringConcurrentEditError)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringGenericService %q", d.Id()))
 	}
@@ -273,7 +273,7 @@ func resourceMonitoringGenericServiceUpdate(d *schema.ResourceData, meta interfa
 		obj["userLabels"] = userLabelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services/{{service_id}}")
+	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services/{{service_id}}")
 	if err != nil {
 		return err
 	}
@@ -288,9 +288,9 @@ func resourceMonitoringGenericServiceUpdate(d *schema.ResourceData, meta interfa
 	if d.HasChange("user_labels") {
 		updateMask = append(updateMask, "userLabels")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -300,7 +300,7 @@ func resourceMonitoringGenericServiceUpdate(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), IsMonitoringConcurrentEditError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating GenericService %q: %s", d.Id(), err)
@@ -326,7 +326,7 @@ func resourceMonitoringGenericServiceDelete(d *schema.ResourceData, meta interfa
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services/{{service_id}}")
+	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services/{{service_id}}")
 	if err != nil {
 		return err
 	}
@@ -339,7 +339,7 @@ func resourceMonitoringGenericServiceDelete(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IsMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, "GenericService")
 	}
@@ -350,7 +350,7 @@ func resourceMonitoringGenericServiceDelete(d *schema.ResourceData, meta interfa
 
 func resourceMonitoringGenericServiceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/services/(?P<service_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<service_id>[^/]+)",
 		"(?P<service_id>[^/]+)",
@@ -359,7 +359,7 @@ func resourceMonitoringGenericServiceImport(d *schema.ResourceData, meta interfa
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/services/{{service_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/services/{{service_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

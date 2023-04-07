@@ -100,7 +100,7 @@ func resourcePubsubSchemaCreate(d *schema.ResourceData, meta interface{}) error 
 		obj["name"] = nameProp
 	}
 
-	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/schemas?schemaId={{name}}")
+	url, err := ReplaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/schemas?schemaId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -125,7 +125,7 @@ func resourcePubsubSchemaCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/schemas/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/schemas/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -140,7 +140,7 @@ func resourcePubsubSchemaPollRead(d *schema.ResourceData, meta interface{}) Poll
 	return func() (map[string]interface{}, error) {
 		config := meta.(*Config)
 
-		url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/schemas/{{name}}")
+		url, err := ReplaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/schemas/{{name}}")
 		if err != nil {
 			return nil, err
 		}
@@ -178,7 +178,7 @@ func resourcePubsubSchemaRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/schemas/{{name}}")
+	url, err := ReplaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/schemas/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -230,7 +230,7 @@ func resourcePubsubSchemaDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/schemas/{{name}}")
+	url, err := ReplaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/schemas/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -259,7 +259,7 @@ func resourcePubsubSchemaDelete(d *schema.ResourceData, meta interface{}) error 
 
 func resourcePubsubSchemaImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/schemas/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -268,7 +268,7 @@ func resourcePubsubSchemaImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/schemas/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/schemas/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

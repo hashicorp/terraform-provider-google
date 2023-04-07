@@ -246,7 +246,7 @@ func resourceMonitoringMetricDescriptorCreate(d *schema.ResourceData, meta inter
 		obj["launchStage"] = launchStageProp
 	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/metricDescriptors")
+	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/metricDescriptors")
 	if err != nil {
 		return err
 	}
@@ -265,7 +265,7 @@ func resourceMonitoringMetricDescriptorCreate(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IsMonitoringConcurrentEditError)
 	if err != nil {
 		return fmt.Errorf("Error creating MetricDescriptor: %s", err)
 	}
@@ -274,7 +274,7 @@ func resourceMonitoringMetricDescriptorCreate(d *schema.ResourceData, meta inter
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -294,7 +294,7 @@ func resourceMonitoringMetricDescriptorPollRead(d *schema.ResourceData, meta int
 	return func() (map[string]interface{}, error) {
 		config := meta.(*Config)
 
-		url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
+		url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 		if err != nil {
 			return nil, err
 		}
@@ -317,7 +317,7 @@ func resourceMonitoringMetricDescriptorPollRead(d *schema.ResourceData, meta int
 			return nil, err
 		}
 
-		res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, isMonitoringConcurrentEditError)
+		res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsMonitoringConcurrentEditError)
 		if err != nil {
 			return res, err
 		}
@@ -332,7 +332,7 @@ func resourceMonitoringMetricDescriptorRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
+	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -350,7 +350,7 @@ func resourceMonitoringMetricDescriptorRead(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, isMonitoringConcurrentEditError)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringMetricDescriptor %q", d.Id()))
 	}
@@ -461,7 +461,7 @@ func resourceMonitoringMetricDescriptorUpdate(d *schema.ResourceData, meta inter
 		obj["launchStage"] = launchStageProp
 	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/metricDescriptors")
+	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/metricDescriptors")
 	if err != nil {
 		return err
 	}
@@ -473,7 +473,7 @@ func resourceMonitoringMetricDescriptorUpdate(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), IsMonitoringConcurrentEditError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating MetricDescriptor %q: %s", d.Id(), err)
@@ -504,7 +504,7 @@ func resourceMonitoringMetricDescriptorDelete(d *schema.ResourceData, meta inter
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
+	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -517,7 +517,7 @@ func resourceMonitoringMetricDescriptorDelete(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IsMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, "MetricDescriptor")
 	}
@@ -536,7 +536,7 @@ func resourceMonitoringMetricDescriptorImport(d *schema.ResourceData, meta inter
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
 		return nil, err
 	}
 

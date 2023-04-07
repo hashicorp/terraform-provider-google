@@ -820,7 +820,7 @@ func resourceAccessContextManagerServicePerimetersCreate(d *schema.ResourceData,
 		obj["parent"] = parentProp
 	}
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/servicePerimeters:replaceAll")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/servicePerimeters:replaceAll")
 	if err != nil {
 		return err
 	}
@@ -839,7 +839,7 @@ func resourceAccessContextManagerServicePerimetersCreate(d *schema.ResourceData,
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{parent}}/servicePerimeters")
+	id, err := ReplaceVars(d, config, "{{parent}}/servicePerimeters")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -867,7 +867,7 @@ func resourceAccessContextManagerServicePerimetersRead(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/servicePerimeters")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/servicePerimeters")
 	if err != nil {
 		return err
 	}
@@ -914,7 +914,7 @@ func resourceAccessContextManagerServicePerimetersUpdate(d *schema.ResourceData,
 		obj["parent"] = parentProp
 	}
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/servicePerimeters:replaceAll")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/servicePerimeters:replaceAll")
 	if err != nil {
 		return err
 	}
@@ -955,7 +955,7 @@ func resourceAccessContextManagerServicePerimetersDelete(d *schema.ResourceData,
 	obj := make(map[string]interface{})
 	obj["servicePerimeters"] = []string{}
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/servicePerimeters:replaceAll")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/servicePerimeters:replaceAll")
 	if err != nil {
 		return err
 	}

@@ -92,7 +92,7 @@ func testAccCheckMonitoringGenericServiceDestroyProducer(t *testing.T) func(s *t
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil, isMonitoringConcurrentEditError)
+			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil, IsMonitoringConcurrentEditError)
 			if err == nil {
 				return fmt.Errorf("MonitoringGenericService still exists at %s", url)
 			}

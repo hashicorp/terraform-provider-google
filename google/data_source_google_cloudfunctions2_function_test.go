@@ -24,7 +24,7 @@ func TestAccDataSourceGoogleCloudFunctions2Function_basic(t *testing.T) {
 				Config: testAccDataSourceGoogleCloudFunctions2FunctionConfig(functionName,
 					bucketName, zipFilePath),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceStateWithIgnores(funcDataNameHttp,
+					CheckDataSourceStateMatchesResourceStateWithIgnores(funcDataNameHttp,
 						"google_cloudfunctions2_function.function_http_v2", map[string]struct{}{"build_config.0.source.0.storage_source.0.bucket": {}, "build_config.0.source.0.storage_source.0.object": {}}),
 				),
 			},

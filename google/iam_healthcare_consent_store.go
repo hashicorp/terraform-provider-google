@@ -162,7 +162,7 @@ func (u *HealthcareConsentStoreIamUpdater) SetResourceIamPolicy(policy *cloudres
 
 func (u *HealthcareConsentStoreIamUpdater) qualifyConsentStoreUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{HealthcareBasePath}}%s:%s", fmt.Sprintf("%s/consentStores/%s", u.dataset, u.consentStoreId), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

@@ -203,7 +203,7 @@ func (u *DataCatalogTaxonomyIamUpdater) SetResourceIamPolicy(policy *cloudresour
 
 func (u *DataCatalogTaxonomyIamUpdater) qualifyTaxonomyUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{DataCatalogBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/taxonomies/%s", u.project, u.region, u.taxonomy), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

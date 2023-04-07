@@ -501,7 +501,7 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	timeout -= time.Since(startTime)
 
-	waitErr := containerOperationWait(config,
+	waitErr := ContainerOperationWait(config,
 		operation, nodePoolInfo.project,
 		nodePoolInfo.location, "creating GKE NodePool", userAgent, timeout)
 
@@ -569,7 +569,7 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 		if err := d.Set("operation", ""); err != nil {
 			return fmt.Errorf("Error setting operation: %s", err)
 		}
-		waitErr := containerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location, "resuming GKE node pool", userAgent, d.Timeout(schema.TimeoutRead))
+		waitErr := ContainerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location, "resuming GKE node pool", userAgent, d.Timeout(schema.TimeoutRead))
 		if waitErr != nil {
 			return waitErr
 		}
@@ -710,7 +710,7 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 	timeout -= time.Since(startTime)
 
 	// Wait until it's deleted
-	waitErr := containerOperationWait(config, operation, nodePoolInfo.project, nodePoolInfo.location, "deleting GKE NodePool", userAgent, timeout)
+	waitErr := ContainerOperationWait(config, operation, nodePoolInfo.project, nodePoolInfo.location, "deleting GKE NodePool", userAgent, timeout)
 	if waitErr != nil {
 		return waitErr
 	}
@@ -759,11 +759,11 @@ func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interfa
 		return nil, err
 	}
 
-	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/clusters/(?P<cluster>[^/]+)/nodePools/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<cluster>[^/]+)/(?P<name>[^/]+)", "(?P<location>[^/]+)/(?P<cluster>[^/]+)/(?P<name>[^/]+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/clusters/(?P<cluster>[^/]+)/nodePools/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<cluster>[^/]+)/(?P<name>[^/]+)", "(?P<location>[^/]+)/(?P<cluster>[^/]+)/(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}
 
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/nodePools/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/nodePools/{{name}}")
 	if err != nil {
 		return nil, err
 	}
@@ -1161,7 +1161,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			}
 
 			// Wait until it's updated
-			return containerOperationWait(config, op,
+			return ContainerOperationWait(config, op,
 				nodePoolInfo.project,
 				nodePoolInfo.location, "updating GKE node pool", userAgent,
 				timeout)
@@ -1198,7 +1198,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 					}
 
 					// Wait until it's updated
-					return containerOperationWait(config, op,
+					return ContainerOperationWait(config, op,
 						nodePoolInfo.project,
 						nodePoolInfo.location,
 						"updating GKE node pool logging_variant", userAgent,
@@ -1252,7 +1252,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				}
 
 				// Wait until it's updated
-				return containerOperationWait(config, op,
+				return ContainerOperationWait(config, op,
 					nodePoolInfo.project,
 					nodePoolInfo.location,
 					"updating GKE node pool tags", userAgent,
@@ -1288,7 +1288,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				}
 
 				// Wait until it's updated
-				return containerOperationWait(config, op,
+				return ContainerOperationWait(config, op,
 					nodePoolInfo.project,
 					nodePoolInfo.location,
 					"updating GKE node pool resource labels", userAgent,
@@ -1326,7 +1326,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				}
 
 				// Wait until it's updated
-				return containerOperationWait(config, op,
+				return ContainerOperationWait(config, op,
 					nodePoolInfo.project,
 					nodePoolInfo.location,
 					"updating GKE node pool labels", userAgent,
@@ -1360,7 +1360,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				}
 
 				// Wait until it's updated
-				return containerOperationWait(config, op,
+				return ContainerOperationWait(config, op,
 					nodePoolInfo.project,
 					nodePoolInfo.location, "updating GKE node pool", userAgent,
 					timeout)
@@ -1393,7 +1393,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				}
 
 				// Wait until it's updated
-				return containerOperationWait(config, op,
+				return ContainerOperationWait(config, op,
 					nodePoolInfo.project,
 					nodePoolInfo.location,
 					"updating GKE node pool workload_metadata_config", userAgent,
@@ -1426,7 +1426,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				}
 
 				// Wait until it's updated
-				return containerOperationWait(config, op,
+				return ContainerOperationWait(config, op,
 					nodePoolInfo.project,
 					nodePoolInfo.location,
 					"updating GKE node pool kubelet_config", userAgent,
@@ -1459,7 +1459,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				}
 
 				// Wait until it's updated
-				return containerOperationWait(config, op,
+				return ContainerOperationWait(config, op,
 					nodePoolInfo.project,
 					nodePoolInfo.location,
 					"updating GKE node pool linux_node_config", userAgent,
@@ -1492,7 +1492,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			}
 
 			// Wait until it's updated
-			return containerOperationWait(config, op,
+			return ContainerOperationWait(config, op,
 				nodePoolInfo.project,
 				nodePoolInfo.location, "updating GKE node pool size", userAgent,
 				timeout)
@@ -1527,7 +1527,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			}
 
 			// Wait until it's updated
-			return containerOperationWait(config, op,
+			return ContainerOperationWait(config, op,
 				nodePoolInfo.project,
 				nodePoolInfo.location, "updating GKE node pool management", userAgent, timeout)
 		}
@@ -1555,7 +1555,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			}
 
 			// Wait until it's updated
-			return containerOperationWait(config, op,
+			return ContainerOperationWait(config, op,
 				nodePoolInfo.project,
 				nodePoolInfo.location, "updating GKE node pool version", userAgent, timeout)
 		}
@@ -1581,7 +1581,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			}
 
 			// Wait until it's updated
-			return containerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location, "updating GKE node pool node locations", userAgent, timeout)
+			return ContainerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location, "updating GKE node pool node locations", userAgent, timeout)
 		}
 
 		if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
@@ -1661,7 +1661,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			}
 
 			// Wait until it's updated
-			return containerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location, "updating GKE node pool upgrade settings", userAgent, timeout)
+			return ContainerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location, "updating GKE node pool upgrade settings", userAgent, timeout)
 		}
 		if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
 			return err
@@ -1687,7 +1687,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				}
 
 				// Wait until it's updated
-				return containerOperationWait(config, op,
+				return ContainerOperationWait(config, op,
 					nodePoolInfo.project,
 					nodePoolInfo.location,
 					"updating GKE node pool workload_metadata_config", userAgent,

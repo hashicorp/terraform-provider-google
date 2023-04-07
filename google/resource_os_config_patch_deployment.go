@@ -996,7 +996,7 @@ func resourceOSConfigPatchDeploymentCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{OSConfigBasePath}}projects/{{project}}/patchDeployments?patchDeploymentId={{patch_deployment_id}}")
+	url, err := ReplaceVars(d, config, "{{OSConfigBasePath}}projects/{{project}}/patchDeployments?patchDeploymentId={{patch_deployment_id}}")
 	if err != nil {
 		return err
 	}
@@ -1024,7 +1024,7 @@ func resourceOSConfigPatchDeploymentCreate(d *schema.ResourceData, meta interfac
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1060,7 +1060,7 @@ func resourceOSConfigPatchDeploymentRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{OSConfigBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{OSConfigBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1151,7 +1151,7 @@ func resourceOSConfigPatchDeploymentDelete(d *schema.ResourceData, meta interfac
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{OSConfigBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{OSConfigBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1178,7 +1178,7 @@ func resourceOSConfigPatchDeploymentImport(d *schema.ResourceData, meta interfac
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
 		return nil, err
 	}
 

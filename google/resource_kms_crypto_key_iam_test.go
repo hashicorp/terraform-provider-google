@@ -19,7 +19,7 @@ func TestAccKmsCryptoKeyIamBinding(t *testing.T) {
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/cloudkms.cryptoKeyDecrypter"
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	keyRingId := &kmsKeyRingId{
+	keyRingId := &KmsKeyRingId{
 		Project:  projectId,
 		Location: DEFAULT_KMS_TEST_LOCATION,
 		Name:     keyRingName,
@@ -39,7 +39,7 @@ func TestAccKmsCryptoKeyIamBinding(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_kms_crypto_key_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s/%s %s", keyRingId.terraformId(), cryptoKeyName, roleId),
+				ImportStateId:     fmt.Sprintf("%s/%s %s", keyRingId.TerraformId(), cryptoKeyName, roleId),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -53,7 +53,7 @@ func TestAccKmsCryptoKeyIamBinding(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_kms_crypto_key_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s/%s %s", keyRingId.terraformId(), cryptoKeyName, roleId),
+				ImportStateId:     fmt.Sprintf("%s/%s %s", keyRingId.TerraformId(), cryptoKeyName, roleId),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -70,7 +70,7 @@ func TestAccKmsCryptoKeyIamMember(t *testing.T) {
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/cloudkms.cryptoKeyEncrypter"
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	keyRingId := &kmsKeyRingId{
+	keyRingId := &KmsKeyRingId{
 		Project:  projectId,
 		Location: DEFAULT_KMS_TEST_LOCATION,
 		Name:     keyRingName,
@@ -90,7 +90,7 @@ func TestAccKmsCryptoKeyIamMember(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_kms_crypto_key_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("%s/%s %s serviceAccount:%s@%s.iam.gserviceaccount.com", keyRingId.terraformId(), cryptoKeyName, roleId, account, projectId),
+				ImportStateId:     fmt.Sprintf("%s/%s %s serviceAccount:%s@%s.iam.gserviceaccount.com", keyRingId.TerraformId(), cryptoKeyName, roleId, account, projectId),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -108,7 +108,7 @@ func TestAccKmsCryptoKeyIamPolicy(t *testing.T) {
 	roleId := "roles/cloudkms.cryptoKeyEncrypter"
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	keyRingId := &kmsKeyRingId{
+	keyRingId := &KmsKeyRingId{
 		Project:  projectId,
 		Location: DEFAULT_KMS_TEST_LOCATION,
 		Name:     keyRingName,
@@ -127,7 +127,7 @@ func TestAccKmsCryptoKeyIamPolicy(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_kms_crypto_key_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("%s/%s", keyRingId.terraformId(), cryptoKeyName),
+				ImportStateId:     fmt.Sprintf("%s/%s", keyRingId.TerraformId(), cryptoKeyName),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -143,13 +143,13 @@ func testAccCheckGoogleKmsCryptoKeyIamBindingExists(t *testing.T, bindingResourc
 		}
 
 		config := GoogleProviderConfig(t)
-		cryptoKeyId, err := parseKmsCryptoKeyId(bindingRs.Primary.Attributes["crypto_key_id"], config)
+		cryptoKeyId, err := ParseKmsCryptoKeyId(bindingRs.Primary.Attributes["crypto_key_id"], config)
 
 		if err != nil {
 			return err
 		}
 
-		p, err := config.NewKmsClient(config.UserAgent).Projects.Locations.KeyRings.CryptoKeys.GetIamPolicy(cryptoKeyId.cryptoKeyId()).Do()
+		p, err := config.NewKmsClient(config.UserAgent).Projects.Locations.KeyRings.CryptoKeys.GetIamPolicy(cryptoKeyId.CryptoKeyId()).Do()
 		if err != nil {
 			return err
 		}
@@ -179,13 +179,13 @@ func testAccCheckGoogleKmsCryptoKeyIamMemberExists(t *testing.T, n, role, member
 		}
 
 		config := GoogleProviderConfig(t)
-		cryptoKeyId, err := parseKmsCryptoKeyId(rs.Primary.Attributes["crypto_key_id"], config)
+		cryptoKeyId, err := ParseKmsCryptoKeyId(rs.Primary.Attributes["crypto_key_id"], config)
 
 		if err != nil {
 			return err
 		}
 
-		p, err := config.NewKmsClient(config.UserAgent).Projects.Locations.KeyRings.GetIamPolicy(cryptoKeyId.cryptoKeyId()).Do()
+		p, err := config.NewKmsClient(config.UserAgent).Projects.Locations.KeyRings.GetIamPolicy(cryptoKeyId.CryptoKeyId()).Do()
 		if err != nil {
 			return err
 		}
@@ -214,13 +214,13 @@ func testAccCheckGoogleCryptoKmsKeyIam(t *testing.T, n, role string, members []s
 		}
 
 		config := GoogleProviderConfig(t)
-		cryptoKeyId, err := parseKmsCryptoKeyId(rs.Primary.Attributes["crypto_key_id"], config)
+		cryptoKeyId, err := ParseKmsCryptoKeyId(rs.Primary.Attributes["crypto_key_id"], config)
 
 		if err != nil {
 			return err
 		}
 
-		p, err := config.NewKmsClient(config.UserAgent).Projects.Locations.KeyRings.GetIamPolicy(cryptoKeyId.cryptoKeyId()).Do()
+		p, err := config.NewKmsClient(config.UserAgent).Projects.Locations.KeyRings.GetIamPolicy(cryptoKeyId.CryptoKeyId()).Do()
 		if err != nil {
 			return err
 		}

@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func compareSignatureAlgorithm(_, old, new string, _ *schema.ResourceData) bool {
+func CompareSignatureAlgorithm(_, old, new string, _ *schema.ResourceData) bool {
 	// See https://cloud.google.com/binary-authorization/docs/reference/rest/v1/projects.attestors#signaturealgorithm
 	normalizedAlgorithms := map[string]string{
 		"ECDSA_P256_SHA256":   "ECDSA_P256_SHA256",
@@ -152,7 +152,7 @@ encoding of the public key.`,
 												"signature_algorithm": {
 													Type:             schema.TypeString,
 													Optional:         true,
-													DiffSuppressFunc: compareSignatureAlgorithm,
+													DiffSuppressFunc: CompareSignatureAlgorithm,
 													Description: `The signature algorithm used to verify a message against
 a signature using this key. These signature algorithm must
 match the structure and any object identifiers encoded in
@@ -231,7 +231,7 @@ func resourceBinaryAuthorizationAttestorCreate(d *schema.ResourceData, meta inte
 		obj["userOwnedGrafeasNote"] = userOwnedGrafeasNoteProp
 	}
 
-	url, err := replaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors?attestorId={{name}}")
+	url, err := ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors?attestorId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -256,7 +256,7 @@ func resourceBinaryAuthorizationAttestorCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/attestors/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/attestors/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -274,7 +274,7 @@ func resourceBinaryAuthorizationAttestorRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors/{{name}}")
+	url, err := ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -349,7 +349,7 @@ func resourceBinaryAuthorizationAttestorUpdate(d *schema.ResourceData, meta inte
 		obj["userOwnedGrafeasNote"] = userOwnedGrafeasNoteProp
 	}
 
-	url, err := replaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors/{{name}}")
+	url, err := ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -387,7 +387,7 @@ func resourceBinaryAuthorizationAttestorDelete(d *schema.ResourceData, meta inte
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors/{{name}}")
+	url, err := ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/attestors/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -411,7 +411,7 @@ func resourceBinaryAuthorizationAttestorDelete(d *schema.ResourceData, meta inte
 
 func resourceBinaryAuthorizationAttestorImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/attestors/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -420,7 +420,7 @@ func resourceBinaryAuthorizationAttestorImport(d *schema.ResourceData, meta inte
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/attestors/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/attestors/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -522,7 +522,7 @@ func flattenBinaryAuthorizationAttestorAttestationAuthorityNoteDelegationService
 }
 
 func expandBinaryAuthorizationAttestorName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return replaceVars(d, config, "projects/{{project}}/attestors/{{name}}")
+	return ReplaceVars(d, config, "projects/{{project}}/attestors/{{name}}")
 }
 
 func expandBinaryAuthorizationAttestorDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

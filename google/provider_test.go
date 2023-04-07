@@ -451,7 +451,7 @@ func GetTestProject(is *terraform.InstanceState, config *Config) (string, error)
 }
 
 // AccTestPreCheck ensures at least one of the project env variables is set.
-func getTestProjectNumberFromEnv() string {
+func GetTestProjectNumberFromEnv() string {
 	return MultiEnvSearch(projectNumberEnvVars)
 }
 

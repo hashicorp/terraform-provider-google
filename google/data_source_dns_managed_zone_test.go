@@ -26,7 +26,7 @@ func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 					},
 				},
 				Config: testAccDataSourceDnsManagedZone_basic(RandString(t, 10)),
-				Check: checkDataSourceStateMatchesResourceStateWithIgnores(
+				Check: CheckDataSourceStateMatchesResourceStateWithIgnores(
 					"data.google_dns_managed_zone.qa",
 					"google_dns_managed_zone.foo",
 					map[string]struct{}{
@@ -46,7 +46,7 @@ func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 			{
 				ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 				Config:                   testAccDataSourceDnsManagedZone_basic(RandString(t, 10)),
-				Check: checkDataSourceStateMatchesResourceStateWithIgnores(
+				Check: CheckDataSourceStateMatchesResourceStateWithIgnores(
 					"data.google_dns_managed_zone.qa",
 					"google_dns_managed_zone.foo",
 					map[string]struct{}{

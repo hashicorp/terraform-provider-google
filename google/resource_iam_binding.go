@@ -22,7 +22,7 @@ var iamBindingSchema = map[string]*schema.Schema{
 		Required: true,
 		Elem: &schema.Schema{
 			Type:             schema.TypeString,
-			DiffSuppressFunc: caseDiffSuppress,
+			DiffSuppressFunc: CaseDiffSuppress,
 			ValidateFunc:     validateIAMMember,
 		},
 		Set: func(v interface{}) int {

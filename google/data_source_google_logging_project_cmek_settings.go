@@ -57,7 +57,7 @@ func dataSourceGoogleLoggingProjectCmekSettingsRead(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/cmekSettings")
+	url, err := ReplaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/cmekSettings")
 	if err != nil {
 		return err
 	}

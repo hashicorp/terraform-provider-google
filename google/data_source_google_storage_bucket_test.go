@@ -20,7 +20,7 @@ func TestAccDataSourceGoogleStorageBucket_basic(t *testing.T) {
 			{
 				Config: testAccDataSourceGoogleStorageBucketConfig(bucket),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceStateWithIgnores("data.google_storage_bucket.bar", "google_storage_bucket.foo", map[string]struct{}{"force_destroy": {}}),
+					CheckDataSourceStateMatchesResourceStateWithIgnores("data.google_storage_bucket.bar", "google_storage_bucket.foo", map[string]struct{}{"force_destroy": {}}),
 				),
 			},
 		},

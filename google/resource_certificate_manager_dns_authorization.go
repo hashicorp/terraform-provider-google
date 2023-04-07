@@ -134,7 +134,7 @@ func resourceCertificateManagerDnsAuthorizationCreate(d *schema.ResourceData, me
 		obj["domain"] = domainProp
 	}
 
-	url, err := replaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/dnsAuthorizations?dnsAuthorizationId={{name}}")
+	url, err := ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/dnsAuthorizations?dnsAuthorizationId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -159,7 +159,7 @@ func resourceCertificateManagerDnsAuthorizationCreate(d *schema.ResourceData, me
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -187,7 +187,7 @@ func resourceCertificateManagerDnsAuthorizationRead(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -259,7 +259,7 @@ func resourceCertificateManagerDnsAuthorizationUpdate(d *schema.ResourceData, me
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -274,9 +274,9 @@ func resourceCertificateManagerDnsAuthorizationUpdate(d *schema.ResourceData, me
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -320,7 +320,7 @@ func resourceCertificateManagerDnsAuthorizationDelete(d *schema.ResourceData, me
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -352,7 +352,7 @@ func resourceCertificateManagerDnsAuthorizationDelete(d *schema.ResourceData, me
 
 func resourceCertificateManagerDnsAuthorizationImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/global/dnsAuthorizations/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -361,7 +361,7 @@ func resourceCertificateManagerDnsAuthorizationImport(d *schema.ResourceData, me
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

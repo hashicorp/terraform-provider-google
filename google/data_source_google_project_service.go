@@ -21,7 +21,7 @@ func DataSourceGoogleProjectService() *schema.Resource {
 func dataSourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	id, err := replaceVars(d, config, "{{project}}/{{service}}")
+	id, err := ReplaceVars(d, config, "{{project}}/{{service}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}

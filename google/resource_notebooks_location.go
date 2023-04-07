@@ -76,7 +76,7 @@ func resourceNotebooksLocationCreate(d *schema.ResourceData, meta interface{}) e
 		obj["name"] = nameProp
 	}
 
-	url, err := replaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations")
+	url, err := ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations")
 	if err != nil {
 		return err
 	}
@@ -101,7 +101,7 @@ func resourceNotebooksLocationCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -125,7 +125,7 @@ func resourceNotebooksLocationCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{name}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -143,7 +143,7 @@ func resourceNotebooksLocationRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{name}}")
+	url, err := ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -203,7 +203,7 @@ func resourceNotebooksLocationUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["name"] = nameProp
 	}
 
-	url, err := replaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{name}}")
+	url, err := ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -249,7 +249,7 @@ func resourceNotebooksLocationDelete(d *schema.ResourceData, meta interface{}) e
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{name}}")
+	url, err := ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -281,7 +281,7 @@ func resourceNotebooksLocationDelete(d *schema.ResourceData, meta interface{}) e
 
 func resourceNotebooksLocationImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -290,7 +290,7 @@ func resourceNotebooksLocationImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

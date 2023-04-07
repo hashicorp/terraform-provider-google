@@ -161,7 +161,7 @@ func resourceKMSCryptoKeyVersionCreate(d *schema.ResourceData, meta interface{})
 		obj["state"] = stateProp
 	}
 
-	url, err := replaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}/cryptoKeyVersions")
+	url, err := ReplaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}/cryptoKeyVersions")
 	if err != nil {
 		return err
 	}
@@ -183,7 +183,7 @@ func resourceKMSCryptoKeyVersionCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -201,7 +201,7 @@ func resourceKMSCryptoKeyVersionRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{KMSBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{KMSBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -257,7 +257,7 @@ func resourceKMSCryptoKeyVersionUpdate(d *schema.ResourceData, meta interface{})
 		obj["state"] = stateProp
 	}
 
-	url, err := replaceVars(d, config, "{{KMSBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{KMSBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -268,9 +268,9 @@ func resourceKMSCryptoKeyVersionUpdate(d *schema.ResourceData, meta interface{})
 	if d.HasChange("state") {
 		updateMask = append(updateMask, "state")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -320,13 +320,13 @@ func resourceKMSCryptoKeyVersionImport(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return nil, err
 	}
-	if err := d.Set("crypto_key", cryptoKeyVersionId.CryptoKeyId.cryptoKeyId()); err != nil {
+	if err := d.Set("crypto_key", cryptoKeyVersionId.CryptoKeyId.CryptoKeyId()); err != nil {
 		return nil, fmt.Errorf("Error setting key_ring: %s", err)
 	}
 	if err := d.Set("name", cryptoKeyVersionId.Name); err != nil {
 		return nil, fmt.Errorf("Error setting name: %s", err)
 	}
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -34,7 +34,7 @@ func dataSourceAccessApprovalFolderServiceAccountRead(d *schema.ResourceData, me
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}folders/{{folder_id}}/serviceAccount")
+	url, err := ReplaceVars(d, config, "{{AccessApprovalBasePath}}folders/{{folder_id}}/serviceAccount")
 	if err != nil {
 		return err
 	}

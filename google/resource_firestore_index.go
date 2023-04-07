@@ -29,7 +29,7 @@ import (
  * end of the fields list if not present. We are suppressing
  * this server generated field.
  */
-func firestoreIFieldsDiffSuppressFunc(k, old, new string, d TerraformResourceDataChange) bool {
+func FirestoreIFieldsDiffSuppressFunc(k, old, new string, d TerraformResourceDataChange) bool {
 	kLength := "fields.#"
 	oldLength, newLength := d.GetChange(kLength)
 	oldInt, ok := oldLength.(int)
@@ -58,7 +58,7 @@ func firestoreIFieldsDiffSuppressFunc(k, old, new string, d TerraformResourceDat
 }
 
 func firestoreIFieldsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	return firestoreIFieldsDiffSuppressFunc(k, old, new, d)
+	return FirestoreIFieldsDiffSuppressFunc(k, old, new, d)
 }
 
 func ResourceFirestoreIndex() *schema.Resource {
@@ -192,7 +192,7 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{database}}/collectionGroups/{{collection}}/indexes")
+	url, err := ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{database}}/collectionGroups/{{collection}}/indexes")
 	if err != nil {
 		return err
 	}
@@ -217,7 +217,7 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -241,7 +241,7 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{name}}")
+	id, err = ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -269,7 +269,7 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -324,7 +324,7 @@ func resourceFirestoreIndexDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -359,7 +359,7 @@ func resourceFirestoreIndexImport(d *schema.ResourceData, meta interface{}) ([]*
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 

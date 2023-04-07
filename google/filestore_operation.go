@@ -34,7 +34,7 @@ func (w *FilestoreOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.FilestoreBasePath, w.CommonOperationWaiter.Op.Name)
 
-	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil, isNotFilestoreQuotaError)
+	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil, IsNotFilestoreQuotaError)
 }
 
 func createFilestoreWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*FilestoreOperationWaiter, error) {

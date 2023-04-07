@@ -77,7 +77,7 @@ func resourceApigeeEnvgroupAttachmentCreate(d *schema.ResourceData, meta interfa
 		obj["environment"] = environmentProp
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{envgroup_id}}/attachments")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{envgroup_id}}/attachments")
 	if err != nil {
 		return err
 	}
@@ -96,7 +96,7 @@ func resourceApigeeEnvgroupAttachmentCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{envgroup_id}}/attachments/{{name}}")
+	id, err := ReplaceVars(d, config, "{{envgroup_id}}/attachments/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -120,7 +120,7 @@ func resourceApigeeEnvgroupAttachmentCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{envgroup_id}}/attachments/{{name}}")
+	id, err = ReplaceVars(d, config, "{{envgroup_id}}/attachments/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -138,7 +138,7 @@ func resourceApigeeEnvgroupAttachmentRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{envgroup_id}}/attachments/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{envgroup_id}}/attachments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -174,7 +174,7 @@ func resourceApigeeEnvgroupAttachmentDelete(d *schema.ResourceData, meta interfa
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{envgroup_id}}/attachments/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{envgroup_id}}/attachments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -208,7 +208,7 @@ func resourceApigeeEnvgroupAttachmentImport(d *schema.ResourceData, meta interfa
 	config := meta.(*Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<envgroup_id>.+)/attachments/(?P<name>.+)",
 		"(?P<envgroup_id>.+)/(?P<name>.+)",
 	}, d, config); err != nil {
@@ -216,7 +216,7 @@ func resourceApigeeEnvgroupAttachmentImport(d *schema.ResourceData, meta interfa
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{envgroup_id}}/attachments/{{name}}")
+	id, err := ReplaceVars(d, config, "{{envgroup_id}}/attachments/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -47,18 +47,18 @@ func dataSourceMonitoringServiceTypeReadFromList(listFilter string, typeStateSet
 			return err
 		}
 
-		filters, err := replaceVars(d, config, listFilter)
+		filters, err := ReplaceVars(d, config, listFilter)
 		if err != nil {
 			return err
 		}
 
 		listUrlTmpl := "{{MonitoringBasePath}}v3/projects/{{project}}/services?filter=" + neturl.QueryEscape(filters)
-		url, err := replaceVars(d, config, listUrlTmpl)
+		url, err := ReplaceVars(d, config, listUrlTmpl)
 		if err != nil {
 			return err
 		}
 
-		resp, err := SendRequest(config, "GET", project, url, userAgent, nil, isMonitoringConcurrentEditError)
+		resp, err := SendRequest(config, "GET", project, url, userAgent, nil, IsMonitoringConcurrentEditError)
 		if err != nil {
 			return fmt.Errorf("unable to list Monitoring Service for data source: %v", err)
 		}

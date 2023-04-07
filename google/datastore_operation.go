@@ -34,7 +34,7 @@ func (w *DatastoreOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.DatastoreBasePath, w.CommonOperationWaiter.Op.Name)
 
-	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil, datastoreIndex409Contention)
+	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil, DatastoreIndex409Contention)
 }
 
 func createDatastoreWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*DatastoreOperationWaiter, error) {

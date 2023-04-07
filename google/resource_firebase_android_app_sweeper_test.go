@@ -55,7 +55,7 @@ func testSweepFirebaseAndroidApp(region string) error {
 	}
 
 	listTemplate := strings.Split("https://firebase.googleapis.com/v1beta1/projects/{{project}}/androidApps", "?")[0]
-	listUrl, err := replaceVars(d, config, listTemplate)
+	listUrl, err := ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 		return nil

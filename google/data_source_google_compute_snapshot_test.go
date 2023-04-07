@@ -16,7 +16,7 @@ func TestAccSnapshotDatasource_name(t *testing.T) {
 			{
 				Config: testAccSnapshot_name(GetTestProjectFromEnv(), RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceStateWithIgnores(
+					CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_compute_snapshot.default",
 						"google_compute_snapshot.default",
 						map[string]struct{}{"zone": {}},
@@ -37,7 +37,7 @@ func TestAccSnapshotDatasource_filter(t *testing.T) {
 			{
 				Config: testAccSnapshot_filter(GetTestProjectFromEnv(), RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceStateWithIgnores(
+					CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_compute_snapshot.default",
 						"google_compute_snapshot.c",
 						map[string]struct{}{"zone": {}},
@@ -58,7 +58,7 @@ func TestAccSnapshotDatasource_filterMostRecent(t *testing.T) {
 			{
 				Config: testAccSnapshot_filter_mostRecent(GetTestProjectFromEnv(), RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceStateWithIgnores(
+					CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_compute_snapshot.default",
 						"google_compute_snapshot.c",
 						map[string]struct{}{"zone": {}},

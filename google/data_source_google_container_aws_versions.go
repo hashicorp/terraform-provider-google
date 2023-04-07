@@ -53,7 +53,7 @@ func dataSourceGoogleContainerAwsVersionsRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Cannot determine location: set location in this data source or at provider-level")
 	}
 
-	url, err := replaceVars(d, config, "{{ContainerAwsBasePath}}projects/{{project}}/locations/{{location}}/awsServerConfig")
+	url, err := ReplaceVars(d, config, "{{ContainerAwsBasePath}}projects/{{project}}/locations/{{location}}/awsServerConfig")
 	if err != nil {
 		return err
 	}

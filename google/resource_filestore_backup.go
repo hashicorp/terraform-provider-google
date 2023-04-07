@@ -162,14 +162,14 @@ func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) err
 		obj["sourceFileShare"] = sourceFileShareProp
 	}
 
-	lockName, err := replaceVars(d, config, "filestore/{{project}}")
+	lockName, err := ReplaceVars(d, config, "filestore/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/backups?backupId={{name}}")
+	url, err := ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/backups?backupId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -188,13 +188,13 @@ func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isNotFilestoreQuotaError)
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IsNotFilestoreQuotaError)
 	if err != nil {
 		return fmt.Errorf("Error creating Backup: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/backups/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backups/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -214,7 +214,7 @@ func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{location}}/backups/{{name}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backups/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -232,7 +232,7 @@ func resourceFilestoreBackupRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/backups/{{name}}")
+	url, err := ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/backups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -250,7 +250,7 @@ func resourceFilestoreBackupRead(d *schema.ResourceData, meta interface{}) error
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, isNotFilestoreQuotaError)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsNotFilestoreQuotaError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("FilestoreBackup %q", d.Id()))
 	}
@@ -331,14 +331,14 @@ func resourceFilestoreBackupUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["sourceInstance"] = sourceInstanceProp
 	}
 
-	lockName, err := replaceVars(d, config, "filestore/{{project}}")
+	lockName, err := ReplaceVars(d, config, "filestore/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/backups/{{name}}")
+	url, err := ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/backups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -357,9 +357,9 @@ func resourceFilestoreBackupUpdate(d *schema.ResourceData, meta interface{}) err
 	if d.HasChange("source_instance") {
 		updateMask = append(updateMask, "sourceInstance")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -369,7 +369,7 @@ func resourceFilestoreBackupUpdate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), isNotFilestoreQuotaError)
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), IsNotFilestoreQuotaError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Backup %q: %s", d.Id(), err)
@@ -403,14 +403,14 @@ func resourceFilestoreBackupDelete(d *schema.ResourceData, meta interface{}) err
 	}
 	billingProject = project
 
-	lockName, err := replaceVars(d, config, "filestore/{{project}}")
+	lockName, err := ReplaceVars(d, config, "filestore/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/backups/{{name}}")
+	url, err := ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/backups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -423,7 +423,7 @@ func resourceFilestoreBackupDelete(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isNotFilestoreQuotaError)
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IsNotFilestoreQuotaError)
 	if err != nil {
 		return handleNotFoundError(err, d, "Backup")
 	}
@@ -442,7 +442,7 @@ func resourceFilestoreBackupDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceFilestoreBackupImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/backups/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -451,7 +451,7 @@ func resourceFilestoreBackupImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/backups/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backups/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

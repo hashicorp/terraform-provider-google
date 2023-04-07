@@ -149,14 +149,14 @@ func resourceStorageDefaultObjectAccessControlCreate(d *schema.ResourceData, met
 		obj["role"] = roleProp
 	}
 
-	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/defaultObjectAcl")
+	url, err := ReplaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/defaultObjectAcl")
 	if err != nil {
 		return err
 	}
@@ -175,7 +175,7 @@ func resourceStorageDefaultObjectAccessControlCreate(d *schema.ResourceData, met
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{bucket}}/{{entity}}")
+	id, err := ReplaceVars(d, config, "{{bucket}}/{{entity}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -193,7 +193,7 @@ func resourceStorageDefaultObjectAccessControlRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/defaultObjectAcl/{{entity}}")
+	url, err := ReplaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/defaultObjectAcl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -273,14 +273,14 @@ func resourceStorageDefaultObjectAccessControlUpdate(d *schema.ResourceData, met
 		obj["role"] = roleProp
 	}
 
-	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/defaultObjectAcl/{{entity}}")
+	url, err := ReplaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/defaultObjectAcl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -312,14 +312,14 @@ func resourceStorageDefaultObjectAccessControlDelete(d *schema.ResourceData, met
 
 	billingProject := ""
 
-	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/defaultObjectAcl/{{entity}}")
+	url, err := ReplaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/defaultObjectAcl/{{entity}}")
 	if err != nil {
 		return err
 	}
@@ -343,14 +343,14 @@ func resourceStorageDefaultObjectAccessControlDelete(d *schema.ResourceData, met
 
 func resourceStorageDefaultObjectAccessControlImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<bucket>[^/]+)/(?P<entity>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{bucket}}/{{entity}}")
+	id, err := ReplaceVars(d, config, "{{bucket}}/{{entity}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

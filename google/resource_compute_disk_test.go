@@ -283,7 +283,7 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 		tc := tc
 		t.Run(tn, func(t *testing.T) {
 			t.Parallel()
-			if diskImageDiffSuppress("image", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			if DiskImageDiffSuppress("image", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
 				t.Fatalf("%q => %q expect DiffSuppress to return %t", tc.Old, tc.New, tc.ExpectDiffSuppress)
 			}
 		})
@@ -309,7 +309,7 @@ func TestAccComputeDisk_imageDiffSuppressPublicVendorsFamilyNames(t *testing.T) 
 			}
 
 			for _, image := range resp.Items {
-				if !diskImageDiffSuppress("image", image.SelfLink, "family/"+image.Family, nil) {
+				if !DiskImageDiffSuppress("image", image.SelfLink, "family/"+image.Family, nil) {
 					t.Errorf("should suppress diff for image %q and family %q", image.SelfLink, image.Family)
 				}
 			}

@@ -304,7 +304,7 @@ func resourceCloudIotDeviceCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["gatewayConfig"] = gatewayConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{CloudIotBasePath}}{{registry}}/devices")
+	url, err := ReplaceVars(d, config, "{{CloudIotBasePath}}{{registry}}/devices")
 	if err != nil {
 		return err
 	}
@@ -323,7 +323,7 @@ func resourceCloudIotDeviceCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{registry}}/devices/{{name}}")
+	id, err := ReplaceVars(d, config, "{{registry}}/devices/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -341,7 +341,7 @@ func resourceCloudIotDeviceRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudIotBasePath}}{{registry}}/devices/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudIotBasePath}}{{registry}}/devices/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -451,7 +451,7 @@ func resourceCloudIotDeviceUpdate(d *schema.ResourceData, meta interface{}) erro
 		obj["gatewayConfig"] = gatewayConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{CloudIotBasePath}}{{registry}}/devices/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudIotBasePath}}{{registry}}/devices/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -478,9 +478,9 @@ func resourceCloudIotDeviceUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("gateway_config") {
 		updateMask = append(updateMask, "gateway_config.gateway_auth_method")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -510,7 +510,7 @@ func resourceCloudIotDeviceDelete(d *schema.ResourceData, meta interface{}) erro
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{CloudIotBasePath}}{{registry}}/devices/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudIotBasePath}}{{registry}}/devices/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -534,14 +534,14 @@ func resourceCloudIotDeviceDelete(d *schema.ResourceData, meta interface{}) erro
 
 func resourceCloudIotDeviceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<registry>.+)/devices/(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{registry}}/devices/{{name}}")
+	id, err := ReplaceVars(d, config, "{{registry}}/devices/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

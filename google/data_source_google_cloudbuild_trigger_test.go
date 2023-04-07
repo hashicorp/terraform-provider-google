@@ -21,7 +21,7 @@ func TestAccDataSourceGoogleCloudBuildTrigger_basic(t *testing.T) {
 			{
 				Config: testAccDataSourceGoogleCloudBuildTrigger_basic(context),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceState("data.google_cloudbuild_trigger.foo", "google_cloudbuild_trigger.test-trigger"),
+					CheckDataSourceStateMatchesResourceState("data.google_cloudbuild_trigger.foo", "google_cloudbuild_trigger.test-trigger"),
 				),
 			},
 		},

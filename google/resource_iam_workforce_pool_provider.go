@@ -27,7 +27,7 @@ import (
 
 const workforcePoolProviderIdRegexp = `^[a-z0-9-]{4,32}$`
 
-func validateWorkforcePoolProviderId(v interface{}, k string) (ws []string, errors []error) {
+func ValidateWorkforcePoolProviderId(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 
 	if strings.HasPrefix(value, "gcp-") {
@@ -72,7 +72,7 @@ func ResourceIAMWorkforcePoolWorkforcePoolProvider() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateWorkforcePoolProviderId,
+				ValidateFunc: ValidateWorkforcePoolProviderId,
 				Description: `The ID for the provider, which becomes the final component of the resource name.
 This value must be 4-32 characters, and may contain the characters [a-z0-9-].
 The prefix 'gcp-' is reserved for use by Google, and may not be specified.`,
@@ -304,7 +304,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderCreate(d *schema.ResourceData,
 		obj["oidc"] = oidcProp
 	}
 
-	url, err := replaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers?workforcePoolProviderId={{provider_id}}")
+	url, err := ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers?workforcePoolProviderId={{provider_id}}")
 	if err != nil {
 		return err
 	}
@@ -323,7 +323,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderCreate(d *schema.ResourceData,
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}")
+	id, err := ReplaceVars(d, config, "locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -351,7 +351,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderRead(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}")
+	url, err := ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}")
 	if err != nil {
 		return err
 	}
@@ -464,7 +464,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderUpdate(d *schema.ResourceData,
 		obj["oidc"] = oidcProp
 	}
 
-	url, err := replaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}")
+	url, err := ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}")
 	if err != nil {
 		return err
 	}
@@ -499,9 +499,9 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderUpdate(d *schema.ResourceData,
 	if d.HasChange("oidc") {
 		updateMask = append(updateMask, "oidc")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -539,7 +539,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderDelete(d *schema.ResourceData,
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}")
+	url, err := ReplaceVars(d, config, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}")
 	if err != nil {
 		return err
 	}
@@ -571,7 +571,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderDelete(d *schema.ResourceData,
 
 func resourceIAMWorkforcePoolWorkforcePoolProviderImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"locations/(?P<location>[^/]+)/workforcePools/(?P<workforce_pool_id>[^/]+)/providers/(?P<provider_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<workforce_pool_id>[^/]+)/(?P<provider_id>[^/]+)",
 	}, d, config); err != nil {
@@ -579,7 +579,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderImport(d *schema.ResourceData,
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}")
+	id, err := ReplaceVars(d, config, "locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

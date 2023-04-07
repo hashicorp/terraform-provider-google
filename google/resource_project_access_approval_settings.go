@@ -175,7 +175,7 @@ func resourceAccessApprovalProjectSettingsCreate(d *schema.ResourceData, meta in
 		obj["project"] = projectProp
 	}
 
-	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project_id}}/accessApprovalSettings")
+	url, err := ReplaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
@@ -205,9 +205,9 @@ func resourceAccessApprovalProjectSettingsCreate(d *schema.ResourceData, meta in
 	if d.HasChange("project") {
 		updateMask = append(updateMask, "project")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -220,7 +220,7 @@ func resourceAccessApprovalProjectSettingsCreate(d *schema.ResourceData, meta in
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project_id}}/accessApprovalSettings")
+	id, err := ReplaceVars(d, config, "projects/{{project_id}}/accessApprovalSettings")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -238,7 +238,7 @@ func resourceAccessApprovalProjectSettingsRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project_id}}/accessApprovalSettings")
+	url, err := ReplaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
@@ -318,7 +318,7 @@ func resourceAccessApprovalProjectSettingsUpdate(d *schema.ResourceData, meta in
 		obj["project"] = projectProp
 	}
 
-	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project_id}}/accessApprovalSettings")
+	url, err := ReplaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
@@ -341,9 +341,9 @@ func resourceAccessApprovalProjectSettingsUpdate(d *schema.ResourceData, meta in
 	if d.HasChange("project") {
 		updateMask = append(updateMask, "project")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -376,7 +376,7 @@ func resourceAccessApprovalProjectSettingsDelete(d *schema.ResourceData, meta in
 	obj["enrolledServices"] = []string{}
 	obj["activeKeyVersion"] = ""
 
-	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project_id}}/accessApprovalSettings")
+	url, err := ReplaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
@@ -388,9 +388,9 @@ func resourceAccessApprovalProjectSettingsDelete(d *schema.ResourceData, meta in
 	updateMask = append(updateMask, "enrolledServices")
 	updateMask = append(updateMask, "activeKeyVersion")
 
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -408,7 +408,7 @@ func resourceAccessApprovalProjectSettingsDelete(d *schema.ResourceData, meta in
 
 func resourceAccessApprovalProjectSettingsImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project_id>[^/]+)/accessApprovalSettings",
 		"(?P<project_id>[^/]+)",
 	}, d, config); err != nil {
@@ -416,7 +416,7 @@ func resourceAccessApprovalProjectSettingsImport(d *schema.ResourceData, meta in
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project_id}}/accessApprovalSettings")
+	id, err := ReplaceVars(d, config, "projects/{{project_id}}/accessApprovalSettings")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

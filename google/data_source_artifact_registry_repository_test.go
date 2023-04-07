@@ -22,7 +22,7 @@ func TestAccDataSourceGoogleArtifactRegistryRepositoryConfig(t *testing.T) {
 			{
 				Config: testAccDataSourceGoogleArtifactRegistryRepositoryConfig(context),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceState(funcDataName,
+					CheckDataSourceStateMatchesResourceState(funcDataName,
 						"google_artifact_registry_repository.my-repo"),
 				),
 			},

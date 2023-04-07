@@ -53,7 +53,7 @@ func NewSpannerDatabaseIamUpdater(d TerraformResourceData, config *Config) (Reso
 }
 
 func SpannerDatabaseIdParseFunc(d *schema.ResourceData, config *Config) error {
-	return parseImportId([]string{"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<database>[^/]+)"}, d, config)
+	return ParseImportId([]string{"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<database>[^/]+)"}, d, config)
 }
 
 func (u *SpannerDatabaseIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
@@ -119,7 +119,7 @@ func (u *SpannerDatabaseIamUpdater) GetResourceId() string {
 		Project:  u.project,
 		Instance: u.instance,
 		Database: u.database,
-	}.terraformId()
+	}.TerraformId()
 }
 
 func (u *SpannerDatabaseIamUpdater) GetMutexKey() string {
@@ -154,7 +154,7 @@ type spannerDatabaseId struct {
 	Database string
 }
 
-func (s spannerDatabaseId) terraformId() string {
+func (s spannerDatabaseId) TerraformId() string {
 	return fmt.Sprintf("%s/%s/%s", s.Project, s.Instance, s.Database)
 }
 

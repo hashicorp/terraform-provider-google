@@ -521,7 +521,7 @@ func TestBillingBudgetStateUpgradeV0(t *testing.T) {
 	}
 	for tn, tc := range cases {
 		t.Run(tn, func(t *testing.T) {
-			actual, err := resourceBillingBudgetUpgradeV0(context.Background(), tc.Attributes, tc.Meta)
+			actual, err := ResourceBillingBudgetUpgradeV0(context.Background(), tc.Attributes, tc.Meta)
 
 			if err != nil {
 				t.Error(err)

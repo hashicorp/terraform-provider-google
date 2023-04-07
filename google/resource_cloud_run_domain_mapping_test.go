@@ -55,7 +55,7 @@ func TestDomainMappingLabelDiffSuppress(t *testing.T) {
 		},
 	}
 	for tn, tc := range cases {
-		if domainMappingLabelDiffSuppress(tc.K, tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+		if DomainMappingLabelDiffSuppress(tc.K, tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
 			t.Errorf("bad: %s, %q: %q => %q expect DiffSuppress to return %t", tn, tc.K, tc.Old, tc.New, tc.ExpectDiffSuppress)
 		}
 	}

@@ -228,7 +228,7 @@ func resourceDialogflowCXWebhookCreate(d *schema.ResourceData, meta interface{})
 		obj["enableSpellCorrection"] = enableSpellCorrectionProp
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/webhooks")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/webhooks")
 	if err != nil {
 		return err
 	}
@@ -264,7 +264,7 @@ func resourceDialogflowCXWebhookCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{parent}}/webhooks/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/webhooks/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -282,7 +282,7 @@ func resourceDialogflowCXWebhookRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/webhooks/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/webhooks/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -406,7 +406,7 @@ func resourceDialogflowCXWebhookUpdate(d *schema.ResourceData, meta interface{})
 		obj["enableSpellCorrection"] = enableSpellCorrectionProp
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/webhooks/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/webhooks/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -445,9 +445,9 @@ func resourceDialogflowCXWebhookUpdate(d *schema.ResourceData, meta interface{})
 	if d.HasChange("enable_spell_correction") {
 		updateMask = append(updateMask, "enableSpellCorrection")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -492,7 +492,7 @@ func resourceDialogflowCXWebhookDelete(d *schema.ResourceData, meta interface{})
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/webhooks/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/webhooks/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -533,7 +533,7 @@ func resourceDialogflowCXWebhookImport(d *schema.ResourceData, meta interface{})
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value and parent contains slashes
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<parent>.+)/webhooks/(?P<name>[^/]+)",
 		"(?P<parent>.+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {
@@ -541,7 +541,7 @@ func resourceDialogflowCXWebhookImport(d *schema.ResourceData, meta interface{})
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{parent}}/webhooks/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/webhooks/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

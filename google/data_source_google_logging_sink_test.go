@@ -22,7 +22,7 @@ func TestAccDataSourceGoogleLoggingSink_basic(t *testing.T) {
 			{
 				Config: testAccDataSourceGoogleLoggingSink_basic(context),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceStateWithIgnores(
+					CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_logging_sink.basic",
 						"google_logging_project_sink.basic",
 						map[string]struct{}{

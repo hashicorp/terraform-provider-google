@@ -150,7 +150,7 @@ func (u *PrivatecaCaPoolIamUpdater) GetResourceIamPolicy() (*cloudresourcemanage
 		return nil, err
 	}
 	var obj map[string]interface{}
-	url, err = addQueryParams(url, map[string]string{"options.requestedPolicyVersion": fmt.Sprintf("%d", IamPolicyVersion)})
+	url, err = AddQueryParams(url, map[string]string{"options.requestedPolicyVersion": fmt.Sprintf("%d", IamPolicyVersion)})
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +207,7 @@ func (u *PrivatecaCaPoolIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 
 func (u *PrivatecaCaPoolIamUpdater) qualifyCaPoolUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{PrivatecaBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/caPools/%s", u.project, u.location, u.caPool), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

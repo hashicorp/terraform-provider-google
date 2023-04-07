@@ -15,7 +15,7 @@ import (
 // - projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/subnetworks/(?P<name>[^/]+) (applied first)
 // - (?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+),
 // - (?P<name>[^/]+) (applied last)
-func parseImportId(idRegexes []string, d TerraformResourceData, config *Config) error {
+func ParseImportId(idRegexes []string, d TerraformResourceData, config *Config) error {
 	for _, idFormat := range idRegexes {
 		re, err := regexp.Compile(idFormat)
 
@@ -107,7 +107,7 @@ func setDefaultValues(idRegex string, d TerraformResourceData, config *Config) e
 // Parse an import id extracting field values using the given list of regexes.
 // They are applied in order. The first in the list is tried first.
 // This does not mutate any of the parameters, returning a map of matches
-// Similar to parseImportId in import.go, but less import specific
+// Similar to ParseImportId in import.go, but less import specific
 //
 // e.g:
 // - projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/subnetworks/(?P<name>[^/]+) (applied first)

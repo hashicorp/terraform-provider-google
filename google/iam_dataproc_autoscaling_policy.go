@@ -203,7 +203,7 @@ func (u *DataprocAutoscalingPolicyIamUpdater) SetResourceIamPolicy(policy *cloud
 
 func (u *DataprocAutoscalingPolicyIamUpdater) qualifyAutoscalingPolicyUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{DataprocBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/autoscalingPolicies/%s", u.project, u.location, u.policyId), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

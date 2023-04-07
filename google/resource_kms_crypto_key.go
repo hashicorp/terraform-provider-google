@@ -47,7 +47,7 @@ func ResourceKMSCryptoKey() *schema.Resource {
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceKMSCryptoKeyResourceV0().CoreConfigSchema().ImpliedType(),
-				Upgrade: resourceKMSCryptoKeyUpgradeV0,
+				Upgrade: ResourceKMSCryptoKeyUpgradeV0,
 				Version: 0,
 			},
 		},
@@ -193,7 +193,7 @@ func resourceKMSCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys?cryptoKeyId={{name}}&skipInitialVersionCreation={{skip_initial_version_creation}}")
+	url, err := ReplaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys?cryptoKeyId={{name}}&skipInitialVersionCreation={{skip_initial_version_creation}}")
 	if err != nil {
 		return err
 	}
@@ -216,7 +216,7 @@ func resourceKMSCryptoKeyCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{key_ring}}/cryptoKeys/{{name}}")
+	id, err := ReplaceVars(d, config, "{{key_ring}}/cryptoKeys/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -234,7 +234,7 @@ func resourceKMSCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys/{{name}}")
+	url, err := ReplaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -323,7 +323,7 @@ func resourceKMSCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys/{{name}}")
+	url, err := ReplaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/cryptoKeys/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -343,9 +343,9 @@ func resourceKMSCryptoKeyUpdate(d *schema.ResourceData, meta interface{}) error 
 	if d.HasChange("version_template") {
 		updateMask = append(updateMask, "versionTemplate.algorithm")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -376,14 +376,14 @@ func resourceKMSCryptoKeyDelete(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	cryptoKeyId, err := parseKmsCryptoKeyId(d.Id(), config)
+	cryptoKeyId, err := ParseKmsCryptoKeyId(d.Id(), config)
 	if err != nil {
 		return err
 	}
 
 	log.Printf(`
 [WARNING] KMS CryptoKey resources cannot be deleted from GCP. The CryptoKey %s will be removed from Terraform state,
-and all its CryptoKeyVersions will be destroyed, but it will still be present in the project.`, cryptoKeyId.cryptoKeyId())
+and all its CryptoKeyVersions will be destroyed, but it will still be present in the project.`, cryptoKeyId.CryptoKeyId())
 
 	// Delete all versions of the key
 	if err := clearCryptoKeyVersions(cryptoKeyId, userAgent, config); err != nil {
@@ -407,12 +407,12 @@ func resourceKMSCryptoKeyImport(d *schema.ResourceData, meta interface{}) ([]*sc
 
 	config := meta.(*Config)
 
-	cryptoKeyId, err := parseKmsCryptoKeyId(d.Id(), config)
+	cryptoKeyId, err := ParseKmsCryptoKeyId(d.Id(), config)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := d.Set("key_ring", cryptoKeyId.KeyRingId.keyRingId()); err != nil {
+	if err := d.Set("key_ring", cryptoKeyId.KeyRingId.KeyRingId()); err != nil {
 		return nil, fmt.Errorf("Error setting key_ring: %s", err)
 	}
 	if err := d.Set("name", cryptoKeyId.Name); err != nil {
@@ -423,7 +423,7 @@ func resourceKMSCryptoKeyImport(d *schema.ResourceData, meta interface{}) ([]*sc
 		return nil, fmt.Errorf("Error setting skip_initial_version_creation: %s", err)
 	}
 
-	id, err := replaceVars(d, config, "{{key_ring}}/cryptoKeys/{{name}}")
+	id, err := ReplaceVars(d, config, "{{key_ring}}/cryptoKeys/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -610,7 +610,7 @@ func resourceKMSCryptoKeyResourceV0() *schema.Resource {
 	}
 }
 
-func resourceKMSCryptoKeyUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func ResourceKMSCryptoKeyUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
 
 	config := meta.(*Config)
@@ -619,7 +619,7 @@ func resourceKMSCryptoKeyUpgradeV0(_ context.Context, rawState map[string]interf
 	if err != nil {
 		return nil, err
 	}
-	rawState["key_ring"] = parsed.keyRingId()
+	rawState["key_ring"] = parsed.KeyRingId()
 
 	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
 	return rawState, nil

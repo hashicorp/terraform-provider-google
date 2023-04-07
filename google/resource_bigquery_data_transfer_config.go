@@ -41,7 +41,7 @@ func sensitiveParamCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v
 
 // This customizeDiff is to use ForceNew for params fields data_path_template and
 // destination_table_name_template only if the value of "data_source_id" is "google_cloud_storage".
-func paramsCustomizeDiffFunc(diff TerraformResourceDiff) error {
+func ParamsCustomizeDiffFunc(diff TerraformResourceDiff) error {
 	old, new := diff.GetChange("params")
 	dsId := diff.Get("data_source_id").(string)
 	oldParams := old.(map[string]interface{})
@@ -70,7 +70,7 @@ func paramsCustomizeDiffFunc(diff TerraformResourceDiff) error {
 }
 
 func paramsCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
-	return paramsCustomizeDiffFunc(diff)
+	return ParamsCustomizeDiffFunc(diff)
 }
 
 func ResourceBigqueryDataTransferConfig() *schema.Resource {
@@ -338,7 +338,7 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryDataTransferBasePath}}projects/{{project}}/locations/{{location}}/transferConfigs?serviceAccountName={{service_account_name}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryDataTransferBasePath}}projects/{{project}}/locations/{{location}}/transferConfigs?serviceAccountName={{service_account_name}}")
 	if err != nil {
 		return err
 	}
@@ -357,7 +357,7 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), iamMemberMissing)
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IamMemberMissing)
 	if err != nil {
 		return fmt.Errorf("Error creating Config: %s", err)
 	}
@@ -366,7 +366,7 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -402,7 +402,7 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryDataTransferBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryDataTransferBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -420,7 +420,7 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, iamMemberMissing)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IamMemberMissing)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("BigqueryDataTransferConfig %q", d.Id()))
 	}
@@ -554,7 +554,7 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryDataTransferBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryDataTransferBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -597,9 +597,9 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 	if d.HasChange("params") {
 		updateMask = append(updateMask, "params")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -609,7 +609,7 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), iamMemberMissing)
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), IamMemberMissing)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Config %q: %s", d.Id(), err)
@@ -635,7 +635,7 @@ func resourceBigqueryDataTransferConfigDelete(d *schema.ResourceData, meta inter
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{BigqueryDataTransferBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryDataTransferBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -648,7 +648,7 @@ func resourceBigqueryDataTransferConfigDelete(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), iamMemberMissing)
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IamMemberMissing)
 	if err != nil {
 		return handleNotFoundError(err, d, "Config")
 	}
@@ -662,7 +662,7 @@ func resourceBigqueryDataTransferConfigImport(d *schema.ResourceData, meta inter
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
 		return nil, err
 	}
 

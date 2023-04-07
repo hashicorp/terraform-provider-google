@@ -274,7 +274,7 @@ This should be specified in the format like
 				Optional:         true,
 				ForceNew:         true,
 				ValidateFunc:     validateEnum([]string{"private", "public", ""}),
-				DiffSuppressFunc: caseDiffSuppress,
+				DiffSuppressFunc: CaseDiffSuppress,
 				Description: `The zone's visibility: public zones are exposed to the Internet,
 while private zones are visible only to Virtual Private Cloud resources. Default value: "public" Possible values: ["private", "public"]`,
 				Default: "public",
@@ -420,7 +420,7 @@ func resourceDNSManagedZoneCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["cloudLoggingConfig"] = cloudLoggingConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones")
+	url, err := ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones")
 	if err != nil {
 		return err
 	}
@@ -445,7 +445,7 @@ func resourceDNSManagedZoneCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/managedZones/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/managedZones/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -463,7 +463,7 @@ func resourceDNSManagedZoneRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -621,7 +621,7 @@ func resourceDNSManagedZoneUpdate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -659,7 +659,7 @@ func resourceDNSManagedZoneDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -753,7 +753,7 @@ func resourceDNSManagedZoneDelete(d *schema.ResourceData, meta interface{}) erro
 
 func resourceDNSManagedZoneImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/managedZones/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -762,7 +762,7 @@ func resourceDNSManagedZoneImport(d *schema.ResourceData, meta interface{}) ([]*
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/managedZones/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/managedZones/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1290,7 +1290,7 @@ func expandDNSManagedZonePrivateVisibilityConfigNetworksNetworkUrl(v interface{}
 	} else if strings.HasPrefix(v.(string), "https://") {
 		return v, nil
 	}
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
 	if err != nil {
 		return "", err
 	}
@@ -1402,7 +1402,7 @@ func expandDNSManagedZonePeeringConfigTargetNetworkNetworkUrl(v interface{}, d T
 	} else if strings.HasPrefix(v.(string), "https://") {
 		return v, nil
 	}
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
 	if err != nil {
 		return "", err
 	}

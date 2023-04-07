@@ -187,14 +187,14 @@ func resourceComputePerInstanceConfigCreate(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "instanceGroupManager/{{project}}/{{zone}}/{{instance_group_manager}}")
+	lockName, err := ReplaceVars(d, config, "instanceGroupManager/{{project}}/{{zone}}/{{instance_group_manager}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/createInstances")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/createInstances")
 	if err != nil {
 		return err
 	}
@@ -219,7 +219,7 @@ func resourceComputePerInstanceConfigCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}/{{zone}}/{{instance_group_manager}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{project}}/{{zone}}/{{instance_group_manager}}/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -247,7 +247,7 @@ func resourceComputePerInstanceConfigRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/listPerInstanceConfigs")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/listPerInstanceConfigs")
 	if err != nil {
 		return err
 	}
@@ -346,14 +346,14 @@ func resourceComputePerInstanceConfigUpdate(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "instanceGroupManager/{{project}}/{{zone}}/{{instance_group_manager}}")
+	lockName, err := ReplaceVars(d, config, "instanceGroupManager/{{project}}/{{zone}}/{{instance_group_manager}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/updatePerInstanceConfigs")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/updatePerInstanceConfigs")
 	if err != nil {
 		return err
 	}
@@ -382,7 +382,7 @@ func resourceComputePerInstanceConfigUpdate(d *schema.ResourceData, meta interfa
 	}
 
 	// Instance name in applyUpdatesToInstances request must include zone
-	instanceName, err := replaceVars(d, config, "zones/{{zone}}/instances/{{name}}")
+	instanceName, err := ReplaceVars(d, config, "zones/{{zone}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -402,7 +402,7 @@ func resourceComputePerInstanceConfigUpdate(d *schema.ResourceData, meta interfa
 	}
 	obj["mostDisruptiveAllowedAction"] = mostDisruptiveAction
 
-	url, err = replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/applyUpdatesToInstances")
+	url, err = ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/applyUpdatesToInstances")
 	if err != nil {
 		return err
 	}
@@ -436,14 +436,14 @@ func resourceComputePerInstanceConfigDelete(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "instanceGroupManager/{{project}}/{{zone}}/{{instance_group_manager}}")
+	lockName, err := ReplaceVars(d, config, "instanceGroupManager/{{project}}/{{zone}}/{{instance_group_manager}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/deletePerInstanceConfigs")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/deletePerInstanceConfigs")
 	if err != nil {
 		return err
 	}
@@ -470,7 +470,7 @@ func resourceComputePerInstanceConfigDelete(d *schema.ResourceData, meta interfa
 	// Potentially delete the state managed by this config
 	if d.Get("remove_instance_state_on_destroy").(bool) {
 		// Instance name in applyUpdatesToInstances request must include zone
-		instanceName, err := replaceVars(d, config, "zones/{{zone}}/instances/{{name}}")
+		instanceName, err := ReplaceVars(d, config, "zones/{{zone}}/instances/{{name}}")
 		if err != nil {
 			return err
 		}
@@ -479,7 +479,7 @@ func resourceComputePerInstanceConfigDelete(d *schema.ResourceData, meta interfa
 		obj["instances"] = []string{instanceName}
 
 		// The deletion must be applied to the instance after the PerInstanceConfig is deleted
-		url, err = replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/applyUpdatesToInstances")
+		url, err = ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/applyUpdatesToInstances")
 		if err != nil {
 			return err
 		}
@@ -511,7 +511,7 @@ func resourceComputePerInstanceConfigDelete(d *schema.ResourceData, meta interfa
 
 func resourceComputePerInstanceConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instanceGroupManagers/(?P<instance_group_manager>[^/]+)/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance_group_manager>[^/]+)/(?P<name>[^/]+)",
 		"(?P<zone>[^/]+)/(?P<instance_group_manager>[^/]+)/(?P<name>[^/]+)",
@@ -521,7 +521,7 @@ func resourceComputePerInstanceConfigImport(d *schema.ResourceData, meta interfa
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}/{{zone}}/{{instance_group_manager}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{project}}/{{zone}}/{{instance_group_manager}}/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

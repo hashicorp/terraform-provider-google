@@ -197,7 +197,7 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 			if strings.HasPrefix(v, "https://") {
 				instanceUrls = append(instanceUrls, v)
 			} else {
-				url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v)
+				url, err := ReplaceVars(d, config, "{{ComputeBasePath}}"+v)
 				if err != nil {
 					return err
 				}
@@ -441,14 +441,14 @@ func resourceComputeInstanceGroupDelete(d *schema.ResourceData, meta interface{}
 
 func resourceComputeInstanceGroupImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instanceGroups/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
 		"(?P<zone>[^/]+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
-	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instanceGroups/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instanceGroups/{{name}}")
 	if err != nil {
 		return nil, err
 	}

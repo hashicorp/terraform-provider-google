@@ -533,7 +533,7 @@ func resourceCloudfunctions2functionCreate(d *schema.ResourceData, meta interfac
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{Cloudfunctions2BasePath}}projects/{{project}}/locations/{{location}}/functions?functionId={{name}}")
+	url, err := ReplaceVars(d, config, "{{Cloudfunctions2BasePath}}projects/{{project}}/locations/{{location}}/functions?functionId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -558,7 +558,7 @@ func resourceCloudfunctions2functionCreate(d *schema.ResourceData, meta interfac
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/functions/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/functions/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -582,7 +582,7 @@ func resourceCloudfunctions2functionCreate(d *schema.ResourceData, meta interfac
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{location}}/functions/{{name}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/functions/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -600,7 +600,7 @@ func resourceCloudfunctions2functionRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{Cloudfunctions2BasePath}}projects/{{project}}/locations/{{location}}/functions/{{name}}")
+	url, err := ReplaceVars(d, config, "{{Cloudfunctions2BasePath}}projects/{{project}}/locations/{{location}}/functions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -705,7 +705,7 @@ func resourceCloudfunctions2functionUpdate(d *schema.ResourceData, meta interfac
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{Cloudfunctions2BasePath}}projects/{{project}}/locations/{{location}}/functions/{{name}}")
+	url, err := ReplaceVars(d, config, "{{Cloudfunctions2BasePath}}projects/{{project}}/locations/{{location}}/functions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -732,9 +732,9 @@ func resourceCloudfunctions2functionUpdate(d *schema.ResourceData, meta interfac
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -778,7 +778,7 @@ func resourceCloudfunctions2functionDelete(d *schema.ResourceData, meta interfac
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{Cloudfunctions2BasePath}}projects/{{project}}/locations/{{location}}/functions/{{name}}")
+	url, err := ReplaceVars(d, config, "{{Cloudfunctions2BasePath}}projects/{{project}}/locations/{{location}}/functions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -810,7 +810,7 @@ func resourceCloudfunctions2functionDelete(d *schema.ResourceData, meta interfac
 
 func resourceCloudfunctions2functionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/functions/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -819,7 +819,7 @@ func resourceCloudfunctions2functionImport(d *schema.ResourceData, meta interfac
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/functions/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/functions/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1377,7 +1377,7 @@ func flattenCloudfunctions2functionLabels(v interface{}, d *schema.ResourceData,
 }
 
 func expandCloudfunctions2functionName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return replaceVars(d, config, "projects/{{project}}/locations/{{location}}/functions/{{name}}")
+	return ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/functions/{{name}}")
 }
 
 func expandCloudfunctions2functionDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

@@ -97,7 +97,7 @@ func dataSourceComputeRouterStatusRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error setting best_routes_for_router: %s", err)
 	}
 
-	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/routers/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/routers/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}

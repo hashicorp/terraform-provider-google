@@ -72,7 +72,7 @@ func dataSourceGoogleFoldersRead(d *schema.ResourceData, meta interface{}) error
 		params["parent"] = d.Get("parent_id").(string)
 		url := "https://cloudresourcemanager.googleapis.com/v3/folders"
 
-		url, err := addQueryParams(url, params)
+		url, err := AddQueryParams(url, params)
 		if err != nil {
 			return err
 		}

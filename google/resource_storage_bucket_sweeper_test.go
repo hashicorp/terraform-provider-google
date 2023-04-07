@@ -37,7 +37,7 @@ func testSweepStorageBucket(region string) error {
 		"projection": "noAcl", // returns 1000 items instead of 200
 	}
 
-	servicesUrl, err := addQueryParams("https://storage.googleapis.com/storage/v1/b", params)
+	servicesUrl, err := AddQueryParams("https://storage.googleapis.com/storage/v1/b", params)
 	if err != nil {
 		return err
 	}

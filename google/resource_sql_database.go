@@ -59,7 +59,7 @@ This does not include the project ID or instance name.`,
 				Type:             schema.TypeString,
 				Computed:         true,
 				Optional:         true,
-				DiffSuppressFunc: caseDiffSuppress,
+				DiffSuppressFunc: CaseDiffSuppress,
 				Description: `The charset value. See MySQL's
 [Supported Character Sets and Collations](https://dev.mysql.com/doc/refman/5.7/en/charset-charsets.html)
 and Postgres' [Character Set Support](https://www.postgresql.org/docs/9.6/static/multibyte.html)
@@ -133,14 +133,14 @@ func resourceSQLDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["instance"] = instanceProp
 	}
 
-	lockName, err := replaceVars(d, config, "google-sql-database-instance-{{project}}-{{instance}}")
+	lockName, err := ReplaceVars(d, config, "google-sql-database-instance-{{project}}-{{instance}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases")
+	url, err := ReplaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases")
 	if err != nil {
 		return err
 	}
@@ -165,7 +165,7 @@ func resourceSQLDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -193,7 +193,7 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+	url, err := ReplaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -286,14 +286,14 @@ func resourceSQLDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 		obj["instance"] = instanceProp
 	}
 
-	lockName, err := replaceVars(d, config, "google-sql-database-instance-{{project}}-{{instance}}")
+	lockName, err := ReplaceVars(d, config, "google-sql-database-instance-{{project}}-{{instance}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+	url, err := ReplaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -339,14 +339,14 @@ func resourceSQLDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 	billingProject = project
 
-	lockName, err := replaceVars(d, config, "google-sql-database-instance-{{project}}-{{instance}}")
+	lockName, err := ReplaceVars(d, config, "google-sql-database-instance-{{project}}-{{instance}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+	url, err := ReplaceVars(d, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -383,7 +383,7 @@ func resourceSQLDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 
 func resourceSQLDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
 		"instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)",
@@ -394,7 +394,7 @@ func resourceSQLDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

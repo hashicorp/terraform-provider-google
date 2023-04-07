@@ -251,7 +251,7 @@ func resourceDialogflowIntentCreate(d *schema.ResourceData, meta interface{}) er
 		obj["parentFollowupIntentName"] = parentFollowupIntentNameProp
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent/intents/")
+	url, err := ReplaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent/intents/")
 	if err != nil {
 		return err
 	}
@@ -279,7 +279,7 @@ func resourceDialogflowIntentCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -315,7 +315,7 @@ func resourceDialogflowIntentRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -465,7 +465,7 @@ func resourceDialogflowIntentUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["defaultResponsePlatforms"] = defaultResponsePlatformsProp
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -503,7 +503,7 @@ func resourceDialogflowIntentDelete(d *schema.ResourceData, meta interface{}) er
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{DialogflowBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -530,7 +530,7 @@ func resourceDialogflowIntentImport(d *schema.ResourceData, meta interface{}) ([
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 

@@ -98,7 +98,7 @@ func resourceSecurityCenterSourceCreate(d *schema.ResourceData, meta interface{}
 		obj["displayName"] = displayNameProp
 	}
 
-	url, err := replaceVars(d, config, "{{SecurityCenterBasePath}}organizations/{{organization}}/sources")
+	url, err := ReplaceVars(d, config, "{{SecurityCenterBasePath}}organizations/{{organization}}/sources")
 	if err != nil {
 		return err
 	}
@@ -120,7 +120,7 @@ func resourceSecurityCenterSourceCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -156,7 +156,7 @@ func resourceSecurityCenterSourceRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -209,7 +209,7 @@ func resourceSecurityCenterSourceUpdate(d *schema.ResourceData, meta interface{}
 		obj["displayName"] = displayNameProp
 	}
 
-	url, err := replaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -224,9 +224,9 @@ func resourceSecurityCenterSourceUpdate(d *schema.ResourceData, meta interface{}
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -260,7 +260,7 @@ func resourceSecurityCenterSourceImport(d *schema.ResourceData, meta interface{}
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 

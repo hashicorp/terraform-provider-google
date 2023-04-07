@@ -21,7 +21,7 @@ func TestAccDataSourceGooglePubsubSubscription_basic(t *testing.T) {
 			{
 				Config: testAccDataSourceGooglePubsubSubscription_basic(context),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceState("data.google_pubsub_subscription.foo", "google_pubsub_subscription.foo"),
+					CheckDataSourceStateMatchesResourceState("data.google_pubsub_subscription.foo", "google_pubsub_subscription.foo"),
 				),
 			},
 		},
@@ -43,7 +43,7 @@ func TestAccDataSourceGooglePubsubSubscription_optionalProject(t *testing.T) {
 			{
 				Config: testAccDataSourceGooglePubsubSubscription_optionalProject(context),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceState("data.google_pubsub_subscription.foo", "google_pubsub_subscription.foo"),
+					CheckDataSourceStateMatchesResourceState("data.google_pubsub_subscription.foo", "google_pubsub_subscription.foo"),
 				),
 			},
 		},

@@ -203,7 +203,7 @@ func (u *BigqueryDatapolicyDataPolicyIamUpdater) SetResourceIamPolicy(policy *cl
 
 func (u *BigqueryDatapolicyDataPolicyIamUpdater) qualifyDataPolicyUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{BigqueryDatapolicyBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/dataPolicies/%s", u.project, u.location, u.dataPolicyId), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

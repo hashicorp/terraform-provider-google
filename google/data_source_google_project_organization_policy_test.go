@@ -16,7 +16,7 @@ func TestAccDataSourceGoogleProjectOrganizationPolicy_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleProjectOrganizationPolicy_basic(project),
-				Check: checkDataSourceStateMatchesResourceState(
+				Check: CheckDataSourceStateMatchesResourceState(
 					"data.google_project_organization_policy.data",
 					"google_project_organization_policy.resource"),
 			},

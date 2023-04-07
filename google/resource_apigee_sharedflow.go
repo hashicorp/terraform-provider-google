@@ -168,7 +168,7 @@ func resourceApigeeSharedFlowCreate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error, \"config_bundle\" must be specified")
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/sharedflows?name={{name}}&action=import")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/sharedflows?name={{name}}&action=import")
 	if err != nil {
 		return err
 	}
@@ -188,7 +188,7 @@ func resourceApigeeSharedFlowCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "organizations/{{org_id}}/sharedflows/{{name}}")
+	id, err := ReplaceVars(d, config, "organizations/{{org_id}}/sharedflows/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -217,7 +217,7 @@ func resourceApigeeSharedFlowRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/sharedflows/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/sharedflows/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -287,7 +287,7 @@ func resourceApigeeSharedFlowDelete(d *schema.ResourceData, meta interface{}) er
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/sharedflows/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/sharedflows/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -311,7 +311,7 @@ func resourceApigeeSharedFlowDelete(d *schema.ResourceData, meta interface{}) er
 
 func resourceApigeeSharedFlowImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"organizations/(?P<org_id>[^/]+)/sharedflows/(?P<name>[^/]+)",
 		"(?P<org_id>[^/]+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {
@@ -319,7 +319,7 @@ func resourceApigeeSharedFlowImport(d *schema.ResourceData, meta interface{}) ([
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "organizations/{{org_id}}/sharedflows/{{name}}")
+	id, err := ReplaceVars(d, config, "organizations/{{org_id}}/sharedflows/{{name}}")
 
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)

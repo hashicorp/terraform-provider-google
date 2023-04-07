@@ -114,7 +114,7 @@ func resourceComputeNetworkFirewallPolicyAssociationCreate(d *schema.ResourceDat
 		billingProject = bp
 	}
 	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -159,7 +159,7 @@ func resourceComputeNetworkFirewallPolicyAssociationRead(d *schema.ResourceData,
 		billingProject = bp
 	}
 	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -215,7 +215,7 @@ func resourceComputeNetworkFirewallPolicyAssociationDelete(d *schema.ResourceDat
 		billingProject = bp
 	}
 	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -232,7 +232,7 @@ func resourceComputeNetworkFirewallPolicyAssociationDelete(d *schema.ResourceDat
 func resourceComputeNetworkFirewallPolicyAssociationImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/firewallPolicies/(?P<firewall_policy>[^/]+)/associations/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<firewall_policy>[^/]+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {

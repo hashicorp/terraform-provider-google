@@ -557,7 +557,7 @@ func resourceDataLossPreventionJobTriggerCreate(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/jobTriggers")
+	url, err := ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/jobTriggers")
 	if err != nil {
 		return err
 	}
@@ -579,7 +579,7 @@ func resourceDataLossPreventionJobTriggerCreate(d *schema.ResourceData, meta int
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{parent}}/jobTriggers/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/jobTriggers/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -597,7 +597,7 @@ func resourceDataLossPreventionJobTriggerRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/jobTriggers/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/jobTriggers/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -685,7 +685,7 @@ func resourceDataLossPreventionJobTriggerUpdate(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/jobTriggers/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/jobTriggers/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -712,9 +712,9 @@ func resourceDataLossPreventionJobTriggerUpdate(d *schema.ResourceData, meta int
 	if d.HasChange("inspect_job") {
 		updateMask = append(updateMask, "inspectJob")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -744,7 +744,7 @@ func resourceDataLossPreventionJobTriggerDelete(d *schema.ResourceData, meta int
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/jobTriggers/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/jobTriggers/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -770,7 +770,7 @@ func resourceDataLossPreventionJobTriggerImport(d *schema.ResourceData, meta int
 	config := meta.(*Config)
 
 	// Custom import to handle parent possibilities
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 	parts := strings.Split(d.Get("name").(string), "/")
@@ -792,7 +792,7 @@ func resourceDataLossPreventionJobTriggerImport(d *schema.ResourceData, meta int
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{parent}}/jobTriggers/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/jobTriggers/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -83,14 +83,14 @@ func resourceTagsTagBindingCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["tagValue"] = tagValueProp
 	}
 
-	lockName, err := replaceVars(d, config, "tagBindings/{{parent}}")
+	lockName, err := ReplaceVars(d, config, "tagBindings/{{parent}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{TagsBasePath}}tagBindings")
+	url, err := ReplaceVars(d, config, "{{TagsBasePath}}tagBindings")
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func resourceTagsTagBindingCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "tagBindings/{{name}}")
+	id, err := ReplaceVars(d, config, "tagBindings/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -143,7 +143,7 @@ func resourceTagsTagBindingCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "tagBindings/{{name}}")
+	id, err = ReplaceVars(d, config, "tagBindings/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -161,7 +161,7 @@ func resourceTagsTagBindingRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{TagsBasePath}}tagBindings/?parent={{parent}}&pageSize=300")
+	url, err := ReplaceVars(d, config, "{{TagsBasePath}}tagBindings/?parent={{parent}}&pageSize=300")
 	if err != nil {
 		return err
 	}
@@ -212,14 +212,14 @@ func resourceTagsTagBindingDelete(d *schema.ResourceData, meta interface{}) erro
 
 	billingProject := ""
 
-	lockName, err := replaceVars(d, config, "tagBindings/{{parent}}")
+	lockName, err := ReplaceVars(d, config, "tagBindings/{{parent}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{TagsBasePath}}tagBindings/{{name}}")
+	url, err := ReplaceVars(d, config, "{{TagsBasePath}}tagBindings/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -253,7 +253,7 @@ func resourceTagsTagBindingImport(d *schema.ResourceData, meta interface{}) ([]*
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"tagBindings/(?P<name>.+)",
 		"(?P<name>.+)",
 	}, d, config); err != nil {

@@ -135,7 +135,7 @@ func resourceIdentityPlatformTenantOauthIdpConfigCreate(d *schema.ResourceData, 
 		obj["clientSecret"] = clientSecretProp
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs?oauthIdpConfigId={{name}}")
+	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs?oauthIdpConfigId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -160,7 +160,7 @@ func resourceIdentityPlatformTenantOauthIdpConfigCreate(d *schema.ResourceData, 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -178,7 +178,7 @@ func resourceIdentityPlatformTenantOauthIdpConfigRead(d *schema.ResourceData, me
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs/{{name}}")
+	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -274,7 +274,7 @@ func resourceIdentityPlatformTenantOauthIdpConfigUpdate(d *schema.ResourceData, 
 		obj["clientSecret"] = clientSecretProp
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs/{{name}}")
+	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -301,9 +301,9 @@ func resourceIdentityPlatformTenantOauthIdpConfigUpdate(d *schema.ResourceData, 
 	if d.HasChange("client_secret") {
 		updateMask = append(updateMask, "clientSecret")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -339,7 +339,7 @@ func resourceIdentityPlatformTenantOauthIdpConfigDelete(d *schema.ResourceData, 
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs/{{name}}")
+	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -363,7 +363,7 @@ func resourceIdentityPlatformTenantOauthIdpConfigDelete(d *schema.ResourceData, 
 
 func resourceIdentityPlatformTenantOauthIdpConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/tenants/(?P<tenant>[^/]+)/oauthIdpConfigs/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<tenant>[^/]+)/(?P<name>[^/]+)",
 		"(?P<tenant>[^/]+)/(?P<name>[^/]+)",
@@ -372,7 +372,7 @@ func resourceIdentityPlatformTenantOauthIdpConfigImport(d *schema.ResourceData, 
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

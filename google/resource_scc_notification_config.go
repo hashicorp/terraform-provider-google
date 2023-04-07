@@ -151,7 +151,7 @@ func resourceSecurityCenterNotificationConfigCreate(d *schema.ResourceData, meta
 		obj["streamingConfig"] = streamingConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{SecurityCenterBasePath}}organizations/{{organization}}/notificationConfigs?configId={{config_id}}")
+	url, err := ReplaceVars(d, config, "{{SecurityCenterBasePath}}organizations/{{organization}}/notificationConfigs?configId={{config_id}}")
 	if err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func resourceSecurityCenterNotificationConfigCreate(d *schema.ResourceData, meta
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -209,7 +209,7 @@ func resourceSecurityCenterNotificationConfigRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -274,7 +274,7 @@ func resourceSecurityCenterNotificationConfigUpdate(d *schema.ResourceData, meta
 		obj["streamingConfig"] = streamingConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -293,9 +293,9 @@ func resourceSecurityCenterNotificationConfigUpdate(d *schema.ResourceData, meta
 	if d.HasChange("streaming_config") {
 		updateMask = append(updateMask, "streamingConfig.filter")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -325,7 +325,7 @@ func resourceSecurityCenterNotificationConfigDelete(d *schema.ResourceData, meta
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -351,7 +351,7 @@ func resourceSecurityCenterNotificationConfigImport(d *schema.ResourceData, meta
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 

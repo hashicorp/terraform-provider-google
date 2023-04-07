@@ -150,7 +150,7 @@ func resourceNetworkConnectivityHubCreate(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 	client := NewDCLNetworkConnectivityClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -195,7 +195,7 @@ func resourceNetworkConnectivityHubRead(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 	client := NewDCLNetworkConnectivityClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -262,7 +262,7 @@ func resourceNetworkConnectivityHubUpdate(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 	client := NewDCLNetworkConnectivityClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -308,7 +308,7 @@ func resourceNetworkConnectivityHubDelete(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 	client := NewDCLNetworkConnectivityClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -325,7 +325,7 @@ func resourceNetworkConnectivityHubDelete(d *schema.ResourceData, meta interface
 func resourceNetworkConnectivityHubImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/global/hubs/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",

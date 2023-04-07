@@ -21,7 +21,7 @@ func TestAccDataSourceGooglePubsubTopic_basic(t *testing.T) {
 			{
 				Config: testAccDataSourceGooglePubsubTopic_basic(context),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceState("data.google_pubsub_topic.foo", "google_pubsub_topic.foo"),
+					CheckDataSourceStateMatchesResourceState("data.google_pubsub_topic.foo", "google_pubsub_topic.foo"),
 				),
 			},
 		},
@@ -43,7 +43,7 @@ func TestAccDataSourceGooglePubsubTopic_optionalProject(t *testing.T) {
 			{
 				Config: testAccDataSourceGooglePubsubTopic_optionalProject(context),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceState("data.google_pubsub_topic.foo", "google_pubsub_topic.foo"),
+					CheckDataSourceStateMatchesResourceState("data.google_pubsub_topic.foo", "google_pubsub_topic.foo"),
 				),
 			},
 		},

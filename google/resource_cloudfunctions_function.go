@@ -58,7 +58,7 @@ func (s *cloudFunctionId) locationId() string {
 }
 
 func parseCloudFunctionId(d *schema.ResourceData, config *Config) (*cloudFunctionId, error) {
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -605,7 +605,7 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 
 		return cloudFunctionsOperationWait(config, op, "Creating CloudFunctions Function", userAgent,
 			d.Timeout(schema.TimeoutCreate))
-	}, d.Timeout(schema.TimeoutCreate), isCloudFunctionsSourceCodeError)
+	}, d.Timeout(schema.TimeoutCreate), IsCloudFunctionsSourceCodeError)
 	if rerr != nil {
 		return rerr
 	}

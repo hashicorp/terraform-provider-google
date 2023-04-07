@@ -104,14 +104,14 @@ func resourceComputeInstanceGroupNamedPortCreate(d *schema.ResourceData, meta in
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}")
+	lockName, err := ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}/setNamedPorts")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}/setNamedPorts")
 	if err != nil {
 		return err
 	}
@@ -141,7 +141,7 @@ func resourceComputeInstanceGroupNamedPortCreate(d *schema.ResourceData, meta in
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}/{{port}}/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}/{{port}}/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -169,7 +169,7 @@ func resourceComputeInstanceGroupNamedPortRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}")
 	if err != nil {
 		return err
 	}
@@ -233,14 +233,14 @@ func resourceComputeInstanceGroupNamedPortDelete(d *schema.ResourceData, meta in
 	}
 	billingProject = project
 
-	lockName, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}")
+	lockName, err := ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}/setNamedPorts")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}/setNamedPorts")
 	if err != nil {
 		return err
 	}
@@ -277,7 +277,7 @@ func resourceComputeInstanceGroupNamedPortDelete(d *schema.ResourceData, meta in
 
 func resourceComputeInstanceGroupNamedPortImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instanceGroups/(?P<group>[^/]+)/(?P<port>[^/]+)/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<group>[^/]+)/(?P<port>[^/]+)/(?P<name>[^/]+)",
 		"(?P<zone>[^/]+)/(?P<group>[^/]+)/(?P<port>[^/]+)/(?P<name>[^/]+)",
@@ -287,7 +287,7 @@ func resourceComputeInstanceGroupNamedPortImport(d *schema.ResourceData, meta in
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}/{{port}}/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}/{{port}}/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -463,7 +463,7 @@ func resourceComputeInstanceGroupNamedPortPatchDeleteEncoder(d *schema.ResourceD
 // extracting list of objects.
 func resourceComputeInstanceGroupNamedPortListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
 	config := meta.(*Config)
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}")
 	if err != nil {
 		return nil, err
 	}

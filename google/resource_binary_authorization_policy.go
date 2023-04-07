@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func defaultBinaryAuthorizationPolicy(project string) map[string]interface{} {
+func DefaultBinaryAuthorizationPolicy(project string) map[string]interface{} {
 	return map[string]interface{}{
 		"name": fmt.Sprintf("projects/%s/policy", project),
 		"admissionWhitelistPatterns": []interface{}{
@@ -257,7 +257,7 @@ func resourceBinaryAuthorizationPolicyCreate(d *schema.ResourceData, meta interf
 		obj["defaultAdmissionRule"] = defaultAdmissionRuleProp
 	}
 
-	url, err := replaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/policy")
+	url, err := ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/policy")
 	if err != nil {
 		return err
 	}
@@ -282,7 +282,7 @@ func resourceBinaryAuthorizationPolicyCreate(d *schema.ResourceData, meta interf
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -300,7 +300,7 @@ func resourceBinaryAuthorizationPolicyRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/policy")
+	url, err := ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/policy")
 	if err != nil {
 		return err
 	}
@@ -393,7 +393,7 @@ func resourceBinaryAuthorizationPolicyUpdate(d *schema.ResourceData, meta interf
 		obj["defaultAdmissionRule"] = defaultAdmissionRuleProp
 	}
 
-	url, err := replaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/policy")
+	url, err := ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/policy")
 	if err != nil {
 		return err
 	}
@@ -431,13 +431,13 @@ func resourceBinaryAuthorizationPolicyDelete(d *schema.ResourceData, meta interf
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/policy")
+	url, err := ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/policy")
 	if err != nil {
 		return err
 	}
 
 	var obj map[string]interface{}
-	obj = defaultBinaryAuthorizationPolicy(d.Get("project").(string))
+	obj = DefaultBinaryAuthorizationPolicy(d.Get("project").(string))
 	log.Printf("[DEBUG] Deleting Policy %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
@@ -456,7 +456,7 @@ func resourceBinaryAuthorizationPolicyDelete(d *schema.ResourceData, meta interf
 
 func resourceBinaryAuthorizationPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)",
 		"(?P<project>[^/]+)",
 	}, d, config); err != nil {
@@ -464,7 +464,7 @@ func resourceBinaryAuthorizationPolicyImport(d *schema.ResourceData, meta interf
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

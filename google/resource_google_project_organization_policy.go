@@ -44,7 +44,7 @@ func ResourceGoogleProjectOrganizationPolicy() *schema.Resource {
 func resourceProjectOrgPolicyImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+):constraints/(?P<constraint>[^/]+)",
 		"(?P<project>[^/]+):constraints/(?P<constraint>[^/]+)",
 		"(?P<project>[^/]+):(?P<constraint>[^/]+)"},

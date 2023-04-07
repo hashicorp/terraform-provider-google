@@ -48,7 +48,7 @@ func deleteSpannerBackups(d *schema.ResourceData, config *Config, res map[string
 
 		path := "{{SpannerBasePath}}" + backupName
 
-		url, err := replaceVars(d, config, path)
+		url, err := ReplaceVars(d, config, path)
 		if err != nil {
 			return err
 		}
@@ -222,7 +222,7 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances")
+	url, err := ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances")
 	if err != nil {
 		return err
 	}
@@ -247,7 +247,7 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{project}}/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -279,7 +279,7 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{project}}/{{name}}")
+	id, err = ReplaceVars(d, config, "{{project}}/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -302,7 +302,7 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}")
+	url, err := ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -418,7 +418,7 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}")
+	url, err := ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -472,7 +472,7 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}")
+	url, err := ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -480,7 +480,7 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	var obj map[string]interface{}
 
 	if d.Get("force_destroy").(bool) {
-		backupsUrl, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}/backups")
+		backupsUrl, err := ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}/backups")
 		if err != nil {
 			return err
 		}
@@ -514,7 +514,7 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceSpannerInstanceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/instances/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -523,7 +523,7 @@ func resourceSpannerInstanceImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{project}}/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -685,12 +685,12 @@ func resourceSpannerInstanceUpdateEncoder(d *schema.ResourceData, meta interface
 func resourceSpannerInstanceDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	config := meta.(*Config)
 	d.SetId(res["name"].(string))
-	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/instances/(?P<name>[^/]+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"projects/(?P<project>[^/]+)/instances/(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}
 	res["project"] = d.Get("project").(string)
 	res["name"] = d.Get("name").(string)
-	id, err := replaceVars(d, config, "{{project}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{project}}/{{name}}")
 	if err != nil {
 		return nil, err
 	}

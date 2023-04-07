@@ -83,12 +83,12 @@ func ResourceCloudBuildTrigger() *schema.Resource {
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceCloudBuildTriggerResourceV0().CoreConfigSchema().ImpliedType(),
-				Upgrade: resourceCloudBuildTriggerUpgradeV0,
+				Upgrade: ResourceCloudBuildTriggerUpgradeV0,
 				Version: 0,
 			},
 			{
 				Type:    resourceCloudBuildTriggerResourceV1().CoreConfigSchema().ImpliedType(),
-				Upgrade: resourceCloudBuildTriggerUpgradeV1,
+				Upgrade: ResourceCloudBuildTriggerUpgradeV1,
 				Version: 1,
 			},
 		},
@@ -1327,7 +1327,7 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 		obj["build"] = buildProp
 	}
 
-	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/triggers")
+	url, err := ReplaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/triggers")
 	if err != nil {
 		return err
 	}
@@ -1352,7 +1352,7 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1369,7 +1369,7 @@ func resourceCloudBuildTriggerCreate(d *schema.ResourceData, meta interface{}) e
 
 	// Store the ID now. We tried to set it before and it failed because
 	// trigger_id didn't exist yet.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1389,7 +1389,7 @@ func resourceCloudBuildTriggerRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
+	url, err := ReplaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
 	if err != nil {
 		return err
 	}
@@ -1625,7 +1625,7 @@ func resourceCloudBuildTriggerUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["build"] = buildProp
 	}
 
-	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
+	url, err := ReplaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
 	if err != nil {
 		return err
 	}
@@ -1664,7 +1664,7 @@ func resourceCloudBuildTriggerDelete(d *schema.ResourceData, meta interface{}) e
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
+	url, err := ReplaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
 	if err != nil {
 		return err
 	}
@@ -1688,7 +1688,7 @@ func resourceCloudBuildTriggerDelete(d *schema.ResourceData, meta interface{}) e
 
 func resourceCloudBuildTriggerImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/triggers/(?P<trigger_id>[^/]+)",
 		"projects/(?P<project>[^/]+)/triggers/(?P<trigger_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<trigger_id>[^/]+)",
@@ -1698,7 +1698,7 @@ func resourceCloudBuildTriggerImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/triggers/{{trigger_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -4206,7 +4206,7 @@ func expandCloudBuildTriggerBuildOptionsVolumesPath(v interface{}, d TerraformRe
 	return v, nil
 }
 
-func resourceCloudBuildTriggerUpgradeV1(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func ResourceCloudBuildTriggerUpgradeV1(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
 	// Versions 0 and 1 didn't support location. Default them to global.
 	rawState["location"] = "global"
@@ -4219,7 +4219,7 @@ func resourceCloudBuildTriggerResourceV1() *schema.Resource {
 	return resourceCloudBuildTriggerResourceV0()
 }
 
-func resourceCloudBuildTriggerUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func ResourceCloudBuildTriggerUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	// Do nothing as V0 and V1 are exactly the same.
 	return rawState, nil
 }

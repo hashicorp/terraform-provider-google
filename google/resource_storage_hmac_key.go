@@ -107,7 +107,7 @@ func resourceStorageHmacKeyCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["state"] = stateProp
 	}
 
-	url, err := replaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys?serviceAccountEmail={{service_account_email}}")
+	url, err := ReplaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys?serviceAccountEmail={{service_account_email}}")
 	if err != nil {
 		return err
 	}
@@ -132,7 +132,7 @@ func resourceStorageHmacKeyCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/hmacKeys/{{access_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/hmacKeys/{{access_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -159,7 +159,7 @@ func resourceStorageHmacKeyCreate(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error setting access_id: %s", err)
 	}
 
-	id, err = replaceVars(d, config, "projects/{{project}}/hmacKeys/{{access_id}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/hmacKeys/{{access_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -180,7 +180,7 @@ func resourceStorageHmacKeyPollRead(d *schema.ResourceData, meta interface{}) Po
 	return func() (map[string]interface{}, error) {
 		config := meta.(*Config)
 
-		url, err := replaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
+		url, err := ReplaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
 		if err != nil {
 			return nil, err
 		}
@@ -226,7 +226,7 @@ func resourceStorageHmacKeyRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
+	url, err := ReplaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
 	if err != nil {
 		return err
 	}
@@ -304,7 +304,7 @@ func resourceStorageHmacKeyUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("state") {
 		obj := make(map[string]interface{})
 
-		getUrl, err := replaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
+		getUrl, err := ReplaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
 		if err != nil {
 			return err
 		}
@@ -328,7 +328,7 @@ func resourceStorageHmacKeyUpdate(d *schema.ResourceData, meta interface{}) erro
 			obj["state"] = stateProp
 		}
 
-		url, err := replaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
+		url, err := ReplaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
 		if err != nil {
 			return err
 		}
@@ -367,13 +367,13 @@ func resourceStorageHmacKeyDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
+	url, err := ReplaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
 	if err != nil {
 		return err
 	}
 
 	var obj map[string]interface{}
-	getUrl, err := replaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
+	getUrl, err := ReplaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
 	if err != nil {
 		return err
 	}
@@ -387,7 +387,7 @@ func resourceStorageHmacKeyDelete(d *schema.ResourceData, meta interface{}) erro
 	// updates
 	if v := getRes["state"]; v == "ACTIVE" {
 		getRes["state"] = "INACTIVE"
-		updateUrl, err := replaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
+		updateUrl, err := ReplaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
 		if err != nil {
 			return err
 		}
@@ -416,7 +416,7 @@ func resourceStorageHmacKeyDelete(d *schema.ResourceData, meta interface{}) erro
 
 func resourceStorageHmacKeyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/hmacKeys/(?P<access_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<access_id>[^/]+)",
 		"(?P<access_id>[^/]+)",
@@ -425,7 +425,7 @@ func resourceStorageHmacKeyImport(d *schema.ResourceData, meta interface{}) ([]*
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/hmacKeys/{{access_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/hmacKeys/{{access_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

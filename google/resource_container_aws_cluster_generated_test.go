@@ -39,7 +39,7 @@ func TestAccContainerAwsCluster_BasicHandWritten(t *testing.T) {
 		"aws_vpc":        "vpc-0b3f63cb91b247628",
 		"byo_prefix":     "mmv2",
 		"project_name":   GetTestProjectFromEnv(),
-		"project_number": getTestProjectNumberFromEnv(),
+		"project_number": GetTestProjectNumberFromEnv(),
 		"service_acct":   GetTestServiceAccountFromEnv(t),
 		"random_suffix":  RandString(t, 10),
 	}

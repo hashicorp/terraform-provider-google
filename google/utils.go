@@ -487,7 +487,7 @@ func changeFieldSchemaToForceNew(sch *schema.Schema) {
 }
 
 func generateUserAgentString(d TerraformResourceData, currentUserAgent string) (string, error) {
-	var m providerMeta
+	var m ProviderMeta
 
 	err := d.GetProviderMeta(&m)
 	if err != nil {

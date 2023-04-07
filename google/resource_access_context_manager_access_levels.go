@@ -306,7 +306,7 @@ func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta
 		obj["accessLevels"] = accessLevelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels:replaceAll")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels:replaceAll")
 	if err != nil {
 		return err
 	}
@@ -325,7 +325,7 @@ func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{parent}}/accessLevels")
+	id, err := ReplaceVars(d, config, "{{parent}}/accessLevels")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -353,7 +353,7 @@ func resourceAccessContextManagerAccessLevelsRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels")
 	if err != nil {
 		return err
 	}
@@ -394,7 +394,7 @@ func resourceAccessContextManagerAccessLevelsUpdate(d *schema.ResourceData, meta
 		obj["accessLevels"] = accessLevelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels:replaceAll")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels:replaceAll")
 	if err != nil {
 		return err
 	}
@@ -435,7 +435,7 @@ func resourceAccessContextManagerAccessLevelsDelete(d *schema.ResourceData, meta
 	obj := make(map[string]interface{})
 	obj["accessLevels"] = []string{}
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels:replaceAll")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels:replaceAll")
 	if err != nil {
 		return err
 	}

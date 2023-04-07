@@ -91,7 +91,7 @@ partial valid URL:
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: compareIpAddressOrSelfLinkOrResourceName,
+				DiffSuppressFunc: CompareIpAddressOrSelfLinkOrResourceName,
 				Description: `The IP address or URL to a forwarding rule of type
 loadBalancingScheme=INTERNAL that should handle matching
 packets.
@@ -264,14 +264,14 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 		obj["nextHopIlb"] = nextHopIlbProp
 	}
 
-	lockName, err := replaceVars(d, config, "projects/{{project}}/global/networks/{{network}}/peerings")
+	lockName, err := ReplaceVars(d, config, "projects/{{project}}/global/networks/{{network}}/peerings")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes")
 	if err != nil {
 		return err
 	}
@@ -290,13 +290,13 @@ func resourceComputeRouteCreate(d *schema.ResourceData, meta interface{}) error 
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isPeeringOperationInProgress)
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IsPeeringOperationInProgress)
 	if err != nil {
 		return fmt.Errorf("Error creating Route: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/global/routes/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/routes/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -324,7 +324,7 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -342,7 +342,7 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, isPeeringOperationInProgress)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsPeeringOperationInProgress)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRoute %q", d.Id()))
 	}
@@ -421,14 +421,14 @@ func resourceComputeRouteDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 	billingProject = project
 
-	lockName, err := replaceVars(d, config, "projects/{{project}}/global/networks/{{network}}/peerings")
+	lockName, err := ReplaceVars(d, config, "projects/{{project}}/global/networks/{{network}}/peerings")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -441,7 +441,7 @@ func resourceComputeRouteDelete(d *schema.ResourceData, meta interface{}) error 
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isPeeringOperationInProgress)
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IsPeeringOperationInProgress)
 	if err != nil {
 		return handleNotFoundError(err, d, "Route")
 	}
@@ -460,7 +460,7 @@ func resourceComputeRouteDelete(d *schema.ResourceData, meta interface{}) error 
 
 func resourceComputeRouteImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/routes/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -469,7 +469,7 @@ func resourceComputeRouteImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/global/routes/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/routes/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -581,7 +581,7 @@ func expandComputeRouteTags(v interface{}, d TerraformResourceData, config *Conf
 
 func expandComputeRouteNextHopGateway(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	if v == "default-internet-gateway" {
-		return replaceVars(d, config, "projects/{{project}}/global/gateways/default-internet-gateway")
+		return ReplaceVars(d, config, "projects/{{project}}/global/gateways/default-internet-gateway")
 	} else {
 		return v, nil
 	}

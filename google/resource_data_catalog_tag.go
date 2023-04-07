@@ -169,7 +169,7 @@ func resourceDataCatalogTagCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{parent}}/tags")
+	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{parent}}/tags")
 	if err != nil {
 		return err
 	}
@@ -191,7 +191,7 @@ func resourceDataCatalogTagCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -209,7 +209,7 @@ func resourceDataCatalogTagRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{parent}}/tags?pageSize=1000")
+	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{parent}}/tags?pageSize=1000")
 	if err != nil {
 		return err
 	}
@@ -285,7 +285,7 @@ func resourceDataCatalogTagUpdate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -300,9 +300,9 @@ func resourceDataCatalogTagUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("column") {
 		updateMask = append(updateMask, "column")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -332,7 +332,7 @@ func resourceDataCatalogTagDelete(d *schema.ResourceData, meta interface{}) erro
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -358,7 +358,7 @@ func resourceDataCatalogTagImport(d *schema.ResourceData, meta interface{}) ([]*
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 

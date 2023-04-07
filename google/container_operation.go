@@ -102,7 +102,7 @@ func (w *ContainerOperationWaiter) TargetStates() []string {
 	return []string{"DONE"}
 }
 
-func containerOperationWait(config *Config, op *container.Operation, project, location, activity, userAgent string, timeout time.Duration) error {
+func ContainerOperationWait(config *Config, op *container.Operation, project, location, activity, userAgent string, timeout time.Duration) error {
 	w := &ContainerOperationWaiter{
 		Service:             config.NewContainerClient(userAgent),
 		Context:             config.context,

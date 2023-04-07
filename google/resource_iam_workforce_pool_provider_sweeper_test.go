@@ -62,7 +62,7 @@ func testSweepIAMWorkforcePoolWorkforcePoolProvider(region string) error {
 	}
 
 	listTemplate := strings.Split("https://iam.googleapis.com/v1/locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers", "?")[0]
-	listUrl, err := replaceVars(d, config, listTemplate)
+	listUrl, err := ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 		return nil
@@ -104,7 +104,7 @@ func testSweepIAMWorkforcePoolWorkforcePoolProvider(region string) error {
 		}
 
 		deleteTemplate := "https://iam.googleapis.com/v1/locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}"
-		deleteUrl, err := replaceVars(d, config, deleteTemplate)
+		deleteUrl, err := ReplaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 			return nil

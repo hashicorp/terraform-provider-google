@@ -77,14 +77,14 @@ func resourceApigeeInstanceAttachmentCreate(d *schema.ResourceData, meta interfa
 		obj["environment"] = environmentProp
 	}
 
-	lockName, err := replaceVars(d, config, "apigeeInstanceAttachments")
+	lockName, err := ReplaceVars(d, config, "apigeeInstanceAttachments")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments")
 	if err != nil {
 		return err
 	}
@@ -103,7 +103,7 @@ func resourceApigeeInstanceAttachmentCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{instance_id}}/attachments/{{name}}")
+	id, err := ReplaceVars(d, config, "{{instance_id}}/attachments/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -127,7 +127,7 @@ func resourceApigeeInstanceAttachmentCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{instance_id}}/attachments/{{name}}")
+	id, err = ReplaceVars(d, config, "{{instance_id}}/attachments/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -145,7 +145,7 @@ func resourceApigeeInstanceAttachmentRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -181,14 +181,14 @@ func resourceApigeeInstanceAttachmentDelete(d *schema.ResourceData, meta interfa
 
 	billingProject := ""
 
-	lockName, err := replaceVars(d, config, "apigeeInstanceAttachments")
+	lockName, err := ReplaceVars(d, config, "apigeeInstanceAttachments")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -222,7 +222,7 @@ func resourceApigeeInstanceAttachmentImport(d *schema.ResourceData, meta interfa
 	config := meta.(*Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<instance_id>.+)/attachments/(?P<name>.+)",
 		"(?P<instance_id>.+)/(?P<name>.+)",
 	}, d, config); err != nil {
@@ -230,7 +230,7 @@ func resourceApigeeInstanceAttachmentImport(d *schema.ResourceData, meta interfa
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{instance_id}}/attachments/{{name}}")
+	id, err := ReplaceVars(d, config, "{{instance_id}}/attachments/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

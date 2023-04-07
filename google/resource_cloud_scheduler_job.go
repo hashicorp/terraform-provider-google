@@ -200,7 +200,7 @@ Headers can be set when the job is created.`,
 			"attempt_deadline": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				DiffSuppressFunc: emptyOrDefaultStringSuppress("180s"),
+				DiffSuppressFunc: EmptyOrDefaultStringSuppress("180s"),
 				Description: `The deadline for job attempts. If the request handler does not respond by this deadline then the request is
 cancelled and the attempt is marked as a DEADLINE_EXCEEDED failure. The failed attempt can be viewed in
 execution logs. Cloud Scheduler will retry the job according to the RetryConfig.
@@ -229,7 +229,7 @@ send a request to the targeted url`,
 						"uri": {
 							Type:             schema.TypeString,
 							Required:         true,
-							DiffSuppressFunc: lastSlashDiffSuppress,
+							DiffSuppressFunc: LastSlashDiffSuppress,
 							Description:      `The full URI path that the request will be sent to.`,
 						},
 						"body": {
@@ -515,7 +515,7 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs")
+	url, err := ReplaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs")
 	if err != nil {
 		return err
 	}
@@ -540,7 +540,7 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/jobs/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -554,7 +554,7 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	linkTmpl := fmt.Sprintf("{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}:%s", endpoint)
-	url, err = replaceVars(d, config, linkTmpl)
+	url, err = ReplaceVars(d, config, linkTmpl)
 	if err != nil {
 		return err
 	}
@@ -580,7 +580,7 @@ func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -728,7 +728,7 @@ func resourceCloudSchedulerJobUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -759,7 +759,7 @@ func resourceCloudSchedulerJobUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		linkTmpl := fmt.Sprintf("{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}:%s", endpoint)
-		url, err = replaceVars(d, config, linkTmpl)
+		url, err = ReplaceVars(d, config, linkTmpl)
 		if err != nil {
 			return err
 		}
@@ -791,7 +791,7 @@ func resourceCloudSchedulerJobDelete(d *schema.ResourceData, meta interface{}) e
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -815,7 +815,7 @@ func resourceCloudSchedulerJobDelete(d *schema.ResourceData, meta interface{}) e
 
 func resourceCloudSchedulerJobImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/jobs/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -825,7 +825,7 @@ func resourceCloudSchedulerJobImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/jobs/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1152,7 +1152,7 @@ func flattenCloudSchedulerJobHttpTargetOidcTokenAudience(v interface{}, d *schem
 }
 
 func expandCloudSchedulerJobName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return replaceVars(d, config, "projects/{{project}}/locations/{{region}}/jobs/{{name}}")
+	return ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 }
 
 func expandCloudSchedulerJobDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

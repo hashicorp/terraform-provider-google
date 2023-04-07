@@ -60,7 +60,7 @@ func SpannerInstanceIdParseFunc(d *schema.ResourceData, config *Config) error {
 	}
 
 	// Explicitly set the id so imported resources have the same ID format as non-imported ones.
-	d.SetId(id.terraformId())
+	d.SetId(id.TerraformId())
 	return nil
 }
 
@@ -124,7 +124,7 @@ func (u *SpannerInstanceIamUpdater) GetResourceId() string {
 	return spannerInstanceId{
 		Project:  u.project,
 		Instance: u.instance,
-	}.terraformId()
+	}.TerraformId()
 }
 
 func (u *SpannerInstanceIamUpdater) GetMutexKey() string {
@@ -140,7 +140,7 @@ type spannerInstanceId struct {
 	Instance string
 }
 
-func (s spannerInstanceId) terraformId() string {
+func (s spannerInstanceId) TerraformId() string {
 	return fmt.Sprintf("%s/%s", s.Project, s.Instance)
 }
 

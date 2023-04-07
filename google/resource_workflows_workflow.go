@@ -43,7 +43,7 @@ func ResourceWorkflowsWorkflow() *schema.Resource {
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceWorkflowsWorkflowResourceV0().CoreConfigSchema().ImpliedType(),
-				Upgrade: resourceWorkflowsWorkflowUpgradeV0,
+				Upgrade: ResourceWorkflowsWorkflowUpgradeV0,
 				Version: 0,
 			},
 		},
@@ -171,7 +171,7 @@ func resourceWorkflowsWorkflowCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{WorkflowsBasePath}}projects/{{project}}/locations/{{region}}/workflows?workflowId={{name}}")
+	url, err := ReplaceVars(d, config, "{{WorkflowsBasePath}}projects/{{project}}/locations/{{region}}/workflows?workflowId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -196,7 +196,7 @@ func resourceWorkflowsWorkflowCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/workflows/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/workflows/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -220,7 +220,7 @@ func resourceWorkflowsWorkflowCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{region}}/workflows/{{name}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/workflows/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -238,7 +238,7 @@ func resourceWorkflowsWorkflowRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{WorkflowsBasePath}}projects/{{project}}/locations/{{region}}/workflows/{{name}}")
+	url, err := ReplaceVars(d, config, "{{WorkflowsBasePath}}projects/{{project}}/locations/{{region}}/workflows/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -342,7 +342,7 @@ func resourceWorkflowsWorkflowUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{WorkflowsBasePath}}projects/{{project}}/locations/{{region}}/workflows/{{name}}")
+	url, err := ReplaceVars(d, config, "{{WorkflowsBasePath}}projects/{{project}}/locations/{{region}}/workflows/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -365,9 +365,9 @@ func resourceWorkflowsWorkflowUpdate(d *schema.ResourceData, meta interface{}) e
 	if d.HasChange("source_contents") {
 		updateMask = append(updateMask, "sourceContents")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -411,7 +411,7 @@ func resourceWorkflowsWorkflowDelete(d *schema.ResourceData, meta interface{}) e
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{WorkflowsBasePath}}projects/{{project}}/locations/{{region}}/workflows/{{name}}")
+	url, err := ReplaceVars(d, config, "{{WorkflowsBasePath}}projects/{{project}}/locations/{{region}}/workflows/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -606,7 +606,7 @@ Format: projects/{project}/serviceAccounts/{account}.`,
 	}
 }
 
-func resourceWorkflowsWorkflowUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func ResourceWorkflowsWorkflowUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
 
 	rawState["name"] = GetResourceNameFromSelfLink(rawState["name"].(string))

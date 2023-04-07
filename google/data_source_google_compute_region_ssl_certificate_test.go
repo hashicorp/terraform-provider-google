@@ -17,7 +17,7 @@ func TestAccDataSourceComputeRegionSslCertificate(t *testing.T) {
 			{
 				Config: testAccDataSourceComputeRegionSslCertificateConfig(RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceStateWithIgnores(
+					CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_compute_region_ssl_certificate.cert",
 						"google_compute_region_ssl_certificate.foobar",
 						map[string]struct{}{

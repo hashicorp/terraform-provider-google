@@ -218,7 +218,7 @@ func dataSourceGoogleComputeImageRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error setting status: %s", err)
 	}
 
-	id, err := replaceVars(d, config, "projects/{{project}}/global/images/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/images/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}

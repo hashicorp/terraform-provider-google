@@ -203,7 +203,7 @@ func (u *CloudTasksQueueIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 
 func (u *CloudTasksQueueIamUpdater) qualifyQueueUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{CloudTasksBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/queues/%s", u.project, u.location, u.name), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

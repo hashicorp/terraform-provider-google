@@ -6,21 +6,21 @@ import (
 	"strings"
 )
 
-type healthcareDatasetId struct {
+type HealthcareDatasetId struct {
 	Project  string
 	Location string
 	Name     string
 }
 
-func (s *healthcareDatasetId) datasetId() string {
+func (s *HealthcareDatasetId) DatasetId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/datasets/%s", s.Project, s.Location, s.Name)
 }
 
-func (s *healthcareDatasetId) terraformId() string {
+func (s *HealthcareDatasetId) TerraformId() string {
 	return fmt.Sprintf("%s/%s/%s", s.Project, s.Location, s.Name)
 }
 
-func parseHealthcareDatasetId(id string, config *Config) (*healthcareDatasetId, error) {
+func ParseHealthcareDatasetId(id string, config *Config) (*HealthcareDatasetId, error) {
 	parts := strings.Split(id, "/")
 
 	datasetIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,256})$")
@@ -28,7 +28,7 @@ func parseHealthcareDatasetId(id string, config *Config) (*healthcareDatasetId, 
 	datasetRelativeLinkRegex := regexp.MustCompile("^projects/(" + ProjectRegex + ")/locations/([a-z0-9-]+)/datasets/([a-zA-Z0-9_-]{1,256})$")
 
 	if datasetIdRegex.MatchString(id) {
-		return &healthcareDatasetId{
+		return &HealthcareDatasetId{
 			Project:  parts[0],
 			Location: parts[1],
 			Name:     parts[2],
@@ -40,7 +40,7 @@ func parseHealthcareDatasetId(id string, config *Config) (*healthcareDatasetId, 
 			return nil, fmt.Errorf("The default project for the provider must be set when using the `{location}/{datasetName}` id format.")
 		}
 
-		return &healthcareDatasetId{
+		return &HealthcareDatasetId{
 			Project:  config.Project,
 			Location: parts[0],
 			Name:     parts[1],
@@ -48,7 +48,7 @@ func parseHealthcareDatasetId(id string, config *Config) (*healthcareDatasetId, 
 	}
 
 	if parts := datasetRelativeLinkRegex.FindStringSubmatch(id); parts != nil {
-		return &healthcareDatasetId{
+		return &HealthcareDatasetId{
 			Project:  parts[1],
 			Location: parts[2],
 			Name:     parts[3],
@@ -58,19 +58,19 @@ func parseHealthcareDatasetId(id string, config *Config) (*healthcareDatasetId, 
 }
 
 type healthcareFhirStoreId struct {
-	DatasetId healthcareDatasetId
+	DatasetId HealthcareDatasetId
 	Name      string
 }
 
-func (s *healthcareFhirStoreId) fhirStoreId() string {
-	return fmt.Sprintf("%s/fhirStores/%s", s.DatasetId.datasetId(), s.Name)
+func (s *healthcareFhirStoreId) FhirStoreId() string {
+	return fmt.Sprintf("%s/fhirStores/%s", s.DatasetId.DatasetId(), s.Name)
 }
 
-func (s *healthcareFhirStoreId) terraformId() string {
-	return fmt.Sprintf("%s/%s", s.DatasetId.terraformId(), s.Name)
+func (s *healthcareFhirStoreId) TerraformId() string {
+	return fmt.Sprintf("%s/%s", s.DatasetId.TerraformId(), s.Name)
 }
 
-func parseHealthcareFhirStoreId(id string, config *Config) (*healthcareFhirStoreId, error) {
+func ParseHealthcareFhirStoreId(id string, config *Config) (*healthcareFhirStoreId, error) {
 	parts := strings.Split(id, "/")
 
 	fhirStoreIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,256})/([a-zA-Z0-9_-]{1,256})$")
@@ -79,7 +79,7 @@ func parseHealthcareFhirStoreId(id string, config *Config) (*healthcareFhirStore
 
 	if fhirStoreIdRegex.MatchString(id) {
 		return &healthcareFhirStoreId{
-			DatasetId: healthcareDatasetId{
+			DatasetId: HealthcareDatasetId{
 				Project:  parts[0],
 				Location: parts[1],
 				Name:     parts[2],
@@ -94,7 +94,7 @@ func parseHealthcareFhirStoreId(id string, config *Config) (*healthcareFhirStore
 		}
 
 		return &healthcareFhirStoreId{
-			DatasetId: healthcareDatasetId{
+			DatasetId: HealthcareDatasetId{
 				Project:  config.Project,
 				Location: parts[0],
 				Name:     parts[1],
@@ -105,7 +105,7 @@ func parseHealthcareFhirStoreId(id string, config *Config) (*healthcareFhirStore
 
 	if parts := fhirStoreRelativeLinkRegex.FindStringSubmatch(id); parts != nil {
 		return &healthcareFhirStoreId{
-			DatasetId: healthcareDatasetId{
+			DatasetId: HealthcareDatasetId{
 				Project:  parts[1],
 				Location: parts[2],
 				Name:     parts[3],
@@ -117,19 +117,19 @@ func parseHealthcareFhirStoreId(id string, config *Config) (*healthcareFhirStore
 }
 
 type healthcareHl7V2StoreId struct {
-	DatasetId healthcareDatasetId
+	DatasetId HealthcareDatasetId
 	Name      string
 }
 
-func (s *healthcareHl7V2StoreId) hl7V2StoreId() string {
-	return fmt.Sprintf("%s/hl7V2Stores/%s", s.DatasetId.datasetId(), s.Name)
+func (s *healthcareHl7V2StoreId) Hl7V2StoreId() string {
+	return fmt.Sprintf("%s/hl7V2Stores/%s", s.DatasetId.DatasetId(), s.Name)
 }
 
-func (s *healthcareHl7V2StoreId) terraformId() string {
-	return fmt.Sprintf("%s/%s", s.DatasetId.terraformId(), s.Name)
+func (s *healthcareHl7V2StoreId) TerraformId() string {
+	return fmt.Sprintf("%s/%s", s.DatasetId.TerraformId(), s.Name)
 }
 
-func parseHealthcareHl7V2StoreId(id string, config *Config) (*healthcareHl7V2StoreId, error) {
+func ParseHealthcareHl7V2StoreId(id string, config *Config) (*healthcareHl7V2StoreId, error) {
 	parts := strings.Split(id, "/")
 
 	hl7V2StoreIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,256})/([a-zA-Z0-9_-]{1,256})$")
@@ -138,7 +138,7 @@ func parseHealthcareHl7V2StoreId(id string, config *Config) (*healthcareHl7V2Sto
 
 	if hl7V2StoreIdRegex.MatchString(id) {
 		return &healthcareHl7V2StoreId{
-			DatasetId: healthcareDatasetId{
+			DatasetId: HealthcareDatasetId{
 				Project:  parts[0],
 				Location: parts[1],
 				Name:     parts[2],
@@ -153,7 +153,7 @@ func parseHealthcareHl7V2StoreId(id string, config *Config) (*healthcareHl7V2Sto
 		}
 
 		return &healthcareHl7V2StoreId{
-			DatasetId: healthcareDatasetId{
+			DatasetId: HealthcareDatasetId{
 				Project:  config.Project,
 				Location: parts[0],
 				Name:     parts[1],
@@ -164,7 +164,7 @@ func parseHealthcareHl7V2StoreId(id string, config *Config) (*healthcareHl7V2Sto
 
 	if parts := hl7V2StoreRelativeLinkRegex.FindStringSubmatch(id); parts != nil {
 		return &healthcareHl7V2StoreId{
-			DatasetId: healthcareDatasetId{
+			DatasetId: HealthcareDatasetId{
 				Project:  parts[1],
 				Location: parts[2],
 				Name:     parts[3],
@@ -176,19 +176,19 @@ func parseHealthcareHl7V2StoreId(id string, config *Config) (*healthcareHl7V2Sto
 }
 
 type healthcareDicomStoreId struct {
-	DatasetId healthcareDatasetId
+	DatasetId HealthcareDatasetId
 	Name      string
 }
 
-func (s *healthcareDicomStoreId) dicomStoreId() string {
-	return fmt.Sprintf("%s/dicomStores/%s", s.DatasetId.datasetId(), s.Name)
+func (s *healthcareDicomStoreId) DicomStoreId() string {
+	return fmt.Sprintf("%s/dicomStores/%s", s.DatasetId.DatasetId(), s.Name)
 }
 
-func (s *healthcareDicomStoreId) terraformId() string {
-	return fmt.Sprintf("%s/%s", s.DatasetId.terraformId(), s.Name)
+func (s *healthcareDicomStoreId) TerraformId() string {
+	return fmt.Sprintf("%s/%s", s.DatasetId.TerraformId(), s.Name)
 }
 
-func parseHealthcareDicomStoreId(id string, config *Config) (*healthcareDicomStoreId, error) {
+func ParseHealthcareDicomStoreId(id string, config *Config) (*healthcareDicomStoreId, error) {
 	parts := strings.Split(id, "/")
 
 	dicomStoreIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,256})/([a-zA-Z0-9_-]{1,256})$")
@@ -197,7 +197,7 @@ func parseHealthcareDicomStoreId(id string, config *Config) (*healthcareDicomSto
 
 	if dicomStoreIdRegex.MatchString(id) {
 		return &healthcareDicomStoreId{
-			DatasetId: healthcareDatasetId{
+			DatasetId: HealthcareDatasetId{
 				Project:  parts[0],
 				Location: parts[1],
 				Name:     parts[2],
@@ -212,7 +212,7 @@ func parseHealthcareDicomStoreId(id string, config *Config) (*healthcareDicomSto
 		}
 
 		return &healthcareDicomStoreId{
-			DatasetId: healthcareDatasetId{
+			DatasetId: HealthcareDatasetId{
 				Project:  config.Project,
 				Location: parts[0],
 				Name:     parts[1],
@@ -223,7 +223,7 @@ func parseHealthcareDicomStoreId(id string, config *Config) (*healthcareDicomSto
 
 	if parts := dicomStoreRelativeLinkRegex.FindStringSubmatch(id); parts != nil {
 		return &healthcareDicomStoreId{
-			DatasetId: healthcareDatasetId{
+			DatasetId: HealthcareDatasetId{
 				Project:  parts[1],
 				Location: parts[2],
 				Name:     parts[3],

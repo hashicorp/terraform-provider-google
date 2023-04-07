@@ -124,7 +124,7 @@ func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta inter
 		obj["payload"] = payloadProp
 	}
 
-	url, err := replaceVars(d, config, "{{SecretManagerBasePath}}{{secret}}:addVersion")
+	url, err := ReplaceVars(d, config, "{{SecretManagerBasePath}}{{secret}}:addVersion")
 	if err != nil {
 		return err
 	}
@@ -146,7 +146,7 @@ func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta inter
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -179,7 +179,7 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{SecretManagerBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{SecretManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -251,7 +251,7 @@ func resourceSecretManagerSecretVersionDelete(d *schema.ResourceData, meta inter
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{SecretManagerBasePath}}{{name}}:destroy")
+	url, err := ReplaceVars(d, config, "{{SecretManagerBasePath}}{{name}}:destroy")
 	if err != nil {
 		return err
 	}
@@ -277,7 +277,7 @@ func resourceSecretManagerSecretVersionImport(d *schema.ResourceData, meta inter
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 
@@ -343,7 +343,7 @@ func flattenSecretManagerSecretVersionPayload(v interface{}, d *schema.ResourceD
 		return []interface{}{transformed}
 	}
 
-	url, err := replaceVars(d, config, "{{SecretManagerBasePath}}{{name}}:access")
+	url, err := ReplaceVars(d, config, "{{SecretManagerBasePath}}{{name}}:access")
 	if err != nil {
 		return err
 	}
@@ -375,7 +375,7 @@ func expandSecretManagerSecretVersionEnabled(v interface{}, d TerraformResourceD
 		return "", nil
 	}
 
-	url, err := replaceVars(d, config, "{{SecretManagerBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{SecretManagerBasePath}}{{name}}")
 	if err != nil {
 		return nil, err
 	}

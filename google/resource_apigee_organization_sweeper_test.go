@@ -62,7 +62,7 @@ func testSweepApigeeOrganization(region string) error {
 	}
 
 	listTemplate := strings.Split("https://apigee.googleapis.com/v1/organizations", "?")[0]
-	listUrl, err := replaceVars(d, config, listTemplate)
+	listUrl, err := ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 		return nil
@@ -100,7 +100,7 @@ func testSweepApigeeOrganization(region string) error {
 		}
 
 		deleteTemplate := "https://apigee.googleapis.com/v1/organizations/{{name}}?retention={{retention}}"
-		deleteUrl, err := replaceVars(d, config, deleteTemplate)
+		deleteUrl, err := ReplaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 			return nil

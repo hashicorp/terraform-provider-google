@@ -25,7 +25,7 @@ func TestValidateIAMWorkforcePoolWorkforcePoolId(t *testing.T) {
 		{TestName: "ends with a hyphen", Value: "foobar-", ExpectError: true},
 	}
 
-	es := testStringValidationCases(x, validateWorkforcePoolId)
+	es := testStringValidationCases(x, ValidateWorkforcePoolId)
 	if len(es) > 0 {
 		t.Errorf("Failed to validate WorkforcePool names: %v", es)
 	}

@@ -196,7 +196,7 @@ func resourceDialogflowCXEntityTypeCreate(d *schema.ResourceData, meta interface
 		obj["redact"] = redactProp
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/entityTypes")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/entityTypes")
 	if err != nil {
 		return err
 	}
@@ -232,7 +232,7 @@ func resourceDialogflowCXEntityTypeCreate(d *schema.ResourceData, meta interface
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{parent}}/entityTypes/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/entityTypes/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -250,7 +250,7 @@ func resourceDialogflowCXEntityTypeRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/entityTypes/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/entityTypes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -362,7 +362,7 @@ func resourceDialogflowCXEntityTypeUpdate(d *schema.ResourceData, meta interface
 		obj["redact"] = redactProp
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/entityTypes/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/entityTypes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -397,9 +397,9 @@ func resourceDialogflowCXEntityTypeUpdate(d *schema.ResourceData, meta interface
 	if d.HasChange("redact") {
 		updateMask = append(updateMask, "redact")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -444,7 +444,7 @@ func resourceDialogflowCXEntityTypeDelete(d *schema.ResourceData, meta interface
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/entityTypes/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/entityTypes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -485,7 +485,7 @@ func resourceDialogflowCXEntityTypeImport(d *schema.ResourceData, meta interface
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value and parent contains slashes
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<parent>.+)/entityTypes/(?P<name>[^/]+)",
 		"(?P<parent>.+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {
@@ -493,7 +493,7 @@ func resourceDialogflowCXEntityTypeImport(d *schema.ResourceData, meta interface
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{parent}}/entityTypes/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/entityTypes/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

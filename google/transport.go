@@ -75,7 +75,7 @@ func SendRequestWithTimeout(config *Config, method, project, rawurl, userAgent s
 				}
 			}
 
-			u, err := addQueryParams(rawurl, map[string]string{"alt": "json"})
+			u, err := AddQueryParams(rawurl, map[string]string{"alt": "json"})
 			if err != nil {
 				return err
 			}
@@ -124,7 +124,7 @@ func SendRequestWithTimeout(config *Config, method, project, rawurl, userAgent s
 	return result, nil
 }
 
-func addQueryParams(rawurl string, params map[string]string) (string, error) {
+func AddQueryParams(rawurl string, params map[string]string) (string, error) {
 	u, err := url.Parse(rawurl)
 	if err != nil {
 		return "", err
@@ -137,7 +137,7 @@ func addQueryParams(rawurl string, params map[string]string) (string, error) {
 	return u.String(), nil
 }
 
-func replaceVars(d TerraformResourceData, config *Config, linkTmpl string) (string, error) {
+func ReplaceVars(d TerraformResourceData, config *Config, linkTmpl string) (string, error) {
 	return replaceVarsRecursive(d, config, linkTmpl, false, 0)
 }
 
@@ -153,7 +153,7 @@ func replaceVarsForId(d TerraformResourceData, config *Config, linkTmpl string) 
 	return replaceVarsRecursive(d, config, linkTmpl, true, 0)
 }
 
-// replaceVars must be done recursively because there are baseUrls that can contain references to regions
+// ReplaceVars must be done recursively because there are baseUrls that can contain references to regions
 // (eg cloudrun service) there aren't any cases known for 2+ recursion but we will track a run away
 // substitution as 10+ calls to allow for future use cases.
 func replaceVarsRecursive(d TerraformResourceData, config *Config, linkTmpl string, shorten bool, depth int) (string, error) {

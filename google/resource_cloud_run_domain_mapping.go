@@ -29,7 +29,7 @@ var domainMappingGoogleProvidedLabels = []string{
 	"run.googleapis.com/overrideAt",
 }
 
-func domainMappingLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+func DomainMappingLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	// Suppress diffs for the labels provided by Google
 	for _, label := range domainMappingGoogleProvidedLabels {
 		if strings.Contains(k, label) && new == "" {
@@ -103,7 +103,7 @@ or apply the lifecycle.ignore_changes rule to the metadata.0.annotations field.`
 							Computed:         true,
 							Optional:         true,
 							ForceNew:         true,
-							DiffSuppressFunc: domainMappingLabelDiffSuppress,
+							DiffSuppressFunc: DomainMappingLabelDiffSuppress,
 							Description: `Map of string keys and values that can be used to organize and categorize
 (scope and select) objects. May match selectors of replication controllers
 and routes.
@@ -301,7 +301,7 @@ func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings")
+	url, err := ReplaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings")
 	if err != nil {
 		return err
 	}
@@ -320,13 +320,13 @@ func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isCloudRunCreationConflict)
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IsCloudRunCreationConflict)
 	if err != nil {
 		return fmt.Errorf("Error creating DomainMapping: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "locations/{{location}}/namespaces/{{project}}/domainmappings/{{name}}")
+	id, err := ReplaceVars(d, config, "locations/{{location}}/namespaces/{{project}}/domainmappings/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -346,7 +346,7 @@ func resourceCloudRunDomainMappingPollRead(d *schema.ResourceData, meta interfac
 	return func() (map[string]interface{}, error) {
 		config := meta.(*Config)
 
-		url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
+		url, err := ReplaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
 		if err != nil {
 			return nil, err
 		}
@@ -369,7 +369,7 @@ func resourceCloudRunDomainMappingPollRead(d *schema.ResourceData, meta interfac
 			return nil, err
 		}
 
-		res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, isCloudRunCreationConflict)
+		res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsCloudRunCreationConflict)
 		if err != nil {
 			return res, err
 		}
@@ -392,7 +392,7 @@ func resourceCloudRunDomainMappingRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -410,7 +410,7 @@ func resourceCloudRunDomainMappingRead(d *schema.ResourceData, meta interface{})
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, isCloudRunCreationConflict)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsCloudRunCreationConflict)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("CloudRunDomainMapping %q", d.Id()))
 	}
@@ -459,7 +459,7 @@ func resourceCloudRunDomainMappingDelete(d *schema.ResourceData, meta interface{
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudRunBasePath}}apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -472,7 +472,7 @@ func resourceCloudRunDomainMappingDelete(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isCloudRunCreationConflict)
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IsCloudRunCreationConflict)
 	if err != nil {
 		return handleNotFoundError(err, d, "DomainMapping")
 	}
@@ -483,7 +483,7 @@ func resourceCloudRunDomainMappingDelete(d *schema.ResourceData, meta interface{
 
 func resourceCloudRunDomainMappingImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"locations/(?P<location>[^/]+)/namespaces/(?P<project>[^/]+)/domainmappings/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -492,7 +492,7 @@ func resourceCloudRunDomainMappingImport(d *schema.ResourceData, meta interface{
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "locations/{{location}}/namespaces/{{project}}/domainmappings/{{name}}")
+	id, err := ReplaceVars(d, config, "locations/{{location}}/namespaces/{{project}}/domainmappings/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -289,7 +289,7 @@ func resourceTPUNodeCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{TPUBasePath}}projects/{{project}}/locations/{{zone}}/nodes?nodeId={{name}}")
+	url, err := ReplaceVars(d, config, "{{TPUBasePath}}projects/{{project}}/locations/{{zone}}/nodes?nodeId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -314,7 +314,7 @@ func resourceTPUNodeCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -338,7 +338,7 @@ func resourceTPUNodeCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -356,7 +356,7 @@ func resourceTPUNodeRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{TPUBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
+	url, err := ReplaceVars(d, config, "{{TPUBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -447,7 +447,7 @@ func resourceTPUNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 			obj["tensorflowVersion"] = tensorflowVersionProp
 		}
 
-		url, err := replaceVars(d, config, "{{TPUBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}:reimage")
+		url, err := ReplaceVars(d, config, "{{TPUBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}:reimage")
 		if err != nil {
 			return err
 		}
@@ -492,7 +492,7 @@ func resourceTPUNodeDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{TPUBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
+	url, err := ReplaceVars(d, config, "{{TPUBasePath}}projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -524,7 +524,7 @@ func resourceTPUNodeDelete(d *schema.ResourceData, meta interface{}) error {
 
 func resourceTPUNodeImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<zone>[^/]+)/nodes/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
 		"(?P<zone>[^/]+)/(?P<name>[^/]+)",
@@ -534,7 +534,7 @@ func resourceTPUNodeImport(d *schema.ResourceData, meta interface{}) ([]*schema.
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{zone}}/nodes/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

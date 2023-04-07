@@ -76,7 +76,7 @@ func resourceTagsLocationTagBindingCreate(d *schema.ResourceData, meta interface
 		obj["tagValue"] = tagValueProp
 	}
 
-	url, err := replaceVars(d, config, "{{TagsLocationBasePath}}tagBindings")
+	url, err := ReplaceVars(d, config, "{{TagsLocationBasePath}}tagBindings")
 	log.Printf("url for TagsLocation: %s", url)
 	if err != nil {
 		return err
@@ -124,7 +124,7 @@ func resourceTagsLocationTagBindingCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	id, err := replaceVars(d, config, "{{location}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{location}}/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -142,7 +142,7 @@ func resourceTagsLocationTagBindingRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{TagsLocationBasePath}}tagBindings/?parent={{parent}}&pageSize=300")
+	url, err := ReplaceVars(d, config, "{{TagsLocationBasePath}}tagBindings/?parent={{parent}}&pageSize=300")
 	if err != nil {
 		return err
 	}
@@ -169,7 +169,7 @@ func resourceTagsLocationTagBindingRead(d *schema.ResourceData, meta interface{}
 	//if there are more than 300 bindings - handling pagination over here
 	if pageToken, ok := res["nextPageToken"].(string); ok {
 		for pageToken != "" {
-			url, err = addQueryParams(url, map[string]string{"pageToken": fmt.Sprintf("%s", res["nextPageToken"])})
+			url, err = AddQueryParams(url, map[string]string{"pageToken": fmt.Sprintf("%s", res["nextPageToken"])})
 			if err != nil {
 				return handleNotFoundError(err, d, fmt.Sprintf("TagsLocationTagBinding %q", d.Id()))
 			}
@@ -224,7 +224,7 @@ func resourceTagsLocationTagBindingDelete(d *schema.ResourceData, meta interface
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{TagsLocationBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{TagsLocationBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -256,7 +256,7 @@ func resourceTagsLocationTagBindingDelete(d *schema.ResourceData, meta interface
 
 func resourceTagsLocationTagBindingImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{"(?P<location>[^/]+)/tagBindings/(?P<parent>[^/]+)/tagValues/(?P<tag_value>[^/]+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<location>[^/]+)/tagBindings/(?P<parent>[^/]+)/tagValues/(?P<tag_value>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}
 
@@ -264,7 +264,7 @@ func resourceTagsLocationTagBindingImport(d *schema.ResourceData, meta interface
 	parentProper := strings.ReplaceAll(parent, "%2F", "/")
 	d.Set("parent", parentProper)
 	d.Set("name", fmt.Sprintf("tagBindings/%s/tagValues/%s", parent, d.Get("tag_value").(string)))
-	id, err := replaceVars(d, config, "{{location}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{location}}/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -170,7 +170,7 @@ func (u *IapWebIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Pol
 
 func (u *IapWebIamUpdater) qualifyWebUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_web", u.project), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

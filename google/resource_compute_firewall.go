@@ -539,7 +539,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 		obj["targetTags"] = targetTagsProp
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls")
 	if err != nil {
 		return err
 	}
@@ -564,7 +564,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/global/firewalls/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/firewalls/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -592,7 +592,7 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -769,7 +769,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["targetTags"] = targetTagsProp
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -815,7 +815,7 @@ func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) err
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/firewalls/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -847,7 +847,7 @@ func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceComputeFirewallImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/firewalls/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -856,7 +856,7 @@ func resourceComputeFirewallImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/global/firewalls/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/firewalls/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

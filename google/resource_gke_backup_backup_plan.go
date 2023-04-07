@@ -332,7 +332,7 @@ func resourceGKEBackupBackupPlanCreate(d *schema.ResourceData, meta interface{})
 		obj["backupConfig"] = backupConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{GKEBackupBasePath}}projects/{{project}}/locations/{{location}}/backupPlans?backupPlanId={{name}}")
+	url, err := ReplaceVars(d, config, "{{GKEBackupBasePath}}projects/{{project}}/locations/{{location}}/backupPlans?backupPlanId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -357,7 +357,7 @@ func resourceGKEBackupBackupPlanCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -381,7 +381,7 @@ func resourceGKEBackupBackupPlanCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -399,7 +399,7 @@ func resourceGKEBackupBackupPlanRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{GKEBackupBasePath}}projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
+	url, err := ReplaceVars(d, config, "{{GKEBackupBasePath}}projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -516,7 +516,7 @@ func resourceGKEBackupBackupPlanUpdate(d *schema.ResourceData, meta interface{})
 		obj["backupConfig"] = backupConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{GKEBackupBasePath}}projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
+	url, err := ReplaceVars(d, config, "{{GKEBackupBasePath}}projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -547,9 +547,9 @@ func resourceGKEBackupBackupPlanUpdate(d *schema.ResourceData, meta interface{})
 	if d.HasChange("backup_config") {
 		updateMask = append(updateMask, "backupConfig")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -593,7 +593,7 @@ func resourceGKEBackupBackupPlanDelete(d *schema.ResourceData, meta interface{})
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{GKEBackupBasePath}}projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
+	url, err := ReplaceVars(d, config, "{{GKEBackupBasePath}}projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -625,7 +625,7 @@ func resourceGKEBackupBackupPlanDelete(d *schema.ResourceData, meta interface{})
 
 func resourceGKEBackupBackupPlanImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/backupPlans/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -634,7 +634,7 @@ func resourceGKEBackupBackupPlanImport(d *schema.ResourceData, meta interface{})
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -879,7 +879,7 @@ func flattenGKEBackupBackupPlanProtectedPodCount(v interface{}, d *schema.Resour
 }
 
 func expandGKEBackupBackupPlanName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return replaceVars(d, config, "projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
+	return ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
 }
 
 func expandGKEBackupBackupPlanDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

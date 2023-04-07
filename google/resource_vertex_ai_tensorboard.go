@@ -152,7 +152,7 @@ func resourceVertexAITensorboardCreate(d *schema.ResourceData, meta interface{})
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/tensorboards")
+	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/tensorboards")
 	if err != nil {
 		return err
 	}
@@ -177,7 +177,7 @@ func resourceVertexAITensorboardCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -201,7 +201,7 @@ func resourceVertexAITensorboardCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{name}}")
+	id, err = ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -219,7 +219,7 @@ func resourceVertexAITensorboardRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{VertexAIBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -312,7 +312,7 @@ func resourceVertexAITensorboardUpdate(d *schema.ResourceData, meta interface{})
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{VertexAIBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -331,9 +331,9 @@ func resourceVertexAITensorboardUpdate(d *schema.ResourceData, meta interface{})
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -377,7 +377,7 @@ func resourceVertexAITensorboardDelete(d *schema.ResourceData, meta interface{})
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{VertexAIBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -409,7 +409,7 @@ func resourceVertexAITensorboardDelete(d *schema.ResourceData, meta interface{})
 
 func resourceVertexAITensorboardImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/tensorboards/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -419,7 +419,7 @@ func resourceVertexAITensorboardImport(d *schema.ResourceData, meta interface{})
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/tensorboards/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/tensorboards/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

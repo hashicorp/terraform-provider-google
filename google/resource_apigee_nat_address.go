@@ -82,7 +82,7 @@ func resourceApigeeNatAddressCreate(d *schema.ResourceData, meta interface{}) er
 		obj["name"] = nameProp
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/natAddresses")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/natAddresses")
 	if err != nil {
 		return err
 	}
@@ -101,7 +101,7 @@ func resourceApigeeNatAddressCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{instance_id}}/natAddresses/{{name}}")
+	id, err := ReplaceVars(d, config, "{{instance_id}}/natAddresses/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -125,7 +125,7 @@ func resourceApigeeNatAddressCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{instance_id}}/natAddresses/{{name}}")
+	id, err = ReplaceVars(d, config, "{{instance_id}}/natAddresses/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -143,7 +143,7 @@ func resourceApigeeNatAddressRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/natAddresses/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/natAddresses/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -182,7 +182,7 @@ func resourceApigeeNatAddressDelete(d *schema.ResourceData, meta interface{}) er
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/natAddresses/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/natAddresses/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -216,7 +216,7 @@ func resourceApigeeNatAddressImport(d *schema.ResourceData, meta interface{}) ([
 	config := meta.(*Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<instance_id>.+)/natAddresses/(?P<name>.+)",
 		"(?P<instance_id>.+)/(?P<name>.+)",
 	}, d, config); err != nil {
@@ -224,7 +224,7 @@ func resourceApigeeNatAddressImport(d *schema.ResourceData, meta interface{}) ([
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{instance_id}}/natAddresses/{{name}}")
+	id, err := ReplaceVars(d, config, "{{instance_id}}/natAddresses/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

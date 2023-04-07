@@ -13,7 +13,7 @@ var FolderLoggingExclusionSchema = map[string]*schema.Schema{
 		Type:             schema.TypeString,
 		Required:         true,
 		ForceNew:         true,
-		DiffSuppressFunc: optionalPrefixSuppress("folders/"),
+		DiffSuppressFunc: OptionalPrefixSuppress("folders/"),
 	},
 }
 

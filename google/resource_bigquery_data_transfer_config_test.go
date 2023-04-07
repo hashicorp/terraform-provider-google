@@ -138,7 +138,7 @@ func TestBigqueryDataTransferConfig_resourceBigqueryDTCParamsCustomDiffFuncForce
 				"data_source_id": tc.after["data_source_id"],
 			},
 		}
-		err := paramsCustomizeDiffFunc(d)
+		err := ParamsCustomizeDiffFunc(d)
 		if err != nil {
 			t.Errorf("failed, expected no error but received - %s for the condition %s", err, tn)
 		}

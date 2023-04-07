@@ -394,7 +394,7 @@ func resourceContainerAttachedClusterCreate(d *schema.ResourceData, meta interfa
 		obj["monitoringConfig"] = monitoringConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedClusters?attached_cluster_id={{name}}")
+	url, err := ReplaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedClusters?attached_cluster_id={{name}}")
 	if err != nil {
 		return err
 	}
@@ -419,7 +419,7 @@ func resourceContainerAttachedClusterCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -443,7 +443,7 @@ func resourceContainerAttachedClusterCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -461,7 +461,7 @@ func resourceContainerAttachedClusterRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -620,7 +620,7 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 		obj["monitoringConfig"] = monitoringConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -659,9 +659,9 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 	if d.HasChange("monitoring_config") {
 		updateMask = append(updateMask, "monitoringConfig")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -684,7 +684,7 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 		newUpdateMask = append(newUpdateMask, mask)
 	}
 	// Overwrite the previously set mask.
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(newUpdateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(newUpdateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -728,7 +728,7 @@ func resourceContainerAttachedClusterDelete(d *schema.ResourceData, meta interfa
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -736,7 +736,7 @@ func resourceContainerAttachedClusterDelete(d *schema.ResourceData, meta interfa
 	var obj map[string]interface{}
 	if v, ok := d.GetOk("deletion_policy"); ok {
 		if v == "DELETE_IGNORE_ERRORS" {
-			url, err = addQueryParams(url, map[string]string{"ignore_errors": "true"})
+			url, err = AddQueryParams(url, map[string]string{"ignore_errors": "true"})
 			if err != nil {
 				return err
 			}
@@ -768,7 +768,7 @@ func resourceContainerAttachedClusterDelete(d *schema.ResourceData, meta interfa
 
 func resourceContainerAttachedClusterImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/attachedClusters/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -777,7 +777,7 @@ func resourceContainerAttachedClusterImport(d *schema.ResourceData, meta interfa
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

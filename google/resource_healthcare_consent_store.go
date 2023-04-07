@@ -118,7 +118,7 @@ func resourceHealthcareConsentStoreCreate(d *schema.ResourceData, meta interface
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/consentStores?consentStoreId={{name}}")
+	url, err := ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/consentStores?consentStoreId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -137,7 +137,7 @@ func resourceHealthcareConsentStoreCreate(d *schema.ResourceData, meta interface
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{dataset}}/consentStores/{{name}}")
+	id, err := ReplaceVars(d, config, "{{dataset}}/consentStores/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -155,7 +155,7 @@ func resourceHealthcareConsentStoreRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/consentStores/{{name}}")
+	url, err := ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/consentStores/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -214,7 +214,7 @@ func resourceHealthcareConsentStoreUpdate(d *schema.ResourceData, meta interface
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/consentStores/{{name}}")
+	url, err := ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/consentStores/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -233,9 +233,9 @@ func resourceHealthcareConsentStoreUpdate(d *schema.ResourceData, meta interface
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -265,7 +265,7 @@ func resourceHealthcareConsentStoreDelete(d *schema.ResourceData, meta interface
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/consentStores/{{name}}")
+	url, err := ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/consentStores/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -289,14 +289,14 @@ func resourceHealthcareConsentStoreDelete(d *schema.ResourceData, meta interface
 
 func resourceHealthcareConsentStoreImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<dataset>.+)/consentStores/(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{dataset}}/consentStores/{{name}}")
+	id, err := ReplaceVars(d, config, "{{dataset}}/consentStores/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

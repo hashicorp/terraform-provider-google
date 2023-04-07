@@ -26,7 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-// Check to see if a specified value in the config exists and suppress diffs if so. Otherwise run emptyOrDefaultStringSuppress.
+// Check to see if a specified value in the config exists and suppress diffs if so. Otherwise run EmptyOrDefaultStringSuppress.
 
 func checkValAndDefaultStringSuppress(defaultVal string, checkVal string) schema.SchemaDiffSuppressFunc {
 	return func(k, old, new string, d *schema.ResourceData) bool {
@@ -58,7 +58,7 @@ func ResourceBillingBudget() *schema.Resource {
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceBillingBudgetResourceV0().CoreConfigSchema().ImpliedType(),
-				Upgrade: resourceBillingBudgetUpgradeV0,
+				Upgrade: ResourceBillingBudgetUpgradeV0,
 				Version: 0,
 			},
 		},
@@ -430,7 +430,7 @@ func resourceBillingBudgetCreate(d *schema.ResourceData, meta interface{}) error
 		obj["notificationsRule"] = notificationsRuleProp
 	}
 
-	url, err := replaceVars(d, config, "{{BillingBasePath}}billingAccounts/{{billing_account}}/budgets")
+	url, err := ReplaceVars(d, config, "{{BillingBasePath}}billingAccounts/{{billing_account}}/budgets")
 	if err != nil {
 		return err
 	}
@@ -452,7 +452,7 @@ func resourceBillingBudgetCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "billingAccounts/{{billing_account}}/budgets/{{name}}")
+	id, err := ReplaceVars(d, config, "billingAccounts/{{billing_account}}/budgets/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -470,7 +470,7 @@ func resourceBillingBudgetRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BillingBasePath}}billingAccounts/{{billing_account}}/budgets/{{name}}")
+	url, err := ReplaceVars(d, config, "{{BillingBasePath}}billingAccounts/{{billing_account}}/budgets/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -550,7 +550,7 @@ func resourceBillingBudgetUpdate(d *schema.ResourceData, meta interface{}) error
 		obj["notificationsRule"] = notificationsRuleProp
 	}
 
-	url, err := replaceVars(d, config, "{{BillingBasePath}}billingAccounts/{{billing_account}}/budgets/{{name}}")
+	url, err := ReplaceVars(d, config, "{{BillingBasePath}}billingAccounts/{{billing_account}}/budgets/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -589,9 +589,9 @@ func resourceBillingBudgetUpdate(d *schema.ResourceData, meta interface{}) error
 			"notificationsRule.monitoringNotificationChannels",
 			"notificationsRule.disableDefaultIamRecipients")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -621,7 +621,7 @@ func resourceBillingBudgetDelete(d *schema.ResourceData, meta interface{}) error
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{BillingBasePath}}billingAccounts/{{billing_account}}/budgets/{{name}}")
+	url, err := ReplaceVars(d, config, "{{BillingBasePath}}billingAccounts/{{billing_account}}/budgets/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -645,7 +645,7 @@ func resourceBillingBudgetDelete(d *schema.ResourceData, meta interface{}) error
 
 func resourceBillingBudgetImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"billingAccounts/(?P<billing_account>[^/]+)/budgets/(?P<name>[^/]+)",
 		"(?P<billing_account>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -654,7 +654,7 @@ func resourceBillingBudgetImport(d *schema.ResourceData, meta interface{}) ([]*s
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "billingAccounts/{{billing_account}}/budgets/{{name}}")
+	id, err := ReplaceVars(d, config, "billingAccounts/{{billing_account}}/budgets/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1670,7 +1670,7 @@ billingAccounts/{billingAccountId}/budgets/{budgetId}.`,
 	}
 }
 
-func resourceBillingBudgetUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func ResourceBillingBudgetUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
 
 	rawState["name"] = GetResourceNameFromSelfLink(rawState["name"].(string))

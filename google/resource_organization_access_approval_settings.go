@@ -161,7 +161,7 @@ func resourceAccessApprovalOrganizationSettingsCreate(d *schema.ResourceData, me
 		obj["activeKeyVersion"] = activeKeyVersionProp
 	}
 
-	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}organizations/{{organization_id}}/accessApprovalSettings")
+	url, err := ReplaceVars(d, config, "{{AccessApprovalBasePath}}organizations/{{organization_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
@@ -187,9 +187,9 @@ func resourceAccessApprovalOrganizationSettingsCreate(d *schema.ResourceData, me
 	if d.HasChange("active_key_version") {
 		updateMask = append(updateMask, "activeKeyVersion")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -202,7 +202,7 @@ func resourceAccessApprovalOrganizationSettingsCreate(d *schema.ResourceData, me
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "organizations/{{organization_id}}/accessApprovalSettings")
+	id, err := ReplaceVars(d, config, "organizations/{{organization_id}}/accessApprovalSettings")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -220,7 +220,7 @@ func resourceAccessApprovalOrganizationSettingsRead(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}organizations/{{organization_id}}/accessApprovalSettings")
+	url, err := ReplaceVars(d, config, "{{AccessApprovalBasePath}}organizations/{{organization_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
@@ -291,7 +291,7 @@ func resourceAccessApprovalOrganizationSettingsUpdate(d *schema.ResourceData, me
 		obj["activeKeyVersion"] = activeKeyVersionProp
 	}
 
-	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}organizations/{{organization_id}}/accessApprovalSettings")
+	url, err := ReplaceVars(d, config, "{{AccessApprovalBasePath}}organizations/{{organization_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
@@ -310,9 +310,9 @@ func resourceAccessApprovalOrganizationSettingsUpdate(d *schema.ResourceData, me
 	if d.HasChange("active_key_version") {
 		updateMask = append(updateMask, "activeKeyVersion")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -345,7 +345,7 @@ func resourceAccessApprovalOrganizationSettingsDelete(d *schema.ResourceData, me
 	obj["enrolledServices"] = []string{}
 	obj["activeKeyVersion"] = ""
 
-	url, err := replaceVars(d, config, "{{AccessApprovalBasePath}}organizations/{{organization_id}}/accessApprovalSettings")
+	url, err := ReplaceVars(d, config, "{{AccessApprovalBasePath}}organizations/{{organization_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}
@@ -357,9 +357,9 @@ func resourceAccessApprovalOrganizationSettingsDelete(d *schema.ResourceData, me
 	updateMask = append(updateMask, "enrolledServices")
 	updateMask = append(updateMask, "activeKeyVersion")
 
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -377,7 +377,7 @@ func resourceAccessApprovalOrganizationSettingsDelete(d *schema.ResourceData, me
 
 func resourceAccessApprovalOrganizationSettingsImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"organizations/(?P<organization_id>[^/]+)/accessApprovalSettings",
 		"(?P<organization_id>[^/]+)",
 	}, d, config); err != nil {
@@ -385,7 +385,7 @@ func resourceAccessApprovalOrganizationSettingsImport(d *schema.ResourceData, me
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "organizations/{{organization_id}}/accessApprovalSettings")
+	id, err := ReplaceVars(d, config, "organizations/{{organization_id}}/accessApprovalSettings")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

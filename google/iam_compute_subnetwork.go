@@ -150,7 +150,7 @@ func (u *ComputeSubnetworkIamUpdater) GetResourceIamPolicy() (*cloudresourcemana
 		return nil, err
 	}
 	var obj map[string]interface{}
-	url, err = addQueryParams(url, map[string]string{"optionsRequestedPolicyVersion": fmt.Sprintf("%d", IamPolicyVersion)})
+	url, err = AddQueryParams(url, map[string]string{"optionsRequestedPolicyVersion": fmt.Sprintf("%d", IamPolicyVersion)})
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +207,7 @@ func (u *ComputeSubnetworkIamUpdater) SetResourceIamPolicy(policy *cloudresource
 
 func (u *ComputeSubnetworkIamUpdater) qualifySubnetworkUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{ComputeBasePath}}%s/%s", fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s", u.project, u.region, u.subnetwork), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

@@ -20,7 +20,7 @@ func DataSourceDataprocMetastoreService() *schema.Resource {
 }
 
 func dataSourceDataprocMetastoreServiceRead(d *schema.ResourceData, meta interface{}) error {
-	id, err := replaceVars(d, meta.(*Config), "projects/{{project}}/locations/{{location}}/services/{{service_id}}")
+	id, err := ReplaceVars(d, meta.(*Config), "projects/{{project}}/locations/{{location}}/services/{{service_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}

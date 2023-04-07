@@ -26,28 +26,28 @@ type HealthcareHl7V2StoreIamUpdater struct {
 
 func NewHealthcareHl7V2StoreIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
 	hl7V2Store := d.Get("hl7_v2_store_id").(string)
-	hl7V2StoreId, err := parseHealthcareHl7V2StoreId(hl7V2Store, config)
+	hl7V2StoreId, err := ParseHealthcareHl7V2StoreId(hl7V2Store, config)
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error parsing resource ID for %s: {{err}}", hl7V2Store), err)
 	}
 
 	return &HealthcareHl7V2StoreIamUpdater{
-		resourceId: hl7V2StoreId.hl7V2StoreId(),
+		resourceId: hl7V2StoreId.Hl7V2StoreId(),
 		d:          d,
 		Config:     config,
 	}, nil
 }
 
 func Hl7V2StoreIdParseFunc(d *schema.ResourceData, config *Config) error {
-	hl7V2StoreId, err := parseHealthcareHl7V2StoreId(d.Id(), config)
+	hl7V2StoreId, err := ParseHealthcareHl7V2StoreId(d.Id(), config)
 	if err != nil {
 		return err
 	}
-	if err := d.Set("hl7_v2_store_id", hl7V2StoreId.hl7V2StoreId()); err != nil {
+	if err := d.Set("hl7_v2_store_id", hl7V2StoreId.Hl7V2StoreId()); err != nil {
 		return fmt.Errorf("Error setting hl7_v2_store_id: %s", err)
 	}
-	d.SetId(hl7V2StoreId.hl7V2StoreId())
+	d.SetId(hl7V2StoreId.Hl7V2StoreId())
 	return nil
 }
 

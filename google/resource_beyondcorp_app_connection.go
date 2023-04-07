@@ -190,7 +190,7 @@ func resourceBeyondcorpAppConnectionCreate(d *schema.ResourceData, meta interfac
 		obj["gateway"] = gatewayProp
 	}
 
-	url, err := replaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/{{region}}/appConnections?app_connection_id={{name}}")
+	url, err := ReplaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/{{region}}/appConnections?app_connection_id={{name}}")
 	if err != nil {
 		return err
 	}
@@ -215,7 +215,7 @@ func resourceBeyondcorpAppConnectionCreate(d *schema.ResourceData, meta interfac
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/appConnections/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/appConnections/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -235,7 +235,7 @@ func resourceBeyondcorpAppConnectionCreate(d *schema.ResourceData, meta interfac
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{region}}/appConnections/{{name}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/appConnections/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -253,7 +253,7 @@ func resourceBeyondcorpAppConnectionRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/{{region}}/appConnections/{{name}}")
+	url, err := ReplaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/{{region}}/appConnections/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -349,7 +349,7 @@ func resourceBeyondcorpAppConnectionUpdate(d *schema.ResourceData, meta interfac
 		obj["gateway"] = gatewayProp
 	}
 
-	url, err := replaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/{{region}}/appConnections/{{name}}")
+	url, err := ReplaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/{{region}}/appConnections/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -376,9 +376,9 @@ func resourceBeyondcorpAppConnectionUpdate(d *schema.ResourceData, meta interfac
 	if d.HasChange("gateway") {
 		updateMask = append(updateMask, "gateway")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -422,7 +422,7 @@ func resourceBeyondcorpAppConnectionDelete(d *schema.ResourceData, meta interfac
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/{{region}}/appConnections/{{name}}")
+	url, err := ReplaceVars(d, config, "{{BeyondcorpBasePath}}projects/{{project}}/locations/{{region}}/appConnections/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -454,7 +454,7 @@ func resourceBeyondcorpAppConnectionDelete(d *schema.ResourceData, meta interfac
 
 func resourceBeyondcorpAppConnectionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/appConnections/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -464,7 +464,7 @@ func resourceBeyondcorpAppConnectionImport(d *schema.ResourceData, meta interfac
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/appConnections/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/appConnections/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

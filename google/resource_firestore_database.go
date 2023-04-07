@@ -158,7 +158,7 @@ func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) e
 		obj["etag"] = etagProp
 	}
 
-	url, err := replaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases?databaseId={{name}}")
+	url, err := ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases?databaseId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -183,7 +183,7 @@ func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/databases/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/databases/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -207,7 +207,7 @@ func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/databases/{{name}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/databases/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -225,7 +225,7 @@ func resourceFirestoreDatabaseRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{name}}")
+	url, err := ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -321,7 +321,7 @@ func resourceFirestoreDatabaseUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["etag"] = etagProp
 	}
 
-	url, err := replaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{name}}")
+	url, err := ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -344,9 +344,9 @@ func resourceFirestoreDatabaseUpdate(d *schema.ResourceData, meta interface{}) e
 	if d.HasChange("etag") {
 		updateMask = append(updateMask, "etag")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -386,7 +386,7 @@ func resourceFirestoreDatabaseDelete(d *schema.ResourceData, meta interface{}) e
 
 func resourceFirestoreDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/databases/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -395,7 +395,7 @@ func resourceFirestoreDatabaseImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/databases/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/databases/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -440,7 +440,7 @@ func flattenFirestoreDatabaseCreateTime(v interface{}, d *schema.ResourceData, c
 }
 
 func expandFirestoreDatabaseName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return replaceVars(d, config, "projects/{{project}}/databases/{{name}}")
+	return ReplaceVars(d, config, "projects/{{project}}/databases/{{name}}")
 }
 
 func expandFirestoreDatabaseLocationId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

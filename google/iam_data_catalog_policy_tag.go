@@ -147,7 +147,7 @@ func (u *DataCatalogPolicyTagIamUpdater) SetResourceIamPolicy(policy *cloudresou
 
 func (u *DataCatalogPolicyTagIamUpdater) qualifyPolicyTagUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{DataCatalogBasePath}}%s:%s", fmt.Sprintf("%s", u.policyTag), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

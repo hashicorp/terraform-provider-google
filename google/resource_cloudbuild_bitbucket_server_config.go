@@ -213,7 +213,7 @@ func resourceCloudBuildBitbucketServerConfigCreate(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs?bitbucketServerConfigId={{config_id}}")
+	url, err := ReplaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs?bitbucketServerConfigId={{config_id}}")
 	if err != nil {
 		return err
 	}
@@ -238,7 +238,7 @@ func resourceCloudBuildBitbucketServerConfigCreate(d *schema.ResourceData, meta 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -262,7 +262,7 @@ func resourceCloudBuildBitbucketServerConfigCreate(d *schema.ResourceData, meta 
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -291,7 +291,7 @@ func resourceCloudBuildBitbucketServerConfigCreate(d *schema.ResourceData, meta 
 		obj = make(map[string]interface{})
 		obj["requests"] = requests
 
-		url, err = replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}/connectedRepositories:batchCreate")
+		url, err = ReplaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}/connectedRepositories:batchCreate")
 		if err != nil {
 			return err
 		}
@@ -323,7 +323,7 @@ func resourceCloudBuildBitbucketServerConfigRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
+	url, err := ReplaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
 	if err != nil {
 		return err
 	}
@@ -439,7 +439,7 @@ func resourceCloudBuildBitbucketServerConfigUpdate(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
+	url, err := ReplaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
 	if err != nil {
 		return err
 	}
@@ -470,9 +470,9 @@ func resourceCloudBuildBitbucketServerConfigUpdate(d *schema.ResourceData, meta 
 	if d.HasChange("ssl_ca") {
 		updateMask = append(updateMask, "sslCa")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -484,11 +484,11 @@ func resourceCloudBuildBitbucketServerConfigUpdate(d *schema.ResourceData, meta 
 		}
 	}
 	// reconstruct url
-	url, err = replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
+	url, err = ReplaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
 	if err != nil {
 		return err
 	}
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -528,7 +528,7 @@ func resourceCloudBuildBitbucketServerConfigUpdate(d *schema.ResourceData, meta 
 		removeRepos := oReposSet.Difference(nReposSet).List()
 		createRepos := nReposSet.Difference(oReposSet).List()
 
-		url, err = replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}:removeBitbucketServerConnectedRepository")
+		url, err = ReplaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}:removeBitbucketServerConnectedRepository")
 		if err != nil {
 			return err
 		}
@@ -545,7 +545,7 @@ func resourceCloudBuildBitbucketServerConfigUpdate(d *schema.ResourceData, meta 
 
 		// if repos to create, prepare and send batchCreate request
 		if len(createRepos) > 0 {
-			parent, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
+			parent, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
 			if err != nil {
 				return fmt.Errorf("Error constructing id: %s", err)
 			}
@@ -564,7 +564,7 @@ func resourceCloudBuildBitbucketServerConfigUpdate(d *schema.ResourceData, meta 
 			obj = make(map[string]interface{})
 			obj["requests"] = requests
 
-			url, err = replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}/connectedRepositories:batchCreate")
+			url, err = ReplaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}/connectedRepositories:batchCreate")
 			if err != nil {
 				return err
 			}
@@ -602,7 +602,7 @@ func resourceCloudBuildBitbucketServerConfigDelete(d *schema.ResourceData, meta 
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
+	url, err := ReplaceVars(d, config, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
 	if err != nil {
 		return err
 	}
@@ -634,7 +634,7 @@ func resourceCloudBuildBitbucketServerConfigDelete(d *schema.ResourceData, meta 
 
 func resourceCloudBuildBitbucketServerConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/bitbucketServerConfigs/(?P<config_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<config_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<config_id>[^/]+)",
@@ -643,7 +643,7 @@ func resourceCloudBuildBitbucketServerConfigImport(d *schema.ResourceData, meta 
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

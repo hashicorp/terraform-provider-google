@@ -124,7 +124,7 @@ func resourceDialogflowCXVersionCreate(d *schema.ResourceData, meta interface{})
 		obj["description"] = descriptionProp
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/versions")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/versions")
 	if err != nil {
 		return err
 	}
@@ -157,7 +157,7 @@ func resourceDialogflowCXVersionCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{parent}}/versions/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/versions/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -181,7 +181,7 @@ func resourceDialogflowCXVersionCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{parent}}/versions/{{name}}")
+	id, err = ReplaceVars(d, config, "{{parent}}/versions/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -199,7 +199,7 @@ func resourceDialogflowCXVersionRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/versions/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/versions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -275,7 +275,7 @@ func resourceDialogflowCXVersionUpdate(d *schema.ResourceData, meta interface{})
 		obj["description"] = descriptionProp
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/versions/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/versions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -290,9 +290,9 @@ func resourceDialogflowCXVersionUpdate(d *schema.ResourceData, meta interface{})
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -345,7 +345,7 @@ func resourceDialogflowCXVersionDelete(d *schema.ResourceData, meta interface{})
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/versions/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/versions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -394,7 +394,7 @@ func resourceDialogflowCXVersionImport(d *schema.ResourceData, meta interface{})
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value and parent contains slashes
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<parent>.+)/versions/(?P<name>[^/]+)",
 		"(?P<parent>.+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {
@@ -402,7 +402,7 @@ func resourceDialogflowCXVersionImport(d *schema.ResourceData, meta interface{})
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{parent}}/versions/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/versions/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

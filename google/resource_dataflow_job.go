@@ -419,7 +419,7 @@ func resourceDataflowJobUpdateByReplacement(d *schema.ResourceData, meta interfa
 	err = RetryTimeDuration(func() (updateErr error) {
 		response, updateErr = resourceDataflowJobLaunchTemplate(config, project, region, userAgent, d.Get("template_gcs_path").(string), &request)
 		return updateErr
-	}, time.Minute*time.Duration(5), isDataflowJobUpdateRetryableError)
+	}, time.Minute*time.Duration(5), IsDataflowJobUpdateRetryableError)
 	if err != nil {
 		return err
 	}

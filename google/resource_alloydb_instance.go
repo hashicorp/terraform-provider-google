@@ -234,7 +234,7 @@ func resourceAlloydbInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		obj["machineConfig"] = machineConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{AlloydbBasePath}}{{cluster}}/instances?instanceId={{instance_id}}")
+	url, err := ReplaceVars(d, config, "{{AlloydbBasePath}}{{cluster}}/instances?instanceId={{instance_id}}")
 	if err != nil {
 		return err
 	}
@@ -253,7 +253,7 @@ func resourceAlloydbInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{cluster}}/instances/{{instance_id}}")
+	id, err := ReplaceVars(d, config, "{{cluster}}/instances/{{instance_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -281,7 +281,7 @@ func resourceAlloydbInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AlloydbBasePath}}{{cluster}}/instances/{{instance_id}}")
+	url, err := ReplaceVars(d, config, "{{AlloydbBasePath}}{{cluster}}/instances/{{instance_id}}")
 	if err != nil {
 		return err
 	}
@@ -407,7 +407,7 @@ func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["machineConfig"] = machineConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{AlloydbBasePath}}{{cluster}}/instances/{{instance_id}}")
+	url, err := ReplaceVars(d, config, "{{AlloydbBasePath}}{{cluster}}/instances/{{instance_id}}")
 	if err != nil {
 		return err
 	}
@@ -446,9 +446,9 @@ func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	if d.HasChange("machine_config") {
 		updateMask = append(updateMask, "machineConfig")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -487,7 +487,7 @@ func resourceAlloydbInstanceDelete(d *schema.ResourceData, meta interface{}) err
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{AlloydbBasePath}}{{cluster}}/instances/{{instance_id}}")
+	url, err := ReplaceVars(d, config, "{{AlloydbBasePath}}{{cluster}}/instances/{{instance_id}}")
 	if err != nil {
 		return err
 	}
@@ -521,14 +521,14 @@ func resourceAlloydbInstanceImport(d *schema.ResourceData, meta interface{}) ([]
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<cluster>.+)/instances/(?P<instance_id>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{cluster}}/instances/{{instance_id}}")
+	id, err := ReplaceVars(d, config, "{{cluster}}/instances/{{instance_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

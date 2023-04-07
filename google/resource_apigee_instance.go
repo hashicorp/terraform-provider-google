@@ -28,10 +28,10 @@ import (
 // API does not return what the user originally provided. Instead, API does some transformation.
 // For example, user provides a list of project number, but API returns a list of project Id.
 func projectListDiffSuppress(_, _, _ string, d *schema.ResourceData) bool {
-	return projectListDiffSuppressFunc(d)
+	return ProjectListDiffSuppressFunc(d)
 }
 
-func projectListDiffSuppressFunc(d TerraformResourceDataChange) bool {
+func ProjectListDiffSuppressFunc(d TerraformResourceDataChange) bool {
 	kLength := "consumer_accept_list.#"
 	oldLength, newLength := d.GetChange(kLength)
 
@@ -216,14 +216,14 @@ func resourceApigeeInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["consumerAcceptList"] = consumerAcceptListProp
 	}
 
-	lockName, err := replaceVars(d, config, "{{org_id}}/apigeeInstances")
+	lockName, err := ReplaceVars(d, config, "{{org_id}}/apigeeInstances")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/instances")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/instances")
 	if err != nil {
 		return err
 	}
@@ -236,13 +236,13 @@ func resourceApigeeInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isApigeeRetryableError)
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IsApigeeRetryableError)
 	if err != nil {
 		return fmt.Errorf("Error creating Instance: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{org_id}}/instances/{{name}}")
+	id, err := ReplaceVars(d, config, "{{org_id}}/instances/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -266,7 +266,7 @@ func resourceApigeeInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{org_id}}/instances/{{name}}")
+	id, err = ReplaceVars(d, config, "{{org_id}}/instances/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -284,7 +284,7 @@ func resourceApigeeInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/instances/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -296,7 +296,7 @@ func resourceApigeeInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, isApigeeRetryableError)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsApigeeRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ApigeeInstance %q", d.Id()))
 	}
@@ -344,14 +344,14 @@ func resourceApigeeInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 
 	billingProject := ""
 
-	lockName, err := replaceVars(d, config, "{{org_id}}/apigeeInstances")
+	lockName, err := ReplaceVars(d, config, "{{org_id}}/apigeeInstances")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/instances/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -364,7 +364,7 @@ func resourceApigeeInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isApigeeRetryableError)
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IsApigeeRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, "Instance")
 	}
@@ -385,7 +385,7 @@ func resourceApigeeInstanceImport(d *schema.ResourceData, meta interface{}) ([]*
 	config := meta.(*Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 
@@ -417,7 +417,7 @@ func resourceApigeeInstanceImport(d *schema.ResourceData, meta interface{}) ([]*
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{org_id}}/instances/{{name}}")
+	id, err := ReplaceVars(d, config, "{{org_id}}/instances/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

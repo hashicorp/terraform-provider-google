@@ -203,7 +203,7 @@ func (u *NotebooksRuntimeIamUpdater) SetResourceIamPolicy(policy *cloudresourcem
 
 func (u *NotebooksRuntimeIamUpdater) qualifyRuntimeUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{NotebooksBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/runtimes/%s", u.project, u.location, u.runtimeName), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

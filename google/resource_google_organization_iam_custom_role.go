@@ -50,7 +50,7 @@ func ResourceGoogleOrganizationIamCustomRole() *schema.Resource {
 				Default:          "GA",
 				Description:      `The current launch stage of the role. Defaults to GA.`,
 				ValidateFunc:     validation.StringInSlice([]string{"ALPHA", "BETA", "GA", "DEPRECATED", "DISABLED", "EAP"}, false),
-				DiffSuppressFunc: emptyOrDefaultStringSuppress("ALPHA"),
+				DiffSuppressFunc: EmptyOrDefaultStringSuppress("ALPHA"),
 			},
 			"description": {
 				Type:        schema.TypeString,

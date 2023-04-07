@@ -147,7 +147,7 @@ func (u *AccessContextManagerAccessPolicyIamUpdater) SetResourceIamPolicy(policy
 
 func (u *AccessContextManagerAccessPolicyIamUpdater) qualifyAccessPolicyUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{AccessContextManagerBasePath}}%s:%s", fmt.Sprintf("accessPolicies/%s", u.name), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

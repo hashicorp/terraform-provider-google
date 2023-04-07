@@ -51,7 +51,7 @@ func TestCryptoKeyIdParsing(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		cryptoKeyId, err := parseKmsCryptoKeyId(tc.ImportId, tc.Config)
+		cryptoKeyId, err := ParseKmsCryptoKeyId(tc.ImportId, tc.Config)
 
 		if tc.ExpectedError && err == nil {
 			t.Fatalf("bad: %s, expected an error", tn)
@@ -64,12 +64,12 @@ func TestCryptoKeyIdParsing(t *testing.T) {
 			t.Fatalf("bad: %s, err: %#v", tn, err)
 		}
 
-		if cryptoKeyId.terraformId() != tc.ExpectedTerraformId {
-			t.Fatalf("bad: %s, expected Terraform ID to be `%s` but is `%s`", tn, tc.ExpectedTerraformId, cryptoKeyId.terraformId())
+		if cryptoKeyId.TerraformId() != tc.ExpectedTerraformId {
+			t.Fatalf("bad: %s, expected Terraform ID to be `%s` but is `%s`", tn, tc.ExpectedTerraformId, cryptoKeyId.TerraformId())
 		}
 
-		if cryptoKeyId.cryptoKeyId() != tc.ExpectedCryptoKeyId {
-			t.Fatalf("bad: %s, expected CryptoKey ID to be `%s` but is `%s`", tn, tc.ExpectedCryptoKeyId, cryptoKeyId.cryptoKeyId())
+		if cryptoKeyId.CryptoKeyId() != tc.ExpectedCryptoKeyId {
+			t.Fatalf("bad: %s, expected CryptoKey ID to be `%s` but is `%s`", tn, tc.ExpectedCryptoKeyId, cryptoKeyId.CryptoKeyId())
 		}
 	}
 }
@@ -149,7 +149,7 @@ func TestCryptoKeyStateUpgradeV0(t *testing.T) {
 	}
 	for tn, tc := range cases {
 		t.Run(tn, func(t *testing.T) {
-			actual, err := resourceKMSCryptoKeyUpgradeV0(context.Background(), tc.Attributes, tc.Meta)
+			actual, err := ResourceKMSCryptoKeyUpgradeV0(context.Background(), tc.Attributes, tc.Meta)
 
 			if err != nil {
 				t.Error(err)

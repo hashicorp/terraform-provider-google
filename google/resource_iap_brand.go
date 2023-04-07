@@ -101,7 +101,7 @@ func resourceIapBrandCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["applicationTitle"] = applicationTitleProp
 	}
 
-	url, err := replaceVars(d, config, "{{IapBasePath}}projects/{{project}}/brands")
+	url, err := ReplaceVars(d, config, "{{IapBasePath}}projects/{{project}}/brands")
 	if err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func resourceIapBrandCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -167,7 +167,7 @@ func resourceIapBrandPollRead(d *schema.ResourceData, meta interface{}) PollRead
 	return func() (map[string]interface{}, error) {
 		config := meta.(*Config)
 
-		url, err := replaceVars(d, config, "{{IapBasePath}}{{name}}")
+		url, err := ReplaceVars(d, config, "{{IapBasePath}}{{name}}")
 		if err != nil {
 			return nil, err
 		}
@@ -205,7 +205,7 @@ func resourceIapBrandRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{IapBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{IapBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -261,7 +261,7 @@ func resourceIapBrandImport(d *schema.ResourceData, meta interface{}) ([]*schema
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 

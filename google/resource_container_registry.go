@@ -64,7 +64,7 @@ func resourceContainerRegistryCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Performing a token handshake with the GCR API causes the backing bucket to create if it hasn't already.
-	url, err := replaceVars(d, config, fmt.Sprintf("%s?service=gcr.io&scope=repository:{{project}}/my-repo:push,pull", urlBase))
+	url, err := ReplaceVars(d, config, fmt.Sprintf("%s?service=gcr.io&scope=repository:{{project}}/my-repo:push,pull", urlBase))
 	if err != nil {
 		return err
 	}

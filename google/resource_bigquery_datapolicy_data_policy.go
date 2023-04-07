@@ -63,7 +63,7 @@ func ResourceBigqueryDatapolicyDataPolicy() *schema.Resource {
 			"policy_tag": {
 				Type:             schema.TypeString,
 				Required:         true,
-				DiffSuppressFunc: projectNumberDiffSuppress,
+				DiffSuppressFunc: ProjectNumberDiffSuppress,
 				Description:      `Policy tag resource name, in the format of projects/{project_number}/locations/{locationId}/taxonomies/{taxonomyId}/policyTags/{policyTag_id}.`,
 			},
 			"data_masking_policy": {
@@ -131,7 +131,7 @@ func resourceBigqueryDatapolicyDataPolicyCreate(d *schema.ResourceData, meta int
 		obj["dataMaskingPolicy"] = dataMaskingPolicyProp
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryDatapolicyBasePath}}projects/{{project}}/locations/{{location}}/dataPolicies")
+	url, err := ReplaceVars(d, config, "{{BigqueryDatapolicyBasePath}}projects/{{project}}/locations/{{location}}/dataPolicies")
 	if err != nil {
 		return err
 	}
@@ -159,7 +159,7 @@ func resourceBigqueryDatapolicyDataPolicyCreate(d *schema.ResourceData, meta int
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/dataPolicies/{{data_policy_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/dataPolicies/{{data_policy_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -177,7 +177,7 @@ func resourceBigqueryDatapolicyDataPolicyRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryDatapolicyBasePath}}projects/{{project}}/locations/{{location}}/dataPolicies/{{data_policy_id}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryDatapolicyBasePath}}projects/{{project}}/locations/{{location}}/dataPolicies/{{data_policy_id}}")
 	if err != nil {
 		return err
 	}
@@ -258,7 +258,7 @@ func resourceBigqueryDatapolicyDataPolicyUpdate(d *schema.ResourceData, meta int
 		obj["dataMaskingPolicy"] = dataMaskingPolicyProp
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryDatapolicyBasePath}}projects/{{project}}/locations/{{location}}/dataPolicies/{{data_policy_id}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryDatapolicyBasePath}}projects/{{project}}/locations/{{location}}/dataPolicies/{{data_policy_id}}")
 	if err != nil {
 		return err
 	}
@@ -277,9 +277,9 @@ func resourceBigqueryDatapolicyDataPolicyUpdate(d *schema.ResourceData, meta int
 	if d.HasChange("data_masking_policy") {
 		updateMask = append(updateMask, "dataMaskingPolicy")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -315,7 +315,7 @@ func resourceBigqueryDatapolicyDataPolicyDelete(d *schema.ResourceData, meta int
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{BigqueryDatapolicyBasePath}}projects/{{project}}/locations/{{location}}/dataPolicies/{{data_policy_id}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryDatapolicyBasePath}}projects/{{project}}/locations/{{location}}/dataPolicies/{{data_policy_id}}")
 	if err != nil {
 		return err
 	}
@@ -339,7 +339,7 @@ func resourceBigqueryDatapolicyDataPolicyDelete(d *schema.ResourceData, meta int
 
 func resourceBigqueryDatapolicyDataPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/dataPolicies/(?P<data_policy_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<data_policy_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<data_policy_id>[^/]+)",
@@ -348,7 +348,7 @@ func resourceBigqueryDatapolicyDataPolicyImport(d *schema.ResourceData, meta int
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/dataPolicies/{{data_policy_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/dataPolicies/{{data_policy_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
