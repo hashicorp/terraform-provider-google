@@ -18,7 +18,7 @@ description: |-
   a traffic matching condition and associated action to perform.
 ---
 
-# google\_network\_security\_gateway\_security\_policies\_rule
+# google\_network\_security\_gateway\_security\_policy\_rule
 
 The GatewaySecurityPolicyRule resource is in a nested collection within a GatewaySecurityPolicy and represents
 a traffic matching condition and associated action to perform.
@@ -26,31 +26,31 @@ a traffic matching condition and associated action to perform.
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
-To get more information about GatewaySecurityPoliciesRule, see:
+To get more information about GatewaySecurityPolicyRule, see:
 
 * [API documentation](https://cloud.google.com/secure-web-proxy/docs/reference/network-security/rest/v1alpha1/projects.locations.gatewaySecurityPolicies.rules)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_security_gateway_security_policies_rules_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_security_gateway_security_policy_rules_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Network Security Gateway Security Policies Rules Basic
+## Example Usage - Network Security Gateway Security Policy Rules Basic
 
 
 ```hcl
-resource "google_network_security_gateway_security_policies" "default" {
+resource "google_network_security_gateway_security_policy" "default" {
   provider    = google-beta
   name        = "my-gateway-security-policy"
   location    = "us-central1"
   description = "gateway security policy created to be used as reference by the rule."
 }
 
-resource "google_network_security_gateway_security_policies_rule" "default" {
+resource "google_network_security_gateway_security_policy_rule" "default" {
   provider                = google-beta
   name                    = "my-gateway-security-policy-rule"
   location                = "us-central1"
-  gateway_security_policy = google_network_security_gateway_security_policies.default.name
+  gateway_security_policy = google_network_security_gateway_security_policy.default.name
   enabled                 = true  
   description             = "my description"
   priority                = 0
@@ -59,26 +59,26 @@ resource "google_network_security_gateway_security_policies_rule" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_security_gateway_security_policies_rules_advanced&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_security_gateway_security_policy_rules_advanced&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Network Security Gateway Security Policies Rules Advanced
+## Example Usage - Network Security Gateway Security Policy Rules Advanced
 
 
 ```hcl
-resource "google_network_security_gateway_security_policies" "default" {
+resource "google_network_security_gateway_security_policy" "default" {
   provider    = google-beta
   name        = "my-gateway-security-policy"
   location    = "us-central1"
   description = "gateway security policy created to be used as reference by the rule."
 }
 
-resource "google_network_security_gateway_security_policies_rule" "default" {
+resource "google_network_security_gateway_security_policy_rule" "default" {
   provider                = google-beta
   name                    = "my-gateway-security-policy-rule"
   location                = "us-central1"
-  gateway_security_policy = google_network_security_gateway_security_policies.default.name
+  gateway_security_policy = google_network_security_gateway_security_policy.default.name
   enabled                 = true  
   description             = "my description"
   priority                = 0
@@ -177,12 +177,12 @@ This resource provides the following
 ## Import
 
 
-GatewaySecurityPoliciesRule can be imported using any of these accepted formats:
+GatewaySecurityPolicyRule can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_network_security_gateway_security_policies_rule.default projects/{{project}}/locations/{{location}}/gatewaySecurityPolicies/{{gateway_security_policy}}/rules/{{name}}
-$ terraform import google_network_security_gateway_security_policies_rule.default {{project}}/{{location}}/{{gateway_security_policy}}/{{name}}
-$ terraform import google_network_security_gateway_security_policies_rule.default {{location}}/{{gateway_security_policy}}/{{name}}
+$ terraform import google_network_security_gateway_security_policy_rule.default projects/{{project}}/locations/{{location}}/gatewaySecurityPolicies/{{gateway_security_policy}}/rules/{{name}}
+$ terraform import google_network_security_gateway_security_policy_rule.default {{project}}/{{location}}/{{gateway_security_policy}}/{{name}}
+$ terraform import google_network_security_gateway_security_policy_rule.default {{location}}/{{gateway_security_policy}}/{{name}}
 ```
 
 ## User Project Overrides

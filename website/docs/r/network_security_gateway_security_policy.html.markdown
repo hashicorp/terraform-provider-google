@@ -17,27 +17,27 @@ description: |-
   The GatewaySecurityPolicy resource contains a collection of GatewaySecurityPolicyRules and associated metadata.
 ---
 
-# google\_network\_security\_gateway\_security\_policies
+# google\_network\_security\_gateway\_security\_policy
 
 The GatewaySecurityPolicy resource contains a collection of GatewaySecurityPolicyRules and associated metadata.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
-To get more information about GatewaySecurityPolicies, see:
+To get more information about GatewaySecurityPolicy, see:
 
 * [API documentation](https://cloud.google.com/secure-web-proxy/docs/reference/network-security/rest/v1alpha1/projects.locations.gatewaySecurityPolicies)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_security_gateway_security_policies_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_security_gateway_security_policy_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Network Security Gateway Security Policies Basic
+## Example Usage - Network Security Gateway Security Policy Basic
 
 
 ```hcl
-resource "google_network_security_gateway_security_policies" "default" {
+resource "google_network_security_gateway_security_policy" "default" {
   provider    = google-beta
   name        = "my-gateway-security-policy"
   location    = "us-central1"
@@ -104,12 +104,12 @@ This resource provides the following
 ## Import
 
 
-GatewaySecurityPolicies can be imported using any of these accepted formats:
+GatewaySecurityPolicy can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_network_security_gateway_security_policies.default projects/{{project}}/locations/{{location}}/gatewaySecurityPolicies/{{name}}
-$ terraform import google_network_security_gateway_security_policies.default {{project}}/{{location}}/{{name}}
-$ terraform import google_network_security_gateway_security_policies.default {{location}}/{{name}}
+$ terraform import google_network_security_gateway_security_policy.default projects/{{project}}/locations/{{location}}/gatewaySecurityPolicies/{{name}}
+$ terraform import google_network_security_gateway_security_policy.default {{project}}/{{location}}/{{name}}
+$ terraform import google_network_security_gateway_security_policy.default {{location}}/{{name}}
 ```
 
 ## User Project Overrides
