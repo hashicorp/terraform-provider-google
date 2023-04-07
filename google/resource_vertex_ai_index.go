@@ -36,9 +36,9 @@ func ResourceVertexAIIndex() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(60 * time.Minute),
-			Update: schema.DefaultTimeout(60 * time.Minute),
-			Delete: schema.DefaultTimeout(60 * time.Minute),
+			Create: schema.DefaultTimeout(180 * time.Minute),
+			Update: schema.DefaultTimeout(180 * time.Minute),
+			Delete: schema.DefaultTimeout(180 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
