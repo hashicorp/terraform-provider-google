@@ -22,6 +22,120 @@ description: |-
 
 The Cloud Deploy `DeliveryPipeline` resource
 
+## Example Usage - canary_delivery_pipeline
+Creates a basic Cloud Deploy delivery pipeline
+```hcl
+resource "google_clouddeploy_delivery_pipeline" "primary" {
+  location = "us-west1"
+  name     = "pipeline"
+
+  annotations = {
+    my_first_annotation = "example-annotation-1"
+
+    my_second_annotation = "example-annotation-2"
+  }
+
+  description = "basic description"
+
+  labels = {
+    my_first_label = "example-label-1"
+
+    my_second_label = "example-label-2"
+  }
+
+  project = "my-project-name"
+
+  serial_pipeline {
+    stages {
+      profiles  = ["example-profile-one", "example-profile-two"]
+      target_id = "example-target-one"
+    }
+
+    stages {
+      profiles  = []
+      target_id = "example-target-two"
+    }
+  }
+  provider = google-beta
+}
+
+```
+## Example Usage - canary_service_networking_delivery_pipeline
+Creates a basic Cloud Deploy delivery pipeline
+```hcl
+resource "google_clouddeploy_delivery_pipeline" "primary" {
+  location = "us-west1"
+  name     = "pipeline"
+
+  annotations = {
+    my_first_annotation = "example-annotation-1"
+
+    my_second_annotation = "example-annotation-2"
+  }
+
+  description = "basic description"
+
+  labels = {
+    my_first_label = "example-label-1"
+
+    my_second_label = "example-label-2"
+  }
+
+  project = "my-project-name"
+
+  serial_pipeline {
+    stages {
+      profiles  = ["example-profile-one", "example-profile-two"]
+      target_id = "example-target-one"
+    }
+
+    stages {
+      profiles  = []
+      target_id = "example-target-two"
+    }
+  }
+  provider = google-beta
+}
+
+```
+## Example Usage - canaryrun_delivery_pipeline
+Creates a basic Cloud Deploy delivery pipeline
+```hcl
+resource "google_clouddeploy_delivery_pipeline" "primary" {
+  location = "us-west1"
+  name     = "pipeline"
+
+  annotations = {
+    my_first_annotation = "example-annotation-1"
+
+    my_second_annotation = "example-annotation-2"
+  }
+
+  description = "basic description"
+
+  labels = {
+    my_first_label = "example-label-1"
+
+    my_second_label = "example-label-2"
+  }
+
+  project = "my-project-name"
+
+  serial_pipeline {
+    stages {
+      profiles  = ["example-profile-one", "example-profile-two"]
+      target_id = "example-target-one"
+    }
+
+    stages {
+      profiles  = []
+      target_id = "example-target-two"
+    }
+  }
+  provider = google-beta
+}
+
+```
 ## Example Usage - delivery_pipeline
 Creates a basic Cloud Deploy delivery pipeline
 ```hcl
@@ -113,6 +227,24 @@ The following arguments are supported:
   
 
 
+The `phase_configs` block supports:
+    
+* `percentage` -
+  (Required)
+  Required. Percentage deployment for the phase.
+    
+* `phase_id` -
+  (Required)
+  Required. The ID to assign to the `Rollout` phase. This value must consist of lower-case letters, numbers, and hyphens, start with a letter and end with a letter or a number, and have a max length of 63 characters. In other words, it must match the following regex: `^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$`.
+    
+* `profiles` -
+  (Optional)
+  Skaffold profiles to use when rendering the manifest for this phase. These are in addition to the profiles list specified in the `DeliveryPipeline` stage.
+    
+* `verify` -
+  (Optional)
+  Whether to run verify tests after the deployment.
+    
 - - -
 
 * `annotations` -
@@ -155,7 +287,7 @@ The `stages` block supports:
     
 * `strategy` -
   (Optional)
-  (Beta only) Optional. The strategy to use for a `Rollout` to this stage.
+  Optional. The strategy to use for a `Rollout` to this stage.
     
 * `target_id` -
   (Optional)
@@ -163,9 +295,93 @@ The `stages` block supports:
     
 The `strategy` block supports:
     
+* `canary` -
+  (Optional)
+  (Beta only) Canary deployment strategy provides progressive percentage based deployments to a Target.
+    
 * `standard` -
   (Optional)
   Standard deployment strategy executes a single deploy and allows verifying the deployment.
+    
+The `canary` block supports:
+    
+* `canary_deployment` -
+  (Optional)
+  Configures the progressive based deployment for a Target.
+    
+* `custom_canary_deployment` -
+  (Optional)
+  Configures the progressive based deployment for a Target, but allows customizing at the phase level where a phase represents each of the percentage deployments.
+    
+* `runtime_config` -
+  (Optional)
+  Optional. Runtime specific configurations for the deployment strategy. The runtime configuration is used to determine how Cloud Deploy will split traffic to enable a progressive deployment.
+    
+The `canary_deployment` block supports:
+    
+* `percentages` -
+  (Required)
+  Required. The percentage based deployments that will occur as a part of a `Rollout`. List is expected in ascending order and each integer n is 0 <= n < 100.
+    
+* `verify` -
+  (Optional)
+  Whether to run verify tests after each percentage deployment.
+    
+The `custom_canary_deployment` block supports:
+    
+* `phase_configs` -
+  (Required)
+  Required. Configuration for each phase in the canary deployment in the order executed.
+    
+The `runtime_config` block supports:
+    
+* `cloud_run` -
+  (Optional)
+  Cloud Run runtime configuration.
+    
+* `kubernetes` -
+  (Optional)
+  Kubernetes runtime configuration.
+    
+The `cloud_run` block supports:
+    
+* `automatic_traffic_control` -
+  (Optional)
+  Whether Cloud Deploy should update the traffic stanza in a Cloud Run Service on the user's behalf to facilitate traffic splitting. This is required to be true for CanaryDeployments, but optional for CustomCanaryDeployments.
+    
+The `kubernetes` block supports:
+    
+* `gateway_service_mesh` -
+  (Optional)
+  Kubernetes Gateway API service mesh configuration.
+    
+* `service_networking` -
+  (Optional)
+  Kubernetes Service networking configuration.
+    
+The `gateway_service_mesh` block supports:
+    
+* `deployment` -
+  (Required)
+  Required. Name of the Kubernetes Deployment whose traffic is managed by the specified HTTPRoute and Service.
+    
+* `http_route` -
+  (Required)
+  Required. Name of the Gateway API HTTPRoute.
+    
+* `service` -
+  (Required)
+  Required. Name of the Kubernetes Service.
+    
+The `service_networking` block supports:
+    
+* `deployment` -
+  (Required)
+  Required. Name of the Kubernetes Deployment whose traffic is managed by the specified Service.
+    
+* `service` -
+  (Required)
+  Required. Name of the Kubernetes Service.
     
 The `standard` block supports:
     

@@ -180,7 +180,7 @@ The following arguments are supported:
   
 * `run` -
   (Optional)
-  (Beta only) Information specifying a Cloud Run deployment target.
+  Information specifying a Cloud Run deployment target.
   
 
 
