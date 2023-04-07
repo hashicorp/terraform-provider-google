@@ -17,11 +17,11 @@ description: |-
   An alias from a pkcs12 file.
 ---
 
-# google\_apigee\_env\_keystore\_alias\_pkcs12
+# google\_apigee\_keystores\_aliases\_pkcs12
 
 An alias from a pkcs12 file.
 
-To get more information about EnvKeystoreAliasPkcs12, see:
+To get more information about KeystoresAliasesPkcs12, see:
 
 * [API documentation](https://cloud.google.com/apigee/docs/reference/apis/apigee/rest/v1/organizations.environments.keystores.aliases)
 * How-to Guides
@@ -139,9 +139,9 @@ This resource provides the following
 ## Import
 
 
-EnvKeystoreAliasPkcs12 can be imported using any of these accepted formats:
+KeystoresAliasesPkcs12 can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_apigee_env_keystore_alias_pkcs12.default organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}
-$ terraform import google_apigee_env_keystore_alias_pkcs12.default {{org_id}}/{{environment}}/{{keystore}}/{{alias}}
+$ terraform import google_apigee_keystores_aliases_pkcs12.default organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}
+$ terraform import google_apigee_keystores_aliases_pkcs12.default {{org_id}}/{{environment}}/{{keystore}}/{{alias}}
 ```

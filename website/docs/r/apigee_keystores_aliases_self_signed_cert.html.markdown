@@ -17,12 +17,12 @@ description: |-
   An Environment Keystore Alias for Self Signed Certificate Format in Apigee
 ---
 
-# google\_apigee\_env\_keystore\_alias\_self\_signed\_cert
+# google\_apigee\_keystores\_aliases\_self\_signed\_cert
 
 An Environment Keystore Alias for Self Signed Certificate Format in Apigee
 
 
-To get more information about EnvKeystoreAliasSelfSignedCert, see:
+To get more information about KeystoresAliasesSelfSignedCert, see:
 
 * [API documentation](https://cloud.google.com/apigee/docs/reference/apis/apigee/rest/v1/organizations.environments.keystores.aliases/create)
 * How-to Guides
@@ -100,7 +100,7 @@ resource "google_apigee_env_keystore" "apigee_environment_keystore_alias" {
   env_id     = google_apigee_environment.apigee_environment_keystore_ss_alias.id
 }
 
-resource "google_apigee_env_keystore_alias_self_signed_cert" "apigee_environment_keystore_ss_alias" {
+resource "google_apigee_keystores_aliases_self_signed_cert" "apigee_environment_keystore_ss_alias" {
   environment			      = google_apigee_environment.apigee_environment_keystore_ss_alias.name
   org_id				        = google_apigee_organization.apigee_org.name
   keystore				      = google_apigee_env_keystore.apigee_environment_keystore_alias.name
@@ -284,9 +284,9 @@ This resource provides the following
 ## Import
 
 
-EnvKeystoreAliasSelfSignedCert can be imported using any of these accepted formats:
+KeystoresAliasesSelfSignedCert can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_apigee_env_keystore_alias_self_signed_cert.default organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}
-$ terraform import google_apigee_env_keystore_alias_self_signed_cert.default {{org_id}}/{{environment}}/{{keystore}}/{{alias}}
+$ terraform import google_apigee_keystores_aliases_self_signed_cert.default organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}
+$ terraform import google_apigee_keystores_aliases_self_signed_cert.default {{org_id}}/{{environment}}/{{keystore}}/{{alias}}
 ```
