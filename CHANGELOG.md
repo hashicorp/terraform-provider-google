@@ -5,8 +5,8 @@ BREAKING CHANGES:
 
 FEATURES:
 * **New Data Source:** `google_firebase_android_app_config` ([#14202](https://github.com/hashicorp/terraform-provider-google/pull/14202))
-* **New Resource:** `google_apigee_keystore_aliases_pkcs` ([#14168](https://github.com/hashicorp/terraform-provider-google/pull/14168))
-* **New Resource:** `google_apigee_env_keystore_alias_self_signed_cert` ([#14140](https://github.com/hashicorp/terraform-provider-google/pull/14140))
+* **New Resource:** `google_apigee_keystores_aliases_pkcs12` ([#14168](https://github.com/hashicorp/terraform-provider-google/pull/14168))
+* **New Resource:** `google_apigee_keystores_aliases_self_signed_cert` ([#14140](https://github.com/hashicorp/terraform-provider-google/pull/14140))
 * **New Resource:** `google_network_security_url_lists` ([#14232](https://github.com/hashicorp/terraform-provider-google/pull/14232))
 * **New Resource:** `google_network_services_mesh` ([#14139](https://github.com/hashicorp/terraform-provider-google/pull/14139))
 
