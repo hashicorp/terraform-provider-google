@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-//Use it to delete TagTemplate Field
+// Use it to delete TagTemplate Field
 func deleteTagTemplateField(d *schema.ResourceData, config *Config, name, billingProject, userAgent string) error {
 
 	url_delete, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}/fields/"+name+"?force={{force_delete}}")
@@ -42,7 +42,7 @@ func deleteTagTemplateField(d *schema.ResourceData, config *Config, name, billin
 	return nil
 }
 
-//Use it to create TagTemplate Field
+// Use it to create TagTemplate Field
 func createTagTemplateField(d *schema.ResourceData, config *Config, body map[string]interface{}, name, billingProject, userAgent string) error {
 
 	url_create, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}/fields")

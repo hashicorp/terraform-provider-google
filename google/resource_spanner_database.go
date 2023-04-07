@@ -751,14 +751,14 @@ func resourceSpannerDatabaseUpdateEncoder(d *schema.ResourceData, meta interface
 	newDdls := new.([]interface{})
 	updateDdls := []string{}
 
-	//Only new ddl statments to be add to update call
+	// Only new ddl statments to be add to update call
 	for i := len(oldDdls); i < len(newDdls); i++ {
 		if newDdls[i] != nil {
 			updateDdls = append(updateDdls, newDdls[i].(string))
 		}
 	}
 
-	//Add statement to update version_retention_period property, if needed
+	// Add statement to update version_retention_period property, if needed
 	if d.HasChange("version_retention_period") {
 		dbName := d.Get("name")
 		retentionDdl := fmt.Sprintf("ALTER DATABASE `%s` SET OPTIONS (version_retention_period=\"%s\")", dbName, obj["versionRetentionPeriod"])
