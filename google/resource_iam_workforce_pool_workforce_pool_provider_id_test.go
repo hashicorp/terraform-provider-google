@@ -23,7 +23,7 @@ func TestValidateIAMWorkforcePoolWorkforcePoolProviderId(t *testing.T) {
 		{TestName: "too long", Value: strings.Repeat("f", 33), ExpectError: true},
 	}
 
-	es := testStringValidationCases(x, validateWorkforcePoolProviderId)
+	es := testStringValidationCases(x, ValidateWorkforcePoolProviderId)
 	if len(es) > 0 {
 		t.Errorf("Failed to validate WorkforcePoolProvider names: %v", es)
 	}

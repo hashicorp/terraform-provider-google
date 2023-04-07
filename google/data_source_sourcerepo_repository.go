@@ -23,7 +23,7 @@ func dataSourceGoogleSourceRepoRepositoryRead(d *schema.ResourceData, meta inter
 
 	config := meta.(*Config)
 
-	id, err := replaceVars(d, config, "projects/{{project}}/repos/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/repos/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -103,7 +103,7 @@ func (tc *ApigeeInstanceDiffSuppressTestCase) Test(t *testing.T) {
 	}
 
 	for key := range keysHavingDiff {
-		actual := projectListDiffSuppressFunc(mockResourceDiff)
+		actual := ProjectListDiffSuppressFunc(mockResourceDiff)
 		if actual != keySuppressionMap[key] {
 			t.Errorf("Test %s: expected key `%s` to be suppressed", tc.Name, key)
 		}

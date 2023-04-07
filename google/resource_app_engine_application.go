@@ -214,7 +214,7 @@ func resourceAppEngineApplicationCreate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "apps/{{project}}")
+	lockName, err := ReplaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}
@@ -324,7 +324,7 @@ func resourceAppEngineApplicationUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "apps/{{project}}")
+	lockName, err := ReplaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}

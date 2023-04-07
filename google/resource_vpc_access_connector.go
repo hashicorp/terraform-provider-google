@@ -221,7 +221,7 @@ func resourceVPCAccessConnectorCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{VPCAccessBasePath}}projects/{{project}}/locations/{{region}}/connectors?connectorId={{name}}")
+	url, err := ReplaceVars(d, config, "{{VPCAccessBasePath}}projects/{{project}}/locations/{{region}}/connectors?connectorId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -246,7 +246,7 @@ func resourceVPCAccessConnectorCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/connectors/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/connectors/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -278,7 +278,7 @@ func resourceVPCAccessConnectorCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{region}}/connectors/{{name}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/connectors/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -301,7 +301,7 @@ func resourceVPCAccessConnectorRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{VPCAccessBasePath}}projects/{{project}}/locations/{{region}}/connectors/{{name}}")
+	url, err := ReplaceVars(d, config, "{{VPCAccessBasePath}}projects/{{project}}/locations/{{region}}/connectors/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -389,7 +389,7 @@ func resourceVPCAccessConnectorDelete(d *schema.ResourceData, meta interface{}) 
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{VPCAccessBasePath}}projects/{{project}}/locations/{{region}}/connectors/{{name}}")
+	url, err := ReplaceVars(d, config, "{{VPCAccessBasePath}}projects/{{project}}/locations/{{region}}/connectors/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -421,7 +421,7 @@ func resourceVPCAccessConnectorDelete(d *schema.ResourceData, meta interface{}) 
 
 func resourceVPCAccessConnectorImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/connectors/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -431,7 +431,7 @@ func resourceVPCAccessConnectorImport(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/connectors/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/connectors/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

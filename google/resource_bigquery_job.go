@@ -972,7 +972,7 @@ func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs")
+	url, err := ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs")
 	if err != nil {
 		return err
 	}
@@ -997,7 +997,7 @@ func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/jobs/{{job_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/jobs/{{job_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1017,7 +1017,7 @@ func resourceBigQueryJobPollRead(d *schema.ResourceData, meta interface{}) PollR
 	return func() (map[string]interface{}, error) {
 		config := meta.(*Config)
 
-		url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}?location={{location}}")
+		url, err := ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}?location={{location}}")
 		if err != nil {
 			return nil, err
 		}
@@ -1055,7 +1055,7 @@ func resourceBigQueryJobRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}?location={{location}}")
+	url, err := ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}?location={{location}}")
 	if err != nil {
 		return err
 	}
@@ -1133,7 +1133,7 @@ func resourceBigQueryJobDelete(d *schema.ResourceData, meta interface{}) error {
 
 func resourceBigQueryJobImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/jobs/(?P<job_id>[^/]+)/location/(?P<location>[^/]+)",
 		"projects/(?P<project>[^/]+)/jobs/(?P<job_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<job_id>[^/]+)/(?P<location>[^/]+)",
@@ -1145,7 +1145,7 @@ func resourceBigQueryJobImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/jobs/{{job_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/jobs/{{job_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

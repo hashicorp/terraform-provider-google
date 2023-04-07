@@ -41,7 +41,7 @@ func TestIsShrinkageIpCidr(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		if isShrinkageIpCidr(context.Background(), tc.Old, tc.New, nil) != tc.Shrinkage {
+		if IsShrinkageIpCidr(context.Background(), tc.Old, tc.New, nil) != tc.Shrinkage {
 			t.Errorf("%s failed: Shrinkage should be %t", tn, tc.Shrinkage)
 		}
 	}

@@ -210,7 +210,7 @@ func resourceDialogflowCXAgentCreate(d *schema.ResourceData, meta interface{}) e
 		obj["enableSpellCorrection"] = enableSpellCorrectionProp
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}projects/{{project}}/locations/{{location}}/agents")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}projects/{{project}}/locations/{{location}}/agents")
 	if err != nil {
 		return err
 	}
@@ -238,7 +238,7 @@ func resourceDialogflowCXAgentCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/agents/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/agents/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -256,7 +256,7 @@ func resourceDialogflowCXAgentRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}projects/{{project}}/locations/{{location}}/agents/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}projects/{{project}}/locations/{{location}}/agents/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -394,7 +394,7 @@ func resourceDialogflowCXAgentUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["enableSpellCorrection"] = enableSpellCorrectionProp
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}projects/{{project}}/locations/{{location}}/agents/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}projects/{{project}}/locations/{{location}}/agents/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -437,9 +437,9 @@ func resourceDialogflowCXAgentUpdate(d *schema.ResourceData, meta interface{}) e
 	if d.HasChange("enable_spell_correction") {
 		updateMask = append(updateMask, "enableSpellCorrection")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -475,7 +475,7 @@ func resourceDialogflowCXAgentDelete(d *schema.ResourceData, meta interface{}) e
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}projects/{{project}}/locations/{{location}}/agents/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}projects/{{project}}/locations/{{location}}/agents/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -499,7 +499,7 @@ func resourceDialogflowCXAgentDelete(d *schema.ResourceData, meta interface{}) e
 
 func resourceDialogflowCXAgentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/agents/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -508,7 +508,7 @@ func resourceDialogflowCXAgentImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/agents/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/agents/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

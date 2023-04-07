@@ -221,7 +221,7 @@ func resourceDialogflowAgentCreate(d *schema.ResourceData, meta interface{}) err
 		obj["tier"] = tierProp
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
+	url, err := ReplaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
 	if err != nil {
 		return err
 	}
@@ -246,7 +246,7 @@ func resourceDialogflowAgentCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}")
+	id, err := ReplaceVars(d, config, "{{project}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -264,7 +264,7 @@ func resourceDialogflowAgentRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
+	url, err := ReplaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
 	if err != nil {
 		return err
 	}
@@ -408,7 +408,7 @@ func resourceDialogflowAgentUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["tier"] = tierProp
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
+	url, err := ReplaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
 	if err != nil {
 		return err
 	}
@@ -446,7 +446,7 @@ func resourceDialogflowAgentDelete(d *schema.ResourceData, meta interface{}) err
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
+	url, err := ReplaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
 	if err != nil {
 		return err
 	}
@@ -470,14 +470,14 @@ func resourceDialogflowAgentDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceDialogflowAgentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<project>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}")
+	id, err := ReplaceVars(d, config, "{{project}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

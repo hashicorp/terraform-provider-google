@@ -89,7 +89,7 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 		obj["additionalAuthenticatedData"] = additionalAuthenticatedDataProp
 	}
 
-	url, err := replaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}:encrypt")
+	url, err := ReplaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}:encrypt")
 	if err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{crypto_key}}/{{ciphertext}}")
+	id, err := ReplaceVars(d, config, "{{crypto_key}}/{{ciphertext}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -127,7 +127,7 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error setting ciphertext: %s", err)
 	}
 
-	id, err = replaceVars(d, config, "{{crypto_key}}/{{ciphertext}}")
+	id, err = ReplaceVars(d, config, "{{crypto_key}}/{{ciphertext}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -145,7 +145,7 @@ func resourceKMSSecretCiphertextRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}")
+	url, err := ReplaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}")
 	if err != nil {
 		return err
 	}

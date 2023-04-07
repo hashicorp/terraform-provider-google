@@ -218,7 +218,7 @@ func (u *BigqueryAnalyticsHubListingIamUpdater) SetResourceIamPolicy(policy *clo
 
 func (u *BigqueryAnalyticsHubListingIamUpdater) qualifyListingUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{BigqueryAnalyticsHubBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s", u.project, u.location, u.dataExchangeId, u.listingId), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

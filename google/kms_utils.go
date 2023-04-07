@@ -11,41 +11,41 @@ import (
 	"google.golang.org/api/cloudkms/v1"
 )
 
-type kmsKeyRingId struct {
+type KmsKeyRingId struct {
 	Project  string
 	Location string
 	Name     string
 }
 
-func (s *kmsKeyRingId) keyRingId() string {
+func (s *KmsKeyRingId) KeyRingId() string {
 	return fmt.Sprintf("projects/%s/locations/%s/keyRings/%s", s.Project, s.Location, s.Name)
 }
 
-func (s *kmsKeyRingId) terraformId() string {
+func (s *KmsKeyRingId) TerraformId() string {
 	return fmt.Sprintf("%s/%s/%s", s.Project, s.Location, s.Name)
 }
 
-func parseKmsKeyRingId(id string, config *Config) (*kmsKeyRingId, error) {
+func parseKmsKeyRingId(id string, config *Config) (*KmsKeyRingId, error) {
 	parts := strings.Split(id, "/")
 
-	keyRingIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
-	keyRingIdWithoutProjectRegex := regexp.MustCompile("^([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
+	KeyRingIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
+	KeyRingIdWithoutProjectRegex := regexp.MustCompile("^([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
 	keyRingRelativeLinkRegex := regexp.MustCompile("^projects/(" + ProjectRegex + ")/locations/([a-z0-9-]+)/keyRings/([a-zA-Z0-9_-]{1,63})$")
 
-	if keyRingIdRegex.MatchString(id) {
-		return &kmsKeyRingId{
+	if KeyRingIdRegex.MatchString(id) {
+		return &KmsKeyRingId{
 			Project:  parts[0],
 			Location: parts[1],
 			Name:     parts[2],
 		}, nil
 	}
 
-	if keyRingIdWithoutProjectRegex.MatchString(id) {
+	if KeyRingIdWithoutProjectRegex.MatchString(id) {
 		if config.Project == "" {
 			return nil, fmt.Errorf("The default project for the provider must be set when using the `{location}/{keyRingName}` id format.")
 		}
 
-		return &kmsKeyRingId{
+		return &KmsKeyRingId{
 			Project:  config.Project,
 			Location: parts[0],
 			Name:     parts[1],
@@ -53,7 +53,7 @@ func parseKmsKeyRingId(id string, config *Config) (*kmsKeyRingId, error) {
 	}
 
 	if parts := keyRingRelativeLinkRegex.FindStringSubmatch(id); parts != nil {
-		return &kmsKeyRingId{
+		return &KmsKeyRingId{
 			Project:  parts[1],
 			Location: parts[2],
 			Name:     parts[3],
@@ -63,9 +63,9 @@ func parseKmsKeyRingId(id string, config *Config) (*kmsKeyRingId, error) {
 }
 
 func kmsCryptoKeyRingsEquivalent(k, old, new string, d *schema.ResourceData) bool {
-	keyRingIdWithSpecifiersRegex := regexp.MustCompile("^projects/(" + ProjectRegex + ")/locations/([a-z0-9-])+/keyRings/([a-zA-Z0-9_-]{1,63})$")
+	KeyRingIdWithSpecifiersRegex := regexp.MustCompile("^projects/(" + ProjectRegex + ")/locations/([a-z0-9-])+/keyRings/([a-zA-Z0-9_-]{1,63})$")
 	normalizedKeyRingIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
-	if matches := keyRingIdWithSpecifiersRegex.FindStringSubmatch(new); matches != nil {
+	if matches := KeyRingIdWithSpecifiersRegex.FindStringSubmatch(new); matches != nil {
 		normMatches := normalizedKeyRingIdRegex.FindStringSubmatch(old)
 		return normMatches != nil && normMatches[1] == matches[1] && normMatches[2] == matches[2] && normMatches[3] == matches[3]
 	}
@@ -73,16 +73,16 @@ func kmsCryptoKeyRingsEquivalent(k, old, new string, d *schema.ResourceData) boo
 }
 
 type KmsCryptoKeyId struct {
-	KeyRingId kmsKeyRingId
+	KeyRingId KmsKeyRingId
 	Name      string
 }
 
-func (s *KmsCryptoKeyId) cryptoKeyId() string {
-	return fmt.Sprintf("%s/cryptoKeys/%s", s.KeyRingId.keyRingId(), s.Name)
+func (s *KmsCryptoKeyId) CryptoKeyId() string {
+	return fmt.Sprintf("%s/cryptoKeys/%s", s.KeyRingId.KeyRingId(), s.Name)
 }
 
-func (s *KmsCryptoKeyId) terraformId() string {
-	return fmt.Sprintf("%s/%s", s.KeyRingId.terraformId(), s.Name)
+func (s *KmsCryptoKeyId) TerraformId() string {
+	return fmt.Sprintf("%s/%s", s.KeyRingId.TerraformId(), s.Name)
 }
 
 type kmsCryptoKeyVersionId struct {
@@ -94,8 +94,8 @@ func (s *kmsCryptoKeyVersionId) cryptoKeyVersionId() string {
 	return fmt.Sprintf(s.Name)
 }
 
-func (s *kmsCryptoKeyVersionId) terraformId() string {
-	return fmt.Sprintf("%s/%s", s.CryptoKeyId.terraformId(), s.Name)
+func (s *kmsCryptoKeyVersionId) TerraformId() string {
+	return fmt.Sprintf("%s/%s", s.CryptoKeyId.TerraformId(), s.Name)
 }
 
 func validateKmsCryptoKeyRotationPeriod(value interface{}, _ string) (ws []string, errors []error) {
@@ -141,7 +141,7 @@ func kmsCryptoKeyNextRotation(now time.Time, period string) (result string, err 
 	return
 }
 
-func parseKmsCryptoKeyId(id string, config *Config) (*KmsCryptoKeyId, error) {
+func ParseKmsCryptoKeyId(id string, config *Config) (*KmsCryptoKeyId, error) {
 	parts := strings.Split(id, "/")
 
 	cryptoKeyIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})/([a-zA-Z0-9_-]{1,63})$")
@@ -150,7 +150,7 @@ func parseKmsCryptoKeyId(id string, config *Config) (*KmsCryptoKeyId, error) {
 
 	if cryptoKeyIdRegex.MatchString(id) {
 		return &KmsCryptoKeyId{
-			KeyRingId: kmsKeyRingId{
+			KeyRingId: KmsKeyRingId{
 				Project:  parts[0],
 				Location: parts[1],
 				Name:     parts[2],
@@ -165,7 +165,7 @@ func parseKmsCryptoKeyId(id string, config *Config) (*KmsCryptoKeyId, error) {
 		}
 
 		return &KmsCryptoKeyId{
-			KeyRingId: kmsKeyRingId{
+			KeyRingId: KmsKeyRingId{
 				Project:  config.Project,
 				Location: parts[0],
 				Name:     parts[1],
@@ -176,7 +176,7 @@ func parseKmsCryptoKeyId(id string, config *Config) (*KmsCryptoKeyId, error) {
 
 	if parts := cryptoKeyRelativeLinkRegex.FindStringSubmatch(id); parts != nil {
 		return &KmsCryptoKeyId{
-			KeyRingId: kmsKeyRingId{
+			KeyRingId: KmsKeyRingId{
 				Project:  parts[1],
 				Location: parts[2],
 				Name:     parts[3],
@@ -193,7 +193,7 @@ func parseKmsCryptoKeyVersionId(id string, config *Config) (*kmsCryptoKeyVersion
 	if parts := cryptoKeyVersionRelativeLinkRegex.FindStringSubmatch(id); parts != nil {
 		return &kmsCryptoKeyVersionId{
 			CryptoKeyId: KmsCryptoKeyId{
-				KeyRingId: kmsKeyRingId{
+				KeyRingId: KmsKeyRingId{
 					Project:  parts[1],
 					Location: parts[2],
 					Name:     parts[3],
@@ -209,7 +209,7 @@ func parseKmsCryptoKeyVersionId(id string, config *Config) (*kmsCryptoKeyVersion
 func clearCryptoKeyVersions(cryptoKeyId *KmsCryptoKeyId, userAgent string, config *Config) error {
 	versionsClient := config.NewKmsClient(userAgent).Projects.Locations.KeyRings.CryptoKeys.CryptoKeyVersions
 
-	listCall := versionsClient.List(cryptoKeyId.cryptoKeyId())
+	listCall := versionsClient.List(cryptoKeyId.CryptoKeyId())
 	if config.UserProjectOverride {
 		listCall.Header().Set("X-Goog-User-Project", cryptoKeyId.KeyRingId.Project)
 	}
@@ -255,7 +255,7 @@ func deleteCryptoKeyVersions(cryptoKeyVersionId *kmsCryptoKeyVersionId, d *schem
 
 func disableCryptoKeyRotation(cryptoKeyId *KmsCryptoKeyId, userAgent string, config *Config) error {
 	keyClient := config.NewKmsClient(userAgent).Projects.Locations.KeyRings.CryptoKeys
-	patchCall := keyClient.Patch(cryptoKeyId.cryptoKeyId(), &cloudkms.CryptoKey{
+	patchCall := keyClient.Patch(cryptoKeyId.CryptoKeyId(), &cloudkms.CryptoKey{
 		NullFields: []string{"rotationPeriod", "nextRotationTime"},
 	}).
 		UpdateMask("rotationPeriod,nextRotationTime")

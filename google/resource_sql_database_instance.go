@@ -864,7 +864,7 @@ is set to true. Defaults to ZONAL.`,
 						"point_in_time": {
 							Type:             schema.TypeString,
 							Optional:         true,
-							DiffSuppressFunc: timestampDiffSuppress(time.RFC3339Nano),
+							DiffSuppressFunc: TimestampDiffSuppress(time.RFC3339Nano),
 							Description:      `The timestamp of the point in time that should be restored.`,
 						},
 						"database_names": {
@@ -1030,7 +1030,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error, failed to create instance %s: %s", instance.Name, err)
 	}
 
-	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/instances/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1778,7 +1778,7 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 			return err
 		}
 		return nil
-	}, d.Timeout(schema.TimeoutDelete), IsSqlOperationInProgressError, isSqlInternalError)
+	}, d.Timeout(schema.TimeoutDelete), IsSqlOperationInProgressError, IsSqlInternalError)
 	if err != nil {
 		return fmt.Errorf("Error, failed to delete instance %s: %s", d.Get("name").(string), err)
 	}
@@ -1787,7 +1787,7 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 
 func resourceSqlDatabaseInstanceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/instances/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)"}, d, config); err != nil {
@@ -1799,7 +1799,7 @@ func resourceSqlDatabaseInstanceImport(d *schema.ResourceData, meta interface{})
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/instances/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/instances/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

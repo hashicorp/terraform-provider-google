@@ -312,7 +312,7 @@ func resourceDataCatalogEntryCreate(d *schema.ResourceData, meta interface{}) er
 		obj["gcsFilesetSpec"] = gcsFilesetSpecProp
 	}
 
-	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{entry_group}}/entries?entryId={{entry_id}}")
+	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{entry_group}}/entries?entryId={{entry_id}}")
 	if err != nil {
 		return err
 	}
@@ -338,7 +338,7 @@ func resourceDataCatalogEntryCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -356,7 +356,7 @@ func resourceDataCatalogEntryRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -470,7 +470,7 @@ func resourceDataCatalogEntryUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["gcsFilesetSpec"] = gcsFilesetSpecProp
 	}
 
-	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -505,9 +505,9 @@ func resourceDataCatalogEntryUpdate(d *schema.ResourceData, meta interface{}) er
 	if d.HasChange("gcs_fileset_spec") {
 		updateMask = append(updateMask, "gcsFilesetSpec")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -540,7 +540,7 @@ func resourceDataCatalogEntryDelete(d *schema.ResourceData, meta interface{}) er
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -571,7 +571,7 @@ func resourceDataCatalogEntryImport(d *schema.ResourceData, meta interface{}) ([
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 

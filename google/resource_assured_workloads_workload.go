@@ -223,7 +223,7 @@ func resourceAssuredWorkloadsWorkloadCreate(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 	client := NewDCLAssuredWorkloadsClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -281,7 +281,7 @@ func resourceAssuredWorkloadsWorkloadRead(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 	client := NewDCLAssuredWorkloadsClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -373,7 +373,7 @@ func resourceAssuredWorkloadsWorkloadUpdate(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 	client := NewDCLAssuredWorkloadsClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -421,7 +421,7 @@ func resourceAssuredWorkloadsWorkloadDelete(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 	client := NewDCLAssuredWorkloadsClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -438,7 +438,7 @@ func resourceAssuredWorkloadsWorkloadDelete(d *schema.ResourceData, meta interfa
 func resourceAssuredWorkloadsWorkloadImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"organizations/(?P<organization>[^/]+)/locations/(?P<location>[^/]+)/workloads/(?P<name>[^/]+)",
 		"(?P<organization>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {

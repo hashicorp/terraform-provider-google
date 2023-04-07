@@ -338,14 +338,14 @@ func resourceLoggingMetricCreate(d *schema.ResourceData, meta interface{}) error
 		obj["bucketOptions"] = bucketOptionsProp
 	}
 
-	lockName, err := replaceVars(d, config, "customMetric/{{project}}")
+	lockName, err := ReplaceVars(d, config, "customMetric/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/metrics")
+	url, err := ReplaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/metrics")
 	if err != nil {
 		return err
 	}
@@ -370,7 +370,7 @@ func resourceLoggingMetricCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -406,7 +406,7 @@ func resourceLoggingMetricRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/metrics/{{%name}}")
+	url, err := ReplaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/metrics/{{%name}}")
 	if err != nil {
 		return err
 	}
@@ -535,14 +535,14 @@ func resourceLoggingMetricUpdate(d *schema.ResourceData, meta interface{}) error
 		obj["bucketOptions"] = bucketOptionsProp
 	}
 
-	lockName, err := replaceVars(d, config, "customMetric/{{project}}")
+	lockName, err := ReplaceVars(d, config, "customMetric/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/metrics/{{%name}}")
+	url, err := ReplaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/metrics/{{%name}}")
 	if err != nil {
 		return err
 	}
@@ -580,14 +580,14 @@ func resourceLoggingMetricDelete(d *schema.ResourceData, meta interface{}) error
 	}
 	billingProject = project
 
-	lockName, err := replaceVars(d, config, "customMetric/{{project}}")
+	lockName, err := ReplaceVars(d, config, "customMetric/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/metrics/{{%name}}")
+	url, err := ReplaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/metrics/{{%name}}")
 	if err != nil {
 		return err
 	}
@@ -614,7 +614,7 @@ func resourceLoggingMetricImport(d *schema.ResourceData, meta interface{}) ([]*s
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
 		return nil, err
 	}
 

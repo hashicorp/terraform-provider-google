@@ -84,7 +84,7 @@ func testAccCheckMonitoringNotificationChannelDestroyProducer(t *testing.T) func
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil, isMonitoringConcurrentEditError)
+			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil, IsMonitoringConcurrentEditError)
 			if err == nil {
 				return fmt.Errorf("MonitoringNotificationChannel still exists at %s", url)
 			}

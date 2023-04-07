@@ -574,7 +574,7 @@ func resourceDataLossPreventionInspectTemplateCreate(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/inspectTemplates")
+	url, err := ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/inspectTemplates")
 	if err != nil {
 		return err
 	}
@@ -596,7 +596,7 @@ func resourceDataLossPreventionInspectTemplateCreate(d *schema.ResourceData, met
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{parent}}/inspectTemplates/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/inspectTemplates/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -614,7 +614,7 @@ func resourceDataLossPreventionInspectTemplateRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/inspectTemplates/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/inspectTemplates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -681,7 +681,7 @@ func resourceDataLossPreventionInspectTemplateUpdate(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/inspectTemplates/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/inspectTemplates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -700,9 +700,9 @@ func resourceDataLossPreventionInspectTemplateUpdate(d *schema.ResourceData, met
 	if d.HasChange("inspect_config") {
 		updateMask = append(updateMask, "inspectConfig")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -732,7 +732,7 @@ func resourceDataLossPreventionInspectTemplateDelete(d *schema.ResourceData, met
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/inspectTemplates/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/inspectTemplates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -758,7 +758,7 @@ func resourceDataLossPreventionInspectTemplateImport(d *schema.ResourceData, met
 	config := meta.(*Config)
 
 	// Custom import to handle parent possibilities
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 	parts := strings.Split(d.Get("name").(string), "/")
@@ -780,7 +780,7 @@ func resourceDataLossPreventionInspectTemplateImport(d *schema.ResourceData, met
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{parent}}/inspectTemplates/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/inspectTemplates/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

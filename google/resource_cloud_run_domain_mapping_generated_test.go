@@ -107,7 +107,7 @@ func testAccCheckCloudRunDomainMappingDestroyProducer(t *testing.T) func(s *terr
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil, isCloudRunCreationConflict)
+			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil, IsCloudRunCreationConflict)
 			if err == nil {
 				return fmt.Errorf("CloudRunDomainMapping still exists at %s", url)
 			}

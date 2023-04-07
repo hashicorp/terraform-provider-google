@@ -21,7 +21,7 @@ func TestAccDataSourceGoogleBeyondcorpAppConnection_basic(t *testing.T) {
 			{
 				Config: testAccDataSourceGoogleBeyondcorpAppConnection_basic(context),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceState("data.google_beyondcorp_app_connection.foo", "google_beyondcorp_app_connection.foo"),
+					CheckDataSourceStateMatchesResourceState("data.google_beyondcorp_app_connection.foo", "google_beyondcorp_app_connection.foo"),
 				),
 			},
 		},
@@ -43,7 +43,7 @@ func TestAccDataSourceGoogleBeyondcorpAppConnection_full(t *testing.T) {
 			{
 				Config: testAccDataSourceGoogleBeyondcorpAppConnection_full(context),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceState("data.google_beyondcorp_app_connection.foo", "google_beyondcorp_app_connection.foo"),
+					CheckDataSourceStateMatchesResourceState("data.google_beyondcorp_app_connection.foo", "google_beyondcorp_app_connection.foo"),
 				),
 			},
 		},

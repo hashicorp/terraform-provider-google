@@ -63,7 +63,7 @@ func TestIpv6AddressDiffSuppress(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		shouldSuppress := rrdatasListDiffSuppress(tc.Old, tc.New, parseFunc, nil)
+		shouldSuppress := RrdatasListDiffSuppress(tc.Old, tc.New, parseFunc, nil)
 		if shouldSuppress != tc.ShouldSuppress {
 			t.Errorf("%s: expected %t", tn, tc.ShouldSuppress)
 		}

@@ -171,7 +171,7 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 		obj["nodeConfig"] = nodeConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments")
 	if err != nil {
 		return err
 	}
@@ -190,7 +190,7 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{org_id}}/environments/{{name}}")
+	id, err := ReplaceVars(d, config, "{{org_id}}/environments/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -214,7 +214,7 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{org_id}}/environments/{{name}}")
+	id, err = ReplaceVars(d, config, "{{org_id}}/environments/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -232,7 +232,7 @@ func resourceApigeeEnvironmentRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -288,7 +288,7 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["nodeConfig"] = nodeConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -299,9 +299,9 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 	if d.HasChange("node_config") {
 		updateMask = append(updateMask, "nodeConfig")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -339,7 +339,7 @@ func resourceApigeeEnvironmentDelete(d *schema.ResourceData, meta interface{}) e
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -373,7 +373,7 @@ func resourceApigeeEnvironmentImport(d *schema.ResourceData, meta interface{}) (
 	config := meta.(*Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 
@@ -405,7 +405,7 @@ func resourceApigeeEnvironmentImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{org_id}}/environments/{{name}}")
+	id, err := ReplaceVars(d, config, "{{org_id}}/environments/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

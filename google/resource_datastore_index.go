@@ -120,7 +120,7 @@ func resourceDatastoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["properties"] = propertiesProp
 	}
 
-	url, err := replaceVars(d, config, "{{DatastoreBasePath}}projects/{{project}}/indexes")
+	url, err := ReplaceVars(d, config, "{{DatastoreBasePath}}projects/{{project}}/indexes")
 	if err != nil {
 		return err
 	}
@@ -139,13 +139,13 @@ func resourceDatastoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), datastoreIndex409Contention)
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), DatastoreIndex409Contention)
 	if err != nil {
 		return fmt.Errorf("Error creating Index: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/indexes/{{index_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/indexes/{{index_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -169,7 +169,7 @@ func resourceDatastoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/indexes/{{index_id}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/indexes/{{index_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -187,7 +187,7 @@ func resourceDatastoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DatastoreBasePath}}projects/{{project}}/indexes/{{index_id}}")
+	url, err := ReplaceVars(d, config, "{{DatastoreBasePath}}projects/{{project}}/indexes/{{index_id}}")
 	if err != nil {
 		return err
 	}
@@ -205,7 +205,7 @@ func resourceDatastoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, datastoreIndex409Contention)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, DatastoreIndex409Contention)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("DatastoreIndex %q", d.Id()))
 	}
@@ -245,7 +245,7 @@ func resourceDatastoreIndexDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{DatastoreBasePath}}projects/{{project}}/indexes/{{index_id}}")
+	url, err := ReplaceVars(d, config, "{{DatastoreBasePath}}projects/{{project}}/indexes/{{index_id}}")
 	if err != nil {
 		return err
 	}
@@ -258,7 +258,7 @@ func resourceDatastoreIndexDelete(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), datastoreIndex409Contention)
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), DatastoreIndex409Contention)
 	if err != nil {
 		return handleNotFoundError(err, d, "Index")
 	}
@@ -277,7 +277,7 @@ func resourceDatastoreIndexDelete(d *schema.ResourceData, meta interface{}) erro
 
 func resourceDatastoreIndexImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/indexes/(?P<index_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<index_id>[^/]+)",
 		"(?P<index_id>[^/]+)",
@@ -286,7 +286,7 @@ func resourceDatastoreIndexImport(d *schema.ResourceData, meta interface{}) ([]*
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/indexes/{{index_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/indexes/{{index_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

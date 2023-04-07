@@ -184,7 +184,7 @@ func (u *IapWebBackendServiceIamUpdater) SetResourceIamPolicy(policy *cloudresou
 
 func (u *IapWebBackendServiceIamUpdater) qualifyWebBackendServiceUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_web/compute/services/%s", u.project, u.webBackendService), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

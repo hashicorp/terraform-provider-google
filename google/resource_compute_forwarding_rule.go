@@ -85,7 +85,7 @@ func ResourceComputeForwardingRule() *schema.Resource {
 				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: internalIpDiffSuppress,
+				DiffSuppressFunc: InternalIpDiffSuppress,
 				Description:      "IP address that this forwarding rule serves. When a client sends traffic to this IP address, the forwarding rule directs the traffic to the target that you specify in the forwarding rule. If you don't specify a reserved IP address, an ephemeral IP address is assigned. Methods for specifying an IP address: * IPv4 dotted decimal, as in `100.1.2.3` * Full URL, as in `https://www.googleapis.com/compute/v1/projects/project_id/regions/region/addresses/address-name` * Partial URL or by name, as in: * `projects/project_id/regions/region/addresses/address-name` * `regions/region/addresses/address-name` * `global/addresses/address-name` * `address-name` The loadBalancingScheme and the forwarding rule's target determine the type of IP address that you can use. For detailed information, refer to [IP address specifications](/load-balancing/docs/forwarding-rule-concepts#ip_address_specifications).",
 			},
 
@@ -94,7 +94,7 @@ func ResourceComputeForwardingRule() *schema.Resource {
 				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: caseDiffSuppress,
+				DiffSuppressFunc: CaseDiffSuppress,
 				Description:      "The IP protocol to which this rule applies. For protocol forwarding, valid options are `TCP`, `UDP`, `ESP`, `AH`, `SCTP` or `ICMP`. For Internal TCP/UDP Load Balancing, the load balancing scheme is `INTERNAL`, and one of `TCP` or `UDP` are valid. For Traffic Director, the load balancing scheme is `INTERNAL_SELF_MANAGED`, and only `TCP`is valid. For Internal HTTP(S) Load Balancing, the load balancing scheme is `INTERNAL_MANAGED`, and only `TCP` is valid. For HTTP(S), SSL Proxy, and TCP Proxy Load Balancing, the load balancing scheme is `EXTERNAL` and only `TCP` is valid. For Network TCP/UDP Load Balancing, the load balancing scheme is `EXTERNAL`, and one of `TCP` or `UDP` is valid.",
 			},
 
@@ -141,7 +141,7 @@ func ResourceComputeForwardingRule() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: portRangeDiffSuppress,
+				DiffSuppressFunc: PortRangeDiffSuppress,
 				Description:      "When the load balancing scheme is `EXTERNAL`, `INTERNAL_SELF_MANAGED` and `INTERNAL_MANAGED`, you can specify a `port_range`. Use with a forwarding rule that points to a target proxy or a target pool. Do not use with a forwarding rule that points to a backend service. This field is used along with the `target` field for TargetHttpProxy, TargetHttpsProxy, TargetSslProxy, TargetTcpProxy, TargetVpnGateway, TargetPool, TargetInstance. Applicable only when `IPProtocol` is `TCP`, `UDP`, or `SCTP`, only packets addressed to ports in the specified range will be forwarded to `target`. Forwarding rules with the same `[IPAddress, IPProtocol]` pair must have disjoint port ranges. Some types of forwarding target have constraints on the acceptable ports:\n\n*   TargetHttpProxy: 80, 8080\n*   TargetHttpsProxy: 443\n*   TargetTcpProxy: 25, 43, 110, 143, 195, 443, 465, 587, 700, 993, 995, 1688, 1883, 5222\n*   TargetSslProxy: 25, 43, 110, 143, 195, 443, 465, 587, 700, 993, 995, 1688, 1883, 5222\n*   TargetVpnGateway: 500, 4500\n\n@pattern: d+(?:-d+)?",
 			},
 
@@ -316,7 +316,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -381,7 +381,7 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 		billingProject = bp
 	}
 	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -519,7 +519,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -585,7 +585,7 @@ func resourceComputeForwardingRuleDelete(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -602,7 +602,7 @@ func resourceComputeForwardingRuleDelete(d *schema.ResourceData, meta interface{
 func resourceComputeForwardingRuleImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/forwardingRules/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<region>[^/]+)/(?P<name>[^/]+)",

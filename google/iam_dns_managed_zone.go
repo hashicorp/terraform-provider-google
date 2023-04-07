@@ -179,7 +179,7 @@ func (u *DNSManagedZoneIamUpdater) SetResourceIamPolicy(policy *cloudresourceman
 
 func (u *DNSManagedZoneIamUpdater) qualifyManagedZoneUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{DNSBasePath}}%s:%s", fmt.Sprintf("projects/%s/managedZones/%s", u.project, u.managedZone), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

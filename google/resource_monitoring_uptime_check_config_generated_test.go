@@ -283,7 +283,7 @@ func testAccCheckMonitoringUptimeCheckConfigDestroyProducer(t *testing.T) func(s
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil, isMonitoringConcurrentEditError)
+			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil, IsMonitoringConcurrentEditError)
 			if err == nil {
 				return fmt.Errorf("MonitoringUptimeCheckConfig still exists at %s", url)
 			}

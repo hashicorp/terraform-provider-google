@@ -140,7 +140,7 @@ func resourceBigqueryAnalyticsHubDataExchangeCreate(d *schema.ResourceData, meta
 		obj["icon"] = iconProp
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges?data_exchange_id={{data_exchange_id}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges?data_exchange_id={{data_exchange_id}}")
 	if err != nil {
 		return err
 	}
@@ -168,7 +168,7 @@ func resourceBigqueryAnalyticsHubDataExchangeCreate(d *schema.ResourceData, meta
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -186,7 +186,7 @@ func resourceBigqueryAnalyticsHubDataExchangeRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}")
 	if err != nil {
 		return err
 	}
@@ -285,7 +285,7 @@ func resourceBigqueryAnalyticsHubDataExchangeUpdate(d *schema.ResourceData, meta
 		obj["icon"] = iconProp
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}")
 	if err != nil {
 		return err
 	}
@@ -312,9 +312,9 @@ func resourceBigqueryAnalyticsHubDataExchangeUpdate(d *schema.ResourceData, meta
 	if d.HasChange("icon") {
 		updateMask = append(updateMask, "icon")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -350,7 +350,7 @@ func resourceBigqueryAnalyticsHubDataExchangeDelete(d *schema.ResourceData, meta
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}")
 	if err != nil {
 		return err
 	}
@@ -374,7 +374,7 @@ func resourceBigqueryAnalyticsHubDataExchangeDelete(d *schema.ResourceData, meta
 
 func resourceBigqueryAnalyticsHubDataExchangeImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/dataExchanges/(?P<data_exchange_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<data_exchange_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<data_exchange_id>[^/]+)",
@@ -384,7 +384,7 @@ func resourceBigqueryAnalyticsHubDataExchangeImport(d *schema.ResourceData, meta
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

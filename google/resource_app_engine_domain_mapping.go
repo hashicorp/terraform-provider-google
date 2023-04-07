@@ -171,14 +171,14 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 		obj["id"] = idProp
 	}
 
-	lockName, err := replaceVars(d, config, "apps/{{project}}")
+	lockName, err := ReplaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings")
+	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings")
 	if err != nil {
 		return err
 	}
@@ -203,7 +203,7 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "apps/{{project}}/domainMappings/{{domain_name}}")
+	id, err := ReplaceVars(d, config, "apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -227,7 +227,7 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "apps/{{project}}/domainMappings/{{domain_name}}")
+	id, err = ReplaceVars(d, config, "apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -245,7 +245,7 @@ func resourceAppEngineDomainMappingRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
+	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {
 		return err
 	}
@@ -311,14 +311,14 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 		obj["sslSettings"] = sslSettingsProp
 	}
 
-	lockName, err := replaceVars(d, config, "apps/{{project}}")
+	lockName, err := ReplaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
+	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {
 		return err
 	}
@@ -330,9 +330,9 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 		updateMask = append(updateMask, "ssl_settings.certificate_id",
 			"ssl_settings.ssl_management_type")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -376,14 +376,14 @@ func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface
 	}
 	billingProject = project
 
-	lockName, err := replaceVars(d, config, "apps/{{project}}")
+	lockName, err := ReplaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
+	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {
 		return err
 	}
@@ -415,7 +415,7 @@ func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface
 
 func resourceAppEngineDomainMappingImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"apps/(?P<project>[^/]+)/domainMappings/(?P<domain_name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<domain_name>[^/]+)",
 		"(?P<domain_name>[^/]+)",
@@ -424,7 +424,7 @@ func resourceAppEngineDomainMappingImport(d *schema.ResourceData, meta interface
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "apps/{{project}}/domainMappings/{{domain_name}}")
+	id, err := ReplaceVars(d, config, "apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

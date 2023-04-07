@@ -62,7 +62,7 @@ func testSweepLoggingMetric(region string) error {
 	}
 
 	listTemplate := strings.Split("https://logging.googleapis.com/v2/projects/{{project}}/metrics", "?")[0]
-	listUrl, err := replaceVars(d, config, listTemplate)
+	listUrl, err := ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 		return nil
@@ -100,7 +100,7 @@ func testSweepLoggingMetric(region string) error {
 		}
 
 		deleteTemplate := "https://logging.googleapis.com/v2/projects/{{project}}/metrics/{{%name}}"
-		deleteUrl, err := replaceVars(d, config, deleteTemplate)
+		deleteUrl, err := ReplaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 			return nil

@@ -164,7 +164,7 @@ func resourceBigqueryReservationReservationCreate(d *schema.ResourceData, meta i
 		obj["autoscale"] = autoscaleProp
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations?reservationId={{name}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations?reservationId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -189,7 +189,7 @@ func resourceBigqueryReservationReservationCreate(d *schema.ResourceData, meta i
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/reservations/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/reservations/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -207,7 +207,7 @@ func resourceBigqueryReservationReservationRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations/{{name}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -303,7 +303,7 @@ func resourceBigqueryReservationReservationUpdate(d *schema.ResourceData, meta i
 		obj["autoscale"] = autoscaleProp
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations/{{name}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -330,9 +330,9 @@ func resourceBigqueryReservationReservationUpdate(d *schema.ResourceData, meta i
 	if d.HasChange("autoscale") {
 		updateMask = append(updateMask, "autoscale")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -368,7 +368,7 @@ func resourceBigqueryReservationReservationDelete(d *schema.ResourceData, meta i
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations/{{name}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/reservations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -392,7 +392,7 @@ func resourceBigqueryReservationReservationDelete(d *schema.ResourceData, meta i
 
 func resourceBigqueryReservationReservationImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/reservations/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -401,7 +401,7 @@ func resourceBigqueryReservationReservationImport(d *schema.ResourceData, meta i
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/reservations/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/reservations/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

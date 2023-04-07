@@ -271,7 +271,7 @@ func resourceComputeNetworkFirewallPolicyRuleCreate(d *schema.ResourceData, meta
 		billingProject = bp
 	}
 	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -324,7 +324,7 @@ func resourceComputeNetworkFirewallPolicyRuleRead(d *schema.ResourceData, meta i
 		billingProject = bp
 	}
 	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -414,7 +414,7 @@ func resourceComputeNetworkFirewallPolicyRuleUpdate(d *schema.ResourceData, meta
 		billingProject = bp
 	}
 	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -468,7 +468,7 @@ func resourceComputeNetworkFirewallPolicyRuleDelete(d *schema.ResourceData, meta
 		billingProject = bp
 	}
 	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -485,7 +485,7 @@ func resourceComputeNetworkFirewallPolicyRuleDelete(d *schema.ResourceData, meta
 func resourceComputeNetworkFirewallPolicyRuleImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/firewallPolicies/(?P<firewall_policy>[^/]+)/rules/(?P<priority>[^/]+)",
 		"(?P<project>[^/]+)/(?P<firewall_policy>[^/]+)/(?P<priority>[^/]+)",
 		"(?P<firewall_policy>[^/]+)/(?P<priority>[^/]+)",

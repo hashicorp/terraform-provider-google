@@ -192,7 +192,7 @@ func resourceComputeHttpHealthCheckCreate(d *schema.ResourceData, meta interface
 		obj["unhealthyThreshold"] = unhealthyThresholdProp
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/httpHealthChecks")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/httpHealthChecks")
 	if err != nil {
 		return err
 	}
@@ -217,7 +217,7 @@ func resourceComputeHttpHealthCheckCreate(d *schema.ResourceData, meta interface
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/global/httpHealthChecks/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/httpHealthChecks/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -245,7 +245,7 @@ func resourceComputeHttpHealthCheckRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/httpHealthChecks/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/httpHealthChecks/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -380,7 +380,7 @@ func resourceComputeHttpHealthCheckUpdate(d *schema.ResourceData, meta interface
 		obj["unhealthyThreshold"] = unhealthyThresholdProp
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/httpHealthChecks/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/httpHealthChecks/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -426,7 +426,7 @@ func resourceComputeHttpHealthCheckDelete(d *schema.ResourceData, meta interface
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/httpHealthChecks/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/httpHealthChecks/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -458,7 +458,7 @@ func resourceComputeHttpHealthCheckDelete(d *schema.ResourceData, meta interface
 
 func resourceComputeHttpHealthCheckImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/httpHealthChecks/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -467,7 +467,7 @@ func resourceComputeHttpHealthCheckImport(d *schema.ResourceData, meta interface
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/global/httpHealthChecks/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/httpHealthChecks/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

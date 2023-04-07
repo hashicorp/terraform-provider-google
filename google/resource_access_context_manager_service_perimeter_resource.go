@@ -74,14 +74,14 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 		obj["resource"] = resourceProp
 	}
 
-	lockName, err := replaceVars(d, config, "{{perimeter_name}}")
+	lockName, err := ReplaceVars(d, config, "{{perimeter_name}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 	if err != nil {
 		return err
 	}
-	url, err = addQueryParams(url, map[string]string{"updateMask": "status.resources"})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": "status.resources"})
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{perimeter_name}}/{{resource}}")
+	id, err := ReplaceVars(d, config, "{{perimeter_name}}/{{resource}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -143,7 +143,7 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{perimeter_name}}/{{resource}}")
+	id, err = ReplaceVars(d, config, "{{perimeter_name}}/{{resource}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -161,7 +161,7 @@ func resourceAccessContextManagerServicePerimeterResourceRead(d *schema.Resource
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
 	if err != nil {
 		return err
 	}
@@ -206,14 +206,14 @@ func resourceAccessContextManagerServicePerimeterResourceDelete(d *schema.Resour
 
 	billingProject := ""
 
-	lockName, err := replaceVars(d, config, "{{perimeter_name}}")
+	lockName, err := ReplaceVars(d, config, "{{perimeter_name}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
 	if err != nil {
 		return err
 	}
@@ -224,7 +224,7 @@ func resourceAccessContextManagerServicePerimeterResourceDelete(d *schema.Resour
 	if err != nil {
 		return handleNotFoundError(err, d, "ServicePerimeterResource")
 	}
-	url, err = addQueryParams(url, map[string]string{"updateMask": "status.resources"})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": "status.resources"})
 	if err != nil {
 		return err
 	}
@@ -402,7 +402,7 @@ func resourceAccessContextManagerServicePerimeterResourcePatchDeleteEncoder(d *s
 // extracting list of objects.
 func resourceAccessContextManagerServicePerimeterResourceListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
 	config := meta.(*Config)
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
 	if err != nil {
 		return nil, err
 	}

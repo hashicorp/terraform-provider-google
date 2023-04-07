@@ -136,7 +136,7 @@ func resourceStorageTransferAgentPoolCreate(d *schema.ResourceData, meta interfa
 		obj["bandwidthLimit"] = bandwidthLimitProp
 	}
 
-	url, err := replaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools?agentPoolId={{name}}")
+	url, err := ReplaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools?agentPoolId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -161,7 +161,7 @@ func resourceStorageTransferAgentPoolCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/agentPools/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/agentPools/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -183,7 +183,7 @@ func resourceStorageTransferAgentPoolRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools/{{name}}")
+	url, err := ReplaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -252,7 +252,7 @@ func resourceStorageTransferAgentPoolUpdate(d *schema.ResourceData, meta interfa
 		obj["bandwidthLimit"] = bandwidthLimitProp
 	}
 
-	url, err := replaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools/{{name}}")
+	url, err := ReplaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -267,9 +267,9 @@ func resourceStorageTransferAgentPoolUpdate(d *schema.ResourceData, meta interfa
 	if d.HasChange("bandwidth_limit") {
 		updateMask = append(updateMask, "bandwidthLimit")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -308,7 +308,7 @@ func resourceStorageTransferAgentPoolDelete(d *schema.ResourceData, meta interfa
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools/{{name}}")
+	url, err := ReplaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -332,7 +332,7 @@ func resourceStorageTransferAgentPoolDelete(d *schema.ResourceData, meta interfa
 
 func resourceStorageTransferAgentPoolImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/agentPools/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -341,7 +341,7 @@ func resourceStorageTransferAgentPoolImport(d *schema.ResourceData, meta interfa
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/agentPools/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/agentPools/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

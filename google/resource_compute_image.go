@@ -343,7 +343,7 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 		obj["sourceSnapshot"] = sourceSnapshotProp
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images")
 	if err != nil {
 		return err
 	}
@@ -368,7 +368,7 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/global/images/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/images/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -396,7 +396,7 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -505,7 +505,7 @@ func resourceComputeImageUpdate(d *schema.ResourceData, meta interface{}) error 
 			obj["labelFingerprint"] = labelFingerprintProp
 		}
 
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images/{{name}}/setLabels")
+		url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images/{{name}}/setLabels")
 		if err != nil {
 			return err
 		}
@@ -550,7 +550,7 @@ func resourceComputeImageDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/images/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -582,7 +582,7 @@ func resourceComputeImageDelete(d *schema.ResourceData, meta interface{}) error 
 
 func resourceComputeImageImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/images/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -591,7 +591,7 @@ func resourceComputeImageImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/global/images/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/images/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

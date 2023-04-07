@@ -203,7 +203,7 @@ func (u *CloudIotDeviceRegistryIamUpdater) SetResourceIamPolicy(policy *cloudres
 
 func (u *CloudIotDeviceRegistryIamUpdater) qualifyDeviceRegistryUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{CloudIotBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/registries/%s", u.project, u.region, u.name), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

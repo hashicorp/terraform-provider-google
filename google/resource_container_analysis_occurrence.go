@@ -201,14 +201,14 @@ func resourceContainerAnalysisOccurrenceCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "{{note_name}}")
+	lockName, err := ReplaceVars(d, config, "{{note_name}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/occurrences")
+	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/occurrences")
 	if err != nil {
 		return err
 	}
@@ -236,7 +236,7 @@ func resourceContainerAnalysisOccurrenceCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/occurrences/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/occurrences/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -254,7 +254,7 @@ func resourceContainerAnalysisOccurrenceRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/occurrences/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/occurrences/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -355,14 +355,14 @@ func resourceContainerAnalysisOccurrenceUpdate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "{{note_name}}")
+	lockName, err := ReplaceVars(d, config, "{{note_name}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/occurrences/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/occurrences/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -377,9 +377,9 @@ func resourceContainerAnalysisOccurrenceUpdate(d *schema.ResourceData, meta inte
 	if d.HasChange("attestation") {
 		updateMask = append(updateMask, "attestation")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -415,14 +415,14 @@ func resourceContainerAnalysisOccurrenceDelete(d *schema.ResourceData, meta inte
 	}
 	billingProject = project
 
-	lockName, err := replaceVars(d, config, "{{note_name}}")
+	lockName, err := ReplaceVars(d, config, "{{note_name}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/occurrences/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/occurrences/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -446,7 +446,7 @@ func resourceContainerAnalysisOccurrenceDelete(d *schema.ResourceData, meta inte
 
 func resourceContainerAnalysisOccurrenceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/occurrences/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -455,7 +455,7 @@ func resourceContainerAnalysisOccurrenceImport(d *schema.ResourceData, meta inte
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/occurrences/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/occurrences/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

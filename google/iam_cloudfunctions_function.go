@@ -203,7 +203,7 @@ func (u *CloudFunctionsCloudFunctionIamUpdater) SetResourceIamPolicy(policy *clo
 
 func (u *CloudFunctionsCloudFunctionIamUpdater) qualifyCloudFunctionUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{CloudFunctionsBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/functions/%s", u.project, u.region, u.cloudFunction), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

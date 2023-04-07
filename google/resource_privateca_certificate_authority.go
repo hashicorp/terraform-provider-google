@@ -866,7 +866,7 @@ func resourcePrivatecaCertificateAuthorityCreate(d *schema.ResourceData, meta in
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities?certificateAuthorityId={{certificate_authority_id}}")
+	url, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities?certificateAuthorityId={{certificate_authority_id}}")
 	if err != nil {
 		return err
 	}
@@ -894,7 +894,7 @@ func resourcePrivatecaCertificateAuthorityCreate(d *schema.ResourceData, meta in
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -926,7 +926,7 @@ func resourcePrivatecaCertificateAuthorityCreate(d *schema.ResourceData, meta in
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -968,7 +968,7 @@ func resourcePrivatecaCertificateAuthorityRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}")
+	url, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}")
 	if err != nil {
 		return err
 	}
@@ -1085,7 +1085,7 @@ func resourcePrivatecaCertificateAuthorityUpdate(d *schema.ResourceData, meta in
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}")
+	url, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}")
 	if err != nil {
 		return err
 	}
@@ -1100,9 +1100,9 @@ func resourcePrivatecaCertificateAuthorityUpdate(d *schema.ResourceData, meta in
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -1189,7 +1189,7 @@ func resourcePrivatecaCertificateAuthorityDelete(d *schema.ResourceData, meta in
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}?ignoreActiveCertificates={{ignore_active_certificates_on_deletion}}&skipGracePeriod={{skip_grace_period}}")
+	url, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}?ignoreActiveCertificates={{ignore_active_certificates_on_deletion}}&skipGracePeriod={{skip_grace_period}}")
 	if err != nil {
 		return err
 	}
@@ -1200,7 +1200,7 @@ func resourcePrivatecaCertificateAuthorityDelete(d *schema.ResourceData, meta in
 	}
 
 	if d.Get("state").(string) == "ENABLED" {
-		disableUrl, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:disable")
+		disableUrl, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:disable")
 		if err != nil {
 			return err
 		}
@@ -1246,7 +1246,7 @@ func resourcePrivatecaCertificateAuthorityDelete(d *schema.ResourceData, meta in
 
 func resourcePrivatecaCertificateAuthorityImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/caPools/(?P<pool>[^/]+)/certificateAuthorities/(?P<certificate_authority_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<pool>[^/]+)/(?P<certificate_authority_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<pool>[^/]+)/(?P<certificate_authority_id>[^/]+)",
@@ -1255,7 +1255,7 @@ func resourcePrivatecaCertificateAuthorityImport(d *schema.ResourceData, meta in
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

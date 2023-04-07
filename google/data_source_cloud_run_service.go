@@ -21,7 +21,7 @@ func DataSourceGoogleCloudRunService() *schema.Resource {
 func dataSourceGoogleCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	id, err := replaceVars(d, config, "locations/{{location}}/namespaces/{{project}}/services/{{name}}")
+	id, err := ReplaceVars(d, config, "locations/{{location}}/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}

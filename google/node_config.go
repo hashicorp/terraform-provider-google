@@ -135,7 +135,7 @@ func schemaNodeConfig() *schema.Schema {
 					Type:             schema.TypeString,
 					Optional:         true,
 					Computed:         true,
-					DiffSuppressFunc: caseDiffSuppress,
+					DiffSuppressFunc: CaseDiffSuppress,
 					Description:      `The image type to use for this node. Note that for a given image type, the latest version of it will be used.`,
 				},
 

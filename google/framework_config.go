@@ -1327,7 +1327,7 @@ func GetCredentials(ctx context.Context, data ProviderModel, initialCredentialsO
 		tflog.Info(ctx, "Authenticating using configured Google JSON 'access_token'...")
 		tflog.Info(ctx, fmt.Sprintf("  -- Scopes: %s", clientScopes))
 		return googleoauth.Credentials{
-			TokenSource: staticTokenSource{oauth2.StaticTokenSource(token)},
+			TokenSource: StaticTokenSource{oauth2.StaticTokenSource(token)},
 		}
 	}
 

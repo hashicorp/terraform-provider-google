@@ -115,7 +115,7 @@ func resourceFirestoreDocumentCreate(d *schema.ResourceData, meta interface{}) e
 		obj["fields"] = fieldsProp
 	}
 
-	url, err := replaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{database}}/documents/{{collection}}?documentId={{document_id}}")
+	url, err := ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{database}}/documents/{{collection}}?documentId={{document_id}}")
 	if err != nil {
 		return err
 	}
@@ -143,7 +143,7 @@ func resourceFirestoreDocumentCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -161,7 +161,7 @@ func resourceFirestoreDocumentRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -242,7 +242,7 @@ func resourceFirestoreDocumentUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["fields"] = fieldsProp
 	}
 
-	url, err := replaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -280,7 +280,7 @@ func resourceFirestoreDocumentDelete(d *schema.ResourceData, meta interface{}) e
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -307,7 +307,7 @@ func resourceFirestoreDocumentImport(d *schema.ResourceData, meta interface{}) (
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 

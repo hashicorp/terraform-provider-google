@@ -16,7 +16,7 @@ func TestIsAppEngineRetryableError_operationInProgress(t *testing.T) {
 		Code: 409,
 		Body: "Operation is already in progress",
 	}
-	isRetryable, _ := isAppEngineRetryableError(&err)
+	isRetryable, _ := IsAppEngineRetryableError(&err)
 	if !isRetryable {
 		t.Errorf("Error not detected as retryable")
 	}
@@ -27,7 +27,7 @@ func TestIsAppEngineRetryableError_p4saPropagation(t *testing.T) {
 		Code: 404,
 		Body: "Unable to retrieve P4SA: [service-111111111111@gcp-gae-service.iam.gserviceaccount.com] from GAIA. Could be GAIA propagation delay or request from deleted apps.",
 	}
-	isRetryable, _ := isAppEngineRetryableError(&err)
+	isRetryable, _ := IsAppEngineRetryableError(&err)
 	if !isRetryable {
 		t.Errorf("Error not detected as retryable")
 	}
@@ -38,7 +38,7 @@ func TestIsAppEngineRetryableError_missingPage(t *testing.T) {
 		Code: 404,
 		Body: "Missing page",
 	}
-	isRetryable, _ := isAppEngineRetryableError(&err)
+	isRetryable, _ := IsAppEngineRetryableError(&err)
 	if isRetryable {
 		t.Errorf("Error incorrectly detected as retryable")
 	}
@@ -49,7 +49,7 @@ func TestIsAppEngineRetryableError_serverError(t *testing.T) {
 		Code: 500,
 		Body: "Unable to retrieve P4SA because of a bad thing happening",
 	}
-	isRetryable, _ := isAppEngineRetryableError(&err)
+	isRetryable, _ := IsAppEngineRetryableError(&err)
 	if isRetryable {
 		t.Errorf("Error incorrectly detected as retryable")
 	}
@@ -122,7 +122,7 @@ func TestBigtableError_retryable(t *testing.T) {
 		RetryDelay: &durationpb.Duration{Seconds: 10, Nanos: 10},
 	}
 	status, _ := status.New(codes.FailedPrecondition, "is retryable").WithDetails(retryInfo)
-	isRetryable, _ := isBigTableRetryableError(status.Err())
+	isRetryable, _ := IsBigTableRetryableError(status.Err())
 	if !isRetryable {
 		t.Errorf("Error not detected as retryable")
 	}
@@ -131,7 +131,7 @@ func TestBigtableError_retryable(t *testing.T) {
 // An error without retry info is not retryable.
 func TestBigtableError_withoutRetryInfoNotRetryable(t *testing.T) {
 	status := status.New(codes.FailedPrecondition, "is not retryable")
-	isRetryable, _ := isBigTableRetryableError(status.Err())
+	isRetryable, _ := IsBigTableRetryableError(status.Err())
 	if isRetryable {
 		t.Errorf("Error incorrectly detected as retryable")
 	}
@@ -143,7 +143,7 @@ func TestBigtableError_okIsNotRetryable(t *testing.T) {
 		RetryDelay: &durationpb.Duration{Seconds: 10, Nanos: 10},
 	}
 	status, _ := status.New(codes.OK, "is not retryable").WithDetails(retryInfo)
-	isRetryable, _ := isBigTableRetryableError(status.Err())
+	isRetryable, _ := IsBigTableRetryableError(status.Err())
 	if isRetryable {
 		t.Errorf("Error incorrectly detected as retryable")
 	}

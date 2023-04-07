@@ -142,7 +142,7 @@ func resourceDialogflowEntityTypeCreate(d *schema.ResourceData, meta interface{}
 		obj["entities"] = entitiesProp
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent/entityTypes/")
+	url, err := ReplaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent/entityTypes/")
 	if err != nil {
 		return err
 	}
@@ -170,7 +170,7 @@ func resourceDialogflowEntityTypeCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -206,7 +206,7 @@ func resourceDialogflowEntityTypeRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -293,7 +293,7 @@ func resourceDialogflowEntityTypeUpdate(d *schema.ResourceData, meta interface{}
 		obj["entities"] = entitiesProp
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -331,7 +331,7 @@ func resourceDialogflowEntityTypeDelete(d *schema.ResourceData, meta interface{}
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{DialogflowBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -358,7 +358,7 @@ func resourceDialogflowEntityTypeImport(d *schema.ResourceData, meta interface{}
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 

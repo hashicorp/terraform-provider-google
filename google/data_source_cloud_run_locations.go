@@ -38,7 +38,7 @@ func dataSourceGoogleCloudRunLocationsRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := replaceVars(d, config, "https://run.googleapis.com/v1/projects/{{project}}/locations")
+	url, err := ReplaceVars(d, config, "https://run.googleapis.com/v1/projects/{{project}}/locations")
 	if err != nil {
 		return err
 	}

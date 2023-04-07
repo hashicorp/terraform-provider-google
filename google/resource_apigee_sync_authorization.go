@@ -93,7 +93,7 @@ func resourceApigeeSyncAuthorizationCreate(d *schema.ResourceData, meta interfac
 		obj["etag"] = etagProp
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}:setSyncAuthorization")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}:setSyncAuthorization")
 	if err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func resourceApigeeSyncAuthorizationCreate(d *schema.ResourceData, meta interfac
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "organizations/{{name}}/syncAuthorization")
+	id, err := ReplaceVars(d, config, "organizations/{{name}}/syncAuthorization")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -130,7 +130,7 @@ func resourceApigeeSyncAuthorizationRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}:getSyncAuthorization")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}:getSyncAuthorization")
 	if err != nil {
 		return err
 	}
@@ -180,7 +180,7 @@ func resourceApigeeSyncAuthorizationUpdate(d *schema.ResourceData, meta interfac
 		obj["etag"] = etagProp
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}:setSyncAuthorization")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}:setSyncAuthorization")
 	if err != nil {
 		return err
 	}
@@ -214,7 +214,7 @@ func resourceApigeeSyncAuthorizationDelete(d *schema.ResourceData, meta interfac
 
 func resourceApigeeSyncAuthorizationImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"organizations/(?P<name>[^/]+)/syncAuthorization",
 		"(?P<name>[^/]+)",
 	}, d, config); err != nil {
@@ -222,7 +222,7 @@ func resourceApigeeSyncAuthorizationImport(d *schema.ResourceData, meta interfac
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "organizations/{{name}}/syncAuthorization")
+	id, err := ReplaceVars(d, config, "organizations/{{name}}/syncAuthorization")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

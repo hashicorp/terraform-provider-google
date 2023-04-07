@@ -148,7 +148,7 @@ func resourceKMSKeyRingImportJobCreate(d *schema.ResourceData, meta interface{})
 		obj["protectionLevel"] = protectionLevelProp
 	}
 
-	url, err := replaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/importJobs?importJobId={{import_job_id}}")
+	url, err := ReplaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/importJobs?importJobId={{import_job_id}}")
 	if err != nil {
 		return err
 	}
@@ -170,7 +170,7 @@ func resourceKMSKeyRingImportJobCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -188,7 +188,7 @@ func resourceKMSKeyRingImportJobRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{KMSBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{KMSBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -239,7 +239,7 @@ func resourceKMSKeyRingImportJobDelete(d *schema.ResourceData, meta interface{})
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{KMSBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{KMSBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -266,7 +266,7 @@ func resourceKMSKeyRingImportJobImport(d *schema.ResourceData, meta interface{})
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 

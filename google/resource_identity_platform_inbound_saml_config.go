@@ -184,7 +184,7 @@ func resourceIdentityPlatformInboundSamlConfigCreate(d *schema.ResourceData, met
 		obj["spConfig"] = spConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/inboundSamlConfigs?inboundSamlConfigId={{name}}")
+	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/inboundSamlConfigs?inboundSamlConfigId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -209,7 +209,7 @@ func resourceIdentityPlatformInboundSamlConfigCreate(d *schema.ResourceData, met
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/inboundSamlConfigs/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/inboundSamlConfigs/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -227,7 +227,7 @@ func resourceIdentityPlatformInboundSamlConfigRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/inboundSamlConfigs/{{name}}")
+	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/inboundSamlConfigs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -314,7 +314,7 @@ func resourceIdentityPlatformInboundSamlConfigUpdate(d *schema.ResourceData, met
 		obj["spConfig"] = spConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/inboundSamlConfigs/{{name}}")
+	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/inboundSamlConfigs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -337,9 +337,9 @@ func resourceIdentityPlatformInboundSamlConfigUpdate(d *schema.ResourceData, met
 	if d.HasChange("sp_config") {
 		updateMask = append(updateMask, "spConfig")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -375,7 +375,7 @@ func resourceIdentityPlatformInboundSamlConfigDelete(d *schema.ResourceData, met
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/inboundSamlConfigs/{{name}}")
+	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/inboundSamlConfigs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -399,7 +399,7 @@ func resourceIdentityPlatformInboundSamlConfigDelete(d *schema.ResourceData, met
 
 func resourceIdentityPlatformInboundSamlConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/inboundSamlConfigs/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -408,7 +408,7 @@ func resourceIdentityPlatformInboundSamlConfigImport(d *schema.ResourceData, met
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/inboundSamlConfigs/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/inboundSamlConfigs/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

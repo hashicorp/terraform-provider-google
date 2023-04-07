@@ -810,7 +810,7 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 		obj["template"] = templateProp
 	}
 
-	url, err := replaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/jobs?jobId={{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/jobs?jobId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -835,7 +835,7 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/jobs/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/jobs/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -855,7 +855,7 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{location}}/jobs/{{name}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/jobs/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -873,7 +873,7 @@ func resourceCloudRunV2JobRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/jobs/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/jobs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1002,7 +1002,7 @@ func resourceCloudRunV2JobUpdate(d *schema.ResourceData, meta interface{}) error
 		obj["template"] = templateProp
 	}
 
-	url, err := replaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/jobs/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/jobs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1048,7 +1048,7 @@ func resourceCloudRunV2JobDelete(d *schema.ResourceData, meta interface{}) error
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/jobs/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/jobs/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1080,7 +1080,7 @@ func resourceCloudRunV2JobDelete(d *schema.ResourceData, meta interface{}) error
 
 func resourceCloudRunV2JobImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/jobs/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -1089,7 +1089,7 @@ func resourceCloudRunV2JobImport(d *schema.ResourceData, meta interface{}) ([]*s
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/jobs/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/jobs/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

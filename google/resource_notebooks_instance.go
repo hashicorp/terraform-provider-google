@@ -173,7 +173,7 @@ If not specified, this defaults to 100.`,
 				Optional:         true,
 				ForceNew:         true,
 				ValidateFunc:     validateEnum([]string{"DISK_ENCRYPTION_UNSPECIFIED", "GMEK", "CMEK", ""}),
-				DiffSuppressFunc: emptyOrDefaultStringSuppress("DISK_ENCRYPTION_UNSPECIFIED"),
+				DiffSuppressFunc: EmptyOrDefaultStringSuppress("DISK_ENCRYPTION_UNSPECIFIED"),
 				Description:      `Disk encryption method used on the boot and data disks, defaults to GMEK. Possible values: ["DISK_ENCRYPTION_UNSPECIFIED", "GMEK", "CMEK"]`,
 			},
 			"install_gpu_driver": {
@@ -615,7 +615,7 @@ func resourceNotebooksInstanceCreate(d *schema.ResourceData, meta interface{}) e
 		obj["containerImage"] = containerImageProp
 	}
 
-	url, err := replaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/instances?instanceId={{name}}")
+	url, err := ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/instances?instanceId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -640,7 +640,7 @@ func resourceNotebooksInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -660,7 +660,7 @@ func resourceNotebooksInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -678,7 +678,7 @@ func resourceNotebooksInstanceRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
+	url, err := ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -802,7 +802,7 @@ func resourceNotebooksInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 			obj["labels"] = labelsProp
 		}
 
-		url, err := replaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}:setLabels")
+		url, err := ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}:setLabels")
 		if err != nil {
 			return err
 		}
@@ -847,7 +847,7 @@ func resourceNotebooksInstanceDelete(d *schema.ResourceData, meta interface{}) e
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
+	url, err := ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -879,7 +879,7 @@ func resourceNotebooksInstanceDelete(d *schema.ResourceData, meta interface{}) e
 
 func resourceNotebooksInstanceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/instances/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -888,7 +888,7 @@ func resourceNotebooksInstanceImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

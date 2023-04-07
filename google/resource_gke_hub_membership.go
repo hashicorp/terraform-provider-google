@@ -159,7 +159,7 @@ func resourceGKEHubMembershipCreate(d *schema.ResourceData, meta interface{}) er
 		obj["authority"] = authorityProp
 	}
 
-	url, err := replaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships?membershipId={{membership_id}}")
+	url, err := ReplaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships?membershipId={{membership_id}}")
 	if err != nil {
 		return err
 	}
@@ -184,7 +184,7 @@ func resourceGKEHubMembershipCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/global/memberships/{{membership_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/memberships/{{membership_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -208,7 +208,7 @@ func resourceGKEHubMembershipCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/global/memberships/{{membership_id}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/global/memberships/{{membership_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -226,7 +226,7 @@ func resourceGKEHubMembershipRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
+	url, err := ReplaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
 	if err != nil {
 		return err
 	}
@@ -298,7 +298,7 @@ func resourceGKEHubMembershipUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["authority"] = authorityProp
 	}
 
-	url, err := replaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
+	url, err := ReplaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
 	if err != nil {
 		return err
 	}
@@ -313,9 +313,9 @@ func resourceGKEHubMembershipUpdate(d *schema.ResourceData, meta interface{}) er
 	if d.HasChange("authority") {
 		updateMask = append(updateMask, "authority")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -359,7 +359,7 @@ func resourceGKEHubMembershipDelete(d *schema.ResourceData, meta interface{}) er
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
+	url, err := ReplaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
 	if err != nil {
 		return err
 	}
@@ -391,7 +391,7 @@ func resourceGKEHubMembershipDelete(d *schema.ResourceData, meta interface{}) er
 
 func resourceGKEHubMembershipImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/global/memberships/(?P<membership_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<membership_id>[^/]+)",
 		"(?P<membership_id>[^/]+)",
@@ -400,7 +400,7 @@ func resourceGKEHubMembershipImport(d *schema.ResourceData, meta interface{}) ([
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/global/memberships/{{membership_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/memberships/{{membership_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

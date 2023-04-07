@@ -179,7 +179,7 @@ func (u *SecretManagerSecretIamUpdater) SetResourceIamPolicy(policy *cloudresour
 
 func (u *SecretManagerSecretIamUpdater) qualifySecretUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{SecretManagerBasePath}}%s:%s", fmt.Sprintf("projects/%s/secrets/%s", u.project, u.secretId), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

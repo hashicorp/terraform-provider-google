@@ -277,7 +277,7 @@ func resourceCloudTasksQueueCreate(d *schema.ResourceData, meta interface{}) err
 		obj["stackdriverLoggingConfig"] = stackdriverLoggingConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues")
+	url, err := ReplaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues")
 	if err != nil {
 		return err
 	}
@@ -302,7 +302,7 @@ func resourceCloudTasksQueueCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/queues/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/queues/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -320,7 +320,7 @@ func resourceCloudTasksQueueRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -407,7 +407,7 @@ func resourceCloudTasksQueueUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["stackdriverLoggingConfig"] = stackdriverLoggingConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -430,9 +430,9 @@ func resourceCloudTasksQueueUpdate(d *schema.ResourceData, meta interface{}) err
 	if d.HasChange("stackdriver_logging_config") {
 		updateMask = append(updateMask, "stackdriverLoggingConfig")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -468,7 +468,7 @@ func resourceCloudTasksQueueDelete(d *schema.ResourceData, meta interface{}) err
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -492,7 +492,7 @@ func resourceCloudTasksQueueDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceCloudTasksQueueImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/queues/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -501,7 +501,7 @@ func resourceCloudTasksQueueImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/queues/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/queues/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -676,7 +676,7 @@ func flattenCloudTasksQueueStackdriverLoggingConfigSamplingRatio(v interface{}, 
 }
 
 func expandCloudTasksQueueName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return replaceVars(d, config, "projects/{{project}}/locations/{{location}}/queues/{{name}}")
+	return ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/queues/{{name}}")
 }
 
 func expandCloudTasksQueueAppEngineRoutingOverride(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

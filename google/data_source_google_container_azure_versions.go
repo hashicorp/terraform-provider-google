@@ -53,7 +53,7 @@ func dataSourceGoogleContainerAzureVersionsRead(d *schema.ResourceData, meta int
 		return fmt.Errorf("Cannot determine location: set location in this data source or at provider-level")
 	}
 
-	url, err := replaceVars(d, config, "{{ContainerAzureBasePath}}projects/{{project}}/locations/{{location}}/azureServerConfig")
+	url, err := ReplaceVars(d, config, "{{ContainerAzureBasePath}}projects/{{project}}/locations/{{location}}/azureServerConfig")
 	if err != nil {
 		return err
 	}

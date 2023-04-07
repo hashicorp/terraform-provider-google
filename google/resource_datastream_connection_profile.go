@@ -402,7 +402,7 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 		obj["privateConnectivity"] = privateConnectivityProp
 	}
 
-	url, err := replaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles?connectionProfileId={{connection_profile_id}}")
+	url, err := ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles?connectionProfileId={{connection_profile_id}}")
 	if err != nil {
 		return err
 	}
@@ -427,7 +427,7 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -451,7 +451,7 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -469,7 +469,7 @@ func resourceDatastreamConnectionProfileRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
+	url, err := ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
 	if err != nil {
 		return err
 	}
@@ -601,7 +601,7 @@ func resourceDatastreamConnectionProfileUpdate(d *schema.ResourceData, meta inte
 		obj["privateConnectivity"] = privateConnectivityProp
 	}
 
-	url, err := replaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
+	url, err := ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
 	if err != nil {
 		return err
 	}
@@ -644,9 +644,9 @@ func resourceDatastreamConnectionProfileUpdate(d *schema.ResourceData, meta inte
 	if d.HasChange("private_connectivity") {
 		updateMask = append(updateMask, "privateConnectivity")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -690,7 +690,7 @@ func resourceDatastreamConnectionProfileDelete(d *schema.ResourceData, meta inte
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
+	url, err := ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
 	if err != nil {
 		return err
 	}
@@ -722,7 +722,7 @@ func resourceDatastreamConnectionProfileDelete(d *schema.ResourceData, meta inte
 
 func resourceDatastreamConnectionProfileImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/connectionProfiles/(?P<connection_profile_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<connection_profile_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<connection_profile_id>[^/]+)",
@@ -731,7 +731,7 @@ func resourceDatastreamConnectionProfileImport(d *schema.ResourceData, meta inte
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

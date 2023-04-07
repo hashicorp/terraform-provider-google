@@ -62,7 +62,7 @@ func testSweepGameServicesGameServerDeployment(region string) error {
 	}
 
 	listTemplate := strings.Split("https://gameservices.googleapis.com/v1/projects/{{project}}/locations/{{location}}/gameServerDeployments", "?")[0]
-	listUrl, err := replaceVars(d, config, listTemplate)
+	listUrl, err := ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 		return nil
@@ -104,7 +104,7 @@ func testSweepGameServicesGameServerDeployment(region string) error {
 		}
 
 		deleteTemplate := "https://gameservices.googleapis.com/v1/projects/{{project}}/locations/{{location}}/gameServerDeployments/{{deployment_id}}"
-		deleteUrl, err := replaceVars(d, config, deleteTemplate)
+		deleteUrl, err := ReplaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 			return nil

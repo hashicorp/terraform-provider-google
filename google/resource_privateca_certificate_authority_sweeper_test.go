@@ -41,7 +41,7 @@ func testSweepCertificateAuthority(region string) error {
 		},
 	}
 
-	caPoolsUrl, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools")
+	caPoolsUrl, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools")
 	if err != nil {
 		return err
 	}

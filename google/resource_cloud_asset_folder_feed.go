@@ -214,7 +214,7 @@ func resourceCloudAssetFolderFeedCreate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudAssetBasePath}}folders/{{folder_id}}/feeds?feedId={{feed_id}}")
+	url, err := ReplaceVars(d, config, "{{CloudAssetBasePath}}folders/{{folder_id}}/feeds?feedId={{feed_id}}")
 	if err != nil {
 		return err
 	}
@@ -243,7 +243,7 @@ func resourceCloudAssetFolderFeedCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -264,7 +264,7 @@ func resourceCloudAssetFolderFeedRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudAssetBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudAssetBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -356,7 +356,7 @@ func resourceCloudAssetFolderFeedUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudAssetBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudAssetBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -383,9 +383,9 @@ func resourceCloudAssetFolderFeedUpdate(d *schema.ResourceData, meta interface{}
 	if d.HasChange("condition") {
 		updateMask = append(updateMask, "condition")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -418,7 +418,7 @@ func resourceCloudAssetFolderFeedDelete(d *schema.ResourceData, meta interface{}
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{CloudAssetBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudAssetBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}

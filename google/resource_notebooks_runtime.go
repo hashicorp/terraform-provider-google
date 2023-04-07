@@ -649,7 +649,7 @@ func resourceNotebooksRuntimeCreate(d *schema.ResourceData, meta interface{}) er
 		obj["softwareConfig"] = softwareConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/runtimes?runtimeId={{name}}")
+	url, err := ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/runtimes?runtimeId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -674,7 +674,7 @@ func resourceNotebooksRuntimeCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -694,7 +694,7 @@ func resourceNotebooksRuntimeCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -712,7 +712,7 @@ func resourceNotebooksRuntimeRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
+	url, err := ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -796,7 +796,7 @@ func resourceNotebooksRuntimeUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["softwareConfig"] = softwareConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
+	url, err := ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -818,9 +818,9 @@ func resourceNotebooksRuntimeUpdate(d *schema.ResourceData, meta interface{}) er
 			"softwareConfig.customGpuDriverPath",
 			"softwareConfig.postStartupScript")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -864,7 +864,7 @@ func resourceNotebooksRuntimeDelete(d *schema.ResourceData, meta interface{}) er
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
+	url, err := ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -896,7 +896,7 @@ func resourceNotebooksRuntimeDelete(d *schema.ResourceData, meta interface{}) er
 
 func resourceNotebooksRuntimeImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/runtimes/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -905,7 +905,7 @@ func resourceNotebooksRuntimeImport(d *schema.ResourceData, meta interface{}) ([
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

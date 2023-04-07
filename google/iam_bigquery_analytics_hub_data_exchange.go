@@ -203,7 +203,7 @@ func (u *BigqueryAnalyticsHubDataExchangeIamUpdater) SetResourceIamPolicy(policy
 
 func (u *BigqueryAnalyticsHubDataExchangeIamUpdater) qualifyDataExchangeUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{BigqueryAnalyticsHubBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s", u.project, u.location, u.dataExchangeId), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

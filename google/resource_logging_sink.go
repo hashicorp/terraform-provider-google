@@ -26,7 +26,7 @@ func resourceLoggingSinkSchema() map[string]*schema.Schema {
 		"filter": {
 			Type:             schema.TypeString,
 			Optional:         true,
-			DiffSuppressFunc: optionalSurroundingSpacesSuppress,
+			DiffSuppressFunc: OptionalSurroundingSpacesSuppress,
 			Description:      `The filter to apply when exporting logs. Only log entries that match the filter are exported.`,
 		},
 

@@ -199,7 +199,7 @@ func (u *IapAppEngineServiceIamUpdater) SetResourceIamPolicy(policy *cloudresour
 
 func (u *IapAppEngineServiceIamUpdater) qualifyAppEngineServiceUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s", u.project, u.appId, u.service), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

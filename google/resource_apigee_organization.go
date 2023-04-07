@@ -219,7 +219,7 @@ func resourceApigeeOrganizationCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations?parent=projects/{{project_id}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations?parent=projects/{{project_id}}")
 	if err != nil {
 		return err
 	}
@@ -238,7 +238,7 @@ func resourceApigeeOrganizationCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "organizations/{{name}}")
+	id, err := ReplaceVars(d, config, "organizations/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -262,7 +262,7 @@ func resourceApigeeOrganizationCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "organizations/{{name}}")
+	id, err = ReplaceVars(d, config, "organizations/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -280,7 +280,7 @@ func resourceApigeeOrganizationRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -398,7 +398,7 @@ func resourceApigeeOrganizationUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -438,7 +438,7 @@ func resourceApigeeOrganizationDelete(d *schema.ResourceData, meta interface{}) 
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}?retention={{retention}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{name}}?retention={{retention}}")
 	if err != nil {
 		return err
 	}
@@ -464,7 +464,7 @@ func resourceApigeeOrganizationImport(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 
@@ -494,7 +494,7 @@ func resourceApigeeOrganizationImport(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "organizations/{{name}}")
+	id, err := ReplaceVars(d, config, "organizations/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

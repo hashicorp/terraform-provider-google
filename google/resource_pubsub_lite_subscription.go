@@ -120,7 +120,7 @@ func resourcePubsubLiteSubscriptionCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions?subscriptionId={{name}}")
+	url, err := ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions?subscriptionId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -145,7 +145,7 @@ func resourcePubsubLiteSubscriptionCreate(d *schema.ResourceData, meta interface
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -163,7 +163,7 @@ func resourcePubsubLiteSubscriptionRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
+	url, err := ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -228,7 +228,7 @@ func resourcePubsubLiteSubscriptionUpdate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
+	url, err := ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -239,9 +239,9 @@ func resourcePubsubLiteSubscriptionUpdate(d *schema.ResourceData, meta interface
 	if d.HasChange("delivery_config") {
 		updateMask = append(updateMask, "deliveryConfig")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -277,7 +277,7 @@ func resourcePubsubLiteSubscriptionDelete(d *schema.ResourceData, meta interface
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
+	url, err := ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -301,7 +301,7 @@ func resourcePubsubLiteSubscriptionDelete(d *schema.ResourceData, meta interface
 
 func resourcePubsubLiteSubscriptionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<zone>[^/]+)/subscriptions/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
 		"(?P<zone>[^/]+)/(?P<name>[^/]+)",
@@ -311,7 +311,7 @@ func resourcePubsubLiteSubscriptionImport(d *schema.ResourceData, meta interface
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

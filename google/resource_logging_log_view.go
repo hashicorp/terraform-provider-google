@@ -128,7 +128,7 @@ func resourceLoggingLogViewCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{LoggingBasePath}}{{parent}}/locations/{{location}}/buckets/{{bucket}}/views?viewId={{name}}")
+	url, err := ReplaceVars(d, config, "{{LoggingBasePath}}{{parent}}/locations/{{location}}/buckets/{{bucket}}/views?viewId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -147,7 +147,7 @@ func resourceLoggingLogViewCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{parent}}/locations/{{location}}/buckets/{{bucket}}/views/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/locations/{{location}}/buckets/{{bucket}}/views/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -165,7 +165,7 @@ func resourceLoggingLogViewRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{LoggingBasePath}}{{parent}}/locations/{{location}}/buckets/{{bucket}}/views/{{name}}")
+	url, err := ReplaceVars(d, config, "{{LoggingBasePath}}{{parent}}/locations/{{location}}/buckets/{{bucket}}/views/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -226,7 +226,7 @@ func resourceLoggingLogViewUpdate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{LoggingBasePath}}{{parent}}/locations/{{location}}/buckets/{{bucket}}/views/{{name}}")
+	url, err := ReplaceVars(d, config, "{{LoggingBasePath}}{{parent}}/locations/{{location}}/buckets/{{bucket}}/views/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -241,9 +241,9 @@ func resourceLoggingLogViewUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("filter") {
 		updateMask = append(updateMask, "filter")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -273,7 +273,7 @@ func resourceLoggingLogViewDelete(d *schema.ResourceData, meta interface{}) erro
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{LoggingBasePath}}{{parent}}/locations/{{location}}/buckets/{{bucket}}/views/{{name}}")
+	url, err := ReplaceVars(d, config, "{{LoggingBasePath}}{{parent}}/locations/{{location}}/buckets/{{bucket}}/views/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -297,14 +297,14 @@ func resourceLoggingLogViewDelete(d *schema.ResourceData, meta interface{}) erro
 
 func resourceLoggingLogViewImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<parent>.+)/locations/(?P<location>[^/]+)/buckets/(?P<bucket>[^/]+)/views/(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{parent}}/locations/{{location}}/buckets/{{bucket}}/views/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/locations/{{location}}/buckets/{{bucket}}/views/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

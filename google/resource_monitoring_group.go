@@ -118,14 +118,14 @@ func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) err
 		obj["filter"] = filterProp
 	}
 
-	lockName, err := replaceVars(d, config, "stackdriver/groups/{{project}}")
+	lockName, err := ReplaceVars(d, config, "stackdriver/groups/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/groups")
+	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/groups")
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IsMonitoringConcurrentEditError)
 	if err != nil {
 		return fmt.Errorf("Error creating Group: %s", err)
 	}
@@ -153,7 +153,7 @@ func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -189,7 +189,7 @@ func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
+	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -207,7 +207,7 @@ func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, isMonitoringConcurrentEditError)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringGroup %q", d.Id()))
 	}
@@ -276,14 +276,14 @@ func resourceMonitoringGroupUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["filter"] = filterProp
 	}
 
-	lockName, err := replaceVars(d, config, "stackdriver/groups/{{project}}")
+	lockName, err := ReplaceVars(d, config, "stackdriver/groups/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
+	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -295,7 +295,7 @@ func resourceMonitoringGroupUpdate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
+	res, err := SendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), IsMonitoringConcurrentEditError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Group %q: %s", d.Id(), err)
@@ -321,14 +321,14 @@ func resourceMonitoringGroupDelete(d *schema.ResourceData, meta interface{}) err
 	}
 	billingProject = project
 
-	lockName, err := replaceVars(d, config, "stackdriver/groups/{{project}}")
+	lockName, err := ReplaceVars(d, config, "stackdriver/groups/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
+	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -341,7 +341,7 @@ func resourceMonitoringGroupDelete(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IsMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, "Group")
 	}
@@ -355,7 +355,7 @@ func resourceMonitoringGroupImport(d *schema.ResourceData, meta interface{}) ([]
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
 		return nil, err
 	}
 

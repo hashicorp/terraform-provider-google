@@ -22,7 +22,7 @@ func TestAccKmsKeyRingIamBinding(t *testing.T) {
 	roleId := "roles/cloudkms.cryptoKeyDecrypter"
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	keyRingId := &kmsKeyRingId{
+	keyRingId := &KmsKeyRingId{
 		Project:  projectId,
 		Location: DEFAULT_KMS_TEST_LOCATION,
 		Name:     keyRingName,
@@ -35,27 +35,27 @@ func TestAccKmsKeyRingIamBinding(t *testing.T) {
 			{
 				// Test Iam Binding creation
 				Config: testAccKmsKeyRingIamBinding_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
-				Check: testAccCheckGoogleKmsKeyRingIam(t, keyRingId.keyRingId(), roleId, []string{
+				Check: testAccCheckGoogleKmsKeyRingIam(t, keyRingId.KeyRingId(), roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				}),
 			},
 			{
 				ResourceName:      "google_kms_key_ring_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s %s", keyRingId.terraformId(), roleId),
+				ImportStateId:     fmt.Sprintf("%s %s", keyRingId.TerraformId(), roleId),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				// Test Iam Binding update
 				Config: testAccKmsKeyRingIamBinding_update(projectId, orgId, billingAccount, account, keyRingName, roleId),
-				Check: testAccCheckGoogleKmsKeyRingIam(t, keyRingId.keyRingId(), roleId, []string{
+				Check: testAccCheckGoogleKmsKeyRingIam(t, keyRingId.KeyRingId(), roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, projectId),
 				}),
 			},
 			{
 				ResourceName:      "google_kms_key_ring_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s %s", keyRingId.terraformId(), roleId),
+				ImportStateId:     fmt.Sprintf("%s %s", keyRingId.TerraformId(), roleId),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -73,7 +73,7 @@ func TestAccKmsKeyRingIamMember(t *testing.T) {
 	roleId := "roles/cloudkms.cryptoKeyEncrypter"
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	keyRingId := &kmsKeyRingId{
+	keyRingId := &KmsKeyRingId{
 		Project:  projectId,
 		Location: DEFAULT_KMS_TEST_LOCATION,
 		Name:     keyRingName,
@@ -86,13 +86,13 @@ func TestAccKmsKeyRingIamMember(t *testing.T) {
 			{
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccKmsKeyRingIamMember_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
-				Check: testAccCheckGoogleKmsKeyRingIam(t, keyRingId.keyRingId(), roleId, []string{
+				Check: testAccCheckGoogleKmsKeyRingIam(t, keyRingId.KeyRingId(), roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				}),
 			},
 			{
 				ResourceName:      "google_kms_key_ring_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("%s %s serviceAccount:%s@%s.iam.gserviceaccount.com", keyRingId.terraformId(), roleId, account, projectId),
+				ImportStateId:     fmt.Sprintf("%s %s serviceAccount:%s@%s.iam.gserviceaccount.com", keyRingId.TerraformId(), roleId, account, projectId),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -110,7 +110,7 @@ func TestAccKmsKeyRingIamPolicy(t *testing.T) {
 	roleId := "roles/cloudkms.cryptoKeyEncrypter"
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	keyRingId := &kmsKeyRingId{
+	keyRingId := &KmsKeyRingId{
 		Project:  projectId,
 		Location: DEFAULT_KMS_TEST_LOCATION,
 		Name:     keyRingName,
@@ -122,13 +122,13 @@ func TestAccKmsKeyRingIamPolicy(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKmsKeyRingIamPolicy_basic(projectId, orgId, billingAccount, account, keyRingName, roleId),
-				Check: testAccCheckGoogleKmsKeyRingIam(t, keyRingId.keyRingId(), roleId, []string{
+				Check: testAccCheckGoogleKmsKeyRingIam(t, keyRingId.KeyRingId(), roleId, []string{
 					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
 				}),
 			},
 			{
 				ResourceName:      "google_kms_key_ring_iam_policy.foo",
-				ImportStateId:     keyRingId.terraformId(),
+				ImportStateId:     keyRingId.TerraformId(),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

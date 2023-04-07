@@ -154,7 +154,7 @@ func resourceComputeExternalVpnGatewayCreate(d *schema.ResourceData, meta interf
 		obj["interfaces"] = interfacesProp
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/externalVpnGateways")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/externalVpnGateways")
 	if err != nil {
 		return err
 	}
@@ -179,7 +179,7 @@ func resourceComputeExternalVpnGatewayCreate(d *schema.ResourceData, meta interf
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/global/externalVpnGateways/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/externalVpnGateways/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -207,7 +207,7 @@ func resourceComputeExternalVpnGatewayRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/externalVpnGateways/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/externalVpnGateways/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -271,7 +271,7 @@ func resourceComputeExternalVpnGatewayDelete(d *schema.ResourceData, meta interf
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/externalVpnGateways/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/externalVpnGateways/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -303,7 +303,7 @@ func resourceComputeExternalVpnGatewayDelete(d *schema.ResourceData, meta interf
 
 func resourceComputeExternalVpnGatewayImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/externalVpnGateways/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -312,7 +312,7 @@ func resourceComputeExternalVpnGatewayImport(d *schema.ResourceData, meta interf
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/global/externalVpnGateways/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/externalVpnGateways/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

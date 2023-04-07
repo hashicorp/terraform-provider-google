@@ -132,7 +132,7 @@ func resourceComputeTargetHttpProxyCreate(d *schema.ResourceData, meta interface
 		obj["proxyBind"] = proxyBindProp
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies")
 	if err != nil {
 		return err
 	}
@@ -157,7 +157,7 @@ func resourceComputeTargetHttpProxyCreate(d *schema.ResourceData, meta interface
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/global/targetHttpProxies/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/targetHttpProxies/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -185,7 +185,7 @@ func resourceComputeTargetHttpProxyRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -264,7 +264,7 @@ func resourceComputeTargetHttpProxyUpdate(d *schema.ResourceData, meta interface
 			obj["urlMap"] = urlMapProp
 		}
 
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/targetHttpProxies/{{name}}/setUrlMap")
+		url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/targetHttpProxies/{{name}}/setUrlMap")
 		if err != nil {
 			return err
 		}
@@ -309,7 +309,7 @@ func resourceComputeTargetHttpProxyDelete(d *schema.ResourceData, meta interface
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/targetHttpProxies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -341,7 +341,7 @@ func resourceComputeTargetHttpProxyDelete(d *schema.ResourceData, meta interface
 
 func resourceComputeTargetHttpProxyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/targetHttpProxies/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -350,7 +350,7 @@ func resourceComputeTargetHttpProxyImport(d *schema.ResourceData, meta interface
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/global/targetHttpProxies/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/targetHttpProxies/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

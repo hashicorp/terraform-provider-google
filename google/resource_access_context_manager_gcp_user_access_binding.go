@@ -95,7 +95,7 @@ func resourceAccessContextManagerGcpUserAccessBindingCreate(d *schema.ResourceDa
 		obj["accessLevels"] = accessLevelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}organizations/{{organization_id}}/gcpUserAccessBindings")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}organizations/{{organization_id}}/gcpUserAccessBindings")
 	if err != nil {
 		return err
 	}
@@ -114,7 +114,7 @@ func resourceAccessContextManagerGcpUserAccessBindingCreate(d *schema.ResourceDa
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -138,7 +138,7 @@ func resourceAccessContextManagerGcpUserAccessBindingCreate(d *schema.ResourceDa
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{name}}")
+	id, err = ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -156,7 +156,7 @@ func resourceAccessContextManagerGcpUserAccessBindingRead(d *schema.ResourceData
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -203,7 +203,7 @@ func resourceAccessContextManagerGcpUserAccessBindingUpdate(d *schema.ResourceDa
 		obj["accessLevels"] = accessLevelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -214,9 +214,9 @@ func resourceAccessContextManagerGcpUserAccessBindingUpdate(d *schema.ResourceDa
 	if d.HasChange("access_levels") {
 		updateMask = append(updateMask, "accessLevels")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -254,7 +254,7 @@ func resourceAccessContextManagerGcpUserAccessBindingDelete(d *schema.ResourceDa
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -288,7 +288,7 @@ func resourceAccessContextManagerGcpUserAccessBindingImport(d *schema.ResourceDa
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 

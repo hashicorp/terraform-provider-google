@@ -151,7 +151,7 @@ func resourceCloudIdsEndpointCreate(d *schema.ResourceData, meta interface{}) er
 		obj["threatExceptions"] = threatExceptionsProp
 	}
 
-	url, err := replaceVars(d, config, "{{CloudIdsBasePath}}projects/{{project}}/locations/{{location}}/endpoints?endpointId={{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudIdsBasePath}}projects/{{project}}/locations/{{location}}/endpoints?endpointId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -176,7 +176,7 @@ func resourceCloudIdsEndpointCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -200,7 +200,7 @@ func resourceCloudIdsEndpointCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -218,7 +218,7 @@ func resourceCloudIdsEndpointRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudIdsBasePath}}projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudIdsBasePath}}projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -299,7 +299,7 @@ func resourceCloudIdsEndpointUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["threatExceptions"] = threatExceptionsProp
 	}
 
-	url, err := replaceVars(d, config, "{{CloudIdsBasePath}}projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudIdsBasePath}}projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -310,9 +310,9 @@ func resourceCloudIdsEndpointUpdate(d *schema.ResourceData, meta interface{}) er
 	if d.HasChange("threat_exceptions") {
 		updateMask = append(updateMask, "threatExceptions")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -356,7 +356,7 @@ func resourceCloudIdsEndpointDelete(d *schema.ResourceData, meta interface{}) er
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{CloudIdsBasePath}}projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudIdsBasePath}}projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -388,7 +388,7 @@ func resourceCloudIdsEndpointDelete(d *schema.ResourceData, meta interface{}) er
 
 func resourceCloudIdsEndpointImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/endpoints/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -397,7 +397,7 @@ func resourceCloudIdsEndpointImport(d *schema.ResourceData, meta interface{}) ([
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -444,7 +444,7 @@ func flattenCloudIdsEndpointThreatExceptions(v interface{}, d *schema.ResourceDa
 }
 
 func expandCloudIdsEndpointName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
-	return replaceVars(d, config, "projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
+	return ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
 }
 
 func expandCloudIdsEndpointNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

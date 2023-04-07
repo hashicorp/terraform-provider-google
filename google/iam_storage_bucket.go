@@ -102,7 +102,7 @@ func (u *StorageBucketIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.
 	}
 
 	var obj map[string]interface{}
-	url, err = addQueryParams(url, map[string]string{"optionsRequestedPolicyVersion": fmt.Sprintf("%d", IamPolicyVersion)})
+	url, err = AddQueryParams(url, map[string]string{"optionsRequestedPolicyVersion": fmt.Sprintf("%d", IamPolicyVersion)})
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func (u *StorageBucketIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 
 func (u *StorageBucketIamUpdater) qualifyBucketUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{StorageBasePath}}%s/%s", fmt.Sprintf("b/%s", u.bucket), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

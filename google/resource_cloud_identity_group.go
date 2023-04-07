@@ -186,7 +186,7 @@ func resourceCloudIdentityGroupCreate(d *schema.ResourceData, meta interface{}) 
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}groups?initialGroupConfig={{initial_group_config}}")
+	url, err := ReplaceVars(d, config, "{{CloudIdentityBasePath}}groups?initialGroupConfig={{initial_group_config}}")
 	if err != nil {
 		return err
 	}
@@ -208,7 +208,7 @@ func resourceCloudIdentityGroupCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -246,7 +246,7 @@ func resourceCloudIdentityGroupPollRead(d *schema.ResourceData, meta interface{}
 	return func() (map[string]interface{}, error) {
 		config := meta.(*Config)
 
-		url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
+		url, err := ReplaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
 		if err != nil {
 			return nil, err
 		}
@@ -278,7 +278,7 @@ func resourceCloudIdentityGroupRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -352,7 +352,7 @@ func resourceCloudIdentityGroupUpdate(d *schema.ResourceData, meta interface{}) 
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -371,9 +371,9 @@ func resourceCloudIdentityGroupUpdate(d *schema.ResourceData, meta interface{}) 
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -408,7 +408,7 @@ func resourceCloudIdentityGroupDelete(d *schema.ResourceData, meta interface{}) 
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -439,7 +439,7 @@ func resourceCloudIdentityGroupImport(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 

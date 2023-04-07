@@ -147,7 +147,7 @@ func (u *TagsTagValueIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanag
 
 func (u *TagsTagValueIamUpdater) qualifyTagValueUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{TagsBasePath}}%s:%s", fmt.Sprintf("tagValues/%s", u.tagValue), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

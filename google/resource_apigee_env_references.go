@@ -108,7 +108,7 @@ func resourceApigeeEnvReferencesCreate(d *schema.ResourceData, meta interface{})
 		obj["refers"] = refersProp
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/references/")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/references/")
 	if err != nil {
 		return err
 	}
@@ -127,7 +127,7 @@ func resourceApigeeEnvReferencesCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{env_id}}/references/{{name}}")
+	id, err := ReplaceVars(d, config, "{{env_id}}/references/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -145,7 +145,7 @@ func resourceApigeeEnvReferencesRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/references/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/references/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -187,7 +187,7 @@ func resourceApigeeEnvReferencesDelete(d *schema.ResourceData, meta interface{})
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/references/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/references/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -213,7 +213,7 @@ func resourceApigeeEnvReferencesImport(d *schema.ResourceData, meta interface{})
 	config := meta.(*Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<env_id>.+)/references/(?P<name>.+)",
 		"(?P<env_id>.+)/(?P<name>.+)",
 	}, d, config); err != nil {
@@ -221,7 +221,7 @@ func resourceApigeeEnvReferencesImport(d *schema.ResourceData, meta interface{})
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{env_id}}/references/{{name}}")
+	id, err := ReplaceVars(d, config, "{{env_id}}/references/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

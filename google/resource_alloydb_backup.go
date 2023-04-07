@@ -52,7 +52,7 @@ func ResourceAlloydbBackup() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: projectNumberDiffSuppress,
+				DiffSuppressFunc: ProjectNumberDiffSuppress,
 				Description:      `The full resource name of the backup source cluster (e.g., projects/{project}/locations/{location}/clusters/{clusterId}).`,
 			},
 			"description": {
@@ -151,7 +151,7 @@ func resourceAlloydbBackupCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/backups?backupId={{backup_id}}")
+	url, err := ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/backups?backupId={{backup_id}}")
 	if err != nil {
 		return err
 	}
@@ -176,7 +176,7 @@ func resourceAlloydbBackupCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/backups/{{backup_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backups/{{backup_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -204,7 +204,7 @@ func resourceAlloydbBackupRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/backups/{{backup_id}}")
+	url, err := ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/backups/{{backup_id}}")
 	if err != nil {
 		return err
 	}
@@ -293,7 +293,7 @@ func resourceAlloydbBackupUpdate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/backups/{{backup_id}}")
+	url, err := ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/backups/{{backup_id}}")
 	if err != nil {
 		return err
 	}
@@ -304,9 +304,9 @@ func resourceAlloydbBackupUpdate(d *schema.ResourceData, meta interface{}) error
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -350,7 +350,7 @@ func resourceAlloydbBackupDelete(d *schema.ResourceData, meta interface{}) error
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/backups/{{backup_id}}")
+	url, err := ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/backups/{{backup_id}}")
 	if err != nil {
 		return err
 	}
@@ -382,7 +382,7 @@ func resourceAlloydbBackupDelete(d *schema.ResourceData, meta interface{}) error
 
 func resourceAlloydbBackupImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/backups/(?P<backup_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<backup_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<backup_id>[^/]+)",
@@ -391,7 +391,7 @@ func resourceAlloydbBackupImport(d *schema.ResourceData, meta interface{}) ([]*s
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/backups/{{backup_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backups/{{backup_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

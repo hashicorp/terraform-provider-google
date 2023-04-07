@@ -111,7 +111,7 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 		obj["scopes"] = scopesProp
 	}
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies")
 	if err != nil {
 		return err
 	}
@@ -130,7 +130,7 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -154,7 +154,7 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{name}}")
+	id, err = ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -184,7 +184,7 @@ func resourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -246,7 +246,7 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 		obj["scopes"] = scopesProp
 	}
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -261,9 +261,9 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 	if d.HasChange("scopes") {
 		updateMask = append(updateMask, "scopes")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -301,7 +301,7 @@ func resourceAccessContextManagerAccessPolicyDelete(d *schema.ResourceData, meta
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -333,14 +333,14 @@ func resourceAccessContextManagerAccessPolicyDelete(d *schema.ResourceData, meta
 
 func resourceAccessContextManagerAccessPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

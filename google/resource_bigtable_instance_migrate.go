@@ -72,7 +72,7 @@ func resourceBigtableInstanceResourceV0() *schema.Resource {
 	}
 }
 
-func resourceBigtableInstanceUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func ResourceBigtableInstanceUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
 
 	rawState["deletion_protection"] = true

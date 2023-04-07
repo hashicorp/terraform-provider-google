@@ -95,7 +95,7 @@ func TestIpCidrRangeDiffSuppress(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		if ipCidrRangeDiffSuppress("ip_cidr_range", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+		if IpCidrRangeDiffSuppress("ip_cidr_range", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
 			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
 		}
 	}
@@ -138,7 +138,7 @@ func TestRfc3339TimeDiffSuppress(t *testing.T) {
 		},
 	}
 	for tn, tc := range cases {
-		if rfc3339TimeDiffSuppress("time", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+		if Rfc3339TimeDiffSuppress("time", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
 			t.Errorf("bad: %s, '%s' => '%s' expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
 		}
 	}
@@ -563,7 +563,7 @@ func TestDatasourceSchemaFromResourceSchema(t *testing.T) {
 }
 
 func TestEmptyOrDefaultStringSuppress(t *testing.T) {
-	testFunc := emptyOrDefaultStringSuppress("default value")
+	testFunc := EmptyOrDefaultStringSuppress("default value")
 
 	cases := map[string]struct {
 		Old, New           string

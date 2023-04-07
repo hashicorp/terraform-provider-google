@@ -16,7 +16,7 @@ func resourceComputePerInstanceConfigPollRead(d *schema.ResourceData, meta inter
 			return nil, err
 		}
 
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/listPerInstanceConfigs")
+		url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/listPerInstanceConfigs")
 		if err != nil {
 			return nil, err
 		}
@@ -48,7 +48,7 @@ func resourceComputeRegionPerInstanceConfigPollRead(d *schema.ResourceData, meta
 			return nil, err
 		}
 
-		url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/listPerInstanceConfigs")
+		url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/listPerInstanceConfigs")
 		if err != nil {
 			return nil, err
 		}
@@ -74,7 +74,7 @@ func resourceComputeRegionPerInstanceConfigPollRead(d *schema.ResourceData, meta
 // Returns an instance name in the form zones/{zone}/instances/{instance} for the managed
 // instance matching the name of a PerInstanceConfig
 func findInstanceName(d *schema.ResourceData, config *Config) (string, error) {
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/listManagedInstances")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/listManagedInstances")
 	if err != nil {
 		return "", err
 	}

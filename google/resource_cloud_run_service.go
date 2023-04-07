@@ -839,7 +839,7 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services")
+	url, err := ReplaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services")
 	if err != nil {
 		return err
 	}
@@ -858,13 +858,13 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isCloudRunCreationConflict)
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IsCloudRunCreationConflict)
 	if err != nil {
 		return fmt.Errorf("Error creating Service: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "locations/{{location}}/namespaces/{{project}}/services/{{name}}")
+	id, err := ReplaceVars(d, config, "locations/{{location}}/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -884,7 +884,7 @@ func resourceCloudRunServicePollRead(d *schema.ResourceData, meta interface{}) P
 	return func() (map[string]interface{}, error) {
 		config := meta.(*Config)
 
-		url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
+		url, err := ReplaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 		if err != nil {
 			return nil, err
 		}
@@ -907,7 +907,7 @@ func resourceCloudRunServicePollRead(d *schema.ResourceData, meta interface{}) P
 			return nil, err
 		}
 
-		res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, isCloudRunCreationConflict)
+		res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsCloudRunCreationConflict)
 		if err != nil {
 			return res, err
 		}
@@ -930,7 +930,7 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -948,7 +948,7 @@ func resourceCloudRunServiceRead(d *schema.ResourceData, meta interface{}) error
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, isCloudRunCreationConflict)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsCloudRunCreationConflict)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("CloudRunService %q", d.Id()))
 	}
@@ -1034,7 +1034,7 @@ func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1046,7 +1046,7 @@ func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), isCloudRunCreationConflict)
+	res, err := SendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), IsCloudRunCreationConflict)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Service %q: %s", d.Id(), err)
@@ -1077,7 +1077,7 @@ func resourceCloudRunServiceDelete(d *schema.ResourceData, meta interface{}) err
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1090,7 +1090,7 @@ func resourceCloudRunServiceDelete(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isCloudRunCreationConflict)
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IsCloudRunCreationConflict)
 	if err != nil {
 		return handleNotFoundError(err, d, "Service")
 	}
@@ -1101,7 +1101,7 @@ func resourceCloudRunServiceDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceCloudRunServiceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"locations/(?P<location>[^/]+)/namespaces/(?P<project>[^/]+)/services/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -1110,7 +1110,7 @@ func resourceCloudRunServiceImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "locations/{{location}}/namespaces/{{project}}/services/{{name}}")
+	id, err := ReplaceVars(d, config, "locations/{{location}}/namespaces/{{project}}/services/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -250,7 +250,7 @@ func resourceDeploymentManagerDeploymentCreate(d *schema.ResourceData, meta inte
 		obj["target"] = targetProp
 	}
 
-	url, err := replaceVars(d, config, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments?preview={{preview}}&createPolicy={{create_policy}}")
+	url, err := ReplaceVars(d, config, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments?preview={{preview}}&createPolicy={{create_policy}}")
 	if err != nil {
 		return err
 	}
@@ -275,7 +275,7 @@ func resourceDeploymentManagerDeploymentCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/deployments/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/deployments/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -304,7 +304,7 @@ func resourceDeploymentManagerDeploymentRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -373,7 +373,7 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 	if d.HasChange("preview") {
 		obj := make(map[string]interface{})
 
-		getUrl, err := replaceVars(d, config, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments/{{name}}")
+		getUrl, err := ReplaceVars(d, config, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments/{{name}}")
 		if err != nil {
 			return err
 		}
@@ -390,7 +390,7 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 
 		obj["fingerprint"] = getRes["fingerprint"]
 
-		url, err := replaceVars(d, config, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments/{{name}}?preview={{preview}}&createPolicy={{create_policy}}&deletePolicy={{delete_policy}}")
+		url, err := ReplaceVars(d, config, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments/{{name}}?preview={{preview}}&createPolicy={{create_policy}}&deletePolicy={{delete_policy}}")
 		if err != nil {
 			return err
 		}
@@ -417,7 +417,7 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 	if d.HasChange("description") || d.HasChange("labels") || d.HasChange("target") {
 		obj := make(map[string]interface{})
 
-		getUrl, err := replaceVars(d, config, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments/{{name}}")
+		getUrl, err := ReplaceVars(d, config, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments/{{name}}")
 		if err != nil {
 			return err
 		}
@@ -453,7 +453,7 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 			obj["target"] = targetProp
 		}
 
-		url, err := replaceVars(d, config, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments/{{name}}?preview={{preview}}&createPolicy={{create_policy}}&deletePolicy={{delete_policy}}")
+		url, err := ReplaceVars(d, config, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments/{{name}}?preview={{preview}}&createPolicy={{create_policy}}&deletePolicy={{delete_policy}}")
 		if err != nil {
 			return err
 		}
@@ -498,7 +498,7 @@ func resourceDeploymentManagerDeploymentDelete(d *schema.ResourceData, meta inte
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments/{{name}}?deletePolicy={{delete_policy}}")
+	url, err := ReplaceVars(d, config, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments/{{name}}?deletePolicy={{delete_policy}}")
 	if err != nil {
 		return err
 	}
@@ -530,7 +530,7 @@ func resourceDeploymentManagerDeploymentDelete(d *schema.ResourceData, meta inte
 
 func resourceDeploymentManagerDeploymentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/deployments/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -539,7 +539,7 @@ func resourceDeploymentManagerDeploymentImport(d *schema.ResourceData, meta inte
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/deployments/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/deployments/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -16,13 +16,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func optionalPrefixSuppress(prefix string) schema.SchemaDiffSuppressFunc {
+func OptionalPrefixSuppress(prefix string) schema.SchemaDiffSuppressFunc {
 	return func(k, old, new string, d *schema.ResourceData) bool {
 		return prefix+old == new || prefix+new == old
 	}
 }
 
-func ignoreMissingKeyInMap(key string) schema.SchemaDiffSuppressFunc {
+func IgnoreMissingKeyInMap(key string) schema.SchemaDiffSuppressFunc {
 	return func(k, old, new string, d *schema.ResourceData) bool {
 		log.Printf("[DEBUG] - suppressing diff %q with old %q, new %q", k, old, new)
 		if strings.HasSuffix(k, ".%") {
@@ -44,17 +44,17 @@ func ignoreMissingKeyInMap(key string) schema.SchemaDiffSuppressFunc {
 	}
 }
 
-func optionalSurroundingSpacesSuppress(k, old, new string, d *schema.ResourceData) bool {
+func OptionalSurroundingSpacesSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return strings.TrimSpace(old) == strings.TrimSpace(new)
 }
 
-func emptyOrDefaultStringSuppress(defaultVal string) schema.SchemaDiffSuppressFunc {
+func EmptyOrDefaultStringSuppress(defaultVal string) schema.SchemaDiffSuppressFunc {
 	return func(k, old, new string, d *schema.ResourceData) bool {
 		return (old == "" && new == defaultVal) || (new == "" && old == defaultVal)
 	}
 }
 
-func ipCidrRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+func IpCidrRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	// The range may be a:
 	// A) single IP address (e.g. 10.2.3.4)
 	// B) CIDR format string (e.g. 10.1.2.0/24)
@@ -78,26 +78,26 @@ func ipCidrRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return false
 }
 
-// sha256DiffSuppress
+// Sha256DiffSuppress
 // if old is the hex-encoded sha256 sum of new, treat them as equal
-func sha256DiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+func Sha256DiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 	return hex.EncodeToString(sha256.New().Sum([]byte(old))) == new
 }
 
-func caseDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+func CaseDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 	return strings.ToUpper(old) == strings.ToUpper(new)
 }
 
 // Port range '80' and '80-80' is equivalent.
 // `old` is read from the server and always has the full range format (e.g. '80-80', '1024-2048').
 // `new` can be either a single port or a port range.
-func portRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+func PortRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return old == new+"-"+new
 }
 
 // Single-digit hour is equivalent to hour with leading zero e.g. suppress diff 1:00 => 01:00.
 // Assume either value could be in either format.
-func rfc3339TimeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+func Rfc3339TimeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	if (len(old) == 4 && "0"+old == new) || (len(new) == 4 && "0"+new == old) {
 		return true
 	}
@@ -110,14 +110,14 @@ func rfc3339TimeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 // its values to empty.
 // NOTE: Using Optional + Computed is *strongly* preferred to this DSF, as it's
 // more well understood and resilient to API changes.
-func emptyOrUnsetBlockDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+func EmptyOrUnsetBlockDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	o, n := d.GetChange(strings.TrimSuffix(k, ".#"))
-	return emptyOrUnsetBlockDiffSuppressLogic(k, old, new, o, n)
+	return EmptyOrUnsetBlockDiffSuppressLogic(k, old, new, o, n)
 }
 
-// The core logic for emptyOrUnsetBlockDiffSuppress, in a format that is more conducive
+// The core logic for EmptyOrUnsetBlockDiffSuppress, in a format that is more conducive
 // to unit testing.
-func emptyOrUnsetBlockDiffSuppressLogic(k, old, new string, o, n interface{}) bool {
+func EmptyOrUnsetBlockDiffSuppressLogic(k, old, new string, o, n interface{}) bool {
 	if !strings.HasSuffix(k, ".#") {
 		return false
 	}
@@ -145,7 +145,7 @@ func emptyOrUnsetBlockDiffSuppressLogic(k, old, new string, o, n interface{}) bo
 
 // Suppress diffs for values that are equivalent except for their use of the words "location"
 // compared to "region" or "zone"
-func locationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+func LocationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return locationDiffSuppressHelper(old, new) || locationDiffSuppressHelper(new, old)
 }
 
@@ -155,14 +155,14 @@ func locationDiffSuppressHelper(a, b string) bool {
 }
 
 // For managed SSL certs, if new is an absolute FQDN (trailing '.') but old isn't, treat them as equals.
-func absoluteDomainSuppress(k, old, new string, _ *schema.ResourceData) bool {
+func AbsoluteDomainSuppress(k, old, new string, _ *schema.ResourceData) bool {
 	if strings.HasPrefix(k, "managed.0.domains.") {
 		return old == strings.TrimRight(new, ".") || new == strings.TrimRight(old, ".")
 	}
 	return false
 }
 
-func timestampDiffSuppress(format string) schema.SchemaDiffSuppressFunc {
+func TimestampDiffSuppress(format string) schema.SchemaDiffSuppressFunc {
 	return func(_, old, new string, _ *schema.ResourceData) bool {
 		oldT, err := time.Parse(format, old)
 		if err != nil {
@@ -180,13 +180,13 @@ func timestampDiffSuppress(format string) schema.SchemaDiffSuppressFunc {
 
 // suppress diff when saved is Ipv4 format while new is required a reference
 // this happens for an internal ip for Private Services Connect
-func internalIpDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+func InternalIpDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 	return (net.ParseIP(old) != nil) && (net.ParseIP(new) == nil)
 }
 
 // Suppress diffs for duration format. ex "60.0s" and "60s" same
 // https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#duration
-func durationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+func DurationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	oDuration, err := time.ParseDuration(old)
 	if err != nil {
 		return false
@@ -201,7 +201,7 @@ func durationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 // Use this method when the field accepts either an IP address or a
 // self_link referencing a resource (such as google_compute_route's
 // next_hop_ilb)
-func compareIpAddressOrSelfLinkOrResourceName(_, old, new string, _ *schema.ResourceData) bool {
+func CompareIpAddressOrSelfLinkOrResourceName(_, old, new string, _ *schema.ResourceData) bool {
 	// if we can parse `new` as an IP address, then compare as strings
 	if net.ParseIP(new) != nil {
 		return new == old
@@ -213,7 +213,7 @@ func compareIpAddressOrSelfLinkOrResourceName(_, old, new string, _ *schema.Reso
 
 // Use this method when subnet is optioanl and auto_create_subnetworks = true
 // API sometimes choose a subnet so the diff needs to be ignored
-func compareOptionalSubnet(_, old, new string, _ *schema.ResourceData) bool {
+func CompareOptionalSubnet(_, old, new string, _ *schema.ResourceData) bool {
 	if isEmptyValue(reflect.ValueOf(new)) {
 		return true
 	}
@@ -224,7 +224,7 @@ func compareOptionalSubnet(_, old, new string, _ *schema.ResourceData) bool {
 // Suppress diffs in below cases
 // "https://hello-rehvs75zla-uc.a.run.app/" -> "https://hello-rehvs75zla-uc.a.run.app"
 // "https://hello-rehvs75zla-uc.a.run.app" -> "https://hello-rehvs75zla-uc.a.run.app/"
-func lastSlashDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+func LastSlashDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 	if last := len(new) - 1; last >= 0 && new[last] == '/' {
 		new = new[:last]
 	}
@@ -237,7 +237,7 @@ func lastSlashDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 
 // Suppress diffs when the value read from api
 // has the project number instead of the project name
-func projectNumberDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+func ProjectNumberDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 	var a2, b2 string
 	reN := regexp.MustCompile("projects/\\d+")
 	re := regexp.MustCompile("projects/[^/]+")

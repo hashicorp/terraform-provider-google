@@ -180,7 +180,7 @@ func resourceApigeeEnvKeystoreAliasPkcs12Create(d *schema.ResourceData, meta int
 	_, err = io.Copy(certFilePartWriter, file)
 	bw.Close()
 	file.Close()
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases?format=pkcs12&alias={{alias}}&ignoreExpiryValidation=true")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases?format=pkcs12&alias={{alias}}&ignoreExpiryValidation=true")
 	if err != nil {
 		return err
 	}
@@ -199,7 +199,7 @@ func resourceApigeeEnvKeystoreAliasPkcs12Create(d *schema.ResourceData, meta int
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
+	id, err := ReplaceVars(d, config, "organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -217,7 +217,7 @@ func resourceApigeeEnvKeystoreAliasPkcs12Read(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
 	if err != nil {
 		return err
 	}
@@ -258,7 +258,7 @@ func resourceApigeeEnvKeystoreAliasPkcs12Delete(d *schema.ResourceData, meta int
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
 	if err != nil {
 		return err
 	}
@@ -282,7 +282,7 @@ func resourceApigeeEnvKeystoreAliasPkcs12Delete(d *schema.ResourceData, meta int
 
 func resourceApigeeEnvKeystoreAliasPkcs12Import(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"organizations/(?P<org_id>[^/]+)/environments/(?P<environment>[^/]+)/keystores/(?P<keystore>[^/]+)/aliases/(?P<alias>[^/]+)",
 		"(?P<org_id>[^/]+)/(?P<environment>[^/]+)/(?P<keystore>[^/]+)/(?P<alias>[^/]+)",
 	}, d, config); err != nil {
@@ -290,7 +290,7 @@ func resourceApigeeEnvKeystoreAliasPkcs12Import(d *schema.ResourceData, meta int
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
+	id, err := ReplaceVars(d, config, "organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

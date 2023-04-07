@@ -21,7 +21,7 @@ func TestAccDataSourceGoogleComputeRouterNat_basic(t *testing.T) {
 			{
 				Config: testAccDataSourceGoogleComputeRouterNat_basic(context),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceState("data.google_compute_router_nat.foo", "google_compute_router_nat.nat"),
+					CheckDataSourceStateMatchesResourceState("data.google_compute_router_nat.foo", "google_compute_router_nat.nat"),
 				),
 			},
 		},

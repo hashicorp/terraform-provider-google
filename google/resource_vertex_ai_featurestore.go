@@ -172,7 +172,7 @@ func resourceVertexAIFeaturestoreCreate(d *schema.ResourceData, meta interface{}
 		obj["encryptionSpec"] = encryptionSpecProp
 	}
 
-	url, err := replaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/featurestores?featurestoreId={{name}}")
+	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/featurestores?featurestoreId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -197,7 +197,7 @@ func resourceVertexAIFeaturestoreCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/featurestores/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/featurestores/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -217,7 +217,7 @@ func resourceVertexAIFeaturestoreCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{region}}/featurestores/{{name}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/featurestores/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -235,7 +235,7 @@ func resourceVertexAIFeaturestoreRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/featurestores/{{name}}")
+	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/featurestores/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -322,7 +322,7 @@ func resourceVertexAIFeaturestoreUpdate(d *schema.ResourceData, meta interface{}
 		obj["encryptionSpec"] = encryptionSpecProp
 	}
 
-	url, err := replaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/featurestores/{{name}}")
+	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/featurestores/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -341,9 +341,9 @@ func resourceVertexAIFeaturestoreUpdate(d *schema.ResourceData, meta interface{}
 	if d.HasChange("encryption_spec") {
 		updateMask = append(updateMask, "encryptionSpec")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -387,7 +387,7 @@ func resourceVertexAIFeaturestoreDelete(d *schema.ResourceData, meta interface{}
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/featurestores/{{name}}")
+	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/featurestores/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -395,7 +395,7 @@ func resourceVertexAIFeaturestoreDelete(d *schema.ResourceData, meta interface{}
 	var obj map[string]interface{}
 
 	if v, ok := d.GetOk("force_destroy"); ok {
-		url, err = addQueryParams(url, map[string]string{"force": fmt.Sprintf("%v", v)})
+		url, err = AddQueryParams(url, map[string]string{"force": fmt.Sprintf("%v", v)})
 		if err != nil {
 			return err
 		}
@@ -426,7 +426,7 @@ func resourceVertexAIFeaturestoreDelete(d *schema.ResourceData, meta interface{}
 
 func resourceVertexAIFeaturestoreImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/featurestores/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -436,7 +436,7 @@ func resourceVertexAIFeaturestoreImport(d *schema.ResourceData, meta interface{}
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/featurestores/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/featurestores/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

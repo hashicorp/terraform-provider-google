@@ -167,7 +167,7 @@ func convertInstancesToUrls(d *schema.ResourceData, config *Config, project stri
 			if len(splitName) != 2 {
 				return nil, fmt.Errorf("Invalid instance name, require URL or zone/name: %s", name)
 			} else {
-				url, err := replaceVars(d, config, fmt.Sprintf(
+				url, err := ReplaceVars(d, config, fmt.Sprintf(
 					"{{ComputeBasePath}}projects/%s/zones/%s/instances/%s",
 					project, splitName[0], splitName[1]))
 				if err != nil {
@@ -230,7 +230,7 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// It probably maybe worked, so store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/targetPools/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/targetPools/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -487,7 +487,7 @@ func resourceComputeTargetPoolDelete(d *schema.ResourceData, meta interface{}) e
 
 func resourceTargetPoolStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/targetPools/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -497,7 +497,7 @@ func resourceTargetPoolStateImporter(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/targetPools/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/targetPools/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

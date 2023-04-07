@@ -29,7 +29,7 @@ func dataSourceGoogleKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) 
 		Name:      d.Get("name").(string),
 	}
 
-	d.SetId(cryptoKeyId.cryptoKeyId())
+	d.SetId(cryptoKeyId.CryptoKeyId())
 
 	return resourceKMSCryptoKeyRead(d, meta)
 }

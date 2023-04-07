@@ -204,7 +204,7 @@ func resourceDNSPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["networks"] = networksProp
 	}
 
-	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies")
+	url, err := ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies")
 	if err != nil {
 		return err
 	}
@@ -229,7 +229,7 @@ func resourceDNSPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/policies/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/policies/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -247,7 +247,7 @@ func resourceDNSPolicyRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -347,7 +347,7 @@ func resourceDNSPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 			obj["networks"] = networksProp
 		}
 
-		url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
+		url, err := ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
 		if err != nil {
 			return err
 		}
@@ -386,7 +386,7 @@ func resourceDNSPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -397,7 +397,7 @@ func resourceDNSPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 		patched := make(map[string]interface{})
 		patched["networks"] = nil
 
-		url, err := replaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
+		url, err := ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
 		if err != nil {
 			return err
 		}
@@ -425,7 +425,7 @@ func resourceDNSPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDNSPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/policies/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -434,7 +434,7 @@ func resourceDNSPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schem
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/policies/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/policies/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -639,7 +639,7 @@ func expandDNSPolicyNetworksNetworkUrl(v interface{}, d TerraformResourceData, c
 	} else if strings.HasPrefix(v.(string), "https://") {
 		return v, nil
 	}
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
 	if err != nil {
 		return "", err
 	}

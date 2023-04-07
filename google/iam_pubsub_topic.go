@@ -132,7 +132,7 @@ func (u *PubsubTopicIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Po
 		return nil, err
 	}
 
-	policy, err := SendRequest(u.Config, "GET", project, url, userAgent, obj, pubsubTopicProjectNotReady)
+	policy, err := SendRequest(u.Config, "GET", project, url, userAgent, obj, PubsubTopicProjectNotReady)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -169,7 +169,7 @@ func (u *PubsubTopicIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanage
 		return err
 	}
 
-	_, err = SendRequestWithTimeout(u.Config, "POST", project, url, userAgent, obj, u.d.Timeout(schema.TimeoutCreate), pubsubTopicProjectNotReady)
+	_, err = SendRequestWithTimeout(u.Config, "POST", project, url, userAgent, obj, u.d.Timeout(schema.TimeoutCreate), PubsubTopicProjectNotReady)
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -179,7 +179,7 @@ func (u *PubsubTopicIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanage
 
 func (u *PubsubTopicIamUpdater) qualifyTopicUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{PubsubBasePath}}%s:%s", fmt.Sprintf("projects/%s/topics/%s", u.project, u.topic), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

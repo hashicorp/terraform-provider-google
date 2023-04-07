@@ -190,7 +190,7 @@ func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
+	url, err := ReplaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -209,13 +209,13 @@ func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), pubsubTopicProjectNotReady)
+	res, err := SendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), PubsubTopicProjectNotReady)
 	if err != nil {
 		return fmt.Errorf("Error creating Topic: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/topics/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/topics/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -235,7 +235,7 @@ func resourcePubsubTopicPollRead(d *schema.ResourceData, meta interface{}) PollR
 	return func() (map[string]interface{}, error) {
 		config := meta.(*Config)
 
-		url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
+		url, err := ReplaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
 		if err != nil {
 			return nil, err
 		}
@@ -258,7 +258,7 @@ func resourcePubsubTopicPollRead(d *schema.ResourceData, meta interface{}) PollR
 			return nil, err
 		}
 
-		res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, pubsubTopicProjectNotReady)
+		res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, PubsubTopicProjectNotReady)
 		if err != nil {
 			return res, err
 		}
@@ -273,7 +273,7 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
+	url, err := ReplaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -291,7 +291,7 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, pubsubTopicProjectNotReady)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, PubsubTopicProjectNotReady)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("PubsubTopic %q", d.Id()))
 	}
@@ -374,7 +374,7 @@ func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
+	url, err := ReplaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -401,9 +401,9 @@ func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChange("message_retention_duration") {
 		updateMask = append(updateMask, "messageRetentionDuration")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -413,7 +413,7 @@ func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), pubsubTopicProjectNotReady)
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), PubsubTopicProjectNotReady)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Topic %q: %s", d.Id(), err)
@@ -439,7 +439,7 @@ func resourcePubsubTopicDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
+	url, err := ReplaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -452,7 +452,7 @@ func resourcePubsubTopicDelete(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), pubsubTopicProjectNotReady)
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), PubsubTopicProjectNotReady)
 	if err != nil {
 		return handleNotFoundError(err, d, "Topic")
 	}
@@ -463,7 +463,7 @@ func resourcePubsubTopicDelete(d *schema.ResourceData, meta interface{}) error {
 
 func resourcePubsubTopicImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/topics/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -472,7 +472,7 @@ func resourcePubsubTopicImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/topics/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/topics/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

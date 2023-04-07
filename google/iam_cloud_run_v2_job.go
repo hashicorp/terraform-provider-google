@@ -203,7 +203,7 @@ func (u *CloudRunV2JobIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 
 func (u *CloudRunV2JobIamUpdater) qualifyJobUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{CloudRunV2BasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/jobs/%s", u.project, u.location, u.name), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

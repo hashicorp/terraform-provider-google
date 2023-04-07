@@ -89,7 +89,7 @@ func resourceApigeeEnvgroupCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["hostnames"] = hostnamesProp
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/envgroups")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/envgroups")
 	if err != nil {
 		return err
 	}
@@ -108,7 +108,7 @@ func resourceApigeeEnvgroupCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{org_id}}/envgroups/{{name}}")
+	id, err := ReplaceVars(d, config, "{{org_id}}/envgroups/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -132,7 +132,7 @@ func resourceApigeeEnvgroupCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{org_id}}/envgroups/{{name}}")
+	id, err = ReplaceVars(d, config, "{{org_id}}/envgroups/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -150,7 +150,7 @@ func resourceApigeeEnvgroupRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/envgroups/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/envgroups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -194,7 +194,7 @@ func resourceApigeeEnvgroupUpdate(d *schema.ResourceData, meta interface{}) erro
 		obj["hostnames"] = hostnamesProp
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/envgroups/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/envgroups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -205,9 +205,9 @@ func resourceApigeeEnvgroupUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("hostnames") {
 		updateMask = append(updateMask, "hostnames")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -245,7 +245,7 @@ func resourceApigeeEnvgroupDelete(d *schema.ResourceData, meta interface{}) erro
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/envgroups/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/envgroups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -279,7 +279,7 @@ func resourceApigeeEnvgroupImport(d *schema.ResourceData, meta interface{}) ([]*
 	config := meta.(*Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 
@@ -311,7 +311,7 @@ func resourceApigeeEnvgroupImport(d *schema.ResourceData, meta interface{}) ([]*
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{org_id}}/envgroups/{{name}}")
+	id, err := ReplaceVars(d, config, "{{org_id}}/envgroups/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

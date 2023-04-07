@@ -94,7 +94,7 @@ Possible values include: GCE_VM_IP, GCE_VM_IP_PORT, and NON_GCP_PRIVATE_IP_PORT.
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: compareOptionalSubnet,
+				DiffSuppressFunc: CompareOptionalSubnet,
 				Description:      `Optional subnetwork to which all network endpoints in the NEG belong.`,
 			},
 			"zone": {
@@ -176,7 +176,7 @@ func resourceComputeNetworkEndpointGroupCreate(d *schema.ResourceData, meta inte
 		obj["zone"] = zoneProp
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups")
 	if err != nil {
 		return err
 	}
@@ -201,7 +201,7 @@ func resourceComputeNetworkEndpointGroupCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -229,7 +229,7 @@ func resourceComputeNetworkEndpointGroupRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -302,7 +302,7 @@ func resourceComputeNetworkEndpointGroupDelete(d *schema.ResourceData, meta inte
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -334,7 +334,7 @@ func resourceComputeNetworkEndpointGroupDelete(d *schema.ResourceData, meta inte
 
 func resourceComputeNetworkEndpointGroupImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/networkEndpointGroups/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
 		"(?P<zone>[^/]+)/(?P<name>[^/]+)",
@@ -344,7 +344,7 @@ func resourceComputeNetworkEndpointGroupImport(d *schema.ResourceData, meta inte
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

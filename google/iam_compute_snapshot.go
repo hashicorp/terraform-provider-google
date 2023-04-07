@@ -179,7 +179,7 @@ func (u *ComputeSnapshotIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 
 func (u *ComputeSnapshotIamUpdater) qualifySnapshotUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{ComputeBasePath}}%s/%s", fmt.Sprintf("projects/%s/global/snapshots/%s", u.project, u.name), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

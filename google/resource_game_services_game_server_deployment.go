@@ -108,7 +108,7 @@ func resourceGameServicesGameServerDeploymentCreate(d *schema.ResourceData, meta
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/gameServerDeployments?deploymentId={{deployment_id}}")
+	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/gameServerDeployments?deploymentId={{deployment_id}}")
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func resourceGameServicesGameServerDeploymentCreate(d *schema.ResourceData, meta
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/gameServerDeployments/{{deployment_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/gameServerDeployments/{{deployment_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -157,7 +157,7 @@ func resourceGameServicesGameServerDeploymentCreate(d *schema.ResourceData, meta
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{location}}/gameServerDeployments/{{deployment_id}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/gameServerDeployments/{{deployment_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -175,7 +175,7 @@ func resourceGameServicesGameServerDeploymentRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/gameServerDeployments/{{deployment_id}}")
+	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/gameServerDeployments/{{deployment_id}}")
 	if err != nil {
 		return err
 	}
@@ -244,7 +244,7 @@ func resourceGameServicesGameServerDeploymentUpdate(d *schema.ResourceData, meta
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/gameServerDeployments/{{deployment_id}}")
+	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/gameServerDeployments/{{deployment_id}}")
 	if err != nil {
 		return err
 	}
@@ -259,9 +259,9 @@ func resourceGameServicesGameServerDeploymentUpdate(d *schema.ResourceData, meta
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -305,7 +305,7 @@ func resourceGameServicesGameServerDeploymentDelete(d *schema.ResourceData, meta
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/gameServerDeployments/{{deployment_id}}")
+	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/gameServerDeployments/{{deployment_id}}")
 	if err != nil {
 		return err
 	}
@@ -337,7 +337,7 @@ func resourceGameServicesGameServerDeploymentDelete(d *schema.ResourceData, meta
 
 func resourceGameServicesGameServerDeploymentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/gameServerDeployments/(?P<deployment_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<deployment_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<deployment_id>[^/]+)",
@@ -346,7 +346,7 @@ func resourceGameServicesGameServerDeploymentImport(d *schema.ResourceData, meta
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/gameServerDeployments/{{deployment_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/gameServerDeployments/{{deployment_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

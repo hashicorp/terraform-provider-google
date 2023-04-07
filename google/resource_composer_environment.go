@@ -817,7 +817,7 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/environments/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/environments/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1165,12 +1165,12 @@ func resourceComposerEnvironmentDelete(d *schema.ResourceData, meta interface{})
 
 func resourceComposerEnvironmentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/environments/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/environments/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/environments/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/environments/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

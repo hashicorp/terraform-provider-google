@@ -22,7 +22,7 @@ func MetadataRetryWrapper(update func() error) error {
 			return nil
 		}
 
-		if ok, _ := isFingerprintError(err); !ok {
+		if ok, _ := IsFingerprintError(err); !ok {
 			// Something else went wrong, don't retry
 			return err
 		}

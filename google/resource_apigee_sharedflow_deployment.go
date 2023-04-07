@@ -67,7 +67,7 @@ func resourceApigeeSharedflowDeploymentCreate(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/sharedflows/{{sharedflow_id}}/revisions/{{revision}}/deployments?override=true&serviceAccount={{service_account}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/sharedflows/{{sharedflow_id}}/revisions/{{revision}}/deployments?override=true&serviceAccount={{service_account}}")
 	if err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func resourceApigeeSharedflowDeploymentCreate(d *schema.ResourceData, meta inter
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "organizations/{{org_id}}/environments/{{environment}}/sharedflows/{{sharedflow_id}}/revisions/{{revision}}/deployments")
+	id, err := ReplaceVars(d, config, "organizations/{{org_id}}/environments/{{environment}}/sharedflows/{{sharedflow_id}}/revisions/{{revision}}/deployments")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -104,7 +104,7 @@ func resourceApigeeSharedflowDeploymentRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/sharedflows/{{sharedflow_id}}/revisions/{{revision}}/deployments")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/sharedflows/{{sharedflow_id}}/revisions/{{revision}}/deployments")
 	if err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ func resourceApigeeSharedflowDeploymentDelete(d *schema.ResourceData, meta inter
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/sharedflows/{{sharedflow_id}}/revisions/{{revision}}/deployments")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/sharedflows/{{sharedflow_id}}/revisions/{{revision}}/deployments")
 	if err != nil {
 		return err
 	}
@@ -160,7 +160,7 @@ func resourceApigeeSharedflowDeploymentDelete(d *schema.ResourceData, meta inter
 
 func resourceApigeeSharedflowDeploymentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"organizations/(?P<org_id>[^/]+)/environments/(?P<environment>[^/]+)/sharedflows/(?P<sharedflow_id>[^/]+)/revisions/(?P<revision>[^/]+)",
 		"(?P<org_id>[^/]+)/(?P<environment>[^/]+)/(?P<sharedflow_id>[^/]+)/(?P<revision>[^/]+)",
 	}, d, config); err != nil {
@@ -168,7 +168,7 @@ func resourceApigeeSharedflowDeploymentImport(d *schema.ResourceData, meta inter
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "organizations/{{org_id}}/environments/{{environment}}/sharedflows/{{sharedflow_id}}/revisions/{{revision}}/deployments")
+	id, err := ReplaceVars(d, config, "organizations/{{org_id}}/environments/{{environment}}/sharedflows/{{sharedflow_id}}/revisions/{{revision}}/deployments")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

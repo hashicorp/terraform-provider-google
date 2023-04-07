@@ -437,7 +437,7 @@ Google Cloud KMS.`,
 										Type:             schema.TypeString,
 										Required:         true,
 										ForceNew:         true,
-										DiffSuppressFunc: ipCidrRangeDiffSuppress,
+										DiffSuppressFunc: IpCidrRangeDiffSuppress,
 										Description:      `The IP CIDR range represented by this alias IP range. This IP CIDR range must belong to the specified subnetwork and cannot contain IP addresses reserved by system or used by other network interfaces. At the time of writing only a netmask (e.g. /24) may be supplied, with a CIDR format resulting in an API error.`,
 									},
 									"subnetwork_range_name": {
@@ -563,7 +563,7 @@ Google Cloud KMS.`,
 							AtLeastOneOf:     schedulingInstTemplateKeys,
 							ForceNew:         true,
 							Elem:             instanceSchedulingNodeAffinitiesElemSchema(),
-							DiffSuppressFunc: emptyOrDefaultStringSuppress(""),
+							DiffSuppressFunc: EmptyOrDefaultStringSuppress(""),
 							Description:      `Specifies node affinities or anti-affinities to determine which sole-tenant nodes your instances and managed instance groups will use as host systems.`,
 						},
 						"min_node_cpus": {
@@ -645,7 +645,7 @@ Google Cloud KMS.`,
 				// Since this block is used by the API based on which
 				// image being used, the field needs to be marked as Computed.
 				Computed:         true,
-				DiffSuppressFunc: emptyOrDefaultStringSuppress(""),
+				DiffSuppressFunc: EmptyOrDefaultStringSuppress(""),
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enable_secure_boot": {
@@ -1631,12 +1631,12 @@ func expandResourceComputeInstanceTemplateScheduling(d *schema.ResourceData, met
 
 func resourceComputeInstanceTemplateImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/global/instanceTemplates/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"projects/(?P<project>[^/]+)/global/instanceTemplates/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/global/instanceTemplates/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/instanceTemplates/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

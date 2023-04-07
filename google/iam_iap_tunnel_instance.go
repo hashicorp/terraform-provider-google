@@ -208,7 +208,7 @@ func (u *IapTunnelInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresource
 
 func (u *IapTunnelInstanceIamUpdater) qualifyTunnelInstanceUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_tunnel/zones/%s/instances/%s", u.project, u.zone, u.instance), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

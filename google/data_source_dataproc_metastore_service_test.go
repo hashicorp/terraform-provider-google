@@ -19,7 +19,7 @@ func TestAccDataprocMetastoreServiceDatasource_basic(t *testing.T) {
 			{
 				Config: testAccDataprocMetastoreServiceDatasource_basic(name, "DEVELOPER"),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceState("data.google_dataproc_metastore_service.my_metastore", "google_dataproc_metastore_service.my_metastore"),
+					CheckDataSourceStateMatchesResourceState("data.google_dataproc_metastore_service.my_metastore", "google_dataproc_metastore_service.my_metastore"),
 				),
 			},
 		},

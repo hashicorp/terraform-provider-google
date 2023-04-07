@@ -373,7 +373,7 @@ func resourceDataprocMetastoreServiceCreate(d *schema.ResourceData, meta interfa
 		obj["telemetryConfig"] = telemetryConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{DataprocMetastoreBasePath}}projects/{{project}}/locations/{{location}}/services?serviceId={{service_id}}")
+	url, err := ReplaceVars(d, config, "{{DataprocMetastoreBasePath}}projects/{{project}}/locations/{{location}}/services?serviceId={{service_id}}")
 	if err != nil {
 		return err
 	}
@@ -398,7 +398,7 @@ func resourceDataprocMetastoreServiceCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/services/{{service_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/services/{{service_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -426,7 +426,7 @@ func resourceDataprocMetastoreServiceRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataprocMetastoreBasePath}}projects/{{project}}/locations/{{location}}/services/{{service_id}}")
+	url, err := ReplaceVars(d, config, "{{DataprocMetastoreBasePath}}projects/{{project}}/locations/{{location}}/services/{{service_id}}")
 	if err != nil {
 		return err
 	}
@@ -567,7 +567,7 @@ func resourceDataprocMetastoreServiceUpdate(d *schema.ResourceData, meta interfa
 		obj["telemetryConfig"] = telemetryConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{DataprocMetastoreBasePath}}projects/{{project}}/locations/{{location}}/services/{{service_id}}")
+	url, err := ReplaceVars(d, config, "{{DataprocMetastoreBasePath}}projects/{{project}}/locations/{{location}}/services/{{service_id}}")
 	if err != nil {
 		return err
 	}
@@ -602,9 +602,9 @@ func resourceDataprocMetastoreServiceUpdate(d *schema.ResourceData, meta interfa
 	if d.HasChange("telemetry_config") {
 		updateMask = append(updateMask, "telemetryConfig")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -648,7 +648,7 @@ func resourceDataprocMetastoreServiceDelete(d *schema.ResourceData, meta interfa
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{DataprocMetastoreBasePath}}projects/{{project}}/locations/{{location}}/services/{{service_id}}")
+	url, err := ReplaceVars(d, config, "{{DataprocMetastoreBasePath}}projects/{{project}}/locations/{{location}}/services/{{service_id}}")
 	if err != nil {
 		return err
 	}
@@ -680,7 +680,7 @@ func resourceDataprocMetastoreServiceDelete(d *schema.ResourceData, meta interfa
 
 func resourceDataprocMetastoreServiceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/services/(?P<service_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<service_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<service_id>[^/]+)",
@@ -689,7 +689,7 @@ func resourceDataprocMetastoreServiceImport(d *schema.ResourceData, meta interfa
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/services/{{service_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/services/{{service_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

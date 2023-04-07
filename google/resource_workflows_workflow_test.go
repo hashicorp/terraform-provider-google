@@ -132,7 +132,7 @@ func TestWorkflowsWorkflowStateUpgradeV0(t *testing.T) {
 	}
 	for tn, tc := range cases {
 		t.Run(tn, func(t *testing.T) {
-			actual, err := resourceWorkflowsWorkflowUpgradeV0(context.Background(), tc.Attributes, tc.Meta)
+			actual, err := ResourceWorkflowsWorkflowUpgradeV0(context.Background(), tc.Attributes, tc.Meta)
 
 			if err != nil {
 				t.Error(err)

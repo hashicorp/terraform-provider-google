@@ -112,14 +112,14 @@ func resourceAppEngineFirewallRuleCreate(d *schema.ResourceData, meta interface{
 		obj["priority"] = priorityProp
 	}
 
-	lockName, err := replaceVars(d, config, "apps/{{project}}")
+	lockName, err := ReplaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules")
+	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules")
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func resourceAppEngineFirewallRuleCreate(d *schema.ResourceData, meta interface{
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "apps/{{project}}/firewall/ingressRules/{{priority}}")
+	id, err := ReplaceVars(d, config, "apps/{{project}}/firewall/ingressRules/{{priority}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -164,7 +164,7 @@ func resourceAppEngineFirewallRulePollRead(d *schema.ResourceData, meta interfac
 	return func() (map[string]interface{}, error) {
 		config := meta.(*Config)
 
-		url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
+		url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
 		if err != nil {
 			return nil, err
 		}
@@ -202,7 +202,7 @@ func resourceAppEngineFirewallRuleRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
+	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
 	if err != nil {
 		return err
 	}
@@ -286,14 +286,14 @@ func resourceAppEngineFirewallRuleUpdate(d *schema.ResourceData, meta interface{
 		obj["priority"] = priorityProp
 	}
 
-	lockName, err := replaceVars(d, config, "apps/{{project}}")
+	lockName, err := ReplaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
+	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
 	if err != nil {
 		return err
 	}
@@ -316,9 +316,9 @@ func resourceAppEngineFirewallRuleUpdate(d *schema.ResourceData, meta interface{
 	if d.HasChange("priority") {
 		updateMask = append(updateMask, "priority")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -354,14 +354,14 @@ func resourceAppEngineFirewallRuleDelete(d *schema.ResourceData, meta interface{
 	}
 	billingProject = project
 
-	lockName, err := replaceVars(d, config, "apps/{{project}}")
+	lockName, err := ReplaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
+	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
 	if err != nil {
 		return err
 	}
@@ -385,7 +385,7 @@ func resourceAppEngineFirewallRuleDelete(d *schema.ResourceData, meta interface{
 
 func resourceAppEngineFirewallRuleImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"apps/(?P<project>[^/]+)/firewall/ingressRules/(?P<priority>[^/]+)",
 		"(?P<project>[^/]+)/(?P<priority>[^/]+)",
 		"(?P<priority>[^/]+)",
@@ -394,7 +394,7 @@ func resourceAppEngineFirewallRuleImport(d *schema.ResourceData, meta interface{
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "apps/{{project}}/firewall/ingressRules/{{priority}}")
+	id, err := ReplaceVars(d, config, "apps/{{project}}/firewall/ingressRules/{{priority}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

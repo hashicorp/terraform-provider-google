@@ -130,7 +130,7 @@ func TestParseImportId(t *testing.T) {
 			config = &Config{}
 		}
 
-		if err := parseImportId(tc.IdRegexes, d, config); err == nil {
+		if err := ParseImportId(tc.IdRegexes, d, config); err == nil {
 			for k, expectedValue := range tc.ExpectedSchemaValues {
 				if v, ok := d.GetOk(k); ok {
 					if v != expectedValue {

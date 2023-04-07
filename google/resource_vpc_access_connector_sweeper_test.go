@@ -62,7 +62,7 @@ func testSweepVPCAccessConnector(region string) error {
 	}
 
 	listTemplate := strings.Split("https://vpcaccess.googleapis.com/v1/projects/{{project}}/locations/{{region}}/connectors", "?")[0]
-	listUrl, err := replaceVars(d, config, listTemplate)
+	listUrl, err := ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 		return nil
@@ -100,7 +100,7 @@ func testSweepVPCAccessConnector(region string) error {
 		}
 
 		deleteTemplate := "https://vpcaccess.googleapis.com/v1/projects/{{project}}/locations/{{region}}/connectors/{{name}}"
-		deleteUrl, err := replaceVars(d, config, deleteTemplate)
+		deleteUrl, err := ReplaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 			return nil

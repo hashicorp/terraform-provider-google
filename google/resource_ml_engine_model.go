@@ -161,7 +161,7 @@ func resourceMLEngineModelCreate(d *schema.ResourceData, meta interface{}) error
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models")
+	url, err := ReplaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models")
 	if err != nil {
 		return err
 	}
@@ -186,7 +186,7 @@ func resourceMLEngineModelCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/models/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/models/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -204,7 +204,7 @@ func resourceMLEngineModelRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models/{{name}}")
+	url, err := ReplaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -271,7 +271,7 @@ func resourceMLEngineModelDelete(d *schema.ResourceData, meta interface{}) error
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models/{{name}}")
+	url, err := ReplaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -303,7 +303,7 @@ func resourceMLEngineModelDelete(d *schema.ResourceData, meta interface{}) error
 
 func resourceMLEngineModelImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/models/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -312,7 +312,7 @@ func resourceMLEngineModelImport(d *schema.ResourceData, meta interface{}) ([]*s
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/models/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/models/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

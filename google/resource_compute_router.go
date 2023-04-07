@@ -245,14 +245,14 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 		obj["region"] = regionProp
 	}
 
-	lockName, err := replaceVars(d, config, "router/{{region}}/{{name}}")
+	lockName, err := ReplaceVars(d, config, "router/{{region}}/{{name}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers")
 	if err != nil {
 		return err
 	}
@@ -277,7 +277,7 @@ func resourceComputeRouterCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/routers/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/routers/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -305,7 +305,7 @@ func resourceComputeRouterRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -389,14 +389,14 @@ func resourceComputeRouterUpdate(d *schema.ResourceData, meta interface{}) error
 		obj["bgp"] = bgpProp
 	}
 
-	lockName, err := replaceVars(d, config, "router/{{region}}/{{name}}")
+	lockName, err := ReplaceVars(d, config, "router/{{region}}/{{name}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -442,14 +442,14 @@ func resourceComputeRouterDelete(d *schema.ResourceData, meta interface{}) error
 	}
 	billingProject = project
 
-	lockName, err := replaceVars(d, config, "router/{{region}}/{{name}}")
+	lockName, err := ReplaceVars(d, config, "router/{{region}}/{{name}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -481,7 +481,7 @@ func resourceComputeRouterDelete(d *schema.ResourceData, meta interface{}) error
 
 func resourceComputeRouterImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/routers/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -491,7 +491,7 @@ func resourceComputeRouterImport(d *schema.ResourceData, meta interface{}) ([]*s
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/routers/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/routers/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

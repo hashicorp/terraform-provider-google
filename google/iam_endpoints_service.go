@@ -147,7 +147,7 @@ func (u *ServiceManagementServiceIamUpdater) SetResourceIamPolicy(policy *cloudr
 
 func (u *ServiceManagementServiceIamUpdater) qualifyServiceUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{ServiceManagementBasePath}}%s:%s", fmt.Sprintf("services/%s", u.serviceName), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

@@ -312,7 +312,7 @@ func resourceDataLossPreventionStoredInfoTypeCreate(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/storedInfoTypes")
+	url, err := ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/storedInfoTypes")
 	if err != nil {
 		return err
 	}
@@ -334,7 +334,7 @@ func resourceDataLossPreventionStoredInfoTypeCreate(d *schema.ResourceData, meta
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{parent}}/storedInfoTypes/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/storedInfoTypes/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -354,7 +354,7 @@ func resourceDataLossPreventionStoredInfoTypePollRead(d *schema.ResourceData, me
 	return func() (map[string]interface{}, error) {
 		config := meta.(*Config)
 
-		url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/storedInfoTypes/{{name}}")
+		url, err := ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/storedInfoTypes/{{name}}")
 		if err != nil {
 			return nil, err
 		}
@@ -394,7 +394,7 @@ func resourceDataLossPreventionStoredInfoTypeRead(d *schema.ResourceData, meta i
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/storedInfoTypes/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/storedInfoTypes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -491,7 +491,7 @@ func resourceDataLossPreventionStoredInfoTypeUpdate(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/storedInfoTypes/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/storedInfoTypes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -518,9 +518,9 @@ func resourceDataLossPreventionStoredInfoTypeUpdate(d *schema.ResourceData, meta
 	if d.HasChange("large_custom_dictionary") {
 		updateMask = append(updateMask, "largeCustomDictionary")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -550,7 +550,7 @@ func resourceDataLossPreventionStoredInfoTypeDelete(d *schema.ResourceData, meta
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/storedInfoTypes/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/storedInfoTypes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -576,7 +576,7 @@ func resourceDataLossPreventionStoredInfoTypeImport(d *schema.ResourceData, meta
 	config := meta.(*Config)
 
 	// Custom import to handle parent possibilities
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 	parts := strings.Split(d.Get("name").(string), "/")
@@ -598,7 +598,7 @@ func resourceDataLossPreventionStoredInfoTypeImport(d *schema.ResourceData, meta
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{parent}}/storedInfoTypes/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/storedInfoTypes/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

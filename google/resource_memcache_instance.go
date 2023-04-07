@@ -399,7 +399,7 @@ func resourceMemcacheInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		obj["maintenancePolicy"] = maintenancePolicyProp
 	}
 
-	url, err := replaceVars(d, config, "{{MemcacheBasePath}}projects/{{project}}/locations/{{region}}/instances?instanceId={{name}}")
+	url, err := ReplaceVars(d, config, "{{MemcacheBasePath}}projects/{{project}}/locations/{{region}}/instances?instanceId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -424,7 +424,7 @@ func resourceMemcacheInstanceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/instances/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -444,7 +444,7 @@ func resourceMemcacheInstanceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "projects/{{project}}/locations/{{region}}/instances/{{name}}")
+	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -462,7 +462,7 @@ func resourceMemcacheInstanceRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{MemcacheBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
+	url, err := ReplaceVars(d, config, "{{MemcacheBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -582,7 +582,7 @@ func resourceMemcacheInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["maintenancePolicy"] = maintenancePolicyProp
 	}
 
-	url, err := replaceVars(d, config, "{{MemcacheBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
+	url, err := ReplaceVars(d, config, "{{MemcacheBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -609,9 +609,9 @@ func resourceMemcacheInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 	if d.HasChange("maintenance_policy") {
 		updateMask = append(updateMask, "maintenancePolicy")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -655,7 +655,7 @@ func resourceMemcacheInstanceDelete(d *schema.ResourceData, meta interface{}) er
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{MemcacheBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
+	url, err := ReplaceVars(d, config, "{{MemcacheBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -687,7 +687,7 @@ func resourceMemcacheInstanceDelete(d *schema.ResourceData, meta interface{}) er
 
 func resourceMemcacheInstanceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/instances/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -697,7 +697,7 @@ func resourceMemcacheInstanceImport(d *schema.ResourceData, meta interface{}) ([
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/instances/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

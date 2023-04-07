@@ -123,7 +123,7 @@ func resourceStorageObjectAclCreate(d *schema.ResourceData, meta interface{}) er
 	bucket := d.Get("bucket").(string)
 	object := d.Get("object").(string)
 
-	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
+	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
 	if err != nil {
 		return err
 	}
@@ -208,7 +208,7 @@ func resourceStorageObjectAclUpdate(d *schema.ResourceData, meta interface{}) er
 	bucket := d.Get("bucket").(string)
 	object := d.Get("object").(string)
 
-	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
+	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
 	if err != nil {
 		return err
 	}
@@ -266,7 +266,7 @@ func resourceStorageObjectAclDelete(d *schema.ResourceData, meta interface{}) er
 	bucket := d.Get("bucket").(string)
 	object := d.Get("object").(string)
 
-	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
+	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
 	if err != nil {
 		return err
 	}

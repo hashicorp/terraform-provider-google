@@ -533,7 +533,7 @@ func TestValidateDatabaseRetentionPeriod(t *testing.T) {
 
 	for tn, tc := range testCases {
 		t.Run(tn, func(t *testing.T) {
-			_, errs := validateDatabaseRetentionPeriod(tc.input, "foobar")
+			_, errs := ValidateDatabaseRetentionPeriod(tc.input, "foobar")
 			var wantErrCount string
 			if tc.expectError {
 				wantErrCount = "1+"

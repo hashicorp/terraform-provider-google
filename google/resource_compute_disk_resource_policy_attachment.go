@@ -92,7 +92,7 @@ func resourceComputeDiskResourcePolicyAttachmentCreate(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{disk}}/addResourcePolicies")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{disk}}/addResourcePolicies")
 	if err != nil {
 		return err
 	}
@@ -117,7 +117,7 @@ func resourceComputeDiskResourcePolicyAttachmentCreate(d *schema.ResourceData, m
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}/{{zone}}/{{disk}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{project}}/{{zone}}/{{disk}}/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -145,7 +145,7 @@ func resourceComputeDiskResourcePolicyAttachmentRead(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{disk}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{disk}}")
 	if err != nil {
 		return err
 	}
@@ -218,7 +218,7 @@ func resourceComputeDiskResourcePolicyAttachmentDelete(d *schema.ResourceData, m
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{disk}}/removeResourcePolicies")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{disk}}/removeResourcePolicies")
 	if err != nil {
 		return err
 	}
@@ -275,7 +275,7 @@ func resourceComputeDiskResourcePolicyAttachmentDelete(d *schema.ResourceData, m
 
 func resourceComputeDiskResourcePolicyAttachmentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/disks/(?P<disk>[^/]+)/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<disk>[^/]+)/(?P<name>[^/]+)",
 		"(?P<zone>[^/]+)/(?P<disk>[^/]+)/(?P<name>[^/]+)",
@@ -285,7 +285,7 @@ func resourceComputeDiskResourcePolicyAttachmentImport(d *schema.ResourceData, m
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}/{{zone}}/{{disk}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{project}}/{{zone}}/{{disk}}/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

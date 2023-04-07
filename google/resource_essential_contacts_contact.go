@@ -104,7 +104,7 @@ func resourceEssentialContactsContactCreate(d *schema.ResourceData, meta interfa
 		obj["languageTag"] = languageTagProp
 	}
 
-	url, err := replaceVars(d, config, "{{EssentialContactsBasePath}}{{parent}}/contacts")
+	url, err := ReplaceVars(d, config, "{{EssentialContactsBasePath}}{{parent}}/contacts")
 	if err != nil {
 		return err
 	}
@@ -126,7 +126,7 @@ func resourceEssentialContactsContactCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -144,7 +144,7 @@ func resourceEssentialContactsContactRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{EssentialContactsBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{EssentialContactsBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -200,7 +200,7 @@ func resourceEssentialContactsContactUpdate(d *schema.ResourceData, meta interfa
 		obj["languageTag"] = languageTagProp
 	}
 
-	url, err := replaceVars(d, config, "{{EssentialContactsBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{EssentialContactsBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -215,9 +215,9 @@ func resourceEssentialContactsContactUpdate(d *schema.ResourceData, meta interfa
 	if d.HasChange("language_tag") {
 		updateMask = append(updateMask, "languageTag")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -247,7 +247,7 @@ func resourceEssentialContactsContactDelete(d *schema.ResourceData, meta interfa
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{EssentialContactsBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{EssentialContactsBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -271,14 +271,14 @@ func resourceEssentialContactsContactDelete(d *schema.ResourceData, meta interfa
 
 func resourceEssentialContactsContactImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<name>.+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

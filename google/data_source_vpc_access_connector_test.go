@@ -17,7 +17,7 @@ func TestAccVPCAccessConnectorDatasource_basic(t *testing.T) {
 			{
 				Config: testAccVPCAccessConnectorDatasourceConfig(RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceStateWithIgnores(
+					CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_vpc_access_connector.connector",
 						"google_vpc_access_connector.connector",
 						map[string]struct{}{

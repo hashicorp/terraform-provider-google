@@ -125,7 +125,7 @@ func resourceSecurityCenterMuteConfigCreate(d *schema.ResourceData, meta interfa
 		obj["filter"] = filterProp
 	}
 
-	url, err := replaceVars(d, config, "{{SecurityCenterBasePath}}{{parent}}/muteConfigs?muteConfigId={{mute_config_id}}")
+	url, err := ReplaceVars(d, config, "{{SecurityCenterBasePath}}{{parent}}/muteConfigs?muteConfigId={{mute_config_id}}")
 	if err != nil {
 		return err
 	}
@@ -147,7 +147,7 @@ func resourceSecurityCenterMuteConfigCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -165,7 +165,7 @@ func resourceSecurityCenterMuteConfigRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -227,7 +227,7 @@ func resourceSecurityCenterMuteConfigUpdate(d *schema.ResourceData, meta interfa
 		obj["filter"] = filterProp
 	}
 
-	url, err := replaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -242,9 +242,9 @@ func resourceSecurityCenterMuteConfigUpdate(d *schema.ResourceData, meta interfa
 	if d.HasChange("filter") {
 		updateMask = append(updateMask, "filter")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -274,7 +274,7 @@ func resourceSecurityCenterMuteConfigDelete(d *schema.ResourceData, meta interfa
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{SecurityCenterBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -299,7 +299,7 @@ func resourceSecurityCenterMuteConfigDelete(d *schema.ResourceData, meta interfa
 func resourceSecurityCenterMuteConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 

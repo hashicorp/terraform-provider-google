@@ -52,7 +52,7 @@ func ResourceBigqueryAnalyticsHubListing() *schema.Resource {
 						"dataset": {
 							Type:             schema.TypeString,
 							Required:         true,
-							DiffSuppressFunc: projectNumberDiffSuppress,
+							DiffSuppressFunc: ProjectNumberDiffSuppress,
 							Description:      `Resource name of the dataset source for this listing. e.g. projects/myproject/datasets/123`,
 						},
 					},
@@ -239,7 +239,7 @@ func resourceBigqueryAnalyticsHubListingCreate(d *schema.ResourceData, meta inte
 		obj["bigqueryDataset"] = bigqueryDatasetProp
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings?listing_id={{listing_id}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings?listing_id={{listing_id}}")
 	if err != nil {
 		return err
 	}
@@ -267,7 +267,7 @@ func resourceBigqueryAnalyticsHubListingCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings/{{listing_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings/{{listing_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -285,7 +285,7 @@ func resourceBigqueryAnalyticsHubListingRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings/{{listing_id}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings/{{listing_id}}")
 	if err != nil {
 		return err
 	}
@@ -426,7 +426,7 @@ func resourceBigqueryAnalyticsHubListingUpdate(d *schema.ResourceData, meta inte
 		obj["bigqueryDataset"] = bigqueryDatasetProp
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings/{{listing_id}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings/{{listing_id}}")
 	if err != nil {
 		return err
 	}
@@ -473,9 +473,9 @@ func resourceBigqueryAnalyticsHubListingUpdate(d *schema.ResourceData, meta inte
 	if d.HasChange("bigquery_dataset") {
 		updateMask = append(updateMask, "bigqueryDataset")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -511,7 +511,7 @@ func resourceBigqueryAnalyticsHubListingDelete(d *schema.ResourceData, meta inte
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings/{{listing_id}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings/{{listing_id}}")
 	if err != nil {
 		return err
 	}
@@ -535,7 +535,7 @@ func resourceBigqueryAnalyticsHubListingDelete(d *schema.ResourceData, meta inte
 
 func resourceBigqueryAnalyticsHubListingImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/dataExchanges/(?P<data_exchange_id>[^/]+)/listings/(?P<listing_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<data_exchange_id>[^/]+)/(?P<listing_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<data_exchange_id>[^/]+)/(?P<listing_id>[^/]+)",
@@ -544,7 +544,7 @@ func resourceBigqueryAnalyticsHubListingImport(d *schema.ResourceData, meta inte
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings/{{listing_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings/{{listing_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

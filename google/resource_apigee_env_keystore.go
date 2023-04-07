@@ -80,7 +80,7 @@ func resourceApigeeEnvKeystoreCreate(d *schema.ResourceData, meta interface{}) e
 		obj["name"] = nameProp
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/keystores")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/keystores")
 	if err != nil {
 		return err
 	}
@@ -99,7 +99,7 @@ func resourceApigeeEnvKeystoreCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{env_id}}/keystores/{{name}}")
+	id, err := ReplaceVars(d, config, "{{env_id}}/keystores/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -117,7 +117,7 @@ func resourceApigeeEnvKeystoreRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/keystores/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/keystores/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -153,7 +153,7 @@ func resourceApigeeEnvKeystoreDelete(d *schema.ResourceData, meta interface{}) e
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/keystores/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/keystores/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -179,7 +179,7 @@ func resourceApigeeEnvKeystoreImport(d *schema.ResourceData, meta interface{}) (
 	config := meta.(*Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<env_id>.+)/keystores/(?P<name>.+)",
 		"(?P<env_id>.+)/(?P<name>.+)",
 	}, d, config); err != nil {
@@ -187,7 +187,7 @@ func resourceApigeeEnvKeystoreImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{env_id}}/keystores/{{name}}")
+	id, err := ReplaceVars(d, config, "{{env_id}}/keystores/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

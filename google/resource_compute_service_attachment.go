@@ -255,7 +255,7 @@ func resourceComputeServiceAttachmentCreate(d *schema.ResourceData, meta interfa
 		obj["region"] = regionProp
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/serviceAttachments")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/serviceAttachments")
 	if err != nil {
 		return err
 	}
@@ -280,7 +280,7 @@ func resourceComputeServiceAttachmentCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -308,7 +308,7 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -436,7 +436,7 @@ func resourceComputeServiceAttachmentUpdate(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -482,7 +482,7 @@ func resourceComputeServiceAttachmentDelete(d *schema.ResourceData, meta interfa
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -514,7 +514,7 @@ func resourceComputeServiceAttachmentDelete(d *schema.ResourceData, meta interfa
 
 func resourceComputeServiceAttachmentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/serviceAttachments/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -524,7 +524,7 @@ func resourceComputeServiceAttachmentImport(d *schema.ResourceData, meta interfa
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

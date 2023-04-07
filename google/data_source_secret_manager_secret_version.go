@@ -79,12 +79,12 @@ func dataSourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta inter
 	versionNum := d.Get("version")
 
 	if versionNum != "" {
-		url, err = replaceVars(d, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets/{{secret}}/versions/{{version}}")
+		url, err = ReplaceVars(d, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets/{{secret}}/versions/{{version}}")
 		if err != nil {
 			return err
 		}
 	} else {
-		url, err = replaceVars(d, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets/{{secret}}/versions/latest")
+		url, err = ReplaceVars(d, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets/{{secret}}/versions/latest")
 		if err != nil {
 			return err
 		}

@@ -62,7 +62,7 @@ func testSweepDataprocMetastoreService(region string) error {
 	}
 
 	listTemplate := strings.Split("https://metastore.googleapis.com/v1/projects/{{project}}/locations/{{location}}/services", "?")[0]
-	listUrl, err := replaceVars(d, config, listTemplate)
+	listUrl, err := ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 		return nil
@@ -104,7 +104,7 @@ func testSweepDataprocMetastoreService(region string) error {
 		}
 
 		deleteTemplate := "https://metastore.googleapis.com/v1/projects/{{project}}/locations/{{location}}/services/{{service_id}}"
-		deleteUrl, err := replaceVars(d, config, deleteTemplate)
+		deleteUrl, err := ReplaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 			return nil

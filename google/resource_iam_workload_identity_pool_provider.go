@@ -27,7 +27,7 @@ import (
 
 const workloadIdentityPoolProviderIdRegexp = `^[0-9a-z-]+$`
 
-func validateWorkloadIdentityPoolProviderId(v interface{}, k string) (ws []string, errors []error) {
+func ValidateWorkloadIdentityPoolProviderId(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 
 	if strings.HasPrefix(value, "gcp-") {
@@ -83,7 +83,7 @@ value should be 4-32 characters, and may contain the characters [a-z0-9-]. The p
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateWorkloadIdentityPoolProviderId,
+				ValidateFunc: ValidateWorkloadIdentityPoolProviderId,
 				Description: `The ID for the provider, which becomes the final component of the resource name. This
 value must be 4-32 characters, and may contain the characters [a-z0-9-]. The prefix
 'gcp-' is reserved for use by Google, and may not be specified.`,
@@ -322,7 +322,7 @@ func resourceIAMBetaWorkloadIdentityPoolProviderCreate(d *schema.ResourceData, m
 		obj["oidc"] = oidcProp
 	}
 
-	url, err := replaceVars(d, config, "{{IAMBetaBasePath}}projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers?workloadIdentityPoolProviderId={{workload_identity_pool_provider_id}}")
+	url, err := ReplaceVars(d, config, "{{IAMBetaBasePath}}projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers?workloadIdentityPoolProviderId={{workload_identity_pool_provider_id}}")
 	if err != nil {
 		return err
 	}
@@ -347,7 +347,7 @@ func resourceIAMBetaWorkloadIdentityPoolProviderCreate(d *schema.ResourceData, m
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers/{{workload_identity_pool_provider_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers/{{workload_identity_pool_provider_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -375,7 +375,7 @@ func resourceIAMBetaWorkloadIdentityPoolProviderRead(d *schema.ResourceData, met
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{IAMBetaBasePath}}projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers/{{workload_identity_pool_provider_id}}")
+	url, err := ReplaceVars(d, config, "{{IAMBetaBasePath}}projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers/{{workload_identity_pool_provider_id}}")
 	if err != nil {
 		return err
 	}
@@ -504,7 +504,7 @@ func resourceIAMBetaWorkloadIdentityPoolProviderUpdate(d *schema.ResourceData, m
 		obj["oidc"] = oidcProp
 	}
 
-	url, err := replaceVars(d, config, "{{IAMBetaBasePath}}projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers/{{workload_identity_pool_provider_id}}")
+	url, err := ReplaceVars(d, config, "{{IAMBetaBasePath}}projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers/{{workload_identity_pool_provider_id}}")
 	if err != nil {
 		return err
 	}
@@ -540,9 +540,9 @@ func resourceIAMBetaWorkloadIdentityPoolProviderUpdate(d *schema.ResourceData, m
 		updateMask = append(updateMask, "oidc.allowed_audiences",
 			"oidc.issuer_uri")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -586,7 +586,7 @@ func resourceIAMBetaWorkloadIdentityPoolProviderDelete(d *schema.ResourceData, m
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{IAMBetaBasePath}}projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers/{{workload_identity_pool_provider_id}}")
+	url, err := ReplaceVars(d, config, "{{IAMBetaBasePath}}projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers/{{workload_identity_pool_provider_id}}")
 	if err != nil {
 		return err
 	}
@@ -618,7 +618,7 @@ func resourceIAMBetaWorkloadIdentityPoolProviderDelete(d *schema.ResourceData, m
 
 func resourceIAMBetaWorkloadIdentityPoolProviderImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/global/workloadIdentityPools/(?P<workload_identity_pool_id>[^/]+)/providers/(?P<workload_identity_pool_provider_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<workload_identity_pool_id>[^/]+)/(?P<workload_identity_pool_provider_id>[^/]+)",
 		"(?P<workload_identity_pool_id>[^/]+)/(?P<workload_identity_pool_provider_id>[^/]+)",
@@ -627,7 +627,7 @@ func resourceIAMBetaWorkloadIdentityPoolProviderImport(d *schema.ResourceData, m
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers/{{workload_identity_pool_provider_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers/{{workload_identity_pool_provider_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

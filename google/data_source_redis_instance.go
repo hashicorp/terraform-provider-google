@@ -19,7 +19,7 @@ func DataSourceGoogleRedisInstance() *schema.Resource {
 }
 
 func dataSourceGoogleRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	id, err := replaceVars(d, meta.(*Config), "projects/{{project}}/locations/{{region}}/instances/{{name}}")
+	id, err := ReplaceVars(d, meta.(*Config), "projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}

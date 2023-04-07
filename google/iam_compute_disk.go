@@ -203,7 +203,7 @@ func (u *ComputeDiskIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanage
 
 func (u *ComputeDiskIamUpdater) qualifyDiskUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{ComputeBasePath}}%s/%s", fmt.Sprintf("projects/%s/zones/%s/disks/%s", u.project, u.zone, u.name), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

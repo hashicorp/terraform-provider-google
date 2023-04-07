@@ -428,14 +428,14 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 		obj["routine"] = routineProp
 	}
 
-	lockName, err := replaceVars(d, config, "{{dataset_id}}")
+	lockName, err := ReplaceVars(d, config, "{{dataset_id}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
+	url, err := ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
 	if err != nil {
 		return err
 	}
@@ -459,13 +459,13 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isBigqueryIAMQuotaError)
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IsBigqueryIAMQuotaError)
 	if err != nil {
 		return fmt.Errorf("Error creating DatasetAccess: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/datasets/{{dataset_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/datasets/{{dataset_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -511,7 +511,7 @@ func resourceBigQueryDatasetAccessRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
+	url, err := ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
 	if err != nil {
 		return err
 	}
@@ -529,7 +529,7 @@ func resourceBigQueryDatasetAccessRead(d *schema.ResourceData, meta interface{})
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, isBigqueryIAMQuotaError)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsBigqueryIAMQuotaError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("BigQueryDatasetAccess %q", d.Id()))
 	}
@@ -596,14 +596,14 @@ func resourceBigQueryDatasetAccessDelete(d *schema.ResourceData, meta interface{
 	}
 	billingProject = project
 
-	lockName, err := replaceVars(d, config, "{{dataset_id}}")
+	lockName, err := ReplaceVars(d, config, "{{dataset_id}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
+	url, err := ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
 	if err != nil {
 		return err
 	}
@@ -621,7 +621,7 @@ func resourceBigQueryDatasetAccessDelete(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isBigqueryIAMQuotaError)
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IsBigqueryIAMQuotaError)
 	if err != nil {
 		return handleNotFoundError(err, d, "DatasetAccess")
 	}
@@ -1138,7 +1138,7 @@ func resourceBigQueryDatasetAccessPatchDeleteEncoder(d *schema.ResourceData, met
 // extracting list of objects.
 func resourceBigQueryDatasetAccessListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
 	config := meta.(*Config)
-	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
+	url, err := ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
 	if err != nil {
 		return nil, err
 	}
@@ -1152,7 +1152,7 @@ func resourceBigQueryDatasetAccessListForPatch(d *schema.ResourceData, meta inte
 		return nil, err
 	}
 
-	res, err := SendRequest(config, "GET", project, url, userAgent, nil, isBigqueryIAMQuotaError)
+	res, err := SendRequest(config, "GET", project, url, userAgent, nil, IsBigqueryIAMQuotaError)
 	if err != nil {
 		return nil, err
 	}

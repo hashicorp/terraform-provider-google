@@ -1384,7 +1384,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices")
 	if err != nil {
 		return err
 	}
@@ -1409,7 +1409,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/global/backendServices/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/backendServices/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1476,7 +1476,7 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1805,7 +1805,7 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1889,7 +1889,7 @@ func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1921,7 +1921,7 @@ func resourceComputeBackendServiceDelete(d *schema.ResourceData, meta interface{
 
 func resourceComputeBackendServiceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/backendServices/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -1930,7 +1930,7 @@ func resourceComputeBackendServiceImport(d *schema.ResourceData, meta interface{
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/global/backendServices/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/backendServices/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

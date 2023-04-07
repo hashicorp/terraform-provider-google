@@ -52,7 +52,7 @@ func resourceStorageDefaultObjectAclCreateUpdate(d *schema.ResourceData, meta in
 		})
 	}
 
-	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}")
 	if err != nil {
 		return err
 	}
@@ -117,7 +117,7 @@ func resourceStorageDefaultObjectAclDelete(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "storage/buckets/{{bucket}}")
+	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}")
 	if err != nil {
 		return err
 	}

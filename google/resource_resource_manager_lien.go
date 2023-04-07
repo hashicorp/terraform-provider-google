@@ -125,7 +125,7 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 		obj["restrictions"] = restrictionsProp
 	}
 
-	url, err := replaceVars(d, config, "{{ResourceManagerBasePath}}liens")
+	url, err := ReplaceVars(d, config, "{{ResourceManagerBasePath}}liens")
 	if err != nil {
 		return err
 	}
@@ -147,7 +147,7 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -177,7 +177,7 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ResourceManagerBasePath}}liens?parent={{parent}}")
+	url, err := ReplaceVars(d, config, "{{ResourceManagerBasePath}}liens?parent={{parent}}")
 	if err != nil {
 		return err
 	}
@@ -249,7 +249,7 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ResourceManagerBasePath}}liens?parent={{parent}}")
+	url, err := ReplaceVars(d, config, "{{ResourceManagerBasePath}}liens?parent={{parent}}")
 	if err != nil {
 		return err
 	}
@@ -259,7 +259,7 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 	// in theory, we should find a way to disable the default URL and not construct
 	// both, but that's a problem for another day. Today, we cheat.
 	log.Printf("[DEBUG] replacing URL %q with a custom delete URL", url)
-	url, err = replaceVars(d, config, "{{ResourceManagerBasePath}}liens/{{name}}")
+	url, err = ReplaceVars(d, config, "{{ResourceManagerBasePath}}liens/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -281,20 +281,20 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 
 func resourceResourceManagerLienImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<parent>[^/]+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	parent, err := replaceVars(d, config, "projects/{{parent}}")
+	parent, err := ReplaceVars(d, config, "projects/{{parent}}")
 	if err != nil {
 		return nil, err
 	}

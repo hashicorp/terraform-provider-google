@@ -99,7 +99,7 @@ func resourceHealthcareDatasetCreate(d *schema.ResourceData, meta interface{}) e
 		obj["timeZone"] = timeZoneProp
 	}
 
-	url, err := replaceVars(d, config, "{{HealthcareBasePath}}projects/{{project}}/locations/{{location}}/datasets?datasetId={{name}}")
+	url, err := ReplaceVars(d, config, "{{HealthcareBasePath}}projects/{{project}}/locations/{{location}}/datasets?datasetId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -118,13 +118,13 @@ func resourceHealthcareDatasetCreate(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), healthcareDatasetNotInitialized)
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), HealthcareDatasetNotInitialized)
 	if err != nil {
 		return fmt.Errorf("Error creating Dataset: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/datasets/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/datasets/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -142,7 +142,7 @@ func resourceHealthcareDatasetRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{HealthcareBasePath}}projects/{{project}}/locations/{{location}}/datasets/{{name}}")
+	url, err := ReplaceVars(d, config, "{{HealthcareBasePath}}projects/{{project}}/locations/{{location}}/datasets/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -160,7 +160,7 @@ func resourceHealthcareDatasetRead(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, healthcareDatasetNotInitialized)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, HealthcareDatasetNotInitialized)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("HealthcareDataset %q", d.Id()))
 	}
@@ -214,7 +214,7 @@ func resourceHealthcareDatasetUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["timeZone"] = timeZoneProp
 	}
 
-	url, err := replaceVars(d, config, "{{HealthcareBasePath}}projects/{{project}}/locations/{{location}}/datasets/{{name}}")
+	url, err := ReplaceVars(d, config, "{{HealthcareBasePath}}projects/{{project}}/locations/{{location}}/datasets/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -225,9 +225,9 @@ func resourceHealthcareDatasetUpdate(d *schema.ResourceData, meta interface{}) e
 	if d.HasChange("time_zone") {
 		updateMask = append(updateMask, "timeZone")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -237,7 +237,7 @@ func resourceHealthcareDatasetUpdate(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), healthcareDatasetNotInitialized)
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), HealthcareDatasetNotInitialized)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Dataset %q: %s", d.Id(), err)
@@ -263,7 +263,7 @@ func resourceHealthcareDatasetDelete(d *schema.ResourceData, meta interface{}) e
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{HealthcareBasePath}}projects/{{project}}/locations/{{location}}/datasets/{{name}}")
+	url, err := ReplaceVars(d, config, "{{HealthcareBasePath}}projects/{{project}}/locations/{{location}}/datasets/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -276,7 +276,7 @@ func resourceHealthcareDatasetDelete(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), healthcareDatasetNotInitialized)
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), HealthcareDatasetNotInitialized)
 	if err != nil {
 		return handleNotFoundError(err, d, "Dataset")
 	}
@@ -287,7 +287,7 @@ func resourceHealthcareDatasetDelete(d *schema.ResourceData, meta interface{}) e
 
 func resourceHealthcareDatasetImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/datasets/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -296,7 +296,7 @@ func resourceHealthcareDatasetImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/datasets/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/datasets/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -255,7 +255,7 @@ func resourceApikeysKeyCreate(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 	client := NewDCLApikeysClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -300,7 +300,7 @@ func resourceApikeysKeyRead(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 	client := NewDCLApikeysClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -358,7 +358,7 @@ func resourceApikeysKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 	client := NewDCLApikeysClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -404,7 +404,7 @@ func resourceApikeysKeyDelete(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 	client := NewDCLApikeysClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -421,7 +421,7 @@ func resourceApikeysKeyDelete(d *schema.ResourceData, meta interface{}) error {
 func resourceApikeysKeyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/global/keys/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",

@@ -132,7 +132,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigCreate(d *schema.Res
 		obj["enabled"] = enabledProp
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs?idpId={{idp_id}}")
+	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs?idpId={{idp_id}}")
 	if err != nil {
 		return err
 	}
@@ -160,7 +160,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigCreate(d *schema.Res
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -178,7 +178,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigRead(d *schema.Resou
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
+	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
 	if err != nil {
 		return err
 	}
@@ -256,7 +256,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigUpdate(d *schema.Res
 		obj["enabled"] = enabledProp
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
+	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
 	if err != nil {
 		return err
 	}
@@ -275,9 +275,9 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigUpdate(d *schema.Res
 	if d.HasChange("enabled") {
 		updateMask = append(updateMask, "enabled")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -313,7 +313,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigDelete(d *schema.Res
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
+	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
 	if err != nil {
 		return err
 	}
@@ -337,7 +337,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigDelete(d *schema.Res
 
 func resourceIdentityPlatformTenantDefaultSupportedIdpConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/tenants/(?P<tenant>[^/]+)/defaultSupportedIdpConfigs/(?P<idp_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<tenant>[^/]+)/(?P<idp_id>[^/]+)",
 		"(?P<tenant>[^/]+)/(?P<idp_id>[^/]+)",
@@ -346,7 +346,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigImport(d *schema.Res
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/tenants/{{tenant}}/defaultSupportedIdpConfigs/{{idp_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

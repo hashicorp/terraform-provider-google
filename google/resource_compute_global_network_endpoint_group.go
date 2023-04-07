@@ -121,7 +121,7 @@ func resourceComputeGlobalNetworkEndpointGroupCreate(d *schema.ResourceData, met
 		obj["defaultPort"] = defaultPortProp
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networkEndpointGroups")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networkEndpointGroups")
 	if err != nil {
 		return err
 	}
@@ -146,7 +146,7 @@ func resourceComputeGlobalNetworkEndpointGroupCreate(d *schema.ResourceData, met
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/global/networkEndpointGroups/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/networkEndpointGroups/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -174,7 +174,7 @@ func resourceComputeGlobalNetworkEndpointGroupRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networkEndpointGroups/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networkEndpointGroups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -235,7 +235,7 @@ func resourceComputeGlobalNetworkEndpointGroupDelete(d *schema.ResourceData, met
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networkEndpointGroups/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networkEndpointGroups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -267,7 +267,7 @@ func resourceComputeGlobalNetworkEndpointGroupDelete(d *schema.ResourceData, met
 
 func resourceComputeGlobalNetworkEndpointGroupImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/networkEndpointGroups/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -276,7 +276,7 @@ func resourceComputeGlobalNetworkEndpointGroupImport(d *schema.ResourceData, met
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/global/networkEndpointGroups/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/networkEndpointGroups/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -151,7 +151,7 @@ func resourceBigqueryReservationCapacityCommitmentCreate(d *schema.ResourceData,
 		obj["edition"] = editionProp
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/capacityCommitments?capacityCommitmentId={{capacity_commitment_id}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/capacityCommitments?capacityCommitmentId={{capacity_commitment_id}}")
 	if err != nil {
 		return err
 	}
@@ -179,7 +179,7 @@ func resourceBigqueryReservationCapacityCommitmentCreate(d *schema.ResourceData,
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -197,7 +197,7 @@ func resourceBigqueryReservationCapacityCommitmentRead(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}")
 	if err != nil {
 		return err
 	}
@@ -281,7 +281,7 @@ func resourceBigqueryReservationCapacityCommitmentUpdate(d *schema.ResourceData,
 		obj["renewalPlan"] = renewalPlanProp
 	}
 
-	url, err := replaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}")
 	if err != nil {
 		return err
 	}
@@ -296,9 +296,9 @@ func resourceBigqueryReservationCapacityCommitmentUpdate(d *schema.ResourceData,
 	if d.HasChange("renewal_plan") {
 		updateMask = append(updateMask, "renewalPlan")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -334,7 +334,7 @@ func resourceBigqueryReservationCapacityCommitmentDelete(d *schema.ResourceData,
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}")
+	url, err := ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}")
 	if err != nil {
 		return err
 	}
@@ -358,7 +358,7 @@ func resourceBigqueryReservationCapacityCommitmentDelete(d *schema.ResourceData,
 
 func resourceBigqueryReservationCapacityCommitmentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/capacityCommitments/(?P<capacity_commitment_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<capacity_commitment_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<capacity_commitment_id>[^/]+)",
@@ -367,7 +367,7 @@ func resourceBigqueryReservationCapacityCommitmentImport(d *schema.ResourceData,
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

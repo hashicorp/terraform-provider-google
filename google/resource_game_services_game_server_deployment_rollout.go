@@ -112,7 +112,7 @@ eg: 'projects/my-project/locations/global/gameServerDeployments/my-deployment/ro
 func resourceGameServicesGameServerDeploymentRolloutCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -136,7 +136,7 @@ func resourceGameServicesGameServerDeploymentRolloutRead(d *schema.ResourceData,
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
+	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
 	if err != nil {
 		return err
 	}
@@ -205,7 +205,7 @@ func resourceGameServicesGameServerDeploymentRolloutUpdate(d *schema.ResourceDat
 		obj["gameServerConfigOverrides"] = gameServerConfigOverridesProp
 	}
 
-	url, err := replaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
+	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
 	if err != nil {
 		return err
 	}
@@ -220,9 +220,9 @@ func resourceGameServicesGameServerDeploymentRolloutUpdate(d *schema.ResourceDat
 	if d.HasChange("game_server_config_overrides") {
 		updateMask = append(updateMask, "gameServerConfigOverrides")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -266,7 +266,7 @@ func resourceGameServicesGameServerDeploymentRolloutDelete(d *schema.ResourceDat
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout?updateMask=defaultGameServerConfig")
+	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout?updateMask=defaultGameServerConfig")
 	if err != nil {
 		return err
 	}
@@ -298,7 +298,7 @@ func resourceGameServicesGameServerDeploymentRolloutDelete(d *schema.ResourceDat
 
 func resourceGameServicesGameServerDeploymentRolloutImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/global/gameServerDeployments/(?P<deployment_id>[^/]+)/rollout",
 		"(?P<project>[^/]+)/(?P<deployment_id>[^/]+)",
 		"(?P<deployment_id>[^/]+)",
@@ -307,7 +307,7 @@ func resourceGameServicesGameServerDeploymentRolloutImport(d *schema.ResourceDat
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

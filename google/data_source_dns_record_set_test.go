@@ -31,7 +31,7 @@ func TestAccDataSourceDnsRecordSet_basic(t *testing.T) {
 				},
 				Config: testAccDataSourceDnsRecordSet_basic(managedZoneName, RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceState("data.google_dns_record_set.rs", "google_dns_record_set.rs"),
+					CheckDataSourceStateMatchesResourceState("data.google_dns_record_set.rs", "google_dns_record_set.rs"),
 					testExtractResourceAttr("data.google_dns_record_set.rs", "ttl", &ttl1),
 				),
 			},
@@ -39,7 +39,7 @@ func TestAccDataSourceDnsRecordSet_basic(t *testing.T) {
 				ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 				Config:                   testAccDataSourceDnsRecordSet_basic(managedZoneName, RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceState("data.google_dns_record_set.rs", "google_dns_record_set.rs"),
+					CheckDataSourceStateMatchesResourceState("data.google_dns_record_set.rs", "google_dns_record_set.rs"),
 					testExtractResourceAttr("data.google_dns_record_set.rs", "ttl", &ttl2),
 					testCheckAttributeValuesEqual(&ttl1, &ttl2),
 				),

@@ -294,7 +294,7 @@ func resourceHealthcareFhirStoreCreate(d *schema.ResourceData, meta interface{})
 		obj["streamConfigs"] = streamConfigsProp
 	}
 
-	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/fhirStores?fhirStoreId={{name}}")
+	url, err := ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/fhirStores?fhirStoreId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -313,7 +313,7 @@ func resourceHealthcareFhirStoreCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{dataset}}/fhirStores/{{name}}")
+	id, err := ReplaceVars(d, config, "{{dataset}}/fhirStores/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -331,7 +331,7 @@ func resourceHealthcareFhirStoreRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/fhirStores/{{name}}")
+	url, err := ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/fhirStores/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -426,7 +426,7 @@ func resourceHealthcareFhirStoreUpdate(d *schema.ResourceData, meta interface{})
 		obj["streamConfigs"] = streamConfigsProp
 	}
 
-	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/fhirStores/{{name}}")
+	url, err := ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/fhirStores/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -449,9 +449,9 @@ func resourceHealthcareFhirStoreUpdate(d *schema.ResourceData, meta interface{})
 	if d.HasChange("stream_configs") {
 		updateMask = append(updateMask, "streamConfigs")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -481,7 +481,7 @@ func resourceHealthcareFhirStoreDelete(d *schema.ResourceData, meta interface{})
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/fhirStores/{{name}}")
+	url, err := ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/fhirStores/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -507,12 +507,12 @@ func resourceHealthcareFhirStoreImport(d *schema.ResourceData, meta interface{})
 
 	config := meta.(*Config)
 
-	fhirStoreId, err := parseHealthcareFhirStoreId(d.Id(), config)
+	fhirStoreId, err := ParseHealthcareFhirStoreId(d.Id(), config)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := d.Set("dataset", fhirStoreId.DatasetId.datasetId()); err != nil {
+	if err := d.Set("dataset", fhirStoreId.DatasetId.DatasetId()); err != nil {
 		return nil, fmt.Errorf("Error setting dataset: %s", err)
 	}
 	if err := d.Set("name", fhirStoreId.Name); err != nil {

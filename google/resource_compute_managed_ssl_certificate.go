@@ -58,7 +58,7 @@ certificate is managed (as indicated by a value of 'MANAGED' in 'type').`,
 							Type:             schema.TypeList,
 							Required:         true,
 							ForceNew:         true,
-							DiffSuppressFunc: absoluteDomainSuppress,
+							DiffSuppressFunc: AbsoluteDomainSuppress,
 							Description: `Domains for which a managed SSL certificate will be valid.  Currently,
 there can be up to 100 domains in this list.`,
 							MaxItems: 100,
@@ -165,7 +165,7 @@ func resourceComputeManagedSslCertificateCreate(d *schema.ResourceData, meta int
 		obj["type"] = typeProp
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates")
 	if err != nil {
 		return err
 	}
@@ -190,7 +190,7 @@ func resourceComputeManagedSslCertificateCreate(d *schema.ResourceData, meta int
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/global/sslCertificates/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/sslCertificates/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -218,7 +218,7 @@ func resourceComputeManagedSslCertificateRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -291,7 +291,7 @@ func resourceComputeManagedSslCertificateDelete(d *schema.ResourceData, meta int
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -323,7 +323,7 @@ func resourceComputeManagedSslCertificateDelete(d *schema.ResourceData, meta int
 
 func resourceComputeManagedSslCertificateImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/sslCertificates/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -332,7 +332,7 @@ func resourceComputeManagedSslCertificateImport(d *schema.ResourceData, meta int
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/global/sslCertificates/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/sslCertificates/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

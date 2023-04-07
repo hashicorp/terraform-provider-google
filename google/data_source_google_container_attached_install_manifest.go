@@ -58,7 +58,7 @@ func dataSourceGoogleContainerAttachedInstallManifestRead(d *schema.ResourceData
 		return fmt.Errorf("Cannot determine location: set location in this data source or at provider-level")
 	}
 
-	url, err := replaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}:generateAttachedClusterInstallManifest")
+	url, err := ReplaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}:generateAttachedClusterInstallManifest")
 	if err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func dataSourceGoogleContainerAttachedInstallManifestRead(d *schema.ResourceData
 		"attached_cluster_id": clusterId,
 		"platform_version":    platformVersion,
 	}
-	url, err = addQueryParams(url, params)
+	url, err = AddQueryParams(url, params)
 	if err != nil {
 		return err
 	}

@@ -572,14 +572,14 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 		obj["enableEndpointIndependentMapping"] = enableEndpointIndependentMappingProp
 	}
 
-	lockName, err := replaceVars(d, config, "router/{{region}}/{{router}}")
+	lockName, err := ReplaceVars(d, config, "router/{{region}}/{{router}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
 	if err != nil {
 		return err
 	}
@@ -609,7 +609,7 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{router}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{project}}/{{region}}/{{router}}/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -637,7 +637,7 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
 	if err != nil {
 		return err
 	}
@@ -844,14 +844,14 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["enableEndpointIndependentMapping"] = enableEndpointIndependentMappingProp
 	}
 
-	lockName, err := replaceVars(d, config, "router/{{region}}/{{router}}")
+	lockName, err := ReplaceVars(d, config, "router/{{region}}/{{router}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
 	if err != nil {
 		return err
 	}
@@ -902,14 +902,14 @@ func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) er
 	}
 	billingProject = project
 
-	lockName, err := replaceVars(d, config, "router/{{region}}/{{router}}")
+	lockName, err := ReplaceVars(d, config, "router/{{region}}/{{router}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
 	if err != nil {
 		return err
 	}
@@ -946,7 +946,7 @@ func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) er
 
 func resourceComputeRouterNatImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/routers/(?P<router>[^/]+)/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<router>[^/]+)/(?P<name>[^/]+)",
 		"(?P<region>[^/]+)/(?P<router>[^/]+)/(?P<name>[^/]+)",
@@ -956,7 +956,7 @@ func resourceComputeRouterNatImport(d *schema.ResourceData, meta interface{}) ([
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{router}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{project}}/{{region}}/{{router}}/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1668,7 +1668,7 @@ func resourceComputeRouterNatPatchDeleteEncoder(d *schema.ResourceData, meta int
 // extracting list of objects.
 func resourceComputeRouterNatListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
 	config := meta.(*Config)
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
 	if err != nil {
 		return nil, err
 	}

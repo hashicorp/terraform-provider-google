@@ -238,14 +238,14 @@ func resourceAccessContextManagerAccessLevelConditionCreate(d *schema.ResourceDa
 		obj["regions"] = regionsProp
 	}
 
-	lockName, err := replaceVars(d, config, "{{access_level}}")
+	lockName, err := ReplaceVars(d, config, "{{access_level}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{access_level}}")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{access_level}}")
 	if err != nil {
 		return err
 	}
@@ -256,7 +256,7 @@ func resourceAccessContextManagerAccessLevelConditionCreate(d *schema.ResourceDa
 	if err != nil {
 		return err
 	}
-	url, err = addQueryParams(url, map[string]string{"updateMask": "basic.conditions"})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": "basic.conditions"})
 	if err != nil {
 		return err
 	}
@@ -273,7 +273,7 @@ func resourceAccessContextManagerAccessLevelConditionCreate(d *schema.ResourceDa
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{access_level}}")
+	id, err := ReplaceVars(d, config, "{{access_level}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -293,7 +293,7 @@ func resourceAccessContextManagerAccessLevelConditionPollRead(d *schema.Resource
 	return func() (map[string]interface{}, error) {
 		config := meta.(*Config)
 
-		url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{access_level}}")
+		url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{access_level}}")
 		if err != nil {
 			return nil, err
 		}
@@ -334,7 +334,7 @@ func resourceAccessContextManagerAccessLevelConditionRead(d *schema.ResourceData
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{access_level}}")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{access_level}}")
 	if err != nil {
 		return err
 	}
@@ -394,14 +394,14 @@ func resourceAccessContextManagerAccessLevelConditionDelete(d *schema.ResourceDa
 
 	billingProject := ""
 
-	lockName, err := replaceVars(d, config, "{{access_level}}")
+	lockName, err := ReplaceVars(d, config, "{{access_level}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{access_level}}")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{access_level}}")
 	if err != nil {
 		return err
 	}
@@ -412,7 +412,7 @@ func resourceAccessContextManagerAccessLevelConditionDelete(d *schema.ResourceDa
 	if err != nil {
 		return handleNotFoundError(err, d, "AccessLevelCondition")
 	}
-	url, err = addQueryParams(url, map[string]string{"updateMask": "basic.conditions"})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": "basic.conditions"})
 	if err != nil {
 		return err
 	}
@@ -829,7 +829,7 @@ func resourceAccessContextManagerAccessLevelConditionPatchDeleteEncoder(d *schem
 // extracting list of objects.
 func resourceAccessContextManagerAccessLevelConditionListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
 	config := meta.(*Config)
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{access_level}}")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{access_level}}")
 	if err != nil {
 		return nil, err
 	}

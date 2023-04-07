@@ -165,7 +165,7 @@ func resourceIAM2AccessBoundaryPolicyCreate(d *schema.ResourceData, meta interfa
 		obj["rules"] = rulesProp
 	}
 
-	url, err := replaceVars(d, config, "{{IAM2BasePath}}policies/{{parent}}/accessboundarypolicies?policyId={{name}}")
+	url, err := ReplaceVars(d, config, "{{IAM2BasePath}}policies/{{parent}}/accessboundarypolicies?policyId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -184,7 +184,7 @@ func resourceIAM2AccessBoundaryPolicyCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{parent}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -212,7 +212,7 @@ func resourceIAM2AccessBoundaryPolicyRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{IAM2BasePath}}policies/{{parent}}/accessboundarypolicies/{{name}}")
+	url, err := ReplaceVars(d, config, "{{IAM2BasePath}}policies/{{parent}}/accessboundarypolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -271,7 +271,7 @@ func resourceIAM2AccessBoundaryPolicyUpdate(d *schema.ResourceData, meta interfa
 		obj["rules"] = rulesProp
 	}
 
-	url, err := replaceVars(d, config, "{{IAM2BasePath}}policies/{{parent}}/accessboundarypolicies/{{name}}")
+	url, err := ReplaceVars(d, config, "{{IAM2BasePath}}policies/{{parent}}/accessboundarypolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -311,7 +311,7 @@ func resourceIAM2AccessBoundaryPolicyDelete(d *schema.ResourceData, meta interfa
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{IAM2BasePath}}policies/{{parent}}/accessboundarypolicies/{{name}}")
+	url, err := ReplaceVars(d, config, "{{IAM2BasePath}}policies/{{parent}}/accessboundarypolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -343,14 +343,14 @@ func resourceIAM2AccessBoundaryPolicyDelete(d *schema.ResourceData, meta interfa
 
 func resourceIAM2AccessBoundaryPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<parent>[^/]+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{parent}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

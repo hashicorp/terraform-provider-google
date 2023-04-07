@@ -24,12 +24,12 @@ func dataSourceGoogleKmsKeyRingRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	keyRingId := kmsKeyRingId{
+	keyRingId := KmsKeyRingId{
 		Name:     d.Get("name").(string),
 		Location: d.Get("location").(string),
 		Project:  project,
 	}
-	d.SetId(keyRingId.keyRingId())
+	d.SetId(keyRingId.KeyRingId())
 
 	return resourceKMSKeyRingRead(d, meta)
 }

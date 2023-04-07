@@ -95,14 +95,14 @@ func resourceAppEngineApplicationUrlDispatchRulesCreate(d *schema.ResourceData, 
 		obj["dispatchRules"] = dispatchRulesProp
 	}
 
-	lockName, err := replaceVars(d, config, "apps/{{project}}")
+	lockName, err := ReplaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}?updateMask=dispatch_rules")
+	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}?updateMask=dispatch_rules")
 	if err != nil {
 		return err
 	}
@@ -121,13 +121,13 @@ func resourceAppEngineApplicationUrlDispatchRulesCreate(d *schema.ResourceData, 
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isAppEngineRetryableError)
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IsAppEngineRetryableError)
 	if err != nil {
 		return fmt.Errorf("Error creating ApplicationUrlDispatchRules: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}")
+	id, err := ReplaceVars(d, config, "{{project}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -155,7 +155,7 @@ func resourceAppEngineApplicationUrlDispatchRulesRead(d *schema.ResourceData, me
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/{{name}}")
+	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func resourceAppEngineApplicationUrlDispatchRulesRead(d *schema.ResourceData, me
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, isAppEngineRetryableError)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsAppEngineRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("AppEngineApplicationUrlDispatchRules %q", d.Id()))
 	}
@@ -212,14 +212,14 @@ func resourceAppEngineApplicationUrlDispatchRulesUpdate(d *schema.ResourceData, 
 		obj["dispatchRules"] = dispatchRulesProp
 	}
 
-	lockName, err := replaceVars(d, config, "apps/{{project}}")
+	lockName, err := ReplaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}?updateMask=dispatch_rules")
+	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}?updateMask=dispatch_rules")
 	if err != nil {
 		return err
 	}
@@ -231,7 +231,7 @@ func resourceAppEngineApplicationUrlDispatchRulesUpdate(d *schema.ResourceData, 
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), isAppEngineRetryableError)
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), IsAppEngineRetryableError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating ApplicationUrlDispatchRules %q: %s", d.Id(), err)
@@ -265,14 +265,14 @@ func resourceAppEngineApplicationUrlDispatchRulesDelete(d *schema.ResourceData, 
 	}
 	billingProject = project
 
-	lockName, err := replaceVars(d, config, "apps/{{project}}")
+	lockName, err := ReplaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}?updateMask=dispatch_rules")
+	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}?updateMask=dispatch_rules")
 	if err != nil {
 		return err
 	}
@@ -285,7 +285,7 @@ func resourceAppEngineApplicationUrlDispatchRulesDelete(d *schema.ResourceData, 
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), isAppEngineRetryableError)
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IsAppEngineRetryableError)
 	if err != nil {
 		return handleNotFoundError(err, d, "ApplicationUrlDispatchRules")
 	}
@@ -304,14 +304,14 @@ func resourceAppEngineApplicationUrlDispatchRulesDelete(d *schema.ResourceData, 
 
 func resourceAppEngineApplicationUrlDispatchRulesImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<project>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}")
+	id, err := ReplaceVars(d, config, "{{project}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

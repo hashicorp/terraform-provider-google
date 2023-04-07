@@ -179,7 +179,7 @@ func (u *GKEHubMembershipIamUpdater) SetResourceIamPolicy(policy *cloudresourcem
 
 func (u *GKEHubMembershipIamUpdater) qualifyMembershipUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{GKEHubBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/global/memberships/%s", u.project, u.membershipId), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

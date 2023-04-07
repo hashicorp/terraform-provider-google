@@ -372,7 +372,7 @@ func resourceDialogflowCXFlowCreate(d *schema.ResourceData, meta interface{}) er
 		obj["languageCode"] = languageCodeProp
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/flows")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/flows")
 	if err != nil {
 		return err
 	}
@@ -408,7 +408,7 @@ func resourceDialogflowCXFlowCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{parent}}/flows/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/flows/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -426,7 +426,7 @@ func resourceDialogflowCXFlowRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/flows/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/flows/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -532,7 +532,7 @@ func resourceDialogflowCXFlowUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["nluSettings"] = nluSettingsProp
 	}
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/flows/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/flows/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -563,9 +563,9 @@ func resourceDialogflowCXFlowUpdate(d *schema.ResourceData, meta interface{}) er
 	if d.HasChange("nlu_settings") {
 		updateMask = append(updateMask, "nluSettings")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -610,7 +610,7 @@ func resourceDialogflowCXFlowDelete(d *schema.ResourceData, meta interface{}) er
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/flows/{{name}}")
+	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/flows/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -651,7 +651,7 @@ func resourceDialogflowCXFlowImport(d *schema.ResourceData, meta interface{}) ([
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value and parent contains slashes
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<parent>.+)/flows/(?P<name>[^/]+)",
 		"(?P<parent>.+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {
@@ -659,7 +659,7 @@ func resourceDialogflowCXFlowImport(d *schema.ResourceData, meta interface{}) ([
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{parent}}/flows/{{name}}")
+	id, err := ReplaceVars(d, config, "{{parent}}/flows/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

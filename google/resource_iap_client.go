@@ -85,7 +85,7 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["displayName"] = displayNameProp
 	}
 
-	url, err := replaceVars(d, config, "{{IapBasePath}}{{brand}}/identityAwareProxyClients")
+	url, err := ReplaceVars(d, config, "{{IapBasePath}}{{brand}}/identityAwareProxyClients")
 	if err != nil {
 		return err
 	}
@@ -98,13 +98,13 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), iapClient409Operation)
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IapClient409Operation)
 	if err != nil {
 		return fmt.Errorf("Error creating Client: %s", err)
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{brand}}/identityAwareProxyClients/{{client_id}}")
+	id, err := ReplaceVars(d, config, "{{brand}}/identityAwareProxyClients/{{client_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -130,7 +130,7 @@ func resourceIapClientRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{IapBasePath}}{{brand}}/identityAwareProxyClients/{{client_id}}")
+	url, err := ReplaceVars(d, config, "{{IapBasePath}}{{brand}}/identityAwareProxyClients/{{client_id}}")
 	if err != nil {
 		return err
 	}
@@ -142,7 +142,7 @@ func resourceIapClientRead(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, iapClient409Operation)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IapClient409Operation)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("IapClient %q", d.Id()))
 	}
@@ -169,7 +169,7 @@ func resourceIapClientDelete(d *schema.ResourceData, meta interface{}) error {
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{IapBasePath}}{{brand}}/identityAwareProxyClients/{{client_id}}")
+	url, err := ReplaceVars(d, config, "{{IapBasePath}}{{brand}}/identityAwareProxyClients/{{client_id}}")
 	if err != nil {
 		return err
 	}
@@ -182,7 +182,7 @@ func resourceIapClientDelete(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), iapClient409Operation)
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IapClient409Operation)
 	if err != nil {
 		return handleNotFoundError(err, d, "Client")
 	}
@@ -195,7 +195,7 @@ func resourceIapClientImport(d *schema.ResourceData, meta interface{}) ([]*schem
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<brand>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<brand>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 

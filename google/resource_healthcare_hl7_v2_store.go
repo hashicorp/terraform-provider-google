@@ -228,7 +228,7 @@ func resourceHealthcareHl7V2StoreCreate(d *schema.ResourceData, meta interface{}
 		obj["notificationConfig"] = notificationConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/hl7V2Stores?hl7V2StoreId={{name}}")
+	url, err := ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/hl7V2Stores?hl7V2StoreId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -247,7 +247,7 @@ func resourceHealthcareHl7V2StoreCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{dataset}}/hl7V2Stores/{{name}}")
+	id, err := ReplaceVars(d, config, "{{dataset}}/hl7V2Stores/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -265,7 +265,7 @@ func resourceHealthcareHl7V2StoreRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/hl7V2Stores/{{name}}")
+	url, err := ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/hl7V2Stores/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -348,7 +348,7 @@ func resourceHealthcareHl7V2StoreUpdate(d *schema.ResourceData, meta interface{}
 		obj["notificationConfig"] = notificationConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/hl7V2Stores/{{name}}")
+	url, err := ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/hl7V2Stores/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -373,9 +373,9 @@ func resourceHealthcareHl7V2StoreUpdate(d *schema.ResourceData, meta interface{}
 	if d.HasChange("notification_config") {
 		updateMask = append(updateMask, "notificationConfig")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -405,7 +405,7 @@ func resourceHealthcareHl7V2StoreDelete(d *schema.ResourceData, meta interface{}
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/hl7V2Stores/{{name}}")
+	url, err := ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/hl7V2Stores/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -431,12 +431,12 @@ func resourceHealthcareHl7V2StoreImport(d *schema.ResourceData, meta interface{}
 
 	config := meta.(*Config)
 
-	hl7v2StoreId, err := parseHealthcareHl7V2StoreId(d.Id(), config)
+	hl7v2StoreId, err := ParseHealthcareHl7V2StoreId(d.Id(), config)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := d.Set("dataset", hl7v2StoreId.DatasetId.datasetId()); err != nil {
+	if err := d.Set("dataset", hl7v2StoreId.DatasetId.DatasetId()); err != nil {
 		return nil, fmt.Errorf("Error setting dataset: %s", err)
 	}
 	if err := d.Set("name", hl7v2StoreId.Name); err != nil {

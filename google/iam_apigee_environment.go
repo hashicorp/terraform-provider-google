@@ -162,7 +162,7 @@ func (u *ApigeeEnvironmentIamUpdater) SetResourceIamPolicy(policy *cloudresource
 
 func (u *ApigeeEnvironmentIamUpdater) qualifyEnvironmentUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{ApigeeBasePath}}%s:%s", fmt.Sprintf("%s/environments/%s", u.orgId, u.envId), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

@@ -46,7 +46,7 @@ func TestAccKmsSecret_basic(t *testing.T) {
 						ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 						Steps: []resource.TestStep{
 							{
-								Config: testGoogleKmsSecret_datasource(cryptoKeyId.terraformId(), ciphertext),
+								Config: testGoogleKmsSecret_datasource(cryptoKeyId.TerraformId(), ciphertext),
 								Check:  resource.TestCheckResourceAttr("data.google_kms_secret.acceptance", "plaintext", plaintext),
 							},
 						},
@@ -71,7 +71,7 @@ func TestAccKmsSecret_basic(t *testing.T) {
 						ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 						Steps: []resource.TestStep{
 							{
-								Config: testGoogleKmsSecret_aadDatasource(cryptoKeyId.terraformId(), ciphertext, base64.StdEncoding.EncodeToString([]byte(aad))),
+								Config: testGoogleKmsSecret_aadDatasource(cryptoKeyId.TerraformId(), ciphertext, base64.StdEncoding.EncodeToString([]byte(aad))),
 								Check:  resource.TestCheckResourceAttr("data.google_kms_secret.acceptance", "plaintext", plaintext),
 							},
 						},
@@ -92,7 +92,7 @@ func testAccEncryptSecretDataWithCryptoKey(t *testing.T, s *terraform.State, cry
 		return "", nil, fmt.Errorf("Resource not found: %s", cryptoKeyResourceName)
 	}
 
-	cryptoKeyId, err := parseKmsCryptoKeyId(rs.Primary.Attributes["id"], config)
+	cryptoKeyId, err := ParseKmsCryptoKeyId(rs.Primary.Attributes["id"], config)
 
 	if err != nil {
 		return "", nil, err
@@ -106,7 +106,7 @@ func testAccEncryptSecretDataWithCryptoKey(t *testing.T, s *terraform.State, cry
 		kmsEncryptRequest.AdditionalAuthenticatedData = base64.StdEncoding.EncodeToString([]byte(aad))
 	}
 
-	encryptResponse, err := config.NewKmsClient(config.UserAgent).Projects.Locations.KeyRings.CryptoKeys.Encrypt(cryptoKeyId.cryptoKeyId(), kmsEncryptRequest).Do()
+	encryptResponse, err := config.NewKmsClient(config.UserAgent).Projects.Locations.KeyRings.CryptoKeys.Encrypt(cryptoKeyId.CryptoKeyId(), kmsEncryptRequest).Do()
 
 	if err != nil {
 		return "", nil, fmt.Errorf("Error encrypting plaintext: %s", err)

@@ -1447,7 +1447,7 @@ func resourcePrivatecaCertificateCreate(d *schema.ResourceData, meta interface{}
 		obj["config"] = configProp
 	}
 
-	url, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates?certificateId={{name}}")
+	url, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates?certificateId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -1468,7 +1468,7 @@ func resourcePrivatecaCertificateCreate(d *schema.ResourceData, meta interface{}
 
 	// Only include linked certificate authority if the user specified it
 	if p, ok := d.GetOk("certificate_authority"); ok {
-		url, err = addQueryParams(url, map[string]string{"issuingCertificateAuthorityId": p.(string)})
+		url, err = AddQueryParams(url, map[string]string{"issuingCertificateAuthorityId": p.(string)})
 		if err != nil {
 			return err
 		}
@@ -1479,7 +1479,7 @@ func resourcePrivatecaCertificateCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1497,7 +1497,7 @@ func resourcePrivatecaCertificateRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
+	url, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1590,7 +1590,7 @@ func resourcePrivatecaCertificateUpdate(d *schema.ResourceData, meta interface{}
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
+	url, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1601,9 +1601,9 @@ func resourcePrivatecaCertificateUpdate(d *schema.ResourceData, meta interface{}
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -1639,7 +1639,7 @@ func resourcePrivatecaCertificateDelete(d *schema.ResourceData, meta interface{}
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}:revoke")
+	url, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}:revoke")
 	if err != nil {
 		return err
 	}
@@ -1663,7 +1663,7 @@ func resourcePrivatecaCertificateDelete(d *schema.ResourceData, meta interface{}
 
 func resourcePrivatecaCertificateImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/caPools/(?P<pool>[^/]+)/certificates/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<pool>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<pool>[^/]+)/(?P<name>[^/]+)",
@@ -1672,7 +1672,7 @@ func resourcePrivatecaCertificateImport(d *schema.ResourceData, meta interface{}
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

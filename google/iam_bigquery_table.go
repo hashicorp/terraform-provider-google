@@ -201,7 +201,7 @@ func (u *BigQueryTableIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 
 func (u *BigQueryTableIamUpdater) qualifyTableUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{BigQueryBasePath}}%s:%s", fmt.Sprintf("projects/%s/datasets/%s/tables/%s", u.project, u.datasetId, u.tableId), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

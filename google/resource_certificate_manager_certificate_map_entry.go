@@ -45,7 +45,7 @@ func ResourceCertificateManagerCertificateMapEntry() *schema.Resource {
 			"certificates": {
 				Type:             schema.TypeList,
 				Required:         true,
-				DiffSuppressFunc: projectNumberDiffSuppress,
+				DiffSuppressFunc: ProjectNumberDiffSuppress,
 				Description: `A set of Certificates defines for the given hostname.
 There can be defined up to fifteen certificates in each Certificate Map Entry.
 Each certificate must match pattern projects/*/locations/*/certificates/*.`,
@@ -173,7 +173,7 @@ func resourceCertificateManagerCertificateMapEntryCreate(d *schema.ResourceData,
 		obj["name"] = nameProp
 	}
 
-	url, err := replaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries?certificateMapEntryId={{name}}")
+	url, err := ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries?certificateMapEntryId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -198,7 +198,7 @@ func resourceCertificateManagerCertificateMapEntryCreate(d *schema.ResourceData,
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -226,7 +226,7 @@ func resourceCertificateManagerCertificateMapEntryRead(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -319,7 +319,7 @@ func resourceCertificateManagerCertificateMapEntryUpdate(d *schema.ResourceData,
 		obj["certificates"] = certificatesProp
 	}
 
-	url, err := replaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -338,9 +338,9 @@ func resourceCertificateManagerCertificateMapEntryUpdate(d *schema.ResourceData,
 	if d.HasChange("certificates") {
 		updateMask = append(updateMask, "certificates")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -384,7 +384,7 @@ func resourceCertificateManagerCertificateMapEntryDelete(d *schema.ResourceData,
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -416,7 +416,7 @@ func resourceCertificateManagerCertificateMapEntryDelete(d *schema.ResourceData,
 
 func resourceCertificateManagerCertificateMapEntryImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/global/certificateMaps/(?P<map>[^/]+)/certificateMapEntries/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<map>[^/]+)/(?P<name>[^/]+)",
 		"(?P<map>[^/]+)/(?P<name>[^/]+)",
@@ -425,7 +425,7 @@ func resourceCertificateManagerCertificateMapEntryImport(d *schema.ResourceData,
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

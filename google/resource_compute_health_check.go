@@ -749,7 +749,7 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/healthChecks")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/healthChecks")
 	if err != nil {
 		return err
 	}
@@ -774,7 +774,7 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/global/healthChecks/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/healthChecks/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -802,7 +802,7 @@ func resourceComputeHealthCheckRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/healthChecks/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/healthChecks/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -981,7 +981,7 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/healthChecks/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/healthChecks/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1027,7 +1027,7 @@ func resourceComputeHealthCheckDelete(d *schema.ResourceData, meta interface{}) 
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/healthChecks/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/healthChecks/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1059,7 +1059,7 @@ func resourceComputeHealthCheckDelete(d *schema.ResourceData, meta interface{}) 
 
 func resourceComputeHealthCheckImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/healthChecks/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -1068,7 +1068,7 @@ func resourceComputeHealthCheckImport(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/global/healthChecks/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/global/healthChecks/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

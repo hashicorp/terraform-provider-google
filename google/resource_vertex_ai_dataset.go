@@ -140,7 +140,7 @@ func resourceVertexAIDatasetCreate(d *schema.ResourceData, meta interface{}) err
 		obj["metadataSchemaUri"] = metadataSchemaUriProp
 	}
 
-	url, err := replaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/datasets")
+	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/datasets")
 	if err != nil {
 		return err
 	}
@@ -165,7 +165,7 @@ func resourceVertexAIDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -189,7 +189,7 @@ func resourceVertexAIDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{name}}")
+	id, err = ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -207,7 +207,7 @@ func resourceVertexAIDatasetRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{VertexAIBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -288,7 +288,7 @@ func resourceVertexAIDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["labels"] = labelsProp
 	}
 
-	url, err := replaceVars(d, config, "{{VertexAIBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -303,9 +303,9 @@ func resourceVertexAIDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -341,7 +341,7 @@ func resourceVertexAIDatasetDelete(d *schema.ResourceData, meta interface{}) err
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{VertexAIBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}

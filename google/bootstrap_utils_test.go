@@ -368,7 +368,7 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 	return projects
 }
 
-func removeContainerServiceAgentRoleFromContainerEngineRobot(t *testing.T, project *cloudresourcemanager.Project) {
+func RemoveContainerServiceAgentRoleFromContainerEngineRobot(t *testing.T, project *cloudresourcemanager.Project) {
 	config := BootstrapConfig(t)
 	if config == nil {
 		return

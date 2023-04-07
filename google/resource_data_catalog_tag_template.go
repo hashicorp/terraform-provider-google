@@ -28,7 +28,7 @@ import (
 // Use it to delete TagTemplate Field
 func deleteTagTemplateField(d *schema.ResourceData, config *Config, name, billingProject, userAgent string) error {
 
-	url_delete, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}/fields/"+name+"?force={{force_delete}}")
+	url_delete, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}/fields/"+name+"?force={{force_delete}}")
 	if err != nil {
 		return err
 	}
@@ -45,12 +45,12 @@ func deleteTagTemplateField(d *schema.ResourceData, config *Config, name, billin
 // Use it to create TagTemplate Field
 func createTagTemplateField(d *schema.ResourceData, config *Config, body map[string]interface{}, name, billingProject, userAgent string) error {
 
-	url_create, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}/fields")
+	url_create, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}/fields")
 	if err != nil {
 		return err
 	}
 
-	url_create, err = addQueryParams(url_create, map[string]string{"tagTemplateFieldId": name})
+	url_create, err = AddQueryParams(url_create, map[string]string{"tagTemplateFieldId": name})
 	if err != nil {
 		return err
 	}
@@ -245,7 +245,7 @@ func resourceDataCatalogTagTemplateCreate(d *schema.ResourceData, meta interface
 		obj["fields"] = fieldsProp
 	}
 
-	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}projects/{{project}}/locations/{{region}}/tagTemplates?tagTemplateId={{tag_template_id}}")
+	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}projects/{{project}}/locations/{{region}}/tagTemplates?tagTemplateId={{tag_template_id}}")
 	if err != nil {
 		return err
 	}
@@ -273,7 +273,7 @@ func resourceDataCatalogTagTemplateCreate(d *schema.ResourceData, meta interface
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -291,7 +291,7 @@ func resourceDataCatalogTagTemplateRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -368,7 +368,7 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 		obj["fields"] = fieldsProp
 	}
 
-	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -380,9 +380,9 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 		updateMask = append(updateMask, "displayName")
 	}
 
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -483,7 +483,7 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 
 		// if we have old and new values, but are not equal, update with the new state
 		if !reflect.DeepEqual(changeOldProp, changeNewProp) {
-			url1, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}/fields/"+name)
+			url1, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}/fields/"+name)
 			if err != nil {
 				return err
 			}
@@ -544,7 +544,7 @@ func resourceDataCatalogTagTemplateDelete(d *schema.ResourceData, meta interface
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}?force={{force_delete}}")
+	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}?force={{force_delete}}")
 	if err != nil {
 		return err
 	}
@@ -570,7 +570,7 @@ func resourceDataCatalogTagTemplateImport(d *schema.ResourceData, meta interface
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 

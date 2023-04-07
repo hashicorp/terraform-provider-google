@@ -3879,7 +3879,7 @@ func TestAccContainerCluster_failedCreation(t *testing.T) {
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", RandString(t, 10))
 
 	project := BootstrapProject(t, "tf-fail-cluster-", GetTestBillingAccountFromEnv(t), []string{"container.googleapis.com"})
-	removeContainerServiceAgentRoleFromContainerEngineRobot(t, project)
+	RemoveContainerServiceAgentRoleFromContainerEngineRobot(t, project)
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { AccTestPreCheck(t) },

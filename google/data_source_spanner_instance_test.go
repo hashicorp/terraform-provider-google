@@ -23,7 +23,7 @@ func TestAccDataSourceSpannerInstance_basic(t *testing.T) {
 			{
 				Config: testAccDataSourceSpannerInstanceBasic(context),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceState("data.google_spanner_instance.foo", "google_spanner_instance.bar"),
+					CheckDataSourceStateMatchesResourceState("data.google_spanner_instance.foo", "google_spanner_instance.bar"),
 				),
 			},
 		},

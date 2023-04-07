@@ -91,7 +91,7 @@ func resourceMonitoringMonitoredProjectCreate(d *schema.ResourceData, meta inter
 	}
 	client := NewDCLMonitoringClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
 	client.Config.BasePath += "v1"
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -131,7 +131,7 @@ func resourceMonitoringMonitoredProjectRead(d *schema.ResourceData, meta interfa
 	}
 	client := NewDCLMonitoringClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
 	client.Config.BasePath += "v1"
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -176,7 +176,7 @@ func resourceMonitoringMonitoredProjectDelete(d *schema.ResourceData, meta inter
 	}
 	client := NewDCLMonitoringClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
 	client.Config.BasePath += "v1"
-	if bp, err := replaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -193,7 +193,7 @@ func resourceMonitoringMonitoredProjectDelete(d *schema.ResourceData, meta inter
 func resourceMonitoringMonitoredProjectImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"locations/global/metricsScopes/(?P<metrics_scope>[^/]+)/projects/(?P<name>[^/]+)",
 		"(?P<metrics_scope>[^/]+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {

@@ -162,7 +162,7 @@ func (u *ServiceManagementServiceConsumersIamUpdater) SetResourceIamPolicy(polic
 
 func (u *ServiceManagementServiceConsumersIamUpdater) qualifyServiceConsumersUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{ServiceManagementBasePath}}%s:%s", fmt.Sprintf("services/%s/consumers/%s", u.serviceName, u.consumerProject), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

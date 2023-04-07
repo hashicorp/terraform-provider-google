@@ -48,7 +48,7 @@ func dataSourceGoogleContainerAttachedVersionsRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Cannot determine location: set location in this data source or at provider-level")
 	}
 
-	url, err := replaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedServerConfig")
+	url, err := ReplaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedServerConfig")
 	if err != nil {
 		return err
 	}

@@ -150,14 +150,14 @@ func resourceTagsTagKeyCreate(d *schema.ResourceData, meta interface{}) error {
 		obj["purposeData"] = purposeDataProp
 	}
 
-	lockName, err := replaceVars(d, config, "tagKeys/{{parent}}")
+	lockName, err := ReplaceVars(d, config, "tagKeys/{{parent}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{TagsBasePath}}tagKeys")
+	url, err := ReplaceVars(d, config, "{{TagsBasePath}}tagKeys")
 	if err != nil {
 		return err
 	}
@@ -176,7 +176,7 @@ func resourceTagsTagKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "tagKeys/{{name}}")
+	id, err := ReplaceVars(d, config, "tagKeys/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -200,7 +200,7 @@ func resourceTagsTagKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "tagKeys/{{name}}")
+	id, err = ReplaceVars(d, config, "tagKeys/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -218,7 +218,7 @@ func resourceTagsTagKeyRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{TagsBasePath}}tagKeys/{{name}}")
+	url, err := ReplaceVars(d, config, "{{TagsBasePath}}tagKeys/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -280,14 +280,14 @@ func resourceTagsTagKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 		obj["description"] = descriptionProp
 	}
 
-	lockName, err := replaceVars(d, config, "tagKeys/{{parent}}")
+	lockName, err := ReplaceVars(d, config, "tagKeys/{{parent}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{TagsBasePath}}tagKeys/{{name}}")
+	url, err := ReplaceVars(d, config, "{{TagsBasePath}}tagKeys/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -298,9 +298,9 @@ func resourceTagsTagKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -338,14 +338,14 @@ func resourceTagsTagKeyDelete(d *schema.ResourceData, meta interface{}) error {
 
 	billingProject := ""
 
-	lockName, err := replaceVars(d, config, "tagKeys/{{parent}}")
+	lockName, err := ReplaceVars(d, config, "tagKeys/{{parent}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{TagsBasePath}}tagKeys/{{name}}")
+	url, err := ReplaceVars(d, config, "{{TagsBasePath}}tagKeys/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -377,7 +377,7 @@ func resourceTagsTagKeyDelete(d *schema.ResourceData, meta interface{}) error {
 
 func resourceTagsTagKeyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"tagKeys/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
 	}, d, config); err != nil {
@@ -385,7 +385,7 @@ func resourceTagsTagKeyImport(d *schema.ResourceData, meta interface{}) ([]*sche
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "tagKeys/{{name}}")
+	id, err := ReplaceVars(d, config, "tagKeys/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

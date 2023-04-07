@@ -203,7 +203,7 @@ func (u *GKEBackupBackupPlanIamUpdater) SetResourceIamPolicy(policy *cloudresour
 
 func (u *GKEBackupBackupPlanIamUpdater) qualifyBackupPlanUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{GKEBackupBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", u.project, u.location, u.name), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

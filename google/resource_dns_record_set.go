@@ -39,13 +39,13 @@ func rrdatasDnsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 			return record
 		}
 	}
-	return rrdatasListDiffSuppress(oList, nList, parseFunc, d)
+	return RrdatasListDiffSuppress(oList, nList, parseFunc, d)
 }
 
 // suppress on a list when 1) its items have dups that need to be ignored
 // and 2) string comparison on the items may need a special parse function
 // example of usage can be found ../../../third_party/terraform/tests/resource_dns_record_set_test.go.erb
-func rrdatasListDiffSuppress(oldList, newList []string, fun func(x string) string, _ *schema.ResourceData) bool {
+func RrdatasListDiffSuppress(oldList, newList []string, fun func(x string) string, _ *schema.ResourceData) bool {
 	// compare two lists of unordered records
 	diff := make(map[string]bool, len(oldList))
 	for _, oldRecord := range oldList {
@@ -594,7 +594,7 @@ func resourceDnsRecordSetUpdate(d *schema.ResourceData, meta interface{}) error 
 
 func resourceDnsRecordSetImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/managedZones/(?P<managed_zone>[^/]+)/rrsets/(?P<name>[^/]+)/(?P<type>[^/]+)",
 		"(?P<project>[^/]+)/(?P<managed_zone>[^/]+)/(?P<name>[^/]+)/(?P<type>[^/]+)",
 		"(?P<managed_zone>[^/]+)/(?P<name>[^/]+)/(?P<type>[^/]+)",
@@ -603,7 +603,7 @@ func resourceDnsRecordSetImportState(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/managedZones/{{managed_zone}}/rrsets/{{name}}/{{type}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/managedZones/{{managed_zone}}/rrsets/{{name}}/{{type}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -764,7 +764,7 @@ func expandDnsRecordSetHealthCheckedTargetsInternalLoadBalancerNetworkUrl(v inte
 	} else if strings.HasPrefix(v.(string), "https://") {
 		return v, nil
 	}
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
 	if err != nil {
 		return "", err
 	}

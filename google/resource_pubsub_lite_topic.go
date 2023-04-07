@@ -178,7 +178,7 @@ func resourcePubsubLiteTopicCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/topics?topicId={{name}}")
+	url, err := ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/topics?topicId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -203,7 +203,7 @@ func resourcePubsubLiteTopicCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{zone}}/topics/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{zone}}/topics/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -221,7 +221,7 @@ func resourcePubsubLiteTopicRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/topics/{{name}}")
+	url, err := ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/topics/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -301,7 +301,7 @@ func resourcePubsubLiteTopicUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/topics/{{name}}")
+	url, err := ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/topics/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -320,9 +320,9 @@ func resourcePubsubLiteTopicUpdate(d *schema.ResourceData, meta interface{}) err
 	if d.HasChange("reservation_config") {
 		updateMask = append(updateMask, "reservationConfig")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -358,7 +358,7 @@ func resourcePubsubLiteTopicDelete(d *schema.ResourceData, meta interface{}) err
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/topics/{{name}}")
+	url, err := ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/topics/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -382,7 +382,7 @@ func resourcePubsubLiteTopicDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourcePubsubLiteTopicImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<zone>[^/]+)/topics/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
 		"(?P<zone>[^/]+)/(?P<name>[^/]+)",
@@ -392,7 +392,7 @@ func resourcePubsubLiteTopicImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{zone}}/topics/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{zone}}/topics/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

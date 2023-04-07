@@ -75,7 +75,7 @@ func datasourceGoogleProjectsRead(d *schema.ResourceData, meta interface{}) erro
 		params["filter"] = d.Get("filter").(string)
 		url := "https://cloudresourcemanager.googleapis.com/v1/projects"
 
-		url, err := addQueryParams(url, params)
+		url, err := AddQueryParams(url, params)
 		if err != nil {
 			return err
 		}

@@ -163,7 +163,7 @@ func resourceApigeeAddonsConfigCreate(d *schema.ResourceData, meta interface{}) 
 		obj["addonsConfig"] = addonsConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org}}:setAddons")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org}}:setAddons")
 	if err != nil {
 		return err
 	}
@@ -182,7 +182,7 @@ func resourceApigeeAddonsConfigCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "organizations/{{org}}")
+	id, err := ReplaceVars(d, config, "organizations/{{org}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -210,7 +210,7 @@ func resourceApigeeAddonsConfigRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org}}")
 	if err != nil {
 		return err
 	}
@@ -251,7 +251,7 @@ func resourceApigeeAddonsConfigUpdate(d *schema.ResourceData, meta interface{}) 
 		obj["addonsConfig"] = addonsConfigProp
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org}}:setAddons")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org}}:setAddons")
 	if err != nil {
 		return err
 	}
@@ -291,7 +291,7 @@ func resourceApigeeAddonsConfigDelete(d *schema.ResourceData, meta interface{}) 
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org}}:setAddons")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org}}:setAddons")
 	if err != nil {
 		return err
 	}
@@ -325,7 +325,7 @@ func resourceApigeeAddonsConfigImport(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<org>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<org>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 
@@ -351,7 +351,7 @@ func resourceApigeeAddonsConfigImport(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "organizations/{{org}}")
+	id, err := ReplaceVars(d, config, "organizations/{{org}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

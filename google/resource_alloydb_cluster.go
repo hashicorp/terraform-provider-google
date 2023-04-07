@@ -51,7 +51,7 @@ func ResourceAlloydbCluster() *schema.Resource {
 			"network": {
 				Type:             schema.TypeString,
 				Required:         true,
-				DiffSuppressFunc: projectNumberDiffSuppress,
+				DiffSuppressFunc: ProjectNumberDiffSuppress,
 				Description: `The relative resource name of the VPC network on which the instance can be accessed. It is specified in the following form:
 
 "projects/{projectNumber}/global/networks/{network_id}".`,
@@ -318,7 +318,7 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["automatedBackupPolicy"] = automatedBackupPolicyProp
 	}
 
-	url, err := replaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/clusters?clusterId={{cluster_id}}")
+	url, err := ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/clusters?clusterId={{cluster_id}}")
 	if err != nil {
 		return err
 	}
@@ -343,7 +343,7 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -371,7 +371,7 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
+	url, err := ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
 	if err != nil {
 		return err
 	}
@@ -476,7 +476,7 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 		obj["automatedBackupPolicy"] = automatedBackupPolicyProp
 	}
 
-	url, err := replaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
+	url, err := ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
 	if err != nil {
 		return err
 	}
@@ -503,9 +503,9 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("automated_backup_policy") {
 		updateMask = append(updateMask, "automatedBackupPolicy")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -549,7 +549,7 @@ func resourceAlloydbClusterDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
+	url, err := ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
 	if err != nil {
 		return err
 	}
@@ -581,7 +581,7 @@ func resourceAlloydbClusterDelete(d *schema.ResourceData, meta interface{}) erro
 
 func resourceAlloydbClusterImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/clusters/(?P<cluster_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<cluster_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<cluster_id>[^/]+)",
@@ -591,7 +591,7 @@ func resourceAlloydbClusterImport(d *schema.ResourceData, meta interface{}) ([]*
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

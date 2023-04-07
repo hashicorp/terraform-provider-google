@@ -107,7 +107,7 @@ func resourceApigeeEndpointAttachmentCreate(d *schema.ResourceData, meta interfa
 		obj["serviceAttachment"] = serviceAttachmentProp
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/endpointAttachments?endpointAttachmentId={{endpoint_attachment_id}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/endpointAttachments?endpointAttachmentId={{endpoint_attachment_id}}")
 	if err != nil {
 		return err
 	}
@@ -126,7 +126,7 @@ func resourceApigeeEndpointAttachmentCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{org_id}}/endpointAttachments/{{endpoint_attachment_id}}")
+	id, err := ReplaceVars(d, config, "{{org_id}}/endpointAttachments/{{endpoint_attachment_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -150,7 +150,7 @@ func resourceApigeeEndpointAttachmentCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{org_id}}/endpointAttachments/{{endpoint_attachment_id}}")
+	id, err = ReplaceVars(d, config, "{{org_id}}/endpointAttachments/{{endpoint_attachment_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -168,7 +168,7 @@ func resourceApigeeEndpointAttachmentRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/endpointAttachments/{{endpoint_attachment_id}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/endpointAttachments/{{endpoint_attachment_id}}")
 	if err != nil {
 		return err
 	}
@@ -213,7 +213,7 @@ func resourceApigeeEndpointAttachmentDelete(d *schema.ResourceData, meta interfa
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/endpointAttachments/{{endpoint_attachment_id}}")
+	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/endpointAttachments/{{endpoint_attachment_id}}")
 	if err != nil {
 		return err
 	}
@@ -247,7 +247,7 @@ func resourceApigeeEndpointAttachmentImport(d *schema.ResourceData, meta interfa
 	config := meta.(*Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 
@@ -269,7 +269,7 @@ func resourceApigeeEndpointAttachmentImport(d *schema.ResourceData, meta interfa
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

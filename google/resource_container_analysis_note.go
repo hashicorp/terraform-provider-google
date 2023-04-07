@@ -219,14 +219,14 @@ func resourceContainerAnalysisNoteCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "projects/{{project}}/notes/{{name}}")
+	lockName, err := ReplaceVars(d, config, "projects/{{project}}/notes/{{name}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes?noteId={{name}}")
+	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes?noteId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -251,7 +251,7 @@ func resourceContainerAnalysisNoteCreate(d *schema.ResourceData, meta interface{
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/notes/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/notes/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -269,7 +269,7 @@ func resourceContainerAnalysisNoteRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -400,14 +400,14 @@ func resourceContainerAnalysisNoteUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "projects/{{project}}/notes/{{name}}")
+	lockName, err := ReplaceVars(d, config, "projects/{{project}}/notes/{{name}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -438,9 +438,9 @@ func resourceContainerAnalysisNoteUpdate(d *schema.ResourceData, meta interface{
 	if d.HasChange("attestation_authority") {
 		updateMask = append(updateMask, "attestationAuthority")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -476,14 +476,14 @@ func resourceContainerAnalysisNoteDelete(d *schema.ResourceData, meta interface{
 	}
 	billingProject = project
 
-	lockName, err := replaceVars(d, config, "projects/{{project}}/notes/{{name}}")
+	lockName, err := ReplaceVars(d, config, "projects/{{project}}/notes/{{name}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -507,7 +507,7 @@ func resourceContainerAnalysisNoteDelete(d *schema.ResourceData, meta interface{
 
 func resourceContainerAnalysisNoteImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/notes/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -516,7 +516,7 @@ func resourceContainerAnalysisNoteImport(d *schema.ResourceData, meta interface{
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/notes/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/notes/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

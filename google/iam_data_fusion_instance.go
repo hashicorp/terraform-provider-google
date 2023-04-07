@@ -203,7 +203,7 @@ func (u *DataFusionInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourc
 
 func (u *DataFusionInstanceIamUpdater) qualifyInstanceUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{DataFusionBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/instances/%s", u.project, u.region, u.name), methodIdentifier)
-	url, err := replaceVars(u.d, u.Config, urlTemplate)
+	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

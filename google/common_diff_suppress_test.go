@@ -37,7 +37,7 @@ func TestOptionalPrefixSuppress(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		if optionalPrefixSuppress(tc.Prefix)("folder", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+		if OptionalPrefixSuppress(tc.Prefix)("folder", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
 			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
 		}
 	}
@@ -70,7 +70,7 @@ func TestIgnoreMissingKeyInMap(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		if ignoreMissingKeyInMap(tc.Key)("push_config.0.attributes."+tc.Key, tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+		if IgnoreMissingKeyInMap(tc.Key)("push_config.0.attributes."+tc.Key, tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
 			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
 		}
 	}
@@ -104,7 +104,7 @@ func TestOptionalSurroundingSpacesSuppress(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		if optionalSurroundingSpacesSuppress("filter", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+		if OptionalSurroundingSpacesSuppress("filter", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
 			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
 		}
 	}
@@ -133,7 +133,7 @@ func TestCaseDiffSuppress(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		if caseDiffSuppress("key", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+		if CaseDiffSuppress("key", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
 			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
 		}
 	}
@@ -167,7 +167,7 @@ func TestPortRangeDiffSuppress(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		if portRangeDiffSuppress("ports", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+		if PortRangeDiffSuppress("ports", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
 			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
 		}
 	}
@@ -206,7 +206,7 @@ func TestLocationDiffSuppress(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		if locationDiffSuppress("policy_uri", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+		if LocationDiffSuppress("policy_uri", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
 			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
 		}
 	}
@@ -245,7 +245,7 @@ func TestAbsoluteDomainSuppress(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		if absoluteDomainSuppress("managed.0.domains.", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+		if AbsoluteDomainSuppress("managed.0.domains.", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
 			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
 		}
 	}
@@ -279,7 +279,7 @@ func TestDurationDiffSuppress(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		if durationDiffSuppress("duration", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+		if DurationDiffSuppress("duration", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
 			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
 		}
 	}
@@ -318,7 +318,7 @@ func TestLastSlashDiffSuppress(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		if lastSlashDiffSuppress("uri", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+		if LastSlashDiffSuppress("uri", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
 			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
 		}
 	}
@@ -415,10 +415,10 @@ func TestEmptyOrUnsetBlockDiffSuppress(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		if emptyOrUnsetBlockDiffSuppressLogic(tc.Key, tc.Old, tc.New, tc.OldVal, tc.NewVal) != tc.ExpectDiffSuppress {
+		if EmptyOrUnsetBlockDiffSuppressLogic(tc.Key, tc.Old, tc.New, tc.OldVal, tc.NewVal) != tc.ExpectDiffSuppress {
 			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
 		}
-		if emptyOrUnsetBlockDiffSuppressLogic(tc.Key, tc.New, tc.Old, tc.NewVal, tc.OldVal) != tc.ExpectDiffSuppress {
+		if EmptyOrUnsetBlockDiffSuppressLogic(tc.Key, tc.New, tc.Old, tc.NewVal, tc.OldVal) != tc.ExpectDiffSuppress {
 			t.Fatalf("bad: %s (reverse check), '%s' => '%s' expect %t", tn, tc.New, tc.Old, tc.ExpectDiffSuppress)
 		}
 	}

@@ -251,7 +251,7 @@ func resourceSecretManagerSecretCreate(d *schema.ResourceData, meta interface{})
 		obj["rotation"] = rotationProp
 	}
 
-	url, err := replaceVars(d, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets?secretId={{secret_id}}")
+	url, err := ReplaceVars(d, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets?secretId={{secret_id}}")
 	if err != nil {
 		return err
 	}
@@ -279,7 +279,7 @@ func resourceSecretManagerSecretCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/secrets/{{secret_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/secrets/{{secret_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -297,7 +297,7 @@ func resourceSecretManagerSecretRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets/{{secret_id}}")
+	url, err := ReplaceVars(d, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets/{{secret_id}}")
 	if err != nil {
 		return err
 	}
@@ -390,7 +390,7 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 		obj["rotation"] = rotationProp
 	}
 
-	url, err := replaceVars(d, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets/{{secret_id}}")
+	url, err := ReplaceVars(d, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets/{{secret_id}}")
 	if err != nil {
 		return err
 	}
@@ -413,9 +413,9 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 	if d.HasChange("rotation") {
 		updateMask = append(updateMask, "rotation")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -451,7 +451,7 @@ func resourceSecretManagerSecretDelete(d *schema.ResourceData, meta interface{})
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets/{{secret_id}}")
+	url, err := ReplaceVars(d, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets/{{secret_id}}")
 	if err != nil {
 		return err
 	}
@@ -475,7 +475,7 @@ func resourceSecretManagerSecretDelete(d *schema.ResourceData, meta interface{})
 
 func resourceSecretManagerSecretImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/secrets/(?P<secret_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<secret_id>[^/]+)",
 		"(?P<secret_id>[^/]+)",
@@ -484,7 +484,7 @@ func resourceSecretManagerSecretImport(d *schema.ResourceData, meta interface{})
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/secrets/{{secret_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/secrets/{{secret_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

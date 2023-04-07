@@ -56,7 +56,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-type providerMeta struct {
+type ProviderMeta struct {
 	ModuleName string `cty:"module_name"`
 }
 
@@ -1359,7 +1359,7 @@ func (c *Config) NewSqlAdminClient(userAgent string) *sqladmin.Service {
 func (c *Config) NewPubsubClient(userAgent string) *pubsub.Service {
 	pubsubClientBasePath := RemoveBasePathVersion(c.PubsubBasePath)
 	log.Printf("[INFO] Instantiating Google Pubsub client for path %s", pubsubClientBasePath)
-	wrappedPubsubClient := ClientWithAdditionalRetries(c.Client, pubsubTopicProjectNotReady)
+	wrappedPubsubClient := ClientWithAdditionalRetries(c.Client, PubsubTopicProjectNotReady)
 	clientPubsub, err := pubsub.NewService(c.context, option.WithHTTPClient(wrappedPubsubClient))
 	if err != nil {
 		log.Printf("[WARN] Error creating client pubsub: %s", err)
@@ -1528,7 +1528,7 @@ func (c *Config) NewSourceRepoClient(userAgent string) *sourcerepo.Service {
 func (c *Config) NewBigQueryClient(userAgent string) *bigquery.Service {
 	bigQueryClientBasePath := c.BigQueryBasePath
 	log.Printf("[INFO] Instantiating Google Cloud BigQuery client for path %s", bigQueryClientBasePath)
-	wrappedBigQueryClient := ClientWithAdditionalRetries(c.Client, iamMemberMissing)
+	wrappedBigQueryClient := ClientWithAdditionalRetries(c.Client, IamMemberMissing)
 	clientBigQuery, err := bigquery.NewService(c.context, option.WithHTTPClient(wrappedBigQueryClient))
 	if err != nil {
 		log.Printf("[WARN] Error creating client big query: %s", err)
@@ -1727,8 +1727,8 @@ func (c *Config) NewCloudRunV2Client(userAgent string) *runadminv2.Service {
 	return clientRunAdminV2
 }
 
-// staticTokenSource is used to be able to identify static token sources without reflection.
-type staticTokenSource struct {
+// StaticTokenSource is used to be able to identify static token sources without reflection.
+type StaticTokenSource struct {
 	oauth2.TokenSource
 }
 
@@ -1755,7 +1755,7 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 		log.Printf("[INFO] Authenticating using configured Google JSON 'access_token'...")
 		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
 		return googleoauth.Credentials{
-			TokenSource: staticTokenSource{oauth2.StaticTokenSource(token)},
+			TokenSource: StaticTokenSource{oauth2.StaticTokenSource(token)},
 		}, nil
 	}
 

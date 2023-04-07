@@ -17,7 +17,7 @@ func TestAccHealthcareFhirStoreIamBinding(t *testing.T) {
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/healthcare.fhirStoreAdmin"
 	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	datasetId := &healthcareDatasetId{
+	datasetId := &HealthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
@@ -37,7 +37,7 @@ func TestAccHealthcareFhirStoreIamBinding(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_healthcare_fhir_store_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s/%s %s", datasetId.terraformId(), fhirStoreName, roleId),
+				ImportStateId:     fmt.Sprintf("%s/%s %s", datasetId.TerraformId(), fhirStoreName, roleId),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -51,7 +51,7 @@ func TestAccHealthcareFhirStoreIamBinding(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_healthcare_fhir_store_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s/%s %s", datasetId.terraformId(), fhirStoreName, roleId),
+				ImportStateId:     fmt.Sprintf("%s/%s %s", datasetId.TerraformId(), fhirStoreName, roleId),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -66,7 +66,7 @@ func TestAccHealthcareFhirStoreIamMember(t *testing.T) {
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/healthcare.fhirResourceEditor"
 	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	datasetId := &healthcareDatasetId{
+	datasetId := &HealthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
@@ -86,7 +86,7 @@ func TestAccHealthcareFhirStoreIamMember(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_healthcare_fhir_store_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("%s/%s %s serviceAccount:%s@%s.iam.gserviceaccount.com", datasetId.terraformId(), fhirStoreName, roleId, account, projectId),
+				ImportStateId:     fmt.Sprintf("%s/%s %s serviceAccount:%s@%s.iam.gserviceaccount.com", datasetId.TerraformId(), fhirStoreName, roleId, account, projectId),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -101,7 +101,7 @@ func TestAccHealthcareFhirStoreIamPolicy(t *testing.T) {
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/healthcare.fhirResourceEditor"
 	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	datasetId := &healthcareDatasetId{
+	datasetId := &HealthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
@@ -121,7 +121,7 @@ func TestAccHealthcareFhirStoreIamPolicy(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_healthcare_fhir_store_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("%s/%s", datasetId.terraformId(), fhirStoreName),
+				ImportStateId:     fmt.Sprintf("%s/%s", datasetId.TerraformId(), fhirStoreName),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -137,13 +137,13 @@ func testAccCheckGoogleHealthcareFhirStoreIamBindingExists(t *testing.T, binding
 		}
 
 		config := GoogleProviderConfig(t)
-		fhirStoreId, err := parseHealthcareFhirStoreId(bindingRs.Primary.Attributes["fhir_store_id"], config)
+		fhirStoreId, err := ParseHealthcareFhirStoreId(bindingRs.Primary.Attributes["fhir_store_id"], config)
 
 		if err != nil {
 			return err
 		}
 
-		p, err := config.NewHealthcareClient(config.UserAgent).Projects.Locations.Datasets.FhirStores.GetIamPolicy(fhirStoreId.fhirStoreId()).Do()
+		p, err := config.NewHealthcareClient(config.UserAgent).Projects.Locations.Datasets.FhirStores.GetIamPolicy(fhirStoreId.FhirStoreId()).Do()
 		if err != nil {
 			return err
 		}
@@ -173,13 +173,13 @@ func testAccCheckGoogleHealthcareFhirStoreIamMemberExists(t *testing.T, n, role,
 		}
 
 		config := GoogleProviderConfig(t)
-		fhirStoreId, err := parseHealthcareFhirStoreId(rs.Primary.Attributes["fhir_store_id"], config)
+		fhirStoreId, err := ParseHealthcareFhirStoreId(rs.Primary.Attributes["fhir_store_id"], config)
 
 		if err != nil {
 			return err
 		}
 
-		p, err := config.NewHealthcareClient(config.UserAgent).Projects.Locations.Datasets.FhirStores.GetIamPolicy(fhirStoreId.fhirStoreId()).Do()
+		p, err := config.NewHealthcareClient(config.UserAgent).Projects.Locations.Datasets.FhirStores.GetIamPolicy(fhirStoreId.FhirStoreId()).Do()
 		if err != nil {
 			return err
 		}
@@ -208,13 +208,13 @@ func testAccCheckGoogleHealthcareFhirStoreIamPolicyExists(t *testing.T, n, role,
 		}
 
 		config := GoogleProviderConfig(t)
-		fhirStoreId, err := parseHealthcareFhirStoreId(rs.Primary.Attributes["fhir_store_id"], config)
+		fhirStoreId, err := ParseHealthcareFhirStoreId(rs.Primary.Attributes["fhir_store_id"], config)
 
 		if err != nil {
 			return err
 		}
 
-		p, err := config.NewHealthcareClient(config.UserAgent).Projects.Locations.Datasets.FhirStores.GetIamPolicy(fhirStoreId.fhirStoreId()).Do()
+		p, err := config.NewHealthcareClient(config.UserAgent).Projects.Locations.Datasets.FhirStores.GetIamPolicy(fhirStoreId.FhirStoreId()).Do()
 		if err != nil {
 			return err
 		}

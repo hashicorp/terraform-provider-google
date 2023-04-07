@@ -854,14 +854,14 @@ func resourceAccessContextManagerServicePerimeterCreate(d *schema.ResourceData, 
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "{{name}}")
+	lockName, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/servicePerimeters")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/servicePerimeters")
 	if err != nil {
 		return err
 	}
@@ -880,7 +880,7 @@ func resourceAccessContextManagerServicePerimeterCreate(d *schema.ResourceData, 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -904,7 +904,7 @@ func resourceAccessContextManagerServicePerimeterCreate(d *schema.ResourceData, 
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{name}}")
+	id, err = ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -922,7 +922,7 @@ func resourceAccessContextManagerServicePerimeterRead(d *schema.ResourceData, me
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1016,14 +1016,14 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "{{name}}")
+	lockName, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1050,9 +1050,9 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 	if d.HasChange("use_explicit_dry_run_spec") {
 		updateMask = append(updateMask, "useExplicitDryRunSpec")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -1090,14 +1090,14 @@ func resourceAccessContextManagerServicePerimeterDelete(d *schema.ResourceData, 
 
 	billingProject := ""
 
-	lockName, err := replaceVars(d, config, "{{name}}")
+	lockName, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1131,7 +1131,7 @@ func resourceAccessContextManagerServicePerimeterImport(d *schema.ResourceData, 
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 	stringParts := strings.Split(d.Get("name").(string), "/")

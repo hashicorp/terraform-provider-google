@@ -62,7 +62,7 @@ func testSweepIdentityPlatformTenantOauthIdpConfig(region string) error {
 	}
 
 	listTemplate := strings.Split("https://identitytoolkit.googleapis.com/v2/projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs", "?")[0]
-	listUrl, err := replaceVars(d, config, listTemplate)
+	listUrl, err := ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 		return nil
@@ -100,7 +100,7 @@ func testSweepIdentityPlatformTenantOauthIdpConfig(region string) error {
 		}
 
 		deleteTemplate := "https://identitytoolkit.googleapis.com/v2/projects/{{project}}/tenants/{{tenant}}/oauthIdpConfigs/{{name}}"
-		deleteUrl, err := replaceVars(d, config, deleteTemplate)
+		deleteUrl, err := ReplaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 			return nil

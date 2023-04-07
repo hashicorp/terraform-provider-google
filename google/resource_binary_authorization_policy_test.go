@@ -168,7 +168,7 @@ func testAccCheckBinaryAuthorizationPolicyDefault(t *testing.T, pid string) reso
 		delete(pol, "updateTime")
 		delete(pol, "etag")
 
-		defaultPol := defaultBinaryAuthorizationPolicy(pid)
+		defaultPol := DefaultBinaryAuthorizationPolicy(pid)
 		if !reflect.DeepEqual(pol, defaultPol) {
 			return fmt.Errorf("Policy for project %s was %v, expected default policy %v", pid, pol, defaultPol)
 		}

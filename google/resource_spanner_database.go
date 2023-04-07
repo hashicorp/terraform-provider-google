@@ -58,7 +58,7 @@ func resourceSpannerDBDdlCustomDiff(_ context.Context, diff *schema.ResourceDiff
 	return resourceSpannerDBDdlCustomDiffFunc(diff)
 }
 
-func validateDatabaseRetentionPeriod(v interface{}, k string) (ws []string, errors []error) {
+func ValidateDatabaseRetentionPeriod(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	valueError := fmt.Errorf("version_retention_period should be in range [1h, 7d], in a format resembling 1d, 24h, 1440m, or 86400s")
 
@@ -189,7 +189,7 @@ in the same location as the Spanner Database.`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validateDatabaseRetentionPeriod,
+				ValidateFunc: ValidateDatabaseRetentionPeriod,
 				Description: `The retention period for the database. The retention period must be between 1 hour
 and 7 days, and can be specified in days, hours, minutes, or seconds. For example,
 the values 1d, 24h, 1440m, and 86400s are equivalent. Default value is 1h.
@@ -269,7 +269,7 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases")
+	url, err := ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases")
 	if err != nil {
 		return err
 	}
@@ -294,7 +294,7 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{instance}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{instance}}/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -326,7 +326,7 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{instance}}/{{name}}")
+	id, err = ReplaceVars(d, config, "{{instance}}/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -376,7 +376,7 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 
 			obj["statements"] = updateDdls
 
-			url, err = replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}/ddl")
+			url, err = ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}/ddl")
 			if err != nil {
 				return err
 			}
@@ -412,7 +412,7 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+	url, err := ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -517,7 +517,7 @@ func resourceSpannerDatabaseUpdate(d *schema.ResourceData, meta interface{}) err
 			return err
 		}
 
-		url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}/ddl")
+		url, err := ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}/ddl")
 		if err != nil {
 			return err
 		}
@@ -577,7 +577,7 @@ func resourceSpannerDatabaseDelete(d *schema.ResourceData, meta interface{}) err
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+	url, err := ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -612,7 +612,7 @@ func resourceSpannerDatabaseDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceSpannerDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
 		"instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)",
@@ -622,7 +622,7 @@ func resourceSpannerDatabaseImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{instance}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{instance}}/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -779,13 +779,13 @@ func resourceSpannerDatabaseUpdateEncoder(d *schema.ResourceData, meta interface
 func resourceSpannerDatabaseDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	config := meta.(*Config)
 	d.SetId(res["name"].(string))
-	if err := parseImportId([]string{"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}
 	res["project"] = d.Get("project").(string)
 	res["instance"] = d.Get("instance").(string)
 	res["name"] = d.Get("name").(string)
-	id, err := replaceVars(d, config, "{{instance}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{instance}}/{{name}}")
 	if err != nil {
 		return nil, err
 	}

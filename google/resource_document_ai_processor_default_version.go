@@ -50,7 +50,7 @@ func ResourceDocumentAIProcessorDefaultVersion() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: projectNumberDiffSuppress,
+				DiffSuppressFunc: ProjectNumberDiffSuppress,
 				Description: `The version to set. Using 'stable' or 'rc' will cause the API to return the latest version in that release channel.
 Apply 'lifecycle.ignore_changes' to the 'version' field to suppress this diff.`,
 			},
@@ -80,7 +80,7 @@ func resourceDocumentAIProcessorDefaultVersionCreate(d *schema.ResourceData, met
 		obj["processor"] = processorProp
 	}
 
-	url, err := replaceVars(d, config, "{{DocumentAIBasePath}}{{processor}}:setDefaultProcessorVersion")
+	url, err := ReplaceVars(d, config, "{{DocumentAIBasePath}}{{processor}}:setDefaultProcessorVersion")
 	if err != nil {
 		return err
 	}
@@ -104,7 +104,7 @@ func resourceDocumentAIProcessorDefaultVersionCreate(d *schema.ResourceData, met
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{processor}}")
+	id, err := ReplaceVars(d, config, "{{processor}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -122,7 +122,7 @@ func resourceDocumentAIProcessorDefaultVersionRead(d *schema.ResourceData, meta 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DocumentAIBasePath}}{{processor}}")
+	url, err := ReplaceVars(d, config, "{{DocumentAIBasePath}}{{processor}}")
 	if err != nil {
 		return err
 	}
@@ -162,14 +162,14 @@ func resourceDocumentAIProcessorDefaultVersionDelete(d *schema.ResourceData, met
 
 func resourceDocumentAIProcessorDefaultVersionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<processor>.+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{processor}}")
+	id, err := ReplaceVars(d, config, "{{processor}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

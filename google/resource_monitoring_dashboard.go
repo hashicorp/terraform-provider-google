@@ -89,11 +89,11 @@ func resourceMonitoringDashboardCreate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{MonitoringBasePath}}v1/projects/{{project}}/dashboards")
+	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v1/projects/{{project}}/dashboards")
 	if err != nil {
 		return err
 	}
-	res, err := SendRequestWithTimeout(config, "POST", project, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), isMonitoringConcurrentEditError)
+	res, err := SendRequestWithTimeout(config, "POST", project, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IsMonitoringConcurrentEditError)
 	if err != nil {
 		return fmt.Errorf("Error creating Dashboard: %s", err)
 	}
@@ -121,7 +121,7 @@ func resourceMonitoringDashboardRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	res, err := SendRequest(config, "GET", project, url, userAgent, nil, isMonitoringConcurrentEditError)
+	res, err := SendRequest(config, "GET", project, url, userAgent, nil, IsMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringDashboard %q", d.Id()))
 	}
@@ -166,7 +166,7 @@ func resourceMonitoringDashboardUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	url := config.MonitoringBasePath + "v1/" + d.Id()
-	_, err = SendRequestWithTimeout(config, "PATCH", project, url, userAgent, nObj, d.Timeout(schema.TimeoutUpdate), isMonitoringConcurrentEditError)
+	_, err = SendRequestWithTimeout(config, "PATCH", project, url, userAgent, nObj, d.Timeout(schema.TimeoutUpdate), IsMonitoringConcurrentEditError)
 	if err != nil {
 		return fmt.Errorf("Error updating Dashboard %q: %s", d.Id(), err)
 	}
@@ -188,7 +188,7 @@ func resourceMonitoringDashboardDelete(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	_, err = SendRequestWithTimeout(config, "DELETE", project, url, userAgent, nil, d.Timeout(schema.TimeoutDelete), isMonitoringConcurrentEditError)
+	_, err = SendRequestWithTimeout(config, "DELETE", project, url, userAgent, nil, d.Timeout(schema.TimeoutDelete), IsMonitoringConcurrentEditError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MonitoringDashboard %q", d.Id()))
 	}

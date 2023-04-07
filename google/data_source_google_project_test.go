@@ -19,7 +19,7 @@ func TestAccDataSourceGoogleProject_basic(t *testing.T) {
 			{
 				Config: testAccCheckGoogleProjectConfig(project, org),
 				Check: resource.ComposeTestCheckFunc(
-					checkDataSourceStateMatchesResourceStateWithIgnores(
+					CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_project.project",
 						"google_project.project",
 						map[string]struct{}{

@@ -227,14 +227,14 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 func resourceAttachedDiskImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 
-	err := parseImportId(
+	err := ParseImportId(
 		[]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)/(?P<disk>[^/]+)",
 			"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance>[^/]+)/(?P<disk>[^/]+)"}, d, config)
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instances/{{instance}}/{{disk}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instances/{{instance}}/{{disk}}")
 	if err != nil {
 		return nil, err
 	}

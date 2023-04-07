@@ -188,14 +188,14 @@ func resourceComputeRegionPerInstanceConfigCreate(d *schema.ResourceData, meta i
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "instanceGroupManager/{{project}}/{{region}}/{{region_instance_group_manager}}")
+	lockName, err := ReplaceVars(d, config, "instanceGroupManager/{{project}}/{{region}}/{{region_instance_group_manager}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/createInstances")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/createInstances")
 	if err != nil {
 		return err
 	}
@@ -220,7 +220,7 @@ func resourceComputeRegionPerInstanceConfigCreate(d *schema.ResourceData, meta i
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{region_instance_group_manager}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{project}}/{{region}}/{{region_instance_group_manager}}/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -248,7 +248,7 @@ func resourceComputeRegionPerInstanceConfigRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/listPerInstanceConfigs")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/listPerInstanceConfigs")
 	if err != nil {
 		return err
 	}
@@ -355,14 +355,14 @@ func resourceComputeRegionPerInstanceConfigUpdate(d *schema.ResourceData, meta i
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "instanceGroupManager/{{project}}/{{region}}/{{region_instance_group_manager}}")
+	lockName, err := ReplaceVars(d, config, "instanceGroupManager/{{project}}/{{region}}/{{region_instance_group_manager}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/updatePerInstanceConfigs")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/updatePerInstanceConfigs")
 	if err != nil {
 		return err
 	}
@@ -411,7 +411,7 @@ func resourceComputeRegionPerInstanceConfigUpdate(d *schema.ResourceData, meta i
 	}
 	obj["mostDisruptiveAllowedAction"] = mostDisruptiveAction
 
-	url, err = replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/applyUpdatesToInstances")
+	url, err = ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/applyUpdatesToInstances")
 	if err != nil {
 		return err
 	}
@@ -445,14 +445,14 @@ func resourceComputeRegionPerInstanceConfigDelete(d *schema.ResourceData, meta i
 		return err
 	}
 
-	lockName, err := replaceVars(d, config, "instanceGroupManager/{{project}}/{{region}}/{{region_instance_group_manager}}")
+	lockName, err := ReplaceVars(d, config, "instanceGroupManager/{{project}}/{{region}}/{{region_instance_group_manager}}")
 	if err != nil {
 		return err
 	}
 	mutexKV.Lock(lockName)
 	defer mutexKV.Unlock(lockName)
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/deletePerInstanceConfigs")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/deletePerInstanceConfigs")
 	if err != nil {
 		return err
 	}
@@ -488,7 +488,7 @@ func resourceComputeRegionPerInstanceConfigDelete(d *schema.ResourceData, meta i
 		obj["instances"] = []string{instanceName}
 
 		// Updates must be applied to the instance after deleting the PerInstanceConfig
-		url, err = replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/applyUpdatesToInstances")
+		url, err = ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/applyUpdatesToInstances")
 		if err != nil {
 			return err
 		}
@@ -521,7 +521,7 @@ func resourceComputeRegionPerInstanceConfigDelete(d *schema.ResourceData, meta i
 
 func resourceComputeRegionPerInstanceConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/instanceGroupManagers/(?P<region_instance_group_manager>[^/]+)/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<region_instance_group_manager>[^/]+)/(?P<name>[^/]+)",
 		"(?P<region>[^/]+)/(?P<region_instance_group_manager>[^/]+)/(?P<name>[^/]+)",
@@ -531,7 +531,7 @@ func resourceComputeRegionPerInstanceConfigImport(d *schema.ResourceData, meta i
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}/{{region}}/{{region_instance_group_manager}}/{{name}}")
+	id, err := ReplaceVars(d, config, "{{project}}/{{region}}/{{region_instance_group_manager}}/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

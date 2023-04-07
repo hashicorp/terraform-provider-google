@@ -46,7 +46,7 @@ func TestAccHealthcareFhirStoreIdParsing(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		fhirStoreId, err := parseHealthcareFhirStoreId(tc.ImportId, tc.Config)
+		fhirStoreId, err := ParseHealthcareFhirStoreId(tc.ImportId, tc.Config)
 
 		if tc.ExpectedError && err == nil {
 			t.Fatalf("bad: %s, expected an error", tn)
@@ -59,12 +59,12 @@ func TestAccHealthcareFhirStoreIdParsing(t *testing.T) {
 			t.Fatalf("bad: %s, err: %#v", tn, err)
 		}
 
-		if fhirStoreId.terraformId() != tc.ExpectedTerraformId {
-			t.Fatalf("bad: %s, expected Terraform ID to be `%s` but is `%s`", tn, tc.ExpectedTerraformId, fhirStoreId.terraformId())
+		if fhirStoreId.TerraformId() != tc.ExpectedTerraformId {
+			t.Fatalf("bad: %s, expected Terraform ID to be `%s` but is `%s`", tn, tc.ExpectedTerraformId, fhirStoreId.TerraformId())
 		}
 
-		if fhirStoreId.fhirStoreId() != tc.ExpectedFhirStoreId {
-			t.Fatalf("bad: %s, expected FhirStore ID to be `%s` but is `%s`", tn, tc.ExpectedFhirStoreId, fhirStoreId.fhirStoreId())
+		if fhirStoreId.FhirStoreId() != tc.ExpectedFhirStoreId {
+			t.Fatalf("bad: %s, expected FhirStore ID to be `%s` but is `%s`", tn, tc.ExpectedFhirStoreId, fhirStoreId.FhirStoreId())
 		}
 	}
 }

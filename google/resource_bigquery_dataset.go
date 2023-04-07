@@ -188,7 +188,7 @@ organize and group your datasets`,
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: caseDiffSuppress,
+				DiffSuppressFunc: CaseDiffSuppress,
 				Description: `The geographic location where the dataset should reside.
 See [official docs](https://cloud.google.com/bigquery/docs/dataset-locations).
 
@@ -481,7 +481,7 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 		obj["defaultCollation"] = defaultCollationProp
 	}
 
-	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets")
+	url, err := ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets")
 	if err != nil {
 		return err
 	}
@@ -506,7 +506,7 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/datasets/{{dataset_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/datasets/{{dataset_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -524,7 +524,7 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
+	url, err := ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
 	if err != nil {
 		return err
 	}
@@ -710,7 +710,7 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["defaultCollation"] = defaultCollationProp
 	}
 
-	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
+	url, err := ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
 	if err != nil {
 		return err
 	}
@@ -748,7 +748,7 @@ func resourceBigQueryDatasetDelete(d *schema.ResourceData, meta interface{}) err
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}?deleteContents={{delete_contents_on_destroy}}")
+	url, err := ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}?deleteContents={{delete_contents_on_destroy}}")
 	if err != nil {
 		return err
 	}
@@ -772,7 +772,7 @@ func resourceBigQueryDatasetDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceBigQueryDatasetImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<dataset_id>[^/]+)",
 		"(?P<dataset_id>[^/]+)",
@@ -781,7 +781,7 @@ func resourceBigQueryDatasetImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/datasets/{{dataset_id}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/datasets/{{dataset_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -151,7 +151,7 @@ func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{
 		obj["admin"] = adminProp
 	}
 
-	url, err := replaceVars(d, config, "{{ActiveDirectoryBasePath}}projects/{{project}}/locations/global/domains?domainName={{domain_name}}")
+	url, err := ReplaceVars(d, config, "{{ActiveDirectoryBasePath}}projects/{{project}}/locations/global/domains?domainName={{domain_name}}")
 	if err != nil {
 		return err
 	}
@@ -176,7 +176,7 @@ func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -200,7 +200,7 @@ func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = replaceVars(d, config, "{{name}}")
+	id, err = ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -218,7 +218,7 @@ func resourceActiveDirectoryDomainRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ActiveDirectoryBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{ActiveDirectoryBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -305,7 +305,7 @@ func resourceActiveDirectoryDomainUpdate(d *schema.ResourceData, meta interface{
 		obj["locations"] = locationsProp
 	}
 
-	url, err := replaceVars(d, config, "{{ActiveDirectoryBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{ActiveDirectoryBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -324,9 +324,9 @@ func resourceActiveDirectoryDomainUpdate(d *schema.ResourceData, meta interface{
 	if d.HasChange("locations") {
 		updateMask = append(updateMask, "locations")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -370,7 +370,7 @@ func resourceActiveDirectoryDomainDelete(d *schema.ResourceData, meta interface{
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{ActiveDirectoryBasePath}}projects/{{project}}/locations/global/domains/{{domain_name}}")
+	url, err := ReplaceVars(d, config, "{{ActiveDirectoryBasePath}}projects/{{project}}/locations/global/domains/{{domain_name}}")
 	if err != nil {
 		return err
 	}
@@ -405,7 +405,7 @@ func resourceActiveDirectoryDomainImport(d *schema.ResourceData, meta interface{
 	config := meta.(*Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := parseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
+	if err := ParseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
 		return nil, err
 	}
 

@@ -96,7 +96,7 @@ func resourceOSLoginSSHPublicKeyCreate(d *schema.ResourceData, meta interface{})
 		obj["expirationTimeUsec"] = expirationTimeUsecProp
 	}
 
-	url, err := replaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}:importSshPublicKey")
+	url, err := ReplaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}:importSshPublicKey")
 	if err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func resourceOSLoginSSHPublicKeyCreate(d *schema.ResourceData, meta interface{})
 	// Don't use `getProject()` because we only want to set the project in the URL
 	// if the user set it explicitly on the resource.
 	if p, ok := d.GetOk("project"); ok {
-		url, err = addQueryParams(url, map[string]string{"projectId": p.(string)})
+		url, err = AddQueryParams(url, map[string]string{"projectId": p.(string)})
 		if err != nil {
 			return err
 		}
@@ -123,7 +123,7 @@ func resourceOSLoginSSHPublicKeyCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "users/{{user}}/sshPublicKeys/{{fingerprint}}")
+	id, err := ReplaceVars(d, config, "users/{{user}}/sshPublicKeys/{{fingerprint}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -146,7 +146,7 @@ func resourceOSLoginSSHPublicKeyCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err = replaceVars(d, config, "users/{{user}}/sshPublicKeys/{{fingerprint}}")
+	id, err = ReplaceVars(d, config, "users/{{user}}/sshPublicKeys/{{fingerprint}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -164,7 +164,7 @@ func resourceOSLoginSSHPublicKeyRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
+	url, err := ReplaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -211,7 +211,7 @@ func resourceOSLoginSSHPublicKeyUpdate(d *schema.ResourceData, meta interface{})
 		obj["expirationTimeUsec"] = expirationTimeUsecProp
 	}
 
-	url, err := replaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
+	url, err := ReplaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -222,9 +222,9 @@ func resourceOSLoginSSHPublicKeyUpdate(d *schema.ResourceData, meta interface{})
 	if d.HasChange("expiration_time_usec") {
 		updateMask = append(updateMask, "expirationTimeUsec")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -254,7 +254,7 @@ func resourceOSLoginSSHPublicKeyDelete(d *schema.ResourceData, meta interface{})
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
+	url, err := ReplaceVars(d, config, "{{OSLoginBasePath}}users/{{user}}/sshPublicKeys/{{fingerprint}}/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -278,7 +278,7 @@ func resourceOSLoginSSHPublicKeyDelete(d *schema.ResourceData, meta interface{})
 
 func resourceOSLoginSSHPublicKeyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"users/(?P<user>[^/]+)/sshPublicKeys/(?P<fingerprint>[^/]+)",
 		"(?P<user>[^/]+)/(?P<fingerprint>[^/]+)",
 	}, d, config); err != nil {
@@ -286,7 +286,7 @@ func resourceOSLoginSSHPublicKeyImport(d *schema.ResourceData, meta interface{})
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "users/{{user}}/sshPublicKeys/{{fingerprint}}")
+	id, err := ReplaceVars(d, config, "users/{{user}}/sshPublicKeys/{{fingerprint}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

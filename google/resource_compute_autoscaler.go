@@ -365,7 +365,7 @@ func resourceComputeAutoscalerCreate(d *schema.ResourceData, meta interface{}) e
 		obj["zone"] = zoneProp
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers")
 	if err != nil {
 		return err
 	}
@@ -390,7 +390,7 @@ func resourceComputeAutoscalerCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -418,7 +418,7 @@ func resourceComputeAutoscalerRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -517,7 +517,7 @@ func resourceComputeAutoscalerUpdate(d *schema.ResourceData, meta interface{}) e
 		obj["zone"] = zoneProp
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers?autoscaler={{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers?autoscaler={{name}}")
 	if err != nil {
 		return err
 	}
@@ -563,7 +563,7 @@ func resourceComputeAutoscalerDelete(d *schema.ResourceData, meta interface{}) e
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -595,7 +595,7 @@ func resourceComputeAutoscalerDelete(d *schema.ResourceData, meta interface{}) e
 
 func resourceComputeAutoscalerImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/autoscalers/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
 		"(?P<zone>[^/]+)/(?P<name>[^/]+)",
@@ -605,7 +605,7 @@ func resourceComputeAutoscalerImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/autoscalers/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1312,7 +1312,7 @@ func expandComputeAutoscalerTarget(v interface{}, d TerraformResourceData, confi
 		return nil, fmt.Errorf("Invalid value for target: %s", err)
 	}
 
-	url, err := replaceVars(d, config, "{{ComputeBasePath}}"+f.RelativeLink())
+	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}"+f.RelativeLink())
 	if err != nil {
 		return nil, err
 	}

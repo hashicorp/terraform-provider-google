@@ -116,7 +116,7 @@ func resourceDataCatalogPolicyTagCreate(d *schema.ResourceData, meta interface{}
 		obj["parentPolicyTag"] = parentPolicyTagProp
 	}
 
-	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{taxonomy}}/policyTags")
+	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{taxonomy}}/policyTags")
 	if err != nil {
 		return err
 	}
@@ -138,7 +138,7 @@ func resourceDataCatalogPolicyTagCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{name}}")
+	id, err := ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -156,7 +156,7 @@ func resourceDataCatalogPolicyTagRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -221,7 +221,7 @@ func resourceDataCatalogPolicyTagUpdate(d *schema.ResourceData, meta interface{}
 		obj["parentPolicyTag"] = parentPolicyTagProp
 	}
 
-	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -240,9 +240,9 @@ func resourceDataCatalogPolicyTagUpdate(d *schema.ResourceData, meta interface{}
 	if d.HasChange("parent_policy_tag") {
 		updateMask = append(updateMask, "parentPolicyTag")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -272,7 +272,7 @@ func resourceDataCatalogPolicyTagDelete(d *schema.ResourceData, meta interface{}
 
 	billingProject := ""
 
-	url, err := replaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -297,7 +297,7 @@ func resourceDataCatalogPolicyTagDelete(d *schema.ResourceData, meta interface{}
 func resourceDataCatalogPolicyTagImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<taxonomy>projects/[^/]+/locations/[^/]+/taxonomies/[^/]+)/policyTags/(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}

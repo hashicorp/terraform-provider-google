@@ -244,7 +244,7 @@ func flattenCloudIotDeviceRegistryStateNotificationConfigPubsubTopicName(v inter
 	return v
 }
 
-func validateCloudIotDeviceRegistryID(v interface{}, k string) (warnings []string, errors []error) {
+func ValidateCloudIotDeviceRegistryID(v interface{}, k string) (warnings []string, errors []error) {
 	value := v.(string)
 	if strings.HasPrefix(value, "goog") {
 		errors = append(errors, fmt.Errorf(
@@ -288,7 +288,7 @@ func ResourceCloudIotDeviceRegistry() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateCloudIotDeviceRegistryID,
+				ValidateFunc: ValidateCloudIotDeviceRegistryID,
 				Description:  `A unique name for the resource, required by device registry.`,
 			},
 			"event_notification_configs": {
@@ -323,7 +323,7 @@ item.`,
 				Type:             schema.TypeString,
 				Optional:         true,
 				ValidateFunc:     validateEnum([]string{"NONE", "ERROR", "INFO", "DEBUG", ""}),
-				DiffSuppressFunc: emptyOrDefaultStringSuppress("NONE"),
+				DiffSuppressFunc: EmptyOrDefaultStringSuppress("NONE"),
 				Description: `The default logging verbosity for activity from devices in this
 registry. Specifies which events should be written to logs. For
 example, if the LogLevel is ERROR, only events that terminate in
@@ -414,7 +414,7 @@ func resourceCloudIotDeviceRegistryCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries")
+	url, err := ReplaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries")
 	if err != nil {
 		return err
 	}
@@ -439,7 +439,7 @@ func resourceCloudIotDeviceRegistryCreate(d *schema.ResourceData, meta interface
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/registries/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/registries/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -457,7 +457,7 @@ func resourceCloudIotDeviceRegistryRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -551,7 +551,7 @@ func resourceCloudIotDeviceRegistryUpdate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -566,9 +566,9 @@ func resourceCloudIotDeviceRegistryUpdate(d *schema.ResourceData, meta interface
 	if d.HasChange("log_level") {
 		updateMask = append(updateMask, "logLevel")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -601,7 +601,7 @@ func resourceCloudIotDeviceRegistryUpdate(d *schema.ResourceData, meta interface
 	log.Printf("[DEBUG] updateMask after adding extra schema entries %q: %v", d.Id(), updateMask)
 
 	// Refreshing updateMask after adding extra schema entries
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -639,7 +639,7 @@ func resourceCloudIotDeviceRegistryDelete(d *schema.ResourceData, meta interface
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -663,7 +663,7 @@ func resourceCloudIotDeviceRegistryDelete(d *schema.ResourceData, meta interface
 
 func resourceCloudIotDeviceRegistryImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"(?P<project>[^/]+)/locations/(?P<region>[^/]+)/registries/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -673,7 +673,7 @@ func resourceCloudIotDeviceRegistryImport(d *schema.ResourceData, meta interface
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "projects/{{project}}/locations/{{region}}/registries/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/registries/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -180,7 +180,7 @@ func resourceIdentityPlatformProjectDefaultConfigCreate(d *schema.ResourceData, 
 		obj["signIn"] = signInProp
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
+	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
 	if err != nil {
 		return err
 	}
@@ -208,7 +208,7 @@ func resourceIdentityPlatformProjectDefaultConfigCreate(d *schema.ResourceData, 
 	}
 
 	// Store the ID now
-	id, err := replaceVars(d, config, "{{project}}")
+	id, err := ReplaceVars(d, config, "{{project}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -226,7 +226,7 @@ func resourceIdentityPlatformProjectDefaultConfigRead(d *schema.ResourceData, me
 		return err
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
+	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
 	if err != nil {
 		return err
 	}
@@ -286,7 +286,7 @@ func resourceIdentityPlatformProjectDefaultConfigUpdate(d *schema.ResourceData, 
 		obj["signIn"] = signInProp
 	}
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
+	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
 	if err != nil {
 		return err
 	}
@@ -297,9 +297,9 @@ func resourceIdentityPlatformProjectDefaultConfigUpdate(d *schema.ResourceData, 
 	if d.HasChange("sign_in") {
 		updateMask = append(updateMask, "signIn")
 	}
-	// updateMask is a URL parameter but not present in the schema, so replaceVars
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = addQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -335,7 +335,7 @@ func resourceIdentityPlatformProjectDefaultConfigDelete(d *schema.ResourceData, 
 	}
 	billingProject = project
 
-	url, err := replaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
+	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
 	if err != nil {
 		return err
 	}
@@ -359,7 +359,7 @@ func resourceIdentityPlatformProjectDefaultConfigDelete(d *schema.ResourceData, 
 
 func resourceIdentityPlatformProjectDefaultConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	if err := parseImportId([]string{
+	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/config/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -368,7 +368,7 @@ func resourceIdentityPlatformProjectDefaultConfigImport(d *schema.ResourceData, 
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVars(d, config, "{{project}}")
+	id, err := ReplaceVars(d, config, "{{project}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
