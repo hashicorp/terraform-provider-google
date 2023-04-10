@@ -60,7 +60,7 @@ resource "google_apigee_organization" "apigee_org" {
 }
 
 resource "google_apigee_environment" "env" {
-  name         = "tf-test%{random_suffix}"
+  name         = "my-environment"
   description  = "Apigee Environment"
   display_name = "environment-1"
   org_id       = google_apigee_organization.apigee_org.id

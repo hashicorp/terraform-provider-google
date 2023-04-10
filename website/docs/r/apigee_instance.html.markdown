@@ -60,7 +60,7 @@ resource "google_apigee_organization" "apigee_org" {
 }
 
 resource "google_apigee_instance" "apigee_instance" {
-  name     = "tf-test%{random_suffix}"
+  name     = "my-instance-name"
   location = "us-central1"
   org_id   = google_apigee_organization.apigee_org.id
 }
@@ -97,7 +97,7 @@ resource "google_apigee_organization" "apigee_org" {
 }
 
 resource "google_apigee_instance" "apigee_instance" {
-  name     = "tf-test%{random_suffix}"
+  name     = "my-instance-name"
   location = "us-central1"
   org_id   = google_apigee_organization.apigee_org.id
   peering_cidr_range = "SLASH_22"
@@ -135,7 +135,7 @@ resource "google_apigee_organization" "apigee_org" {
 }
 
 resource "google_apigee_instance" "apigee_instance" {
-  name     = "tf-test%{random_suffix}"
+  name     = "my-instance-name"
   location = "us-central1"
   org_id   = google_apigee_organization.apigee_org.id
   ip_range = "10.87.8.0/22"
@@ -209,10 +209,10 @@ resource "google_apigee_organization" "apigee_org" {
 }
 
 resource "google_apigee_instance" "apigee_instance" {
-  name                     = "tf-test%{random_suffix}"
+  name                     = "my-instance-name"
   location                 = "us-central1"
   description              = "Terraform-managed Apigee Runtime Instance"
-  display_name             = "tf-test%{random_suffix}"
+  display_name             = "my-instance-name"
   org_id                   = google_apigee_organization.apigee_org.id
   disk_encryption_key_name = google_kms_crypto_key.apigee_key.id
 }
