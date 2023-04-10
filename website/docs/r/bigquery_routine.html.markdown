@@ -64,7 +64,7 @@ resource "google_bigquery_dataset" "test" {
 
 resource "google_bigquery_routine" "sproc" {
   dataset_id = google_bigquery_dataset.test.dataset_id
-  routine_id     = "tf_test_routine_id%{random_suffix}"
+  routine_id     = "routine_id"
   routine_type = "SCALAR_FUNCTION"
   language = "JAVASCRIPT"
   definition_body = "CREATE FUNCTION multiplyInputs return x*y;"
@@ -95,7 +95,7 @@ resource "google_bigquery_dataset" "test" {
 
 resource "google_bigquery_routine" "sproc" {
   dataset_id      = google_bigquery_dataset.test.dataset_id
-  routine_id      = "tf_test_routine_id%{random_suffix}"
+  routine_id      = "routine_id"
   routine_type    = "TABLE_VALUED_FUNCTION"
   language        = "SQL"
   definition_body = <<-EOS
