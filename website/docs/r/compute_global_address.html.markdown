@@ -62,7 +62,7 @@ resource "google_compute_global_address" "default" {
 
 resource "google_compute_network" "network" {
   provider      = google-beta
-  name          = "tf-test%{random_suffix}"
+  name          = "my-network-name"
   auto_create_subnetworks = false
 }
 ```

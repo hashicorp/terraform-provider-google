@@ -78,7 +78,7 @@ resource "google_service_account" "service_account" {
 }
 
 resource "google_beyondcorp_app_gateway" "app_gateway" {
-  name = "tf-test-my-app-gateway%{random_suffix}"
+  name = "my-app-gateway"
   type = "TCP_PROXY"
   host_type = "GCP_REGIONAL_MIG"
 }

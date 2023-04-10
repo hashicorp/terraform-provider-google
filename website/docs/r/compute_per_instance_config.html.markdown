@@ -74,7 +74,7 @@ resource "google_compute_instance_group_manager" "igm-no-tp" {
 }
 
 resource "google_compute_disk" "default" {
-  name  = "test-disk-%{random_suffix}"
+  name  = "my-disk-name"
   type  = "pd-ssd"
   zone  = google_compute_instance_group_manager.igm.zone
   image = "debian-11-bullseye-v20220719"
