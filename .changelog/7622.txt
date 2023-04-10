@@ -1,0 +1,3 @@
+```release-note:bug
+cloudidentity: fixed immutability issue on `initialGroupConfig` field for resource `google_cloud_identity_group`
+```
