@@ -47,8 +47,8 @@ Your account must have the `serviceusage.services.use` permission on the
 ```hcl
 resource "google_access_context_manager_access_level" "access-level-service-account" {
   parent = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}"
-  name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/accessLevels/tf_test_chromeos_no_lock%{random_suffix}"
-  title  = "tf_test_chromeos_no_lock%{random_suffix}"
+  name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/accessLevels/chromeos_no_lock"
+  title  = "chromeos_no_lock"
   basic {
     conditions {
       device_policy {
@@ -71,7 +71,7 @@ resource "google_access_context_manager_access_level" "access-level-service-acco
 }
 
 resource "google_service_account" "created-later" {
-  account_id = "tf-test-%{random_suffix}"
+  account_id = "my-account-id"
 }
 
 resource "google_access_context_manager_access_level_condition" "access-level-conditions" {

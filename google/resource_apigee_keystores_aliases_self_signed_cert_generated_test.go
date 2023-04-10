@@ -53,8 +53,8 @@ func TestAccApigeeKeystoresAliasesSelfSignedCert_apigeeEnvKeystoreAliasSelfSigne
 func testAccApigeeKeystoresAliasesSelfSignedCert_apigeeEnvKeystoreAliasSelfSignedCertExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "project" {
-  project_id      = "tf-test%{random_suffix}"
-  name            = "tf-test%{random_suffix}"
+  project_id      = "tf-test-my-project%{random_suffix}"
+  name            = "tf-test-my-project%{random_suffix}"
   org_id          = "%{org_id}"
   billing_account = "%{billing_account}"
 }
@@ -110,13 +110,13 @@ resource "google_apigee_organization" "apigee_org" {
 
 resource "google_apigee_environment" "apigee_environment_keystore_ss_alias" {
   org_id       = google_apigee_organization.apigee_org.id
-  name         = "tf-test%{random_suffix}"
+  name         = "tf-test-env-name%{random_suffix}"
   description  = "Apigee Environment"
   display_name = "environment-1"
 }
 
 resource "google_apigee_env_keystore" "apigee_environment_keystore_alias" {
-  name       = "tf-test-keystore%{random_suffix}"
+  name       = "tf-test-env-keystore%{random_suffix}"
   env_id     = google_apigee_environment.apigee_environment_keystore_ss_alias.id
 }
 
@@ -124,7 +124,7 @@ resource "google_apigee_keystores_aliases_self_signed_cert" "apigee_environment_
   environment			      = google_apigee_environment.apigee_environment_keystore_ss_alias.name
   org_id				        = google_apigee_organization.apigee_org.name
   keystore				      = google_apigee_env_keystore.apigee_environment_keystore_alias.name
-  alias                 = "tf test-alias%{random_suffix}"
+  alias                 = "alias%{random_suffix}"
   key_size              = 1024
   sig_alg               = "SHA512withRSA"
   cert_validity_in_days = 4
