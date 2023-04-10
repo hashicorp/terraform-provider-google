@@ -712,9 +712,9 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-// Generated resources: 276
+// Generated resources: 277
 // Generated IAM resources: 186
-// Total generated resources: 462
+// Total generated resources: 463
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1070,6 +1070,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_kms_key_ring":                                          ResourceKMSKeyRing(),
 			"google_kms_key_ring_import_job":                               ResourceKMSKeyRingImportJob(),
 			"google_kms_secret_ciphertext":                                 ResourceKMSSecretCiphertext(),
+			"google_logging_linked_dataset":                                ResourceLoggingLinkedDataset(),
 			"google_logging_log_view":                                      ResourceLoggingLogView(),
 			"google_logging_metric":                                        ResourceLoggingMetric(),
 			"google_memcache_instance":                                     ResourceMemcacheInstance(),
