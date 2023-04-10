@@ -118,6 +118,7 @@ Must not be longer than 4,096 characters.`,
 			"initial_group_config": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				ForceNew:     true,
 				ValidateFunc: validateEnum([]string{"INITIAL_GROUP_CONFIG_UNSPECIFIED", "WITH_INITIAL_OWNER", "EMPTY", ""}),
 				Description: `The initial configuration options for creating a Group.
 
