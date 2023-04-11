@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	googleoauth "golang.org/x/oauth2/google"
 )
@@ -36,7 +37,7 @@ func (v credentialsValidator) MarkdownDescription(ctx context.Context) string {
 
 // ValidateString performs the validation.
 func (v credentialsValidator) ValidateString(ctx context.Context, request validator.StringRequest, response *validator.StringResponse) {
-	if request.ConfigValue.IsNull() || request.ConfigValue.IsUnknown() {
+	if request.ConfigValue.IsNull() || request.ConfigValue.IsUnknown() || request.ConfigValue.Equal(types.StringValue("")) {
 		return
 	}
 
