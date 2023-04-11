@@ -692,18 +692,6 @@ func TestRetryTimeDuration_noretry(t *testing.T) {
 	}
 }
 
-type TimeoutError struct {
-	timeout bool
-}
-
-func (e *TimeoutError) Timeout() bool {
-	return e.timeout
-}
-
-func (e *TimeoutError) Error() string {
-	return "timeout error"
-}
-
 func TestRetryTimeDuration_URLTimeoutsShouldRetry(t *testing.T) {
 	runCount := 0
 	retryFunc := func() error {

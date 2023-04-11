@@ -13,8 +13,6 @@ import (
 	googleoauth "golang.org/x/oauth2/google"
 )
 
-const TestEnvVar = "TF_ACC"
-
 // Global MutexKV
 var mutexKV = NewMutexKV()
 
@@ -1538,4 +1536,26 @@ func validateCredentials(v interface{}, k string) (warnings []string, errors []e
 	}
 
 	return
+}
+
+func mergeResourceMaps(ms ...map[string]*schema.Resource) (map[string]*schema.Resource, error) {
+	merged := make(map[string]*schema.Resource)
+	duplicates := []string{}
+
+	for _, m := range ms {
+		for k, v := range m {
+			if _, ok := merged[k]; ok {
+				duplicates = append(duplicates, k)
+			}
+
+			merged[k] = v
+		}
+	}
+
+	var err error
+	if len(duplicates) > 0 {
+		err = fmt.Errorf("saw duplicates in mergeResourceMaps: %v", duplicates)
+	}
+
+	return merged, err
 }

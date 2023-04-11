@@ -4,8 +4,8 @@ package google
 
 import (
 	"fmt"
-	"log"
 	"os"
+	"reflect"
 	"regexp"
 	"sort"
 	"strconv"
@@ -98,43 +98,6 @@ func getProjectFromDiff(d *schema.ResourceDiff, config *Config) (string, error) 
 
 func getRouterLockName(region string, router string) string {
 	return fmt.Sprintf("router/%s/%s", region, router)
-}
-
-func handleNotFoundError(err error, d *schema.ResourceData, resource string) error {
-	if IsGoogleApiErrorWithCode(err, 404) {
-		log.Printf("[WARN] Removing %s because it's gone", resource)
-		// The resource doesn't exist anymore
-		d.SetId("")
-
-		return nil
-	}
-
-	return errwrap.Wrapf(
-		fmt.Sprintf("Error when reading or editing %s: {{err}}", resource), err)
-}
-
-func IsGoogleApiErrorWithCode(err error, errCode int) bool {
-	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
-	return ok && gerr != nil && gerr.Code == errCode
-}
-
-func isApiNotEnabledError(err error) bool {
-	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
-	if !ok {
-		return false
-	}
-	if gerr == nil {
-		return false
-	}
-	if gerr.Code != 403 {
-		return false
-	}
-	for _, e := range gerr.Errors {
-		if e.Reason == "accessNotConfigured" {
-			return true
-		}
-	}
-	return false
 }
 
 func isFailedPreconditionError(err error) bool {
@@ -305,28 +268,6 @@ func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {
 	}
 
 	return merged
-}
-
-func mergeResourceMaps(ms ...map[string]*schema.Resource) (map[string]*schema.Resource, error) {
-	merged := make(map[string]*schema.Resource)
-	duplicates := []string{}
-
-	for _, m := range ms {
-		for k, v := range m {
-			if _, ok := merged[k]; ok {
-				duplicates = append(duplicates, k)
-			}
-
-			merged[k] = v
-		}
-	}
-
-	var err error
-	if len(duplicates) > 0 {
-		err = fmt.Errorf("saw duplicates in mergeResourceMaps: %v", duplicates)
-	}
-
-	return merged, err
 }
 
 func StringToFixed64(v string) (int64, error) {
@@ -509,34 +450,6 @@ func SnakeToPascalCase(s string) string {
 	return strings.Join(split, "")
 }
 
-func MultiEnvSearch(ks []string) string {
-	for _, k := range ks {
-		if v := os.Getenv(k); v != "" {
-			return v
-		}
-	}
-	return ""
-}
-
-func GetCurrentUserEmail(config *Config, userAgent string) (string, error) {
-	// When environment variables UserProjectOverride and BillingProject are set for the provider,
-	// the header X-Goog-User-Project is set for the API requests.
-	// But it causes an error when calling GetCurrentUserEmail. Set the project to be "NO_BILLING_PROJECT_OVERRIDE".
-	// And then it triggers the header X-Goog-User-Project to be set to empty string.
-
-	// See https://github.com/golang/oauth2/issues/306 for a recommendation to do this from a Go maintainer
-	// URL retrieved from https://accounts.google.com/.well-known/openid-configuration
-	res, err := SendRequest(config, "GET", "NO_BILLING_PROJECT_OVERRIDE", "https://openidconnect.googleapis.com/v1/userinfo", userAgent, nil)
-
-	if err != nil {
-		return "", fmt.Errorf("error retrieving userinfo for your provider credentials. have you enabled the 'https://www.googleapis.com/auth/userinfo.email' scope? error: %s", err)
-	}
-	if res["email"] == nil {
-		return "", fmt.Errorf("error retrieving email from userinfo. email was nil in the response.")
-	}
-	return res["email"].(string), nil
-}
-
 func checkStringMap(v interface{}) map[string]string {
 	m, ok := v.(map[string]string)
 	if ok {
@@ -633,4 +546,26 @@ func frameworkDiagsToSdkDiags(fwD fwDiags.Diagnostics) *diag.Diagnostics {
 	}
 
 	return &diags
+}
+
+func isEmptyValue(v reflect.Value) bool {
+	if !v.IsValid() {
+		return true
+	}
+
+	switch v.Kind() {
+	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:
+		return v.Len() == 0
+	case reflect.Bool:
+		return !v.Bool()
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return v.Int() == 0
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		return v.Uint() == 0
+	case reflect.Float32, reflect.Float64:
+		return v.Float() == 0
+	case reflect.Interface, reflect.Ptr:
+		return v.IsNil()
+	}
+	return false
 }

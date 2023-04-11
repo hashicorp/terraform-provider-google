@@ -13,12 +13,10 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
 var (
-	OriginalPolicy *cloudresourcemanager.Policy
-	TestPrefix     = "tf-test"
+	TestPrefix = "tf-test"
 )
 
 func init() {

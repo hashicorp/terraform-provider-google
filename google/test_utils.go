@@ -238,3 +238,15 @@ func ProtoV5ProviderFactories(t *testing.T) map[string]func() (tfprotov5.Provide
 func ProtoV5ProviderBetaFactories(t *testing.T) map[string]func() (tfprotov5.ProviderServer, error) {
 	return map[string]func() (tfprotov5.ProviderServer, error){}
 }
+
+type TimeoutError struct {
+	timeout bool
+}
+
+func (e *TimeoutError) Timeout() bool {
+	return e.timeout
+}
+
+func (e *TimeoutError) Error() string {
+	return "timeout error"
+}

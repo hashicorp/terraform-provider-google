@@ -140,40 +140,12 @@ func TestValidateServiceAccountLink(t *testing.T) {
 	}
 }
 
-type StringValidationTestCase struct {
-	TestName    string
-	Value       string
-	ExpectError bool
-}
-
 type RFC1918NetworkTestCase struct {
 	TestName    string
 	CIDR        string
 	MinPrefix   int
 	MaxPrefix   int
 	ExpectError bool
-}
-
-func testStringValidationCases(cases []StringValidationTestCase, validationFunc schema.SchemaValidateFunc) []error {
-	es := make([]error, 0)
-	for _, c := range cases {
-		es = append(es, testStringValidation(c, validationFunc)...)
-	}
-
-	return es
-}
-
-func testStringValidation(testCase StringValidationTestCase, validationFunc schema.SchemaValidateFunc) []error {
-	_, es := validationFunc(testCase.Value, testCase.TestName)
-	if testCase.ExpectError {
-		if len(es) > 0 {
-			return nil
-		} else {
-			return []error{fmt.Errorf("Didn't see expected error in case \"%s\" with string \"%s\"", testCase.TestName, testCase.Value)}
-		}
-	}
-
-	return es
 }
 
 func testRFC1918Networks(cases []RFC1918NetworkTestCase) []error {
