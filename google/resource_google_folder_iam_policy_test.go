@@ -90,7 +90,7 @@ func testAccFolderExistingPolicy(t *testing.T, org, fname string) resource.TestC
 	return func(s *terraform.State) error {
 		c := GoogleProviderConfig(t)
 		var err error
-		OriginalPolicy, err = getFolderIamPolicyByParentAndDisplayName("organizations/"+org, fname, c)
+		OriginalPolicy, err := getFolderIamPolicyByParentAndDisplayName("organizations/"+org, fname, c)
 		if err != nil {
 			return fmt.Errorf("Failed to retrieve IAM Policy for folder %q: %s", fname, err)
 		}

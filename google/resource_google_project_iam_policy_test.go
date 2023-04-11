@@ -241,7 +241,7 @@ func testAccProjectExistingPolicy(t *testing.T, pid string) resource.TestCheckFu
 	return func(s *terraform.State) error {
 		c := GoogleProviderConfig(t)
 		var err error
-		OriginalPolicy, err = getProjectIamPolicy(pid, c)
+		OriginalPolicy, err := getProjectIamPolicy(pid, c)
 		if err != nil {
 			return fmt.Errorf("Failed to retrieve IAM Policy for project %q: %s", pid, err)
 		}

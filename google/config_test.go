@@ -11,9 +11,6 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
-const testFakeCredentialsPath = "./test-fixtures/fake_account.json"
-const testOauthScope = "https://www.googleapis.com/auth/compute"
-
 func TestHandleSDKDefaults_ImpersonateServiceAccount(t *testing.T) {
 	cases := map[string]struct {
 		ConfigValue      string
