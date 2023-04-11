@@ -1,8 +1,10 @@
 package google
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -122,14 +124,53 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	it, err := config.NewComputeClient(userAgent).InstanceTemplates.Get(project, tpl.Name).Do()
-	if err != nil {
-		return err
-	}
+	it := compute.InstanceTemplate{}
+	var relativeUrl string
 
-	instance.Disks, err = adjustInstanceFromTemplateDisks(d, config, it, zone, project)
-	if err != nil {
-		return err
+	if strings.Contains(sourceInstanceTemplate, "global/instanceTemplates") {
+		instanceTemplate, err := config.NewComputeClient(userAgent).InstanceTemplates.Get(project, tpl.Name).Do()
+		if err != nil {
+			return err
+		}
+
+		it = *instanceTemplate
+		relativeUrl = tpl.RelativeLink()
+
+		instance.Disks, err = adjustInstanceFromTemplateDisks(d, config, &it, zone, project, false)
+		if err != nil {
+			return err
+		}
+	} else {
+		relativeUrl, err = ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/instanceTemplates/"+tpl.Name)
+		if err != nil {
+			return err
+		}
+
+		url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceTemplates/"+tpl.Name)
+		if err != nil {
+			return err
+		}
+
+		instanceTemplate, err := SendRequest(config, "GET", project, url, userAgent, nil)
+		if err != nil {
+			return err
+		}
+
+		instancePropertiesObj, err := json.Marshal(instanceTemplate)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		if err := json.Unmarshal(instancePropertiesObj, &it); err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		instance.Disks, err = adjustInstanceFromTemplateDisks(d, config, &it, zone, project, true)
+		if err != nil {
+			return err
+		}
 	}
 
 	// when we make the original call to expandComputeInstance expandScheduling is called, which sets default values.
@@ -159,7 +200,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[INFO] Requesting instance creation")
-	op, err := config.NewComputeClient(userAgent).Instances.Insert(project, zone.Name, instance).SourceInstanceTemplate(tpl.RelativeLink()).Do()
+	op, err := config.NewComputeClient(userAgent).Instances.Insert(project, zone.Name, instance).SourceInstanceTemplate(relativeUrl).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating instance: %s", err)
 	}
@@ -181,7 +222,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 
 // Instances have disks spread across multiple schema properties. This function
 // ensures that overriding one of these properties does not override the others.
-func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *Config, it *compute.InstanceTemplate, zone *compute.Zone, project string) ([]*compute.AttachedDisk, error) {
+func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *Config, it *compute.InstanceTemplate, zone *compute.Zone, project string, isFromRegionalTemplate bool) ([]*compute.AttachedDisk, error) {
 	disks := []*compute.AttachedDisk{}
 	if _, hasBootDisk := d.GetOk("boot_disk"); hasBootDisk {
 		bootDisk, err := expandBootDisk(d, config, project)
@@ -193,7 +234,7 @@ func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *Config, it 
 		// boot disk was not overridden, so use the one from the instance template
 		for _, disk := range it.Properties.Disks {
 			if disk.Boot {
-				if disk.Source != "" {
+				if disk.Source != "" && !isFromRegionalTemplate {
 					// Instances need a URL for the disk, but instance templates only have the name
 					disk.Source = fmt.Sprintf("projects/%s/zones/%s/disks/%s", project, zone.Name, disk.Source)
 				}
@@ -247,7 +288,7 @@ func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *Config, it 
 		// attached disks were not overridden, so use the ones from the instance template
 		for _, disk := range it.Properties.Disks {
 			if !disk.Boot && disk.Type != "SCRATCH" {
-				if s := disk.Source; s != "" {
+				if s := disk.Source; s != "" && !isFromRegionalTemplate {
 					// Instances need a URL for the disk source, but instance templates
 					// only have the name (since they're global).
 					disk.Source = fmt.Sprintf("zones/%s/disks/%s", zone.Name, s)
