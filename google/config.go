@@ -1145,7 +1145,7 @@ func ExpandProviderBatchingConfig(v interface{}) (*batchingConfig, error) {
 	}
 
 	cfgV := ls[0].(map[string]interface{})
-	if sendAfterV, ok := cfgV["send_after"]; ok {
+	if sendAfterV, ok := cfgV["send_after"]; ok && sendAfterV != "" {
 		SendAfter, err := time.ParseDuration(sendAfterV.(string))
 		if err != nil {
 			return nil, fmt.Errorf("unable to parse duration from 'send_after' value %q", sendAfterV)
