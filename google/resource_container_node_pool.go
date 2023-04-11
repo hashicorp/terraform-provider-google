@@ -342,6 +342,7 @@ var schemaNodePool = map[string]*schema.Schema{
 					Type:        schema.TypeString,
 					Optional:    true,
 					ForceNew:    true,
+					Computed:    true,
 					Description: `The ID of the secondary range for pod IPs. If create_pod_range is true, this ID is used for the new range. If create_pod_range is false, uses an existing secondary range with this ID.`,
 				},
 				"pod_ipv4_cidr_block": {
@@ -351,6 +352,22 @@ var schemaNodePool = map[string]*schema.Schema{
 					Computed:     true,
 					ValidateFunc: validateIpCidrRange,
 					Description:  `The IP address range for pod IPs in this node pool. Only applicable if create_pod_range is true. Set to blank to have a range chosen with the default size. Set to /netmask (e.g. /14) to have a range chosen with a specific netmask. Set to a CIDR notation (e.g. 10.96.0.0/14) to pick a specific range to use.`,
+				},
+				"pod_cidr_overprovision_config": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					Computed:    true,
+					ForceNew:    true,
+					MaxItems:    1,
+					Description: `Configuration for node-pool level pod cidr overprovision. If not set, the cluster level setting will be inherited`,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"disabled": {
+								Type:     schema.TypeBool,
+								Required: true,
+							},
+						},
+					},
 				},
 			},
 		},
@@ -1068,10 +1085,11 @@ func flattenNodeNetworkConfig(c *container.NodeNetworkConfig, d *schema.Resource
 	result := []map[string]interface{}{}
 	if c != nil {
 		result = append(result, map[string]interface{}{
-			"create_pod_range":     d.Get(prefix + "network_config.0.create_pod_range"), // API doesn't return this value so we set the old one. Field is ForceNew + Required
-			"pod_ipv4_cidr_block":  c.PodIpv4CidrBlock,
-			"pod_range":            c.PodRange,
-			"enable_private_nodes": c.EnablePrivateNodes,
+			"create_pod_range":              d.Get(prefix + "network_config.0.create_pod_range"), // API doesn't return this value so we set the old one. Field is ForceNew + Required
+			"pod_ipv4_cidr_block":           c.PodIpv4CidrBlock,
+			"pod_range":                     c.PodRange,
+			"enable_private_nodes":          c.EnablePrivateNodes,
+			"pod_cidr_overprovision_config": flattenPodCidrOverprovisionConfig(c.PodCidrOverprovisionConfig),
 		})
 	}
 	return result
@@ -1104,6 +1122,8 @@ func expandNodeNetworkConfig(v interface{}) *container.NodeNetworkConfig {
 		nnc.EnablePrivateNodes = v.(bool)
 		nnc.ForceSendFields = []string{"EnablePrivateNodes"}
 	}
+
+	nnc.PodCidrOverprovisionConfig = expandPodCidrOverprovisionConfig(networkNodeConfig["pod_cidr_overprovision_config"])
 
 	return nnc
 }
