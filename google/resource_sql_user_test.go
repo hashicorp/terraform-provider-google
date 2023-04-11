@@ -112,7 +112,10 @@ func TestAccSqlUser_postgresIAM(t *testing.T) {
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccSqlUserDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleSqlUser_postgresIAM(instance),
@@ -387,7 +390,15 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 
+# TODO: Remove with resolution of https://github.com/hashicorp/terraform-provider-google/issues/14233
+resource "time_sleep" "wait_30_seconds" {
+  depends_on = [google_sql_database_instance.instance]
+
+  create_duration = "30s"
+}
+
 resource "google_sql_user" "user" {
+  depends_on = [time_sleep.wait_30_seconds]
   name     = "admin"
   instance = google_sql_database_instance.instance.name
   type     = "CLOUD_IAM_USER"
