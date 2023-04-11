@@ -57,48 +57,69 @@ func TestFrameworkProvider_impl(t *testing.T) {
 	var _ provider.ProviderWithMetaSchema = New("test")
 }
 
-func TestFrameworkProvider_loadCredentialsFromFile(t *testing.T) {
-	cv := CredentialsValidator()
-
-	req := validator.StringRequest{
-		ConfigValue: types.StringValue(testFakeCredentialsPath),
+func TestFrameworkProvider_CredentialsValidator(t *testing.T) {
+	cases := map[string]struct {
+		ConfigValue          func(t *testing.T) types.String
+		ExpectedWarningCount int
+		ExpectedErrorCount   int
+	}{
+		"configuring credentials as a path to a credentials JSON file is valid": {
+			ConfigValue: func(t *testing.T) types.String {
+				return types.StringValue(testFakeCredentialsPath) // Path to a test fixture
+			},
+		},
+		"configuring credentials as a path to a non-existant file is NOT valid": {
+			ConfigValue: func(t *testing.T) types.String {
+				return types.StringValue("./this/path/doesnt/exist.json") // Doesn't exist
+			},
+			ExpectedErrorCount: 1,
+		},
+		"configuring credentials as a credentials JSON string is valid": {
+			ConfigValue: func(t *testing.T) types.String {
+				contents, err := ioutil.ReadFile(testFakeCredentialsPath)
+				if err != nil {
+					t.Fatalf("Unexpected error: %s", err)
+				}
+				stringContents := string(contents)
+				return types.StringValue(stringContents)
+			},
+		},
+		"configuring credentials as an empty string is valid": {
+			ConfigValue: func(t *testing.T) types.String {
+				return types.StringValue("")
+			},
+		},
+		"leaving credentials unconfigured is valid": {
+			ConfigValue: func(t *testing.T) types.String {
+				return types.StringNull()
+			},
+		},
 	}
 
-	resp := validator.StringResponse{
-		Diagnostics: diag.Diagnostics{},
-	}
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			// Arrange
+			req := validator.StringRequest{
+				ConfigValue: tc.ConfigValue(t),
+			}
 
-	cv.ValidateString(context.Background(), req, &resp)
+			resp := validator.StringResponse{
+				Diagnostics: diag.Diagnostics{},
+			}
 
-	if resp.Diagnostics.WarningsCount() > 0 {
-		t.Errorf("Expected 0 warnings, got %d", resp.Diagnostics.WarningsCount())
-	}
-	if resp.Diagnostics.HasError() {
-		t.Errorf("Expected 0 errors, got %d", resp.Diagnostics.ErrorsCount())
-	}
-}
+			cv := CredentialsValidator()
 
-func TestFrameworkProvider_loadCredentialsFromJSON(t *testing.T) {
-	contents, err := ioutil.ReadFile(testFakeCredentialsPath)
-	if err != nil {
-		t.Fatalf("Unexpected error: %s", err)
-	}
-	cv := CredentialsValidator()
+			// Act
+			cv.ValidateString(context.Background(), req, &resp)
 
-	req := validator.StringRequest{
-		ConfigValue: types.StringValue(string(contents)),
-	}
-
-	resp := validator.StringResponse{
-		Diagnostics: diag.Diagnostics{},
-	}
-
-	cv.ValidateString(context.Background(), req, &resp)
-	if resp.Diagnostics.WarningsCount() > 0 {
-		t.Errorf("Expected 0 warnings, got %d", resp.Diagnostics.WarningsCount())
-	}
-	if resp.Diagnostics.HasError() {
-		t.Errorf("Expected 0 errors, got %d", resp.Diagnostics.ErrorsCount())
+			// Assert
+			if resp.Diagnostics.WarningsCount() > tc.ExpectedWarningCount {
+				t.Errorf("Expected %d warnings, got %d", tc.ExpectedWarningCount, resp.Diagnostics.WarningsCount())
+			}
+			if resp.Diagnostics.ErrorsCount() > tc.ExpectedErrorCount {
+				t.Errorf("Expected %d errors, got %d", tc.ExpectedErrorCount, resp.Diagnostics.ErrorsCount())
+			}
+		})
 	}
 }
 

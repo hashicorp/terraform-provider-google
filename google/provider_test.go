@@ -2,6 +2,7 @@ package google
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -165,27 +166,72 @@ func AccTestPreCheck(t *testing.T) {
 	}
 }
 
-func TestProvider_loadCredentialsFromFile(t *testing.T) {
-	ws, es := validateCredentials(testFakeCredentialsPath, "")
-	if len(ws) != 0 {
-		t.Errorf("Expected %d warnings, got %v", len(ws), ws)
+func TestProvider_validateCredentials(t *testing.T) {
+	cases := map[string]struct {
+		ConfigValue      func(t *testing.T) interface{}
+		ValueNotProvided bool
+		ExpectedWarnings []string
+		ExpectedErrors   []error
+	}{
+		"configuring credentials as a path to a credentials JSON file is valid": {
+			ConfigValue: func(t *testing.T) interface{} {
+				return testFakeCredentialsPath // Path to a test fixture
+			},
+		},
+		"configuring credentials as a path to a non-existant file is NOT valid": {
+			ConfigValue: func(t *testing.T) interface{} {
+				return "./this/path/doesnt/exist.json" // Doesn't exist
+			},
+			ExpectedErrors: []error{
+				// As the file doesn't exist, so the function attempts to parse it as a JSON
+				errors.New("JSON credentials are not valid: invalid character '.' looking for beginning of value"),
+			},
+		},
+		"configuring credentials as a credentials JSON string is valid": {
+			ConfigValue: func(t *testing.T) interface{} {
+				contents, err := ioutil.ReadFile(testFakeCredentialsPath)
+				if err != nil {
+					t.Fatalf("Unexpected error: %s", err)
+				}
+				return string(contents)
+			},
+		},
+		"configuring credentials as an empty string is valid": {
+			ConfigValue: func(t *testing.T) interface{} {
+				return ""
+			},
+		},
+		"leaving credentials unconfigured is valid": {
+			ValueNotProvided: true,
+		},
 	}
-	if len(es) != 0 {
-		t.Errorf("Expected %d errors, got %v", len(es), es)
-	}
-}
 
-func TestProvider_loadCredentialsFromJSON(t *testing.T) {
-	contents, err := ioutil.ReadFile(testFakeCredentialsPath)
-	if err != nil {
-		t.Fatalf("Unexpected error: %s", err)
-	}
-	ws, es := validateCredentials(string(contents), "")
-	if len(ws) != 0 {
-		t.Errorf("Expected %d warnings, got %v", len(ws), ws)
-	}
-	if len(es) != 0 {
-		t.Errorf("Expected %d errors, got %v", len(es), es)
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			// Arrange
+			var configValue interface{}
+			if !tc.ValueNotProvided {
+				configValue = tc.ConfigValue(t)
+			}
+
+			// Act
+			// Note: second argument is currently unused by the function but is necessary to fulfill the SchemaValidateFunc type's function signature
+			ws, es := validateCredentials(configValue, "")
+
+			// Assert
+			if len(ws) != len(tc.ExpectedWarnings) {
+				t.Errorf("Expected %d warnings, got %d: %v", len(tc.ExpectedWarnings), len(ws), ws)
+			}
+			if len(es) != len(tc.ExpectedErrors) {
+				t.Errorf("Expected %d errors, got %d: %v", len(tc.ExpectedErrors), len(es), es)
+			}
+
+			if len(tc.ExpectedErrors) > 0 {
+				if es[0].Error() != tc.ExpectedErrors[0].Error() {
+					t.Errorf("Expected first error to be \"%s\", got \"%s\"", tc.ExpectedErrors[0], es[0])
+				}
+			}
+		})
 	}
 }
 
