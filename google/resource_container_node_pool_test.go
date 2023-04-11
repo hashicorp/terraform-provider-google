@@ -442,6 +442,10 @@ func TestAccContainerNodePool_withNetworkConfig(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerNodePool_withNetworkConfig(cluster, np, network),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.with_pco_disabled", "network_config.0.pod_cidr_overprovision_config.0.disabled", "true"),
+				),
 			},
 			{
 				ResourceName:            "google_container_node_pool.with_manual_pod_cidr",
@@ -2316,7 +2320,24 @@ resource "google_container_node_pool" "with_auto_pod_cidr" {
   }
 }
 
-`, network, cluster, np, np)
+resource "google_container_node_pool" "with_pco_disabled" {
+  name               = "%s-pco"
+  location           = "us-central1"
+  cluster            = google_container_cluster.cluster.name
+  node_count = 1
+  network_config {
+        pod_cidr_overprovision_config {
+		disabled = true
+	}
+  }
+  node_config {
+	oauth_scopes = [
+	  "https://www.googleapis.com/auth/cloud-platform",
+	]
+  }
+}
+
+`, network, cluster, np, np, np)
 }
 
 func makeUpgradeSettings(maxSurge int, maxUnavailable int, strategy string, nodePoolSoakDuration string, batchNodeCount int, batchPercentage float64, batchSoakDuration string) string {

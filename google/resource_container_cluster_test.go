@@ -2018,6 +2018,34 @@ func TestAccContainerCluster_stackType_withSingleStack(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_with_PodCIDROverprovisionDisabled(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", RandString(t, 10))
+	containerNetName := fmt.Sprintf("tf-test-cluster-%s", RandString(t, 10))
+	resourceName := "google_container_cluster.with_pco_disabled"
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_with_PodCIDROverprovisionDisabled(containerNetName, clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "ip_allocation_policy.0.pod_cidr_overprovision_config.0.disabled", "true"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_nodeAutoprovisioning(t *testing.T) {
 	t.Parallel()
 
@@ -5554,6 +5582,42 @@ resource "google_container_cluster" "with_stack_type" {
         cluster_ipv4_cidr_block  = "10.0.0.0/16"
         services_ipv4_cidr_block = "10.1.0.0/16"
         stack_type = "IPV4"
+    }
+}
+`, containerNetName, clusterName)
+}
+
+func testAccContainerCluster_with_PodCIDROverprovisionDisabled(containerNetName string, clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+    name                    = "%s"
+    auto_create_subnetworks = false
+}
+
+    resource "google_compute_subnetwork" "container_subnetwork" {
+    name    = google_compute_network.container_network.name
+    network = google_compute_network.container_network.name
+    region  = "us-central1"
+
+    ip_cidr_range = "10.0.0.0/16"
+}
+
+resource "google_container_cluster" "with_pco_disabled" {
+    name       = "%s"
+    location   = "us-central1-a"
+    network    = google_compute_network.container_network.name
+    subnetwork = google_compute_subnetwork.container_subnetwork.name
+
+    min_master_version = "1.23"
+    initial_node_count = 1
+    datapath_provider = "ADVANCED_DATAPATH"
+
+    ip_allocation_policy {
+        cluster_ipv4_cidr_block  = "10.1.0.0/16"
+        services_ipv4_cidr_block = "10.2.0.0/16"
+	pod_cidr_overprovision_config {
+		disabled = true
+	}
     }
 }
 `, containerNetName, clusterName)

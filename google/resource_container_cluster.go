@@ -1254,6 +1254,22 @@ func ResourceContainerCluster() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"IPV4", "IPV4_IPV6"}, false),
 							Description:  `The IP Stack type of the cluster. Choose between IPV4 and IPV4_IPV6. Default type is IPV4 Only if not set`,
 						},
+						"pod_cidr_overprovision_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							Description: `Configuration for cluster level pod cidr overprovision. Default is disabled=false.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"disabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -3497,6 +3513,18 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 	return ac
 }
 
+func expandPodCidrOverprovisionConfig(configured interface{}) *container.PodCIDROverprovisionConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &container.PodCIDROverprovisionConfig{
+		Disable:         config["disabled"].(bool),
+		ForceSendFields: []string{"Disable"},
+	}
+}
+
 func expandIPAllocationPolicy(configured interface{}, networkingMode string) (*container.IPAllocationPolicy, error) {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -3523,6 +3551,7 @@ func expandIPAllocationPolicy(configured interface{}, networkingMode string) (*c
 		ForceSendFields:            []string{"UseIpAliases"},
 		UseRoutes:                  networkingMode == "ROUTES",
 		StackType:                  stackType,
+		PodCidrOverprovisionConfig: expandPodCidrOverprovisionConfig(config["pod_cidr_overprovision_config"]),
 	}, nil
 }
 
@@ -4476,6 +4505,18 @@ func flattenWorkloadIdentityConfig(c *container.WorkloadIdentityConfig, d *schem
 	}
 }
 
+func flattenPodCidrOverprovisionConfig(c *container.PodCIDROverprovisionConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"disabled": c.Disable,
+		},
+	}
+}
+
 func flattenIPAllocationPolicy(c *container.Cluster, d *schema.ResourceData, config *Config) ([]map[string]interface{}, error) {
 	// If IP aliasing isn't enabled, none of the values in this block can be set.
 	if c == nil || c.IpAllocationPolicy == nil || !c.IpAllocationPolicy.UseIpAliases {
@@ -4504,6 +4545,7 @@ func flattenIPAllocationPolicy(c *container.Cluster, d *schema.ResourceData, con
 			"cluster_secondary_range_name":  p.ClusterSecondaryRangeName,
 			"services_secondary_range_name": p.ServicesSecondaryRangeName,
 			"stack_type":                    p.StackType,
+			"pod_cidr_overprovision_config": flattenPodCidrOverprovisionConfig(p.PodCidrOverprovisionConfig),
 		},
 	}, nil
 }
