@@ -222,9 +222,7 @@ must be expressed in CIDR format. IPv4 or IPv6 ranges are supported.`,
 				ForceNew:     true,
 				ValidateFunc: validateEnum([]string{"INGRESS", "EGRESS", ""}),
 				Description: `Direction of traffic to which this firewall applies; default is
-INGRESS. Note: For INGRESS traffic, it is NOT supported to specify
-destinationRanges; For EGRESS traffic, it is NOT supported to specify
-'source_ranges' OR 'source_tags'. For INGRESS traffic, one of 'source_ranges',
+INGRESS. Note: For INGRESS traffic, one of 'source_ranges',
 'source_tags' or 'source_service_accounts' is required. Possible values: ["INGRESS", "EGRESS"]`,
 			},
 			"disabled": {
