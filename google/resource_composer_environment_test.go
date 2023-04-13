@@ -724,8 +724,7 @@ func TestAccComposerEnvironment_composerV2MasterAuthNetworksUpdate(t *testing.T)
 	})
 }
 
-// Checks behavior of node config, including dependencies on Compute resources.
-func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
+func TestAccComposer1Environment_withNodeConfig(t *testing.T) {
 	t.Parallel()
 
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, RandInt(t))
@@ -739,7 +738,7 @@ func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComposerEnvironment_nodeCfg(envName, network, subnetwork, serviceAccount),
+				Config: testAccComposer1Environment_nodeCfg(envName, network, subnetwork, serviceAccount),
 			},
 			{
 				ResourceName:      "google_composer_environment.test",
@@ -752,7 +751,41 @@ func TestAccComposerEnvironment_withNodeConfig(t *testing.T) {
 			{
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
-				Config:             testAccComposerEnvironment_nodeCfg(envName, network, subnetwork, serviceAccount),
+				Config:             testAccComposer1Environment_nodeCfg(envName, network, subnetwork, serviceAccount),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
+			},
+		},
+	})
+}
+
+func TestAccComposer2Environment_withNodeConfig(t *testing.T) {
+	t.Parallel()
+
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, RandInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, RandInt(t))
+	subnetwork := network + "-1"
+	serviceAccount := fmt.Sprintf("tf-test-%d", RandInt(t))
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComposer2Environment_nodeCfg(envName, network, subnetwork, serviceAccount),
+			},
+			{
+				ResourceName:      "google_composer_environment.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// This is a terrible clean-up step in order to get destroy to succeed,
+			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
+			{
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+				Config:             testAccComposer2Environment_nodeCfg(envName, network, subnetwork, serviceAccount),
 				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
@@ -1832,7 +1865,7 @@ resource "google_compute_subnetwork" "test" {
 `, name, network, subnetwork)
 }
 
-func testAccComposerEnvironment_nodeCfg(environment, network, subnetwork, serviceAccount string) string {
+func testAccComposer1Environment_nodeCfg(environment, network, subnetwork, serviceAccount string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {}
 
@@ -1850,9 +1883,63 @@ resource "google_composer_environment" "test" {
         use_ip_aliases          = true
         cluster_ipv4_cidr_block = "10.0.0.0/16"
       }
+	  tags = toset(["t1", "t2"])
+	  machine_type = "n2-highcpu-2"
+	  disk_size_gb = 20
+	  oauth_scopes = toset(["https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/bigquery"])
     }
     software_config {
       image_version = "composer-1-airflow-2"
+    }
+  }
+  depends_on = [google_project_iam_member.composer-worker]
+}
+
+resource "google_compute_network" "test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+  name          = "%s"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.test.self_link
+}
+
+resource "google_service_account" "test" {
+  account_id   = "%s"
+  display_name = "Test Service Account for Composer Environment"
+}
+
+resource "google_project_iam_member" "composer-worker" {
+  project = data.google_project.project.project_id
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
+}
+`, environment, network, subnetwork, serviceAccount)
+}
+
+func testAccComposer2Environment_nodeCfg(environment, network, subnetwork, serviceAccount string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_composer_environment" "test" {
+  name   = "%s"
+  region = "us-central1"
+  config {
+    node_config {
+      network    = google_compute_network.test.self_link
+      subnetwork = google_compute_subnetwork.test.self_link
+
+      service_account = google_service_account.test.name
+      ip_allocation_policy {
+        cluster_ipv4_cidr_block = "10.0.0.0/16"
+      }
+	  tags = toset(["t1", "t2"])
+    }
+    software_config {
+      image_version = "composer-2-airflow-2"
     }
   }
   depends_on = [google_project_iam_member.composer-worker]

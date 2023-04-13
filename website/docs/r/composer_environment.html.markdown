@@ -713,6 +713,13 @@ The `node_config` block supports:
   note that the service account must have `roles/composer.worker`
   for any GCP resources created under the Cloud Composer Environment.
 
+* `tags` -
+  (Optional)
+  The list of instance tags applied to all node VMs. Tags are
+  used to identify valid sources or targets for network
+  firewalls. Each tag within the list must comply with RFC1035.
+  Cannot be updated.
+
 * `ip_allocation_policy` -
   (Optional)
   Configuration for controlling how IPs are allocated in the GKE cluster.

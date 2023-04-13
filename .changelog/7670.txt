@@ -1,0 +1,5 @@
+```release-note:none
+Update docs for Composer 2. 
+
+Add tests for network tags field for Composer 1 & 2.
+```
