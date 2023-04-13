@@ -61,7 +61,7 @@ func ResourceAlloydbInstance() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateEnum([]string{"PRIMARY", "READ_POOL"}),
-				Description:  `The type of the instance. Possible values: ["PRIMARY", "READ_POOL"]`,
+				Description:  `The type of the instance. If the instance type is READ_POOL, provide the associated PRIMARY instance in the 'depends_on' meta-data attribute. Possible values: ["PRIMARY", "READ_POOL"]`,
 			},
 			"annotations": {
 				Type:        schema.TypeMap,
