@@ -173,7 +173,7 @@ The following arguments are supported:
 
 * `stack_type` -
   (Optional)
-  The stack type for this VPN gateway to identify the IP protocols that are enbaled.
+  The stack type for this VPN gateway to identify the IP protocols that are enabled.
   If not specified, IPV4_ONLY will be used.
   Default value is `IPV4_ONLY`.
   Possible values are: `IPV4_ONLY`, `IPV4_IPV6`.
