@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_compute_public_advertised_prefix`
+```
+```release-note:new-resource
+`google_compute_public_delegated_prefix`
+```

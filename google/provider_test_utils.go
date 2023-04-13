@@ -99,6 +99,12 @@ var masterBillingAccountEnvVars = []string{
 	"GOOGLE_MASTER_BILLING_ACCOUNT",
 }
 
+// This value is the description used for test PublicAdvertisedPrefix setup to avoid required DNS
+// setup. This is only used during integration tests and would be invalid to surface to users
+var papDescriptionEnvVars = []string{
+	"GOOGLE_PUBLIC_AVERTISED_PREFIX_DESCRIPTION",
+}
+
 func init() {
 	configs = make(map[string]*Config)
 	fwProviders = make(map[string]*frameworkTestProvider)
@@ -256,6 +262,11 @@ func GetTestMasterBillingAccountFromEnv(t *testing.T) string {
 func GetTestServiceAccountFromEnv(t *testing.T) string {
 	SkipIfEnvNotSet(t, serviceAccountEnvVars...)
 	return MultiEnvSearch(serviceAccountEnvVars)
+}
+
+func GetTestPublicAdvertisedPrefixDescriptionFromEnv(t *testing.T) string {
+	SkipIfEnvNotSet(t, papDescriptionEnvVars...)
+	return MultiEnvSearch(papDescriptionEnvVars)
 }
 
 // Some tests fail during VCR. One common case is race conditions when creating resources.
