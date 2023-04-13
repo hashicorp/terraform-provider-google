@@ -78,7 +78,7 @@ character, which cannot be a dash.`,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateEnum([]string{"IPV4_ONLY", "IPV4_IPV6", ""}),
-				Description: `The stack type for this VPN gateway to identify the IP protocols that are enbaled.
+				Description: `The stack type for this VPN gateway to identify the IP protocols that are enabled.
 If not specified, IPV4_ONLY will be used. Default value: "IPV4_ONLY" Possible values: ["IPV4_ONLY", "IPV4_IPV6"]`,
 				Default: "IPV4_ONLY",
 			},
@@ -364,6 +364,10 @@ func flattenComputeHaVpnGatewayNetwork(v interface{}, d *schema.ResourceData, co
 }
 
 func flattenComputeHaVpnGatewayStackType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+		return "IPV4_ONLY"
+	}
+
 	return v
 }
 
