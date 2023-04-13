@@ -102,6 +102,115 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 							Description: `A task to execute on the completion of a job.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"deidentify": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Create a de-identified copy of the requested table or files.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"cloud_storage_output": {
+													Type:     schema.TypeString,
+													Required: true,
+													Description: `User settable Cloud Storage bucket and folders to store de-identified files.
+
+This field must be set for cloud storage deidentification.
+
+The output Cloud Storage bucket must be different from the input bucket.
+
+De-identified files will overwrite files in the output path.
+
+Form of: gs://bucket/folder/ or gs://bucket`,
+												},
+												"file_types_to_transform": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `List of user-specified file type groups to transform. If specified, only the files with these filetypes will be transformed.
+
+If empty, all supported files will be transformed. Supported types may be automatically added over time. 
+
+If a file type is set in this field that isn't supported by the Deidentify action then the job will fail and will not be successfully created/started. Possible values: ["IMAGE", "TEXT_FILE", "CSV", "TSV"]`,
+													Elem: &schema.Schema{
+														Type:         schema.TypeString,
+														ValidateFunc: validateEnum([]string{"IMAGE", "TEXT_FILE", "CSV", "TSV"}),
+													},
+												},
+												"transformation_config": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `User specified deidentify templates and configs for structured, unstructured, and image files.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"deidentify_template": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `If this template is specified, it will serve as the default de-identify template.`,
+															},
+															"image_redact_template": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `If this template is specified, it will serve as the de-identify template for images.`,
+															},
+															"structured_deidentify_template": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `If this template is specified, it will serve as the de-identify template for structured content such as delimited files and tables.`,
+															},
+														},
+													},
+												},
+												"transformation_details_storage_config": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Config for storing transformation details.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"table": {
+																Type:        schema.TypeList,
+																Required:    true,
+																Description: `The BigQuery table in which to store the output.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"dataset_id": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `The ID of the dataset containing this table.`,
+																		},
+																		"project_id": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `The ID of the project containing this table.`,
+																		},
+																		"table_id": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The ID of the table. The ID must contain only letters (a-z,
+A-Z), numbers (0-9), or underscores (_). The maximum length
+is 1,024 characters.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+										ExactlyOneOf: []string{},
+									},
+									"job_notification_emails": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Sends an email when the job completes. The email goes to IAM project owners and technical Essential Contacts.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ExactlyOneOf: []string{},
+									},
 									"pub_sub": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -1259,6 +1368,8 @@ func flattenDataLossPreventionJobTriggerInspectJobActions(v interface{}, d *sche
 			"pub_sub":                                flattenDataLossPreventionJobTriggerInspectJobActionsPubSub(original["pubSub"], d, config),
 			"publish_summary_to_cscc":                flattenDataLossPreventionJobTriggerInspectJobActionsPublishSummaryToCscc(original["publishSummaryToCscc"], d, config),
 			"publish_findings_to_cloud_data_catalog": flattenDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToCloudDataCatalog(original["publishFindingsToCloudDataCatalog"], d, config),
+			"job_notification_emails":                flattenDataLossPreventionJobTriggerInspectJobActionsJobNotificationEmails(original["jobNotificationEmails"], d, config),
+			"deidentify":                             flattenDataLossPreventionJobTriggerInspectJobActionsDeidentify(original["deidentify"], d, config),
 		})
 	}
 	return transformed
@@ -1355,6 +1466,112 @@ func flattenDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToCloudD
 	}
 	transformed := make(map[string]interface{})
 	return []interface{}{transformed}
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobActionsJobNotificationEmails(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobActionsDeidentify(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["cloud_storage_output"] =
+		flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyCloudStorageOutput(original["cloudStorageOutput"], d, config)
+	transformed["file_types_to_transform"] =
+		flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyFileTypesToTransform(original["fileTypesToTransform"], d, config)
+	transformed["transformation_config"] =
+		flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationConfig(original["transformationConfig"], d, config)
+	transformed["transformation_details_storage_config"] =
+		flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfig(original["transformationDetailsStorageConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyCloudStorageOutput(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyFileTypesToTransform(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["deidentify_template"] =
+		flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationConfigDeidentifyTemplate(original["deidentifyTemplate"], d, config)
+	transformed["structured_deidentify_template"] =
+		flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationConfigStructuredDeidentifyTemplate(original["structuredDeidentifyTemplate"], d, config)
+	transformed["image_redact_template"] =
+		flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationConfigImageRedactTemplate(original["imageRedactTemplate"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationConfigDeidentifyTemplate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationConfigStructuredDeidentifyTemplate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationConfigImageRedactTemplate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["table"] =
+		flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTable(original["table"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["dataset_id"] =
+		flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTableDatasetId(original["datasetId"], d, config)
+	transformed["project_id"] =
+		flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTableProjectId(original["projectId"], d, config)
+	transformed["table_id"] =
+		flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTableTableId(original["tableId"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTableDatasetId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTableProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTableTableId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
 }
 
 func expandDataLossPreventionJobTriggerDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -1966,6 +2183,20 @@ func expandDataLossPreventionJobTriggerInspectJobActions(v interface{}, d Terraf
 			transformed["publishFindingsToCloudDataCatalog"] = transformedPublishFindingsToCloudDataCatalog
 		}
 
+		transformedJobNotificationEmails, err := expandDataLossPreventionJobTriggerInspectJobActionsJobNotificationEmails(original["job_notification_emails"], d, config)
+		if err != nil {
+			return nil, err
+		} else {
+			transformed["jobNotificationEmails"] = transformedJobNotificationEmails
+		}
+
+		transformedDeidentify, err := expandDataLossPreventionJobTriggerInspectJobActionsDeidentify(original["deidentify"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDeidentify); val.IsValid() && !isEmptyValue(val) {
+			transformed["deidentify"] = transformedDeidentify
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2116,6 +2347,178 @@ func expandDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToCloudDa
 	transformed := make(map[string]interface{})
 
 	return transformed, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsJobNotificationEmails(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsDeidentify(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCloudStorageOutput, err := expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyCloudStorageOutput(original["cloud_storage_output"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCloudStorageOutput); val.IsValid() && !isEmptyValue(val) {
+		transformed["cloudStorageOutput"] = transformedCloudStorageOutput
+	}
+
+	transformedFileTypesToTransform, err := expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyFileTypesToTransform(original["file_types_to_transform"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFileTypesToTransform); val.IsValid() && !isEmptyValue(val) {
+		transformed["fileTypesToTransform"] = transformedFileTypesToTransform
+	}
+
+	transformedTransformationConfig, err := expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationConfig(original["transformation_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTransformationConfig); val.IsValid() && !isEmptyValue(val) {
+		transformed["transformationConfig"] = transformedTransformationConfig
+	}
+
+	transformedTransformationDetailsStorageConfig, err := expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfig(original["transformation_details_storage_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTransformationDetailsStorageConfig); val.IsValid() && !isEmptyValue(val) {
+		transformed["transformationDetailsStorageConfig"] = transformedTransformationDetailsStorageConfig
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyCloudStorageOutput(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyFileTypesToTransform(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDeidentifyTemplate, err := expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationConfigDeidentifyTemplate(original["deidentify_template"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDeidentifyTemplate); val.IsValid() && !isEmptyValue(val) {
+		transformed["deidentifyTemplate"] = transformedDeidentifyTemplate
+	}
+
+	transformedStructuredDeidentifyTemplate, err := expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationConfigStructuredDeidentifyTemplate(original["structured_deidentify_template"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStructuredDeidentifyTemplate); val.IsValid() && !isEmptyValue(val) {
+		transformed["structuredDeidentifyTemplate"] = transformedStructuredDeidentifyTemplate
+	}
+
+	transformedImageRedactTemplate, err := expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationConfigImageRedactTemplate(original["image_redact_template"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedImageRedactTemplate); val.IsValid() && !isEmptyValue(val) {
+		transformed["imageRedactTemplate"] = transformedImageRedactTemplate
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationConfigDeidentifyTemplate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationConfigStructuredDeidentifyTemplate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationConfigImageRedactTemplate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTable, err := expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTable(original["table"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTable); val.IsValid() && !isEmptyValue(val) {
+		transformed["table"] = transformedTable
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDatasetId, err := expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTableDatasetId(original["dataset_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
+		transformed["datasetId"] = transformedDatasetId
+	}
+
+	transformedProjectId, err := expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTableProjectId(original["project_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+		transformed["projectId"] = transformedProjectId
+	}
+
+	transformedTableId, err := expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTableTableId(original["table_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTableId); val.IsValid() && !isEmptyValue(val) {
+		transformed["tableId"] = transformedTableId
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTableDatasetId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTableProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTableTableId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
 }
 
 func resourceDataLossPreventionJobTriggerEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {

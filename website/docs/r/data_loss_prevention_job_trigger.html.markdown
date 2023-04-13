@@ -149,6 +149,124 @@ resource "google_data_loss_prevention_job_trigger" "bigquery_row_limit_percentag
 	}
 }
 ```
+## Example Usage - Dlp Job Trigger Job Notification Emails
+
+
+```hcl
+resource "google_data_loss_prevention_job_trigger" "job_notification_emails" {
+  parent       = "projects/my-project-name"
+  description  = "Description for the job_trigger created by terraform"
+  display_name = "TerraformDisplayName"
+  
+  triggers {
+    schedule {
+      recurrence_period_duration = "86400s"
+    }
+  }
+  
+  inspect_job {
+    inspect_template_name = "sample-inspect-template"
+    actions {
+      job_notification_emails {}
+    }
+    storage_config {
+      cloud_storage_options {
+        file_set {
+          url = "gs://mybucket/directory/"
+        }
+      }
+    }
+  }
+}
+```
+## Example Usage - Dlp Job Trigger Deidentify
+
+
+```hcl
+resource "google_data_loss_prevention_job_trigger" "deidentify" {
+  parent       = "projects/my-project-name"
+  description  = "Description for the job_trigger created by terraform"
+  display_name = "TerraformDisplayName"
+  
+  triggers {
+    schedule {
+      recurrence_period_duration = "86400s"
+    }
+  }
+  
+  inspect_job {
+    inspect_template_name = "sample-inspect-template"
+    actions {
+      deidentify {
+        cloud_storage_output    = "gs://samplebucket/dir/"
+        file_types_to_transform = ["CSV", "TSV"]
+        transformation_details_storage_config {
+          table {
+            project_id = "my-project-name"
+            dataset_id = google_bigquery_dataset.default.dataset_id
+            table_id   = google_bigquery_table.default.table_id
+          }
+        }
+        transformation_config {
+          deidentify_template            = "sample-deidentify-template"
+          image_redact_template          = "sample-image-redact-template"
+          structured_deidentify_template = "sample-structured-deidentify-template"
+        }
+      }
+    }
+    storage_config {
+      cloud_storage_options {
+        file_set {
+          url = "gs://mybucket/directory/"
+        }
+      }
+    }
+  }
+}
+  
+resource "google_bigquery_dataset" "default" {
+  dataset_id                  = "tf_test"
+  friendly_name               = "terraform-test"
+  description                 = "Description for the dataset created by terraform"
+  location                    = "US"
+  default_table_expiration_ms = 3600000
+  
+  labels = {
+    env = "default"
+  }
+}
+  
+resource "google_bigquery_table" "default" {
+  dataset_id          = google_bigquery_dataset.default.dataset_id
+  table_id            = "tf_test"
+  deletion_protection = false
+  
+  time_partitioning {
+    type = "DAY"
+  }
+  
+  labels = {
+    env = "default"
+  }
+  
+  schema = <<EOF
+    [
+    {
+      "name": "quantity",
+      "type": "NUMERIC",
+      "mode": "NULLABLE",
+      "description": "The quantity"
+    },
+    {
+      "name": "name",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Name of the object"
+    }
+    ]
+  EOF
+}
+```
 
 ## Argument Reference
 
@@ -452,6 +570,15 @@ The following arguments are supported:
   (Optional)
   Publish findings of a DlpJob to Data Catalog.
 
+* `job_notification_emails` -
+  (Optional)
+  Sends an email when the job completes. The email goes to IAM project owners and technical Essential Contacts.
+
+* `deidentify` -
+  (Optional)
+  Create a de-identified copy of the requested table or files.
+  Structure is [documented below](#nested_deidentify).
+
 
 <a name="nested_save_findings"></a>The `save_findings` block supports:
 
@@ -500,6 +627,72 @@ The following arguments are supported:
 * `topic` -
   (Required)
   Cloud Pub/Sub topic to send notifications to.
+
+<a name="nested_deidentify"></a>The `deidentify` block supports:
+
+* `cloud_storage_output` -
+  (Required)
+  User settable Cloud Storage bucket and folders to store de-identified files.
+  This field must be set for cloud storage deidentification.
+  The output Cloud Storage bucket must be different from the input bucket.
+  De-identified files will overwrite files in the output path.
+  Form of: gs://bucket/folder/ or gs://bucket
+
+* `file_types_to_transform` -
+  (Optional)
+  List of user-specified file type groups to transform. If specified, only the files with these filetypes will be transformed.
+  If empty, all supported files will be transformed. Supported types may be automatically added over time. 
+  If a file type is set in this field that isn't supported by the Deidentify action then the job will fail and will not be successfully created/started.
+  Each value may be one of: `IMAGE`, `TEXT_FILE`, `CSV`, `TSV`.
+
+* `transformation_config` -
+  (Optional)
+  User specified deidentify templates and configs for structured, unstructured, and image files.
+  Structure is [documented below](#nested_transformation_config).
+
+* `transformation_details_storage_config` -
+  (Optional)
+  Config for storing transformation details.
+  Structure is [documented below](#nested_transformation_details_storage_config).
+
+
+<a name="nested_transformation_config"></a>The `transformation_config` block supports:
+
+* `deidentify_template` -
+  (Optional)
+  If this template is specified, it will serve as the default de-identify template.
+
+* `structured_deidentify_template` -
+  (Optional)
+  If this template is specified, it will serve as the de-identify template for structured content such as delimited files and tables.
+
+* `image_redact_template` -
+  (Optional)
+  If this template is specified, it will serve as the de-identify template for images.
+
+<a name="nested_transformation_details_storage_config"></a>The `transformation_details_storage_config` block supports:
+
+* `table` -
+  (Required)
+  The BigQuery table in which to store the output.
+  Structure is [documented below](#nested_table).
+
+
+<a name="nested_table"></a>The `table` block supports:
+
+* `dataset_id` -
+  (Required)
+  The ID of the dataset containing this table.
+
+* `project_id` -
+  (Required)
+  The ID of the project containing this table.
+
+* `table_id` -
+  (Optional)
+  The ID of the table. The ID must contain only letters (a-z,
+  A-Z), numbers (0-9), or underscores (_). The maximum length
+  is 1,024 characters.
 
 ## Attributes Reference
 
