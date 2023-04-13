@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed an issue that prevented setting `enable_private_path_for_google_cloud_services` to `false`
+```
