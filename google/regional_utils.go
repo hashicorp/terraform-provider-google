@@ -11,6 +11,11 @@ func isZone(location string) bool {
 	return len(strings.Split(location, "-")) == 3
 }
 
+// getLocation attempts to get values in this order (if they exist):
+// - location argument in the resource config
+// - region argument in the resource config
+// - zone argument in the resource config
+// - zone argument set in the provider config
 func getLocation(d TerraformResourceData, config *Config) (string, error) {
 	if v, ok := d.GetOk("location"); ok {
 		return v.(string), nil
