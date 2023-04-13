@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a diff that occurred when `stack_type` was unset on `google_compute_ha_vpn_gateway`
+```
