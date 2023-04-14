@@ -1260,7 +1260,7 @@ func expandIpConfiguration(configured []interface{}) *sqladmin.IpConfiguration {
 		AllocatedIpRange:                        _ipConfiguration["allocated_ip_range"].(string),
 		AuthorizedNetworks:                      expandAuthorizedNetworks(_ipConfiguration["authorized_networks"].(*schema.Set).List()),
 		EnablePrivatePathForGoogleCloudServices: _ipConfiguration["enable_private_path_for_google_cloud_services"].(bool),
-		ForceSendFields:                         []string{"Ipv4Enabled", "RequireSsl", "EnablePrivatePathForGoogleCloudServices"},
+		ForceSendFields:                         []string{"Ipv4Enabled", "RequireSsl"},
 	}
 }
 
