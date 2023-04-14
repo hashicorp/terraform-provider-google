@@ -312,7 +312,7 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
 * `use_legacy_sql` - (Optional) Specifies whether to use BigQuery's legacy SQL for this view.
     The default value is true. If set to false, the view will use BigQuery's standard SQL.
 
-The `materialized_view` block supports:
+<a name="nested_materialized_view"></a>The `materialized_view` block supports:
 
 * `query` - (Required) A query whose result is persisted.
 
