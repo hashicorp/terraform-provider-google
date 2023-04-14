@@ -88,6 +88,27 @@ func forceNewIfNetworkIPNotUpdatableFunc(d TerraformResourceDiff) error {
 	return nil
 }
 
+// check if stopping_with_local_ssd_discard is the only updated field
+func onlyStoppingWithLocalSsdDiscardChanged(d *schema.ResourceData, resourceSchema map[string]*schema.Schema) bool {
+	if d.HasChange("stopping_with_local_ssd_discard") {
+		for field := range resourceSchema {
+			if field == "stopping_with_local_ssd_discard" {
+				continue
+			}
+			if d.HasChange(field) {
+				return false
+			}
+		}
+		return true
+	}
+	return false
+}
+
+func hasLocalSsd(d *schema.ResourceData, config *Config) bool {
+	n := d.Get("scratch_disk.#")
+	return n != nil && n.(int) > 0
+}
+
 func ResourceComputeInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInstanceCreate,
@@ -884,6 +905,13 @@ func ResourceComputeInstance() *schema.Resource {
 					},
 				},
 			},
+			"stopping_with_local_ssd_discard": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+				Description: `Whether allow data on the local ssd to be discarded. The instance can not be stopped when a local ssd being attached to the instance.
+True to allow data to be discarded. Default is False. Setting true to allow the local ssd to be recreated. https://cloud.google.com/compute/docs/disks/local-ssd`,
+			},
 		},
 		CustomizeDiff: customdiff.All(
 			customdiff.If(
@@ -1166,6 +1194,13 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		delete(md, "startup-script")
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("stopping_with_local_ssd_discard"); !ok {
+		if err := d.Set("stopping_with_local_ssd_discard", false); err != nil {
+			return fmt.Errorf("Error setting stopping_with_local_ssd_discard: %s", err)
+		}
+	}
+
 	if err = d.Set("metadata", md); err != nil {
 		return fmt.Errorf("Error setting metadata: %s", err)
 	}
@@ -1410,6 +1445,16 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	zone, err := getZone(d, config)
 	if err != nil {
 		return err
+	}
+
+	if onlyStoppingWithLocalSsdDiscardChanged(d, ResourceComputeInstance().Schema) {
+		if d.Get("stopping_with_local_ssd_discard") != nil {
+			if err := d.Set("stopping_with_local_ssd_discard", d.Get("stopping_with_local_ssd_discard")); err != nil {
+				return fmt.Errorf("Error reading/setting stopping_with_local_ssd_discard: %s", err)
+			}
+		}
+		// exit updating if stopping_with_local_ssd_discard, a vertual field, is the only field being updated
+		return nil
 	}
 
 	// Use beta api directly in order to read network_interface.fingerprint without having to put it in the schema.
@@ -1847,6 +1892,13 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	needToStopInstanceBeforeUpdating := scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display") || d.HasChange("shielded_instance_config") || len(updatesToNIWhileStopped) > 0 || bootRequiredSchedulingChange || d.HasChange("advanced_machine_features")
 
+	if needToStopInstanceBeforeUpdating {
+		if hasLocalSsd(d, config) && !d.Get("stopping_with_local_ssd_discard").(bool) {
+			return fmt.Errorf("The instance has local SSD. Stopping insatnce will discard all data on the local SSD. " +
+				"Setting stopping_with_local_ssd_discard to true to allow the data on the local SSD to be discarded")
+		}
+	}
+
 	if d.HasChange("desired_status") && !needToStopInstanceBeforeUpdating {
 		desiredStatus := d.Get("desired_status").(string)
 
@@ -1859,9 +1911,17 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					return errwrap.Wrapf("Error starting instance: {{err}}", err)
 				}
 			} else if desiredStatus == "TERMINATED" {
-				op, err = config.NewComputeClient(userAgent).Instances.Stop(project, zone, instance.Name).Do()
-				if err != nil {
-					return err
+				if d.Get("stopping_with_local_ssd_discard").(bool) {
+					op, err = config.NewComputeClient(userAgent).Instances.Stop(project, zone, instance.Name).DiscardLocalSsd(true).Do()
+					if err != nil {
+						return err
+					}
+				} else {
+					// DiscardLocalSsd could happen only when stopping_with_local_ssd_discard = true
+					op, err = config.NewComputeClient(userAgent).Instances.Stop(project, zone, instance.Name).Do()
+					if err != nil {
+						return err
+					}
 				}
 			}
 			opErr := ComputeOperationWaitTime(
@@ -1885,8 +1945,8 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				"You can also stop it by setting desired_status = \"TERMINATED\", but the instance will not be restarted after the update.")
 		}
 
-		if statusBeforeUpdate != "TERMINATED" {
-			op, err := config.NewComputeClient(userAgent).Instances.Stop(project, zone, instance.Name).Do()
+		if statusBeforeUpdate != "TERMINATED" && d.Get("stopping_with_local_ssd_discard").(bool) {
+			op, err := config.NewComputeClient(userAgent).Instances.Stop(project, zone, instance.Name).DiscardLocalSsd(true).Do()
 			if err != nil {
 				return errwrap.Wrapf("Error stopping instance: {{err}}", err)
 			}
