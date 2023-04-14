@@ -149,6 +149,10 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
   oidc {
     issuer_uri        = "https://accounts.thirdparty.com"
     client_id         = "client-id"
+    web_sso_config {
+      response_type             = "ID_TOKEN"
+      assertion_claims_behavior = "ONLY_ID_TOKEN_CLAIMS"
+    }
   }
   display_name        = "Display name"
   description         = "A sample OIDC workforce pool provider."
@@ -176,6 +180,10 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
   oidc {
     issuer_uri        = "https://test.thirdparty.com"
     client_id         = "new-client-id"
+    web_sso_config {
+      response_type             = "ID_TOKEN"
+      assertion_claims_behavior = "ONLY_ID_TOKEN_CLAIMS"
+    }
   }
   display_name        = "New Display name"
   description         = "A sample OIDC workforce pool provider with updated description."
@@ -203,6 +211,10 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
   oidc {
     issuer_uri       = "https://accounts.thirdparty.com"
     client_id        = "client-id"
+    web_sso_config {
+      response_type             = "ID_TOKEN"
+      assertion_claims_behavior = "ONLY_ID_TOKEN_CLAIMS"
+    }
   }
 }
 `, context)

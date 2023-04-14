@@ -167,6 +167,10 @@ resource "google_iam_workforce_pool_provider" "example" {
   oidc {
     issuer_uri       = "https://accounts.thirdparty.com"
     client_id        = "client-id"
+    web_sso_config {
+      response_type             = "ID_TOKEN"
+      assertion_claims_behavior = "ONLY_ID_TOKEN_CLAIMS"
+    }
   }
 }
 `, context)
@@ -216,6 +220,10 @@ resource "google_iam_workforce_pool_provider" "example" {
   oidc {
     issuer_uri        = "https://accounts.thirdparty.com"
     client_id         = "client-id"
+    web_sso_config {
+      response_type             = "ID_TOKEN"
+      assertion_claims_behavior = "ONLY_ID_TOKEN_CLAIMS"
+    }
   }
   display_name        = "Display name"
   description         = "A sample OIDC workforce pool provider."

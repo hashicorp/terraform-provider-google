@@ -198,6 +198,31 @@ However, existing tokens still grant access.`,
 							Required:    true,
 							Description: `The OIDC issuer URI. Must be a valid URI using the 'https' scheme.`,
 						},
+						"web_sso_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Optional:    true,
+							Description: `Configuration for web single sign-on for the OIDC provider. Here, web sign-in refers to console sign-in and gcloud sign-in through the browser.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"assertion_claims_behavior": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validateEnum([]string{"ONLY_ID_TOKEN_CLAIMS"}),
+										Description: `The behavior for how OIDC Claims are included in the 'assertion' object used for attribute mapping and attribute condition.
+* ONLY_ID_TOKEN_CLAIMS: Only include ID Token Claims. Possible values: ["ONLY_ID_TOKEN_CLAIMS"]`,
+									},
+									"response_type": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validateEnum([]string{"ID_TOKEN"}),
+										Description: `The Response Type to request for in the OIDC Authorization Request for web sign-in.
+* ID_TOKEN: The 'response_type=id_token' selection uses the Implicit Flow for web sign-in. Possible values: ["ID_TOKEN"]`,
+									},
+								},
+							},
+						},
 					},
 				},
 				ExactlyOneOf: []string{"saml", "oidc"},
@@ -646,6 +671,8 @@ func flattenIAMWorkforcePoolWorkforcePoolProviderOidc(v interface{}, d *schema.R
 		flattenIAMWorkforcePoolWorkforcePoolProviderOidcIssuerUri(original["issuerUri"], d, config)
 	transformed["client_id"] =
 		flattenIAMWorkforcePoolWorkforcePoolProviderOidcClientId(original["clientId"], d, config)
+	transformed["web_sso_config"] =
+		flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfig(original["webSsoConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenIAMWorkforcePoolWorkforcePoolProviderOidcIssuerUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -653,6 +680,29 @@ func flattenIAMWorkforcePoolWorkforcePoolProviderOidcIssuerUri(v interface{}, d 
 }
 
 func flattenIAMWorkforcePoolWorkforcePoolProviderOidcClientId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["response_type"] =
+		flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigResponseType(original["responseType"], d, config)
+	transformed["assertion_claims_behavior"] =
+		flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAssertionClaimsBehavior(original["assertionClaimsBehavior"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigResponseType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAssertionClaimsBehavior(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -729,6 +779,13 @@ func expandIAMWorkforcePoolWorkforcePoolProviderOidc(v interface{}, d TerraformR
 		transformed["clientId"] = transformedClientId
 	}
 
+	transformedWebSsoConfig, err := expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfig(original["web_sso_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWebSsoConfig); val.IsValid() && !isEmptyValue(val) {
+		transformed["webSsoConfig"] = transformedWebSsoConfig
+	}
+
 	return transformed, nil
 }
 
@@ -737,6 +794,40 @@ func expandIAMWorkforcePoolWorkforcePoolProviderOidcIssuerUri(v interface{}, d T
 }
 
 func expandIAMWorkforcePoolWorkforcePoolProviderOidcClientId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedResponseType, err := expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigResponseType(original["response_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResponseType); val.IsValid() && !isEmptyValue(val) {
+		transformed["responseType"] = transformedResponseType
+	}
+
+	transformedAssertionClaimsBehavior, err := expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAssertionClaimsBehavior(original["assertion_claims_behavior"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAssertionClaimsBehavior); val.IsValid() && !isEmptyValue(val) {
+		transformed["assertionClaimsBehavior"] = transformedAssertionClaimsBehavior
+	}
+
+	return transformed, nil
+}
+
+func expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigResponseType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAssertionClaimsBehavior(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
