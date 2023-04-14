@@ -99,6 +99,10 @@ resource "google_iam_workforce_pool_provider" "example" {
   oidc {
     issuer_uri       = "https://accounts.thirdparty.com"
     client_id        = "client-id"
+    web_sso_config {
+      response_type             = "ID_TOKEN"
+      assertion_claims_behavior = "ONLY_ID_TOKEN_CLAIMS"
+    }
   }
 }
 ```
@@ -122,6 +126,10 @@ resource "google_iam_workforce_pool_provider" "example" {
   oidc {
     issuer_uri        = "https://accounts.thirdparty.com"
     client_id         = "client-id"
+    web_sso_config {
+      response_type             = "ID_TOKEN"
+      assertion_claims_behavior = "ONLY_ID_TOKEN_CLAIMS"
+    }
   }
   display_name        = "Display name"
   description         = "A sample OIDC workforce pool provider."
@@ -270,6 +278,26 @@ The following arguments are supported:
 * `client_id` -
   (Required)
   The client ID. Must match the audience claim of the JWT issued by the identity provider.
+
+* `web_sso_config` -
+  (Optional)
+  Configuration for web single sign-on for the OIDC provider. Here, web sign-in refers to console sign-in and gcloud sign-in through the browser.
+  Structure is [documented below](#nested_web_sso_config).
+
+
+<a name="nested_web_sso_config"></a>The `web_sso_config` block supports:
+
+* `response_type` -
+  (Required)
+  The Response Type to request for in the OIDC Authorization Request for web sign-in.
+  * ID_TOKEN: The `response_type=id_token` selection uses the Implicit Flow for web sign-in.
+  Possible values are: `ID_TOKEN`.
+
+* `assertion_claims_behavior` -
+  (Required)
+  The behavior for how OIDC Claims are included in the `assertion` object used for attribute mapping and attribute condition.
+  * ONLY_ID_TOKEN_CLAIMS: Only include ID Token Claims.
+  Possible values are: `ONLY_ID_TOKEN_CLAIMS`.
 
 ## Attributes Reference
 

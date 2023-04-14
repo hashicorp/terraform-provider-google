@@ -1,0 +1,3 @@
+```release-note:enhancement
+iamworkforcepool: added `oidc.web_sso_config` field to `google_iam_workforce_pool_provider`
+```
