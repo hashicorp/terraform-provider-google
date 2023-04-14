@@ -1,0 +1,3 @@
+```release-note:enhancement
+dlp: added `triggers.manual` and `inspect_job.storage_config.hybrid_options` to `google_data_loss_prevention_job_trigger`
+```

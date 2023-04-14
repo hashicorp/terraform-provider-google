@@ -400,7 +400,7 @@ resource "google_data_loss_prevention_job_trigger" "job_notification_emails" {
 `, context)
 }
 
-func TestAccDataLossPreventionJobTrigger_dlpJobTriggerDeidentifyExample(t *testing.T) {
+func TestAccDataLossPreventionJobTrigger_dlpJobTriggerHybridExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -415,10 +415,10 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerDeidentifyExample(t *testi
 		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerDeidentifyExample(context),
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerHybridExample(context),
 			},
 			{
-				ResourceName:            "google_data_loss_prevention_job_trigger.deidentify",
+				ResourceName:            "google_data_loss_prevention_job_trigger.hybrid_trigger",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parent"},
@@ -427,90 +427,44 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerDeidentifyExample(t *testi
 	})
 }
 
-func testAccDataLossPreventionJobTrigger_dlpJobTriggerDeidentifyExample(context map[string]interface{}) string {
+func testAccDataLossPreventionJobTrigger_dlpJobTriggerHybridExample(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_data_loss_prevention_job_trigger" "deidentify" {
-  parent       = "projects/%{project}"
-  description  = "Description for the job_trigger created by terraform"
-  display_name = "TerraformDisplayName"
-  
+resource "google_data_loss_prevention_job_trigger" "hybrid_trigger" {
+  parent = "projects/%{project}"
+
   triggers {
-    schedule {
-      recurrence_period_duration = "86400s"
-    }
+    manual {}
   }
-  
+
   inspect_job {
-    inspect_template_name = "sample-inspect-template"
+    inspect_template_name = "fake"
     actions {
-      deidentify {
-        cloud_storage_output    = "gs://samplebucket/dir/"
-        file_types_to_transform = ["CSV", "TSV"]
-        transformation_details_storage_config {
+      save_findings {
+        output_config {
           table {
-            project_id = "%{project}"
-            dataset_id = google_bigquery_dataset.default.dataset_id
-            table_id   = google_bigquery_table.default.table_id
+            project_id = "project"
+            dataset_id = "dataset"
           }
-        }
-        transformation_config {
-          deidentify_template            = "sample-deidentify-template"
-          image_redact_template          = "sample-image-redact-template"
-          structured_deidentify_template = "sample-structured-deidentify-template"
         }
       }
     }
     storage_config {
-      cloud_storage_options {
-        file_set {
-          url = "gs://mybucket/directory/"
+      hybrid_options {
+        description = "Hybrid job trigger for data from the comments field of a table that contains customer appointment bookings"
+        required_finding_label_keys = [
+          "appointment-bookings-comments"
+        ]
+        labels = {
+          env = "prod"
+        }
+        table_options {
+          identifying_fields {
+            name = "booking_id"
+          }
         }
       }
     }
   }
-}
-  
-resource "google_bigquery_dataset" "default" {
-  dataset_id                  = "%{name}"
-  friendly_name               = "terraform-test"
-  description                 = "Description for the dataset created by terraform"
-  location                    = "US"
-  default_table_expiration_ms = 3600000
-  
-  labels = {
-    env = "default"
-  }
-}
-  
-resource "google_bigquery_table" "default" {
-  dataset_id          = google_bigquery_dataset.default.dataset_id
-  table_id            = "%{name}"
-  deletion_protection = false
-  
-  time_partitioning {
-    type = "DAY"
-  }
-  
-  labels = {
-    env = "default"
-  }
-  
-  schema = <<EOF
-    [
-    {
-      "name": "quantity",
-      "type": "NUMERIC",
-      "mode": "NULLABLE",
-      "description": "The quantity"
-    },
-    {
-      "name": "name",
-      "type": "STRING",
-      "mode": "NULLABLE",
-      "description": "Name of the object"
-    }
-    ]
-  EOF
 }
 `, context)
 }

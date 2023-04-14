@@ -180,6 +180,40 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerChangingActions(t *testing
 	})
 }
 
+func TestAccDataLossPreventionJobTrigger_dlpJobTriggerHybridUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project": GetTestProjectFromEnv(),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerHybrid(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.hybrid",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent"},
+			},
+			{
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerHybridUpdated(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.hybrid",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent"},
+			},
+		},
+	})
+}
+
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerBasic(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "basic" {
@@ -574,6 +608,77 @@ resource "google_data_loss_prevention_job_trigger" "actions" {
 					url = "gs://mybucket/directory/"
 				}
 			}
+		}
+	}
+}
+`, context)
+}
+
+func testAccDataLossPreventionJobTrigger_dlpJobTriggerHybrid(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "hybrid" {
+	parent = "projects/%{project}"
+
+	triggers {
+		manual {}
+	}
+
+	inspect_job {
+		inspect_template_name = "fake"
+		actions {
+			save_findings {
+				output_config {
+					table {
+						project_id = "project"
+						dataset_id = "dataset123"
+					}
+				}
+			}
+		}
+		storage_config {
+			hybrid_options {
+				description = "Hybrid job trigger"
+				required_finding_label_keys = [
+					"test-key"
+				]
+				labels = {
+					env = "prod"
+				}
+				table_options {
+					identifying_fields {
+						name = "primary_id"
+					}
+				}
+			}
+		}
+	}
+}
+`, context)
+}
+
+func testAccDataLossPreventionJobTrigger_dlpJobTriggerHybridUpdated(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "hybrid" {
+	parent = "projects/%{project}"
+
+	triggers {
+		manual {}
+	}
+
+	inspect_job {
+		inspect_template_name = "fake"
+		actions {
+			save_findings {
+				output_config {
+					table {
+						project_id = "project"
+						dataset_id = "dataset123"
+					}
+				}
+			}
+		}
+		storage_config {
+			hybrid_options {}
 		}
 	}
 }
