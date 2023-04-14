@@ -55,6 +55,15 @@ or 'projects/{{project}}/locations/{{location}}'`,
 				Description: `What event needs to occur for a new job to be started.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"manual": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `For use with hybrid jobs. Jobs must be manually created and finished.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+						},
 						"schedule": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -543,6 +552,76 @@ is always by project and namespace, however the namespace ID may be empty.`,
 											},
 										},
 									},
+									"hybrid_options": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configuration to control jobs where the content being inspected is outside of Google Cloud Platform.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"description": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `A short description of where the data is coming from. Will be stored once in the job. 256 max length.`,
+												},
+												"labels": {
+													Type:     schema.TypeMap,
+													Optional: true,
+													Description: `To organize findings, these labels will be added to each finding.
+
+Label keys must be between 1 and 63 characters long and must conform to the following regular expression: '[a-z]([-a-z0-9]*[a-z0-9])?'.
+
+Label values must be between 0 and 63 characters long and must conform to the regular expression '([a-z]([-a-z0-9]*[a-z0-9])?)?'.
+
+No more than 10 labels can be associated with a given finding.
+
+Examples:
+* '"environment" : "production"'
+* '"pipeline" : "etl"'`,
+													Elem: &schema.Schema{Type: schema.TypeString},
+												},
+												"required_finding_label_keys": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `These are labels that each inspection request must include within their 'finding_labels' map. Request
+may contain others, but any missing one of these will be rejected.
+
+Label keys must be between 1 and 63 characters long and must conform to the following regular expression: '[a-z]([-a-z0-9]*[a-z0-9])?'.
+
+No more than 10 keys can be required.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"table_options": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `If the container is a table, additional information to make findings meaningful such as the columns that are primary keys.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"identifying_fields": {
+																Type:     schema.TypeList,
+																Optional: true,
+																Description: `The columns that are the primary keys for table objects included in ContentItem. A copy of this
+cell's value will stored alongside alongside each finding so that the finding can be traced to
+the specific row it came from. No more than 3 may be provided.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"name": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Name describing the field.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 									"timespan_config": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -947,6 +1026,7 @@ func flattenDataLossPreventionJobTriggerTriggers(v interface{}, d *schema.Resour
 		}
 		transformed = append(transformed, map[string]interface{}{
 			"schedule": flattenDataLossPreventionJobTriggerTriggersSchedule(original["schedule"], d, config),
+			"manual":   flattenDataLossPreventionJobTriggerTriggersManual(original["manual"], d, config),
 		})
 	}
 	return transformed
@@ -966,6 +1046,14 @@ func flattenDataLossPreventionJobTriggerTriggersSchedule(v interface{}, d *schem
 }
 func flattenDataLossPreventionJobTriggerTriggersScheduleRecurrencePeriodDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenDataLossPreventionJobTriggerTriggersManual(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
 }
 
 func flattenDataLossPreventionJobTriggerInspectJob(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1006,6 +1094,8 @@ func flattenDataLossPreventionJobTriggerInspectJobStorageConfig(v interface{}, d
 		flattenDataLossPreventionJobTriggerInspectJobStorageConfigCloudStorageOptions(original["cloudStorageOptions"], d, config)
 	transformed["big_query_options"] =
 		flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptions(original["bigQueryOptions"], d, config)
+	transformed["hybrid_options"] =
+		flattenDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptions(original["hybridOptions"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionJobTriggerInspectJobStorageConfigTimespanConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1351,6 +1441,69 @@ func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsId
 	return v
 }
 
+func flattenDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["description"] =
+		flattenDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsDescription(original["description"], d, config)
+	transformed["required_finding_label_keys"] =
+		flattenDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsRequiredFindingLabelKeys(original["requiredFindingLabelKeys"], d, config)
+	transformed["table_options"] =
+		flattenDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsTableOptions(original["tableOptions"], d, config)
+	transformed["labels"] =
+		flattenDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsLabels(original["labels"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsRequiredFindingLabelKeys(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsTableOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["identifying_fields"] =
+		flattenDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsTableOptionsIdentifyingFields(original["identifyingFields"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsTableOptionsIdentifyingFields(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name": flattenDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsTableOptionsIdentifyingFieldsName(original["name"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsTableOptionsIdentifyingFieldsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func flattenDataLossPreventionJobTriggerInspectJobActions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	if v == nil {
 		return v
@@ -1603,6 +1756,13 @@ func expandDataLossPreventionJobTriggerTriggers(v interface{}, d TerraformResour
 			transformed["schedule"] = transformedSchedule
 		}
 
+		transformedManual, err := expandDataLossPreventionJobTriggerTriggersManual(original["manual"], d, config)
+		if err != nil {
+			return nil, err
+		} else {
+			transformed["manual"] = transformedManual
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1629,6 +1789,21 @@ func expandDataLossPreventionJobTriggerTriggersSchedule(v interface{}, d Terrafo
 
 func expandDataLossPreventionJobTriggerTriggersScheduleRecurrencePeriodDuration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerTriggersManual(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
 }
 
 func expandDataLossPreventionJobTriggerInspectJob(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
@@ -1703,6 +1878,13 @@ func expandDataLossPreventionJobTriggerInspectJobStorageConfig(v interface{}, d 
 		return nil, err
 	} else if val := reflect.ValueOf(transformedBigQueryOptions); val.IsValid() && !isEmptyValue(val) {
 		transformed["bigQueryOptions"] = transformedBigQueryOptions
+	}
+
+	transformedHybridOptions, err := expandDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptions(original["hybrid_options"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["hybridOptions"] = transformedHybridOptions
 	}
 
 	return transformed, nil
@@ -2143,6 +2325,115 @@ func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIde
 
 func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIdentifyingFieldsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDescription, err := expandDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsDescription(original["description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+		transformed["description"] = transformedDescription
+	}
+
+	transformedRequiredFindingLabelKeys, err := expandDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsRequiredFindingLabelKeys(original["required_finding_label_keys"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequiredFindingLabelKeys); val.IsValid() && !isEmptyValue(val) {
+		transformed["requiredFindingLabelKeys"] = transformedRequiredFindingLabelKeys
+	}
+
+	transformedTableOptions, err := expandDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsTableOptions(original["table_options"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTableOptions); val.IsValid() && !isEmptyValue(val) {
+		transformed["tableOptions"] = transformedTableOptions
+	}
+
+	transformedLabels, err := expandDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsLabels(original["labels"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLabels); val.IsValid() && !isEmptyValue(val) {
+		transformed["labels"] = transformedLabels
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsRequiredFindingLabelKeys(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsTableOptions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIdentifyingFields, err := expandDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsTableOptionsIdentifyingFields(original["identifying_fields"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIdentifyingFields); val.IsValid() && !isEmptyValue(val) {
+		transformed["identifyingFields"] = transformedIdentifyingFields
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsTableOptionsIdentifyingFields(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsTableOptionsIdentifyingFieldsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsTableOptionsIdentifyingFieldsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobStorageConfigHybridOptionsLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandDataLossPreventionJobTriggerInspectJobActions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {

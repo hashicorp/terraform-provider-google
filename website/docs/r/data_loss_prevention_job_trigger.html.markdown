@@ -179,92 +179,46 @@ resource "google_data_loss_prevention_job_trigger" "job_notification_emails" {
   }
 }
 ```
-## Example Usage - Dlp Job Trigger Deidentify
+## Example Usage - Dlp Job Trigger Hybrid
 
 
 ```hcl
-resource "google_data_loss_prevention_job_trigger" "deidentify" {
-  parent       = "projects/my-project-name"
-  description  = "Description for the job_trigger created by terraform"
-  display_name = "TerraformDisplayName"
-  
+resource "google_data_loss_prevention_job_trigger" "hybrid_trigger" {
+  parent = "projects/my-project-name"
+
   triggers {
-    schedule {
-      recurrence_period_duration = "86400s"
-    }
+    manual {}
   }
-  
+
   inspect_job {
-    inspect_template_name = "sample-inspect-template"
+    inspect_template_name = "fake"
     actions {
-      deidentify {
-        cloud_storage_output    = "gs://samplebucket/dir/"
-        file_types_to_transform = ["CSV", "TSV"]
-        transformation_details_storage_config {
+      save_findings {
+        output_config {
           table {
-            project_id = "my-project-name"
-            dataset_id = google_bigquery_dataset.default.dataset_id
-            table_id   = google_bigquery_table.default.table_id
+            project_id = "project"
+            dataset_id = "dataset"
           }
-        }
-        transformation_config {
-          deidentify_template            = "sample-deidentify-template"
-          image_redact_template          = "sample-image-redact-template"
-          structured_deidentify_template = "sample-structured-deidentify-template"
         }
       }
     }
     storage_config {
-      cloud_storage_options {
-        file_set {
-          url = "gs://mybucket/directory/"
+      hybrid_options {
+        description = "Hybrid job trigger for data from the comments field of a table that contains customer appointment bookings"
+        required_finding_label_keys = [
+          "appointment-bookings-comments"
+        ]
+        labels = {
+          env = "prod"
+        }
+        table_options {
+          identifying_fields {
+            name = "booking_id"
+          }
         }
       }
     }
   }
-}
-  
-resource "google_bigquery_dataset" "default" {
-  dataset_id                  = "tf_test"
-  friendly_name               = "terraform-test"
-  description                 = "Description for the dataset created by terraform"
-  location                    = "US"
-  default_table_expiration_ms = 3600000
-  
-  labels = {
-    env = "default"
-  }
-}
-  
-resource "google_bigquery_table" "default" {
-  dataset_id          = google_bigquery_dataset.default.dataset_id
-  table_id            = "tf_test"
-  deletion_protection = false
-  
-  time_partitioning {
-    type = "DAY"
-  }
-  
-  labels = {
-    env = "default"
-  }
-  
-  schema = <<EOF
-    [
-    {
-      "name": "quantity",
-      "type": "NUMERIC",
-      "mode": "NULLABLE",
-      "description": "The quantity"
-    },
-    {
-      "name": "name",
-      "type": "STRING",
-      "mode": "NULLABLE",
-      "description": "Name of the object"
-    }
-    ]
-  EOF
 }
 ```
 
@@ -290,6 +244,10 @@ The following arguments are supported:
   (Optional)
   Schedule for triggered jobs
   Structure is [documented below](#nested_schedule).
+
+* `manual` -
+  (Optional)
+  For use with hybrid jobs. Jobs must be manually created and finished.
 
 
 <a name="nested_schedule"></a>The `schedule` block supports:
@@ -362,6 +320,11 @@ The following arguments are supported:
   (Optional)
   Options defining BigQuery table and row identifiers.
   Structure is [documented below](#nested_big_query_options).
+
+* `hybrid_options` -
+  (Optional)
+  Configuration to control jobs where the content being inspected is outside of Google Cloud Platform.
+  Structure is [documented below](#nested_hybrid_options).
 
 
 <a name="nested_timespan_config"></a>The `timespan_config` block supports:
@@ -549,6 +512,51 @@ The following arguments are supported:
 * `name` -
   (Required)
   Name of a BigQuery field to be returned with the findings.
+
+<a name="nested_hybrid_options"></a>The `hybrid_options` block supports:
+
+* `description` -
+  (Optional)
+  A short description of where the data is coming from. Will be stored once in the job. 256 max length.
+
+* `required_finding_label_keys` -
+  (Optional)
+  These are labels that each inspection request must include within their 'finding_labels' map. Request
+  may contain others, but any missing one of these will be rejected.
+  Label keys must be between 1 and 63 characters long and must conform to the following regular expression: `[a-z]([-a-z0-9]*[a-z0-9])?`.
+  No more than 10 keys can be required.
+
+* `table_options` -
+  (Optional)
+  If the container is a table, additional information to make findings meaningful such as the columns that are primary keys.
+  Structure is [documented below](#nested_table_options).
+
+* `labels` -
+  (Optional)
+  To organize findings, these labels will be added to each finding.
+  Label keys must be between 1 and 63 characters long and must conform to the following regular expression: `[a-z]([-a-z0-9]*[a-z0-9])?`.
+  Label values must be between 0 and 63 characters long and must conform to the regular expression `([a-z]([-a-z0-9]*[a-z0-9])?)?`.
+  No more than 10 labels can be associated with a given finding.
+  Examples:
+  * `"environment" : "production"`
+  * `"pipeline" : "etl"`
+
+
+<a name="nested_table_options"></a>The `table_options` block supports:
+
+* `identifying_fields` -
+  (Optional)
+  The columns that are the primary keys for table objects included in ContentItem. A copy of this
+  cell's value will stored alongside alongside each finding so that the finding can be traced to
+  the specific row it came from. No more than 3 may be provided.
+  Structure is [documented below](#nested_identifying_fields).
+
+
+<a name="nested_identifying_fields"></a>The `identifying_fields` block supports:
+
+* `name` -
+  (Required)
+  Name describing the field.
 
 <a name="nested_actions"></a>The `actions` block supports:
 
