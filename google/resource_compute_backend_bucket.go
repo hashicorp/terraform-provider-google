@@ -303,6 +303,11 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 		obj["name"] = nameProp
 	}
 
+	obj, err = resourceComputeBackendBucketEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets")
 	if err != nil {
 		return err
@@ -500,6 +505,11 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
+	}
+
+	obj, err = resourceComputeBackendBucketEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{name}}")
@@ -1121,4 +1131,47 @@ func expandComputeBackendBucketEnableCdn(v interface{}, d TerraformResourceData,
 
 func expandComputeBackendBucketName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceComputeBackendBucketEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// This custom encoder helps prevent sending 0 for clientTtl, defaultTtl and
+	// maxTtl in API calls to update these values  when unset in the provider
+	// (doing so results in an API level error)
+	c, cdnPolicyOk := d.GetOk("cdn_policy")
+
+	// Only apply during updates
+	if !cdnPolicyOk || obj["cdnPolicy"] == nil {
+		return obj, nil
+	}
+
+	currentCdnPolicies := c.([]interface{})
+
+	// state does not contain cdnPolicy, so we can return early here as well
+	if len(currentCdnPolicies) == 0 {
+		return obj, nil
+	}
+
+	futureCdnPolicy := obj["cdnPolicy"].(map[string]interface{})
+	currentCdnPolicy := currentCdnPolicies[0].(map[string]interface{})
+
+	cacheMode, ok := futureCdnPolicy["cache_mode"].(string)
+	// Fallback to state if doesn't exist in object
+	if !ok {
+		cacheMode = currentCdnPolicy["cache_mode"].(string)
+	}
+
+	switch cacheMode {
+	case "USE_ORIGIN_HEADERS":
+		if _, ok := futureCdnPolicy["clientTtl"]; ok {
+			delete(futureCdnPolicy, "clientTtl")
+		}
+		if _, ok := futureCdnPolicy["defaultTtl"]; ok {
+			delete(futureCdnPolicy, "defaultTtl")
+		}
+		if _, ok := futureCdnPolicy["maxTtl"]; ok {
+			delete(futureCdnPolicy, "maxTtl")
+		}
+	}
+
+	return obj, nil
 }

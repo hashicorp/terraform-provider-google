@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an issue with TTLs being sent when `USE_ORIGIN_HEADERS` is set
+```
