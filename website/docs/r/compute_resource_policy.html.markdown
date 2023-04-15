@@ -226,7 +226,7 @@ The following arguments are supported:
 
 * `schedule` -
   (Required)
-  Contains one of an `hourlySchedule`, `dailySchedule`, or `weeklySchedule`.
+  Contains one of an `hourly_schedule`, `daily_schedule`, or `weekly_schedule`.
   Structure is [documented below](#nested_schedule).
 
 * `retention_policy` -
