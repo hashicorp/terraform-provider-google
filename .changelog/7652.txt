@@ -1,0 +1,6 @@
+```release-note:note
+alloydb: changed `location` from `optional` to `required` for `google_alloydb_cluster`. `location` had previously been marked as optional, but operations failed if it was omitted, and there was no way for `location` to be inherited from the provider configuration or from an environment variable. This means there was no way to have a working configuration without `location` specified.
+```
+```release-note:bug
+alloydb: changed `location` from `optional` to `required` for `google_alloydb_cluster`. `location` had previously been marked as optional, but operations failed if it was omitted, and there was no way for `location` to be inherited from the provider configuration or from an environment variable. This means there was no way to have a working configuration without `location` specified.
+```
