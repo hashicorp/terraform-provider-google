@@ -48,6 +48,12 @@ func ResourceAlloydbCluster() *schema.Resource {
 				ForceNew:    true,
 				Description: `The ID of the alloydb cluster.`,
 			},
+			"location": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The location where the alloydb cluster should reside.`,
+			},
 			"network": {
 				Type:             schema.TypeString,
 				Required:         true,
@@ -208,12 +214,6 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 				Optional:    true,
 				Description: `User-defined labels for the alloydb cluster.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-			"location": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The location where the alloydb cluster should reside.`,
 			},
 			"backup_source": {
 				Type:        schema.TypeList,
