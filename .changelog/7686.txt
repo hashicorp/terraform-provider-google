@@ -1,0 +1,4 @@
+```release-note:bug
+alloydb: made field `weeklySchedule` (under `automatedBackupPolicy`) `optional` for `google_alloydb_cluster`
+
+```

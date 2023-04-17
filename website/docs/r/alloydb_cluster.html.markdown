@@ -182,7 +182,7 @@ The following arguments are supported:
   Labels to apply to backups created using this configuration.
 
 * `weekly_schedule` -
-  (Required)
+  (Optional)
   Weekly schedule for the Backup.
   Structure is [documented below](#nested_weekly_schedule).
 

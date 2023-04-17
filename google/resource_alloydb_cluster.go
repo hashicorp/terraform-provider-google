@@ -72,56 +72,6 @@ If no policy is provided then the default policy will be used. The default polic
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"weekly_schedule": {
-							Type:        schema.TypeList,
-							Computed:    true,
-							Optional:    true,
-							Description: `Weekly schedule for the Backup.`,
-							MaxItems:    1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"start_times": {
-										Type:        schema.TypeList,
-										Required:    true,
-										Description: `The times during the day to start a backup. At least one start time must be provided. The start times are assumed to be in UTC and to be an exact hour (e.g., 04:00:00).`,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"hours": {
-													Type:        schema.TypeInt,
-													Optional:    true,
-													Description: `Hours of day in 24 hour format. Should be from 0 to 23. An API may choose to allow the value "24:00:00" for scenarios like business closing time.`,
-												},
-												"minutes": {
-													Type:        schema.TypeInt,
-													Optional:    true,
-													Description: `Minutes of hour of day. Must be from 0 to 59.`,
-												},
-												"nanos": {
-													Type:        schema.TypeInt,
-													Optional:    true,
-													Description: `Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.`,
-												},
-												"seconds": {
-													Type:        schema.TypeInt,
-													Optional:    true,
-													Description: `Seconds of minutes of the time. Must normally be from 0 to 59. An API may allow the value 60 if it allows leap-seconds.`,
-												},
-											},
-										},
-									},
-									"days_of_week": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: `The days of the week to perform a backup. At least one day of the week must be provided. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
-										MinItems:    1,
-										Elem: &schema.Schema{
-											Type:         schema.TypeString,
-											ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}),
-										},
-									},
-								},
-							},
-						},
 						"backup_window": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -179,6 +129,56 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 								},
 							},
 							ConflictsWith: []string{"automated_backup_policy.0.quantity_based_retention"},
+						},
+						"weekly_schedule": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Optional:    true,
+							Description: `Weekly schedule for the Backup.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"start_times": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `The times during the day to start a backup. At least one start time must be provided. The start times are assumed to be in UTC and to be an exact hour (e.g., 04:00:00).`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"hours": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Description: `Hours of day in 24 hour format. Should be from 0 to 23. An API may choose to allow the value "24:00:00" for scenarios like business closing time.`,
+												},
+												"minutes": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Description: `Minutes of hour of day. Must be from 0 to 59.`,
+												},
+												"nanos": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Description: `Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.`,
+												},
+												"seconds": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Description: `Seconds of minutes of the time. Must normally be from 0 to 59. An API may allow the value 60 if it allows leap-seconds.`,
+												},
+											},
+										},
+									},
+									"days_of_week": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `The days of the week to perform a backup. At least one day of the week must be provided. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
+										MinItems:    1,
+										Elem: &schema.Schema{
+											Type:         schema.TypeString,
+											ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}),
+										},
+									},
+								},
+							},
 						},
 					},
 				},

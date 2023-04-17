@@ -255,3 +255,53 @@ resource "google_compute_network" "default" {
 }
 `, context)
 }
+
+// The cluster creation should work fine even without a weekly schedule.
+func TestAccAlloydbCluster_missingWeeklySchedule(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbCluster_missingWeeklySchedule(context),
+			},
+			{
+				ResourceName:      "google_alloydb_cluster.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccAlloydbCluster_missingWeeklySchedule(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+  automated_backup_policy {
+    location      = "us-central1"
+    backup_window = "1800s"
+    enabled       = true
+    quantity_based_retention {
+	  count = 1
+	}
+    labels = {
+	  test = "tf-test-alloydb-cluster%{random_suffix}"
+	}
+  }
+}
+data "google_project" "project" {}
+resource "google_compute_network" "default" {
+  name = "tf-test-alloydb-cluster%{random_suffix}"
+}
+`, context)
+}
