@@ -79,7 +79,7 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 			"namespaced_name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Output only. Namespaced name of the TagValue. Will be in the format {organizationId}/{tag_key_short_name}/{shortName}.`,
+				Description: `Output only. Namespaced name of the TagValue. Will be in the format {parentNamespace}/{tagKeyShortName}/{shortName}.`,
 			},
 			"update_time": {
 				Type:     schema.TypeString,
