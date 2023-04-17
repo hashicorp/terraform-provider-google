@@ -55,6 +55,12 @@ func ResourceAlloydbBackup() *schema.Resource {
 				DiffSuppressFunc: ProjectNumberDiffSuppress,
 				Description:      `The full resource name of the backup source cluster (e.g., projects/{project}/locations/{location}/clusters/{clusterId}).`,
 			},
+			"location": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The location where the alloydb backup should reside.`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -66,12 +72,6 @@ func ResourceAlloydbBackup() *schema.Resource {
 				Optional:    true,
 				Description: `User-defined labels for the alloydb backup.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-			"location": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The location where the alloydb backup should reside.`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,

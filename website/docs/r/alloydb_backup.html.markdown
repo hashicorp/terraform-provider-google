@@ -144,6 +144,10 @@ The following arguments are supported:
   (Required)
   The ID of the alloydb backup.
 
+* `location` -
+  (Required)
+  The location where the alloydb backup should reside.
+
 
 - - -
 
@@ -155,10 +159,6 @@ The following arguments are supported:
 * `description` -
   (Optional)
   User-provided description of the backup.
-
-* `location` -
-  (Optional)
-  The location where the alloydb backup should reside.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
