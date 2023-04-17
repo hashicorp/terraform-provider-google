@@ -78,7 +78,7 @@ In addition to the arguments listed above, the following computed attributes are
   The generated numeric id for the TagValue.
 
 * `namespaced_name` -
-  Output only. Namespaced name of the TagValue. Will be in the format {organizationId}/{tag_key_short_name}/{shortName}.
+  Output only. Namespaced name of the TagValue. Will be in the format {parentNamespace}/{tagKeyShortName}/{shortName}.
 
 * `create_time` -
   Output only. Creation time.
