@@ -47,7 +47,7 @@ func ResourceTagsTagKey() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Input only. The resource name of the new TagKey's parent. Must be of the form organizations/{org_id}.`,
+				Description: `Input only. The resource name of the new TagKey's parent. Must be of the form organizations/{org_id} or projects/{project_id_or_number}.`,
 			},
 			"short_name": {
 				Type:         schema.TypeString,
