@@ -30,6 +30,9 @@ The following arguments are supported:
   (Required)
   The Apigee Organization name associated with the Apigee instance.
 
+* `config_bundle` -
+  (Required)
+  Path to the config zip bundle.
 
 - - -
 
