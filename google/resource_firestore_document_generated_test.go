@@ -54,7 +54,7 @@ func testAccFirestoreDocument_firestoreDocumentBasicExample(context map[string]i
 resource "google_firestore_document" "mydoc" {
   project     = "%{project_id}"
   collection  = "somenewcollection"
-  document_id = "my-doc-%{random_suffix}"
+  document_id = "tf-test-my-doc-id%{random_suffix}"
   fields      = "{\"something\":{\"mapValue\":{\"fields\":{\"akey\":{\"stringValue\":\"avalue\"}}}}}"
 }
 `, context)
@@ -91,7 +91,7 @@ func testAccFirestoreDocument_firestoreDocumentNestedDocumentExample(context map
 resource "google_firestore_document" "mydoc" {
   project     = "%{project_id}"
   collection  = "somenewcollection"
-  document_id = "my-doc-%{random_suffix}"
+  document_id = "tf-test-my-doc-id%{random_suffix}"
   fields      = "{\"something\":{\"mapValue\":{\"fields\":{\"akey\":{\"stringValue\":\"avalue\"}}}}}"
 }
 

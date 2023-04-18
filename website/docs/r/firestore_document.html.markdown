@@ -45,7 +45,7 @@ the App Engine location specified.
 resource "google_firestore_document" "mydoc" {
   project     = "my-project-name"
   collection  = "somenewcollection"
-  document_id = "my-doc-%{random_suffix}"
+  document_id = "my-doc-id"
   fields      = "{\"something\":{\"mapValue\":{\"fields\":{\"akey\":{\"stringValue\":\"avalue\"}}}}}"
 }
 ```
@@ -56,7 +56,7 @@ resource "google_firestore_document" "mydoc" {
 resource "google_firestore_document" "mydoc" {
   project     = "my-project-name"
   collection  = "somenewcollection"
-  document_id = "my-doc-%{random_suffix}"
+  document_id = "my-doc-id"
   fields      = "{\"something\":{\"mapValue\":{\"fields\":{\"akey\":{\"stringValue\":\"avalue\"}}}}}"
 }
 

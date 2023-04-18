@@ -49,8 +49,8 @@ resource "google_dialogflow_intent" "basic_intent" {
 
 ```hcl
 resource "google_project" "agent_project" {
-  project_id = "tf-test-dialogflow-%{random_suffix}"
-  name = "tf-test-dialogflow-%{random_suffix}"
+  project_id = "my-project"
+  name = "my-project"
   org_id = "123456789"
 }
 
@@ -61,7 +61,7 @@ resource "google_project_service" "agent_project" {
 }
 
 resource "google_service_account" "dialogflow_service_account" {
-  account_id = "tf-test-dialogflow-%{random_suffix}"
+  account_id = "my-account"
 }
 
 resource "google_project_iam_member" "agent_create" {

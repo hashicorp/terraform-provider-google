@@ -424,7 +424,7 @@ resource "google_datastream_stream" "stream5" {
 ```hcl
 
 resource "google_bigquery_dataset" "postgres" {
-  dataset_id    = "postgres%{random_suffix}"
+  dataset_id    = "postgres"
   friendly_name = "postgres"
   description   = "Database of postgres"
   location      = "us-central1"
@@ -433,7 +433,7 @@ resource "google_bigquery_dataset" "postgres" {
 resource "google_datastream_stream" "default" {
   display_name  = "postgres to bigQuery"
   location      = "us-central1"
-  stream_id     = "postgres-to-big-query%{random_suffix}"
+  stream_id     = "postgres-bigquery"
 
    source_config {
     source_connection_profile = google_datastream_connection_profile.source_connection_profile.id
@@ -458,12 +458,12 @@ resource "google_datastream_stream" "default" {
 resource "google_datastream_connection_profile" "destination_connection_profile2" {
     display_name          = "Connection profile"
     location              = "us-central1"
-    connection_profile_id = "tf-test-destination-profile%{random_suffix}"
+    connection_profile_id = "dest-profile"
     bigquery_profile {}
 }
 
 resource "google_sql_database_instance" "instance" {
-    name             = "tf-test-my-instance%{random_suffix}"
+    name             = "instance-name"
     database_version = "MYSQL_8_0"
     region           = "us-central1"
     settings {
@@ -511,7 +511,7 @@ resource "random_password" "pwd" {
 }
 
 resource "google_sql_user" "user" {
-    name     = "user%{random_suffix}"
+    name     = "my-user"
     instance = google_sql_database_instance.instance.name
     host     = "%"
     password = random_password.pwd.result
@@ -520,7 +520,7 @@ resource "google_sql_user" "user" {
 resource "google_datastream_connection_profile" "source_connection_profile" {
     display_name          = "Source connection profile"
     location              = "us-central1"
-    connection_profile_id = "tf-test-source-profile%{random_suffix}"
+    connection_profile_id = "source-profile"
 
     mysql_profile {
         hostname = google_sql_database_instance.instance.public_ip_address
