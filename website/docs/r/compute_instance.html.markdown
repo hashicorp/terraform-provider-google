@@ -186,9 +186,6 @@ is desired, you will need to modify your state file manually using
     in `guest-os-features`, and `network_interface.0.nic-type` must be `GVNIC`
     in order for this setting to take effect.
 
-* `stopping_with_local_ssd_discard` - (Optional) Whether allow data on the local ssd to be discarded. The instance can not be stopped when a local ssd being attached to the instance.
-True to allow data to be discarded. Default is False. Setting true to allow the local ssd to be recreated. https://cloud.google.com/compute/docs/disks/local-ssd
-
 ---
 
 <a name="nested_boot_disk"></a>The `boot_disk` block supports:
