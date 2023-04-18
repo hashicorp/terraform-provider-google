@@ -30,16 +30,16 @@ if they would like to test it.
 
 ```hcl
 resource "google_project" "project" {
-  project_id      = "tf-test%{random_suffix}"
-  name            = "tf-test%{random_suffix}"
+  project_id      = "my-project"
+  name            = "my-project"
   org_id          = "123456789"
   billing_account = "000000-0000000-0000000-000000"
 }
 
 resource "google_access_context_manager_access_level" "test-access" {
   parent = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}"
-  name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/accessLevels/tf_test_chromeos_no_lock%{random_suffix}"
-  title  = "tf_test_chromeos_no_lock%{random_suffix}"
+  name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/accessLevels/chromeos_no_lock"
+  title  = "chromeos_no_lock"
   basic {
     conditions {
       device_policy {

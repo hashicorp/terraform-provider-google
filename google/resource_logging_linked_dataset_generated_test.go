@@ -55,11 +55,11 @@ resource "google_logging_project_bucket_config" "logging_linked_dataset" {
   location         = "global"
   project          = "%{project}"
   enable_analytics = true
-  bucket_id        = "tftest%{random_suffix}"
+  bucket_id        = "mybucket%{random_suffix}"
 }
 
 resource "google_logging_linked_dataset" "logging_linked_dataset" {
-  link_id     = "tftest%{random_suffix}"
+  link_id     = "mybucket%{random_suffix}"
   bucket      = google_logging_project_bucket_config.logging_linked_dataset.id
   description = "Linked dataset test"
 }
@@ -98,12 +98,12 @@ resource "google_logging_project_bucket_config" "logging_linked_dataset" {
   location         = "global"
   project          = "%{project}"
   enable_analytics = true
-  bucket_id        = "tftest%{random_suffix}"
+  bucket_id        = "mybucket%{random_suffix}"
 }
 
 resource "google_logging_linked_dataset" "logging_linked_dataset" {
-  link_id     = "tftest%{random_suffix}"
-  bucket      = "tftest%{random_suffix}"
+  link_id     = "mybucket%{random_suffix}"
+  bucket      = "mybucket%{random_suffix}"
   parent      = "projects/%{project}"
   location    = "global"
   description = "Linked dataset test"

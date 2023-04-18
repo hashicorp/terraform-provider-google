@@ -39,8 +39,8 @@ To get more information about Config, see:
 
 ```hcl
 resource "google_project" "default" {
-  project_id = "tf-test%{random_suffix}"
-  name       = "tf-test%{random_suffix}"
+  project_id = "my-project"
+  name       = "my-project"
   org_id     = "123456789"
   billing_account =  "000000-0000000-0000000-000000"
   labels = {

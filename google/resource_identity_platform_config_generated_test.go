@@ -49,8 +49,8 @@ func TestAccIdentityPlatformConfig_identityPlatformConfigBasicExample(t *testing
 func testAccIdentityPlatformConfig_identityPlatformConfigBasicExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "default" {
-  project_id = "tf-test%{random_suffix}"
-  name       = "tf-test%{random_suffix}"
+  project_id = "tf-test-my-project%{random_suffix}"
+  name       = "tf-test-my-project%{random_suffix}"
   org_id     = "%{org_id}"
   billing_account =  "%{billing_acct}"
   labels = {

@@ -40,7 +40,7 @@ resource "google_logging_project_bucket_config" "logging_log_view" {
 }
 
 resource "google_logging_log_view" "logging_log_view" {
-  name        = "tf-test-view%{random_suffix}"
+  name        = "my-view"
   bucket      = google_logging_project_bucket_config.logging_log_view.id
   description = "A logging view configured with Terraform"
   filter      = "SOURCE(\"projects/myproject\") AND resource.type = \"gce_instance\" AND LOG_ID(\"stdout\")"
