@@ -46,7 +46,7 @@ The following arguments are supported:
 
 * `parent` -
   (Required)
-  Input only. The resource name of the new TagKey's parent. Must be of the form organizations/{org_id}.
+  Input only. The resource name of the new TagKey's parent. Must be of the form organizations/{org_id} or projects/{project_id_or_number}.
 
 * `short_name` -
   (Required)
