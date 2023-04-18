@@ -1,4 +1,24 @@
-## 4.62.0 (Unreleased)
+## 4.63.0 (Unreleased)
+
+## 4.62.0 (April 17, 2023)
+
+FEATURES:
+* **New Data Source:** `google_compute_region_instance_template` ([#14280](https://github.com/hashicorp/terraform-provider-google/pull/14280))
+* **New Resource:** `google_compute_region_instance_template` ([#14280](https://github.com/hashicorp/terraform-provider-google/pull/14280))
+* **New Resource:** `google_logging_linked_dataset` ([#14261](https://github.com/hashicorp/terraform-provider-google/pull/14261))
+
+IMPROVEMENTS:
+* cloudasset: added `OS_INVENTORY` value to `content_type` for `google_cloud_asset_*_feed` ([#14277](https://github.com/hashicorp/terraform-provider-google/pull/14277))
+* clouddeploy: added canary deployment fields for resource `google_clouddeploy_delivery_pipeline` ([#14249](https://github.com/hashicorp/terraform-provider-google/pull/14249))
+* compute: supported region instance template in`source_instance_template` field of `google_compute_instance_from_template` resource ([#14280](https://github.com/hashicorp/terraform-provider-google/pull/14280))
+* container: added `pod_cidr_overprovision_config` field to `google_container_cluster` and  `google_container_node_pool` resources. ([#14281](https://github.com/hashicorp/terraform-provider-google/pull/14281))
+* orgpolicy: accepted variable cases for booleans such as true, True, and TRUE in `google_org_policy_policy` ([#14240](https://github.com/hashicorp/terraform-provider-google/pull/14240))
+
+BUG FIXES:
+* cloudidentity: fixed immutability issue on `initialGroupConfig` field for resource `google_cloud_identity_group` ([#14257](https://github.com/hashicorp/terraform-provider-google/pull/14257))
+* provider: fixed an error resulting from leaving `batching.send_after` unspecified and `batching` specified ([#14263](https://github.com/hashicorp/terraform-provider-google/pull/14263))
+* provider: fixed bug where `credentials` field could not be set as an empty string ([#14279](https://github.com/hashicorp/terraform-provider-google/pull/14279))
+* vertex: increased the default timeout for `google_vertex_ai_index` to 180m ([#14248](https://github.com/hashicorp/terraform-provider-google/pull/14248))
 
 ## 4.61.0 (April 10, 2023)
 
