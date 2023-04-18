@@ -77,7 +77,7 @@ func computeInstanceImportStep(zone, instanceName string, additionalImportIgnore
 	// metadata is only read into state if set in the config
 	// importing doesn't know whether metadata.startup_script vs metadata_startup_script is set in the config,
 	// it always takes metadata.startup-script
-	ignores := []string{"metadata.%", "metadata.startup-script", "metadata_startup_script", "stopping_with_local_ssd_discard"}
+	ignores := []string{"metadata.%", "metadata.startup-script", "metadata_startup_script"}
 
 	return resource.TestStep{
 		ResourceName:            "google_compute_instance.foobar",
@@ -772,65 +772,6 @@ func TestAccComputeInstance_with18TbScratchDisk(t *testing.T) {
 				),
 			},
 			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
-		},
-	})
-}
-
-func TestAccComputeInstance_scratchDiskUpdate(t *testing.T) {
-	t.Parallel()
-
-	var instance compute.Instance
-	var instanceName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
-
-	VcrTest(t, resource.TestCase{
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeInstance_scratchDiskUpdate(instanceName, "n1-standard-2"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceScratchDisk(&instance, []string{"NVME"}),
-				),
-			},
-			{
-				Config:      testAccComputeInstance_scratchDiskUpdate(instanceName, "n2-standard-4"),
-				ExpectError: regexp.MustCompile("Error: The instance has local SSD. Stopping insatnce will discard all data on the local SSD. Setting stopping_with_local_ssd_discard to true to allow the data on the local SSD to be discarded"),
-			},
-			{
-				Config: testAccComputeInstance_scratchDiskUpdate2(instanceName, "n1-standard-2", "false"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceScratchDisk(&instance, []string{"NVME"}),
-				),
-			},
-			{
-				Config:      testAccComputeInstance_scratchDiskUpdate(instanceName, "n2-standard-4"),
-				ExpectError: regexp.MustCompile("Error: The instance has local SSD. Stopping insatnce will discard all data on the local SSD. Setting stopping_with_local_ssd_discard to true to allow the data on the local SSD to be discarded"),
-			},
-			{
-				Config: testAccComputeInstance_scratchDiskUpdate2(instanceName, "n2-standard-4", "true"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceScratchDisk(&instance, []string{"NVME"}),
-				),
-			},
-			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
-			{
-				Config: testAccComputeInstance_scratchDiskUpdate2(instanceName, "n1-standard-2", "true"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceScratchDisk(&instance, []string{"NVME"}),
-				),
-			},
-			{
-				Config:      testAccComputeInstance_scratchDiskUpdate2(instanceName, "n2-standard-4", "false"),
-				ExpectError: regexp.MustCompile("Error: The instance has local SSD. Stopping insatnce will discard all data on the local SSD. Setting stopping_with_local_ssd_discard to true to allow the data on the local SSD to be discarded"),
-			},
 		},
 	})
 }
@@ -4546,70 +4487,6 @@ resource "google_compute_instance" "foobar" {
     network = "default"
   }
 }`, instance)
-}
-
-func testAccComputeInstance_scratchDiskUpdate(instance, machinetype string) string {
-	return fmt.Sprintf(`
-data "google_compute_image" "my_image" {
-  family  = "debian-11"
-  project = "debian-cloud"
-}
-
-resource "google_compute_instance" "foobar" {
-  name         = "%s"
-  machine_type = "%s"
-  zone         = "us-central1-a"
-  allow_stopping_for_update = true
-
-  boot_disk {
-    initialize_params {
-      image = data.google_compute_image.my_image.self_link
-    }
-  }
-
-  scratch_disk {
-    interface = "NVME"
-  }
-
-  network_interface {
-    network = "default"
-  }
-
-}
-`, instance, machinetype)
-}
-
-func testAccComputeInstance_scratchDiskUpdate2(instance, machinetype, discard string) string {
-	return fmt.Sprintf(`
-data "google_compute_image" "my_image" {
-  family  = "debian-11"
-  project = "debian-cloud"
-}
-
-resource "google_compute_instance" "foobar" {
-  name         = "%s"
-  machine_type = "%s"
-  zone         = "us-central1-a"
-  allow_stopping_for_update = true
-
-  boot_disk {
-    initialize_params {
-      image = data.google_compute_image.my_image.self_link
-    }
-  }
-
-  scratch_disk {
-    interface = "NVME"
-  }
-
-  network_interface {
-    network = "default"
-  }
-
-  stopping_with_local_ssd_discard = "%s"
-
-}
-`, instance, machinetype, discard)
 }
 
 func testAccComputeInstance_serviceAccount(instance string) string {
