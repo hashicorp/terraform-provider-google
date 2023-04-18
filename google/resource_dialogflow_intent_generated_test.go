@@ -51,8 +51,8 @@ func TestAccDialogflowIntent_dialogflowIntentFullExample(t *testing.T) {
 func testAccDialogflowIntent_dialogflowIntentFullExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_project" "agent_project" {
-  project_id = "tf-test-dialogflow-%{random_suffix}"
-  name = "tf-test-dialogflow-%{random_suffix}"
+  project_id = "tf-test-my-project%{random_suffix}"
+  name = "tf-test-my-project%{random_suffix}"
   org_id = "%{org_id}"
 }
 
@@ -63,7 +63,7 @@ resource "google_project_service" "agent_project" {
 }
 
 resource "google_service_account" "dialogflow_service_account" {
-  account_id = "tf-test-dialogflow-%{random_suffix}"
+  account_id = "tf-test-my-account%{random_suffix}"
 }
 
 resource "google_project_iam_member" "agent_create" {
