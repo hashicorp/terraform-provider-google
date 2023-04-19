@@ -57,9 +57,9 @@ resource "google_compute_network" "vpc_network" {
 
 ```hcl
 resource "google_compute_network" "vpc_network" {
-  project                 = "my-project-name"
-  name                    = "vpc-network"
-  auto_create_subnetworks = true
+  project                                   = "my-project-name"
+  name                                      = "vpc-network"
+  auto_create_subnetworks                   = true
   network_firewall_policy_enforcement_order = "BEFORE_CLASSIC_FIREWALL"
 }
 ```
@@ -128,7 +128,7 @@ The following arguments are supported:
 
 * `network_firewall_policy_enforcement_order` -
   (Optional)
-  Set the order that Firewall Rules and Firewall Policies are evaluated. Needs to be either 'AFTER_CLASSIC_FIREWALL' or 'BEFORE_CLASSIC_FIREWALL' Default 'AFTER_CLASSIC_FIREWALL'
+  Set the order that Firewall Rules and Firewall Policies are evaluated.
   Default value is `AFTER_CLASSIC_FIREWALL`.
   Possible values are: `BEFORE_CLASSIC_FIREWALL`, `AFTER_CLASSIC_FIREWALL`.
 

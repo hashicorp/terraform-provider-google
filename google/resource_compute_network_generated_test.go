@@ -119,9 +119,9 @@ func TestAccComputeNetwork_networkCustomFirewallEnforcementOrderExample(t *testi
 func testAccComputeNetwork_networkCustomFirewallEnforcementOrderExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_compute_network" "vpc_network" {
-  project                 = "%{project}"
-  name                    = "tf-test-vpc-network%{random_suffix}"
-  auto_create_subnetworks = true
+  project                                   = "%{project}"
+  name                                      = "tf-test-vpc-network%{random_suffix}"
+  auto_create_subnetworks                   = true
   network_firewall_policy_enforcement_order = "BEFORE_CLASSIC_FIREWALL"
 }
 `, context)
