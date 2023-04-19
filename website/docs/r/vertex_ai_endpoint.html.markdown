@@ -37,6 +37,7 @@ resource "google_vertex_ai_endpoint" "endpoint" {
   display_name = "sample-endpoint"
   description  = "A sample vertex endpoint"
   location     = "us-central1"
+  region       = "us-central1"
   labels       = {
     label-one = "value-one"
   }
@@ -113,6 +114,10 @@ The following arguments are supported:
 * `network` -
   (Optional)
   The full name of the Google Compute Engine [network](https://cloud.google.com//compute/docs/networks-and-firewalls#networks) to which the Endpoint should be peered. Private services access must already be configured for the network. If left unspecified, the Endpoint is not peered with any network. Only one of the fields, network or enable_private_service_connect, can be set. [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert): `projects/{project}/global/networks/{network}`. Where `{project}` is a project number, as in `12345`, and `{network}` is network name.
+
+* `region` -
+  (Optional)
+  The region for the resource
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
