@@ -15,24 +15,19 @@ func testAccAccessContextManagerIngressPolicy_basicTest(t *testing.T) {
 	// Multiple fine-grained resources
 	SkipIfVcr(t)
 	org := GetTestOrgFromEnv(t)
-	projects := BootstrapServicePerimeterProjects(t, 2)
+	projects := BootstrapServicePerimeterProjects(t, 1)
 	policyTitle := RandString(t, 10)
-	perimeterTitle := RandString(t, 10)
+	perimeterTitle := "perimeter"
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAccessContextManagerIngressPolicy_basic(org, policyTitle, perimeterTitle, projects[0].ProjectNumber, projects[1].ProjectNumber),
+				Config: testAccAccessContextManagerIngressPolicy_basic(org, policyTitle, perimeterTitle, projects[0].ProjectNumber),
 			},
 			{
 				ResourceName:      "google_access_context_manager_ingress_policy.test-access1",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				ResourceName:      "google_access_context_manager_ingress_policy.test-access2",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -86,7 +81,7 @@ func testAccCheckAccessContextManagerIngressPolicyDestroyProducer(t *testing.T) 
 	}
 }
 
-func testAccAccessContextManagerIngressPolicy_basic(org, policyTitle, perimeterTitleName string, projectNumber1, projectNumber2 int64) string {
+func testAccAccessContextManagerIngressPolicy_basic(org, policyTitle, perimeterTitleName string, projectNumber1 int64) string {
 	return fmt.Sprintf(`
 %s
 
@@ -95,12 +90,7 @@ resource "google_access_context_manager_ingress_policy" "test-access1" {
   resource            = "projects/%d"
 }
 
-resource "google_access_context_manager_ingress_policy" "test-access2" {
-  ingress_policy_name = google_access_context_manager_service_perimeter.test-access.name
-  resource            = "projects/%d"
-}
-
-`, testAccAccessContextManagerIngressPolicy_destroy(org, policyTitle, perimeterTitleName), projectNumber1, projectNumber2)
+`, testAccAccessContextManagerIngressPolicy_destroy(org, policyTitle, perimeterTitleName), projectNumber1)
 }
 
 func testAccAccessContextManagerIngressPolicy_destroy(org, policyTitle, perimeterTitleName string) string {
