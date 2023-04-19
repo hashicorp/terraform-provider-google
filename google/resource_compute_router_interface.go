@@ -366,19 +366,35 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 
 func resourceComputeRouterInterfaceImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid router interface specifier. Expecting {region}/{router}/{interface}")
+	switch len(parts) {
+	case 3:
+		// {{region}}/{{router}}/{{name}} import id
+		if err := d.Set("region", parts[0]); err != nil {
+			return nil, fmt.Errorf("error setting region: %s", err)
+		}
+		if err := d.Set("router", parts[1]); err != nil {
+			return nil, fmt.Errorf("error setting router: %s", err)
+		}
+		if err := d.Set("name", parts[2]); err != nil {
+			return nil, fmt.Errorf("error setting name: %s", err)
+		}
+		return []*schema.ResourceData{d}, nil
+	case 4:
+		// {{project}}/{{region}}/{{router}}/{{name}} import id
+		if err := d.Set("project", parts[0]); err != nil {
+			return nil, fmt.Errorf("error setting project: %s", err)
+		}
+		if err := d.Set("region", parts[1]); err != nil {
+			return nil, fmt.Errorf("error setting region: %s", err)
+		}
+		if err := d.Set("router", parts[2]); err != nil {
+			return nil, fmt.Errorf("error setting router: %s", err)
+		}
+		if err := d.Set("name", parts[3]); err != nil {
+			return nil, fmt.Errorf("error setting name: %s", err)
+		}
+		return []*schema.ResourceData{d}, nil
 	}
 
-	if err := d.Set("region", parts[0]); err != nil {
-		return nil, fmt.Errorf("Error setting region: %s", err)
-	}
-	if err := d.Set("router", parts[1]); err != nil {
-		return nil, fmt.Errorf("Error setting router: %s", err)
-	}
-	if err := d.Set("name", parts[2]); err != nil {
-		return nil, fmt.Errorf("Error setting name: %s", err)
-	}
-
-	return []*schema.ResourceData{d}, nil
+	return nil, fmt.Errorf("invalid router interface specifier. Expecting either {region}/{router}/{interface} or {project}/{region}/{router}/{interface} import id format")
 }
