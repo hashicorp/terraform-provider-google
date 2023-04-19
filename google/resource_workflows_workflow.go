@@ -49,6 +49,13 @@ func ResourceWorkflowsWorkflow() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"crypto_key_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The KMS key used to encrypt workflow and execution data.
+
+Format: projects/{project}/locations/{location}/keyRings/{keyRing}/cryptoKeys/{cryptoKey}`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -164,6 +171,12 @@ func resourceWorkflowsWorkflowCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("source_contents"); !isEmptyValue(reflect.ValueOf(sourceContentsProp)) && (ok || !reflect.DeepEqual(v, sourceContentsProp)) {
 		obj["sourceContents"] = sourceContentsProp
+	}
+	cryptoKeyNameProp, err := expandWorkflowsWorkflowCryptoKeyName(d.Get("crypto_key_name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("crypto_key_name"); !isEmptyValue(reflect.ValueOf(cryptoKeyNameProp)) && (ok || !reflect.DeepEqual(v, cryptoKeyNameProp)) {
+		obj["cryptoKeyName"] = cryptoKeyNameProp
 	}
 
 	obj, err = resourceWorkflowsWorkflowEncoder(d, meta, obj)
@@ -292,6 +305,9 @@ func resourceWorkflowsWorkflowRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("revision_id", flattenWorkflowsWorkflowRevisionId(res["revisionId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Workflow: %s", err)
 	}
+	if err := d.Set("crypto_key_name", flattenWorkflowsWorkflowCryptoKeyName(res["cryptoKeyName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
 
 	return nil
 }
@@ -336,6 +352,12 @@ func resourceWorkflowsWorkflowUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("source_contents"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceContentsProp)) {
 		obj["sourceContents"] = sourceContentsProp
 	}
+	cryptoKeyNameProp, err := expandWorkflowsWorkflowCryptoKeyName(d.Get("crypto_key_name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("crypto_key_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, cryptoKeyNameProp)) {
+		obj["cryptoKeyName"] = cryptoKeyNameProp
+	}
 
 	obj, err = resourceWorkflowsWorkflowEncoder(d, meta, obj)
 	if err != nil {
@@ -364,6 +386,10 @@ func resourceWorkflowsWorkflowUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("source_contents") {
 		updateMask = append(updateMask, "sourceContents")
+	}
+
+	if d.HasChange("crypto_key_name") {
+		updateMask = append(updateMask, "cryptoKeyName")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -480,6 +506,10 @@ func flattenWorkflowsWorkflowRevisionId(v interface{}, d *schema.ResourceData, c
 	return v
 }
 
+func flattenWorkflowsWorkflowCryptoKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
 func expandWorkflowsWorkflowName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
@@ -504,6 +534,10 @@ func expandWorkflowsWorkflowServiceAccount(v interface{}, d TerraformResourceDat
 }
 
 func expandWorkflowsWorkflowSourceContents(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkflowsWorkflowCryptoKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

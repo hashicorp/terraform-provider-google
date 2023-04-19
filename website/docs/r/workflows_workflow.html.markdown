@@ -108,6 +108,11 @@ The following arguments are supported:
   (Optional)
   Workflow code to be executed. The size limit is 32KB.
 
+* `crypto_key_name` -
+  (Optional)
+  The KMS key used to encrypt workflow and execution data.
+  Format: projects/{project}/locations/{location}/keyRings/{keyRing}/cryptoKeys/{cryptoKey}
+
 * `region` -
   (Optional)
   The region of the workflow.

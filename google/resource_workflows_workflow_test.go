@@ -147,3 +147,63 @@ func TestWorkflowsWorkflowStateUpgradeV0(t *testing.T) {
 		})
 	}
 }
+
+func TestAccWorkflowsWorkflow_CMEK(t *testing.T) {
+	// Custom test written to test diffs
+	t.Parallel()
+
+	workflowName := fmt.Sprintf("tf-test-acc-workflow-%d", RandInt(t))
+	kms := BootstrapKMSKeyInLocation(t, "us-central1")
+	if BootstrapPSARole(t, "service-", "gcp-sa-workflows", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
+		t.Fatal("Stopping the test because a role was added to the policy.")
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckWorkflowsWorkflowDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWorkflowsWorkflow_CMEK(workflowName, kms.CryptoKey.Name),
+			},
+		},
+	})
+}
+
+func testAccWorkflowsWorkflow_CMEK(workflowName, kmsKeyName string) string {
+	return fmt.Sprintf(`
+resource "google_workflows_workflow" "example" {
+  name          = "%s"
+  region        = "us-central1"
+  description   = "Magic"
+  crypto_key_name = "%s"
+  source_contents = <<-EOF
+  # This is a sample workflow, feel free to replace it with your source code
+  #
+  # This workflow does the following:
+  # - reads current time and date information from an external API and stores
+  #   the response in CurrentDateTime variable
+  # - retrieves a list of Wikipedia articles related to the day of the week
+  #   from CurrentDateTime
+  # - returns the list of articles as an output of the workflow
+  # FYI, In terraform you need to escape the $$ or it will cause errors.
+
+  - getCurrentTime:
+      call: http.get
+      args:
+          url: https://us-central1-workflowsample.cloudfunctions.net/datetime
+      result: CurrentDateTime
+  - readWikipedia:
+      call: http.get
+      args:
+          url: https:/fi.wikipedia.org/w/api.php
+          query:
+              action: opensearch
+              search: $${CurrentDateTime.body.dayOfTheWeek}
+      result: WikiResult
+  - returnOutput:
+      return: $${WikiResult.body[1]}
+EOF
+}
+`, workflowName, kmsKeyName)
+}
