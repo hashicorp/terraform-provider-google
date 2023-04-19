@@ -159,10 +159,11 @@ func ResourceCloudRunV2Service() *schema.Resource {
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"port": {
-																Type:        schema.TypeInt,
-																Computed:    true,
-																Optional:    true,
-																Description: `Port number to access on the container. Number must be in the range 1 to 65535. If not specified, defaults to the same value as container.ports[0].containerPort.`,
+																Type:     schema.TypeInt,
+																Computed: true,
+																Optional: true,
+																Description: `Port number to access on the container. Number must be in the range 1 to 65535.
+If not specified, defaults to the same value as container.ports[0].containerPort.`,
 															},
 															"service": {
 																Type:     schema.TypeString,
@@ -206,6 +207,13 @@ If this is not specified, the default behavior is defined by gRPC.`,
 																Optional:    true,
 																Description: `Path to access on the HTTP server. Defaults to '/'.`,
 																Default:     "/",
+															},
+															"port": {
+																Type:     schema.TypeInt,
+																Computed: true,
+																Optional: true,
+																Description: `Port number to access on the container. Number must be in the range 1 to 65535.
+If not specified, defaults to the same value as container.ports[0].containerPort.`,
 															},
 														},
 													},
@@ -320,10 +328,11 @@ If omitted, a port number will be chosen and passed to the container through the
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"port": {
-																Type:        schema.TypeInt,
-																Computed:    true,
-																Optional:    true,
-																Description: `Port number to access on the container. Number must be in the range 1 to 65535. If not specified, defaults to the same value as container.ports[0].containerPort.`,
+																Type:     schema.TypeInt,
+																Computed: true,
+																Optional: true,
+																Description: `Port number to access on the container. Number must be in the range 1 to 65535.
+If not specified, defaults to the same value as container.ports[0].containerPort.`,
 															},
 															"service": {
 																Type:     schema.TypeString,
@@ -368,6 +377,13 @@ If this is not specified, the default behavior is defined by gRPC.`,
 																Description: `Path to access on the HTTP server. Defaults to '/'.`,
 																Default:     "/",
 															},
+															"port": {
+																Type:     schema.TypeInt,
+																Computed: true,
+																Optional: true,
+																Description: `Port number to access on the container. Must be in the range 1 to 65535.
+If not specified, defaults to the same value as container.ports[0].containerPort.`,
+															},
 														},
 													},
 												},
@@ -391,10 +407,11 @@ If this is not specified, the default behavior is defined by gRPC.`,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"port": {
-																Type:        schema.TypeInt,
-																Computed:    true,
-																Optional:    true,
-																Description: `Port number to access on the container. Must be in the range 1 to 65535. If not specified, defaults to 8080.`,
+																Type:     schema.TypeInt,
+																Computed: true,
+																Optional: true,
+																Description: `Port number to access on the container. Must be in the range 1 to 65535.
+If not specified, defaults to the same value as container.ports[0].containerPort.`,
 															},
 														},
 													},
@@ -1776,12 +1793,31 @@ func flattenCloudRunV2ServiceTemplateContainersLivenessProbeHttpGet(v interface{
 	transformed := make(map[string]interface{})
 	transformed["path"] =
 		flattenCloudRunV2ServiceTemplateContainersLivenessProbeHttpGetPath(original["path"], d, config)
+	transformed["port"] =
+		flattenCloudRunV2ServiceTemplateContainersLivenessProbeHttpGetPort(original["port"], d, config)
 	transformed["http_headers"] =
 		flattenCloudRunV2ServiceTemplateContainersLivenessProbeHttpGetHttpHeaders(original["httpHeaders"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudRunV2ServiceTemplateContainersLivenessProbeHttpGetPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenCloudRunV2ServiceTemplateContainersLivenessProbeHttpGetPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenCloudRunV2ServiceTemplateContainersLivenessProbeHttpGetHttpHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1972,12 +2008,31 @@ func flattenCloudRunV2ServiceTemplateContainersStartupProbeHttpGet(v interface{}
 	transformed := make(map[string]interface{})
 	transformed["path"] =
 		flattenCloudRunV2ServiceTemplateContainersStartupProbeHttpGetPath(original["path"], d, config)
+	transformed["port"] =
+		flattenCloudRunV2ServiceTemplateContainersStartupProbeHttpGetPort(original["port"], d, config)
 	transformed["http_headers"] =
 		flattenCloudRunV2ServiceTemplateContainersStartupProbeHttpGetHttpHeaders(original["httpHeaders"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudRunV2ServiceTemplateContainersStartupProbeHttpGetPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
+}
+
+func flattenCloudRunV2ServiceTemplateContainersStartupProbeHttpGetPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenCloudRunV2ServiceTemplateContainersStartupProbeHttpGetHttpHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -3157,6 +3212,13 @@ func expandCloudRunV2ServiceTemplateContainersLivenessProbeHttpGet(v interface{}
 		transformed["path"] = transformedPath
 	}
 
+	transformedPort, err := expandCloudRunV2ServiceTemplateContainersLivenessProbeHttpGetPort(original["port"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !isEmptyValue(val) {
+		transformed["port"] = transformedPort
+	}
+
 	transformedHttpHeaders, err := expandCloudRunV2ServiceTemplateContainersLivenessProbeHttpGetHttpHeaders(original["http_headers"], d, config)
 	if err != nil {
 		return nil, err
@@ -3168,6 +3230,10 @@ func expandCloudRunV2ServiceTemplateContainersLivenessProbeHttpGet(v interface{}
 }
 
 func expandCloudRunV2ServiceTemplateContainersLivenessProbeHttpGetPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceTemplateContainersLivenessProbeHttpGetPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3373,6 +3439,13 @@ func expandCloudRunV2ServiceTemplateContainersStartupProbeHttpGet(v interface{},
 		transformed["path"] = transformedPath
 	}
 
+	transformedPort, err := expandCloudRunV2ServiceTemplateContainersStartupProbeHttpGetPort(original["port"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !isEmptyValue(val) {
+		transformed["port"] = transformedPort
+	}
+
 	transformedHttpHeaders, err := expandCloudRunV2ServiceTemplateContainersStartupProbeHttpGetHttpHeaders(original["http_headers"], d, config)
 	if err != nil {
 		return nil, err
@@ -3384,6 +3457,10 @@ func expandCloudRunV2ServiceTemplateContainersStartupProbeHttpGet(v interface{},
 }
 
 func expandCloudRunV2ServiceTemplateContainersStartupProbeHttpGetPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceTemplateContainersStartupProbeHttpGetPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 

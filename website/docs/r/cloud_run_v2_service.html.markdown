@@ -529,6 +529,11 @@ The following arguments are supported:
   (Optional)
   Path to access on the HTTP server. Defaults to '/'.
 
+* `port` -
+  (Optional)
+  Port number to access on the container. Number must be in the range 1 to 65535.
+  If not specified, defaults to the same value as container.ports[0].containerPort.
+
 * `http_headers` -
   (Optional)
   Custom headers to set in the request. HTTP allows repeated headers.
@@ -555,7 +560,8 @@ The following arguments are supported:
 
 * `port` -
   (Optional)
-  Port number to access on the container. Number must be in the range 1 to 65535. If not specified, defaults to the same value as container.ports[0].containerPort.
+  Port number to access on the container. Number must be in the range 1 to 65535.
+  If not specified, defaults to the same value as container.ports[0].containerPort.
 
 * `service` -
   (Optional)
@@ -603,6 +609,11 @@ The following arguments are supported:
   (Optional)
   Path to access on the HTTP server. Defaults to '/'.
 
+* `port` -
+  (Optional)
+  Port number to access on the container. Must be in the range 1 to 65535.
+  If not specified, defaults to the same value as container.ports[0].containerPort.
+
 * `http_headers` -
   (Optional)
   Custom headers to set in the request. HTTP allows repeated headers.
@@ -623,13 +634,15 @@ The following arguments are supported:
 
 * `port` -
   (Optional)
-  Port number to access on the container. Must be in the range 1 to 65535. If not specified, defaults to 8080.
+  Port number to access on the container. Must be in the range 1 to 65535.
+  If not specified, defaults to the same value as container.ports[0].containerPort.
 
 <a name="nested_grpc"></a>The `grpc` block supports:
 
 * `port` -
   (Optional)
-  Port number to access on the container. Number must be in the range 1 to 65535. If not specified, defaults to the same value as container.ports[0].containerPort.
+  Port number to access on the container. Number must be in the range 1 to 65535.
+  If not specified, defaults to the same value as container.ports[0].containerPort.
 
 * `service` -
   (Optional)
