@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: fixed an import bug for `google_compute_router_interface` that happened when project was not set in the provider configuration or via environment variable
+```
