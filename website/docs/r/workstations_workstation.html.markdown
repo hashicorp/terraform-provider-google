@@ -86,7 +86,7 @@ resource "google_workstations_workstation_config" "default" {
 
 resource "google_workstations_workstation" "default" {
   provider               = google-beta
-  workstation_id         = "workstation"
+  workstation_id         = "work-station"
   workstation_config_id  = google_workstations_workstation_config.default.workstation_config_id
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		         = "us-central1"
