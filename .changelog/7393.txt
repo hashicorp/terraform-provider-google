@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_workstations_workstation_iam`
+```
+```release-note:new-resource
+`google_workstations_workstation_config_iam`
+```
