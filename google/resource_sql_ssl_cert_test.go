@@ -129,11 +129,6 @@ func testGoogleSqlClientCert_postgres(instance string) string {
 		settings {
 			tier = "db-f1-micro"
 		}
-
-		timeouts {
-			create = "20m"
-			delete = "20m"
-		}
 	}
 
 	resource "google_sql_ssl_cert" "cert" {
