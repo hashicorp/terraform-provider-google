@@ -100,7 +100,7 @@ func resourceAccessContextManagerIngressPolicyCreate(d *schema.ResourceData, met
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{ingress_policy_name}}{{resource}}")
+	id, err := ReplaceVars(d, config, "{{ingress_policy_name}}/{{resource}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -134,7 +134,7 @@ func resourceAccessContextManagerIngressPolicyCreate(d *schema.ResourceData, met
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "{{ingress_policy_name}}{{resource}}")
+	id, err = ReplaceVars(d, config, "{{ingress_policy_name}}/{{resource}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
