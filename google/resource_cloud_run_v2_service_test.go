@@ -399,6 +399,7 @@ resource "google_cloud_run_v2_service" "default" {
         failure_threshold = 2
         http_get {
           path = "/some-path"
+          port = 8080
           http_headers {
             name = "User-Agent"
             value = "magic-modules"
@@ -448,6 +449,7 @@ resource "google_cloud_run_v2_service" "default" {
         failure_threshold = 3
         http_get {
           path = "/some-path"
+          port = 8080
           http_headers {
             name = "User-Agent"
             value = "magic-modules"
