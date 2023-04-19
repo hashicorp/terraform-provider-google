@@ -577,6 +577,7 @@ func Provider() *schema.Provider {
 			"google_access_approval_organization_service_account": DataSourceAccessApprovalOrganizationServiceAccount(),
 			"google_access_approval_project_service_account":      DataSourceAccessApprovalProjectServiceAccount(),
 			"google_active_folder":                                DataSourceGoogleActiveFolder(),
+			"google_alloydb_locations":                            DataSourceAlloydbLocations(),
 			"google_artifact_registry_repository":                 DataSourceArtifactRegistryRepository(),
 			"google_app_engine_default_service_account":           DataSourceGoogleAppEngineDefaultServiceAccount(),
 			"google_beyondcorp_app_connection":                    DataSourceGoogleBeyondcorpAppConnection(),
