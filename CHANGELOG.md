@@ -1,5 +1,11 @@
 ## 4.63.0 (Unreleased)
 
+
+## 4.62.1 (April 19, 2023)
+
+BUG FIXES:
+* compute: fixed a diff that occurred when `stack_type` was unset on `google_compute_ha_vpn_gateway` ([#14311](https://github.com/hashicorp/terraform-provider-google/pull/14311))
+
 ## 4.62.0 (April 17, 2023)
 
 FEATURES:
