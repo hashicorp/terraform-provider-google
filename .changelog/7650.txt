@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: made `network_firewall_policy_enforcement_order` field mutable in `google_compute_network`.
+```
