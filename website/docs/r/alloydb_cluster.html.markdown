@@ -188,12 +188,12 @@ The following arguments are supported:
 
 * `time_based_retention` -
   (Optional)
-  Time-based Backup retention policy.
+  Time-based Backup retention policy. Conflicts with 'quantity_based_retention', both can't be set together.
   Structure is [documented below](#nested_time_based_retention).
 
 * `quantity_based_retention` -
   (Optional)
-  Quantity-based Backup retention policy to retain recent backups.
+  Quantity-based Backup retention policy to retain recent backups. Conflicts with 'time_based_retention', both can't be set together.
   Structure is [documented below](#nested_quantity_based_retention).
 
 * `enabled` -

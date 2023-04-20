@@ -100,7 +100,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 						"quantity_based_retention": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `Quantity-based Backup retention policy to retain recent backups.`,
+							Description: `Quantity-based Backup retention policy to retain recent backups. Conflicts with 'time_based_retention', both can't be set together.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -116,7 +116,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 						"time_based_retention": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `Time-based Backup retention policy.`,
+							Description: `Time-based Backup retention policy. Conflicts with 'quantity_based_retention', both can't be set together.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
