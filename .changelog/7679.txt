@@ -1,0 +1,3 @@
+```release-note:none
+A new datasource for fetching the list of alloydb supported database flags in a location.
+```
