@@ -87,6 +87,7 @@ func TestAccAccessContextManager(t *testing.T) {
 		"access_level_custom":        testAccAccessContextManagerAccessLevel_customTest,
 		"access_levels":              testAccAccessContextManagerAccessLevels_basicTest,
 		"access_level_condition":     testAccAccessContextManagerAccessLevelCondition_basicTest,
+		"egress_policy":              testAccAccessContextManagerEgressPolicy_basicTest,
 		"ingress_policy":             testAccAccessContextManagerIngressPolicy_basicTest,
 		"service_perimeters":         testAccAccessContextManagerServicePerimeters_basicTest,
 		"gcp_user_access_binding":    testAccAccessContextManagerGcpUserAccessBinding_basicTest,
