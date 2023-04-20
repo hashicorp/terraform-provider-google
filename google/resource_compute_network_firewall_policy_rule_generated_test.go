@@ -82,6 +82,9 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
 
   match {
     src_ip_ranges = ["10.100.0.1/32"]
+    src_fqdns = ["google.com"]
+    src_region_codes = ["US"]
+    src_threat_intelligences = ["iplist-known-malicious-ips"]
 
     src_secure_tags {
       name = "tagValues/${google_tags_tag_value.basic_value.name}"
@@ -136,6 +139,9 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
 
   match {
     dest_ip_ranges = ["0.0.0.0/0"]
+    dest_fqdns = ["example.com"]
+    dest_region_codes = ["US"]
+    dest_threat_intelligences = ["iplist-known-malicious-ips"]
 
     layer4_configs {
       ip_protocol = "tcp"

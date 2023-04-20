@@ -1,0 +1,9 @@
+```release-note:enhancement
+compute: added 'dest_fqdns', 'dest_region_codes', 'dest_threat_intelligences', 'src_fqdns', 'src_region_codes', and 'src_threat_intelligences' to 'google_compute_firewall_policy_rule' resource.
+```
+```release-note:enhancement
+compute: added 'source_ip_ranges' and 'base_forwarding_rule' to 'google_compute_forwarding_rule' resource
+```
+```release-note:enhancement
+compute: added 'allow_psc_global_access' to 'google_compute_forwarding_rule' resource (beta)
+```

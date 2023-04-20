@@ -85,6 +85,9 @@ resource "google_compute_region_network_firewall_policy_rule" "primary" {
 
   match {
     src_ip_ranges = ["10.100.0.1/32"]
+    src_fqdns = ["example.com"]
+    src_region_codes = ["US"]
+    src_threat_intelligences = ["iplist-known-malicious-ips"]
 
     layer4_configs {
       ip_protocol = "all"
@@ -142,6 +145,9 @@ resource "google_compute_region_network_firewall_policy_rule" "primary" {
 
   match {
     dest_ip_ranges = ["0.0.0.0/0"]
+    dest_fqdns = ["example.com"]
+    dest_region_codes = ["US"]
+    dest_threat_intelligences = ["iplist-known-malicious-ips"]
 
     layer4_configs {
       ip_protocol = "tcp"

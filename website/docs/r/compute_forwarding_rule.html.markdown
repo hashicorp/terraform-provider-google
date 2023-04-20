@@ -1024,6 +1024,7 @@ resource "google_compute_forwarding_rule" "default" {
   target                = google_compute_service_attachment.producer_service_attachment.id
   network               = google_compute_network.consumer_net.name
   ip_address            = google_compute_address.consumer_address.id
+  allow_psc_global_access = true
 }
 
 // Consumer service endpoint
@@ -1124,6 +1125,58 @@ resource "google_compute_health_check" "producer_service_health_check" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=forwarding_rule_regional_steering&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Forwarding Rule Regional Steering
+
+
+```hcl
+// Forwarding rule for VPC private service connect
+resource "google_compute_forwarding_rule" "default" {
+  provider              = google-beta
+  name                  = "steering-rule"
+  region                = "us-central1"
+  ip_address            = google_compute_address.address.id
+  backend_service       = google_compute_region_backend_service.backend_service.id
+  network_tier = "PREMIUM"
+  description = "A test steering forwarding rule"
+  ip_protocol = "TCP"
+  load_balancing_scheme = "EXTERNAL"
+  port_range = "80-81"
+  source_ip_ranges = ["34.121.88.0/24", "35.187.239.137"]
+  depends_on = [google_compute_forwarding_rule.external_forwarding_rule]
+}
+
+resource "google_compute_address" "address" {
+  name         = "website-ip-1"
+  provider     = google-beta
+  region       = "us-central1"
+}
+
+resource "google_compute_forwarding_rule" "external_forwarding_rule" {
+  provider = google-beta
+  name     = "forwarding-rule"
+  region                = "us-central1"
+  ip_address            = google_compute_address.address.id
+  backend_service       = google_compute_region_backend_service.backend_service.id
+  network_tier = "PREMIUM"
+  description = "A test steering forwarding rule"
+  ip_protocol = "TCP"
+  load_balancing_scheme = "EXTERNAL"
+  port_range = "80-81"
+}
+
+resource "google_compute_region_backend_service" "backend_service" {
+  provider = google-beta
+  name     = "service-backend"
+  region   = "us-central1"
+
+  load_balancing_scheme = "EXTERNAL"
+}
+```
 
 ## Argument Reference
 
@@ -1152,6 +1205,11 @@ The following arguments are supported:
   mirrored even if a PacketMirroring rule applies to them. This
   can only be set to true for load balancers that have their
   loadBalancingScheme set to INTERNAL.
+
+* `allow_psc_global_access` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  This is used in PSC consumer ForwardingRule to control 
+  whether the PSC endpoint can be accessed from another region.
 
 * `description` -
   (Optional)

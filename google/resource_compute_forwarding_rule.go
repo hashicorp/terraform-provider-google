@@ -190,6 +190,14 @@ func ResourceComputeForwardingRule() *schema.Resource {
 				ValidateFunc: validateGCEName,
 			},
 
+			"source_ip_ranges": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "If not empty, this Forwarding Rule will only forward the traffic when the source IP address matches one of the IP addresses or CIDR ranges set here. Note that a Forwarding Rule can only have up to 64 source IP ranges, and this field can only be used with a regional Forwarding Rule whose scheme is EXTERNAL. Each sourceIpRange entry should be either an IP address (for example, 1.2.3.4) or a CIDR range (for example, 1.2.3.0/24).",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
 			"subnetwork": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -204,6 +212,12 @@ func ResourceComputeForwardingRule() *schema.Resource {
 				Optional:         true,
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
 				Description:      "The URL of the target resource to receive the matched traffic. For regional forwarding rules, this target must live in the same region as the forwarding rule. For global forwarding rules, this target must be a global load balancing resource. The forwarded traffic must be of a type appropriate to the target object. For `INTERNAL_SELF_MANAGED` load balancing, only `targetHttpProxy` is valid, not `targetHttpsProxy`.",
+			},
+
+			"base_forwarding_rule": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "[Output Only] The URL for the corresponding base Forwarding Rule. By base Forwarding Rule, we mean the Forwarding Rule that has the same IP address, protocol, and port settings with the current Forwarding Rule, but without sourceIPRanges specified. Always empty if the current Forwarding Rule does not have sourceIPRanges specified.",
 			},
 
 			"creation_timestamp": {
@@ -296,6 +310,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		Location:                      dcl.String(region),
 		ServiceDirectoryRegistrations: expandComputeForwardingRuleServiceDirectoryRegistrationsArray(d.Get("service_directory_registrations")),
 		ServiceLabel:                  dcl.String(d.Get("service_label").(string)),
+		SourceIPRanges:                expandStringArray(d.Get("source_ip_ranges")),
 		Subnetwork:                    dcl.StringOrNil(d.Get("subnetwork").(string)),
 		Target:                        dcl.String(d.Get("target").(string)),
 	}
@@ -367,6 +382,7 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 		Location:                      dcl.String(region),
 		ServiceDirectoryRegistrations: expandComputeForwardingRuleServiceDirectoryRegistrationsArray(d.Get("service_directory_registrations")),
 		ServiceLabel:                  dcl.String(d.Get("service_label").(string)),
+		SourceIPRanges:                expandStringArray(d.Get("source_ip_ranges")),
 		Subnetwork:                    dcl.StringOrNil(d.Get("subnetwork").(string)),
 		Target:                        dcl.String(d.Get("target").(string)),
 	}
@@ -447,11 +463,17 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 	if err = d.Set("service_label", res.ServiceLabel); err != nil {
 		return fmt.Errorf("error setting service_label in state: %s", err)
 	}
+	if err = d.Set("source_ip_ranges", res.SourceIPRanges); err != nil {
+		return fmt.Errorf("error setting source_ip_ranges in state: %s", err)
+	}
 	if err = d.Set("subnetwork", res.Subnetwork); err != nil {
 		return fmt.Errorf("error setting subnetwork in state: %s", err)
 	}
 	if err = d.Set("target", res.Target); err != nil {
 		return fmt.Errorf("error setting target in state: %s", err)
+	}
+	if err = d.Set("base_forwarding_rule", res.BaseForwardingRule); err != nil {
+		return fmt.Errorf("error setting base_forwarding_rule in state: %s", err)
 	}
 	if err = d.Set("creation_timestamp", res.CreationTimestamp); err != nil {
 		return fmt.Errorf("error setting creation_timestamp in state: %s", err)
@@ -504,6 +526,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		Location:                      dcl.String(region),
 		ServiceDirectoryRegistrations: expandComputeForwardingRuleServiceDirectoryRegistrationsArray(d.Get("service_directory_registrations")),
 		ServiceLabel:                  dcl.String(d.Get("service_label").(string)),
+		SourceIPRanges:                expandStringArray(d.Get("source_ip_ranges")),
 		Subnetwork:                    dcl.StringOrNil(d.Get("subnetwork").(string)),
 		Target:                        dcl.String(d.Get("target").(string)),
 	}
@@ -570,6 +593,7 @@ func resourceComputeForwardingRuleDelete(d *schema.ResourceData, meta interface{
 		Location:                      dcl.String(region),
 		ServiceDirectoryRegistrations: expandComputeForwardingRuleServiceDirectoryRegistrationsArray(d.Get("service_directory_registrations")),
 		ServiceLabel:                  dcl.String(d.Get("service_label").(string)),
+		SourceIPRanges:                expandStringArray(d.Get("source_ip_ranges")),
 		Subnetwork:                    dcl.StringOrNil(d.Get("subnetwork").(string)),
 		Target:                        dcl.String(d.Get("target").(string)),
 	}
