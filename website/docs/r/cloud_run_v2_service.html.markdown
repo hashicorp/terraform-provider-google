@@ -473,6 +473,10 @@ The following arguments are supported:
   (Optional)
   Determines whether CPU should be throttled or not outside of requests.
 
+* `startup_cpu_boost` -
+  (Optional)
+  Determines whether CPU should be boosted on startup of a new container instance above the requested CPU threshold, this can help reduce cold-start latency.
+
 <a name="nested_ports"></a>The `ports` block supports:
 
 * `name` -

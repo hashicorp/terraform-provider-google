@@ -303,6 +303,11 @@ If omitted, a port number will be chosen and passed to the container through the
 													Description: `Only memory and CPU are supported. Note: The only supported values for CPU are '1', '2', '4', and '8'. Setting 4 CPU requires at least 2Gi of memory. The values of the map is string form of the 'quantity' k8s type: https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go`,
 													Elem:        &schema.Schema{Type: schema.TypeString},
 												},
+												"startup_cpu_boost": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Determines whether CPU should be boosted on startup of a new container instance above the requested CPU threshold, this can help reduce cold-start latency.`,
+												},
 											},
 										},
 									},
@@ -1618,6 +1623,8 @@ func flattenCloudRunV2ServiceTemplateContainersResources(v interface{}, d *schem
 		flattenCloudRunV2ServiceTemplateContainersResourcesLimits(original["limits"], d, config)
 	transformed["cpu_idle"] =
 		flattenCloudRunV2ServiceTemplateContainersResourcesCpuIdle(original["cpuIdle"], d, config)
+	transformed["startup_cpu_boost"] =
+		flattenCloudRunV2ServiceTemplateContainersResourcesStartupCpuBoost(original["startupCpuBoost"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudRunV2ServiceTemplateContainersResourcesLimits(v interface{}, d *schema.ResourceData, config *Config) interface{} {
@@ -1625,6 +1632,10 @@ func flattenCloudRunV2ServiceTemplateContainersResourcesLimits(v interface{}, d 
 }
 
 func flattenCloudRunV2ServiceTemplateContainersResourcesCpuIdle(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceTemplateContainersResourcesStartupCpuBoost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
 	return v
 }
 
@@ -3036,6 +3047,13 @@ func expandCloudRunV2ServiceTemplateContainersResources(v interface{}, d Terrafo
 		transformed["cpuIdle"] = transformedCpuIdle
 	}
 
+	transformedStartupCpuBoost, err := expandCloudRunV2ServiceTemplateContainersResourcesStartupCpuBoost(original["startup_cpu_boost"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStartupCpuBoost); val.IsValid() && !isEmptyValue(val) {
+		transformed["startupCpuBoost"] = transformedStartupCpuBoost
+	}
+
 	return transformed, nil
 }
 
@@ -3051,6 +3069,10 @@ func expandCloudRunV2ServiceTemplateContainersResourcesLimits(v interface{}, d T
 }
 
 func expandCloudRunV2ServiceTemplateContainersResourcesCpuIdle(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceTemplateContainersResourcesStartupCpuBoost(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
 	return v, nil
 }
 
