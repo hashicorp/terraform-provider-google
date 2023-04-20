@@ -95,6 +95,7 @@ resource "google_cloud_run_v2_service" "default" {
         }
       }
     }
+    session_affinity = false
   }
 }
 
@@ -166,6 +167,7 @@ resource "google_cloud_run_v2_service" "default" {
       connector = google_vpc_access_connector.connector.id
       egress = "ALL_TRAFFIC"
     }
+    session_affinity = true
   }
   traffic {
     type = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"

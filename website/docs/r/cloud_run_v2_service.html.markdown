@@ -349,6 +349,10 @@ The following arguments are supported:
   (Optional)
   Sets the maximum number of requests that each serving instance can receive.
 
+* `session_affinity` -
+  (Optional)
+  Enables session affinity. For more information, go to https://cloud.google.com/run/docs/configuring/session-affinity
+
 
 <a name="nested_scaling"></a>The `scaling` block supports:
 
