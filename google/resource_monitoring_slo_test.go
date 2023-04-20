@@ -69,6 +69,25 @@ func getTestResourceMonitoringSloId(res string, s *terraform.State) (string, err
 	return "", fmt.Errorf("slo_id not set on resource %s", res)
 }
 
+func TestFlattenMonitoringSloService(t *testing.T) {
+	cases := map[string]struct {
+		Name            interface{}
+		ExpectedService string
+	}{
+		"service is extracted from name": {
+			// https://cloud.google.com/monitoring/api/ref_v3/rest/v3/services.serviceLevelObjectives/get#path-parameters
+			Name:            "projects/PROJECT_ID_OR_NUMBER/services/SERVICE_ID/serviceLevelObjectives/SLO_NAME",
+			ExpectedService: "SERVICE_ID",
+		},
+	}
+
+	for tn, tc := range cases {
+		if n := flattenMonitoringSloService(tc.Name, nil, nil); n != tc.ExpectedService {
+			t.Errorf("%s: expected service %q; got %q", tn, tc.ExpectedService, n)
+		}
+	}
+}
+
 func TestAccMonitoringSlo_basic(t *testing.T) {
 	t.Parallel()
 
