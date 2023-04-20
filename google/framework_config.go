@@ -94,6 +94,7 @@ func (p *frameworkProvider) LoadAndValidateFramework(ctx context.Context, data P
 	p.ComputeBasePath = data.ComputeCustomEndpoint.ValueString()
 	p.ContainerAnalysisBasePath = data.ContainerAnalysisCustomEndpoint.ValueString()
 	p.ContainerAttachedBasePath = data.ContainerAttachedCustomEndpoint.ValueString()
+	p.DatabaseMigrationServiceBasePath = data.DatabaseMigrationServiceCustomEndpoint.ValueString()
 	p.DataCatalogBasePath = data.DataCatalogCustomEndpoint.ValueString()
 	p.DataFusionBasePath = data.DataFusionCustomEndpoint.ValueString()
 	p.DataLossPreventionBasePath = data.DataLossPreventionCustomEndpoint.ValueString()
@@ -524,6 +525,14 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 		}, DefaultBasePaths[ContainerAttachedBasePathKey])
 		if customEndpoint != nil {
 			data.ContainerAttachedCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.DatabaseMigrationServiceCustomEndpoint.IsNull() {
+		customEndpoint := MultiEnvDefault([]string{
+			"GOOGLE_DATABASE_MIGRATION_SERVICE_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[DatabaseMigrationServiceBasePathKey])
+		if customEndpoint != nil {
+			data.DatabaseMigrationServiceCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DataCatalogCustomEndpoint.IsNull() {
