@@ -160,10 +160,38 @@ func ComputeRegionNetworkFirewallPolicyRuleMatchSchema() *schema.Resource {
 				Elem:        ComputeRegionNetworkFirewallPolicyRuleMatchLayer4ConfigsSchema(),
 			},
 
+			"dest_fqdns": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Domain names that will be used to match against the resolved domain name of destination of traffic. Can only be specified if DIRECTION is egress.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
 			"dest_ip_ranges": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "CIDR IP address range. Maximum number of destination CIDR IP ranges allowed is 5000.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"dest_region_codes": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "The Unicode country codes whose IP addresses will be used to match against the source of traffic. Can only be specified if DIRECTION is egress.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"dest_threat_intelligences": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Name of the Google Cloud Threat Intelligence list.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"src_fqdns": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Domain names that will be used to match against the resolved domain name of source of traffic. Can only be specified if DIRECTION is ingress.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -174,11 +202,25 @@ func ComputeRegionNetworkFirewallPolicyRuleMatchSchema() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
+			"src_region_codes": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "The Unicode country codes whose IP addresses will be used to match against the source of traffic. Can only be specified if DIRECTION is ingress.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
 			"src_secure_tags": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "List of secure tag values, which should be matched at the source of the traffic. For INGRESS rule, if all the <code>srcSecureTag</code> are INEFFECTIVE, and there is no <code>srcIpRange</code>, this rule will be ignored. Maximum number of source tag values allowed is 256.",
 				Elem:        ComputeRegionNetworkFirewallPolicyRuleMatchSrcSecureTagsSchema(),
+			},
+
+			"src_threat_intelligences": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Name of the Google Cloud Threat Intelligence list.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -545,10 +587,16 @@ func expandComputeRegionNetworkFirewallPolicyRuleMatch(o interface{}) *compute.N
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &compute.NetworkFirewallPolicyRuleMatch{
-		Layer4Configs: expandComputeRegionNetworkFirewallPolicyRuleMatchLayer4ConfigsArray(obj["layer4_configs"]),
-		DestIPRanges:  expandStringArray(obj["dest_ip_ranges"]),
-		SrcIPRanges:   expandStringArray(obj["src_ip_ranges"]),
-		SrcSecureTags: expandComputeRegionNetworkFirewallPolicyRuleMatchSrcSecureTagsArray(obj["src_secure_tags"]),
+		Layer4Configs:           expandComputeRegionNetworkFirewallPolicyRuleMatchLayer4ConfigsArray(obj["layer4_configs"]),
+		DestFqdns:               expandStringArray(obj["dest_fqdns"]),
+		DestIPRanges:            expandStringArray(obj["dest_ip_ranges"]),
+		DestRegionCodes:         expandStringArray(obj["dest_region_codes"]),
+		DestThreatIntelligences: expandStringArray(obj["dest_threat_intelligences"]),
+		SrcFqdns:                expandStringArray(obj["src_fqdns"]),
+		SrcIPRanges:             expandStringArray(obj["src_ip_ranges"]),
+		SrcRegionCodes:          expandStringArray(obj["src_region_codes"]),
+		SrcSecureTags:           expandComputeRegionNetworkFirewallPolicyRuleMatchSrcSecureTagsArray(obj["src_secure_tags"]),
+		SrcThreatIntelligences:  expandStringArray(obj["src_threat_intelligences"]),
 	}
 }
 
@@ -557,10 +605,16 @@ func flattenComputeRegionNetworkFirewallPolicyRuleMatch(obj *compute.NetworkFire
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"layer4_configs":  flattenComputeRegionNetworkFirewallPolicyRuleMatchLayer4ConfigsArray(obj.Layer4Configs),
-		"dest_ip_ranges":  obj.DestIPRanges,
-		"src_ip_ranges":   obj.SrcIPRanges,
-		"src_secure_tags": flattenComputeRegionNetworkFirewallPolicyRuleMatchSrcSecureTagsArray(obj.SrcSecureTags),
+		"layer4_configs":            flattenComputeRegionNetworkFirewallPolicyRuleMatchLayer4ConfigsArray(obj.Layer4Configs),
+		"dest_fqdns":                obj.DestFqdns,
+		"dest_ip_ranges":            obj.DestIPRanges,
+		"dest_region_codes":         obj.DestRegionCodes,
+		"dest_threat_intelligences": obj.DestThreatIntelligences,
+		"src_fqdns":                 obj.SrcFqdns,
+		"src_ip_ranges":             obj.SrcIPRanges,
+		"src_region_codes":          obj.SrcRegionCodes,
+		"src_secure_tags":           flattenComputeRegionNetworkFirewallPolicyRuleMatchSrcSecureTagsArray(obj.SrcSecureTags),
+		"src_threat_intelligences":  obj.SrcThreatIntelligences,
 	}
 
 	return []interface{}{transformed}

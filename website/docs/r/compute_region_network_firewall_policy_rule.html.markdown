@@ -45,6 +45,9 @@ resource "google_compute_region_network_firewall_policy_rule" "primary" {
 
   match {
     src_ip_ranges = ["10.100.0.1/32"]
+    src_fqdns = ["example.com"]
+    src_region_codes = ["US"]
+    src_threat_intelligences = ["iplist-known-malicious-ips"]
 
     layer4_configs {
       ip_protocol = "all"
@@ -107,21 +110,45 @@ The following arguments are supported:
 
 The `match` block supports:
     
+* `dest_fqdns` -
+  (Optional)
+  Domain names that will be used to match against the resolved domain name of destination of traffic. Can only be specified if DIRECTION is egress.
+    
 * `dest_ip_ranges` -
   (Optional)
   CIDR IP address range. Maximum number of destination CIDR IP ranges allowed is 5000.
+    
+* `dest_region_codes` -
+  (Optional)
+  The Unicode country codes whose IP addresses will be used to match against the source of traffic. Can only be specified if DIRECTION is egress.
+    
+* `dest_threat_intelligences` -
+  (Optional)
+  Name of the Google Cloud Threat Intelligence list.
     
 * `layer4_configs` -
   (Required)
   Pairs of IP protocols and ports that the rule should match.
     
+* `src_fqdns` -
+  (Optional)
+  Domain names that will be used to match against the resolved domain name of source of traffic. Can only be specified if DIRECTION is ingress.
+    
 * `src_ip_ranges` -
   (Optional)
   CIDR IP address range. Maximum number of source CIDR IP ranges allowed is 5000.
     
+* `src_region_codes` -
+  (Optional)
+  The Unicode country codes whose IP addresses will be used to match against the source of traffic. Can only be specified if DIRECTION is ingress.
+    
 * `src_secure_tags` -
   (Optional)
   List of secure tag values, which should be matched at the source of the traffic. For INGRESS rule, if all the <code>srcSecureTag</code> are INEFFECTIVE, and there is no <code>srcIpRange</code>, this rule will be ignored. Maximum number of source tag values allowed is 256.
+    
+* `src_threat_intelligences` -
+  (Optional)
+  Name of the Google Cloud Threat Intelligence list.
     
 The `layer4_configs` block supports:
     
