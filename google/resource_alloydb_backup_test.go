@@ -157,3 +157,78 @@ resource "google_service_networking_connection" "vpc_connection" {
 }
 `, context)
 }
+
+// Test to create on-demand backup with mandatory fields.
+func TestAccAlloydbBackup_createBackupWithMandatoryFields(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbBackupDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbBackup_createBackupWithMandatoryFields(context),
+			},
+		},
+	})
+}
+
+func testAccAlloydbBackup_createBackupWithMandatoryFields(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_alloydb_backup" "default" {
+  backup_id    = "tf-test-alloydb-backup%{random_suffix}"
+  location = "us-central1"
+  cluster_name = google_alloydb_cluster.default.name
+  depends_on = [google_alloydb_instance.default]
+}
+
+resource "google_alloydb_cluster" "default" {
+  location = "us-central1"
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  network    = google_compute_network.default.id
+}
+
+data "google_project" "project" { }
+
+resource "google_compute_network" "default" {
+  name = "tf-test-alloydb-cluster%{random_suffix}"
+}
+
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+
+  depends_on = [google_service_networking_connection.vpc_connection]
+}
+
+resource "google_compute_global_address" "private_ip_alloc" {
+  name          =  "tf-test-alloydb-cluster%{random_suffix}"
+  address_type  = "INTERNAL"
+  purpose       = "VPC_PEERING"
+  prefix_length = 16
+  network       = google_compute_network.default.id
+  lifecycle {
+	ignore_changes = [
+		address,
+		creation_timestamp,
+		id,
+		network,
+		project,
+		self_link
+	]
+  }
+}
+
+resource "google_service_networking_connection" "vpc_connection" {
+  network                 = google_compute_network.default.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+}
+`, context)
+}
