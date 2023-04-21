@@ -1,4 +1,4 @@
-package google
+package transport
 
 import (
 	"net/http"
@@ -10,7 +10,7 @@ type headerTransportLayer struct {
 	baseTransit http.RoundTripper
 }
 
-func newTransportWithHeaders(baseTransit http.RoundTripper) headerTransportLayer {
+func NewTransportWithHeaders(baseTransit http.RoundTripper) headerTransportLayer {
 	if baseTransit == nil {
 		baseTransit = http.DefaultTransport
 	}

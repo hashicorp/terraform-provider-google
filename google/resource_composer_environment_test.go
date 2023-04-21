@@ -3,6 +3,7 @@ package google
 import (
 	"context"
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"testing"
 
 	"log"
@@ -2389,7 +2390,7 @@ func testSweepComposerResources(region string) error {
 	return nil
 }
 
-func testSweepComposerEnvironments(config *Config, region string) error {
+func testSweepComposerEnvironments(config *transport_tpg.Config, region string) error {
 	found, err := config.NewComposerClient(config.UserAgent).Projects.Locations.Environments.List(
 		fmt.Sprintf("projects/%s/locations/%s", config.Project, region)).Do()
 	if err != nil {
@@ -2442,7 +2443,7 @@ func testSweepComposerEnvironments(config *Config, region string) error {
 	return allErrors
 }
 
-func testSweepComposerEnvironmentBuckets(config *Config, region string) error {
+func testSweepComposerEnvironmentBuckets(config *transport_tpg.Config, region string) error {
 	artifactsBName := fmt.Sprintf("artifacts.%s.appspot.com", config.Project)
 	artifactBucket, err := config.NewStorageClient(config.UserAgent).Buckets.Get(artifactsBName).Do()
 	if err != nil {
@@ -2475,7 +2476,7 @@ func testSweepComposerEnvironmentBuckets(config *Config, region string) error {
 	return nil
 }
 
-func testSweepComposerEnvironmentCleanUpBucket(config *Config, bucket *storage.Bucket) error {
+func testSweepComposerEnvironmentCleanUpBucket(config *transport_tpg.Config, bucket *storage.Bucket) error {
 	var allErrors error
 	objList, err := config.NewStorageClient(config.UserAgent).Objects.List(bucket.Name).Do()
 	if err != nil {

@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceDataCatalogTag() *schema.Resource {
@@ -138,7 +139,7 @@ where tag_id is a system-generated identifier. Note that this Tag may not actual
 }
 
 func resourceDataCatalogTagCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -203,7 +204,7 @@ func resourceDataCatalogTagCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDataCatalogTagRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -258,7 +259,7 @@ func resourceDataCatalogTagRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceDataCatalogTagUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -324,7 +325,7 @@ func resourceDataCatalogTagUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDataCatalogTagDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -355,7 +356,7 @@ func resourceDataCatalogTagDelete(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDataCatalogTagImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -376,19 +377,19 @@ func resourceDataCatalogTagImport(d *schema.ResourceData, meta interface{}) ([]*
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenNestedDataCatalogTagName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedDataCatalogTagName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedDataCatalogTagTemplate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedDataCatalogTagTemplate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedDataCatalogTagTemplateDisplayname(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedDataCatalogTagTemplateDisplayname(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedDataCatalogTagFields(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedDataCatalogTagFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -409,11 +410,11 @@ func flattenNestedDataCatalogTagFields(v interface{}, d *schema.ResourceData, co
 	}
 	return transformed
 }
-func flattenNestedDataCatalogTagFieldsDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedDataCatalogTagFieldsDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedDataCatalogTagFieldsOrder(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedDataCatalogTagFieldsOrder(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -430,23 +431,23 @@ func flattenNestedDataCatalogTagFieldsOrder(v interface{}, d *schema.ResourceDat
 	return v // let terraform core handle it otherwise
 }
 
-func flattenNestedDataCatalogTagFieldsDoubleValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedDataCatalogTagFieldsDoubleValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedDataCatalogTagFieldsStringValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedDataCatalogTagFieldsStringValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedDataCatalogTagFieldsBoolValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedDataCatalogTagFieldsBoolValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedDataCatalogTagFieldsTimestampValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedDataCatalogTagFieldsTimestampValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedDataCatalogTagFieldsEnumValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedDataCatalogTagFieldsEnumValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -454,15 +455,15 @@ func flattenNestedDataCatalogTagFieldsEnumValue(v interface{}, d *schema.Resourc
 	return v.(map[string]interface{})["displayName"]
 }
 
-func flattenNestedDataCatalogTagColumn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedDataCatalogTagColumn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandNestedDataCatalogTagTemplate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedDataCatalogTagTemplate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedDataCatalogTagFields(v interface{}, d TerraformResourceData, config *Config) (map[string]interface{}, error) {
+func expandNestedDataCatalogTagFields(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
 	if v == nil {
 		return map[string]interface{}{}, nil
 	}
@@ -529,31 +530,31 @@ func expandNestedDataCatalogTagFields(v interface{}, d TerraformResourceData, co
 	return m, nil
 }
 
-func expandNestedDataCatalogTagFieldsDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedDataCatalogTagFieldsDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedDataCatalogTagFieldsOrder(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedDataCatalogTagFieldsOrder(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedDataCatalogTagFieldsDoubleValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedDataCatalogTagFieldsDoubleValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedDataCatalogTagFieldsStringValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedDataCatalogTagFieldsStringValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedDataCatalogTagFieldsBoolValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedDataCatalogTagFieldsBoolValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedDataCatalogTagFieldsTimestampValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedDataCatalogTagFieldsTimestampValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedDataCatalogTagFieldsEnumValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedDataCatalogTagFieldsEnumValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	// we flattened the original["enum_value"]["display_name"] object to be just original["enum_value"] so here,
 	// v is the value we want from the config
 	transformed := make(map[string]interface{})
@@ -564,7 +565,7 @@ func expandNestedDataCatalogTagFieldsEnumValue(v interface{}, d TerraformResourc
 	return transformed, nil
 }
 
-func expandNestedDataCatalogTagColumn(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedDataCatalogTagColumn(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -616,7 +617,7 @@ func flattenNestedDataCatalogTag(d *schema.ResourceData, meta interface{}, res m
 
 func resourceDataCatalogTagFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
 	expectedName := d.Get("name")
-	expectedFlattenedName := flattenNestedDataCatalogTagName(expectedName, d, meta.(*Config))
+	expectedFlattenedName := flattenNestedDataCatalogTagName(expectedName, d, meta.(*transport_tpg.Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -625,7 +626,7 @@ func resourceDataCatalogTagFindNestedObjectInList(d *schema.ResourceData, meta i
 		}
 		item := itemRaw.(map[string]interface{})
 
-		itemName := flattenNestedDataCatalogTagName(item["name"], d, meta.(*Config))
+		itemName := flattenNestedDataCatalogTagName(item["name"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
 			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedFlattenedName)

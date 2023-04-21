@@ -22,6 +22,7 @@ import (
 	firebaserules "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/firebaserules"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"strings"
 	"testing"
 )
@@ -135,7 +136,7 @@ func testAccCheckFirebaserulesRulesetDestroyProducer(t *testing.T) func(s *terra
 				Name:       dcl.StringOrNil(rs.Primary.Attributes["name"]),
 			}
 
-			client := NewDCLFirebaserulesClient(config, config.UserAgent, billingProject, 0)
+			client := transport_tpg.NewDCLFirebaserulesClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetRuleset(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_firebaserules_ruleset still exists %v", obj)

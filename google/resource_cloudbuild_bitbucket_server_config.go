@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceCloudBuildBitbucketServerConfig() *schema.Resource {
@@ -158,7 +159,7 @@ func cloudbuildBitbucketServerConfigConnectedRepositoriesSchema() *schema.Resour
 }
 
 func resourceCloudBuildBitbucketServerConfigCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -317,7 +318,7 @@ func resourceCloudBuildBitbucketServerConfigCreate(d *schema.ResourceData, meta 
 }
 
 func resourceCloudBuildBitbucketServerConfigRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -382,7 +383,7 @@ func resourceCloudBuildBitbucketServerConfigRead(d *schema.ResourceData, meta in
 }
 
 func resourceCloudBuildBitbucketServerConfigUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -588,7 +589,7 @@ func resourceCloudBuildBitbucketServerConfigUpdate(d *schema.ResourceData, meta 
 }
 
 func resourceCloudBuildBitbucketServerConfigDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -633,7 +634,7 @@ func resourceCloudBuildBitbucketServerConfigDelete(d *schema.ResourceData, meta 
 }
 
 func resourceCloudBuildBitbucketServerConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/bitbucketServerConfigs/(?P<config_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<config_id>[^/]+)",
@@ -652,15 +653,15 @@ func resourceCloudBuildBitbucketServerConfigImport(d *schema.ResourceData, meta 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenCloudBuildBitbucketServerConfigName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudBuildBitbucketServerConfigName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudBuildBitbucketServerConfigHostUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudBuildBitbucketServerConfigHostUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudBuildBitbucketServerConfigSecrets(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudBuildBitbucketServerConfigSecrets(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -677,31 +678,31 @@ func flattenCloudBuildBitbucketServerConfigSecrets(v interface{}, d *schema.Reso
 		flattenCloudBuildBitbucketServerConfigSecretsWebhookSecretVersionName(original["webhookSecretVersionName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudBuildBitbucketServerConfigSecretsAdminAccessTokenVersionName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudBuildBitbucketServerConfigSecretsAdminAccessTokenVersionName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudBuildBitbucketServerConfigSecretsReadAccessTokenVersionName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudBuildBitbucketServerConfigSecretsReadAccessTokenVersionName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudBuildBitbucketServerConfigSecretsWebhookSecretVersionName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudBuildBitbucketServerConfigSecretsWebhookSecretVersionName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudBuildBitbucketServerConfigUsername(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudBuildBitbucketServerConfigUsername(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudBuildBitbucketServerConfigWebhookKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudBuildBitbucketServerConfigWebhookKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudBuildBitbucketServerConfigApiKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudBuildBitbucketServerConfigApiKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudBuildBitbucketServerConfigConnectedRepositories(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudBuildBitbucketServerConfigConnectedRepositories(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -720,27 +721,27 @@ func flattenCloudBuildBitbucketServerConfigConnectedRepositories(v interface{}, 
 	}
 	return transformed
 }
-func flattenCloudBuildBitbucketServerConfigConnectedRepositoriesProjectKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudBuildBitbucketServerConfigConnectedRepositoriesProjectKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudBuildBitbucketServerConfigConnectedRepositoriesRepoSlug(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudBuildBitbucketServerConfigConnectedRepositoriesRepoSlug(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudBuildBitbucketServerConfigPeeredNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudBuildBitbucketServerConfigPeeredNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudBuildBitbucketServerConfigSslCa(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudBuildBitbucketServerConfigSslCa(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandCloudBuildBitbucketServerConfigHostUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildBitbucketServerConfigHostUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildBitbucketServerConfigSecrets(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildBitbucketServerConfigSecrets(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -773,27 +774,27 @@ func expandCloudBuildBitbucketServerConfigSecrets(v interface{}, d TerraformReso
 	return transformed, nil
 }
 
-func expandCloudBuildBitbucketServerConfigSecretsAdminAccessTokenVersionName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildBitbucketServerConfigSecretsAdminAccessTokenVersionName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildBitbucketServerConfigSecretsReadAccessTokenVersionName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildBitbucketServerConfigSecretsReadAccessTokenVersionName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildBitbucketServerConfigSecretsWebhookSecretVersionName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildBitbucketServerConfigSecretsWebhookSecretVersionName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildBitbucketServerConfigUsername(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildBitbucketServerConfigUsername(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildBitbucketServerConfigApiKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildBitbucketServerConfigApiKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildBitbucketServerConfigConnectedRepositories(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildBitbucketServerConfigConnectedRepositories(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -823,19 +824,19 @@ func expandCloudBuildBitbucketServerConfigConnectedRepositories(v interface{}, d
 	return req, nil
 }
 
-func expandCloudBuildBitbucketServerConfigConnectedRepositoriesProjectKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildBitbucketServerConfigConnectedRepositoriesProjectKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildBitbucketServerConfigConnectedRepositoriesRepoSlug(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildBitbucketServerConfigConnectedRepositoriesRepoSlug(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildBitbucketServerConfigPeeredNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildBitbucketServerConfigPeeredNetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudBuildBitbucketServerConfigSslCa(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudBuildBitbucketServerConfigSslCa(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

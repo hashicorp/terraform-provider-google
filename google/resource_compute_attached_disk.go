@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"strings"
 	"time"
@@ -77,7 +78,7 @@ func ResourceComputeAttachedDisk() *schema.Resource {
 }
 
 func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -125,7 +126,7 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -185,7 +186,7 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -225,7 +226,7 @@ func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceAttachedDiskImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	err := ParseImportId(
 		[]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)/(?P<disk>[^/]+)",

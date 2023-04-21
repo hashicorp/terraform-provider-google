@@ -3,6 +3,7 @@ package google
 import (
 	"context"
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"os"
 	"time"
 
@@ -25,8 +26,8 @@ func Provider() *schema.Provider {
 	// mtls is enabled.
 	if isMtls() {
 		// if mtls is enabled switch all default endpoints to use the mtls endpoint
-		for key, bp := range DefaultBasePaths {
-			DefaultBasePaths[key] = getMtlsEndpoint(bp)
+		for key, bp := range transport_tpg.DefaultBasePaths {
+			transport_tpg.DefaultBasePaths[key] = getMtlsEndpoint(bp)
 		}
 	}
 
@@ -120,453 +121,453 @@ func Provider() *schema.Provider {
 			"access_approval_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"access_context_manager_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"active_directory_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"alloydb_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"apigee_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"app_engine_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"artifact_registry_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"beyondcorp_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"big_query_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"bigquery_analytics_hub_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"bigquery_connection_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"bigquery_datapolicy_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"bigquery_data_transfer_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"bigquery_reservation_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"bigtable_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"billing_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"binary_authorization_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"certificate_manager_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"cloud_asset_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"cloud_build_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"cloud_functions_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"cloudfunctions2_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"cloud_identity_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"cloud_ids_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"cloud_iot_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"cloud_run_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"cloud_run_v2_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"cloud_scheduler_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"cloud_tasks_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"compute_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"container_analysis_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"container_attached_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"database_migration_service_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"data_catalog_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"data_fusion_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"data_loss_prevention_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"dataplex_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"dataproc_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"dataproc_metastore_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"datastore_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"datastream_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"deployment_manager_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"dialogflow_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"dialogflow_cx_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"dns_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"document_ai_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"essential_contacts_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"filestore_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"firestore_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"game_services_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"gke_backup_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"gke_hub_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"healthcare_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"iam2_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"iam_beta_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"iam_workforce_pool_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"iap_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"identity_platform_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"kms_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"logging_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"memcache_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"ml_engine_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"monitoring_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"network_management_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"network_services_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"notebooks_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"os_config_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"os_login_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"privateca_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"pubsub_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"pubsub_lite_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"redis_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"resource_manager_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"secret_manager_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"security_center_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"service_management_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"service_usage_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"source_repo_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"spanner_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"sql_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"storage_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"storage_transfer_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"tags_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"tpu_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"vertex_ai_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"vpc_access_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"workflows_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateCustomEndpoint,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 
 			// Handwritten Products / Versioned / Atypical Entries
-			CloudBillingCustomEndpointEntryKey:      CloudBillingCustomEndpointEntry,
-			ComposerCustomEndpointEntryKey:          ComposerCustomEndpointEntry,
-			ContainerCustomEndpointEntryKey:         ContainerCustomEndpointEntry,
-			DataflowCustomEndpointEntryKey:          DataflowCustomEndpointEntry,
-			IamCredentialsCustomEndpointEntryKey:    IamCredentialsCustomEndpointEntry,
-			ResourceManagerV3CustomEndpointEntryKey: ResourceManagerV3CustomEndpointEntry,
-			IAMCustomEndpointEntryKey:               IAMCustomEndpointEntry,
-			ServiceNetworkingCustomEndpointEntryKey: ServiceNetworkingCustomEndpointEntry,
-			TagsLocationCustomEndpointEntryKey:      TagsLocationCustomEndpointEntry,
+			transport_tpg.CloudBillingCustomEndpointEntryKey:      transport_tpg.CloudBillingCustomEndpointEntry,
+			transport_tpg.ComposerCustomEndpointEntryKey:          transport_tpg.ComposerCustomEndpointEntry,
+			transport_tpg.ContainerCustomEndpointEntryKey:         transport_tpg.ContainerCustomEndpointEntry,
+			transport_tpg.DataflowCustomEndpointEntryKey:          transport_tpg.DataflowCustomEndpointEntry,
+			transport_tpg.IamCredentialsCustomEndpointEntryKey:    transport_tpg.IamCredentialsCustomEndpointEntry,
+			transport_tpg.ResourceManagerV3CustomEndpointEntryKey: transport_tpg.ResourceManagerV3CustomEndpointEntry,
+			transport_tpg.IAMCustomEndpointEntryKey:               transport_tpg.IAMCustomEndpointEntry,
+			transport_tpg.ServiceNetworkingCustomEndpointEntryKey: transport_tpg.ServiceNetworkingCustomEndpointEntry,
+			transport_tpg.TagsLocationCustomEndpointEntryKey:      transport_tpg.TagsLocationCustomEndpointEntry,
 
 			// dcl
-			ContainerAwsCustomEndpointEntryKey:   ContainerAwsCustomEndpointEntry,
-			ContainerAzureCustomEndpointEntryKey: ContainerAzureCustomEndpointEntry,
+			transport_tpg.ContainerAwsCustomEndpointEntryKey:   transport_tpg.ContainerAwsCustomEndpointEntry,
+			transport_tpg.ContainerAzureCustomEndpointEntryKey: transport_tpg.ContainerAzureCustomEndpointEntry,
 		},
 
 		ProviderMetaSchema: map[string]*schema.Schema{
@@ -712,7 +713,7 @@ func Provider() *schema.Provider {
 		return providerConfigure(ctx, d, provider)
 	}
 
-	ConfigureDCLProvider(provider)
+	transport_tpg.ConfigureDCLProvider(provider)
 
 	return provider
 }
@@ -1333,13 +1334,13 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 }
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Provider) (interface{}, diag.Diagnostics) {
-	err := HandleSDKDefaults(d)
+	err := transport_tpg.HandleSDKDefaults(d)
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
-	HandleDCLCustomEndpointDefaults(d)
+	transport_tpg.HandleDCLCustomEndpointDefaults(d)
 
-	config := Config{
+	config := transport_tpg.Config{
 		Project:             d.Get("project").(string),
 		Region:              d.Get("region").(string),
 		Zone:                d.Get("zone").(string),
@@ -1412,7 +1413,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		config.Scopes[i] = scope.(string)
 	}
 
-	batchCfg, err := ExpandProviderBatchingConfig(d.Get("batching"))
+	batchCfg, err := transport_tpg.ExpandProviderBatchingConfig(d.Get("batching"))
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -1508,21 +1509,21 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.WorkflowsBasePath = d.Get("workflows_custom_endpoint").(string)
 
 	// Handwritten Products / Versioned / Atypical Entries
-	config.CloudBillingBasePath = d.Get(CloudBillingCustomEndpointEntryKey).(string)
-	config.ComposerBasePath = d.Get(ComposerCustomEndpointEntryKey).(string)
-	config.ContainerBasePath = d.Get(ContainerCustomEndpointEntryKey).(string)
-	config.DataflowBasePath = d.Get(DataflowCustomEndpointEntryKey).(string)
-	config.IamCredentialsBasePath = d.Get(IamCredentialsCustomEndpointEntryKey).(string)
-	config.ResourceManagerV3BasePath = d.Get(ResourceManagerV3CustomEndpointEntryKey).(string)
-	config.IAMBasePath = d.Get(IAMCustomEndpointEntryKey).(string)
-	config.ServiceNetworkingBasePath = d.Get(ServiceNetworkingCustomEndpointEntryKey).(string)
-	config.ServiceUsageBasePath = d.Get(ServiceUsageCustomEndpointEntryKey).(string)
-	config.BigtableAdminBasePath = d.Get(BigtableAdminCustomEndpointEntryKey).(string)
-	config.TagsLocationBasePath = d.Get(TagsLocationCustomEndpointEntryKey).(string)
+	config.CloudBillingBasePath = d.Get(transport_tpg.CloudBillingCustomEndpointEntryKey).(string)
+	config.ComposerBasePath = d.Get(transport_tpg.ComposerCustomEndpointEntryKey).(string)
+	config.ContainerBasePath = d.Get(transport_tpg.ContainerCustomEndpointEntryKey).(string)
+	config.DataflowBasePath = d.Get(transport_tpg.DataflowCustomEndpointEntryKey).(string)
+	config.IamCredentialsBasePath = d.Get(transport_tpg.IamCredentialsCustomEndpointEntryKey).(string)
+	config.ResourceManagerV3BasePath = d.Get(transport_tpg.ResourceManagerV3CustomEndpointEntryKey).(string)
+	config.IAMBasePath = d.Get(transport_tpg.IAMCustomEndpointEntryKey).(string)
+	config.ServiceNetworkingBasePath = d.Get(transport_tpg.ServiceNetworkingCustomEndpointEntryKey).(string)
+	config.ServiceUsageBasePath = d.Get(transport_tpg.ServiceUsageCustomEndpointEntryKey).(string)
+	config.BigtableAdminBasePath = d.Get(transport_tpg.BigtableAdminCustomEndpointEntryKey).(string)
+	config.TagsLocationBasePath = d.Get(transport_tpg.TagsLocationCustomEndpointEntryKey).(string)
 
 	// dcl
-	config.ContainerAwsBasePath = d.Get(ContainerAwsCustomEndpointEntryKey).(string)
-	config.ContainerAzureBasePath = d.Get(ContainerAzureCustomEndpointEntryKey).(string)
+	config.ContainerAwsBasePath = d.Get(transport_tpg.ContainerAwsCustomEndpointEntryKey).(string)
+	config.ContainerAzureBasePath = d.Get(transport_tpg.ContainerAzureCustomEndpointEntryKey).(string)
 
 	stopCtx, ok := schema.StopContext(ctx)
 	if !ok {
@@ -1532,7 +1533,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		return nil, diag.FromErr(err)
 	}
 
-	return ProviderDCLConfigure(d, &config), nil
+	return transport_tpg.ProviderDCLConfigure(d, &config), nil
 }
 
 func validateCredentials(v interface{}, k string) (warnings []string, errors []error) {

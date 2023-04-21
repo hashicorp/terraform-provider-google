@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeGlobalNetworkEndpoint() *schema.Resource {
@@ -78,7 +79,7 @@ This can only be specified when network_endpoint_type of the NEG is INTERNET_FQD
 }
 
 func resourceComputeGlobalNetworkEndpointCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -163,7 +164,7 @@ func resourceComputeGlobalNetworkEndpointCreate(d *schema.ResourceData, meta int
 }
 
 func resourceComputeGlobalNetworkEndpointRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -234,7 +235,7 @@ func resourceComputeGlobalNetworkEndpointRead(d *schema.ResourceData, meta inter
 }
 
 func resourceComputeGlobalNetworkEndpointDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -314,7 +315,7 @@ func resourceComputeGlobalNetworkEndpointDelete(d *schema.ResourceData, meta int
 }
 
 func resourceComputeGlobalNetworkEndpointImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	// FQDN, port and ip_address are optional, so use * instead of + when reading the import id
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/networkEndpointGroups/(?P<global_network_endpoint_group>[^/]+)/(?P<ip_address>[^/]*)/(?P<fqdn>[^/]*)/(?P<port>[^/]+)",
@@ -334,7 +335,7 @@ func resourceComputeGlobalNetworkEndpointImport(d *schema.ResourceData, meta int
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenNestedComputeGlobalNetworkEndpointPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeGlobalNetworkEndpointPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles int given in float64 format
 	if floatVal, ok := v.(float64); ok {
 		return int(floatVal)
@@ -342,23 +343,23 @@ func flattenNestedComputeGlobalNetworkEndpointPort(v interface{}, d *schema.Reso
 	return v
 }
 
-func flattenNestedComputeGlobalNetworkEndpointIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeGlobalNetworkEndpointIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeGlobalNetworkEndpointFqdn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeGlobalNetworkEndpointFqdn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandNestedComputeGlobalNetworkEndpointPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeGlobalNetworkEndpointPort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeGlobalNetworkEndpointIpAddress(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeGlobalNetworkEndpointIpAddress(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeGlobalNetworkEndpointFqdn(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeGlobalNetworkEndpointFqdn(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -401,21 +402,21 @@ func flattenNestedComputeGlobalNetworkEndpoint(d *schema.ResourceData, meta inte
 }
 
 func resourceComputeGlobalNetworkEndpointFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedIpAddress, err := expandNestedComputeGlobalNetworkEndpointIpAddress(d.Get("ip_address"), d, meta.(*Config))
+	expectedIpAddress, err := expandNestedComputeGlobalNetworkEndpointIpAddress(d.Get("ip_address"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedIpAddress := flattenNestedComputeGlobalNetworkEndpointIpAddress(expectedIpAddress, d, meta.(*Config))
-	expectedFqdn, err := expandNestedComputeGlobalNetworkEndpointFqdn(d.Get("fqdn"), d, meta.(*Config))
+	expectedFlattenedIpAddress := flattenNestedComputeGlobalNetworkEndpointIpAddress(expectedIpAddress, d, meta.(*transport_tpg.Config))
+	expectedFqdn, err := expandNestedComputeGlobalNetworkEndpointFqdn(d.Get("fqdn"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedFqdn := flattenNestedComputeGlobalNetworkEndpointFqdn(expectedFqdn, d, meta.(*Config))
-	expectedPort, err := expandNestedComputeGlobalNetworkEndpointPort(d.Get("port"), d, meta.(*Config))
+	expectedFlattenedFqdn := flattenNestedComputeGlobalNetworkEndpointFqdn(expectedFqdn, d, meta.(*transport_tpg.Config))
+	expectedPort, err := expandNestedComputeGlobalNetworkEndpointPort(d.Get("port"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedPort := flattenNestedComputeGlobalNetworkEndpointPort(expectedPort, d, meta.(*Config))
+	expectedFlattenedPort := flattenNestedComputeGlobalNetworkEndpointPort(expectedPort, d, meta.(*transport_tpg.Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -430,19 +431,19 @@ func resourceComputeGlobalNetworkEndpointFindNestedObjectInList(d *schema.Resour
 			return -1, nil, err
 		}
 
-		itemIpAddress := flattenNestedComputeGlobalNetworkEndpointIpAddress(item["ipAddress"], d, meta.(*Config))
+		itemIpAddress := flattenNestedComputeGlobalNetworkEndpointIpAddress(item["ipAddress"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemIpAddress)) && isEmptyValue(reflect.ValueOf(expectedFlattenedIpAddress))) && !reflect.DeepEqual(itemIpAddress, expectedFlattenedIpAddress) {
 			log.Printf("[DEBUG] Skipping item with ipAddress= %#v, looking for %#v)", itemIpAddress, expectedFlattenedIpAddress)
 			continue
 		}
-		itemFqdn := flattenNestedComputeGlobalNetworkEndpointFqdn(item["fqdn"], d, meta.(*Config))
+		itemFqdn := flattenNestedComputeGlobalNetworkEndpointFqdn(item["fqdn"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemFqdn)) && isEmptyValue(reflect.ValueOf(expectedFlattenedFqdn))) && !reflect.DeepEqual(itemFqdn, expectedFlattenedFqdn) {
 			log.Printf("[DEBUG] Skipping item with fqdn= %#v, looking for %#v)", itemFqdn, expectedFlattenedFqdn)
 			continue
 		}
-		itemPort := flattenNestedComputeGlobalNetworkEndpointPort(item["port"], d, meta.(*Config))
+		itemPort := flattenNestedComputeGlobalNetworkEndpointPort(item["port"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemPort)) && isEmptyValue(reflect.ValueOf(expectedFlattenedPort))) && !reflect.DeepEqual(itemPort, expectedFlattenedPort) {
 			log.Printf("[DEBUG] Skipping item with port= %#v, looking for %#v)", itemPort, expectedFlattenedPort)

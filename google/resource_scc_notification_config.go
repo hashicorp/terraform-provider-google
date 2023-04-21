@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceSecurityCenterNotificationConfig() *schema.Resource {
@@ -125,7 +126,7 @@ publish to the Pub/Sub topic.`,
 }
 
 func resourceSecurityCenterNotificationConfigCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -203,7 +204,7 @@ func resourceSecurityCenterNotificationConfigCreate(d *schema.ResourceData, meta
 }
 
 func resourceSecurityCenterNotificationConfigRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -246,7 +247,7 @@ func resourceSecurityCenterNotificationConfigRead(d *schema.ResourceData, meta i
 }
 
 func resourceSecurityCenterNotificationConfigUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -317,7 +318,7 @@ func resourceSecurityCenterNotificationConfigUpdate(d *schema.ResourceData, meta
 }
 
 func resourceSecurityCenterNotificationConfigDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -348,7 +349,7 @@ func resourceSecurityCenterNotificationConfigDelete(d *schema.ResourceData, meta
 }
 
 func resourceSecurityCenterNotificationConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -370,23 +371,23 @@ func resourceSecurityCenterNotificationConfigImport(d *schema.ResourceData, meta
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSecurityCenterNotificationConfigName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecurityCenterNotificationConfigName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterNotificationConfigDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecurityCenterNotificationConfigDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterNotificationConfigPubsubTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecurityCenterNotificationConfigPubsubTopic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterNotificationConfigServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecurityCenterNotificationConfigServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterNotificationConfigStreamingConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecurityCenterNotificationConfigStreamingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -399,19 +400,19 @@ func flattenSecurityCenterNotificationConfigStreamingConfig(v interface{}, d *sc
 		flattenSecurityCenterNotificationConfigStreamingConfigFilter(original["filter"], d, config)
 	return []interface{}{transformed}
 }
-func flattenSecurityCenterNotificationConfigStreamingConfigFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecurityCenterNotificationConfigStreamingConfigFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandSecurityCenterNotificationConfigDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSecurityCenterNotificationConfigDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSecurityCenterNotificationConfigPubsubTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSecurityCenterNotificationConfigPubsubTopic(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSecurityCenterNotificationConfigStreamingConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSecurityCenterNotificationConfigStreamingConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -430,6 +431,6 @@ func expandSecurityCenterNotificationConfigStreamingConfig(v interface{}, d Terr
 	return transformed, nil
 }
 
-func expandSecurityCenterNotificationConfigStreamingConfigFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSecurityCenterNotificationConfigStreamingConfigFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

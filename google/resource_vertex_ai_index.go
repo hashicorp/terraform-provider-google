@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceVertexAIIndex() *schema.Resource {
@@ -263,7 +264,7 @@ then existing content of the Index will be replaced by the data from the content
 }
 
 func resourceVertexAIIndexCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -362,7 +363,7 @@ func resourceVertexAIIndexCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceVertexAIIndexRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -433,7 +434,7 @@ func resourceVertexAIIndexRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceVertexAIIndexUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -550,7 +551,7 @@ func resourceVertexAIIndexUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceVertexAIIndexDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -595,7 +596,7 @@ func resourceVertexAIIndexDelete(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceVertexAIIndexImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/indexes/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -615,22 +616,22 @@ func resourceVertexAIIndexImport(d *schema.ResourceData, meta interface{}) ([]*s
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenVertexAIIndexName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenVertexAIIndexDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIIndexDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIIndexMetadata(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexMetadata(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -647,17 +648,17 @@ func flattenVertexAIIndexMetadata(v interface{}, d *schema.ResourceData, config 
 		flattenVertexAIIndexMetadataConfig(original["config"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIIndexMetadataContentsDeltaUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexMetadataContentsDeltaUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// We want to ignore read on this field, but cannot because it is nested
 	return d.Get("metadata.0.contents_delta_uri")
 }
 
-func flattenVertexAIIndexMetadataIsCompleteOverwrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexMetadataIsCompleteOverwrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// We want to ignore read on this field, but cannot because it is nested
 	return d.Get("metadata.0.is_complete_overwrite")
 }
 
-func flattenVertexAIIndexMetadataConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexMetadataConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -678,7 +679,7 @@ func flattenVertexAIIndexMetadataConfig(v interface{}, d *schema.ResourceData, c
 		flattenVertexAIIndexMetadataConfigAlgorithmConfig(original["algorithmConfig"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIIndexMetadataConfigDimensions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexMetadataConfigDimensions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -695,7 +696,7 @@ func flattenVertexAIIndexMetadataConfigDimensions(v interface{}, d *schema.Resou
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVertexAIIndexMetadataConfigApproximateNeighborsCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexMetadataConfigApproximateNeighborsCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -712,15 +713,15 @@ func flattenVertexAIIndexMetadataConfigApproximateNeighborsCount(v interface{}, 
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVertexAIIndexMetadataConfigDistanceMeasureType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexMetadataConfigDistanceMeasureType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIIndexMetadataConfigFeatureNormType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexMetadataConfigFeatureNormType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIIndexMetadataConfigAlgorithmConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexMetadataConfigAlgorithmConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -735,7 +736,7 @@ func flattenVertexAIIndexMetadataConfigAlgorithmConfig(v interface{}, d *schema.
 		flattenVertexAIIndexMetadataConfigAlgorithmConfigBruteForceConfig(original["bruteForceConfig"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -750,7 +751,7 @@ func flattenVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfig(v interface{}
 		flattenVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodesToSearchPercent(original["leafNodesToSearchPercent"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodeEmbeddingCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodeEmbeddingCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -767,7 +768,7 @@ func flattenVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodeEmbedd
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodesToSearchPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodesToSearchPercent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -784,7 +785,7 @@ func flattenVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodesToSea
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVertexAIIndexMetadataConfigAlgorithmConfigBruteForceConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexMetadataConfigAlgorithmConfigBruteForceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -792,11 +793,11 @@ func flattenVertexAIIndexMetadataConfigAlgorithmConfigBruteForceConfig(v interfa
 	return []interface{}{transformed}
 }
 
-func flattenVertexAIIndexMetadataSchemaUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexMetadataSchemaUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIIndexDeployedIndexes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexDeployedIndexes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -815,27 +816,27 @@ func flattenVertexAIIndexDeployedIndexes(v interface{}, d *schema.ResourceData, 
 	}
 	return transformed
 }
-func flattenVertexAIIndexDeployedIndexesIndexEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexDeployedIndexesIndexEndpoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIIndexDeployedIndexesDeployedIndexId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexDeployedIndexesDeployedIndexId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIIndexLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIIndexCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIIndexUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIIndexIndexStats(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexIndexStats(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -850,11 +851,11 @@ func flattenVertexAIIndexIndexStats(v interface{}, d *schema.ResourceData, confi
 		flattenVertexAIIndexIndexStatsShardsCount(original["shardsCount"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIIndexIndexStatsVectorsCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexIndexStatsVectorsCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIIndexIndexStatsShardsCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexIndexStatsShardsCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -871,19 +872,19 @@ func flattenVertexAIIndexIndexStatsShardsCount(v interface{}, d *schema.Resource
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVertexAIIndexIndexUpdateMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIIndexIndexUpdateMethod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandVertexAIIndexDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIIndexDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIIndexDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadata(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIIndexMetadata(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -916,15 +917,15 @@ func expandVertexAIIndexMetadata(v interface{}, d TerraformResourceData, config 
 	return transformed, nil
 }
 
-func expandVertexAIIndexMetadataContentsDeltaUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIIndexMetadataContentsDeltaUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadataIsCompleteOverwrite(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIIndexMetadataIsCompleteOverwrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadataConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -971,23 +972,23 @@ func expandVertexAIIndexMetadataConfig(v interface{}, d TerraformResourceData, c
 	return transformed, nil
 }
 
-func expandVertexAIIndexMetadataConfigDimensions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigDimensions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadataConfigApproximateNeighborsCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigApproximateNeighborsCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadataConfigDistanceMeasureType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigDistanceMeasureType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadataConfigFeatureNormType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigFeatureNormType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadataConfigAlgorithmConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigAlgorithmConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1013,7 +1014,7 @@ func expandVertexAIIndexMetadataConfigAlgorithmConfig(v interface{}, d Terraform
 	return transformed, nil
 }
 
-func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1039,15 +1040,15 @@ func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfig(v interface{},
 	return transformed, nil
 }
 
-func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodeEmbeddingCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodeEmbeddingCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodesToSearchPercent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodesToSearchPercent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadataConfigAlgorithmConfigBruteForceConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigAlgorithmConfigBruteForceConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1062,7 +1063,7 @@ func expandVertexAIIndexMetadataConfigAlgorithmConfigBruteForceConfig(v interfac
 	return transformed, nil
 }
 
-func expandVertexAIIndexLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandVertexAIIndexLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -1073,6 +1074,6 @@ func expandVertexAIIndexLabels(v interface{}, d TerraformResourceData, config *C
 	return m, nil
 }
 
-func expandVertexAIIndexIndexUpdateMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIIndexIndexUpdateMethod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

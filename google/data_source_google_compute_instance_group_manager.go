@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func DataSourceGoogleComputeInstanceGroupManager() *schema.Resource {
@@ -19,7 +20,7 @@ func DataSourceGoogleComputeInstanceGroupManager() *schema.Resource {
 }
 
 func dataSourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if selfLink, ok := d.GetOk("self_link"); ok {
 		parsed, err := ParseInstanceGroupFieldValue(selfLink.(string), d, config)
 		if err != nil {

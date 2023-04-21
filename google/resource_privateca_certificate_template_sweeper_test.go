@@ -22,6 +22,7 @@ import (
 
 	privateca "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/privateca"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func init() {
@@ -58,7 +59,7 @@ func testSweepPrivatecaCertificateTemplate(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLPrivatecaClient(config, config.UserAgent, "", 0)
+	client := transport_tpg.NewDCLPrivatecaClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllCertificateTemplate(context.Background(), d["project"], d["location"], isDeletablePrivatecaCertificateTemplate)
 	if err != nil {
 		return err

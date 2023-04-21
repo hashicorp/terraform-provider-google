@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"regexp"
 	"strings"
@@ -140,7 +141,7 @@ func canonicalizeInstanceRef(instanceRef string) string {
 }
 
 // Healthchecks need to exist before being referred to from the target pool.
-func convertHealthChecks(healthChecks []interface{}, d *schema.ResourceData, config *Config) ([]string, error) {
+func convertHealthChecks(healthChecks []interface{}, d *schema.ResourceData, config *transport_tpg.Config) ([]string, error) {
 	if len(healthChecks) == 0 {
 		return []string{}, nil
 	}
@@ -155,7 +156,7 @@ func convertHealthChecks(healthChecks []interface{}, d *schema.ResourceData, con
 
 // Instances do not need to exist yet, so we simply generate URLs.
 // Instances can be full URLS or zone/name
-func convertInstancesToUrls(d *schema.ResourceData, config *Config, project string, names *schema.Set) ([]string, error) {
+func convertInstancesToUrls(d *schema.ResourceData, config *transport_tpg.Config, project string, names *schema.Set) ([]string, error) {
 	urls := make([]string, len(names.List()))
 	for i, nameI := range names.List() {
 		name := nameI.(string)
@@ -181,7 +182,7 @@ func convertInstancesToUrls(d *schema.ResourceData, config *Config, project stri
 }
 
 func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -244,7 +245,7 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -392,7 +393,7 @@ func convertInstancesFromUrls(urls []string) []string {
 }
 
 func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -454,7 +455,7 @@ func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeTargetPoolDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -486,7 +487,7 @@ func resourceComputeTargetPoolDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceTargetPoolStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/targetPools/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",

@@ -22,6 +22,7 @@ import (
 
 	dataplex "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/dataplex"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func init() {
@@ -58,7 +59,7 @@ func testSweepDataplexLake(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLDataplexClient(config, config.UserAgent, "", 0)
+	client := transport_tpg.NewDCLDataplexClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllLake(context.Background(), d["project"], d["location"], isDeletableDataplexLake)
 	if err != nil {
 		return err

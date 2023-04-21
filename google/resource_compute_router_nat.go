@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func resourceNameSetFromSelfLinkSet(v interface{}) *schema.Set {
@@ -462,7 +463,7 @@ This field is used for public NAT.`,
 }
 
 func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -631,7 +632,7 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -732,7 +733,7 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -888,7 +889,7 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -945,7 +946,7 @@ func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceComputeRouterNatImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/routers/(?P<router>[^/]+)/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<router>[^/]+)/(?P<name>[^/]+)",
@@ -965,33 +966,33 @@ func resourceComputeRouterNatImport(d *schema.ResourceData, meta interface{}) ([
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenNestedComputeRouterNatName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeRouterNatNatIpAllocateOption(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatNatIpAllocateOption(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeRouterNatNatIps(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatNatIps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
-func flattenNestedComputeRouterNatDrainNatIps(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatDrainNatIps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
-func flattenNestedComputeRouterNatSourceSubnetworkIpRangesToNat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatSourceSubnetworkIpRangesToNat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeRouterNatSubnetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatSubnetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1011,28 +1012,28 @@ func flattenNestedComputeRouterNatSubnetwork(v interface{}, d *schema.ResourceDa
 	}
 	return transformed
 }
-func flattenNestedComputeRouterNatSubnetworkName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatSubnetworkName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenNestedComputeRouterNatSubnetworkSourceIpRangesToNat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatSubnetworkSourceIpRangesToNat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenNestedComputeRouterNatSubnetworkSecondaryIpRangeNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatSubnetworkSecondaryIpRangeNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenNestedComputeRouterNatMinPortsPerVm(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatMinPortsPerVm(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -1049,7 +1050,7 @@ func flattenNestedComputeRouterNatMinPortsPerVm(v interface{}, d *schema.Resourc
 	return v // let terraform core handle it otherwise
 }
 
-func flattenNestedComputeRouterNatMaxPortsPerVm(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatMaxPortsPerVm(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -1066,11 +1067,11 @@ func flattenNestedComputeRouterNatMaxPortsPerVm(v interface{}, d *schema.Resourc
 	return v // let terraform core handle it otherwise
 }
 
-func flattenNestedComputeRouterNatEnableDynamicPortAllocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatEnableDynamicPortAllocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeRouterNatUdpIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatUdpIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return 30
 	}
@@ -1084,7 +1085,7 @@ func flattenNestedComputeRouterNatUdpIdleTimeoutSec(v interface{}, d *schema.Res
 	return v
 }
 
-func flattenNestedComputeRouterNatIcmpIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatIcmpIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return 30
 	}
@@ -1098,7 +1099,7 @@ func flattenNestedComputeRouterNatIcmpIdleTimeoutSec(v interface{}, d *schema.Re
 	return v
 }
 
-func flattenNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return 1200
 	}
@@ -1112,7 +1113,7 @@ func flattenNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(v interface{}, d 
 	return v
 }
 
-func flattenNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return 30
 	}
@@ -1126,7 +1127,7 @@ func flattenNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d *
 	return v
 }
 
-func flattenNestedComputeRouterNatTcpTimeWaitTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatTcpTimeWaitTimeoutSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return 120
 	}
@@ -1140,7 +1141,7 @@ func flattenNestedComputeRouterNatTcpTimeWaitTimeoutSec(v interface{}, d *schema
 	return v
 }
 
-func flattenNestedComputeRouterNatLogConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatLogConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1155,15 +1156,15 @@ func flattenNestedComputeRouterNatLogConfig(v interface{}, d *schema.ResourceDat
 		flattenNestedComputeRouterNatLogConfigFilter(original["filter"], d, config)
 	return []interface{}{transformed}
 }
-func flattenNestedComputeRouterNatLogConfigEnable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatLogConfigEnable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeRouterNatLogConfigFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatLogConfigFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeRouterNatRules(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1184,7 +1185,7 @@ func flattenNestedComputeRouterNatRules(v interface{}, d *schema.ResourceData, c
 	}
 	return transformed
 }
-func flattenNestedComputeRouterNatRulesRuleNumber(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatRulesRuleNumber(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -1201,15 +1202,15 @@ func flattenNestedComputeRouterNatRulesRuleNumber(v interface{}, d *schema.Resou
 	return v // let terraform core handle it otherwise
 }
 
-func flattenNestedComputeRouterNatRulesDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatRulesDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeRouterNatRulesMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatRulesMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeRouterNatRulesAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatRulesAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1224,33 +1225,33 @@ func flattenNestedComputeRouterNatRulesAction(v interface{}, d *schema.ResourceD
 		flattenNestedComputeRouterNatRulesActionSourceNatDrainIps(original["sourceNatDrainIps"], d, config)
 	return []interface{}{transformed}
 }
-func flattenNestedComputeRouterNatRulesActionSourceNatActiveIps(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatRulesActionSourceNatActiveIps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(computeRouterNatIPsHash, convertStringArrToInterface(convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)))
 }
 
-func flattenNestedComputeRouterNatRulesActionSourceNatDrainIps(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatRulesActionSourceNatDrainIps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(computeRouterNatIPsHash, convertStringArrToInterface(convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)))
 }
 
-func flattenNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandNestedComputeRouterNatName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatNatIpAllocateOption(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatNatIpAllocateOption(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatNatIps(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatNatIps(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -1267,7 +1268,7 @@ func expandNestedComputeRouterNatNatIps(v interface{}, d TerraformResourceData, 
 	return req, nil
 }
 
-func expandNestedComputeRouterNatDrainNatIps(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatDrainNatIps(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -1284,11 +1285,11 @@ func expandNestedComputeRouterNatDrainNatIps(v interface{}, d TerraformResourceD
 	return req, nil
 }
 
-func expandNestedComputeRouterNatSourceSubnetworkIpRangesToNat(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatSourceSubnetworkIpRangesToNat(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatSubnetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatSubnetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -1325,7 +1326,7 @@ func expandNestedComputeRouterNatSubnetwork(v interface{}, d TerraformResourceDa
 	return req, nil
 }
 
-func expandNestedComputeRouterNatSubnetworkName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatSubnetworkName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := parseRegionalFieldValue("subnetworks", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for name: %s", err)
@@ -1333,49 +1334,49 @@ func expandNestedComputeRouterNatSubnetworkName(v interface{}, d TerraformResour
 	return f.RelativeLink(), nil
 }
 
-func expandNestedComputeRouterNatSubnetworkSourceIpRangesToNat(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatSubnetworkSourceIpRangesToNat(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandNestedComputeRouterNatSubnetworkSecondaryIpRangeNames(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatSubnetworkSecondaryIpRangeNames(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandNestedComputeRouterNatMinPortsPerVm(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatMinPortsPerVm(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatMaxPortsPerVm(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatMaxPortsPerVm(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatEnableDynamicPortAllocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatEnableDynamicPortAllocation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatUdpIdleTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatUdpIdleTimeoutSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatIcmpIdleTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatIcmpIdleTimeoutSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatTcpTimeWaitTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatTcpTimeWaitTimeoutSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatLogConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatLogConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1401,15 +1402,15 @@ func expandNestedComputeRouterNatLogConfig(v interface{}, d TerraformResourceDat
 	return transformed, nil
 }
 
-func expandNestedComputeRouterNatLogConfigEnable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatLogConfigEnable(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatLogConfigFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatLogConfigFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatRules(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatRules(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -1453,19 +1454,19 @@ func expandNestedComputeRouterNatRules(v interface{}, d TerraformResourceData, c
 	return req, nil
 }
 
-func expandNestedComputeRouterNatRulesRuleNumber(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatRulesRuleNumber(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatRulesDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatRulesDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatRulesMatch(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatRulesMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatRulesAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatRulesAction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1491,7 +1492,7 @@ func expandNestedComputeRouterNatRulesAction(v interface{}, d TerraformResourceD
 	return transformed, nil
 }
 
-func expandNestedComputeRouterNatRulesActionSourceNatActiveIps(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatRulesActionSourceNatActiveIps(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -1508,7 +1509,7 @@ func expandNestedComputeRouterNatRulesActionSourceNatActiveIps(v interface{}, d 
 	return req, nil
 }
 
-func expandNestedComputeRouterNatRulesActionSourceNatDrainIps(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatRulesActionSourceNatDrainIps(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -1525,7 +1526,7 @@ func expandNestedComputeRouterNatRulesActionSourceNatDrainIps(v interface{}, d T
 	return req, nil
 }
 
-func expandNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1556,11 +1557,11 @@ func flattenNestedComputeRouterNat(d *schema.ResourceData, meta interface{}, res
 }
 
 func resourceComputeRouterNatFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedName, err := expandNestedComputeRouterNatName(d.Get("name"), d, meta.(*Config))
+	expectedName, err := expandNestedComputeRouterNatName(d.Get("name"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedName := flattenNestedComputeRouterNatName(expectedName, d, meta.(*Config))
+	expectedFlattenedName := flattenNestedComputeRouterNatName(expectedName, d, meta.(*transport_tpg.Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -1569,7 +1570,7 @@ func resourceComputeRouterNatFindNestedObjectInList(d *schema.ResourceData, meta
 		}
 		item := itemRaw.(map[string]interface{})
 
-		itemName := flattenNestedComputeRouterNatName(item["name"], d, meta.(*Config))
+		itemName := flattenNestedComputeRouterNatName(item["name"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
 			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedFlattenedName)
@@ -1667,7 +1668,7 @@ func resourceComputeRouterNatPatchDeleteEncoder(d *schema.ResourceData, meta int
 // ListForPatch handles making API request to get parent resource and
 // extracting list of objects.
 func resourceComputeRouterNatListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
 	if err != nil {
 		return nil, err

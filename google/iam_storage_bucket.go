@@ -20,6 +20,8 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 var StorageBucketIamSchema = map[string]*schema.Schema{
@@ -38,10 +40,10 @@ func StorageBucketDiffSuppress(_, old, new string, _ *schema.ResourceData) bool 
 type StorageBucketIamUpdater struct {
 	bucket string
 	d      TerraformResourceData
-	Config *Config
+	Config *transport_tpg.Config
 }
 
-func StorageBucketIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
+func StorageBucketIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	if v, ok := d.GetOk("bucket"); ok {
@@ -71,7 +73,7 @@ func StorageBucketIamUpdaterProducer(d TerraformResourceData, config *Config) (R
 	return u, nil
 }
 
-func StorageBucketIdParseFunc(d *schema.ResourceData, config *Config) error {
+func StorageBucketIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
 	m, err := getImportIdQualifiers([]string{"b/(?P<bucket>[^/]+)", "(?P<bucket>[^/]+)"}, d, config, d.Id())

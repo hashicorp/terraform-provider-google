@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"time"
 
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
 	"google.golang.org/api/run/v2"
 )
 
 type RunAdminV2OperationWaiter struct {
-	Config    *Config
+	Config    *transport_tpg.Config
 	UserAgent string
 	Project   string
 	CommonOperationWaiter
@@ -24,7 +26,7 @@ func (w *RunAdminV2OperationWaiter) QueryOp() (interface{}, error) {
 	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
-func createRunAdminV2Waiter(config *Config, op *run.GoogleLongrunningOperation, project, activity, userAgent string) (*RunAdminV2OperationWaiter, error) {
+func createRunAdminV2Waiter(config *transport_tpg.Config, op *run.GoogleLongrunningOperation, project, activity, userAgent string) (*RunAdminV2OperationWaiter, error) {
 	w := &RunAdminV2OperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
@@ -36,7 +38,7 @@ func createRunAdminV2Waiter(config *Config, op *run.GoogleLongrunningOperation, 
 	return w, nil
 }
 
-func runAdminV2OperationWaitTimeWithResponse(config *Config, op *run.GoogleLongrunningOperation, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func runAdminV2OperationWaitTimeWithResponse(config *transport_tpg.Config, op *run.GoogleLongrunningOperation, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	w, err := createRunAdminV2Waiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
@@ -47,7 +49,7 @@ func runAdminV2OperationWaitTimeWithResponse(config *Config, op *run.GoogleLongr
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func runAdminV2OperationWaitTime(config *Config, op *run.GoogleLongrunningOperation, project, activity, userAgent string, timeout time.Duration) error {
+func runAdminV2OperationWaitTime(config *transport_tpg.Config, op *run.GoogleLongrunningOperation, project, activity, userAgent string, timeout time.Duration) error {
 	if op.Done {
 		return nil
 	}

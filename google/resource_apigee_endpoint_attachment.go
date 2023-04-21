@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceApigeeEndpointAttachment() *schema.Resource {
@@ -87,7 +88,7 @@ organizations/{organization}/endpointAttachments/{endpointAttachment}.`,
 }
 
 func resourceApigeeEndpointAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -162,7 +163,7 @@ func resourceApigeeEndpointAttachmentCreate(d *schema.ResourceData, meta interfa
 }
 
 func resourceApigeeEndpointAttachmentRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -205,7 +206,7 @@ func resourceApigeeEndpointAttachmentRead(d *schema.ResourceData, meta interface
 }
 
 func resourceApigeeEndpointAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -244,7 +245,7 @@ func resourceApigeeEndpointAttachmentDelete(d *schema.ResourceData, meta interfa
 }
 
 func resourceApigeeEndpointAttachmentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -278,30 +279,30 @@ func resourceApigeeEndpointAttachmentImport(d *schema.ResourceData, meta interfa
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenApigeeEndpointAttachmentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEndpointAttachmentName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeEndpointAttachmentLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEndpointAttachmentLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeEndpointAttachmentHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEndpointAttachmentHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeEndpointAttachmentServiceAttachment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEndpointAttachmentServiceAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeEndpointAttachmentConnectionState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEndpointAttachmentConnectionState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandApigeeEndpointAttachmentLocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEndpointAttachmentLocation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEndpointAttachmentServiceAttachment(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEndpointAttachmentServiceAttachment(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

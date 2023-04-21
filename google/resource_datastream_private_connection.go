@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func extractError(d *schema.ResourceData) error {
@@ -36,7 +37,7 @@ func extractError(d *schema.ResourceData) error {
 
 // waitForPrivateConnectionReady waits for a private connection state to become
 // CREATED, if the state is FAILED propegate the error to the user.
-func waitForPrivateConnectionReady(d *schema.ResourceData, config *Config, timeout time.Duration) error {
+func waitForPrivateConnectionReady(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
 	return resource.Retry(timeout, func() *resource.RetryError {
 		if err := resourceDatastreamPrivateConnectionRead(d, config); err != nil {
 			return resource.NonRetryableError(err)
@@ -165,7 +166,7 @@ Format: projects/{project}/global/{networks}/{name}`,
 }
 
 func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -256,7 +257,7 @@ func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta inte
 }
 
 func resourceDatastreamPrivateConnectionRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -312,7 +313,7 @@ func resourceDatastreamPrivateConnectionRead(d *schema.ResourceData, meta interf
 }
 
 func resourceDatastreamPrivateConnectionDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -357,7 +358,7 @@ func resourceDatastreamPrivateConnectionDelete(d *schema.ResourceData, meta inte
 }
 
 func resourceDatastreamPrivateConnectionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/privateConnections/(?P<private_connection_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<private_connection_id>[^/]+)",
@@ -380,23 +381,23 @@ func resourceDatastreamPrivateConnectionImport(d *schema.ResourceData, meta inte
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDatastreamPrivateConnectionName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamPrivateConnectionName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamPrivateConnectionLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamPrivateConnectionLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamPrivateConnectionDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamPrivateConnectionDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamPrivateConnectionState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamPrivateConnectionState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamPrivateConnectionError(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamPrivateConnectionError(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -411,15 +412,15 @@ func flattenDatastreamPrivateConnectionError(v interface{}, d *schema.ResourceDa
 		flattenDatastreamPrivateConnectionErrorDetails(original["details"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDatastreamPrivateConnectionErrorMessage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamPrivateConnectionErrorMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamPrivateConnectionErrorDetails(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamPrivateConnectionErrorDetails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamPrivateConnectionVpcPeeringConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamPrivateConnectionVpcPeeringConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -434,15 +435,15 @@ func flattenDatastreamPrivateConnectionVpcPeeringConfig(v interface{}, d *schema
 		flattenDatastreamPrivateConnectionVpcPeeringConfigSubnet(original["subnet"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDatastreamPrivateConnectionVpcPeeringConfigVpc(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamPrivateConnectionVpcPeeringConfigVpc(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamPrivateConnectionVpcPeeringConfigSubnet(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamPrivateConnectionVpcPeeringConfigSubnet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandDatastreamPrivateConnectionLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandDatastreamPrivateConnectionLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -453,11 +454,11 @@ func expandDatastreamPrivateConnectionLabels(v interface{}, d TerraformResourceD
 	return m, nil
 }
 
-func expandDatastreamPrivateConnectionDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamPrivateConnectionDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamPrivateConnectionVpcPeeringConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamPrivateConnectionVpcPeeringConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -483,10 +484,10 @@ func expandDatastreamPrivateConnectionVpcPeeringConfig(v interface{}, d Terrafor
 	return transformed, nil
 }
 
-func expandDatastreamPrivateConnectionVpcPeeringConfigVpc(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamPrivateConnectionVpcPeeringConfigVpc(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamPrivateConnectionVpcPeeringConfigSubnet(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamPrivateConnectionVpcPeeringConfigSubnet(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

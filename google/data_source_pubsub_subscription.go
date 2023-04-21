@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func DataSourceGooglePubsubSubscription() *schema.Resource {
@@ -19,7 +20,7 @@ func DataSourceGooglePubsubSubscription() *schema.Resource {
 }
 
 func dataSourceGooglePubsubSubscriptionRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	id, err := ReplaceVars(d, config, "projects/{{project}}/subscriptions/{{name}}")
 	if err != nil {

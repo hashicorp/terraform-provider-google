@@ -22,6 +22,7 @@ import (
 
 	compute "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/compute"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func init() {
@@ -58,7 +59,7 @@ func testSweepComputeForwardingRule(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLComputeClient(config, config.UserAgent, "", 0)
+	client := transport_tpg.NewDCLComputeClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllForwardingRule(context.Background(), d["project"], d["location"], isDeletableComputeForwardingRule)
 	if err != nil {
 		return err

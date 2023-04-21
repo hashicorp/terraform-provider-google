@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 const workforcePoolProviderIdRegexp = `^[a-z0-9-]{4,32}$`
@@ -279,7 +280,7 @@ Format: 'locations/{location}/workforcePools/{workforcePoolId}/providers/{provid
 }
 
 func resourceIAMWorkforcePoolWorkforcePoolProviderCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -370,7 +371,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderCreate(d *schema.ResourceData,
 }
 
 func resourceIAMWorkforcePoolWorkforcePoolProviderRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -437,7 +438,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderRead(d *schema.ResourceData, m
 }
 
 func resourceIAMWorkforcePoolWorkforcePoolProviderUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -556,7 +557,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderUpdate(d *schema.ResourceData,
 }
 
 func resourceIAMWorkforcePoolWorkforcePoolProviderDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -595,7 +596,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderDelete(d *schema.ResourceData,
 }
 
 func resourceIAMWorkforcePoolWorkforcePoolProviderImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"locations/(?P<location>[^/]+)/workforcePools/(?P<workforce_pool_id>[^/]+)/providers/(?P<provider_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<workforce_pool_id>[^/]+)/(?P<provider_id>[^/]+)",
@@ -613,35 +614,35 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderImport(d *schema.ResourceData,
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolProviderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolProviderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolProviderDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolProviderDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolProviderDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolProviderDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolProviderState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolProviderState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolProviderDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolProviderDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolProviderAttributeMapping(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolProviderAttributeMapping(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolProviderAttributeCondition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolProviderAttributeCondition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolProviderSaml(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolProviderSaml(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -654,11 +655,11 @@ func flattenIAMWorkforcePoolWorkforcePoolProviderSaml(v interface{}, d *schema.R
 		flattenIAMWorkforcePoolWorkforcePoolProviderSamlIdpMetadataXml(original["idpMetadataXml"], d, config)
 	return []interface{}{transformed}
 }
-func flattenIAMWorkforcePoolWorkforcePoolProviderSamlIdpMetadataXml(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolProviderSamlIdpMetadataXml(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolProviderOidc(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolProviderOidc(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -675,15 +676,15 @@ func flattenIAMWorkforcePoolWorkforcePoolProviderOidc(v interface{}, d *schema.R
 		flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfig(original["webSsoConfig"], d, config)
 	return []interface{}{transformed}
 }
-func flattenIAMWorkforcePoolWorkforcePoolProviderOidcIssuerUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolProviderOidcIssuerUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolProviderOidcClientId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolProviderOidcClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -698,27 +699,27 @@ func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfig(v interface{},
 		flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAssertionClaimsBehavior(original["assertionClaimsBehavior"], d, config)
 	return []interface{}{transformed}
 }
-func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigResponseType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigResponseType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAssertionClaimsBehavior(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAssertionClaimsBehavior(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandIAMWorkforcePoolWorkforcePoolProviderDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMWorkforcePoolWorkforcePoolProviderDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAMWorkforcePoolWorkforcePoolProviderDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMWorkforcePoolWorkforcePoolProviderDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAMWorkforcePoolWorkforcePoolProviderDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMWorkforcePoolWorkforcePoolProviderDisabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAMWorkforcePoolWorkforcePoolProviderAttributeMapping(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandIAMWorkforcePoolWorkforcePoolProviderAttributeMapping(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -729,11 +730,11 @@ func expandIAMWorkforcePoolWorkforcePoolProviderAttributeMapping(v interface{}, 
 	return m, nil
 }
 
-func expandIAMWorkforcePoolWorkforcePoolProviderAttributeCondition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMWorkforcePoolWorkforcePoolProviderAttributeCondition(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAMWorkforcePoolWorkforcePoolProviderSaml(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMWorkforcePoolWorkforcePoolProviderSaml(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -752,11 +753,11 @@ func expandIAMWorkforcePoolWorkforcePoolProviderSaml(v interface{}, d TerraformR
 	return transformed, nil
 }
 
-func expandIAMWorkforcePoolWorkforcePoolProviderSamlIdpMetadataXml(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMWorkforcePoolWorkforcePoolProviderSamlIdpMetadataXml(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAMWorkforcePoolWorkforcePoolProviderOidc(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMWorkforcePoolWorkforcePoolProviderOidc(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -789,15 +790,15 @@ func expandIAMWorkforcePoolWorkforcePoolProviderOidc(v interface{}, d TerraformR
 	return transformed, nil
 }
 
-func expandIAMWorkforcePoolWorkforcePoolProviderOidcIssuerUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMWorkforcePoolWorkforcePoolProviderOidcIssuerUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAMWorkforcePoolWorkforcePoolProviderOidcClientId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMWorkforcePoolWorkforcePoolProviderOidcClientId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -823,11 +824,11 @@ func expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfig(v interface{}, 
 	return transformed, nil
 }
 
-func expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigResponseType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigResponseType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAssertionClaimsBehavior(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAssertionClaimsBehavior(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

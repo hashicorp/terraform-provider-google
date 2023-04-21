@@ -27,7 +27,7 @@
 //	c.clientSqlAdmin, err = compute.NewService(ctx, option.WithHTTPClient(sqlAdminHttpClient))
 // ...
 
-package google
+package transport
 
 import (
 	"bytes"
@@ -204,7 +204,7 @@ func (t *retryTransport) checkForRetryableError(resp *http.Response, respErr err
 	if errToCheck == nil {
 		return nil
 	}
-	if isRetryableError(errToCheck, t.retryPredicates...) {
+	if IsRetryableError(errToCheck, t.retryPredicates...) {
 		return resource.RetryableError(errToCheck)
 	}
 	return resource.NonRetryableError(errToCheck)

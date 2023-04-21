@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -36,7 +37,7 @@ func DataSourceGoogleCloudIdentityGroupMemberships() *schema.Resource {
 }
 
 func dataSourceGoogleCloudIdentityGroupMembershipsRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -61,7 +62,7 @@ func dataSourceGoogleCloudIdentityGroupMembershipsRead(d *schema.ResourceData, m
 		}
 	}
 
-	err = membershipsCall.Pages(config.context, func(resp *cloudidentity.ListMembershipsResponse) error {
+	err = membershipsCall.Pages(config.Context, func(resp *cloudidentity.ListMembershipsResponse) error {
 		for _, member := range resp.Memberships {
 			result = append(result, map[string]interface{}{
 				"name":                 member.Name,

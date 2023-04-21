@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceBigqueryConnectionConnection() *schema.Resource {
@@ -266,7 +267,7 @@ Azure allowed regions are azure-eastus2`,
 }
 
 func resourceBigqueryConnectionConnectionCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -382,7 +383,7 @@ func resourceBigqueryConnectionConnectionCreate(d *schema.ResourceData, meta int
 }
 
 func resourceBigqueryConnectionConnectionRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -450,7 +451,7 @@ func resourceBigqueryConnectionConnectionRead(d *schema.ResourceData, meta inter
 }
 
 func resourceBigqueryConnectionConnectionUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -573,7 +574,7 @@ func resourceBigqueryConnectionConnectionUpdate(d *schema.ResourceData, meta int
 }
 
 func resourceBigqueryConnectionConnectionDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -610,7 +611,7 @@ func resourceBigqueryConnectionConnectionDelete(d *schema.ResourceData, meta int
 }
 
 func resourceBigqueryConnectionConnectionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/connections/(?P<connection_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<connection_id>[^/]+)",
@@ -629,28 +630,28 @@ func resourceBigqueryConnectionConnectionImport(d *schema.ResourceData, meta int
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenBigqueryConnectionConnectionName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionConnectionId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionConnectionId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	parts := strings.Split(d.Get("name").(string), "/")
 	return parts[len(parts)-1]
 }
 
-func flattenBigqueryConnectionConnectionFriendlyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionFriendlyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionHasCredential(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionHasCredential(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionCloudSql(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionCloudSql(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -671,15 +672,15 @@ func flattenBigqueryConnectionConnectionCloudSql(v interface{}, d *schema.Resour
 		flattenBigqueryConnectionConnectionCloudSqlServiceAccountId(original["serviceAccountId"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigqueryConnectionConnectionCloudSqlInstanceId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionCloudSqlInstanceId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionCloudSqlDatabase(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionCloudSqlDatabase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionCloudSqlCredential(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionCloudSqlCredential(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return []interface{}{
 		map[string]interface{}{
 			"username": d.Get("cloud_sql.0.credential.0.username"),
@@ -688,15 +689,15 @@ func flattenBigqueryConnectionConnectionCloudSqlCredential(v interface{}, d *sch
 	}
 }
 
-func flattenBigqueryConnectionConnectionCloudSqlType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionCloudSqlType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionCloudSqlServiceAccountId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionCloudSqlServiceAccountId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionAws(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionAws(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -709,7 +710,7 @@ func flattenBigqueryConnectionConnectionAws(v interface{}, d *schema.ResourceDat
 		flattenBigqueryConnectionConnectionAwsAccessRole(original["accessRole"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigqueryConnectionConnectionAwsAccessRole(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionAwsAccessRole(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -724,15 +725,15 @@ func flattenBigqueryConnectionConnectionAwsAccessRole(v interface{}, d *schema.R
 		flattenBigqueryConnectionConnectionAwsAccessRoleIdentity(original["identity"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigqueryConnectionConnectionAwsAccessRoleIamRoleId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionAwsAccessRoleIamRoleId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionAwsAccessRoleIdentity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionAwsAccessRoleIdentity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionAzure(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionAzure(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -757,35 +758,35 @@ func flattenBigqueryConnectionConnectionAzure(v interface{}, d *schema.ResourceD
 		flattenBigqueryConnectionConnectionAzureIdentity(original["identity"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigqueryConnectionConnectionAzureApplication(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionAzureApplication(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionAzureClientId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionAzureClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionAzureObjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionAzureObjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionAzureCustomerTenantId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionAzureCustomerTenantId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionAzureFederatedApplicationClientId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionAzureFederatedApplicationClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionAzureRedirectUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionAzureRedirectUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionAzureIdentity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionAzureIdentity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionCloudSpanner(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionCloudSpanner(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -802,19 +803,19 @@ func flattenBigqueryConnectionConnectionCloudSpanner(v interface{}, d *schema.Re
 		flattenBigqueryConnectionConnectionCloudSpannerUseServerlessAnalytics(original["useServerlessAnalytics"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigqueryConnectionConnectionCloudSpannerDatabase(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionCloudSpannerDatabase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionCloudSpannerUseParallelism(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionCloudSpannerUseParallelism(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionCloudSpannerUseServerlessAnalytics(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionCloudSpannerUseServerlessAnalytics(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryConnectionConnectionCloudResource(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionCloudResource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -827,23 +828,23 @@ func flattenBigqueryConnectionConnectionCloudResource(v interface{}, d *schema.R
 		flattenBigqueryConnectionConnectionCloudResourceServiceAccountId(original["serviceAccountId"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigqueryConnectionConnectionCloudResourceServiceAccountId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryConnectionConnectionCloudResourceServiceAccountId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandBigqueryConnectionConnectionConnectionId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionConnectionId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionFriendlyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionFriendlyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionCloudSql(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionCloudSql(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -890,15 +891,15 @@ func expandBigqueryConnectionConnectionCloudSql(v interface{}, d TerraformResour
 	return transformed, nil
 }
 
-func expandBigqueryConnectionConnectionCloudSqlInstanceId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionCloudSqlInstanceId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionCloudSqlDatabase(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionCloudSqlDatabase(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionCloudSqlCredential(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionCloudSqlCredential(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -924,23 +925,23 @@ func expandBigqueryConnectionConnectionCloudSqlCredential(v interface{}, d Terra
 	return transformed, nil
 }
 
-func expandBigqueryConnectionConnectionCloudSqlCredentialUsername(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionCloudSqlCredentialUsername(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionCloudSqlCredentialPassword(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionCloudSqlCredentialPassword(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionCloudSqlType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionCloudSqlType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionCloudSqlServiceAccountId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionCloudSqlServiceAccountId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionAws(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionAws(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -959,7 +960,7 @@ func expandBigqueryConnectionConnectionAws(v interface{}, d TerraformResourceDat
 	return transformed, nil
 }
 
-func expandBigqueryConnectionConnectionAwsAccessRole(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionAwsAccessRole(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -985,15 +986,15 @@ func expandBigqueryConnectionConnectionAwsAccessRole(v interface{}, d TerraformR
 	return transformed, nil
 }
 
-func expandBigqueryConnectionConnectionAwsAccessRoleIamRoleId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionAwsAccessRoleIamRoleId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionAwsAccessRoleIdentity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionAwsAccessRoleIdentity(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionAzure(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionAzure(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1054,35 +1055,35 @@ func expandBigqueryConnectionConnectionAzure(v interface{}, d TerraformResourceD
 	return transformed, nil
 }
 
-func expandBigqueryConnectionConnectionAzureApplication(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionAzureApplication(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionAzureClientId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionAzureClientId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionAzureObjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionAzureObjectId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionAzureCustomerTenantId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionAzureCustomerTenantId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionAzureFederatedApplicationClientId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionAzureFederatedApplicationClientId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionAzureRedirectUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionAzureRedirectUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionAzureIdentity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionAzureIdentity(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionCloudSpanner(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionCloudSpanner(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1115,19 +1116,19 @@ func expandBigqueryConnectionConnectionCloudSpanner(v interface{}, d TerraformRe
 	return transformed, nil
 }
 
-func expandBigqueryConnectionConnectionCloudSpannerDatabase(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionCloudSpannerDatabase(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionCloudSpannerUseParallelism(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionCloudSpannerUseParallelism(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionCloudSpannerUseServerlessAnalytics(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionCloudSpannerUseServerlessAnalytics(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryConnectionConnectionCloudResource(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionCloudResource(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1146,7 +1147,7 @@ func expandBigqueryConnectionConnectionCloudResource(v interface{}, d TerraformR
 	return transformed, nil
 }
 
-func expandBigqueryConnectionConnectionCloudResourceServiceAccountId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryConnectionConnectionCloudResourceServiceAccountId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

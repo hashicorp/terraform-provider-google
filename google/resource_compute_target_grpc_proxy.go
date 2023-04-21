@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeTargetGrpcProxy() *schema.Resource {
@@ -119,7 +120,7 @@ request to retrieve the TargetGrpcProxy. A base64-encoded string.`,
 }
 
 func resourceComputeTargetGrpcProxyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -204,7 +205,7 @@ func resourceComputeTargetGrpcProxyCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceComputeTargetGrpcProxyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -266,7 +267,7 @@ func resourceComputeTargetGrpcProxyRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeTargetGrpcProxyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -326,7 +327,7 @@ func resourceComputeTargetGrpcProxyUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceComputeTargetGrpcProxyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -371,7 +372,7 @@ func resourceComputeTargetGrpcProxyDelete(d *schema.ResourceData, meta interface
 }
 
 func resourceComputeTargetGrpcProxyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/targetGrpcProxies/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -390,50 +391,50 @@ func resourceComputeTargetGrpcProxyImport(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeTargetGrpcProxyCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeTargetGrpcProxyCreationTimestamp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetGrpcProxyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeTargetGrpcProxyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetGrpcProxyDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeTargetGrpcProxyDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetGrpcProxySelfLinkWithId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeTargetGrpcProxySelfLinkWithId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetGrpcProxyUrlMap(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeTargetGrpcProxyUrlMap(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetGrpcProxyValidateForProxyless(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeTargetGrpcProxyValidateForProxyless(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetGrpcProxyFingerprint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeTargetGrpcProxyFingerprint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandComputeTargetGrpcProxyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetGrpcProxyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeTargetGrpcProxyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetGrpcProxyDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeTargetGrpcProxyUrlMap(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetGrpcProxyUrlMap(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeTargetGrpcProxyValidateForProxyless(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetGrpcProxyValidateForProxyless(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeTargetGrpcProxyFingerprint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetGrpcProxyFingerprint(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

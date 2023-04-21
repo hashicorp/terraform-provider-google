@@ -2,8 +2,10 @@ package google
 
 import (
 	"fmt"
-	"google.golang.org/api/cloudresourcemanager/v1"
 	"time"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
 const (
@@ -13,10 +15,10 @@ const (
 	IamBatchingDisabled = false
 )
 
-func BatchRequestModifyIamPolicy(updater ResourceIamUpdater, modify iamPolicyModifyFunc, config *Config, reqDesc string) error {
+func BatchRequestModifyIamPolicy(updater ResourceIamUpdater, modify iamPolicyModifyFunc, config *transport_tpg.Config, reqDesc string) error {
 	batchKey := fmt.Sprintf(batchKeyTmplModifyIamPolicy, updater.GetMutexKey())
 
-	request := &BatchRequest{
+	request := &transport_tpg.BatchRequest{
 		ResourceName: updater.GetResourceId(),
 		Body:         []iamPolicyModifyFunc{modify},
 		CombineF:     combineBatchIamPolicyModifiers,
@@ -24,7 +26,7 @@ func BatchRequestModifyIamPolicy(updater ResourceIamUpdater, modify iamPolicyMod
 		DebugId:      reqDesc,
 	}
 
-	_, err := config.requestBatcherIam.SendRequestWithTimeout(batchKey, request, time.Minute*30)
+	_, err := config.RequestBatcherIam.SendRequestWithTimeout(batchKey, request, time.Minute*30)
 	return err
 }
 
@@ -42,7 +44,7 @@ func combineBatchIamPolicyModifiers(currV interface{}, toAddV interface{}) (inte
 	return append(currModifiers, newModifiers...), nil
 }
 
-func sendBatchModifyIamPolicy(updater ResourceIamUpdater) BatcherSendFunc {
+func sendBatchModifyIamPolicy(updater ResourceIamUpdater) transport_tpg.BatcherSendFunc {
 	return func(resourceName string, body interface{}) (interface{}, error) {
 		modifiers, ok := body.([]iamPolicyModifyFunc)
 		if !ok {

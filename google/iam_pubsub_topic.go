@@ -20,6 +20,8 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 var PubsubTopicIamSchema = map[string]*schema.Schema{
@@ -41,10 +43,10 @@ type PubsubTopicIamUpdater struct {
 	project string
 	topic   string
 	d       TerraformResourceData
-	Config  *Config
+	Config  *transport_tpg.Config
 }
 
-func PubsubTopicIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
+func PubsubTopicIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)
@@ -85,7 +87,7 @@ func PubsubTopicIamUpdaterProducer(d TerraformResourceData, config *Config) (Res
 	return u, nil
 }
 
-func PubsubTopicIdParseFunc(d *schema.ResourceData, config *Config) error {
+func PubsubTopicIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

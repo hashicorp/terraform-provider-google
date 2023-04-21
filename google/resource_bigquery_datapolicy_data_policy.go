@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceBigqueryDatapolicyDataPolicy() *schema.Resource {
@@ -99,7 +100,7 @@ func ResourceBigqueryDatapolicyDataPolicy() *schema.Resource {
 }
 
 func resourceBigqueryDatapolicyDataPolicyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -171,7 +172,7 @@ func resourceBigqueryDatapolicyDataPolicyCreate(d *schema.ResourceData, meta int
 }
 
 func resourceBigqueryDatapolicyDataPolicyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -224,7 +225,7 @@ func resourceBigqueryDatapolicyDataPolicyRead(d *schema.ResourceData, meta inter
 }
 
 func resourceBigqueryDatapolicyDataPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -301,7 +302,7 @@ func resourceBigqueryDatapolicyDataPolicyUpdate(d *schema.ResourceData, meta int
 }
 
 func resourceBigqueryDatapolicyDataPolicyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -338,7 +339,7 @@ func resourceBigqueryDatapolicyDataPolicyDelete(d *schema.ResourceData, meta int
 }
 
 func resourceBigqueryDatapolicyDataPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/dataPolicies/(?P<data_policy_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<data_policy_id>[^/]+)",
@@ -357,23 +358,23 @@ func resourceBigqueryDatapolicyDataPolicyImport(d *schema.ResourceData, meta int
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenBigqueryDatapolicyDataPolicyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDatapolicyDataPolicyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDatapolicyDataPolicyDataPolicyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDatapolicyDataPolicyDataPolicyId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDatapolicyDataPolicyPolicyTag(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDatapolicyDataPolicyPolicyTag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDatapolicyDataPolicyDataPolicyType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDatapolicyDataPolicyDataPolicyType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDatapolicyDataPolicyDataMaskingPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDatapolicyDataPolicyDataMaskingPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -386,23 +387,23 @@ func flattenBigqueryDatapolicyDataPolicyDataMaskingPolicy(v interface{}, d *sche
 		flattenBigqueryDatapolicyDataPolicyDataMaskingPolicyPredefinedExpression(original["predefinedExpression"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigqueryDatapolicyDataPolicyDataMaskingPolicyPredefinedExpression(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDatapolicyDataPolicyDataMaskingPolicyPredefinedExpression(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandBigqueryDatapolicyDataPolicyDataPolicyId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDatapolicyDataPolicyDataPolicyId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryDatapolicyDataPolicyPolicyTag(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDatapolicyDataPolicyPolicyTag(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryDatapolicyDataPolicyDataPolicyType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDatapolicyDataPolicyDataPolicyType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryDatapolicyDataPolicyDataMaskingPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDatapolicyDataPolicyDataMaskingPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -421,6 +422,6 @@ func expandBigqueryDatapolicyDataPolicyDataMaskingPolicy(v interface{}, d Terraf
 	return transformed, nil
 }
 
-func expandBigqueryDatapolicyDataPolicyDataMaskingPolicyPredefinedExpression(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDatapolicyDataPolicyDataMaskingPolicyPredefinedExpression(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

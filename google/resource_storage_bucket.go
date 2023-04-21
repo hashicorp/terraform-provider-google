@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"math"
 	"runtime"
@@ -453,7 +454,7 @@ func isPolicyLocked(_ context.Context, old, new, _ interface{}) bool {
 }
 
 func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -591,7 +592,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -741,7 +742,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -768,7 +769,7 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -1502,7 +1503,7 @@ func detectLifecycleChange(d *schema.ResourceData) bool {
 
 // Resource Read and DataSource Read both need to set attributes, but Data Sources don't support Timeouts
 // so we pulled this portion out separately (https://github.com/hashicorp/terraform-provider-google/issues/11264)
-func setStorageBucket(d *schema.ResourceData, config *Config, res *storage.Bucket, bucket, userAgent string) error {
+func setStorageBucket(d *schema.ResourceData, config *transport_tpg.Config, res *storage.Bucket, bucket, userAgent string) error {
 	// We are trying to support several different use cases for bucket. Buckets are globally
 	// unique but they are associated with projects internally, but some users want to use
 	// buckets in a project agnostic way. Thus we will check to see if the project ID has been

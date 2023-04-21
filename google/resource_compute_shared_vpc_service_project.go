@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"strings"
 	"time"
@@ -55,7 +56,7 @@ func ResourceComputeSharedVpcServiceProject() *schema.Resource {
 }
 
 func resourceComputeSharedVpcServiceProjectCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -85,7 +86,7 @@ func resourceComputeSharedVpcServiceProjectCreate(d *schema.ResourceData, meta i
 }
 
 func resourceComputeSharedVpcServiceProjectRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -123,7 +124,7 @@ func resourceComputeSharedVpcServiceProjectRead(d *schema.ResourceData, meta int
 }
 
 func resourceComputeSharedVpcServiceProjectDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	hostProject := d.Get("host_project").(string)
 	serviceProject := d.Get("service_project").(string)
 
@@ -143,7 +144,7 @@ func resourceComputeSharedVpcServiceProjectDelete(d *schema.ResourceData, meta i
 	return nil
 }
 
-func disableXpnResource(d *schema.ResourceData, config *Config, hostProject, project string) error {
+func disableXpnResource(d *schema.ResourceData, config *transport_tpg.Config, hostProject, project string) error {
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err

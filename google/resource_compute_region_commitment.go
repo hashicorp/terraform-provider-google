@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeRegionCommitment() *schema.Resource {
@@ -213,7 +214,7 @@ accelerator optimized machines. Possible values: ["MEMORY_OPTIMIZED", "ACCELERAT
 }
 
 func resourceComputeRegionCommitmentCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -322,7 +323,7 @@ func resourceComputeRegionCommitmentCreate(d *schema.ResourceData, meta interfac
 }
 
 func resourceComputeRegionCommitmentRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -417,7 +418,7 @@ func resourceComputeRegionCommitmentDelete(d *schema.ResourceData, meta interfac
 }
 
 func resourceComputeRegionCommitmentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/commitments/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -437,7 +438,7 @@ func resourceComputeRegionCommitmentImport(d *schema.ResourceData, meta interfac
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeRegionCommitmentCommitmentId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentCommitmentId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -454,39 +455,39 @@ func flattenComputeRegionCommitmentCommitmentId(v interface{}, d *schema.Resourc
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionCommitmentCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentCreationTimestamp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionCommitmentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionCommitmentDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionCommitmentStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionCommitmentStatusMessage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentStatusMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionCommitmentPlan(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentPlan(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionCommitmentStartTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentStartTimestamp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionCommitmentEndTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentEndTimestamp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionCommitmentResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -506,27 +507,27 @@ func flattenComputeRegionCommitmentResources(v interface{}, d *schema.ResourceDa
 	}
 	return transformed
 }
-func flattenComputeRegionCommitmentResourcesType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentResourcesType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionCommitmentResourcesAmount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentResourcesAmount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionCommitmentResourcesAcceleratorType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentResourcesAcceleratorType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionCommitmentType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionCommitmentCategory(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentCategory(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionCommitmentLicenseResource(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentLicenseResource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -543,42 +544,42 @@ func flattenComputeRegionCommitmentLicenseResource(v interface{}, d *schema.Reso
 		flattenComputeRegionCommitmentLicenseResourceCoresPerLicense(original["coresPerLicense"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeRegionCommitmentLicenseResourceLicense(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentLicenseResourceLicense(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionCommitmentLicenseResourceAmount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentLicenseResourceAmount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionCommitmentLicenseResourceCoresPerLicense(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentLicenseResourceCoresPerLicense(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionCommitmentAutoRenew(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentAutoRenew(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionCommitmentRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionCommitmentRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func expandComputeRegionCommitmentName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionCommitmentName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionCommitmentDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionCommitmentDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionCommitmentPlan(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionCommitmentPlan(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionCommitmentResources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionCommitmentResources(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -614,27 +615,27 @@ func expandComputeRegionCommitmentResources(v interface{}, d TerraformResourceDa
 	return req, nil
 }
 
-func expandComputeRegionCommitmentResourcesType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionCommitmentResourcesType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionCommitmentResourcesAmount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionCommitmentResourcesAmount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionCommitmentResourcesAcceleratorType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionCommitmentResourcesAcceleratorType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionCommitmentType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionCommitmentType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionCommitmentCategory(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionCommitmentCategory(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionCommitmentLicenseResource(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionCommitmentLicenseResource(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -667,23 +668,23 @@ func expandComputeRegionCommitmentLicenseResource(v interface{}, d TerraformReso
 	return transformed, nil
 }
 
-func expandComputeRegionCommitmentLicenseResourceLicense(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionCommitmentLicenseResourceLicense(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionCommitmentLicenseResourceAmount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionCommitmentLicenseResourceAmount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionCommitmentLicenseResourceCoresPerLicense(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionCommitmentLicenseResourceCoresPerLicense(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionCommitmentAutoRenew(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionCommitmentAutoRenew(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionCommitmentRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionCommitmentRegion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for region: %s", err)

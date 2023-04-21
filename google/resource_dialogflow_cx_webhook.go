@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceDialogflowCXWebhook() *schema.Resource {
@@ -172,7 +173,7 @@ Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/webhooks
 }
 
 func resourceDialogflowCXWebhookCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -276,7 +277,7 @@ func resourceDialogflowCXWebhookCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceDialogflowCXWebhookRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -348,7 +349,7 @@ func resourceDialogflowCXWebhookRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceDialogflowCXWebhookUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -484,7 +485,7 @@ func resourceDialogflowCXWebhookUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceDialogflowCXWebhookDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -530,7 +531,7 @@ func resourceDialogflowCXWebhookDelete(d *schema.ResourceData, meta interface{})
 }
 
 func resourceDialogflowCXWebhookImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value and parent contains slashes
 	if err := ParseImportId([]string{
@@ -550,26 +551,26 @@ func resourceDialogflowCXWebhookImport(d *schema.ResourceData, meta interface{})
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDialogflowCXWebhookName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenDialogflowCXWebhookDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXWebhookTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXWebhookDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXWebhookGenericWebService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookGenericWebService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -586,19 +587,19 @@ func flattenDialogflowCXWebhookGenericWebService(v interface{}, d *schema.Resour
 		flattenDialogflowCXWebhookGenericWebServiceAllowedCaCerts(original["allowedCaCerts"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDialogflowCXWebhookGenericWebServiceUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookGenericWebServiceUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXWebhookGenericWebServiceRequestHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookGenericWebServiceRequestHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXWebhookGenericWebServiceAllowedCaCerts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookGenericWebServiceAllowedCaCerts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXWebhookServiceDirectory(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookServiceDirectory(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -613,11 +614,11 @@ func flattenDialogflowCXWebhookServiceDirectory(v interface{}, d *schema.Resourc
 		flattenDialogflowCXWebhookServiceDirectoryGenericWebService(original["genericWebService"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDialogflowCXWebhookServiceDirectoryService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookServiceDirectoryService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXWebhookServiceDirectoryGenericWebService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookServiceDirectoryGenericWebService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -634,47 +635,47 @@ func flattenDialogflowCXWebhookServiceDirectoryGenericWebService(v interface{}, 
 		flattenDialogflowCXWebhookServiceDirectoryGenericWebServiceAllowedCaCerts(original["allowedCaCerts"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDialogflowCXWebhookServiceDirectoryGenericWebServiceUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookServiceDirectoryGenericWebServiceUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXWebhookServiceDirectoryGenericWebServiceRequestHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookServiceDirectoryGenericWebServiceRequestHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXWebhookServiceDirectoryGenericWebServiceAllowedCaCerts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookServiceDirectoryGenericWebServiceAllowedCaCerts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXWebhookStartFlow(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookStartFlow(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXWebhookSecuritySettings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookSecuritySettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXWebhookEnableStackdriverLogging(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookEnableStackdriverLogging(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXWebhookEnableSpellCorrection(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXWebhookEnableSpellCorrection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandDialogflowCXWebhookDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXWebhookDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXWebhookTimeout(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXWebhookTimeout(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXWebhookDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXWebhookDisabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXWebhookGenericWebService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXWebhookGenericWebService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -707,11 +708,11 @@ func expandDialogflowCXWebhookGenericWebService(v interface{}, d TerraformResour
 	return transformed, nil
 }
 
-func expandDialogflowCXWebhookGenericWebServiceUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXWebhookGenericWebServiceUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXWebhookGenericWebServiceRequestHeaders(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandDialogflowCXWebhookGenericWebServiceRequestHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -722,11 +723,11 @@ func expandDialogflowCXWebhookGenericWebServiceRequestHeaders(v interface{}, d T
 	return m, nil
 }
 
-func expandDialogflowCXWebhookGenericWebServiceAllowedCaCerts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXWebhookGenericWebServiceAllowedCaCerts(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXWebhookServiceDirectory(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXWebhookServiceDirectory(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -752,11 +753,11 @@ func expandDialogflowCXWebhookServiceDirectory(v interface{}, d TerraformResourc
 	return transformed, nil
 }
 
-func expandDialogflowCXWebhookServiceDirectoryService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXWebhookServiceDirectoryService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXWebhookServiceDirectoryGenericWebService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXWebhookServiceDirectoryGenericWebService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -789,11 +790,11 @@ func expandDialogflowCXWebhookServiceDirectoryGenericWebService(v interface{}, d
 	return transformed, nil
 }
 
-func expandDialogflowCXWebhookServiceDirectoryGenericWebServiceUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXWebhookServiceDirectoryGenericWebServiceUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXWebhookServiceDirectoryGenericWebServiceRequestHeaders(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandDialogflowCXWebhookServiceDirectoryGenericWebServiceRequestHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -804,18 +805,18 @@ func expandDialogflowCXWebhookServiceDirectoryGenericWebServiceRequestHeaders(v 
 	return m, nil
 }
 
-func expandDialogflowCXWebhookServiceDirectoryGenericWebServiceAllowedCaCerts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXWebhookServiceDirectoryGenericWebServiceAllowedCaCerts(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXWebhookSecuritySettings(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXWebhookSecuritySettings(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXWebhookEnableStackdriverLogging(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXWebhookEnableStackdriverLogging(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXWebhookEnableSpellCorrection(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXWebhookEnableSpellCorrection(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

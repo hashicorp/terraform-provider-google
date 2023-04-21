@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -100,7 +102,7 @@ See [Enabling CMEK for Logging Buckets](https://cloud.google.com/logging/docs/ro
 	},
 }
 
-func projectBucketConfigID(d *schema.ResourceData, config *Config) (string, error) {
+func projectBucketConfigID(d *schema.ResourceData, config *transport_tpg.Config) (string, error) {
 	project := d.Get("project").(string)
 	location := d.Get("location").(string)
 	bucketID := d.Get("bucket_id").(string)
@@ -130,7 +132,7 @@ func ResourceLoggingProjectBucketConfig() *schema.Resource {
 
 func resourceLoggingProjectBucketConfigAcquireOrCreate(parentType string, iDFunc loggingBucketConfigIDFunc) func(*schema.ResourceData, interface{}) error {
 	return func(d *schema.ResourceData, meta interface{}) error {
-		config := meta.(*Config)
+		config := meta.(*transport_tpg.Config)
 		userAgent, err := generateUserAgentString(d, config.UserAgent)
 		if err != nil {
 			return err
@@ -166,7 +168,7 @@ func resourceLoggingProjectBucketConfigAcquireOrCreate(parentType string, iDFunc
 }
 
 func resourceLoggingProjectBucketConfigCreate(d *schema.ResourceData, meta interface{}, id string) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -212,7 +214,7 @@ func resourceLoggingProjectBucketConfigCreate(d *schema.ResourceData, meta inter
 }
 
 func resourceLoggingProjectBucketConfigRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -257,7 +259,7 @@ func resourceLoggingProjectBucketConfigRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceLoggingProjectBucketConfigUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err

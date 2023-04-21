@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceEssentialContactsContact() *schema.Resource {
@@ -78,7 +79,7 @@ func ResourceEssentialContactsContact() *schema.Resource {
 }
 
 func resourceEssentialContactsContactCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -138,7 +139,7 @@ func resourceEssentialContactsContactCreate(d *schema.ResourceData, meta interfa
 }
 
 func resourceEssentialContactsContactRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -178,7 +179,7 @@ func resourceEssentialContactsContactRead(d *schema.ResourceData, meta interface
 }
 
 func resourceEssentialContactsContactUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -239,7 +240,7 @@ func resourceEssentialContactsContactUpdate(d *schema.ResourceData, meta interfa
 }
 
 func resourceEssentialContactsContactDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -270,7 +271,7 @@ func resourceEssentialContactsContactDelete(d *schema.ResourceData, meta interfa
 }
 
 func resourceEssentialContactsContactImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"(?P<name>.+)",
 	}, d, config); err != nil {
@@ -287,30 +288,30 @@ func resourceEssentialContactsContactImport(d *schema.ResourceData, meta interfa
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenEssentialContactsContactName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenEssentialContactsContactName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenEssentialContactsContactEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenEssentialContactsContactEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenEssentialContactsContactNotificationCategorySubscriptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenEssentialContactsContactNotificationCategorySubscriptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenEssentialContactsContactLanguageTag(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenEssentialContactsContactLanguageTag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandEssentialContactsContactEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandEssentialContactsContactEmail(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandEssentialContactsContactNotificationCategorySubscriptions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandEssentialContactsContactNotificationCategorySubscriptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandEssentialContactsContactLanguageTag(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandEssentialContactsContactLanguageTag(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

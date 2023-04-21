@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceKMSSecretCiphertext() *schema.Resource {
@@ -69,7 +70,7 @@ Format: ''projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}/crypt
 }
 
 func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -139,7 +140,7 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceKMSSecretCiphertextRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -190,7 +191,7 @@ func resourceKMSSecretCiphertextDelete(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
-func expandKMSSecretCiphertextPlaintext(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandKMSSecretCiphertextPlaintext(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -198,7 +199,7 @@ func expandKMSSecretCiphertextPlaintext(v interface{}, d TerraformResourceData, 
 	return base64.StdEncoding.EncodeToString([]byte(v.(string))), nil
 }
 
-func expandKMSSecretCiphertextAdditionalAuthenticatedData(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandKMSSecretCiphertextAdditionalAuthenticatedData(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
 	}

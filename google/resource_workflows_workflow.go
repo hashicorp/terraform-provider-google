@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceWorkflowsWorkflow() *schema.Resource {
@@ -135,7 +136,7 @@ Format: projects/{project}/serviceAccounts/{account}.`,
 }
 
 func resourceWorkflowsWorkflowCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -245,7 +246,7 @@ func resourceWorkflowsWorkflowCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceWorkflowsWorkflowRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -313,7 +314,7 @@ func resourceWorkflowsWorkflowRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceWorkflowsWorkflowUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -423,7 +424,7 @@ func resourceWorkflowsWorkflowUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceWorkflowsWorkflowDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -467,58 +468,58 @@ func resourceWorkflowsWorkflowDelete(d *schema.ResourceData, meta interface{}) e
 	return nil
 }
 
-func flattenWorkflowsWorkflowName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenWorkflowsWorkflowName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenWorkflowsWorkflowDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenWorkflowsWorkflowDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenWorkflowsWorkflowCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenWorkflowsWorkflowCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenWorkflowsWorkflowUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenWorkflowsWorkflowUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenWorkflowsWorkflowState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenWorkflowsWorkflowState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenWorkflowsWorkflowLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenWorkflowsWorkflowLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenWorkflowsWorkflowServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenWorkflowsWorkflowServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenWorkflowsWorkflowSourceContents(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenWorkflowsWorkflowSourceContents(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenWorkflowsWorkflowRevisionId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenWorkflowsWorkflowRevisionId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenWorkflowsWorkflowCryptoKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenWorkflowsWorkflowCryptoKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandWorkflowsWorkflowName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandWorkflowsWorkflowName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandWorkflowsWorkflowDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandWorkflowsWorkflowDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandWorkflowsWorkflowLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandWorkflowsWorkflowLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -529,15 +530,15 @@ func expandWorkflowsWorkflowLabels(v interface{}, d TerraformResourceData, confi
 	return m, nil
 }
 
-func expandWorkflowsWorkflowServiceAccount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandWorkflowsWorkflowServiceAccount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandWorkflowsWorkflowSourceContents(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandWorkflowsWorkflowSourceContents(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandWorkflowsWorkflowCryptoKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandWorkflowsWorkflowCryptoKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceHealthcareConsentStore() *schema.Resource {
@@ -92,7 +93,7 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 }
 
 func resourceHealthcareConsentStoreCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -149,7 +150,7 @@ func resourceHealthcareConsentStoreCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceHealthcareConsentStoreRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -186,7 +187,7 @@ func resourceHealthcareConsentStoreRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceHealthcareConsentStoreUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -257,7 +258,7 @@ func resourceHealthcareConsentStoreUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceHealthcareConsentStoreDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -288,7 +289,7 @@ func resourceHealthcareConsentStoreDelete(d *schema.ResourceData, meta interface
 }
 
 func resourceHealthcareConsentStoreImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"(?P<dataset>.+)/consentStores/(?P<name>[^/]+)",
 	}, d, config); err != nil {
@@ -305,27 +306,27 @@ func resourceHealthcareConsentStoreImport(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenHealthcareConsentStoreDefaultConsentTtl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenHealthcareConsentStoreDefaultConsentTtl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenHealthcareConsentStoreEnableConsentCreateOnUpdate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenHealthcareConsentStoreEnableConsentCreateOnUpdate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenHealthcareConsentStoreLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenHealthcareConsentStoreLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandHealthcareConsentStoreDefaultConsentTtl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandHealthcareConsentStoreDefaultConsentTtl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandHealthcareConsentStoreEnableConsentCreateOnUpdate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandHealthcareConsentStoreEnableConsentCreateOnUpdate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandHealthcareConsentStoreLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandHealthcareConsentStoreLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

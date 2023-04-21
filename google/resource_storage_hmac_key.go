@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceStorageHmacKey() *schema.Resource {
@@ -87,7 +88,7 @@ func ResourceStorageHmacKey() *schema.Resource {
 }
 
 func resourceStorageHmacKeyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -178,7 +179,7 @@ func resourceStorageHmacKeyCreate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceStorageHmacKeyPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
 	return func() (map[string]interface{}, error) {
-		config := meta.(*Config)
+		config := meta.(*transport_tpg.Config)
 
 		url, err := ReplaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
 		if err != nil {
@@ -220,7 +221,7 @@ func resourceStorageHmacKeyPollRead(d *schema.ResourceData, meta interface{}) Po
 }
 
 func resourceStorageHmacKeyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -285,7 +286,7 @@ func resourceStorageHmacKeyRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceStorageHmacKeyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -353,7 +354,7 @@ func resourceStorageHmacKeyUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceStorageHmacKeyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -415,7 +416,7 @@ func resourceStorageHmacKeyDelete(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceStorageHmacKeyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/hmacKeys/(?P<access_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<access_id>[^/]+)",
@@ -434,31 +435,31 @@ func resourceStorageHmacKeyImport(d *schema.ResourceData, meta interface{}) ([]*
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenStorageHmacKeyServiceAccountEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageHmacKeyServiceAccountEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenStorageHmacKeyState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageHmacKeyState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenStorageHmacKeyAccessId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageHmacKeyAccessId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenStorageHmacKeyTimeCreated(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageHmacKeyTimeCreated(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenStorageHmacKeyUpdated(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageHmacKeyUpdated(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandStorageHmacKeyServiceAccountEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandStorageHmacKeyServiceAccountEmail(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandStorageHmacKeyState(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandStorageHmacKeyState(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

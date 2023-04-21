@@ -5,10 +5,11 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/compute/v1"
 )
 
-func computeInstanceDeleteAccessConfigs(d *schema.ResourceData, config *Config, instNetworkInterface *compute.NetworkInterface, project, zone, userAgent, instanceName string) error {
+func computeInstanceDeleteAccessConfigs(d *schema.ResourceData, config *transport_tpg.Config, instNetworkInterface *compute.NetworkInterface, project, zone, userAgent, instanceName string) error {
 	// Delete any accessConfig that currently exists in instNetworkInterface
 	for _, ac := range instNetworkInterface.AccessConfigs {
 		op, err := config.NewComputeClient(userAgent).Instances.DeleteAccessConfig(
@@ -24,7 +25,7 @@ func computeInstanceDeleteAccessConfigs(d *schema.ResourceData, config *Config, 
 	return nil
 }
 
-func computeInstanceAddAccessConfigs(d *schema.ResourceData, config *Config, instNetworkInterface *compute.NetworkInterface, accessConfigs []*compute.AccessConfig, project, zone, userAgent, instanceName string) error {
+func computeInstanceAddAccessConfigs(d *schema.ResourceData, config *transport_tpg.Config, instNetworkInterface *compute.NetworkInterface, accessConfigs []*compute.AccessConfig, project, zone, userAgent, instanceName string) error {
 	// Create new ones
 	for _, ac := range accessConfigs {
 		op, err := config.NewComputeClient(userAgent).Instances.AddAccessConfig(project, zone, instanceName, instNetworkInterface.Name, ac).Do()
@@ -39,7 +40,7 @@ func computeInstanceAddAccessConfigs(d *schema.ResourceData, config *Config, ins
 	return nil
 }
 
-func computeInstanceCreateUpdateWhileStoppedCall(d *schema.ResourceData, config *Config, networkInterfacePatchObj *compute.NetworkInterface, accessConfigs []*compute.AccessConfig, accessConfigsHaveChanged bool, index int, project, zone, userAgent, instanceName string) func(inst *compute.Instance) error {
+func computeInstanceCreateUpdateWhileStoppedCall(d *schema.ResourceData, config *transport_tpg.Config, networkInterfacePatchObj *compute.NetworkInterface, accessConfigs []*compute.AccessConfig, accessConfigsHaveChanged bool, index int, project, zone, userAgent, instanceName string) func(inst *compute.Instance) error {
 
 	// Access configs' ip changes when the instance stops invalidating our fingerprint
 	// expect caller to re-validate instance before calling patch this is why we expect

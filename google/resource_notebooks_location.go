@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceNotebooksLocation() *schema.Resource {
@@ -62,7 +63,7 @@ func ResourceNotebooksLocation() *schema.Resource {
 }
 
 func resourceNotebooksLocationCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -137,7 +138,7 @@ func resourceNotebooksLocationCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceNotebooksLocationRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -181,7 +182,7 @@ func resourceNotebooksLocationRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceNotebooksLocationUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -235,7 +236,7 @@ func resourceNotebooksLocationUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceNotebooksLocationDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -280,7 +281,7 @@ func resourceNotebooksLocationDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceNotebooksLocationImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -299,13 +300,13 @@ func resourceNotebooksLocationImport(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenNotebooksLocationName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNotebooksLocationName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func expandNotebooksLocationName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNotebooksLocationName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

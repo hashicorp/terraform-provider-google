@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceKMSCryptoKeyVersion() *schema.Resource {
@@ -147,7 +148,7 @@ Only provided for key versions with protectionLevel HSM.`,
 }
 
 func resourceKMSCryptoKeyVersionCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -195,7 +196,7 @@ func resourceKMSCryptoKeyVersionCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceKMSCryptoKeyVersionRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -241,7 +242,7 @@ func resourceKMSCryptoKeyVersionRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceKMSCryptoKeyVersionUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -292,7 +293,7 @@ func resourceKMSCryptoKeyVersionUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceKMSCryptoKeyVersionDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -314,7 +315,7 @@ func resourceKMSCryptoKeyVersionDelete(d *schema.ResourceData, meta interface{})
 
 func resourceKMSCryptoKeyVersionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	cryptoKeyVersionId, err := parseKmsCryptoKeyVersionId(d.Id(), config)
 	if err != nil {
@@ -335,27 +336,27 @@ func resourceKMSCryptoKeyVersionImport(d *schema.ResourceData, meta interface{})
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenKMSCryptoKeyVersionName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSCryptoKeyVersionName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSCryptoKeyVersionState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSCryptoKeyVersionState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSCryptoKeyVersionProtectionLevel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSCryptoKeyVersionProtectionLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSCryptoKeyVersionGenerateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSCryptoKeyVersionGenerateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSCryptoKeyVersionAlgorithm(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSCryptoKeyVersionAlgorithm(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSCryptoKeyVersionAttestation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSCryptoKeyVersionAttestation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -374,15 +375,15 @@ func flattenKMSCryptoKeyVersionAttestation(v interface{}, d *schema.ResourceData
 		flattenKMSCryptoKeyVersionAttestationExternalProtectionLevelOptions(original["externalProtectionLevelOptions"], d, config)
 	return []interface{}{transformed}
 }
-func flattenKMSCryptoKeyVersionAttestationFormat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSCryptoKeyVersionAttestationFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSCryptoKeyVersionAttestationContent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSCryptoKeyVersionAttestationContent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSCryptoKeyVersionAttestationCertChains(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSCryptoKeyVersionAttestationCertChains(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -399,19 +400,19 @@ func flattenKMSCryptoKeyVersionAttestationCertChains(v interface{}, d *schema.Re
 		flattenKMSCryptoKeyVersionAttestationCertChainsGooglePartitionCerts(original["googlePartitionCerts"], d, config)
 	return []interface{}{transformed}
 }
-func flattenKMSCryptoKeyVersionAttestationCertChainsCaviumCerts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSCryptoKeyVersionAttestationCertChainsCaviumCerts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSCryptoKeyVersionAttestationCertChainsGoogleCardCerts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSCryptoKeyVersionAttestationCertChainsGoogleCardCerts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSCryptoKeyVersionAttestationCertChainsGooglePartitionCerts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSCryptoKeyVersionAttestationCertChainsGooglePartitionCerts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSCryptoKeyVersionAttestationExternalProtectionLevelOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSCryptoKeyVersionAttestationExternalProtectionLevelOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -426,14 +427,14 @@ func flattenKMSCryptoKeyVersionAttestationExternalProtectionLevelOptions(v inter
 		flattenKMSCryptoKeyVersionAttestationExternalProtectionLevelOptionsEkmConnectionKeyPath(original["ekmConnectionKeyPath"], d, config)
 	return []interface{}{transformed}
 }
-func flattenKMSCryptoKeyVersionAttestationExternalProtectionLevelOptionsExternalKeyUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSCryptoKeyVersionAttestationExternalProtectionLevelOptionsExternalKeyUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSCryptoKeyVersionAttestationExternalProtectionLevelOptionsEkmConnectionKeyPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSCryptoKeyVersionAttestationExternalProtectionLevelOptionsEkmConnectionKeyPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandKMSCryptoKeyVersionState(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandKMSCryptoKeyVersionState(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

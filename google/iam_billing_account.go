@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/cloudbilling/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
@@ -20,10 +21,10 @@ var IamBillingAccountSchema = map[string]*schema.Schema{
 type BillingAccountIamUpdater struct {
 	billingAccountId string
 	d                TerraformResourceData
-	Config           *Config
+	Config           *transport_tpg.Config
 }
 
-func NewBillingAccountIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewBillingAccountIamUpdater(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	return &BillingAccountIamUpdater{
 		billingAccountId: canonicalBillingAccountId(d.Get("billing_account_id").(string)),
 		d:                d,
@@ -31,7 +32,7 @@ func NewBillingAccountIamUpdater(d TerraformResourceData, config *Config) (Resou
 	}, nil
 }
 
-func BillingAccountIdParseFunc(d *schema.ResourceData, _ *Config) error {
+func BillingAccountIdParseFunc(d *schema.ResourceData, _ *transport_tpg.Config) error {
 	if err := d.Set("billing_account_id", d.Id()); err != nil {
 		return fmt.Errorf("Error setting billing_account_id: %s", err)
 	}
@@ -104,7 +105,7 @@ func billingToResourceManagerPolicy(p *cloudbilling.Policy) (*cloudresourcemanag
 }
 
 // Retrieve the existing IAM Policy for a billing account
-func getBillingAccountIamPolicyByBillingAccountName(resource string, config *Config, userAgent string) (*cloudresourcemanager.Policy, error) {
+func getBillingAccountIamPolicyByBillingAccountName(resource string, config *transport_tpg.Config, userAgent string) (*cloudresourcemanager.Policy, error) {
 	p, err := config.NewBillingClient(userAgent).BillingAccounts.GetIamPolicy("billingAccounts/" + resource).Do()
 
 	if err != nil {

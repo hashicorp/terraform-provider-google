@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceLoggingLinkedDataset() *schema.Resource {
@@ -117,7 +118,7 @@ and "2014-10-02T15:01:23.045123456Z".`,
 }
 
 func resourceLoggingLinkedDatasetCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -191,7 +192,7 @@ func resourceLoggingLinkedDatasetCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceLoggingLinkedDatasetRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -234,7 +235,7 @@ func resourceLoggingLinkedDatasetRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceLoggingLinkedDatasetDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -273,7 +274,7 @@ func resourceLoggingLinkedDatasetDelete(d *schema.ResourceData, meta interface{}
 }
 
 func resourceLoggingLinkedDatasetImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"(?P<parent>.+)/locations/(?P<location>[^/]+)/buckets/(?P<bucket>[^/]+)/links/(?P<link_id>[^/]+)",
 	}, d, config); err != nil {
@@ -290,23 +291,23 @@ func resourceLoggingLinkedDatasetImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenLoggingLinkedDatasetName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingLinkedDatasetName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingLinkedDatasetDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingLinkedDatasetDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingLinkedDatasetCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingLinkedDatasetCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingLinkedDatasetLifecycleState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingLinkedDatasetLifecycleState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingLinkedDatasetBigqueryDataset(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingLinkedDatasetBigqueryDataset(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -319,11 +320,11 @@ func flattenLoggingLinkedDatasetBigqueryDataset(v interface{}, d *schema.Resourc
 		flattenLoggingLinkedDatasetBigqueryDatasetDatasetId(original["datasetId"], d, config)
 	return []interface{}{transformed}
 }
-func flattenLoggingLinkedDatasetBigqueryDatasetDatasetId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingLinkedDatasetBigqueryDatasetDatasetId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandLoggingLinkedDatasetDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingLinkedDatasetDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

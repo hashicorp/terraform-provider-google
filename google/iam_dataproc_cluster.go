@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/dataproc/v1"
 )
@@ -34,10 +35,10 @@ type DataprocClusterIamUpdater struct {
 	region  string
 	cluster string
 	d       TerraformResourceData
-	Config  *Config
+	Config  *transport_tpg.Config
 }
 
-func NewDataprocClusterUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewDataprocClusterUpdater(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
@@ -64,7 +65,7 @@ func NewDataprocClusterUpdater(d TerraformResourceData, config *Config) (Resourc
 	}, nil
 }
 
-func DataprocClusterIdParseFunc(d *schema.ResourceData, config *Config) error {
+func DataprocClusterIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	fv, err := parseRegionalFieldValue("clusters", d.Id(), "project", "region", "zone", d, config, true)
 	if err != nil {
 		return err

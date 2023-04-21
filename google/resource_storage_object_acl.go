@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/api/storage/v1"
@@ -59,7 +61,7 @@ func ResourceStorageObjectAcl() *schema.Resource {
 // owner having OWNER. It's impossible to remove that permission though, so this custom diff
 // makes configs with or without that line indistinguishable.
 func resourceStorageObjectAclDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	bucket, ok := diff.GetOk("bucket")
 	if !ok {
 		// During `plan` when this is interpolated from a resource that hasn't been created yet
@@ -114,7 +116,7 @@ func getObjectAclId(object string) string {
 }
 
 func resourceStorageObjectAclCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -175,7 +177,7 @@ func resourceStorageObjectAclCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceStorageObjectAclRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -199,7 +201,7 @@ func resourceStorageObjectAclRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceStorageObjectAclUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -257,7 +259,7 @@ func resourceStorageObjectAclUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceStorageObjectAclDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -286,7 +288,7 @@ func resourceStorageObjectAclDelete(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func getRoleEntitiesAsStringsFromApi(config *Config, bucket, object, userAgent string) ([]string, error) {
+func getRoleEntitiesAsStringsFromApi(config *transport_tpg.Config, bucket, object, userAgent string) ([]string, error) {
 	var roleEntities []string
 	res, err := config.NewStorageClient(userAgent).ObjectAccessControls.List(bucket, object).Do()
 	if err != nil {
@@ -358,7 +360,7 @@ func getRoleEntityChange(old []string, new []string, owner string) (create, upda
 }
 
 // Takes in lists of changes to make to a Storage Object's ACL and makes those changes
-func performStorageObjectRoleEntityOperations(create []*RoleEntity, update []*RoleEntity, remove []*RoleEntity, config *Config, bucket, object, userAgent string) error {
+func performStorageObjectRoleEntityOperations(create []*RoleEntity, update []*RoleEntity, remove []*RoleEntity, config *transport_tpg.Config, bucket, object, userAgent string) error {
 	for _, v := range create {
 		objectAccessControl := &storage.ObjectAccessControl{
 			Role:   v.Role,

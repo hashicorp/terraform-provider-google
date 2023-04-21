@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceDialogflowFulfillment() *schema.Resource {
@@ -117,7 +118,7 @@ Format: projects/<Project ID>/agent/fulfillment - projects/<Project ID>/location
 }
 
 func resourceDialogflowFulfillmentCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -207,7 +208,7 @@ func resourceDialogflowFulfillmentCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceDialogflowFulfillmentRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -260,7 +261,7 @@ func resourceDialogflowFulfillmentRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceDialogflowFulfillmentUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -347,7 +348,7 @@ func resourceDialogflowFulfillmentUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceDialogflowFulfillmentDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -385,7 +386,7 @@ func resourceDialogflowFulfillmentDelete(d *schema.ResourceData, meta interface{
 
 func resourceDialogflowFulfillmentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -406,19 +407,19 @@ func resourceDialogflowFulfillmentImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDialogflowFulfillmentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowFulfillmentName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowFulfillmentDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowFulfillmentDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowFulfillmentEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowFulfillmentEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowFulfillmentFeatures(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowFulfillmentFeatures(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -436,11 +437,11 @@ func flattenDialogflowFulfillmentFeatures(v interface{}, d *schema.ResourceData,
 	}
 	return transformed
 }
-func flattenDialogflowFulfillmentFeaturesType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowFulfillmentFeaturesType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowFulfillmentGenericWebService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowFulfillmentGenericWebService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -459,31 +460,31 @@ func flattenDialogflowFulfillmentGenericWebService(v interface{}, d *schema.Reso
 		flattenDialogflowFulfillmentGenericWebServiceRequestHeaders(original["requestHeaders"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDialogflowFulfillmentGenericWebServiceUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowFulfillmentGenericWebServiceUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowFulfillmentGenericWebServiceUsername(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowFulfillmentGenericWebServiceUsername(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowFulfillmentGenericWebServicePassword(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowFulfillmentGenericWebServicePassword(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowFulfillmentGenericWebServiceRequestHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowFulfillmentGenericWebServiceRequestHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandDialogflowFulfillmentDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowFulfillmentDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowFulfillmentEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowFulfillmentEnabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowFulfillmentFeatures(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowFulfillmentFeatures(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -505,11 +506,11 @@ func expandDialogflowFulfillmentFeatures(v interface{}, d TerraformResourceData,
 	return req, nil
 }
 
-func expandDialogflowFulfillmentFeaturesType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowFulfillmentFeaturesType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowFulfillmentGenericWebService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowFulfillmentGenericWebService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -549,19 +550,19 @@ func expandDialogflowFulfillmentGenericWebService(v interface{}, d TerraformReso
 	return transformed, nil
 }
 
-func expandDialogflowFulfillmentGenericWebServiceUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowFulfillmentGenericWebServiceUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowFulfillmentGenericWebServiceUsername(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowFulfillmentGenericWebServiceUsername(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowFulfillmentGenericWebServicePassword(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowFulfillmentGenericWebServicePassword(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowFulfillmentGenericWebServiceRequestHeaders(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandDialogflowFulfillmentGenericWebServiceRequestHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

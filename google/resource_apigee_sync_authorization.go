@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceApigeeSyncAuthorization() *schema.Resource {
@@ -73,7 +74,7 @@ Used internally during updates.`,
 }
 
 func resourceApigeeSyncAuthorizationCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -124,7 +125,7 @@ func resourceApigeeSyncAuthorizationCreate(d *schema.ResourceData, meta interfac
 }
 
 func resourceApigeeSyncAuthorizationRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -158,7 +159,7 @@ func resourceApigeeSyncAuthorizationRead(d *schema.ResourceData, meta interface{
 }
 
 func resourceApigeeSyncAuthorizationUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -213,7 +214,7 @@ func resourceApigeeSyncAuthorizationDelete(d *schema.ResourceData, meta interfac
 }
 
 func resourceApigeeSyncAuthorizationImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"organizations/(?P<name>[^/]+)/syncAuthorization",
 		"(?P<name>[^/]+)",
@@ -231,18 +232,18 @@ func resourceApigeeSyncAuthorizationImport(d *schema.ResourceData, meta interfac
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenApigeeSyncAuthorizationIdentities(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeSyncAuthorizationIdentities(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeSyncAuthorizationEtag(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeSyncAuthorizationEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandApigeeSyncAuthorizationIdentities(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeSyncAuthorizationIdentities(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeSyncAuthorizationEtag(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeSyncAuthorizationEtag(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

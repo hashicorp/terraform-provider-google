@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func sslSettingsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
@@ -151,7 +152,7 @@ configuration in order to serve the application via this domain mapping.`,
 }
 
 func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -239,7 +240,7 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceAppEngineDomainMappingRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -289,7 +290,7 @@ func resourceAppEngineDomainMappingRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -362,7 +363,7 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -414,7 +415,7 @@ func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface
 }
 
 func resourceAppEngineDomainMappingImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"apps/(?P<project>[^/]+)/domainMappings/(?P<domain_name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<domain_name>[^/]+)",
@@ -433,11 +434,11 @@ func resourceAppEngineDomainMappingImport(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAppEngineDomainMappingName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAppEngineDomainMappingName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAppEngineDomainMappingSslSettings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAppEngineDomainMappingSslSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -454,19 +455,19 @@ func flattenAppEngineDomainMappingSslSettings(v interface{}, d *schema.ResourceD
 		flattenAppEngineDomainMappingSslSettingsPendingManagedCertificateId(original["pendingManagedCertificateId"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAppEngineDomainMappingSslSettingsCertificateId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAppEngineDomainMappingSslSettingsCertificateId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAppEngineDomainMappingSslSettingsSslManagementType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAppEngineDomainMappingSslSettingsSslManagementType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAppEngineDomainMappingSslSettingsPendingManagedCertificateId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAppEngineDomainMappingSslSettingsPendingManagedCertificateId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAppEngineDomainMappingResourceRecords(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAppEngineDomainMappingResourceRecords(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -486,23 +487,23 @@ func flattenAppEngineDomainMappingResourceRecords(v interface{}, d *schema.Resou
 	}
 	return transformed
 }
-func flattenAppEngineDomainMappingResourceRecordsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAppEngineDomainMappingResourceRecordsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAppEngineDomainMappingResourceRecordsRrdata(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAppEngineDomainMappingResourceRecordsRrdata(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAppEngineDomainMappingResourceRecordsType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAppEngineDomainMappingResourceRecordsType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAppEngineDomainMappingDomainName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAppEngineDomainMappingDomainName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandAppEngineDomainMappingSslSettings(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAppEngineDomainMappingSslSettings(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -535,18 +536,18 @@ func expandAppEngineDomainMappingSslSettings(v interface{}, d TerraformResourceD
 	return transformed, nil
 }
 
-func expandAppEngineDomainMappingSslSettingsCertificateId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAppEngineDomainMappingSslSettingsCertificateId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppEngineDomainMappingSslSettingsSslManagementType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAppEngineDomainMappingSslSettingsSslManagementType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppEngineDomainMappingSslSettingsPendingManagedCertificateId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAppEngineDomainMappingSslSettingsPendingManagedCertificateId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppEngineDomainMappingDomainName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAppEngineDomainMappingDomainName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

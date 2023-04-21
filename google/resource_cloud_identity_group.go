@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceCloudIdentityGroup() *schema.Resource {
@@ -149,7 +150,7 @@ is the unique ID assigned to the Group.`,
 }
 
 func resourceCloudIdentityGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -245,7 +246,7 @@ func resourceCloudIdentityGroupCreate(d *schema.ResourceData, meta interface{}) 
 
 func resourceCloudIdentityGroupPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
 	return func() (map[string]interface{}, error) {
-		config := meta.(*Config)
+		config := meta.(*transport_tpg.Config)
 
 		url, err := ReplaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
 		if err != nil {
@@ -273,7 +274,7 @@ func resourceCloudIdentityGroupPollRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceCloudIdentityGroupRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -325,7 +326,7 @@ func resourceCloudIdentityGroupRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceCloudIdentityGroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -401,7 +402,7 @@ func resourceCloudIdentityGroupUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceCloudIdentityGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -437,7 +438,7 @@ func resourceCloudIdentityGroupDelete(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceCloudIdentityGroupImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -457,11 +458,11 @@ func resourceCloudIdentityGroupImport(d *schema.ResourceData, meta interface{}) 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenCloudIdentityGroupName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdentityGroupName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudIdentityGroupGroupKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdentityGroupGroupKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -476,39 +477,39 @@ func flattenCloudIdentityGroupGroupKey(v interface{}, d *schema.ResourceData, co
 		flattenCloudIdentityGroupGroupKeyNamespace(original["namespace"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudIdentityGroupGroupKeyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdentityGroupGroupKeyId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudIdentityGroupGroupKeyNamespace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdentityGroupGroupKeyNamespace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudIdentityGroupParent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdentityGroupParent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudIdentityGroupDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdentityGroupDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudIdentityGroupDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdentityGroupDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudIdentityGroupCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdentityGroupCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudIdentityGroupUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdentityGroupUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudIdentityGroupLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdentityGroupLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandCloudIdentityGroupGroupKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudIdentityGroupGroupKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -534,27 +535,27 @@ func expandCloudIdentityGroupGroupKey(v interface{}, d TerraformResourceData, co
 	return transformed, nil
 }
 
-func expandCloudIdentityGroupGroupKeyId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudIdentityGroupGroupKeyId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIdentityGroupGroupKeyNamespace(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudIdentityGroupGroupKeyNamespace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIdentityGroupParent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudIdentityGroupParent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIdentityGroupDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudIdentityGroupDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIdentityGroupDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudIdentityGroupDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIdentityGroupLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandCloudIdentityGroupLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

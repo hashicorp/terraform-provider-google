@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccHealthcareDatasetIdParsing(t *testing.T) {
@@ -16,7 +17,7 @@ func TestAccHealthcareDatasetIdParsing(t *testing.T) {
 		ExpectedError       bool
 		ExpectedTerraformId string
 		ExpectedDatasetId   string
-		Config              *Config
+		Config              *transport_tpg.Config
 	}{
 		"id is in project/location/datasetName format": {
 			ImportId:            "test-project/us-central1/test-dataset",
@@ -35,12 +36,12 @@ func TestAccHealthcareDatasetIdParsing(t *testing.T) {
 			ExpectedError:       false,
 			ExpectedTerraformId: "test-project/us-central1/test-dataset",
 			ExpectedDatasetId:   "projects/test-project/locations/us-central1/datasets/test-dataset",
-			Config:              &Config{Project: "test-project"},
+			Config:              &transport_tpg.Config{Project: "test-project"},
 		},
 		"id is in location/datasetName format without project in config": {
 			ImportId:      "us-central1/test-dataset",
 			ExpectedError: true,
-			Config:        &Config{Project: ""},
+			Config:        &transport_tpg.Config{Project: ""},
 		},
 	}
 

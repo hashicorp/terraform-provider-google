@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourcePubsubLiteSubscription() *schema.Resource {
@@ -95,7 +96,7 @@ func ResourcePubsubLiteSubscription() *schema.Resource {
 }
 
 func resourcePubsubLiteSubscriptionCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -157,7 +158,7 @@ func resourcePubsubLiteSubscriptionCreate(d *schema.ResourceData, meta interface
 }
 
 func resourcePubsubLiteSubscriptionRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -201,7 +202,7 @@ func resourcePubsubLiteSubscriptionRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourcePubsubLiteSubscriptionUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -263,7 +264,7 @@ func resourcePubsubLiteSubscriptionUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourcePubsubLiteSubscriptionDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -300,7 +301,7 @@ func resourcePubsubLiteSubscriptionDelete(d *schema.ResourceData, meta interface
 }
 
 func resourcePubsubLiteSubscriptionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<zone>[^/]+)/subscriptions/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
@@ -320,14 +321,14 @@ func resourcePubsubLiteSubscriptionImport(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenPubsubLiteSubscriptionTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubLiteSubscriptionTopic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenPubsubLiteSubscriptionDeliveryConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubLiteSubscriptionDeliveryConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -340,11 +341,11 @@ func flattenPubsubLiteSubscriptionDeliveryConfig(v interface{}, d *schema.Resour
 		flattenPubsubLiteSubscriptionDeliveryConfigDeliveryRequirement(original["deliveryRequirement"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPubsubLiteSubscriptionDeliveryConfigDeliveryRequirement(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubLiteSubscriptionDeliveryConfigDeliveryRequirement(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandPubsubLiteSubscriptionTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubLiteSubscriptionTopic(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return "", err
@@ -375,7 +376,7 @@ func expandPubsubLiteSubscriptionTopic(v interface{}, d TerraformResourceData, c
 	}
 }
 
-func expandPubsubLiteSubscriptionDeliveryConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubLiteSubscriptionDeliveryConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -394,12 +395,12 @@ func expandPubsubLiteSubscriptionDeliveryConfig(v interface{}, d TerraformResour
 	return transformed, nil
 }
 
-func expandPubsubLiteSubscriptionDeliveryConfigDeliveryRequirement(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubLiteSubscriptionDeliveryConfigDeliveryRequirement(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
 func resourcePubsubLiteSubscriptionEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	zone, err := getZone(d, config)
 	if err != nil {

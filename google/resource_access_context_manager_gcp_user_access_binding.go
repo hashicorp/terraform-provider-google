@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
@@ -75,7 +76,7 @@ func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
 }
 
 func resourceAccessContextManagerGcpUserAccessBindingCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -150,7 +151,7 @@ func resourceAccessContextManagerGcpUserAccessBindingCreate(d *schema.ResourceDa
 }
 
 func resourceAccessContextManagerGcpUserAccessBindingRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -187,7 +188,7 @@ func resourceAccessContextManagerGcpUserAccessBindingRead(d *schema.ResourceData
 }
 
 func resourceAccessContextManagerGcpUserAccessBindingUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -246,7 +247,7 @@ func resourceAccessContextManagerGcpUserAccessBindingUpdate(d *schema.ResourceDa
 }
 
 func resourceAccessContextManagerGcpUserAccessBindingDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -285,7 +286,7 @@ func resourceAccessContextManagerGcpUserAccessBindingDelete(d *schema.ResourceDa
 }
 
 func resourceAccessContextManagerGcpUserAccessBindingImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -301,22 +302,22 @@ func resourceAccessContextManagerGcpUserAccessBindingImport(d *schema.ResourceDa
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAccessContextManagerGcpUserAccessBindingName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerGcpUserAccessBindingName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerGcpUserAccessBindingGroupKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerGcpUserAccessBindingGroupKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerGcpUserAccessBindingAccessLevels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerGcpUserAccessBindingAccessLevels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandAccessContextManagerGcpUserAccessBindingGroupKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerGcpUserAccessBindingGroupKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerGcpUserAccessBindingAccessLevels(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerGcpUserAccessBindingAccessLevels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceCertificateManagerCertificateMap() *schema.Resource {
@@ -132,7 +133,7 @@ Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 }
 
 func resourceCertificateManagerCertificateMapCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -199,7 +200,7 @@ func resourceCertificateManagerCertificateMapCreate(d *schema.ResourceData, meta
 }
 
 func resourceCertificateManagerCertificateMapRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -252,7 +253,7 @@ func resourceCertificateManagerCertificateMapRead(d *schema.ResourceData, meta i
 }
 
 func resourceCertificateManagerCertificateMapUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -327,7 +328,7 @@ func resourceCertificateManagerCertificateMapUpdate(d *schema.ResourceData, meta
 }
 
 func resourceCertificateManagerCertificateMapDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -372,7 +373,7 @@ func resourceCertificateManagerCertificateMapDelete(d *schema.ResourceData, meta
 }
 
 func resourceCertificateManagerCertificateMapImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/global/certificateMaps/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -391,23 +392,23 @@ func resourceCertificateManagerCertificateMapImport(d *schema.ResourceData, meta
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenCertificateManagerCertificateMapDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCertificateManagerCertificateMapDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCertificateManagerCertificateMapCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCertificateManagerCertificateMapCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCertificateManagerCertificateMapUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCertificateManagerCertificateMapUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCertificateManagerCertificateMapLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCertificateManagerCertificateMapLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCertificateManagerCertificateMapGclbTargets(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCertificateManagerCertificateMapGclbTargets(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -427,7 +428,7 @@ func flattenCertificateManagerCertificateMapGclbTargets(v interface{}, d *schema
 	}
 	return transformed
 }
-func flattenCertificateManagerCertificateMapGclbTargetsIpConfigs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCertificateManagerCertificateMapGclbTargetsIpConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -446,27 +447,27 @@ func flattenCertificateManagerCertificateMapGclbTargetsIpConfigs(v interface{}, 
 	}
 	return transformed
 }
-func flattenCertificateManagerCertificateMapGclbTargetsIpConfigsIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCertificateManagerCertificateMapGclbTargetsIpConfigsIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCertificateManagerCertificateMapGclbTargetsIpConfigsPorts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCertificateManagerCertificateMapGclbTargetsIpConfigsPorts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCertificateManagerCertificateMapGclbTargetsTargetHttpsProxy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCertificateManagerCertificateMapGclbTargetsTargetHttpsProxy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCertificateManagerCertificateMapGclbTargetsTargetSslProxy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCertificateManagerCertificateMapGclbTargetsTargetSslProxy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandCertificateManagerCertificateMapDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCertificateManagerCertificateMapDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCertificateManagerCertificateMapLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandCertificateManagerCertificateMapLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

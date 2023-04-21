@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceAccessContextManagerAccessLevelCondition() *schema.Resource {
@@ -194,7 +195,7 @@ Format: accessPolicies/{policy_id}/accessLevels/{short_name}`,
 }
 
 func resourceAccessContextManagerAccessLevelConditionCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -291,7 +292,7 @@ func resourceAccessContextManagerAccessLevelConditionCreate(d *schema.ResourceDa
 
 func resourceAccessContextManagerAccessLevelConditionPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
 	return func() (map[string]interface{}, error) {
-		config := meta.(*Config)
+		config := meta.(*transport_tpg.Config)
 
 		url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{access_level}}")
 		if err != nil {
@@ -328,7 +329,7 @@ func resourceAccessContextManagerAccessLevelConditionPollRead(d *schema.Resource
 }
 
 func resourceAccessContextManagerAccessLevelConditionRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -386,7 +387,7 @@ func resourceAccessContextManagerAccessLevelConditionRead(d *schema.ResourceData
 }
 
 func resourceAccessContextManagerAccessLevelConditionDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -432,23 +433,23 @@ func resourceAccessContextManagerAccessLevelConditionDelete(d *schema.ResourceDa
 	return nil
 }
 
-func flattenNestedAccessContextManagerAccessLevelConditionIpSubnetworks(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedAccessContextManagerAccessLevelConditionIpSubnetworks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerAccessLevelConditionRequiredAccessLevels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedAccessContextManagerAccessLevelConditionRequiredAccessLevels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerAccessLevelConditionMembers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedAccessContextManagerAccessLevelConditionMembers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerAccessLevelConditionNegate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedAccessContextManagerAccessLevelConditionNegate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -471,19 +472,19 @@ func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicy(v interfa
 		flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyRequireCorpOwned(original["requireCorpOwned"], d, config)
 	return []interface{}{transformed}
 }
-func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyRequireScreenLock(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyRequireScreenLock(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyAllowedEncryptionStatuses(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyAllowedEncryptionStatuses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyAllowedDeviceManagementLevels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyAllowedDeviceManagementLevels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyOsConstraints(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyOsConstraints(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -502,43 +503,43 @@ func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyOsConstrai
 	}
 	return transformed
 }
-func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyOsConstraintsMinimumVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyOsConstraintsMinimumVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyOsConstraintsOsType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyOsConstraintsOsType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyRequireAdminApproval(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyRequireAdminApproval(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyRequireCorpOwned(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedAccessContextManagerAccessLevelConditionDevicePolicyRequireCorpOwned(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerAccessLevelConditionRegions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedAccessContextManagerAccessLevelConditionRegions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandNestedAccessContextManagerAccessLevelConditionIpSubnetworks(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedAccessContextManagerAccessLevelConditionIpSubnetworks(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerAccessLevelConditionRequiredAccessLevels(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedAccessContextManagerAccessLevelConditionRequiredAccessLevels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerAccessLevelConditionMembers(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedAccessContextManagerAccessLevelConditionMembers(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerAccessLevelConditionNegate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedAccessContextManagerAccessLevelConditionNegate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerAccessLevelConditionDevicePolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedAccessContextManagerAccessLevelConditionDevicePolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -592,19 +593,19 @@ func expandNestedAccessContextManagerAccessLevelConditionDevicePolicy(v interfac
 	return transformed, nil
 }
 
-func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyRequireScreenLock(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyRequireScreenLock(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyAllowedEncryptionStatuses(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyAllowedEncryptionStatuses(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyAllowedDeviceManagementLevels(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyAllowedDeviceManagementLevels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyOsConstraints(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyOsConstraints(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -633,23 +634,23 @@ func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyOsConstrain
 	return req, nil
 }
 
-func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyOsConstraintsMinimumVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyOsConstraintsMinimumVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyOsConstraintsOsType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyOsConstraintsOsType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyRequireAdminApproval(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyRequireAdminApproval(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyRequireCorpOwned(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyRequireCorpOwned(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerAccessLevelConditionRegions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedAccessContextManagerAccessLevelConditionRegions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -686,36 +687,36 @@ func flattenNestedAccessContextManagerAccessLevelCondition(d *schema.ResourceDat
 }
 
 func resourceAccessContextManagerAccessLevelConditionFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedIpSubnetworks, err := expandNestedAccessContextManagerAccessLevelConditionIpSubnetworks(d.Get("ip_subnetworks"), d, meta.(*Config))
+	expectedIpSubnetworks, err := expandNestedAccessContextManagerAccessLevelConditionIpSubnetworks(d.Get("ip_subnetworks"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedIpSubnetworks := flattenNestedAccessContextManagerAccessLevelConditionIpSubnetworks(expectedIpSubnetworks, d, meta.(*Config))
-	expectedRequiredAccessLevels, err := expandNestedAccessContextManagerAccessLevelConditionRequiredAccessLevels(d.Get("required_access_levels"), d, meta.(*Config))
+	expectedFlattenedIpSubnetworks := flattenNestedAccessContextManagerAccessLevelConditionIpSubnetworks(expectedIpSubnetworks, d, meta.(*transport_tpg.Config))
+	expectedRequiredAccessLevels, err := expandNestedAccessContextManagerAccessLevelConditionRequiredAccessLevels(d.Get("required_access_levels"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedRequiredAccessLevels := flattenNestedAccessContextManagerAccessLevelConditionRequiredAccessLevels(expectedRequiredAccessLevels, d, meta.(*Config))
-	expectedMembers, err := expandNestedAccessContextManagerAccessLevelConditionMembers(d.Get("members"), d, meta.(*Config))
+	expectedFlattenedRequiredAccessLevels := flattenNestedAccessContextManagerAccessLevelConditionRequiredAccessLevels(expectedRequiredAccessLevels, d, meta.(*transport_tpg.Config))
+	expectedMembers, err := expandNestedAccessContextManagerAccessLevelConditionMembers(d.Get("members"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedMembers := flattenNestedAccessContextManagerAccessLevelConditionMembers(expectedMembers, d, meta.(*Config))
-	expectedNegate, err := expandNestedAccessContextManagerAccessLevelConditionNegate(d.Get("negate"), d, meta.(*Config))
+	expectedFlattenedMembers := flattenNestedAccessContextManagerAccessLevelConditionMembers(expectedMembers, d, meta.(*transport_tpg.Config))
+	expectedNegate, err := expandNestedAccessContextManagerAccessLevelConditionNegate(d.Get("negate"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedNegate := flattenNestedAccessContextManagerAccessLevelConditionNegate(expectedNegate, d, meta.(*Config))
-	expectedDevicePolicy, err := expandNestedAccessContextManagerAccessLevelConditionDevicePolicy(d.Get("device_policy"), d, meta.(*Config))
+	expectedFlattenedNegate := flattenNestedAccessContextManagerAccessLevelConditionNegate(expectedNegate, d, meta.(*transport_tpg.Config))
+	expectedDevicePolicy, err := expandNestedAccessContextManagerAccessLevelConditionDevicePolicy(d.Get("device_policy"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedDevicePolicy := flattenNestedAccessContextManagerAccessLevelConditionDevicePolicy(expectedDevicePolicy, d, meta.(*Config))
-	expectedRegions, err := expandNestedAccessContextManagerAccessLevelConditionRegions(d.Get("regions"), d, meta.(*Config))
+	expectedFlattenedDevicePolicy := flattenNestedAccessContextManagerAccessLevelConditionDevicePolicy(expectedDevicePolicy, d, meta.(*transport_tpg.Config))
+	expectedRegions, err := expandNestedAccessContextManagerAccessLevelConditionRegions(d.Get("regions"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedRegions := flattenNestedAccessContextManagerAccessLevelConditionRegions(expectedRegions, d, meta.(*Config))
+	expectedFlattenedRegions := flattenNestedAccessContextManagerAccessLevelConditionRegions(expectedRegions, d, meta.(*transport_tpg.Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -724,37 +725,37 @@ func resourceAccessContextManagerAccessLevelConditionFindNestedObjectInList(d *s
 		}
 		item := itemRaw.(map[string]interface{})
 
-		itemIpSubnetworks := flattenNestedAccessContextManagerAccessLevelConditionIpSubnetworks(item["ipSubnetworks"], d, meta.(*Config))
+		itemIpSubnetworks := flattenNestedAccessContextManagerAccessLevelConditionIpSubnetworks(item["ipSubnetworks"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemIpSubnetworks)) && isEmptyValue(reflect.ValueOf(expectedFlattenedIpSubnetworks))) && !reflect.DeepEqual(itemIpSubnetworks, expectedFlattenedIpSubnetworks) {
 			log.Printf("[DEBUG] Skipping item with ipSubnetworks= %#v, looking for %#v)", itemIpSubnetworks, expectedFlattenedIpSubnetworks)
 			continue
 		}
-		itemRequiredAccessLevels := flattenNestedAccessContextManagerAccessLevelConditionRequiredAccessLevels(item["requiredAccessLevels"], d, meta.(*Config))
+		itemRequiredAccessLevels := flattenNestedAccessContextManagerAccessLevelConditionRequiredAccessLevels(item["requiredAccessLevels"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemRequiredAccessLevels)) && isEmptyValue(reflect.ValueOf(expectedFlattenedRequiredAccessLevels))) && !reflect.DeepEqual(itemRequiredAccessLevels, expectedFlattenedRequiredAccessLevels) {
 			log.Printf("[DEBUG] Skipping item with requiredAccessLevels= %#v, looking for %#v)", itemRequiredAccessLevels, expectedFlattenedRequiredAccessLevels)
 			continue
 		}
-		itemMembers := flattenNestedAccessContextManagerAccessLevelConditionMembers(item["members"], d, meta.(*Config))
+		itemMembers := flattenNestedAccessContextManagerAccessLevelConditionMembers(item["members"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemMembers)) && isEmptyValue(reflect.ValueOf(expectedFlattenedMembers))) && !reflect.DeepEqual(itemMembers, expectedFlattenedMembers) {
 			log.Printf("[DEBUG] Skipping item with members= %#v, looking for %#v)", itemMembers, expectedFlattenedMembers)
 			continue
 		}
-		itemNegate := flattenNestedAccessContextManagerAccessLevelConditionNegate(item["negate"], d, meta.(*Config))
+		itemNegate := flattenNestedAccessContextManagerAccessLevelConditionNegate(item["negate"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemNegate)) && isEmptyValue(reflect.ValueOf(expectedFlattenedNegate))) && !reflect.DeepEqual(itemNegate, expectedFlattenedNegate) {
 			log.Printf("[DEBUG] Skipping item with negate= %#v, looking for %#v)", itemNegate, expectedFlattenedNegate)
 			continue
 		}
-		itemDevicePolicy := flattenNestedAccessContextManagerAccessLevelConditionDevicePolicy(item["devicePolicy"], d, meta.(*Config))
+		itemDevicePolicy := flattenNestedAccessContextManagerAccessLevelConditionDevicePolicy(item["devicePolicy"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemDevicePolicy)) && isEmptyValue(reflect.ValueOf(expectedFlattenedDevicePolicy))) && !reflect.DeepEqual(itemDevicePolicy, expectedFlattenedDevicePolicy) {
 			log.Printf("[DEBUG] Skipping item with devicePolicy= %#v, looking for %#v)", itemDevicePolicy, expectedFlattenedDevicePolicy)
 			continue
 		}
-		itemRegions := flattenNestedAccessContextManagerAccessLevelConditionRegions(item["regions"], d, meta.(*Config))
+		itemRegions := flattenNestedAccessContextManagerAccessLevelConditionRegions(item["regions"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemRegions)) && isEmptyValue(reflect.ValueOf(expectedFlattenedRegions))) && !reflect.DeepEqual(itemRegions, expectedFlattenedRegions) {
 			log.Printf("[DEBUG] Skipping item with regions= %#v, looking for %#v)", itemRegions, expectedFlattenedRegions)
@@ -828,7 +829,7 @@ func resourceAccessContextManagerAccessLevelConditionPatchDeleteEncoder(d *schem
 // ListForPatch handles making API request to get parent resource and
 // extracting list of objects.
 func resourceAccessContextManagerAccessLevelConditionListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{access_level}}")
 	if err != nil {
 		return nil, err

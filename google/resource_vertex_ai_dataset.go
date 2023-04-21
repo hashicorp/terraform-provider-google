@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceVertexAIDataset() *schema.Resource {
@@ -108,7 +109,7 @@ Has the form: projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/
 }
 
 func resourceVertexAIDatasetCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -201,7 +202,7 @@ func resourceVertexAIDatasetCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceVertexAIDatasetRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -260,7 +261,7 @@ func resourceVertexAIDatasetRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceVertexAIDatasetUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -327,7 +328,7 @@ func resourceVertexAIDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceVertexAIDatasetDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -371,27 +372,27 @@ func resourceVertexAIDatasetDelete(d *schema.ResourceData, meta interface{}) err
 	return nil
 }
 
-func flattenVertexAIDatasetName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIDatasetName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIDatasetDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIDatasetDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIDatasetCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIDatasetCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIDatasetUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIDatasetUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIDatasetLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIDatasetLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIDatasetEncryptionSpec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIDatasetEncryptionSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -404,19 +405,19 @@ func flattenVertexAIDatasetEncryptionSpec(v interface{}, d *schema.ResourceData,
 		flattenVertexAIDatasetEncryptionSpecKmsKeyName(original["kmsKeyName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIDatasetEncryptionSpecKmsKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIDatasetEncryptionSpecKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIDatasetMetadataSchemaUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIDatasetMetadataSchemaUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandVertexAIDatasetDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIDatasetDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIDatasetLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandVertexAIDatasetLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -427,7 +428,7 @@ func expandVertexAIDatasetLabels(v interface{}, d TerraformResourceData, config 
 	return m, nil
 }
 
-func expandVertexAIDatasetEncryptionSpec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIDatasetEncryptionSpec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -446,10 +447,10 @@ func expandVertexAIDatasetEncryptionSpec(v interface{}, d TerraformResourceData,
 	return transformed, nil
 }
 
-func expandVertexAIDatasetEncryptionSpecKmsKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIDatasetEncryptionSpecKmsKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIDatasetMetadataSchemaUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIDatasetMetadataSchemaUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

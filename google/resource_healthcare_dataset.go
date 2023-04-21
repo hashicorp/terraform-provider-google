@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceHealthcareDataset() *schema.Resource {
@@ -79,7 +80,7 @@ func ResourceHealthcareDataset() *schema.Resource {
 }
 
 func resourceHealthcareDatasetCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -136,7 +137,7 @@ func resourceHealthcareDatasetCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceHealthcareDatasetRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -192,7 +193,7 @@ func resourceHealthcareDatasetRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceHealthcareDatasetUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -249,7 +250,7 @@ func resourceHealthcareDatasetUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceHealthcareDatasetDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -286,7 +287,7 @@ func resourceHealthcareDatasetDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceHealthcareDatasetImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/datasets/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -305,19 +306,19 @@ func resourceHealthcareDatasetImport(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenHealthcareDatasetName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenHealthcareDatasetName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenHealthcareDatasetTimeZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenHealthcareDatasetTimeZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandHealthcareDatasetName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandHealthcareDatasetName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandHealthcareDatasetTimeZone(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandHealthcareDatasetTimeZone(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

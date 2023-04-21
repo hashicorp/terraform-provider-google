@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceBeyondcorpAppConnection() *schema.Resource {
@@ -146,7 +147,7 @@ for a list of possible values.`,
 }
 
 func resourceBeyondcorpAppConnectionCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -247,7 +248,7 @@ func resourceBeyondcorpAppConnectionCreate(d *schema.ResourceData, meta interfac
 }
 
 func resourceBeyondcorpAppConnectionRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -303,7 +304,7 @@ func resourceBeyondcorpAppConnectionRead(d *schema.ResourceData, meta interface{
 }
 
 func resourceBeyondcorpAppConnectionUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -408,7 +409,7 @@ func resourceBeyondcorpAppConnectionUpdate(d *schema.ResourceData, meta interfac
 }
 
 func resourceBeyondcorpAppConnectionDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -453,7 +454,7 @@ func resourceBeyondcorpAppConnectionDelete(d *schema.ResourceData, meta interfac
 }
 
 func resourceBeyondcorpAppConnectionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/appConnections/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -473,19 +474,19 @@ func resourceBeyondcorpAppConnectionImport(d *schema.ResourceData, meta interfac
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenBeyondcorpAppConnectionDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectionDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBeyondcorpAppConnectionLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectionLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBeyondcorpAppConnectionType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectionType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBeyondcorpAppConnectionApplicationEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectionApplicationEndpoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -500,11 +501,11 @@ func flattenBeyondcorpAppConnectionApplicationEndpoint(v interface{}, d *schema.
 		flattenBeyondcorpAppConnectionApplicationEndpointPort(original["port"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBeyondcorpAppConnectionApplicationEndpointHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectionApplicationEndpointHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBeyondcorpAppConnectionApplicationEndpointPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectionApplicationEndpointPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -521,11 +522,11 @@ func flattenBeyondcorpAppConnectionApplicationEndpointPort(v interface{}, d *sch
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBeyondcorpAppConnectionConnectors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectionConnectors(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBeyondcorpAppConnectionGateway(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectionGateway(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -544,19 +545,19 @@ func flattenBeyondcorpAppConnectionGateway(v interface{}, d *schema.ResourceData
 		flattenBeyondcorpAppConnectionGatewayIngressPort(original["ingressPort"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBeyondcorpAppConnectionGatewayAppGateway(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectionGatewayAppGateway(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBeyondcorpAppConnectionGatewayType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectionGatewayType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBeyondcorpAppConnectionGatewayUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectionGatewayUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBeyondcorpAppConnectionGatewayIngressPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectionGatewayIngressPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -573,11 +574,11 @@ func flattenBeyondcorpAppConnectionGatewayIngressPort(v interface{}, d *schema.R
 	return v // let terraform core handle it otherwise
 }
 
-func expandBeyondcorpAppConnectionDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBeyondcorpAppConnectionDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBeyondcorpAppConnectionLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandBeyondcorpAppConnectionLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -588,11 +589,11 @@ func expandBeyondcorpAppConnectionLabels(v interface{}, d TerraformResourceData,
 	return m, nil
 }
 
-func expandBeyondcorpAppConnectionType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBeyondcorpAppConnectionType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBeyondcorpAppConnectionApplicationEndpoint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBeyondcorpAppConnectionApplicationEndpoint(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -618,19 +619,19 @@ func expandBeyondcorpAppConnectionApplicationEndpoint(v interface{}, d Terraform
 	return transformed, nil
 }
 
-func expandBeyondcorpAppConnectionApplicationEndpointHost(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBeyondcorpAppConnectionApplicationEndpointHost(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBeyondcorpAppConnectionApplicationEndpointPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBeyondcorpAppConnectionApplicationEndpointPort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBeyondcorpAppConnectionConnectors(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBeyondcorpAppConnectionConnectors(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBeyondcorpAppConnectionGateway(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBeyondcorpAppConnectionGateway(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -670,18 +671,18 @@ func expandBeyondcorpAppConnectionGateway(v interface{}, d TerraformResourceData
 	return transformed, nil
 }
 
-func expandBeyondcorpAppConnectionGatewayAppGateway(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBeyondcorpAppConnectionGatewayAppGateway(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBeyondcorpAppConnectionGatewayType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBeyondcorpAppConnectionGatewayType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBeyondcorpAppConnectionGatewayUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBeyondcorpAppConnectionGatewayUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBeyondcorpAppConnectionGatewayIngressPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBeyondcorpAppConnectionGatewayIngressPort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

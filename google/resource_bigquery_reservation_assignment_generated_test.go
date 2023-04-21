@@ -22,6 +22,7 @@ import (
 	bigqueryreservation "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/bigqueryreservation"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"strings"
 	"testing"
 )
@@ -97,7 +98,7 @@ func testAccCheckBigqueryReservationAssignmentDestroyProducer(t *testing.T) func
 				State:       bigqueryreservation.AssignmentStateEnumRef(rs.Primary.Attributes["state"]),
 			}
 
-			client := NewDCLBigqueryReservationClient(config, config.UserAgent, billingProject, 0)
+			client := transport_tpg.NewDCLBigqueryReservationClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetAssignment(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_bigquery_reservation_assignment still exists %v", obj)

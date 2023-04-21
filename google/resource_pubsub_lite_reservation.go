@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourcePubsubLiteReservation() *schema.Resource {
@@ -73,7 +74,7 @@ messages.`,
 }
 
 func resourcePubsubLiteReservationCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -124,7 +125,7 @@ func resourcePubsubLiteReservationCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourcePubsubLiteReservationRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -165,7 +166,7 @@ func resourcePubsubLiteReservationRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourcePubsubLiteReservationUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -222,7 +223,7 @@ func resourcePubsubLiteReservationUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourcePubsubLiteReservationDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -259,7 +260,7 @@ func resourcePubsubLiteReservationDelete(d *schema.ResourceData, meta interface{
 }
 
 func resourcePubsubLiteReservationImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/reservations/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -279,7 +280,7 @@ func resourcePubsubLiteReservationImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenPubsubLiteReservationThroughputCapacity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubLiteReservationThroughputCapacity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -296,6 +297,6 @@ func flattenPubsubLiteReservationThroughputCapacity(v interface{}, d *schema.Res
 	return v // let terraform core handle it otherwise
 }
 
-func expandPubsubLiteReservationThroughputCapacity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubLiteReservationThroughputCapacity(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

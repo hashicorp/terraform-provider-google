@@ -13,7 +13,7 @@
 //
 // ----------------------------------------------------------------------------
 
-package google
+package transport
 
 import (
 	framework_schema "github.com/hashicorp/terraform-plugin-framework/provider/schema"
@@ -164,7 +164,7 @@ func HandleDCLCustomEndpointDefaults(d *schema.ResourceData) {
 }
 
 // plugin-framework provider set-up
-func configureDCLCustomEndpointAttributesFramework(frameworkSchema *framework_schema.Schema) {
+func ConfigureDCLCustomEndpointAttributesFramework(frameworkSchema *framework_schema.Schema) {
 	frameworkSchema.Attributes["apikeys_custom_endpoint"] = framework_schema.StringAttribute{
 		Optional: true,
 		Validators: []validator.String{

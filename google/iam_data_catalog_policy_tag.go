@@ -20,6 +20,8 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 var DataCatalogPolicyTagIamSchema = map[string]*schema.Schema{
@@ -34,10 +36,10 @@ var DataCatalogPolicyTagIamSchema = map[string]*schema.Schema{
 type DataCatalogPolicyTagIamUpdater struct {
 	policyTag string
 	d         TerraformResourceData
-	Config    *Config
+	Config    *transport_tpg.Config
 }
 
-func DataCatalogPolicyTagIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
+func DataCatalogPolicyTagIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	if v, ok := d.GetOk("policy_tag"); ok {
@@ -67,7 +69,7 @@ func DataCatalogPolicyTagIamUpdaterProducer(d TerraformResourceData, config *Con
 	return u, nil
 }
 
-func DataCatalogPolicyTagIdParseFunc(d *schema.ResourceData, config *Config) error {
+func DataCatalogPolicyTagIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
 	m, err := getImportIdQualifiers([]string{"(?P<policy_tag>.+)"}, d, config, d.Id())

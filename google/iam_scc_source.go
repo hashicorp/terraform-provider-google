@@ -20,6 +20,8 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 var SecurityCenterSourceIamSchema = map[string]*schema.Schema{
@@ -40,10 +42,10 @@ type SecurityCenterSourceIamUpdater struct {
 	organization string
 	source       string
 	d            TerraformResourceData
-	Config       *Config
+	Config       *transport_tpg.Config
 }
 
-func SecurityCenterSourceIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
+func SecurityCenterSourceIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	if v, ok := d.GetOk("organization"); ok {
@@ -81,7 +83,7 @@ func SecurityCenterSourceIamUpdaterProducer(d TerraformResourceData, config *Con
 	return u, nil
 }
 
-func SecurityCenterSourceIdParseFunc(d *schema.ResourceData, config *Config) error {
+func SecurityCenterSourceIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
 	m, err := getImportIdQualifiers([]string{"organizations/(?P<organization>[^/]+)/sources/(?P<source>[^/]+)", "(?P<organization>[^/]+)/(?P<source>[^/]+)", "(?P<source>[^/]+)"}, d, config, d.Id())

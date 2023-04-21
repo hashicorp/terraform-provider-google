@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"reflect"
 	"strings"
@@ -56,7 +57,7 @@ Examples: US, EU, asia-northeast1. The default value is US.`,
 }
 
 func resourceTagsLocationTagBindingCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -136,7 +137,7 @@ func resourceTagsLocationTagBindingCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceTagsLocationTagBindingRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -216,7 +217,7 @@ func resourceTagsLocationTagBindingRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceTagsLocationTagBindingDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -255,7 +256,7 @@ func resourceTagsLocationTagBindingDelete(d *schema.ResourceData, meta interface
 }
 
 func resourceTagsLocationTagBindingImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{"(?P<location>[^/]+)/tagBindings/(?P<parent>[^/]+)/tagValues/(?P<tag_value>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}
@@ -273,23 +274,23 @@ func resourceTagsLocationTagBindingImport(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenNestedTagsLocationTagBindingName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedTagsLocationTagBindingName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedTagsLocationTagBindingParent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedTagsLocationTagBindingParent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedTagsLocationTagBindingTagValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedTagsLocationTagBindingTagValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandNestedTagsLocationTagBindingParent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedTagsLocationTagBindingParent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedTagsLocationTagBindingTagValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedTagsLocationTagBindingTagValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -322,7 +323,7 @@ func flattenNestedTagsLocationTagBinding(d *schema.ResourceData, meta interface{
 
 func resourceTagsLocationTagBindingFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
 	expectedName := d.Get("name")
-	expectedFlattenedName := flattenNestedTagsLocationTagBindingName(expectedName, d, meta.(*Config))
+	expectedFlattenedName := flattenNestedTagsLocationTagBindingName(expectedName, d, meta.(*transport_tpg.Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -331,7 +332,7 @@ func resourceTagsLocationTagBindingFindNestedObjectInList(d *schema.ResourceData
 		}
 
 		item := itemRaw.(map[string]interface{})
-		itemName := flattenNestedTagsLocationTagBindingName(item["name"], d, meta.(*Config))
+		itemName := flattenNestedTagsLocationTagBindingName(item["name"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
 			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedFlattenedName)

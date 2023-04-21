@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceFirestoreDocument() *schema.Resource {
@@ -101,7 +102,7 @@ func ResourceFirestoreDocument() *schema.Resource {
 }
 
 func resourceFirestoreDocumentCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -155,7 +156,7 @@ func resourceFirestoreDocumentCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceFirestoreDocumentRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -220,7 +221,7 @@ func resourceFirestoreDocumentRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceFirestoreDocumentUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -266,7 +267,7 @@ func resourceFirestoreDocumentUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceFirestoreDocumentDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -304,7 +305,7 @@ func resourceFirestoreDocumentDelete(d *schema.ResourceData, meta interface{}) e
 
 func resourceFirestoreDocumentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -333,15 +334,15 @@ func resourceFirestoreDocumentImport(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenFirestoreDocumentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFirestoreDocumentName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFirestoreDocumentPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFirestoreDocumentPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFirestoreDocumentFields(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFirestoreDocumentFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -353,15 +354,15 @@ func flattenFirestoreDocumentFields(v interface{}, d *schema.ResourceData, confi
 	return string(b)
 }
 
-func flattenFirestoreDocumentCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFirestoreDocumentCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFirestoreDocumentUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFirestoreDocumentUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandFirestoreDocumentFields(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandFirestoreDocumentFields(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	b := []byte(v.(string))
 	if len(b) == 0 {
 		return nil, nil

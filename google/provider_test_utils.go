@@ -3,6 +3,7 @@ package google
 import (
 	"context"
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"io/ioutil"
 	"log"
 	"os"
@@ -106,7 +107,7 @@ var papDescriptionEnvVars = []string{
 }
 
 func init() {
-	configs = make(map[string]*Config)
+	configs = make(map[string]*transport_tpg.Config)
 	fwProviders = make(map[string]*frameworkTestProvider)
 	sources = make(map[string]VcrSource)
 	testAccProvider = Provider()
@@ -115,7 +116,7 @@ func init() {
 	}
 }
 
-func GoogleProviderConfig(t *testing.T) *Config {
+func GoogleProviderConfig(t *testing.T) *transport_tpg.Config {
 	configsLock.RLock()
 	config, ok := configs[t.Name()]
 	configsLock.RUnlock()
@@ -126,7 +127,7 @@ func GoogleProviderConfig(t *testing.T) *Config {
 	sdkProvider := Provider()
 	rc := terraform.ResourceConfig{}
 	sdkProvider.Configure(context.Background(), &rc)
-	return sdkProvider.Meta().(*Config)
+	return sdkProvider.Meta().(*transport_tpg.Config)
 }
 
 func AccTestPreCheck(t *testing.T) {
@@ -156,7 +157,7 @@ func AccTestPreCheck(t *testing.T) {
 }
 
 // GetTestRegion has the same logic as the provider's getRegion, to be used in tests.
-func GetTestRegion(is *terraform.InstanceState, config *Config) (string, error) {
+func GetTestRegion(is *terraform.InstanceState, config *transport_tpg.Config) (string, error) {
 	if res, ok := is.Attributes["region"]; ok {
 		return res, nil
 	}
@@ -167,7 +168,7 @@ func GetTestRegion(is *terraform.InstanceState, config *Config) (string, error) 
 }
 
 // GetTestProject has the same logic as the provider's getProject, to be used in tests.
-func GetTestProject(is *terraform.InstanceState, config *Config) (string, error) {
+func GetTestProject(is *terraform.InstanceState, config *transport_tpg.Config) (string, error) {
 	if res, ok := is.Attributes["project"]; ok {
 		return res, nil
 	}
@@ -285,7 +286,7 @@ func SleepInSecondsForTest(t int) resource.TestCheckFunc {
 	}
 }
 
-func setupProjectsAndGetAccessToken(org, billing, pid, service string, config *Config) (string, error) {
+func setupProjectsAndGetAccessToken(org, billing, pid, service string, config *transport_tpg.Config) (string, error) {
 	// Create project-1 and project-2
 	rmService := config.NewResourceManagerClient(config.UserAgent)
 
@@ -368,7 +369,7 @@ func setupProjectsAndGetAccessToken(org, billing, pid, service string, config *C
 
 	// Enable the test runner to create service accounts and get an access token on behalf of
 	// the project 1 service account
-	curEmail, err := GetCurrentUserEmail(config, config.UserAgent)
+	curEmail, err := transport_tpg.GetCurrentUserEmail(config, config.UserAgent)
 	if err != nil {
 		return "", err
 	}

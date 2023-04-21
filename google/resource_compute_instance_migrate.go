@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"strconv"
 	"strings"
@@ -185,7 +186,7 @@ func migrateStateV3toV4(is *terraform.InstanceState, meta interface{}) (*terrafo
 	// we have no other way to know which source belongs to which attached disk.
 	// Also note that the following code modifies the returned instance- if you need immutability, please change
 	// this to make a copy of the needed data.
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	instance, err := getInstanceFromInstanceState(config, is)
 	if err != nil {
 		return is, fmt.Errorf("migration error: %s", err)
@@ -310,7 +311,7 @@ func migrateStateV4toV5(is *terraform.InstanceState, meta interface{}) (*terrafo
 	return is, nil
 }
 
-func getInstanceFromInstanceState(config *Config, is *terraform.InstanceState) (*compute.Instance, error) {
+func getInstanceFromInstanceState(config *transport_tpg.Config, is *terraform.InstanceState) (*compute.Instance, error) {
 	project, ok := is.Attributes["project"]
 	if !ok {
 		if config.Project == "" {
@@ -338,7 +339,7 @@ func getInstanceFromInstanceState(config *Config, is *terraform.InstanceState) (
 	return instance, nil
 }
 
-func getAllDisksFromInstanceState(config *Config, is *terraform.InstanceState) ([]*compute.Disk, error) {
+func getAllDisksFromInstanceState(config *transport_tpg.Config, is *terraform.InstanceState) ([]*compute.Disk, error) {
 	project, ok := is.Attributes["project"]
 	if !ok {
 		if config.Project == "" {
@@ -374,7 +375,7 @@ func getAllDisksFromInstanceState(config *Config, is *terraform.InstanceState) (
 	return diskList, nil
 }
 
-func getDiskFromAttributes(config *Config, instance *compute.Instance, allDisks map[string]*compute.Disk, attributes map[string]string, i int) (*compute.AttachedDisk, error) {
+func getDiskFromAttributes(config *transport_tpg.Config, instance *compute.Instance, allDisks map[string]*compute.Disk, attributes map[string]string, i int) (*compute.AttachedDisk, error) {
 	if diskSource := attributes[fmt.Sprintf("disk.%d.disk", i)]; diskSource != "" {
 		return getDiskFromSource(instance, diskSource)
 	}
@@ -447,7 +448,7 @@ func getDiskFromEncryptionKey(instance *compute.Instance, encryptionKey string) 
 	return nil, fmt.Errorf("could not find attached disk with encryption hash %q", encryptionSha)
 }
 
-func getDiskFromAutoDeleteAndImage(config *Config, instance *compute.Instance, allDisks map[string]*compute.Disk, autoDelete bool, image, project, zone string) (*compute.AttachedDisk, error) {
+func getDiskFromAutoDeleteAndImage(config *transport_tpg.Config, instance *compute.Instance, allDisks map[string]*compute.Disk, autoDelete bool, image, project, zone string) (*compute.AttachedDisk, error) {
 	img, err := resolveImage(config, project, image, config.UserAgent)
 	if err != nil {
 		return nil, err

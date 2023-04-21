@@ -25,6 +25,8 @@ import (
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
 	compute "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/compute"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeFirewallPolicyAssociation() *schema.Resource {
@@ -76,7 +78,7 @@ func ResourceComputeFirewallPolicyAssociation() *schema.Resource {
 }
 
 func resourceComputeFirewallPolicyAssociationCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	obj := &compute.FirewallPolicyAssociation{
 		AttachmentTarget: dcl.String(d.Get("attachment_target").(string)),
@@ -99,7 +101,7 @@ func resourceComputeFirewallPolicyAssociationCreate(d *schema.ResourceData, meta
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
+	client := transport_tpg.NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -122,7 +124,7 @@ func resourceComputeFirewallPolicyAssociationCreate(d *schema.ResourceData, meta
 }
 
 func resourceComputeFirewallPolicyAssociationRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	obj := &compute.FirewallPolicyAssociation{
 		AttachmentTarget: dcl.String(d.Get("attachment_target").(string)),
@@ -139,7 +141,7 @@ func resourceComputeFirewallPolicyAssociationRead(d *schema.ResourceData, meta i
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
+	client := transport_tpg.NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -169,7 +171,7 @@ func resourceComputeFirewallPolicyAssociationRead(d *schema.ResourceData, meta i
 }
 
 func resourceComputeFirewallPolicyAssociationDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	obj := &compute.FirewallPolicyAssociation{
 		AttachmentTarget: dcl.String(d.Get("attachment_target").(string)),
@@ -187,7 +189,7 @@ func resourceComputeFirewallPolicyAssociationDelete(d *schema.ResourceData, meta
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
+	client := transport_tpg.NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -203,7 +205,7 @@ func resourceComputeFirewallPolicyAssociationDelete(d *schema.ResourceData, meta
 }
 
 func resourceComputeFirewallPolicyAssociationImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	if err := ParseImportId([]string{
 		"locations/global/firewallPolicies/(?P<firewall_policy>[^/]+)/associations/(?P<name>[^/]+)",

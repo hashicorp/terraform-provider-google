@@ -111,18 +111,6 @@ func TestSelfLinkNameHash(t *testing.T) {
 	}
 }
 
-func TestGetRegionFromRegionSelfLink(t *testing.T) {
-	cases := map[string]string{
-		"https://www.googleapis.com/compute/v1/projects/test/regions/europe-west3": "europe-west3",
-		"europe-west3": "europe-west3",
-	}
-	for input, expected := range cases {
-		if result := GetRegionFromRegionSelfLink(input); result != expected {
-			t.Errorf("expected to get %q from %q, got %q", expected, input, result)
-		}
-	}
-}
-
 func TestGetRegionFromRegionalSelfLink(t *testing.T) {
 	cases := map[string]string{
 		"projects/foo/locations/europe-north1/datasets/bar/operations/foobar":        "europe-north1",

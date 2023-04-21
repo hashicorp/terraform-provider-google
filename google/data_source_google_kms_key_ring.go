@@ -2,6 +2,7 @@ package google
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func DataSourceGoogleKmsKeyRing() *schema.Resource {
@@ -17,7 +18,7 @@ func DataSourceGoogleKmsKeyRing() *schema.Resource {
 }
 
 func dataSourceGoogleKmsKeyRingRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	project, err := getProject(d, config)
 	if err != nil {

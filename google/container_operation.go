@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"time"
 
@@ -102,10 +103,10 @@ func (w *ContainerOperationWaiter) TargetStates() []string {
 	return []string{"DONE"}
 }
 
-func ContainerOperationWait(config *Config, op *container.Operation, project, location, activity, userAgent string, timeout time.Duration) error {
+func ContainerOperationWait(config *transport_tpg.Config, op *container.Operation, project, location, activity, userAgent string, timeout time.Duration) error {
 	w := &ContainerOperationWaiter{
 		Service:             config.NewContainerClient(userAgent),
-		Context:             config.context,
+		Context:             config.Context,
 		Op:                  op,
 		Project:             project,
 		Location:            location,

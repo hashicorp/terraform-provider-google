@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceVertexAIFeaturestore() *schema.Resource {
@@ -146,7 +147,7 @@ func ResourceVertexAIFeaturestore() *schema.Resource {
 }
 
 func resourceVertexAIFeaturestoreCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -229,7 +230,7 @@ func resourceVertexAIFeaturestoreCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceVertexAIFeaturestoreRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -288,7 +289,7 @@ func resourceVertexAIFeaturestoreRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceVertexAIFeaturestoreUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -373,7 +374,7 @@ func resourceVertexAIFeaturestoreUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceVertexAIFeaturestoreDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -425,7 +426,7 @@ func resourceVertexAIFeaturestoreDelete(d *schema.ResourceData, meta interface{}
 }
 
 func resourceVertexAIFeaturestoreImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/featurestores/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -450,19 +451,19 @@ func resourceVertexAIFeaturestoreImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenVertexAIFeaturestoreCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIFeaturestoreUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIFeaturestoreLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIFeaturestoreOnlineServingConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreOnlineServingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -477,7 +478,7 @@ func flattenVertexAIFeaturestoreOnlineServingConfig(v interface{}, d *schema.Res
 		flattenVertexAIFeaturestoreOnlineServingConfigScaling(original["scaling"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIFeaturestoreOnlineServingConfigFixedNodeCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreOnlineServingConfigFixedNodeCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -494,7 +495,7 @@ func flattenVertexAIFeaturestoreOnlineServingConfigFixedNodeCount(v interface{},
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVertexAIFeaturestoreOnlineServingConfigScaling(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreOnlineServingConfigScaling(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -509,7 +510,7 @@ func flattenVertexAIFeaturestoreOnlineServingConfigScaling(v interface{}, d *sch
 		flattenVertexAIFeaturestoreOnlineServingConfigScalingMaxNodeCount(original["maxNodeCount"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIFeaturestoreOnlineServingConfigScalingMinNodeCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreOnlineServingConfigScalingMinNodeCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -526,7 +527,7 @@ func flattenVertexAIFeaturestoreOnlineServingConfigScalingMinNodeCount(v interfa
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVertexAIFeaturestoreOnlineServingConfigScalingMaxNodeCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreOnlineServingConfigScalingMaxNodeCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -543,7 +544,7 @@ func flattenVertexAIFeaturestoreOnlineServingConfigScalingMaxNodeCount(v interfa
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVertexAIFeaturestoreEncryptionSpec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEncryptionSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -556,11 +557,11 @@ func flattenVertexAIFeaturestoreEncryptionSpec(v interface{}, d *schema.Resource
 		flattenVertexAIFeaturestoreEncryptionSpecKmsKeyName(original["kmsKeyName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIFeaturestoreEncryptionSpecKmsKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEncryptionSpecKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandVertexAIFeaturestoreLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandVertexAIFeaturestoreLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -571,7 +572,7 @@ func expandVertexAIFeaturestoreLabels(v interface{}, d TerraformResourceData, co
 	return m, nil
 }
 
-func expandVertexAIFeaturestoreOnlineServingConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreOnlineServingConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -597,11 +598,11 @@ func expandVertexAIFeaturestoreOnlineServingConfig(v interface{}, d TerraformRes
 	return transformed, nil
 }
 
-func expandVertexAIFeaturestoreOnlineServingConfigFixedNodeCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreOnlineServingConfigFixedNodeCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIFeaturestoreOnlineServingConfigScaling(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreOnlineServingConfigScaling(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -627,15 +628,15 @@ func expandVertexAIFeaturestoreOnlineServingConfigScaling(v interface{}, d Terra
 	return transformed, nil
 }
 
-func expandVertexAIFeaturestoreOnlineServingConfigScalingMinNodeCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreOnlineServingConfigScalingMinNodeCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIFeaturestoreOnlineServingConfigScalingMaxNodeCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreOnlineServingConfigScalingMaxNodeCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIFeaturestoreEncryptionSpec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreEncryptionSpec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -654,6 +655,6 @@ func expandVertexAIFeaturestoreEncryptionSpec(v interface{}, d TerraformResource
 	return transformed, nil
 }
 
-func expandVertexAIFeaturestoreEncryptionSpecKmsKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreEncryptionSpecKmsKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

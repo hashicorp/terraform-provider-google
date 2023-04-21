@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/servicemanagement/v1"
 )
@@ -20,7 +21,7 @@ func (w *ServiceManagementOperationWaiter) QueryOp() (interface{}, error) {
 	return w.Service.Operations.Get(w.Op.Name).Do()
 }
 
-func ServiceManagementOperationWaitTime(config *Config, op *servicemanagement.Operation, activity, userAgent string, timeout time.Duration) (googleapi.RawMessage, error) {
+func ServiceManagementOperationWaitTime(config *transport_tpg.Config, op *servicemanagement.Operation, activity, userAgent string, timeout time.Duration) (googleapi.RawMessage, error) {
 	w := &ServiceManagementOperationWaiter{
 		Service: config.NewServiceManClient(userAgent),
 	}

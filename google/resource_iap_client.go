@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceIapClient() *schema.Resource {
@@ -71,7 +72,7 @@ is attached to. The format is
 }
 
 func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -124,7 +125,7 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIapClientRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -161,7 +162,7 @@ func resourceIapClientRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIapClientDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -192,7 +193,7 @@ func resourceIapClientDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIapClientImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<brand>.+)"}, d, config); err != nil {
@@ -217,21 +218,21 @@ func resourceIapClientImport(d *schema.ResourceData, meta interface{}) ([]*schem
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenIapClientSecret(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIapClientSecret(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIapClientDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIapClientDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIapClientClientId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIapClientClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func expandIapClientDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIapClientDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

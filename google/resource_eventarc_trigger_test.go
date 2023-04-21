@@ -10,6 +10,7 @@ import (
 	eventarc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/eventarc"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccEventarcTrigger_channel(t *testing.T) {
@@ -156,7 +157,7 @@ func testAccCheckEventarcChannelTriggerDestroyProducer(t *testing.T) func(s *ter
 				Channel:        dcl.StringOrNil(rs.Primary.Attributes["channel"]),
 			}
 
-			client := NewDCLEventarcClient(config, config.UserAgent, billingProject, 0)
+			client := transport_tpg.NewDCLEventarcClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetTrigger(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_eventarc_trigger still exists %v", obj)

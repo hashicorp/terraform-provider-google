@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceVertexAIFeaturestoreEntitytypeFeature() *schema.Resource {
@@ -94,7 +95,7 @@ func ResourceVertexAIFeaturestoreEntitytypeFeature() *schema.Resource {
 
 func resourceVertexAIFeaturestoreEntitytypeFeatureCreate(d *schema.ResourceData, meta interface{}) error {
 	var project string
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -180,7 +181,7 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureCreate(d *schema.ResourceData,
 }
 
 func resourceVertexAIFeaturestoreEntitytypeFeatureRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -223,7 +224,7 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureRead(d *schema.ResourceData, m
 }
 
 func resourceVertexAIFeaturestoreEntitytypeFeatureUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -285,7 +286,7 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureUpdate(d *schema.ResourceData,
 
 func resourceVertexAIFeaturestoreEntitytypeFeatureDelete(d *schema.ResourceData, meta interface{}) error {
 	var project string
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -333,7 +334,7 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureDelete(d *schema.ResourceData,
 }
 
 func resourceVertexAIFeaturestoreEntitytypeFeatureImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"(?P<entitytype>.+)/features/(?P<name>[^/]+)",
 	}, d, config); err != nil {
@@ -350,27 +351,27 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureImport(d *schema.ResourceData,
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenVertexAIFeaturestoreEntitytypeFeatureCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeFeatureCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIFeaturestoreEntitytypeFeatureUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeFeatureUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIFeaturestoreEntitytypeFeatureLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeFeatureLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIFeaturestoreEntitytypeFeatureDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeFeatureDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIFeaturestoreEntitytypeFeatureValueType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeFeatureValueType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandVertexAIFeaturestoreEntitytypeFeatureLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandVertexAIFeaturestoreEntitytypeFeatureLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -381,10 +382,10 @@ func expandVertexAIFeaturestoreEntitytypeFeatureLabels(v interface{}, d Terrafor
 	return m, nil
 }
 
-func expandVertexAIFeaturestoreEntitytypeFeatureDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreEntitytypeFeatureDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIFeaturestoreEntitytypeFeatureValueType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreEntitytypeFeatureValueType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

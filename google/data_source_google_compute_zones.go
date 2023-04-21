@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"sort"
 	"strings"
@@ -39,7 +40,7 @@ func DataSourceGoogleComputeZones() *schema.Resource {
 }
 
 func dataSourceGoogleComputeZonesRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -61,7 +62,7 @@ func dataSourceGoogleComputeZonesRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	zones := []string{}
-	err = config.NewComputeClient(userAgent).Zones.List(project).Filter(filter).Pages(config.context, func(zl *compute.ZoneList) error {
+	err = config.NewComputeClient(userAgent).Zones.List(project).Filter(filter).Pages(config.Context, func(zl *compute.ZoneList) error {
 		for _, zone := range zl.Items {
 			// We have no way to guarantee a specific base path for the region, but the built-in API-level filtering
 			// only lets us query on exact matches, so we do our own filtering here.

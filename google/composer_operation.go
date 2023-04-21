@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"time"
 
 	"google.golang.org/api/composer/v1"
@@ -19,7 +20,7 @@ func (w *ComposerOperationWaiter) QueryOp() (interface{}, error) {
 	return w.Service.Operations.Get(w.Op.Name).Do()
 }
 
-func ComposerOperationWaitTime(config *Config, op *composer.Operation, project, activity, userAgent string, timeout time.Duration) error {
+func ComposerOperationWaitTime(config *transport_tpg.Config, op *composer.Operation, project, activity, userAgent string, timeout time.Duration) error {
 	w := &ComposerOperationWaiter{
 		Service: config.NewComposerClient(userAgent).Projects.Locations,
 	}

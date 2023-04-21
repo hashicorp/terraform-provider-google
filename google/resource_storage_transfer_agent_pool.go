@@ -23,11 +23,12 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // waitForAgentPoolReady waits for an agent pool to leave the
 // "CREATING" state and become "CREATED", to indicate that it's ready.
-func waitForAgentPoolReady(d *schema.ResourceData, config *Config, timeout time.Duration) error {
+func waitForAgentPoolReady(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
 	return resource.Retry(timeout, func() *resource.RetryError {
 		if err := resourceStorageTransferAgentPoolRead(d, config); err != nil {
 			return resource.NonRetryableError(err)
@@ -116,7 +117,7 @@ As expressed by the regular expression: ^(?!goog)[a-z]([a-z0-9-._~]*[a-z0-9])?$.
 }
 
 func resourceStorageTransferAgentPoolCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -177,7 +178,7 @@ func resourceStorageTransferAgentPoolCreate(d *schema.ResourceData, meta interfa
 }
 
 func resourceStorageTransferAgentPoolRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -224,7 +225,7 @@ func resourceStorageTransferAgentPoolRead(d *schema.ResourceData, meta interface
 }
 
 func resourceStorageTransferAgentPoolUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -294,7 +295,7 @@ func resourceStorageTransferAgentPoolUpdate(d *schema.ResourceData, meta interfa
 }
 
 func resourceStorageTransferAgentPoolDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -331,7 +332,7 @@ func resourceStorageTransferAgentPoolDelete(d *schema.ResourceData, meta interfa
 }
 
 func resourceStorageTransferAgentPoolImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/agentPools/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -354,15 +355,15 @@ func resourceStorageTransferAgentPoolImport(d *schema.ResourceData, meta interfa
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenStorageTransferAgentPoolDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageTransferAgentPoolDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenStorageTransferAgentPoolState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageTransferAgentPoolState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenStorageTransferAgentPoolBandwidthLimit(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageTransferAgentPoolBandwidthLimit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -375,15 +376,15 @@ func flattenStorageTransferAgentPoolBandwidthLimit(v interface{}, d *schema.Reso
 		flattenStorageTransferAgentPoolBandwidthLimitLimitMbps(original["limitMbps"], d, config)
 	return []interface{}{transformed}
 }
-func flattenStorageTransferAgentPoolBandwidthLimitLimitMbps(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageTransferAgentPoolBandwidthLimitLimitMbps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandStorageTransferAgentPoolDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandStorageTransferAgentPoolDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandStorageTransferAgentPoolBandwidthLimit(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandStorageTransferAgentPoolBandwidthLimit(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -402,6 +403,6 @@ func expandStorageTransferAgentPoolBandwidthLimit(v interface{}, d TerraformReso
 	return transformed, nil
 }
 
-func expandStorageTransferAgentPoolBandwidthLimitLimitMbps(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandStorageTransferAgentPoolBandwidthLimitLimitMbps(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

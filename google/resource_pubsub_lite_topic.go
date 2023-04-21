@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourcePubsubLiteTopic() *schema.Resource {
@@ -147,7 +148,7 @@ Example: "3.5s".`,
 }
 
 func resourcePubsubLiteTopicCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -215,7 +216,7 @@ func resourcePubsubLiteTopicCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourcePubsubLiteTopicRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -262,7 +263,7 @@ func resourcePubsubLiteTopicRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourcePubsubLiteTopicUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -344,7 +345,7 @@ func resourcePubsubLiteTopicUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourcePubsubLiteTopicDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -381,7 +382,7 @@ func resourcePubsubLiteTopicDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourcePubsubLiteTopicImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<zone>[^/]+)/topics/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
@@ -401,7 +402,7 @@ func resourcePubsubLiteTopicImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenPubsubLiteTopicPartitionConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubLiteTopicPartitionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -416,7 +417,7 @@ func flattenPubsubLiteTopicPartitionConfig(v interface{}, d *schema.ResourceData
 		flattenPubsubLiteTopicPartitionConfigCapacity(original["capacity"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPubsubLiteTopicPartitionConfigCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubLiteTopicPartitionConfigCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -433,7 +434,7 @@ func flattenPubsubLiteTopicPartitionConfigCount(v interface{}, d *schema.Resourc
 	return v // let terraform core handle it otherwise
 }
 
-func flattenPubsubLiteTopicPartitionConfigCapacity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubLiteTopicPartitionConfigCapacity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -448,7 +449,7 @@ func flattenPubsubLiteTopicPartitionConfigCapacity(v interface{}, d *schema.Reso
 		flattenPubsubLiteTopicPartitionConfigCapacitySubscribeMibPerSec(original["subscribeMibPerSec"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPubsubLiteTopicPartitionConfigCapacityPublishMibPerSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubLiteTopicPartitionConfigCapacityPublishMibPerSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -465,7 +466,7 @@ func flattenPubsubLiteTopicPartitionConfigCapacityPublishMibPerSec(v interface{}
 	return v // let terraform core handle it otherwise
 }
 
-func flattenPubsubLiteTopicPartitionConfigCapacitySubscribeMibPerSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubLiteTopicPartitionConfigCapacitySubscribeMibPerSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -482,7 +483,7 @@ func flattenPubsubLiteTopicPartitionConfigCapacitySubscribeMibPerSec(v interface
 	return v // let terraform core handle it otherwise
 }
 
-func flattenPubsubLiteTopicRetentionConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubLiteTopicRetentionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -497,15 +498,15 @@ func flattenPubsubLiteTopicRetentionConfig(v interface{}, d *schema.ResourceData
 		flattenPubsubLiteTopicRetentionConfigPeriod(original["period"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPubsubLiteTopicRetentionConfigPerPartitionBytes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubLiteTopicRetentionConfigPerPartitionBytes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPubsubLiteTopicRetentionConfigPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubLiteTopicRetentionConfigPeriod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPubsubLiteTopicReservationConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubLiteTopicReservationConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -518,14 +519,14 @@ func flattenPubsubLiteTopicReservationConfig(v interface{}, d *schema.ResourceDa
 		flattenPubsubLiteTopicReservationConfigThroughputReservation(original["throughputReservation"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPubsubLiteTopicReservationConfigThroughputReservation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubLiteTopicReservationConfigThroughputReservation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func expandPubsubLiteTopicPartitionConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubLiteTopicPartitionConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -551,11 +552,11 @@ func expandPubsubLiteTopicPartitionConfig(v interface{}, d TerraformResourceData
 	return transformed, nil
 }
 
-func expandPubsubLiteTopicPartitionConfigCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubLiteTopicPartitionConfigCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPubsubLiteTopicPartitionConfigCapacity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubLiteTopicPartitionConfigCapacity(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -581,15 +582,15 @@ func expandPubsubLiteTopicPartitionConfigCapacity(v interface{}, d TerraformReso
 	return transformed, nil
 }
 
-func expandPubsubLiteTopicPartitionConfigCapacityPublishMibPerSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubLiteTopicPartitionConfigCapacityPublishMibPerSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPubsubLiteTopicPartitionConfigCapacitySubscribeMibPerSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubLiteTopicPartitionConfigCapacitySubscribeMibPerSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPubsubLiteTopicRetentionConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubLiteTopicRetentionConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -615,15 +616,15 @@ func expandPubsubLiteTopicRetentionConfig(v interface{}, d TerraformResourceData
 	return transformed, nil
 }
 
-func expandPubsubLiteTopicRetentionConfigPerPartitionBytes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubLiteTopicRetentionConfigPerPartitionBytes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPubsubLiteTopicRetentionConfigPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubLiteTopicRetentionConfigPeriod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPubsubLiteTopicReservationConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubLiteTopicReservationConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -642,7 +643,7 @@ func expandPubsubLiteTopicReservationConfig(v interface{}, d TerraformResourceDa
 	return transformed, nil
 }
 
-func expandPubsubLiteTopicReservationConfigThroughputReservation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubLiteTopicReservationConfigThroughputReservation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := parseRegionalFieldValue("reservations", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for throughput_reservation: %s", err)
@@ -652,7 +653,7 @@ func expandPubsubLiteTopicReservationConfigThroughputReservation(v interface{}, 
 }
 
 func resourcePubsubLiteTopicEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	zone, err := getZone(d, config)
 	if err != nil {

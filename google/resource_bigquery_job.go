@@ -23,6 +23,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
 	"google.golang.org/api/googleapi"
 )
 
@@ -947,7 +949,7 @@ not necessarily mean that the job has not completed or was unsuccessful.`,
 }
 
 func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -1015,7 +1017,7 @@ func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceBigQueryJobPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
 	return func() (map[string]interface{}, error) {
-		config := meta.(*Config)
+		config := meta.(*transport_tpg.Config)
 
 		url, err := ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}?location={{location}}")
 		if err != nil {
@@ -1049,7 +1051,7 @@ func resourceBigQueryJobPollRead(d *schema.ResourceData, meta interface{}) PollR
 }
 
 func resourceBigQueryJobRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -1132,7 +1134,7 @@ func resourceBigQueryJobDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceBigQueryJobImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/jobs/(?P<job_id>[^/]+)/location/(?P<location>[^/]+)",
 		"projects/(?P<project>[^/]+)/jobs/(?P<job_id>[^/]+)",
@@ -1154,11 +1156,11 @@ func resourceBigQueryJobImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenBigQueryJobUserEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobUserEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfiguration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfiguration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1183,19 +1185,19 @@ func flattenBigQueryJobConfiguration(v interface{}, d *schema.ResourceData, conf
 		flattenBigQueryJobConfigurationExtract(original["extract"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigQueryJobConfigurationJobType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationJobType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationJobTimeoutMs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationJobTimeoutMs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationQuery(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQuery(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1240,11 +1242,11 @@ func flattenBigQueryJobConfigurationQuery(v interface{}, d *schema.ResourceData,
 		flattenBigQueryJobConfigurationQueryScriptOptions(original["scriptOptions"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigQueryJobConfigurationQueryQuery(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryQuery(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationQueryDestinationTable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryDestinationTable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1264,7 +1266,7 @@ func flattenBigQueryJobConfigurationQueryDestinationTable(v interface{}, d *sche
 	return []interface{}{transformed}
 }
 
-func flattenBigQueryJobConfigurationQueryUserDefinedFunctionResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryUserDefinedFunctionResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1283,23 +1285,23 @@ func flattenBigQueryJobConfigurationQueryUserDefinedFunctionResources(v interfac
 	}
 	return transformed
 }
-func flattenBigQueryJobConfigurationQueryUserDefinedFunctionResourcesResourceUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryUserDefinedFunctionResourcesResourceUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationQueryUserDefinedFunctionResourcesInlineCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryUserDefinedFunctionResourcesInlineCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationQueryCreateDisposition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryCreateDisposition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationQueryWriteDisposition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryWriteDisposition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationQueryDefaultDataset(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryDefaultDataset(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1318,23 +1320,23 @@ func flattenBigQueryJobConfigurationQueryDefaultDataset(v interface{}, d *schema
 	return []interface{}{transformed}
 }
 
-func flattenBigQueryJobConfigurationQueryPriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryPriority(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationQueryAllowLargeResults(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryAllowLargeResults(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationQueryUseQueryCache(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryUseQueryCache(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationQueryFlattenResults(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryFlattenResults(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationQueryMaximumBillingTier(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryMaximumBillingTier(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -1351,25 +1353,25 @@ func flattenBigQueryJobConfigurationQueryMaximumBillingTier(v interface{}, d *sc
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBigQueryJobConfigurationQueryMaximumBytesBilled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryMaximumBytesBilled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationQueryUseLegacySql(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryUseLegacySql(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationQueryParameterMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryParameterMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationQuerySchemaUpdateOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQuerySchemaUpdateOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
 // KmsKeyName switched from using a key name to a key version, this will separate the key name from the key version and save them
 // separately in state.  https://github.com/hashicorp/terraform-provider-google/issues/9208
-func flattenBigQueryJobConfigurationQueryDestinationEncryptionConfiguration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryDestinationEncryptionConfiguration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return []map[string]interface{}{}
 	}
@@ -1392,7 +1394,7 @@ func flattenBigQueryJobConfigurationQueryDestinationEncryptionConfiguration(v in
 
 }
 
-func flattenBigQueryJobConfigurationQueryScriptOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryScriptOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1409,19 +1411,19 @@ func flattenBigQueryJobConfigurationQueryScriptOptions(v interface{}, d *schema.
 		flattenBigQueryJobConfigurationQueryScriptOptionsKeyResultStatement(original["keyResultStatement"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigQueryJobConfigurationQueryScriptOptionsStatementTimeoutMs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryScriptOptionsStatementTimeoutMs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationQueryScriptOptionsStatementByteBudget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryScriptOptionsStatementByteBudget(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationQueryScriptOptionsKeyResultStatement(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationQueryScriptOptionsKeyResultStatement(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoad(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoad(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1472,11 +1474,11 @@ func flattenBigQueryJobConfigurationLoad(v interface{}, d *schema.ResourceData, 
 		flattenBigQueryJobConfigurationLoadDestinationEncryptionConfiguration(original["destinationEncryptionConfiguration"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigQueryJobConfigurationLoadSourceUris(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadSourceUris(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoadDestinationTable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadDestinationTable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1496,23 +1498,23 @@ func flattenBigQueryJobConfigurationLoadDestinationTable(v interface{}, d *schem
 	return []interface{}{transformed}
 }
 
-func flattenBigQueryJobConfigurationLoadCreateDisposition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadCreateDisposition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoadWriteDisposition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadWriteDisposition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoadNullMarker(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadNullMarker(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoadFieldDelimiter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadFieldDelimiter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoadSkipLeadingRows(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadSkipLeadingRows(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -1529,15 +1531,15 @@ func flattenBigQueryJobConfigurationLoadSkipLeadingRows(v interface{}, d *schema
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBigQueryJobConfigurationLoadEncoding(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadEncoding(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoadQuote(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadQuote(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoadMaxBadRecords(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadMaxBadRecords(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -1554,39 +1556,39 @@ func flattenBigQueryJobConfigurationLoadMaxBadRecords(v interface{}, d *schema.R
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBigQueryJobConfigurationLoadAllowQuotedNewlines(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadAllowQuotedNewlines(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoadSourceFormat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadSourceFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoadJsonExtension(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadJsonExtension(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoadAllowJaggedRows(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadAllowJaggedRows(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoadIgnoreUnknownValues(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadIgnoreUnknownValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoadProjectionFields(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadProjectionFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoadAutodetect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadAutodetect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoadSchemaUpdateOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadSchemaUpdateOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoadTimePartitioning(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadTimePartitioning(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1603,21 +1605,21 @@ func flattenBigQueryJobConfigurationLoadTimePartitioning(v interface{}, d *schem
 		flattenBigQueryJobConfigurationLoadTimePartitioningField(original["field"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigQueryJobConfigurationLoadTimePartitioningType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadTimePartitioningType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoadTimePartitioningExpirationMs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadTimePartitioningExpirationMs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationLoadTimePartitioningField(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadTimePartitioningField(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
 // KmsKeyName switched from using a key name to a key version, this will separate the key name from the key version and save them
 // separately in state.  https://github.com/hashicorp/terraform-provider-google/issues/9208
-func flattenBigQueryJobConfigurationLoadDestinationEncryptionConfiguration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationLoadDestinationEncryptionConfiguration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return []map[string]interface{}{}
 	}
@@ -1640,7 +1642,7 @@ func flattenBigQueryJobConfigurationLoadDestinationEncryptionConfiguration(v int
 
 }
 
-func flattenBigQueryJobConfigurationCopy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationCopy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1661,7 +1663,7 @@ func flattenBigQueryJobConfigurationCopy(v interface{}, d *schema.ResourceData, 
 		flattenBigQueryJobConfigurationCopyDestinationEncryptionConfiguration(original["destinationEncryptionConfiguration"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigQueryJobConfigurationCopySourceTables(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationCopySourceTables(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1689,7 +1691,7 @@ func flattenBigQueryJobConfigurationCopySourceTables(v interface{}, d *schema.Re
 	return transformed
 }
 
-func flattenBigQueryJobConfigurationCopyDestinationTable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationCopyDestinationTable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1709,17 +1711,17 @@ func flattenBigQueryJobConfigurationCopyDestinationTable(v interface{}, d *schem
 	return []interface{}{transformed}
 }
 
-func flattenBigQueryJobConfigurationCopyCreateDisposition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationCopyCreateDisposition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationCopyWriteDisposition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationCopyWriteDisposition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
 // KmsKeyName switched from using a key name to a key version, this will separate the key name from the key version and save them
 // separately in state.  https://github.com/hashicorp/terraform-provider-google/issues/9208
-func flattenBigQueryJobConfigurationCopyDestinationEncryptionConfiguration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationCopyDestinationEncryptionConfiguration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return []map[string]interface{}{}
 	}
@@ -1742,7 +1744,7 @@ func flattenBigQueryJobConfigurationCopyDestinationEncryptionConfiguration(v int
 
 }
 
-func flattenBigQueryJobConfigurationExtract(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationExtract(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1769,31 +1771,31 @@ func flattenBigQueryJobConfigurationExtract(v interface{}, d *schema.ResourceDat
 		flattenBigQueryJobConfigurationExtractSourceModel(original["sourceModel"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigQueryJobConfigurationExtractDestinationUris(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationExtractDestinationUris(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationExtractPrintHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationExtractPrintHeader(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationExtractFieldDelimiter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationExtractFieldDelimiter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationExtractDestinationFormat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationExtractDestinationFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationExtractCompression(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationExtractCompression(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationExtractUseAvroLogicalTypes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationExtractUseAvroLogicalTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationExtractSourceTable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationExtractSourceTable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1813,7 +1815,7 @@ func flattenBigQueryJobConfigurationExtractSourceTable(v interface{}, d *schema.
 	return []interface{}{transformed}
 }
 
-func flattenBigQueryJobConfigurationExtractSourceModel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationExtractSourceModel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1830,19 +1832,19 @@ func flattenBigQueryJobConfigurationExtractSourceModel(v interface{}, d *schema.
 		flattenBigQueryJobConfigurationExtractSourceModelModelId(original["modelId"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigQueryJobConfigurationExtractSourceModelProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationExtractSourceModelProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationExtractSourceModelDatasetId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationExtractSourceModelDatasetId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobConfigurationExtractSourceModelModelId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobConfigurationExtractSourceModelModelId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobJobReference(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobJobReference(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1857,15 +1859,15 @@ func flattenBigQueryJobJobReference(v interface{}, d *schema.ResourceData, confi
 		flattenBigQueryJobJobReferenceLocation(original["location"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigQueryJobJobReferenceJobId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobJobReferenceJobId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobJobReferenceLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobJobReferenceLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1882,7 +1884,7 @@ func flattenBigQueryJobStatus(v interface{}, d *schema.ResourceData, config *Con
 		flattenBigQueryJobStatusState(original["state"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigQueryJobStatusErrorResult(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobStatusErrorResult(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1899,19 +1901,19 @@ func flattenBigQueryJobStatusErrorResult(v interface{}, d *schema.ResourceData, 
 		flattenBigQueryJobStatusErrorResultMessage(original["message"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigQueryJobStatusErrorResultReason(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobStatusErrorResultReason(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobStatusErrorResultLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobStatusErrorResultLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobStatusErrorResultMessage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobStatusErrorResultMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobStatusErrors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobStatusErrors(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1931,23 +1933,23 @@ func flattenBigQueryJobStatusErrors(v interface{}, d *schema.ResourceData, confi
 	}
 	return transformed
 }
-func flattenBigQueryJobStatusErrorsReason(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobStatusErrorsReason(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobStatusErrorsLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobStatusErrorsLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobStatusErrorsMessage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobStatusErrorsMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryJobStatusState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryJobStatusState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandBigQueryJobConfiguration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfiguration(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	transformed := make(map[string]interface{})
 	transformedJobType, err := expandBigQueryJobConfigurationJobType(d.Get("job_type"), d, config)
 	if err != nil {
@@ -2001,15 +2003,15 @@ func expandBigQueryJobConfiguration(v interface{}, d TerraformResourceData, conf
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationJobType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationJobType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationJobTimeoutMs(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationJobTimeoutMs(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandBigQueryJobConfigurationLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -2020,7 +2022,7 @@ func expandBigQueryJobConfigurationLabels(v interface{}, d TerraformResourceData
 	return m, nil
 }
 
-func expandBigQueryJobConfigurationQuery(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQuery(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2151,11 +2153,11 @@ func expandBigQueryJobConfigurationQuery(v interface{}, d TerraformResourceData,
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationQueryQuery(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryQuery(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryDestinationTable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryDestinationTable(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2188,7 +2190,7 @@ func expandBigQueryJobConfigurationQueryDestinationTable(v interface{}, d Terraf
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationQueryUserDefinedFunctionResources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryUserDefinedFunctionResources(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2217,23 +2219,23 @@ func expandBigQueryJobConfigurationQueryUserDefinedFunctionResources(v interface
 	return req, nil
 }
 
-func expandBigQueryJobConfigurationQueryUserDefinedFunctionResourcesResourceUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryUserDefinedFunctionResourcesResourceUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryUserDefinedFunctionResourcesInlineCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryUserDefinedFunctionResourcesInlineCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryCreateDisposition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryCreateDisposition(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryWriteDisposition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryWriteDisposition(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryDefaultDataset(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryDefaultDataset(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2260,43 +2262,43 @@ func expandBigQueryJobConfigurationQueryDefaultDataset(v interface{}, d Terrafor
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationQueryPriority(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryPriority(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryAllowLargeResults(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryAllowLargeResults(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryUseQueryCache(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryUseQueryCache(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryFlattenResults(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryFlattenResults(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryMaximumBillingTier(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryMaximumBillingTier(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryMaximumBytesBilled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryMaximumBytesBilled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryUseLegacySql(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryUseLegacySql(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryParameterMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryParameterMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQuerySchemaUpdateOptions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQuerySchemaUpdateOptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryDestinationEncryptionConfiguration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryDestinationEncryptionConfiguration(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2322,15 +2324,15 @@ func expandBigQueryJobConfigurationQueryDestinationEncryptionConfiguration(v int
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationQueryDestinationEncryptionConfigurationKmsKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryDestinationEncryptionConfigurationKmsKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryDestinationEncryptionConfigurationKmsKeyVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryDestinationEncryptionConfigurationKmsKeyVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryScriptOptions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryScriptOptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2363,19 +2365,19 @@ func expandBigQueryJobConfigurationQueryScriptOptions(v interface{}, d Terraform
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationQueryScriptOptionsStatementTimeoutMs(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryScriptOptionsStatementTimeoutMs(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryScriptOptionsStatementByteBudget(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryScriptOptionsStatementByteBudget(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryScriptOptionsKeyResultStatement(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryScriptOptionsKeyResultStatement(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoad(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoad(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2527,11 +2529,11 @@ func expandBigQueryJobConfigurationLoad(v interface{}, d TerraformResourceData, 
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationLoadSourceUris(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadSourceUris(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadDestinationTable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadDestinationTable(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2564,71 +2566,71 @@ func expandBigQueryJobConfigurationLoadDestinationTable(v interface{}, d Terrafo
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationLoadCreateDisposition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadCreateDisposition(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadWriteDisposition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadWriteDisposition(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadNullMarker(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadNullMarker(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadFieldDelimiter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadFieldDelimiter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadSkipLeadingRows(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadSkipLeadingRows(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadEncoding(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadEncoding(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadQuote(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadQuote(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadMaxBadRecords(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadMaxBadRecords(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadAllowQuotedNewlines(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadAllowQuotedNewlines(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadSourceFormat(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadSourceFormat(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadJsonExtension(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadJsonExtension(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadAllowJaggedRows(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadAllowJaggedRows(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadIgnoreUnknownValues(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadIgnoreUnknownValues(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadProjectionFields(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadProjectionFields(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadAutodetect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadAutodetect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadSchemaUpdateOptions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadSchemaUpdateOptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadTimePartitioning(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadTimePartitioning(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2661,19 +2663,19 @@ func expandBigQueryJobConfigurationLoadTimePartitioning(v interface{}, d Terrafo
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationLoadTimePartitioningType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadTimePartitioningType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadTimePartitioningExpirationMs(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadTimePartitioningExpirationMs(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadTimePartitioningField(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadTimePartitioningField(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadDestinationEncryptionConfiguration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadDestinationEncryptionConfiguration(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2699,15 +2701,15 @@ func expandBigQueryJobConfigurationLoadDestinationEncryptionConfiguration(v inte
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationLoadDestinationEncryptionConfigurationKmsKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadDestinationEncryptionConfigurationKmsKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadDestinationEncryptionConfigurationKmsKeyVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadDestinationEncryptionConfigurationKmsKeyVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationCopy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationCopy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2754,7 +2756,7 @@ func expandBigQueryJobConfigurationCopy(v interface{}, d TerraformResourceData, 
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationCopySourceTables(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationCopySourceTables(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2791,7 +2793,7 @@ func expandBigQueryJobConfigurationCopySourceTables(v interface{}, d TerraformRe
 	return req, nil
 }
 
-func expandBigQueryJobConfigurationCopyDestinationTable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationCopyDestinationTable(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2824,15 +2826,15 @@ func expandBigQueryJobConfigurationCopyDestinationTable(v interface{}, d Terrafo
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationCopyCreateDisposition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationCopyCreateDisposition(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationCopyWriteDisposition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationCopyWriteDisposition(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationCopyDestinationEncryptionConfiguration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationCopyDestinationEncryptionConfiguration(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2858,15 +2860,15 @@ func expandBigQueryJobConfigurationCopyDestinationEncryptionConfiguration(v inte
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationCopyDestinationEncryptionConfigurationKmsKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationCopyDestinationEncryptionConfigurationKmsKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationCopyDestinationEncryptionConfigurationKmsKeyVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationCopyDestinationEncryptionConfigurationKmsKeyVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtract(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtract(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2934,31 +2936,31 @@ func expandBigQueryJobConfigurationExtract(v interface{}, d TerraformResourceDat
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationExtractDestinationUris(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractDestinationUris(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtractPrintHeader(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractPrintHeader(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtractFieldDelimiter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractFieldDelimiter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtractDestinationFormat(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractDestinationFormat(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtractCompression(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractCompression(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtractUseAvroLogicalTypes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractUseAvroLogicalTypes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtractSourceTable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractSourceTable(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2991,7 +2993,7 @@ func expandBigQueryJobConfigurationExtractSourceTable(v interface{}, d Terraform
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationExtractSourceModel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractSourceModel(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3024,19 +3026,19 @@ func expandBigQueryJobConfigurationExtractSourceModel(v interface{}, d Terraform
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationExtractSourceModelProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractSourceModelProjectId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtractSourceModelDatasetId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractSourceModelDatasetId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtractSourceModelModelId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractSourceModelModelId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobJobReference(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobJobReference(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	transformed := make(map[string]interface{})
 	transformedJobId, err := expandBigQueryJobJobReferenceJobId(d.Get("job_id"), d, config)
 	if err != nil {
@@ -3055,16 +3057,16 @@ func expandBigQueryJobJobReference(v interface{}, d TerraformResourceData, confi
 	return transformed, nil
 }
 
-func expandBigQueryJobJobReferenceJobId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobJobReferenceJobId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobJobReferenceLocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryJobJobReferenceLocation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
 func resourceBigQueryJobEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	project, err := getProject(d, meta.(*Config))
+	project, err := getProject(d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return nil, err
 	}

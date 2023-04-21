@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/iam/v1"
 )
@@ -21,10 +22,10 @@ var IamServiceAccountSchema = map[string]*schema.Schema{
 type ServiceAccountIamUpdater struct {
 	serviceAccountId string
 	d                TerraformResourceData
-	Config           *Config
+	Config           *transport_tpg.Config
 }
 
-func NewServiceAccountIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewServiceAccountIamUpdater(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	return &ServiceAccountIamUpdater{
 		serviceAccountId: d.Get("service_account_id").(string),
 		d:                d,
@@ -32,7 +33,7 @@ func NewServiceAccountIamUpdater(d TerraformResourceData, config *Config) (Resou
 	}, nil
 }
 
-func ServiceAccountIdParseFunc(d *schema.ResourceData, _ *Config) error {
+func ServiceAccountIdParseFunc(d *schema.ResourceData, _ *transport_tpg.Config) error {
 	if err := d.Set("service_account_id", d.Id()); err != nil {
 		return fmt.Errorf("Error setting service_account_id: %s", err)
 	}

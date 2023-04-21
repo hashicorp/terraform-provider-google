@@ -20,6 +20,8 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 var DataprocAutoscalingPolicyIamSchema = map[string]*schema.Schema{
@@ -48,10 +50,10 @@ type DataprocAutoscalingPolicyIamUpdater struct {
 	location string
 	policyId string
 	d        TerraformResourceData
-	Config   *Config
+	Config   *transport_tpg.Config
 }
 
-func DataprocAutoscalingPolicyIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
+func DataprocAutoscalingPolicyIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)
@@ -103,7 +105,7 @@ func DataprocAutoscalingPolicyIamUpdaterProducer(d TerraformResourceData, config
 	return u, nil
 }
 
-func DataprocAutoscalingPolicyIdParseFunc(d *schema.ResourceData, config *Config) error {
+func DataprocAutoscalingPolicyIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

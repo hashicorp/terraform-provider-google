@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceAlloydbCluster() *schema.Resource {
@@ -280,7 +281,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 }
 
 func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -365,7 +366,7 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -430,7 +431,7 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -535,7 +536,7 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAlloydbClusterDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -580,7 +581,7 @@ func resourceAlloydbClusterDelete(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAlloydbClusterImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/clusters/(?P<cluster_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<cluster_id>[^/]+)",
@@ -600,31 +601,31 @@ func resourceAlloydbClusterImport(d *schema.ResourceData, meta interface{}) ([]*
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAlloydbClusterName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbClusterUid(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterUid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbClusterLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbClusterNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbClusterDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbClusterDatabaseVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterDatabaseVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbClusterAutomatedBackupPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterAutomatedBackupPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -649,19 +650,19 @@ func flattenAlloydbClusterAutomatedBackupPolicy(v interface{}, d *schema.Resourc
 		flattenAlloydbClusterAutomatedBackupPolicyEnabled(original["enabled"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAlloydbClusterAutomatedBackupPolicyBackupWindow(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterAutomatedBackupPolicyBackupWindow(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbClusterAutomatedBackupPolicyLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterAutomatedBackupPolicyLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbClusterAutomatedBackupPolicyLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterAutomatedBackupPolicyLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbClusterAutomatedBackupPolicyWeeklySchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterAutomatedBackupPolicyWeeklySchedule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -676,11 +677,11 @@ func flattenAlloydbClusterAutomatedBackupPolicyWeeklySchedule(v interface{}, d *
 		flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimes(original["startTimes"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleDaysOfWeek(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleDaysOfWeek(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -701,7 +702,7 @@ func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimes(v interf
 	}
 	return transformed
 }
-func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesHours(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesHours(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -718,7 +719,7 @@ func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesHours(v i
 	return v // let terraform core handle it otherwise
 }
 
-func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesMinutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesMinutes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -735,7 +736,7 @@ func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesMinutes(v
 	return v // let terraform core handle it otherwise
 }
 
-func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -752,7 +753,7 @@ func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesSeconds(v
 	return v // let terraform core handle it otherwise
 }
 
-func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -769,7 +770,7 @@ func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesNanos(v i
 	return v // let terraform core handle it otherwise
 }
 
-func flattenAlloydbClusterAutomatedBackupPolicyTimeBasedRetention(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterAutomatedBackupPolicyTimeBasedRetention(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -782,11 +783,11 @@ func flattenAlloydbClusterAutomatedBackupPolicyTimeBasedRetention(v interface{},
 		flattenAlloydbClusterAutomatedBackupPolicyTimeBasedRetentionRetentionPeriod(original["retentionPeriod"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAlloydbClusterAutomatedBackupPolicyTimeBasedRetentionRetentionPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterAutomatedBackupPolicyTimeBasedRetentionRetentionPeriod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbClusterAutomatedBackupPolicyQuantityBasedRetention(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterAutomatedBackupPolicyQuantityBasedRetention(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -799,7 +800,7 @@ func flattenAlloydbClusterAutomatedBackupPolicyQuantityBasedRetention(v interfac
 		flattenAlloydbClusterAutomatedBackupPolicyQuantityBasedRetentionCount(original["count"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAlloydbClusterAutomatedBackupPolicyQuantityBasedRetentionCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterAutomatedBackupPolicyQuantityBasedRetentionCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -816,11 +817,11 @@ func flattenAlloydbClusterAutomatedBackupPolicyQuantityBasedRetentionCount(v int
 	return v // let terraform core handle it otherwise
 }
 
-func flattenAlloydbClusterAutomatedBackupPolicyEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterAutomatedBackupPolicyEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbClusterBackupSource(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterBackupSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -833,11 +834,11 @@ func flattenAlloydbClusterBackupSource(v interface{}, d *schema.ResourceData, co
 		flattenAlloydbClusterBackupSourceBackupName(original["backupName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAlloydbClusterBackupSourceBackupName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterBackupSourceBackupName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbClusterMigrationSource(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterMigrationSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -854,19 +855,19 @@ func flattenAlloydbClusterMigrationSource(v interface{}, d *schema.ResourceData,
 		flattenAlloydbClusterMigrationSourceSourceType(original["sourceType"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAlloydbClusterMigrationSourceHostPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterMigrationSourceHostPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbClusterMigrationSourceReferenceId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterMigrationSourceReferenceId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbClusterMigrationSourceSourceType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbClusterMigrationSourceSourceType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandAlloydbClusterLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandAlloydbClusterLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -877,15 +878,15 @@ func expandAlloydbClusterLabels(v interface{}, d TerraformResourceData, config *
 	return m, nil
 }
 
-func expandAlloydbClusterNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterNetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbClusterDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbClusterInitialUser(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterInitialUser(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -911,15 +912,15 @@ func expandAlloydbClusterInitialUser(v interface{}, d TerraformResourceData, con
 	return transformed, nil
 }
 
-func expandAlloydbClusterInitialUserUser(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterInitialUserUser(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbClusterInitialUserPassword(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterInitialUserPassword(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbClusterAutomatedBackupPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterAutomatedBackupPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -980,15 +981,15 @@ func expandAlloydbClusterAutomatedBackupPolicy(v interface{}, d TerraformResourc
 	return transformed, nil
 }
 
-func expandAlloydbClusterAutomatedBackupPolicyBackupWindow(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterAutomatedBackupPolicyBackupWindow(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbClusterAutomatedBackupPolicyLocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterAutomatedBackupPolicyLocation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbClusterAutomatedBackupPolicyLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandAlloydbClusterAutomatedBackupPolicyLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -999,7 +1000,7 @@ func expandAlloydbClusterAutomatedBackupPolicyLabels(v interface{}, d TerraformR
 	return m, nil
 }
 
-func expandAlloydbClusterAutomatedBackupPolicyWeeklySchedule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterAutomatedBackupPolicyWeeklySchedule(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1025,11 +1026,11 @@ func expandAlloydbClusterAutomatedBackupPolicyWeeklySchedule(v interface{}, d Te
 	return transformed, nil
 }
 
-func expandAlloydbClusterAutomatedBackupPolicyWeeklyScheduleDaysOfWeek(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterAutomatedBackupPolicyWeeklyScheduleDaysOfWeek(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1072,23 +1073,23 @@ func expandAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimes(v interfa
 	return req, nil
 }
 
-func expandAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesHours(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesHours(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesMinutes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesMinutes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesSeconds(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesNanos(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbClusterAutomatedBackupPolicyTimeBasedRetention(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterAutomatedBackupPolicyTimeBasedRetention(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1107,11 +1108,11 @@ func expandAlloydbClusterAutomatedBackupPolicyTimeBasedRetention(v interface{}, 
 	return transformed, nil
 }
 
-func expandAlloydbClusterAutomatedBackupPolicyTimeBasedRetentionRetentionPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterAutomatedBackupPolicyTimeBasedRetentionRetentionPeriod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbClusterAutomatedBackupPolicyQuantityBasedRetention(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterAutomatedBackupPolicyQuantityBasedRetention(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1130,10 +1131,10 @@ func expandAlloydbClusterAutomatedBackupPolicyQuantityBasedRetention(v interface
 	return transformed, nil
 }
 
-func expandAlloydbClusterAutomatedBackupPolicyQuantityBasedRetentionCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterAutomatedBackupPolicyQuantityBasedRetentionCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbClusterAutomatedBackupPolicyEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbClusterAutomatedBackupPolicyEnabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

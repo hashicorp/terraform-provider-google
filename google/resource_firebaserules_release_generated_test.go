@@ -22,6 +22,7 @@ import (
 	firebaserules "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/firebaserules"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"strings"
 	"testing"
 )
@@ -206,7 +207,7 @@ func testAccCheckFirebaserulesReleaseDestroyProducer(t *testing.T) func(s *terra
 				UpdateTime:  dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
-			client := NewDCLFirebaserulesClient(config, config.UserAgent, billingProject, 0)
+			client := transport_tpg.NewDCLFirebaserulesClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetRelease(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_firebaserules_release still exists %v", obj)

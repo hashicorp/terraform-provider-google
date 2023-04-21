@@ -20,6 +20,8 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 var ServiceManagementServiceConsumersIamSchema = map[string]*schema.Schema{
@@ -40,10 +42,10 @@ type ServiceManagementServiceConsumersIamUpdater struct {
 	serviceName     string
 	consumerProject string
 	d               TerraformResourceData
-	Config          *Config
+	Config          *transport_tpg.Config
 }
 
-func ServiceManagementServiceConsumersIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
+func ServiceManagementServiceConsumersIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	if v, ok := d.GetOk("service_name"); ok {
@@ -81,7 +83,7 @@ func ServiceManagementServiceConsumersIamUpdaterProducer(d TerraformResourceData
 	return u, nil
 }
 
-func ServiceManagementServiceConsumersIdParseFunc(d *schema.ResourceData, config *Config) error {
+func ServiceManagementServiceConsumersIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
 	m, err := getImportIdQualifiers([]string{"services/(?P<service_name>[^/]+)/consumers/(?P<consumer_project>[^/]+)", "(?P<service_name>[^/]+)/(?P<consumer_project>[^/]+)", "(?P<consumer_project>[^/]+)"}, d, config, d.Id())

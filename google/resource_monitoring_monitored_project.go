@@ -25,6 +25,8 @@ import (
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
 	monitoring "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/monitoring"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceMonitoringMonitoredProject() *schema.Resource {
@@ -67,7 +69,7 @@ func ResourceMonitoringMonitoredProject() *schema.Resource {
 }
 
 func resourceMonitoringMonitoredProjectCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	obj := &monitoring.MonitoredProject{
 		MetricsScope: dcl.String(d.Get("metrics_scope").(string)),
@@ -89,7 +91,7 @@ func resourceMonitoringMonitoredProjectCreate(d *schema.ResourceData, meta inter
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLMonitoringClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
+	client := transport_tpg.NewDCLMonitoringClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
 	client.Config.BasePath += "v1"
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
@@ -113,7 +115,7 @@ func resourceMonitoringMonitoredProjectCreate(d *schema.ResourceData, meta inter
 }
 
 func resourceMonitoringMonitoredProjectRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	obj := &monitoring.MonitoredProject{
 		MetricsScope: dcl.String(d.Get("metrics_scope").(string)),
@@ -129,7 +131,7 @@ func resourceMonitoringMonitoredProjectRead(d *schema.ResourceData, meta interfa
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLMonitoringClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
+	client := transport_tpg.NewDCLMonitoringClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
 	client.Config.BasePath += "v1"
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
@@ -157,7 +159,7 @@ func resourceMonitoringMonitoredProjectRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceMonitoringMonitoredProjectDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	obj := &monitoring.MonitoredProject{
 		MetricsScope: dcl.String(d.Get("metrics_scope").(string)),
@@ -174,7 +176,7 @@ func resourceMonitoringMonitoredProjectDelete(d *schema.ResourceData, meta inter
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLMonitoringClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
+	client := transport_tpg.NewDCLMonitoringClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
 	client.Config.BasePath += "v1"
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
@@ -191,7 +193,7 @@ func resourceMonitoringMonitoredProjectDelete(d *schema.ResourceData, meta inter
 }
 
 func resourceMonitoringMonitoredProjectImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	if err := ParseImportId([]string{
 		"locations/global/metricsScopes/(?P<metrics_scope>[^/]+)/projects/(?P<name>[^/]+)",

@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceApigeeEnvKeystore() *schema.Resource {
@@ -66,7 +67,7 @@ in the format 'organizations/{{org_name}}/environments/{{env_name}}'.`,
 }
 
 func resourceApigeeEnvKeystoreCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -111,7 +112,7 @@ func resourceApigeeEnvKeystoreCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceApigeeEnvKeystoreRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -145,7 +146,7 @@ func resourceApigeeEnvKeystoreRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceApigeeEnvKeystoreDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -176,7 +177,7 @@ func resourceApigeeEnvKeystoreDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceApigeeEnvKeystoreImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
 	if err := ParseImportId([]string{
@@ -196,14 +197,14 @@ func resourceApigeeEnvKeystoreImport(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenApigeeEnvKeystoreAliases(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEnvKeystoreAliases(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvKeystoreName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEnvKeystoreName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandApigeeEnvKeystoreName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEnvKeystoreName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

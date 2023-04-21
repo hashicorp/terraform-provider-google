@@ -23,6 +23,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
 	"google.golang.org/api/googleapi"
 )
 
@@ -738,7 +740,7 @@ projects/[PROJECT_ID_OR_NUMBER]/services/[SERVICE_ID]/serviceLevelObjectives/[SL
 }
 
 func resourceMonitoringSloCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -840,7 +842,7 @@ func resourceMonitoringSloCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceMonitoringSloRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -914,7 +916,7 @@ func resourceMonitoringSloRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceMonitoringSloUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -1057,7 +1059,7 @@ func resourceMonitoringSloUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceMonitoringSloDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -1102,7 +1104,7 @@ func resourceMonitoringSloDelete(d *schema.ResourceData, meta interface{}) error
 
 func resourceMonitoringSloImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
@@ -1112,19 +1114,19 @@ func resourceMonitoringSloImport(d *schema.ResourceData, meta interface{}) ([]*s
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenMonitoringSloName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloGoal(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloGoal(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandMonitoringSloRollingPeriodDays(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloRollingPeriodDays(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -1139,15 +1141,15 @@ func expandMonitoringSloRollingPeriodDays(v interface{}, d TerraformResourceData
 	return fmt.Sprintf("%ds", i*86400), nil
 }
 
-func flattenMonitoringSloCalendarPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloCalendarPeriod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloUserLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloUserLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicator(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicator(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1164,7 +1166,7 @@ func flattenMonitoringSloServiceLevelIndicator(v interface{}, d *schema.Resource
 		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSli(original["windowsBased"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorBasicSli(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorBasicSli(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1185,28 +1187,28 @@ func flattenMonitoringSloServiceLevelIndicatorBasicSli(v interface{}, d *schema.
 		flattenMonitoringSloServiceLevelIndicatorBasicSliAvailability(original["availability"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorBasicSliMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorBasicSliMethod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenMonitoringSloServiceLevelIndicatorBasicSliLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorBasicSliLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenMonitoringSloServiceLevelIndicatorBasicSliVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorBasicSliVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenMonitoringSloServiceLevelIndicatorBasicSliLatency(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorBasicSliLatency(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1219,11 +1221,11 @@ func flattenMonitoringSloServiceLevelIndicatorBasicSliLatency(v interface{}, d *
 		flattenMonitoringSloServiceLevelIndicatorBasicSliLatencyThreshold(original["threshold"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorBasicSliLatencyThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorBasicSliLatencyThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorBasicSliAvailability(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorBasicSliAvailability(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1232,7 +1234,7 @@ func flattenMonitoringSloServiceLevelIndicatorBasicSliAvailability(v interface{}
 	return []interface{}{transformed}
 }
 
-func flattenMonitoringSloServiceLevelIndicatorRequestBasedSli(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSli(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1247,7 +1249,7 @@ func flattenMonitoringSloServiceLevelIndicatorRequestBasedSli(v interface{}, d *
 		flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCut(original["distributionCut"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatio(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatio(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1264,19 +1266,19 @@ func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatio(v in
 		flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioTotalServiceFilter(original["totalServiceFilter"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioGoodServiceFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioGoodServiceFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioBadServiceFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioBadServiceFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioTotalServiceFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioTotalServiceFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCut(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCut(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1291,11 +1293,11 @@ func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCut(v i
 		flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRange(original["range"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutDistributionFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutDistributionFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1310,15 +1312,15 @@ func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRang
 		flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMax(original["max"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMin(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMax(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMax(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSli(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSli(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1339,15 +1341,15 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSli(v interface{}, d *
 		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRange(original["metricSumInRange"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliWindowPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliWindowPeriod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodBadMetricFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodBadMetricFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1364,11 +1366,11 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThres
 		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformance(original["basicSliPerformance"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1383,7 +1385,7 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThres
 		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCut(original["distributionCut"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatio(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatio(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1400,19 +1402,19 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThres
 		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioTotalServiceFilter(original["totalServiceFilter"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioGoodServiceFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioGoodServiceFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioBadServiceFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioBadServiceFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioTotalServiceFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioTotalServiceFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCut(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCut(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1427,11 +1429,11 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThres
 		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRange(original["range"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutDistributionFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutDistributionFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1446,15 +1448,15 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThres
 		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMax(original["max"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMin(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMax(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMax(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1475,28 +1477,28 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThres
 		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailability(original["availability"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceMethod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatency(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatency(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1509,11 +1511,11 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThres
 		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatencyThreshold(original["threshold"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatencyThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatencyThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailability(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailability(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1522,7 +1524,7 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThres
 	return []interface{}{transformed}
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1537,11 +1539,11 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRange(v
 		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRange(original["range"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeTimeSeries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeTimeSeries(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1556,15 +1558,15 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRa
 		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMax(original["max"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMin(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMax(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMax(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1579,11 +1581,11 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRange(v 
 		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRange(original["range"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeTimeSeries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeTimeSeries(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1598,30 +1600,30 @@ func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRan
 		flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMax(original["max"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMin(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMax(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMax(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringSloSloId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloSloId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func expandMonitoringSloDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloGoal(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloGoal(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func flattenMonitoringSloRollingPeriodDays(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringSloRollingPeriodDays(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1635,11 +1637,11 @@ func flattenMonitoringSloRollingPeriodDays(v interface{}, d *schema.ResourceData
 	return int(dur / (time.Hour * 24))
 }
 
-func expandMonitoringSloCalendarPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloCalendarPeriod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloUserLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandMonitoringSloUserLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -1650,7 +1652,7 @@ func expandMonitoringSloUserLabels(v interface{}, d TerraformResourceData, confi
 	return m, nil
 }
 
-func expandMonitoringSloServiceLevelIndicator(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicator(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	transformed := make(map[string]interface{})
 	transformedBasicSli, err := expandMonitoringSloServiceLevelIndicatorBasicSli(d.Get("basic_sli"), d, config)
 	if err != nil {
@@ -1676,7 +1678,7 @@ func expandMonitoringSloServiceLevelIndicator(v interface{}, d TerraformResource
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorBasicSli(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorBasicSli(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1723,22 +1725,22 @@ func expandMonitoringSloServiceLevelIndicatorBasicSli(v interface{}, d Terraform
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorBasicSliMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorBasicSliMethod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorBasicSliLocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorBasicSliLocation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorBasicSliVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorBasicSliVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorBasicSliLatency(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorBasicSliLatency(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1757,11 +1759,11 @@ func expandMonitoringSloServiceLevelIndicatorBasicSliLatency(v interface{}, d Te
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorBasicSliLatencyThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorBasicSliLatencyThreshold(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorBasicSliAvailability(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorBasicSliAvailability(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1780,11 +1782,11 @@ func expandMonitoringSloServiceLevelIndicatorBasicSliAvailability(v interface{},
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorBasicSliAvailabilityEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorBasicSliAvailabilityEnabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorRequestBasedSli(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSli(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1810,7 +1812,7 @@ func expandMonitoringSloServiceLevelIndicatorRequestBasedSli(v interface{}, d Te
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatio(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatio(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1843,19 +1845,19 @@ func expandMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatio(v int
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioGoodServiceFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioGoodServiceFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioBadServiceFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioBadServiceFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioTotalServiceFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliGoodTotalRatioTotalServiceFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCut(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCut(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1881,11 +1883,11 @@ func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCut(v in
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutDistributionFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutDistributionFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRange(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1911,15 +1913,15 @@ func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRange
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMin(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMin(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMax(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorRequestBasedSliDistributionCutRangeMax(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSli(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSli(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1966,15 +1968,15 @@ func expandMonitoringSloServiceLevelIndicatorWindowsBasedSli(v interface{}, d Te
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliWindowPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliWindowPeriod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodBadMetricFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodBadMetricFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThreshold(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2007,11 +2009,11 @@ func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresh
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdThreshold(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformance(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2037,7 +2039,7 @@ func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresh
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatio(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatio(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2070,19 +2072,19 @@ func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresh
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioGoodServiceFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioGoodServiceFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioBadServiceFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioBadServiceFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioTotalServiceFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceGoodTotalRatioTotalServiceFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCut(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCut(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2108,11 +2110,11 @@ func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresh
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutDistributionFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutDistributionFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRange(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2138,15 +2140,15 @@ func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresh
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMin(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMin(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMax(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdPerformanceDistributionCutRangeMax(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformance(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2193,22 +2195,22 @@ func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresh
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceMethod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLocation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatency(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatency(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2227,11 +2229,11 @@ func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresh
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatencyThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceLatencyThreshold(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailability(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailability(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2250,11 +2252,11 @@ func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresh
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailabilityEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliGoodTotalRatioThresholdBasicSliPerformanceAvailabilityEnabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRange(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2280,11 +2282,11 @@ func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRange(v 
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeTimeSeries(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeTimeSeries(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRange(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2310,15 +2312,15 @@ func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRan
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMin(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMin(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMax(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricMeanInRangeRangeMax(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRange(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2344,11 +2346,11 @@ func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRange(v i
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeTimeSeries(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeTimeSeries(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRange(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2374,15 +2376,15 @@ func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRang
 	return transformed, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMin(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMin(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMax(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloServiceLevelIndicatorWindowsBasedSliMetricSumInRangeRangeMax(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringSloSloId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringSloSloId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

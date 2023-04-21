@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceMonitoringGenericService() *schema.Resource {
@@ -126,7 +127,7 @@ https://cloud.google.com/apis/design/resource_names.`,
 }
 
 func resourceMonitoringGenericServiceCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -192,7 +193,7 @@ func resourceMonitoringGenericServiceCreate(d *schema.ResourceData, meta interfa
 }
 
 func resourceMonitoringGenericServiceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -245,7 +246,7 @@ func resourceMonitoringGenericServiceRead(d *schema.ResourceData, meta interface
 }
 
 func resourceMonitoringGenericServiceUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -312,7 +313,7 @@ func resourceMonitoringGenericServiceUpdate(d *schema.ResourceData, meta interfa
 }
 
 func resourceMonitoringGenericServiceDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -349,7 +350,7 @@ func resourceMonitoringGenericServiceDelete(d *schema.ResourceData, meta interfa
 }
 
 func resourceMonitoringGenericServiceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/services/(?P<service_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<service_id>[^/]+)",
@@ -368,19 +369,19 @@ func resourceMonitoringGenericServiceImport(d *schema.ResourceData, meta interfa
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenMonitoringGenericServiceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringGenericServiceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringGenericServiceDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringGenericServiceDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringGenericServiceUserLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringGenericServiceUserLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringGenericServiceTelemetry(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringGenericServiceTelemetry(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -393,11 +394,11 @@ func flattenMonitoringGenericServiceTelemetry(v interface{}, d *schema.ResourceD
 		flattenMonitoringGenericServiceTelemetryResourceName(original["resourceName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringGenericServiceTelemetryResourceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringGenericServiceTelemetryResourceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringGenericServiceBasicService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringGenericServiceBasicService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -412,19 +413,19 @@ func flattenMonitoringGenericServiceBasicService(v interface{}, d *schema.Resour
 		flattenMonitoringGenericServiceBasicServiceServiceLabels(original["serviceLabels"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringGenericServiceBasicServiceServiceType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringGenericServiceBasicServiceServiceType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringGenericServiceBasicServiceServiceLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringGenericServiceBasicServiceServiceLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandMonitoringGenericServiceDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringGenericServiceDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringGenericServiceUserLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandMonitoringGenericServiceUserLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -435,7 +436,7 @@ func expandMonitoringGenericServiceUserLabels(v interface{}, d TerraformResource
 	return m, nil
 }
 
-func expandMonitoringGenericServiceBasicService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringGenericServiceBasicService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -461,11 +462,11 @@ func expandMonitoringGenericServiceBasicService(v interface{}, d TerraformResour
 	return transformed, nil
 }
 
-func expandMonitoringGenericServiceBasicServiceServiceType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringGenericServiceBasicServiceServiceType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringGenericServiceBasicServiceServiceLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandMonitoringGenericServiceBasicServiceServiceLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"sort"
 	"strings"
@@ -102,7 +103,7 @@ func ResourceComputeNetworkPeering() *schema.Resource {
 }
 
 func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -144,7 +145,7 @@ func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -197,7 +198,7 @@ func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceComputeNetworkPeeringUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -237,7 +238,7 @@ func resourceComputeNetworkPeeringUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeNetworkPeeringDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -316,7 +317,7 @@ func sortedNetworkPeeringMutexKeys(networkName, peerNetworkName *GlobalFieldValu
 }
 
 func resourceComputeNetworkPeeringImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	splits := strings.Split(d.Id(), "/")
 	if len(splits) != 3 {
 		return nil, fmt.Errorf("Error parsing network peering import format, expected: {project}/{network}/{name}")
