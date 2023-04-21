@@ -8,8 +8,8 @@ jobs:
   triage:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
-    - uses: github/issue-labeler@a326d12b9b64d4395a18e50f648214c609501643
+    - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+    - uses: github/issue-labeler@cd54a96bcc32e2a890e865b2eceffee3fc458b9d # v3.0
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
         configuration-path: .github/labeler.yml
