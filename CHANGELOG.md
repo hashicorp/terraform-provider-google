@@ -17,7 +17,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * alloydb: changed `weekly_schedule` (under `automated_backup_policy`) from required to optional for `google_alloydb_cluster` ([#14335](https://github.com/hashicorp/terraform-provider-google/pull/14335))
-* compute: fixed an issue with TTLs being sent when `USE_ORIGIN_HEADERS` is set ([#14323](https://github.com/hashicorp/terraform-provider-google/pull/14323))
+* compute: fixed an issue with TTLs being sent when `USE_ORIGIN_HEADERS` is set in `google_compute_backend_bucket` ([#14323](https://github.com/hashicorp/terraform-provider-google/pull/14323))
 * networkservices: increased default timeouts for `google_network_services_edge_cache_keyset` to 60m (from 30m) ([#14314](https://github.com/hashicorp/terraform-provider-google/pull/14314))
 * sql: fixed an issue that prevented setting `enable_private_path_for_google_cloud_services` to `false` ([#14316](https://github.com/hashicorp/terraform-provider-google/pull/14316))
 
