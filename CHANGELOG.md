@@ -4,12 +4,12 @@ NOTES:
 * alloydb: changed `location` from `optional` to `required` for `google_alloydb_cluster`. `location` had previously been marked as optional, but operations failed if it was omitted, and there was no way for `location` to be inherited from the provider configuration or from an environment variable. This means there was no way to have a working configuration without `location` specified. ([#14330](https://github.com/hashicorp/terraform-provider-google/pull/14330))
 
 FEATURES:
+* **New Resource:** `google_access_context_manager_ingress_policy` ([#14302](https://github.com/hashicorp/terraform-provider-google/pull/14302))
 * **New Resource:** `google_compute_public_advertised_prefix` ([#14303](https://github.com/hashicorp/terraform-provider-google/pull/14303))
 * **New Resource:** `google_compute_public_delegated_prefix` ([#14303](https://github.com/hashicorp/terraform-provider-google/pull/14303))
 * **New Resource:** `google_compute_region_commitment` ([#14301](https://github.com/hashicorp/terraform-provider-google/pull/14301))
 * **New Resource:** `google_network_services_http_route` ([#14294](https://github.com/hashicorp/terraform-provider-google/pull/14294))
 * **New Resource:** `google_networkservices_tcp_route` (beta) ([#14342](https://github.com/hashicorp/terraform-provider-google/pull/14342))
-* **New Resource:** `google_access_context_manager_ingress_policy` ([#14302](https://github.com/hashicorp/terraform-provider-google/pull/14302))
 
 IMPROVEMENTS:
 * dlp: added `inspect_job.actions.job_notification_emails` and `inspect_job.actions.deidentify`  fields to `google_data_loss_prevention_job_trigger` resource ([#14309](https://github.com/hashicorp/terraform-provider-google/pull/14309))
