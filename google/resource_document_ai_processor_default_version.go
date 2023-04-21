@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceDocumentAIProcessorDefaultVersion() *schema.Resource {
@@ -60,7 +61,7 @@ Apply 'lifecycle.ignore_changes' to the 'version' field to suppress this diff.`,
 }
 
 func resourceDocumentAIProcessorDefaultVersionCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -116,7 +117,7 @@ func resourceDocumentAIProcessorDefaultVersionCreate(d *schema.ResourceData, met
 }
 
 func resourceDocumentAIProcessorDefaultVersionRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -161,7 +162,7 @@ func resourceDocumentAIProcessorDefaultVersionDelete(d *schema.ResourceData, met
 }
 
 func resourceDocumentAIProcessorDefaultVersionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"(?P<processor>.+)",
 	}, d, config); err != nil {
@@ -178,14 +179,14 @@ func resourceDocumentAIProcessorDefaultVersionImport(d *schema.ResourceData, met
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDocumentAIProcessorDefaultVersionVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDocumentAIProcessorDefaultVersionVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandDocumentAIProcessorDefaultVersionVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDocumentAIProcessorDefaultVersionVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDocumentAIProcessorDefaultVersionProcessor(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDocumentAIProcessorDefaultVersionProcessor(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

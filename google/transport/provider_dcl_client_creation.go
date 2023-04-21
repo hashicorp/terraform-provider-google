@@ -13,10 +13,12 @@
 //
 // ----------------------------------------------------------------------------
 
-package google
+package transport
 
 import (
+	"fmt"
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
+	"log"
 	"time"
 
 	apikeys "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/apikeys"
@@ -475,4 +477,36 @@ func NewDCLRecaptchaEnterpriseClient(config *Config, userAgent, billingProject s
 
 	dclConfig := dcl.NewConfig(configOptions...)
 	return recaptchaenterprise.NewClient(dclConfig)
+}
+
+type dclLogger struct{}
+
+// Fatal records Fatal errors.
+func (l dclLogger) Fatal(args ...interface{}) {
+	log.Fatal(args...)
+}
+
+// Fatalf records Fatal errors with added arguments.
+func (l dclLogger) Fatalf(format string, args ...interface{}) {
+	log.Fatalf(fmt.Sprintf("[DEBUG][DCL FATAL] %s", format), args...)
+}
+
+// Info records Info errors.
+func (l dclLogger) Info(args ...interface{}) {
+	log.Print(args...)
+}
+
+// Infof records Info errors with added arguments.
+func (l dclLogger) Infof(format string, args ...interface{}) {
+	log.Printf(fmt.Sprintf("[DEBUG][DCL INFO] %s", format), args...)
+}
+
+// Warningf records Warning errors with added arguments.
+func (l dclLogger) Warningf(format string, args ...interface{}) {
+	log.Printf(fmt.Sprintf("[DEBUG][DCL WARNING] %s", format), args...)
+}
+
+// Warning records Warning errors.
+func (l dclLogger) Warning(args ...interface{}) {
+	log.Print(args...)
 }

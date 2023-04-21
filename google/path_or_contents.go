@@ -1,10 +1,7 @@
 package google
 
 import (
-	"io/ioutil"
-	"os"
-
-	"github.com/mitchellh/go-homedir"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // If the argument is a path, pathOrContents loads it and returns the contents,
@@ -14,26 +11,5 @@ import (
 // The boolean second return value can be called `wasPath` - it indicates if a
 // path was detected and a file loaded.
 func pathOrContents(poc string) (string, bool, error) {
-	if len(poc) == 0 {
-		return poc, false, nil
-	}
-
-	path := poc
-	if path[0] == '~' {
-		var err error
-		path, err = homedir.Expand(path)
-		if err != nil {
-			return path, true, err
-		}
-	}
-
-	if _, err := os.Stat(path); err == nil {
-		contents, err := ioutil.ReadFile(path)
-		if err != nil {
-			return string(contents), true, err
-		}
-		return string(contents), true, nil
-	}
-
-	return poc, false, nil
+	return transport_tpg.PathOrContents(poc)
 }

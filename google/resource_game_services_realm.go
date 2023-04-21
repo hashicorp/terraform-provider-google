@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceGameServicesRealm() *schema.Resource {
@@ -96,7 +97,7 @@ example, 'projects/my-project/locations/{location}/realms/my-realm'.`,
 }
 
 func resourceGameServicesRealmCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -183,7 +184,7 @@ func resourceGameServicesRealmCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceGameServicesRealmRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -236,7 +237,7 @@ func resourceGameServicesRealmRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceGameServicesRealmUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -321,7 +322,7 @@ func resourceGameServicesRealmUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceGameServicesRealmDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -366,7 +367,7 @@ func resourceGameServicesRealmDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceGameServicesRealmImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/realms/(?P<realm_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<realm_id>[^/]+)",
@@ -385,27 +386,27 @@ func resourceGameServicesRealmImport(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenGameServicesRealmName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenGameServicesRealmName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenGameServicesRealmLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenGameServicesRealmLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenGameServicesRealmTimeZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenGameServicesRealmTimeZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenGameServicesRealmEtag(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenGameServicesRealmEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenGameServicesRealmDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenGameServicesRealmDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandGameServicesRealmLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandGameServicesRealmLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -416,10 +417,10 @@ func expandGameServicesRealmLabels(v interface{}, d TerraformResourceData, confi
 	return m, nil
 }
 
-func expandGameServicesRealmTimeZone(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandGameServicesRealmTimeZone(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandGameServicesRealmDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandGameServicesRealmDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

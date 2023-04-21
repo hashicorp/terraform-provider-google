@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputePublicDelegatedPrefix() *schema.Resource {
@@ -97,7 +98,7 @@ except the last character, which cannot be a dash.`,
 }
 
 func resourceComputePublicDelegatedPrefixCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -182,7 +183,7 @@ func resourceComputePublicDelegatedPrefixCreate(d *schema.ResourceData, meta int
 }
 
 func resourceComputePublicDelegatedPrefixRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -238,7 +239,7 @@ func resourceComputePublicDelegatedPrefixRead(d *schema.ResourceData, meta inter
 }
 
 func resourceComputePublicDelegatedPrefixDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -283,7 +284,7 @@ func resourceComputePublicDelegatedPrefixDelete(d *schema.ResourceData, meta int
 }
 
 func resourceComputePublicDelegatedPrefixImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/publicDelegatedPrefixes/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -303,42 +304,42 @@ func resourceComputePublicDelegatedPrefixImport(d *schema.ResourceData, meta int
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputePublicDelegatedPrefixDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputePublicDelegatedPrefixDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputePublicDelegatedPrefixIsLiveMigration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputePublicDelegatedPrefixIsLiveMigration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputePublicDelegatedPrefixName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputePublicDelegatedPrefixName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputePublicDelegatedPrefixParentPrefix(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputePublicDelegatedPrefixParentPrefix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputePublicDelegatedPrefixIpCidrRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputePublicDelegatedPrefixIpCidrRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandComputePublicDelegatedPrefixDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputePublicDelegatedPrefixDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputePublicDelegatedPrefixIsLiveMigration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputePublicDelegatedPrefixIsLiveMigration(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputePublicDelegatedPrefixName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputePublicDelegatedPrefixName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputePublicDelegatedPrefixParentPrefix(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputePublicDelegatedPrefixParentPrefix(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputePublicDelegatedPrefixIpCidrRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputePublicDelegatedPrefixIpCidrRange(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -24,9 +24,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func deleteSpannerBackups(d *schema.ResourceData, config *Config, res map[string]interface{}, userAgent string, billingProject string) error {
+func deleteSpannerBackups(d *schema.ResourceData, config *transport_tpg.Config, res map[string]interface{}, userAgent string, billingProject string) error {
 	var v interface{}
 	var ok bool
 
@@ -173,7 +174,7 @@ This must be set to true if you created a backup manually in the console.`,
 }
 
 func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -296,7 +297,7 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -373,7 +374,7 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -458,7 +459,7 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -513,7 +514,7 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceSpannerInstanceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/instances/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -537,25 +538,25 @@ func resourceSpannerInstanceImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSpannerInstanceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSpannerInstanceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenSpannerInstanceConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSpannerInstanceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenSpannerInstanceDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSpannerInstanceDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSpannerInstanceNumNodes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSpannerInstanceNumNodes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -572,7 +573,7 @@ func flattenSpannerInstanceNumNodes(v interface{}, d *schema.ResourceData, confi
 	return v // let terraform core handle it otherwise
 }
 
-func flattenSpannerInstanceProcessingUnits(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSpannerInstanceProcessingUnits(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -589,19 +590,19 @@ func flattenSpannerInstanceProcessingUnits(v interface{}, d *schema.ResourceData
 	return v // let terraform core handle it otherwise
 }
 
-func flattenSpannerInstanceLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSpannerInstanceLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSpannerInstanceState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSpannerInstanceState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandSpannerInstanceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSpannerInstanceName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSpannerInstanceConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSpannerInstanceConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	r := regexp.MustCompile("projects/(.+)/instanceConfigs/(.+)")
 	if r.MatchString(v.(string)) {
 		return v.(string), nil
@@ -615,19 +616,19 @@ func expandSpannerInstanceConfig(v interface{}, d TerraformResourceData, config 
 	return fmt.Sprintf("projects/%s/instanceConfigs/%s", project, v.(string)), nil
 }
 
-func expandSpannerInstanceDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSpannerInstanceDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSpannerInstanceNumNodes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSpannerInstanceNumNodes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSpannerInstanceProcessingUnits(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSpannerInstanceProcessingUnits(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSpannerInstanceLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandSpannerInstanceLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -658,7 +659,7 @@ func resourceSpannerInstanceEncoder(d *schema.ResourceData, meta interface{}, ob
 }
 
 func resourceSpannerInstanceUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	project, err := getProject(d, meta.(*Config))
+	project, err := getProject(d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return nil, err
 	}
@@ -683,7 +684,7 @@ func resourceSpannerInstanceUpdateEncoder(d *schema.ResourceData, meta interface
 }
 
 func resourceSpannerInstanceDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	d.SetId(res["name"].(string))
 	if err := ParseImportId([]string{"projects/(?P<project>[^/]+)/instances/(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err

@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceLoggingMetric() *schema.Resource {
@@ -276,7 +277,7 @@ func loggingMetricMetricDescriptorLabelsSchema() *schema.Resource {
 }
 
 func resourceLoggingMetricCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -400,7 +401,7 @@ func resourceLoggingMetricCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceLoggingMetricRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -465,7 +466,7 @@ func resourceLoggingMetricRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceLoggingMetricUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -566,7 +567,7 @@ func resourceLoggingMetricUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceLoggingMetricDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -611,7 +612,7 @@ func resourceLoggingMetricDelete(d *schema.ResourceData, meta interface{}) error
 
 func resourceLoggingMetricImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
@@ -621,27 +622,27 @@ func resourceLoggingMetricImport(d *schema.ResourceData, meta interface{}) ([]*s
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenLoggingMetricName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricBucketName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricBucketName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricMetricDescriptor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricMetricDescriptor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -662,19 +663,19 @@ func flattenLoggingMetricMetricDescriptor(v interface{}, d *schema.ResourceData,
 		flattenLoggingMetricMetricDescriptorDisplayName(original["displayName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenLoggingMetricMetricDescriptorUnit(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricMetricDescriptorUnit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricMetricDescriptorValueType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricMetricDescriptorValueType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricMetricDescriptorMetricKind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricMetricDescriptorMetricKind(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricMetricDescriptorLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricMetricDescriptorLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -694,15 +695,15 @@ func flattenLoggingMetricMetricDescriptorLabels(v interface{}, d *schema.Resourc
 	}
 	return transformed
 }
-func flattenLoggingMetricMetricDescriptorLabelsKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricMetricDescriptorLabelsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricMetricDescriptorLabelsDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricMetricDescriptorLabelsDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricMetricDescriptorLabelsValueType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricMetricDescriptorLabelsValueType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return "STRING"
 	}
@@ -710,19 +711,19 @@ func flattenLoggingMetricMetricDescriptorLabelsValueType(v interface{}, d *schem
 	return v
 }
 
-func flattenLoggingMetricMetricDescriptorDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricMetricDescriptorDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricLabelExtractors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricLabelExtractors(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricValueExtractor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricValueExtractor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricBucketOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricBucketOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -739,7 +740,7 @@ func flattenLoggingMetricBucketOptions(v interface{}, d *schema.ResourceData, co
 		flattenLoggingMetricBucketOptionsExplicitBuckets(original["explicitBuckets"], d, config)
 	return []interface{}{transformed}
 }
-func flattenLoggingMetricBucketOptionsLinearBuckets(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricBucketOptionsLinearBuckets(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -756,7 +757,7 @@ func flattenLoggingMetricBucketOptionsLinearBuckets(v interface{}, d *schema.Res
 		flattenLoggingMetricBucketOptionsLinearBucketsOffset(original["offset"], d, config)
 	return []interface{}{transformed}
 }
-func flattenLoggingMetricBucketOptionsLinearBucketsNumFiniteBuckets(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricBucketOptionsLinearBucketsNumFiniteBuckets(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -773,15 +774,15 @@ func flattenLoggingMetricBucketOptionsLinearBucketsNumFiniteBuckets(v interface{
 	return v // let terraform core handle it otherwise
 }
 
-func flattenLoggingMetricBucketOptionsLinearBucketsWidth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricBucketOptionsLinearBucketsWidth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricBucketOptionsLinearBucketsOffset(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricBucketOptionsLinearBucketsOffset(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricBucketOptionsExponentialBuckets(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricBucketOptionsExponentialBuckets(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -798,7 +799,7 @@ func flattenLoggingMetricBucketOptionsExponentialBuckets(v interface{}, d *schem
 		flattenLoggingMetricBucketOptionsExponentialBucketsScale(original["scale"], d, config)
 	return []interface{}{transformed}
 }
-func flattenLoggingMetricBucketOptionsExponentialBucketsNumFiniteBuckets(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricBucketOptionsExponentialBucketsNumFiniteBuckets(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -815,15 +816,15 @@ func flattenLoggingMetricBucketOptionsExponentialBucketsNumFiniteBuckets(v inter
 	return v // let terraform core handle it otherwise
 }
 
-func flattenLoggingMetricBucketOptionsExponentialBucketsGrowthFactor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricBucketOptionsExponentialBucketsGrowthFactor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricBucketOptionsExponentialBucketsScale(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricBucketOptionsExponentialBucketsScale(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingMetricBucketOptionsExplicitBuckets(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricBucketOptionsExplicitBuckets(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -836,31 +837,31 @@ func flattenLoggingMetricBucketOptionsExplicitBuckets(v interface{}, d *schema.R
 		flattenLoggingMetricBucketOptionsExplicitBucketsBounds(original["bounds"], d, config)
 	return []interface{}{transformed}
 }
-func flattenLoggingMetricBucketOptionsExplicitBucketsBounds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingMetricBucketOptionsExplicitBucketsBounds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandLoggingMetricName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricBucketName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricBucketName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricDisabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricMetricDescriptor(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricMetricDescriptor(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -907,19 +908,19 @@ func expandLoggingMetricMetricDescriptor(v interface{}, d TerraformResourceData,
 	return transformed, nil
 }
 
-func expandLoggingMetricMetricDescriptorUnit(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricMetricDescriptorUnit(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricMetricDescriptorValueType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricMetricDescriptorValueType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricMetricDescriptorMetricKind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricMetricDescriptorMetricKind(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricMetricDescriptorLabels(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricMetricDescriptorLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -956,23 +957,23 @@ func expandLoggingMetricMetricDescriptorLabels(v interface{}, d TerraformResourc
 	return req, nil
 }
 
-func expandLoggingMetricMetricDescriptorLabelsKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricMetricDescriptorLabelsKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricMetricDescriptorLabelsDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricMetricDescriptorLabelsDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricMetricDescriptorLabelsValueType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricMetricDescriptorLabelsValueType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricMetricDescriptorDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricMetricDescriptorDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricLabelExtractors(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandLoggingMetricLabelExtractors(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -983,11 +984,11 @@ func expandLoggingMetricLabelExtractors(v interface{}, d TerraformResourceData, 
 	return m, nil
 }
 
-func expandLoggingMetricValueExtractor(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricValueExtractor(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricBucketOptions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricBucketOptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1020,7 +1021,7 @@ func expandLoggingMetricBucketOptions(v interface{}, d TerraformResourceData, co
 	return transformed, nil
 }
 
-func expandLoggingMetricBucketOptionsLinearBuckets(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricBucketOptionsLinearBuckets(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1053,19 +1054,19 @@ func expandLoggingMetricBucketOptionsLinearBuckets(v interface{}, d TerraformRes
 	return transformed, nil
 }
 
-func expandLoggingMetricBucketOptionsLinearBucketsNumFiniteBuckets(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricBucketOptionsLinearBucketsNumFiniteBuckets(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricBucketOptionsLinearBucketsWidth(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricBucketOptionsLinearBucketsWidth(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricBucketOptionsLinearBucketsOffset(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricBucketOptionsLinearBucketsOffset(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricBucketOptionsExponentialBuckets(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricBucketOptionsExponentialBuckets(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1098,19 +1099,19 @@ func expandLoggingMetricBucketOptionsExponentialBuckets(v interface{}, d Terrafo
 	return transformed, nil
 }
 
-func expandLoggingMetricBucketOptionsExponentialBucketsNumFiniteBuckets(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricBucketOptionsExponentialBucketsNumFiniteBuckets(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricBucketOptionsExponentialBucketsGrowthFactor(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricBucketOptionsExponentialBucketsGrowthFactor(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricBucketOptionsExponentialBucketsScale(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricBucketOptionsExponentialBucketsScale(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingMetricBucketOptionsExplicitBuckets(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricBucketOptionsExplicitBuckets(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1129,6 +1130,6 @@ func expandLoggingMetricBucketOptionsExplicitBuckets(v interface{}, d TerraformR
 	return transformed, nil
 }
 
-func expandLoggingMetricBucketOptionsExplicitBucketsBounds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingMetricBucketOptionsExplicitBucketsBounds(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

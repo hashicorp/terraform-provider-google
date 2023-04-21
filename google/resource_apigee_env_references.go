@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceApigeeEnvReferences() *schema.Resource {
@@ -76,7 +77,7 @@ in the format 'organizations/{{org_name}}/environments/{{env_name}}'.`,
 }
 
 func resourceApigeeEnvReferencesCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -139,7 +140,7 @@ func resourceApigeeEnvReferencesCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceApigeeEnvReferencesRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -179,7 +180,7 @@ func resourceApigeeEnvReferencesRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceApigeeEnvReferencesDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -210,7 +211,7 @@ func resourceApigeeEnvReferencesDelete(d *schema.ResourceData, meta interface{})
 }
 
 func resourceApigeeEnvReferencesImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
 	if err := ParseImportId([]string{
@@ -230,34 +231,34 @@ func resourceApigeeEnvReferencesImport(d *schema.ResourceData, meta interface{})
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenApigeeEnvReferencesName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEnvReferencesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvReferencesDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEnvReferencesDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvReferencesResourceType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEnvReferencesResourceType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvReferencesRefers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEnvReferencesRefers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandApigeeEnvReferencesName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEnvReferencesName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvReferencesDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEnvReferencesDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvReferencesResourceType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEnvReferencesResourceType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvReferencesRefers(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEnvReferencesRefers(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

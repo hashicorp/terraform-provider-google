@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceVPCAccessConnector() *schema.Resource {
@@ -154,7 +155,7 @@ https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/su
 }
 
 func resourceVPCAccessConnectorCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -295,7 +296,7 @@ func resourceVPCAccessConnectorCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceVPCAccessConnectorRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -375,7 +376,7 @@ func resourceVPCAccessConnectorRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceVPCAccessConnectorDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -420,7 +421,7 @@ func resourceVPCAccessConnectorDelete(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceVPCAccessConnectorImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/connectors/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -440,33 +441,33 @@ func resourceVPCAccessConnectorImport(d *schema.ResourceData, meta interface{}) 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenVPCAccessConnectorName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVPCAccessConnectorName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenVPCAccessConnectorNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVPCAccessConnectorNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenVPCAccessConnectorIpCidrRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVPCAccessConnectorIpCidrRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVPCAccessConnectorState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVPCAccessConnectorState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVPCAccessConnectorMachineType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVPCAccessConnectorMachineType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVPCAccessConnectorMinThroughput(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVPCAccessConnectorMinThroughput(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -483,7 +484,7 @@ func flattenVPCAccessConnectorMinThroughput(v interface{}, d *schema.ResourceDat
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVPCAccessConnectorMinInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVPCAccessConnectorMinInstances(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -500,7 +501,7 @@ func flattenVPCAccessConnectorMinInstances(v interface{}, d *schema.ResourceData
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVPCAccessConnectorMaxInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVPCAccessConnectorMaxInstances(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -517,7 +518,7 @@ func flattenVPCAccessConnectorMaxInstances(v interface{}, d *schema.ResourceData
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVPCAccessConnectorMaxThroughput(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVPCAccessConnectorMaxThroughput(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -534,7 +535,7 @@ func flattenVPCAccessConnectorMaxThroughput(v interface{}, d *schema.ResourceDat
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVPCAccessConnectorSubnet(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVPCAccessConnectorSubnet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -549,47 +550,47 @@ func flattenVPCAccessConnectorSubnet(v interface{}, d *schema.ResourceData, conf
 		flattenVPCAccessConnectorSubnetProjectId(original["projectId"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVPCAccessConnectorSubnetName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVPCAccessConnectorSubnetName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVPCAccessConnectorSubnetProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVPCAccessConnectorSubnetProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandVPCAccessConnectorName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVPCAccessConnectorName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVPCAccessConnectorNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVPCAccessConnectorNetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return GetResourceNameFromSelfLink(v.(string)), nil
 }
 
-func expandVPCAccessConnectorIpCidrRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVPCAccessConnectorIpCidrRange(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVPCAccessConnectorMachineType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVPCAccessConnectorMachineType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVPCAccessConnectorMinThroughput(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVPCAccessConnectorMinThroughput(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVPCAccessConnectorMinInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVPCAccessConnectorMinInstances(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVPCAccessConnectorMaxInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVPCAccessConnectorMaxInstances(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVPCAccessConnectorMaxThroughput(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVPCAccessConnectorMaxThroughput(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVPCAccessConnectorSubnet(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVPCAccessConnectorSubnet(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -615,11 +616,11 @@ func expandVPCAccessConnectorSubnet(v interface{}, d TerraformResourceData, conf
 	return transformed, nil
 }
 
-func expandVPCAccessConnectorSubnetName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVPCAccessConnectorSubnetName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVPCAccessConnectorSubnetProjectId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVPCAccessConnectorSubnetProjectId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

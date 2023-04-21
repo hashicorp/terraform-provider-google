@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeRouterBgpPeer() *schema.Resource {
@@ -247,7 +248,7 @@ or deleted.`,
 }
 
 func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -386,7 +387,7 @@ func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeRouterBgpPeerRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -475,7 +476,7 @@ func resourceComputeRouterBgpPeerRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -595,7 +596,7 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeRouterBgpPeerDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -652,7 +653,7 @@ func resourceComputeRouterBgpPeerDelete(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeRouterBgpPeerImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/routers/(?P<router>[^/]+)/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<router>[^/]+)/(?P<name>[^/]+)",
@@ -672,23 +673,23 @@ func resourceComputeRouterBgpPeerImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenNestedComputeRouterBgpPeerName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeRouterBgpPeerInterface(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerInterface(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeRouterBgpPeerIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeRouterBgpPeerPeerIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerPeerIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeRouterBgpPeerPeerAsn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerPeerAsn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -705,7 +706,7 @@ func flattenNestedComputeRouterBgpPeerPeerAsn(v interface{}, d *schema.ResourceD
 	return v // let terraform core handle it otherwise
 }
 
-func flattenNestedComputeRouterBgpPeerAdvertisedRoutePriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerAdvertisedRoutePriority(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -722,7 +723,7 @@ func flattenNestedComputeRouterBgpPeerAdvertisedRoutePriority(v interface{}, d *
 	return v // let terraform core handle it otherwise
 }
 
-func flattenNestedComputeRouterBgpPeerAdvertiseMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerAdvertiseMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return "DEFAULT"
 	}
@@ -730,11 +731,11 @@ func flattenNestedComputeRouterBgpPeerAdvertiseMode(v interface{}, d *schema.Res
 	return v
 }
 
-func flattenNestedComputeRouterBgpPeerAdvertisedGroups(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerAdvertisedGroups(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -753,19 +754,19 @@ func flattenNestedComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d *schem
 	}
 	return transformed
 }
-func flattenNestedComputeRouterBgpPeerAdvertisedIpRangesRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerAdvertisedIpRangesRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeRouterBgpPeerAdvertisedIpRangesDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerAdvertisedIpRangesDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeRouterBgpPeerManagementType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerManagementType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeRouterBgpPeerBfd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerBfd(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -784,11 +785,11 @@ func flattenNestedComputeRouterBgpPeerBfd(v interface{}, d *schema.ResourceData,
 		flattenNestedComputeRouterBgpPeerBfdMultiplier(original["multiplier"], d, config)
 	return []interface{}{transformed}
 }
-func flattenNestedComputeRouterBgpPeerBfdSessionInitializationMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerBfdSessionInitializationMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeRouterBgpPeerBfdMinTransmitInterval(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerBfdMinTransmitInterval(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -805,7 +806,7 @@ func flattenNestedComputeRouterBgpPeerBfdMinTransmitInterval(v interface{}, d *s
 	return v // let terraform core handle it otherwise
 }
 
-func flattenNestedComputeRouterBgpPeerBfdMinReceiveInterval(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerBfdMinReceiveInterval(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -822,7 +823,7 @@ func flattenNestedComputeRouterBgpPeerBfdMinReceiveInterval(v interface{}, d *sc
 	return v // let terraform core handle it otherwise
 }
 
-func flattenNestedComputeRouterBgpPeerBfdMultiplier(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerBfdMultiplier(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -839,7 +840,7 @@ func flattenNestedComputeRouterBgpPeerBfdMultiplier(v interface{}, d *schema.Res
 	return v // let terraform core handle it otherwise
 }
 
-func flattenNestedComputeRouterBgpPeerEnable(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerEnable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return true
 	}
@@ -851,46 +852,46 @@ func flattenNestedComputeRouterBgpPeerEnable(v interface{}, d *schema.ResourceDa
 	return b
 }
 
-func flattenNestedComputeRouterBgpPeerRouterApplianceInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeRouterBgpPeerRouterApplianceInstance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func expandNestedComputeRouterBgpPeerName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterBgpPeerInterface(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerInterface(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterBgpPeerIpAddress(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerIpAddress(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterBgpPeerPeerIpAddress(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerPeerIpAddress(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterBgpPeerPeerAsn(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerPeerAsn(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterBgpPeerAdvertisedRoutePriority(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerAdvertisedRoutePriority(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterBgpPeerAdvertiseMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerAdvertiseMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterBgpPeerAdvertisedGroups(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerAdvertisedGroups(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -919,15 +920,15 @@ func expandNestedComputeRouterBgpPeerAdvertisedIpRanges(v interface{}, d Terrafo
 	return req, nil
 }
 
-func expandNestedComputeRouterBgpPeerAdvertisedIpRangesRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerAdvertisedIpRangesRange(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterBgpPeerAdvertisedIpRangesDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerAdvertisedIpRangesDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterBgpPeerBfd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerBfd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -967,23 +968,23 @@ func expandNestedComputeRouterBgpPeerBfd(v interface{}, d TerraformResourceData,
 	return transformed, nil
 }
 
-func expandNestedComputeRouterBgpPeerBfdSessionInitializationMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerBfdSessionInitializationMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterBgpPeerBfdMinTransmitInterval(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerBfdMinTransmitInterval(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterBgpPeerBfdMinReceiveInterval(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerBfdMinReceiveInterval(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterBgpPeerBfdMultiplier(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerBfdMultiplier(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterBgpPeerEnable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerEnable(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -991,7 +992,7 @@ func expandNestedComputeRouterBgpPeerEnable(v interface{}, d TerraformResourceDa
 	return strings.ToUpper(strconv.FormatBool(v.(bool))), nil
 }
 
-func expandNestedComputeRouterBgpPeerRouterApplianceInstance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeRouterBgpPeerRouterApplianceInstance(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := parseZonalFieldValue("instances", v.(string), "project", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for router_appliance_instance: %s", err)
@@ -1026,11 +1027,11 @@ func flattenNestedComputeRouterBgpPeer(d *schema.ResourceData, meta interface{},
 }
 
 func resourceComputeRouterBgpPeerFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedName, err := expandNestedComputeRouterBgpPeerName(d.Get("name"), d, meta.(*Config))
+	expectedName, err := expandNestedComputeRouterBgpPeerName(d.Get("name"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedName := flattenNestedComputeRouterBgpPeerName(expectedName, d, meta.(*Config))
+	expectedFlattenedName := flattenNestedComputeRouterBgpPeerName(expectedName, d, meta.(*transport_tpg.Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -1039,7 +1040,7 @@ func resourceComputeRouterBgpPeerFindNestedObjectInList(d *schema.ResourceData, 
 		}
 		item := itemRaw.(map[string]interface{})
 
-		itemName := flattenNestedComputeRouterBgpPeerName(item["name"], d, meta.(*Config))
+		itemName := flattenNestedComputeRouterBgpPeerName(item["name"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
 			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedFlattenedName)
@@ -1137,7 +1138,7 @@ func resourceComputeRouterBgpPeerPatchDeleteEncoder(d *schema.ResourceData, meta
 // ListForPatch handles making API request to get parent resource and
 // extracting list of objects.
 func resourceComputeRouterBgpPeerListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
 	if err != nil {
 		return nil, err

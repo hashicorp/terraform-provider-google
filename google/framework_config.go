@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/sirupsen/logrus"
@@ -55,7 +56,7 @@ func (p *frameworkProvider) LoadAndValidateFramework(ctx context.Context, data P
 	p.SetupGrpcLogging()
 
 	// Handle Batching Config
-	batchingConfig := GetBatchingConfig(ctx, data.Batching, diags)
+	batchingConfig := transport_tpg.GetBatchingConfig(ctx, data.Batching, diags)
 	if diags.HasError() {
 		return
 	}
@@ -155,14 +156,14 @@ func (p *frameworkProvider) LoadAndValidateFramework(ctx context.Context, data P
 	p.zone = data.Zone
 	p.pollInterval = 10 * time.Second
 	p.project = data.Project
-	p.requestBatcherServiceUsage = NewRequestBatcher("Service Usage", ctx, batchingConfig)
-	p.requestBatcherIam = NewRequestBatcher("IAM", ctx, batchingConfig)
+	p.requestBatcherServiceUsage = transport_tpg.NewRequestBatcher("Service Usage", ctx, batchingConfig)
+	p.RequestBatcherIam = transport_tpg.NewRequestBatcher("IAM", ctx, batchingConfig)
 }
 
 // HandleDefaults will handle all the defaults necessary in the provider
 func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderModel, diags *diag.Diagnostics) {
 	if data.AccessToken.IsNull() && data.Credentials.IsNull() {
-		credentials := MultiEnvDefault([]string{
+		credentials := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CREDENTIALS",
 			"GOOGLE_CLOUD_KEYFILE_JSON",
 			"GCLOUD_KEYFILE_JSON",
@@ -172,7 +173,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 			data.Credentials = types.StringValue(credentials.(string))
 		}
 
-		accessToken := MultiEnvDefault([]string{
+		accessToken := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_OAUTH_ACCESS_TOKEN",
 		}, nil)
 
@@ -186,7 +187,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 	}
 
 	if data.Project.IsNull() {
-		project := MultiEnvDefault([]string{
+		project := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_PROJECT",
 			"GOOGLE_CLOUD_PROJECT",
 			"GCLOUD_PROJECT",
@@ -202,7 +203,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 	}
 
 	if data.Region.IsNull() {
-		region := MultiEnvDefault([]string{
+		region := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_REGION",
 			"GCLOUD_REGION",
 			"CLOUDSDK_COMPUTE_REGION",
@@ -214,7 +215,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 	}
 
 	if data.Zone.IsNull() {
-		zone := MultiEnvDefault([]string{
+		zone := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_ZONE",
 			"GCLOUD_ZONE",
 			"CLOUDSDK_COMPUTE_ZONE",
@@ -235,7 +236,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 	}
 
 	if !data.Batching.IsNull() {
-		var pbConfigs []ProviderBatching
+		var pbConfigs []transport_tpg.ProviderBatching
 		d := data.Batching.ElementsAs(ctx, &pbConfigs, true)
 		diags.Append(d...)
 		if diags.HasError() {
@@ -272,697 +273,697 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 
 	// Generated Products
 	if data.AccessApprovalCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_ACCESS_APPROVAL_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[AccessApprovalBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.AccessApprovalBasePathKey])
 		if customEndpoint != nil {
 			data.AccessApprovalCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.AccessContextManagerCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_ACCESS_CONTEXT_MANAGER_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[AccessContextManagerBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.AccessContextManagerBasePathKey])
 		if customEndpoint != nil {
 			data.AccessContextManagerCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.ActiveDirectoryCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_ACTIVE_DIRECTORY_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ActiveDirectoryBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ActiveDirectoryBasePathKey])
 		if customEndpoint != nil {
 			data.ActiveDirectoryCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.AlloydbCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_ALLOYDB_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[AlloydbBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.AlloydbBasePathKey])
 		if customEndpoint != nil {
 			data.AlloydbCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.ApigeeCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_APIGEE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ApigeeBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ApigeeBasePathKey])
 		if customEndpoint != nil {
 			data.ApigeeCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.AppEngineCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_APP_ENGINE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[AppEngineBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.AppEngineBasePathKey])
 		if customEndpoint != nil {
 			data.AppEngineCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.ArtifactRegistryCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_ARTIFACT_REGISTRY_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ArtifactRegistryBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ArtifactRegistryBasePathKey])
 		if customEndpoint != nil {
 			data.ArtifactRegistryCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.BeyondcorpCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_BEYONDCORP_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[BeyondcorpBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.BeyondcorpBasePathKey])
 		if customEndpoint != nil {
 			data.BeyondcorpCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.BigQueryCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_BIG_QUERY_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[BigQueryBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.BigQueryBasePathKey])
 		if customEndpoint != nil {
 			data.BigQueryCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.BigqueryAnalyticsHubCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_BIGQUERY_ANALYTICS_HUB_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[BigqueryAnalyticsHubBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.BigqueryAnalyticsHubBasePathKey])
 		if customEndpoint != nil {
 			data.BigqueryAnalyticsHubCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.BigqueryConnectionCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_BIGQUERY_CONNECTION_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[BigqueryConnectionBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.BigqueryConnectionBasePathKey])
 		if customEndpoint != nil {
 			data.BigqueryConnectionCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.BigqueryDatapolicyCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_BIGQUERY_DATAPOLICY_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[BigqueryDatapolicyBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.BigqueryDatapolicyBasePathKey])
 		if customEndpoint != nil {
 			data.BigqueryDatapolicyCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.BigqueryDataTransferCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_BIGQUERY_DATA_TRANSFER_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[BigqueryDataTransferBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.BigqueryDataTransferBasePathKey])
 		if customEndpoint != nil {
 			data.BigqueryDataTransferCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.BigqueryReservationCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_BIGQUERY_RESERVATION_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[BigqueryReservationBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.BigqueryReservationBasePathKey])
 		if customEndpoint != nil {
 			data.BigqueryReservationCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.BigtableCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_BIGTABLE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[BigtableBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.BigtableBasePathKey])
 		if customEndpoint != nil {
 			data.BigtableCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.BillingCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_BILLING_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[BillingBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.BillingBasePathKey])
 		if customEndpoint != nil {
 			data.BillingCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.BinaryAuthorizationCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_BINARY_AUTHORIZATION_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[BinaryAuthorizationBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.BinaryAuthorizationBasePathKey])
 		if customEndpoint != nil {
 			data.BinaryAuthorizationCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.CertificateManagerCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CERTIFICATE_MANAGER_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[CertificateManagerBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.CertificateManagerBasePathKey])
 		if customEndpoint != nil {
 			data.CertificateManagerCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.CloudAssetCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_ASSET_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[CloudAssetBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.CloudAssetBasePathKey])
 		if customEndpoint != nil {
 			data.CloudAssetCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.CloudBuildCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_BUILD_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[CloudBuildBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.CloudBuildBasePathKey])
 		if customEndpoint != nil {
 			data.CloudBuildCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.CloudFunctionsCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_FUNCTIONS_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[CloudFunctionsBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.CloudFunctionsBasePathKey])
 		if customEndpoint != nil {
 			data.CloudFunctionsCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.Cloudfunctions2CustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CLOUDFUNCTIONS2_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[Cloudfunctions2BasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.Cloudfunctions2BasePathKey])
 		if customEndpoint != nil {
 			data.Cloudfunctions2CustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.CloudIdentityCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_IDENTITY_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[CloudIdentityBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.CloudIdentityBasePathKey])
 		if customEndpoint != nil {
 			data.CloudIdentityCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.CloudIdsCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_IDS_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[CloudIdsBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.CloudIdsBasePathKey])
 		if customEndpoint != nil {
 			data.CloudIdsCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.CloudIotCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_IOT_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[CloudIotBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.CloudIotBasePathKey])
 		if customEndpoint != nil {
 			data.CloudIotCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.CloudRunCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_RUN_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[CloudRunBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.CloudRunBasePathKey])
 		if customEndpoint != nil {
 			data.CloudRunCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.CloudRunV2CustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_RUN_V2_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[CloudRunV2BasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.CloudRunV2BasePathKey])
 		if customEndpoint != nil {
 			data.CloudRunV2CustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.CloudSchedulerCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_SCHEDULER_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[CloudSchedulerBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.CloudSchedulerBasePathKey])
 		if customEndpoint != nil {
 			data.CloudSchedulerCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.CloudTasksCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_TASKS_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[CloudTasksBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.CloudTasksBasePathKey])
 		if customEndpoint != nil {
 			data.CloudTasksCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.ComputeCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_COMPUTE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ComputeBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ComputeBasePathKey])
 		if customEndpoint != nil {
 			data.ComputeCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.ContainerAnalysisCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CONTAINER_ANALYSIS_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ContainerAnalysisBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ContainerAnalysisBasePathKey])
 		if customEndpoint != nil {
 			data.ContainerAnalysisCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.ContainerAttachedCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CONTAINER_ATTACHED_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ContainerAttachedBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ContainerAttachedBasePathKey])
 		if customEndpoint != nil {
 			data.ContainerAttachedCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DatabaseMigrationServiceCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_DATABASE_MIGRATION_SERVICE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[DatabaseMigrationServiceBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.DatabaseMigrationServiceBasePathKey])
 		if customEndpoint != nil {
 			data.DatabaseMigrationServiceCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DataCatalogCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_DATA_CATALOG_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[DataCatalogBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.DataCatalogBasePathKey])
 		if customEndpoint != nil {
 			data.DataCatalogCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DataFusionCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_DATA_FUSION_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[DataFusionBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.DataFusionBasePathKey])
 		if customEndpoint != nil {
 			data.DataFusionCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DataLossPreventionCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_DATA_LOSS_PREVENTION_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[DataLossPreventionBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.DataLossPreventionBasePathKey])
 		if customEndpoint != nil {
 			data.DataLossPreventionCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DataplexCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_DATAPLEX_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[DataplexBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.DataplexBasePathKey])
 		if customEndpoint != nil {
 			data.DataplexCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DataprocCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_DATAPROC_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[DataprocBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.DataprocBasePathKey])
 		if customEndpoint != nil {
 			data.DataprocCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DataprocMetastoreCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_DATAPROC_METASTORE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[DataprocMetastoreBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.DataprocMetastoreBasePathKey])
 		if customEndpoint != nil {
 			data.DataprocMetastoreCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DatastoreCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_DATASTORE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[DatastoreBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.DatastoreBasePathKey])
 		if customEndpoint != nil {
 			data.DatastoreCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DatastreamCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_DATASTREAM_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[DatastreamBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.DatastreamBasePathKey])
 		if customEndpoint != nil {
 			data.DatastreamCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DeploymentManagerCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_DEPLOYMENT_MANAGER_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[DeploymentManagerBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.DeploymentManagerBasePathKey])
 		if customEndpoint != nil {
 			data.DeploymentManagerCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DialogflowCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_DIALOGFLOW_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[DialogflowBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.DialogflowBasePathKey])
 		if customEndpoint != nil {
 			data.DialogflowCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DialogflowCXCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_DIALOGFLOW_CX_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[DialogflowCXBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.DialogflowCXBasePathKey])
 		if customEndpoint != nil {
 			data.DialogflowCXCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DNSCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_DNS_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[DNSBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.DNSBasePathKey])
 		if customEndpoint != nil {
 			data.DNSCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DocumentAICustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_DOCUMENT_AI_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[DocumentAIBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.DocumentAIBasePathKey])
 		if customEndpoint != nil {
 			data.DocumentAICustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.EssentialContactsCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_ESSENTIAL_CONTACTS_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[EssentialContactsBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.EssentialContactsBasePathKey])
 		if customEndpoint != nil {
 			data.EssentialContactsCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.FilestoreCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_FILESTORE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[FilestoreBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.FilestoreBasePathKey])
 		if customEndpoint != nil {
 			data.FilestoreCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.FirestoreCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_FIRESTORE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[FirestoreBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.FirestoreBasePathKey])
 		if customEndpoint != nil {
 			data.FirestoreCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.GameServicesCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_GAME_SERVICES_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[GameServicesBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.GameServicesBasePathKey])
 		if customEndpoint != nil {
 			data.GameServicesCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.GKEBackupCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_GKE_BACKUP_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[GKEBackupBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.GKEBackupBasePathKey])
 		if customEndpoint != nil {
 			data.GKEBackupCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.GKEHubCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_GKE_HUB_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[GKEHubBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.GKEHubBasePathKey])
 		if customEndpoint != nil {
 			data.GKEHubCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.HealthcareCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_HEALTHCARE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[HealthcareBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.HealthcareBasePathKey])
 		if customEndpoint != nil {
 			data.HealthcareCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.IAM2CustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_IAM2_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[IAM2BasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.IAM2BasePathKey])
 		if customEndpoint != nil {
 			data.IAM2CustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.IAMBetaCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_IAM_BETA_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[IAMBetaBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.IAMBetaBasePathKey])
 		if customEndpoint != nil {
 			data.IAMBetaCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.IAMWorkforcePoolCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_IAM_WORKFORCE_POOL_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[IAMWorkforcePoolBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.IAMWorkforcePoolBasePathKey])
 		if customEndpoint != nil {
 			data.IAMWorkforcePoolCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.IapCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_IAP_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[IapBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.IapBasePathKey])
 		if customEndpoint != nil {
 			data.IapCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.IdentityPlatformCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_IDENTITY_PLATFORM_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[IdentityPlatformBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.IdentityPlatformBasePathKey])
 		if customEndpoint != nil {
 			data.IdentityPlatformCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.KMSCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_KMS_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[KMSBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.KMSBasePathKey])
 		if customEndpoint != nil {
 			data.KMSCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.LoggingCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_LOGGING_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[LoggingBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.LoggingBasePathKey])
 		if customEndpoint != nil {
 			data.LoggingCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.MemcacheCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_MEMCACHE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[MemcacheBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.MemcacheBasePathKey])
 		if customEndpoint != nil {
 			data.MemcacheCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.MLEngineCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_ML_ENGINE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[MLEngineBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.MLEngineBasePathKey])
 		if customEndpoint != nil {
 			data.MLEngineCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.MonitoringCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_MONITORING_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[MonitoringBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.MonitoringBasePathKey])
 		if customEndpoint != nil {
 			data.MonitoringCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.NetworkManagementCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_NETWORK_MANAGEMENT_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[NetworkManagementBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.NetworkManagementBasePathKey])
 		if customEndpoint != nil {
 			data.NetworkManagementCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.NetworkServicesCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_NETWORK_SERVICES_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[NetworkServicesBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.NetworkServicesBasePathKey])
 		if customEndpoint != nil {
 			data.NetworkServicesCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.NotebooksCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_NOTEBOOKS_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[NotebooksBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.NotebooksBasePathKey])
 		if customEndpoint != nil {
 			data.NotebooksCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.OSConfigCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_OS_CONFIG_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[OSConfigBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.OSConfigBasePathKey])
 		if customEndpoint != nil {
 			data.OSConfigCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.OSLoginCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_OS_LOGIN_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[OSLoginBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.OSLoginBasePathKey])
 		if customEndpoint != nil {
 			data.OSLoginCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.PrivatecaCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_PRIVATECA_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[PrivatecaBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.PrivatecaBasePathKey])
 		if customEndpoint != nil {
 			data.PrivatecaCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.PubsubCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_PUBSUB_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[PubsubBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.PubsubBasePathKey])
 		if customEndpoint != nil {
 			data.PubsubCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.PubsubLiteCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_PUBSUB_LITE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[PubsubLiteBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.PubsubLiteBasePathKey])
 		if customEndpoint != nil {
 			data.PubsubLiteCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.RedisCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_REDIS_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[RedisBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.RedisBasePathKey])
 		if customEndpoint != nil {
 			data.RedisCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.ResourceManagerCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_RESOURCE_MANAGER_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ResourceManagerBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ResourceManagerBasePathKey])
 		if customEndpoint != nil {
 			data.ResourceManagerCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.SecretManagerCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_SECRET_MANAGER_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[SecretManagerBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.SecretManagerBasePathKey])
 		if customEndpoint != nil {
 			data.SecretManagerCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.SecurityCenterCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_SECURITY_CENTER_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[SecurityCenterBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.SecurityCenterBasePathKey])
 		if customEndpoint != nil {
 			data.SecurityCenterCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.ServiceManagementCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_SERVICE_MANAGEMENT_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ServiceManagementBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ServiceManagementBasePathKey])
 		if customEndpoint != nil {
 			data.ServiceManagementCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.ServiceUsageCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_SERVICE_USAGE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ServiceUsageBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ServiceUsageBasePathKey])
 		if customEndpoint != nil {
 			data.ServiceUsageCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.SourceRepoCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_SOURCE_REPO_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[SourceRepoBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.SourceRepoBasePathKey])
 		if customEndpoint != nil {
 			data.SourceRepoCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.SpannerCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_SPANNER_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[SpannerBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.SpannerBasePathKey])
 		if customEndpoint != nil {
 			data.SpannerCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.SQLCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_SQL_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[SQLBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.SQLBasePathKey])
 		if customEndpoint != nil {
 			data.SQLCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.StorageCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_STORAGE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[StorageBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.StorageBasePathKey])
 		if customEndpoint != nil {
 			data.StorageCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.StorageTransferCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_STORAGE_TRANSFER_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[StorageTransferBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.StorageTransferBasePathKey])
 		if customEndpoint != nil {
 			data.StorageTransferCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.TagsCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_TAGS_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[TagsBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.TagsBasePathKey])
 		if customEndpoint != nil {
 			data.TagsCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.TPUCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_TPU_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[TPUBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.TPUBasePathKey])
 		if customEndpoint != nil {
 			data.TPUCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.VertexAICustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_VERTEX_AI_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[VertexAIBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.VertexAIBasePathKey])
 		if customEndpoint != nil {
 			data.VertexAICustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.VPCAccessCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_VPC_ACCESS_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[VPCAccessBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.VPCAccessBasePathKey])
 		if customEndpoint != nil {
 			data.VPCAccessCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.WorkflowsCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_WORKFLOWS_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[WorkflowsBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.WorkflowsBasePathKey])
 		if customEndpoint != nil {
 			data.WorkflowsCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
@@ -970,81 +971,81 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 
 	// Handwritten Products / Versioned / Atypical Entries
 	if data.CloudBillingCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_BILLING_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths["cloud_billing_custom_endpoint"])
+		}, transport_tpg.DefaultBasePaths["cloud_billing_custom_endpoint"])
 		if customEndpoint != nil {
 			data.CloudBillingCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 
 	if data.ComposerCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_COMPOSER_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ComposerBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ComposerBasePathKey])
 		if customEndpoint != nil {
 			data.ComposerCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 
 	if data.ContainerCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CONTAINER_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ContainerBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ContainerBasePathKey])
 		if customEndpoint != nil {
 			data.ContainerCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 
 	if data.DataflowCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_DATAFLOW_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[DataflowBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.DataflowBasePathKey])
 		if customEndpoint != nil {
 			data.DataflowCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 
 	if data.IamCredentialsCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_IAM_CREDENTIALS_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[IamCredentialsBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.IamCredentialsBasePathKey])
 		if customEndpoint != nil {
 			data.IamCredentialsCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 
 	if data.ResourceManagerV3CustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_RESOURCE_MANAGER_V3_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ResourceManagerV3BasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ResourceManagerV3BasePathKey])
 		if customEndpoint != nil {
 			data.ResourceManagerV3CustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 
 	if data.IAMCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_IAM_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[IAMBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.IAMBasePathKey])
 		if customEndpoint != nil {
 			data.IAMCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 
 	if data.ServiceNetworkingCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_SERVICE_NETWORKING_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ServiceNetworkingBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ServiceNetworkingBasePathKey])
 		if customEndpoint != nil {
 			data.ServiceNetworkingCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 
 	if data.TagsLocationCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_TAGS_LOCATION_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[TagsLocationBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.TagsLocationBasePathKey])
 		if customEndpoint != nil {
 			data.TagsLocationCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
@@ -1052,18 +1053,18 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 
 	// dcl
 	if data.ContainerAwsCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CONTAINERAWS_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ContainerAwsBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ContainerAwsBasePathKey])
 		if customEndpoint != nil {
 			data.ContainerAwsCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 
 	if data.ContainerAzureCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CONTAINERAZURE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[ContainerAzureBasePathKey])
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ContainerAzureBasePathKey])
 		if customEndpoint != nil {
 			data.ContainerAzureCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
@@ -1071,7 +1072,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 
 	// DCL generated defaults
 	if data.ApikeysCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_APIKEYS_CUSTOM_ENDPOINT",
 		}, "")
 		if customEndpoint != nil {
@@ -1080,7 +1081,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 	}
 
 	if data.AssuredWorkloadsCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_ASSURED_WORKLOADS_CUSTOM_ENDPOINT",
 		}, "")
 		if customEndpoint != nil {
@@ -1089,7 +1090,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 	}
 
 	if data.CloudBuildWorkerPoolCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_BUILD_WORKER_POOL_CUSTOM_ENDPOINT",
 		}, "")
 		if customEndpoint != nil {
@@ -1098,7 +1099,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 	}
 
 	if data.CloudDeployCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CLOUDDEPLOY_CUSTOM_ENDPOINT",
 		}, "")
 		if customEndpoint != nil {
@@ -1107,7 +1108,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 	}
 
 	if data.CloudResourceManagerCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_RESOURCE_MANAGER_CUSTOM_ENDPOINT",
 		}, "")
 		if customEndpoint != nil {
@@ -1116,7 +1117,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 	}
 
 	if data.DataplexCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_DATAPLEX_CUSTOM_ENDPOINT",
 		}, "")
 		if customEndpoint != nil {
@@ -1125,7 +1126,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 	}
 
 	if data.EventarcCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_EVENTARC_CUSTOM_ENDPOINT",
 		}, "")
 		if customEndpoint != nil {
@@ -1134,7 +1135,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 	}
 
 	if data.FirebaserulesCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_FIREBASERULES_CUSTOM_ENDPOINT",
 		}, "")
 		if customEndpoint != nil {
@@ -1143,7 +1144,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 	}
 
 	if data.NetworkConnectivityCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_NETWORK_CONNECTIVITY_CUSTOM_ENDPOINT",
 		}, "")
 		if customEndpoint != nil {
@@ -1152,7 +1153,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 	}
 
 	if data.RecaptchaEnterpriseCustomEndpoint.IsNull() {
-		customEndpoint := MultiEnvDefault([]string{
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_RECAPTCHA_ENTERPRISE_CUSTOM_ENDPOINT",
 		}, "")
 		if customEndpoint != nil {
@@ -1189,11 +1190,11 @@ func (p *frameworkProvider) SetupClient(ctx context.Context, data ProviderModel,
 	// Keep order for wrapping logging so we log each retried request as well.
 	// This value should be used if needed to create shallow copies with additional retry predicates.
 	// See ClientWithAdditionalRetries
-	retryTransport := NewTransportWithDefaultRetries(loggingTransport)
+	retryTransport := transport_tpg.NewTransportWithDefaultRetries(loggingTransport)
 
 	// 4. Header Transport - outer wrapper to inject additional headers we want to apply
 	// before making requests
-	headerTransport := newTransportWithHeaders(retryTransport)
+	headerTransport := transport_tpg.NewTransportWithHeaders(retryTransport)
 	if !data.RequestReason.IsNull() {
 		headerTransport.Set("X-Goog-Request-Reason", data.RequestReason.ValueString())
 	}
@@ -1222,7 +1223,7 @@ func (p *frameworkProvider) SetupGrpcLogging() {
 	logger := logrus.StandardLogger()
 
 	logrus.SetLevel(logrus.DebugLevel)
-	logrus.SetFormatter(&Formatter{
+	logrus.SetFormatter(&transport_tpg.Formatter{
 		TimestampFormat: "2006/01/02 15:04:05",
 		LogFormat:       "%time% [%lvl%] %msg% \n",
 	})
@@ -1336,7 +1337,7 @@ func GetCredentials(ctx context.Context, data ProviderModel, initialCredentialsO
 		tflog.Info(ctx, "Authenticating using configured Google JSON 'access_token'...")
 		tflog.Info(ctx, fmt.Sprintf("  -- Scopes: %s", clientScopes))
 		return googleoauth.Credentials{
-			TokenSource: StaticTokenSource{oauth2.StaticTokenSource(token)},
+			TokenSource: transport_tpg.StaticTokenSource{oauth2.StaticTokenSource(token)},
 		}
 	}
 
@@ -1391,38 +1392,4 @@ func GetCredentials(ctx context.Context, data ProviderModel, initialCredentialsO
 	return googleoauth.Credentials{
 		TokenSource: defaultTS,
 	}
-}
-
-// GetBatchingConfig returns the batching config object given the
-// provider configuration set for batching
-func GetBatchingConfig(ctx context.Context, data types.List, diags *diag.Diagnostics) *batchingConfig {
-	bc := &batchingConfig{
-		SendAfter:      time.Second * DefaultBatchSendIntervalSec,
-		EnableBatching: true,
-	}
-
-	if data.IsNull() {
-		return bc
-	}
-
-	var pbConfigs []ProviderBatching
-	d := data.ElementsAs(ctx, &pbConfigs, true)
-	diags.Append(d...)
-	if diags.HasError() {
-		return bc
-	}
-
-	sendAfter, err := time.ParseDuration(pbConfigs[0].SendAfter.ValueString())
-	if err != nil {
-		diags.AddError("error parsing send after time duration", err.Error())
-		return bc
-	}
-
-	bc.SendAfter = sendAfter
-
-	if !pbConfigs[0].EnableBatching.IsNull() {
-		bc.EnableBatching = pbConfigs[0].EnableBatching.ValueBool()
-	}
-
-	return bc
 }

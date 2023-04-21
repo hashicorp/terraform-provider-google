@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceLoggingFolderSink() *schema.Resource {
@@ -40,7 +41,7 @@ func ResourceLoggingFolderSink() *schema.Resource {
 }
 
 func resourceLoggingFolderSinkCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -61,7 +62,7 @@ func resourceLoggingFolderSinkCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceLoggingFolderSinkRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -84,7 +85,7 @@ func resourceLoggingFolderSinkRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceLoggingFolderSinkUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -107,7 +108,7 @@ func resourceLoggingFolderSinkUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceLoggingFolderSinkDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err

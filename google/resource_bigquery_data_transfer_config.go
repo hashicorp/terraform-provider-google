@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 var sensitiveParams = []string{"secret_access_key"}
@@ -265,7 +266,7 @@ The name is ignored when creating a transfer config.`,
 }
 
 func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -396,7 +397,7 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 }
 
 func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -479,7 +480,7 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -621,7 +622,7 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 }
 
 func resourceBigqueryDataTransferConfigDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -659,7 +660,7 @@ func resourceBigqueryDataTransferConfigDelete(d *schema.ResourceData, meta inter
 
 func resourceBigqueryDataTransferConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
@@ -669,27 +670,27 @@ func resourceBigqueryDataTransferConfigImport(d *schema.ResourceData, meta inter
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenBigqueryDataTransferConfigDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDataTransferConfigDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDataTransferConfigName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDataTransferConfigName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDataTransferConfigDestinationDatasetId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDataTransferConfigDestinationDatasetId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDataTransferConfigDataSourceId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDataTransferConfigDataSourceId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDataTransferConfigSchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDataTransferConfigSchedule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDataTransferConfigScheduleOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDataTransferConfigScheduleOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -706,19 +707,19 @@ func flattenBigqueryDataTransferConfigScheduleOptions(v interface{}, d *schema.R
 		flattenBigqueryDataTransferConfigScheduleOptionsEndTime(original["endTime"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigqueryDataTransferConfigScheduleOptionsDisableAutoScheduling(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDataTransferConfigScheduleOptionsDisableAutoScheduling(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDataTransferConfigScheduleOptionsStartTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDataTransferConfigScheduleOptionsStartTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDataTransferConfigScheduleOptionsEndTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDataTransferConfigScheduleOptionsEndTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDataTransferConfigEmailPreferences(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDataTransferConfigEmailPreferences(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -731,15 +732,15 @@ func flattenBigqueryDataTransferConfigEmailPreferences(v interface{}, d *schema.
 		flattenBigqueryDataTransferConfigEmailPreferencesEnableFailureEmail(original["enableFailureEmail"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigqueryDataTransferConfigEmailPreferencesEnableFailureEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDataTransferConfigEmailPreferencesEnableFailureEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDataTransferConfigNotificationPubsubTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDataTransferConfigNotificationPubsubTopic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDataTransferConfigDataRefreshWindowDays(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDataTransferConfigDataRefreshWindowDays(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -756,11 +757,11 @@ func flattenBigqueryDataTransferConfigDataRefreshWindowDays(v interface{}, d *sc
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBigqueryDataTransferConfigDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDataTransferConfigDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryDataTransferConfigParams(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryDataTransferConfigParams(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -774,23 +775,23 @@ func flattenBigqueryDataTransferConfigParams(v interface{}, d *schema.ResourceDa
 	return res
 }
 
-func expandBigqueryDataTransferConfigDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDataTransferConfigDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryDataTransferConfigDestinationDatasetId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDataTransferConfigDestinationDatasetId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryDataTransferConfigDataSourceId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDataTransferConfigDataSourceId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryDataTransferConfigSchedule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDataTransferConfigSchedule(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryDataTransferConfigScheduleOptions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDataTransferConfigScheduleOptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -823,19 +824,19 @@ func expandBigqueryDataTransferConfigScheduleOptions(v interface{}, d TerraformR
 	return transformed, nil
 }
 
-func expandBigqueryDataTransferConfigScheduleOptionsDisableAutoScheduling(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDataTransferConfigScheduleOptionsDisableAutoScheduling(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryDataTransferConfigScheduleOptionsStartTime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDataTransferConfigScheduleOptionsStartTime(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryDataTransferConfigScheduleOptionsEndTime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDataTransferConfigScheduleOptionsEndTime(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryDataTransferConfigEmailPreferences(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDataTransferConfigEmailPreferences(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -854,23 +855,23 @@ func expandBigqueryDataTransferConfigEmailPreferences(v interface{}, d Terraform
 	return transformed, nil
 }
 
-func expandBigqueryDataTransferConfigEmailPreferencesEnableFailureEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDataTransferConfigEmailPreferencesEnableFailureEmail(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryDataTransferConfigNotificationPubsubTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDataTransferConfigNotificationPubsubTopic(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryDataTransferConfigDataRefreshWindowDays(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDataTransferConfigDataRefreshWindowDays(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryDataTransferConfigDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryDataTransferConfigDisabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryDataTransferConfigParams(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandBigqueryDataTransferConfigParams(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

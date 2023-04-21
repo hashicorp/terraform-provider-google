@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func resourceComputeFirewallRuleHash(v interface{}) int {
@@ -439,7 +440,7 @@ Example inputs include: ["22"], ["80","443"], and
 }
 
 func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -584,7 +585,7 @@ func resourceComputeFirewallCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -673,7 +674,7 @@ func resourceComputeFirewallRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -799,7 +800,7 @@ func resourceComputeFirewallUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -844,7 +845,7 @@ func resourceComputeFirewallDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeFirewallImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/firewalls/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -863,7 +864,7 @@ func resourceComputeFirewallImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeFirewallAllow(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallAllow(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -882,19 +883,19 @@ func flattenComputeFirewallAllow(v interface{}, d *schema.ResourceData, config *
 	}
 	return transformed
 }
-func flattenComputeFirewallAllowProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallAllowProtocol(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeFirewallAllowPorts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallAllowPorts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeFirewallCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallCreationTimestamp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeFirewallDeny(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallDeny(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -913,34 +914,34 @@ func flattenComputeFirewallDeny(v interface{}, d *schema.ResourceData, config *C
 	}
 	return transformed
 }
-func flattenComputeFirewallDenyProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallDenyProtocol(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeFirewallDenyPorts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallDenyPorts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeFirewallDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeFirewallDestinationRanges(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallDestinationRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeFirewallDirection(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallDirection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeFirewallDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeFirewallLogConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallLogConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -959,18 +960,18 @@ func flattenComputeFirewallLogConfig(v interface{}, d *schema.ResourceData, conf
 	return []interface{}{transformed}
 }
 
-func flattenComputeFirewallName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeFirewallNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeFirewallPriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallPriority(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -987,42 +988,42 @@ func flattenComputeFirewallPriority(v interface{}, d *schema.ResourceData, confi
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeFirewallSourceRanges(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallSourceRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeFirewallSourceServiceAccounts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallSourceServiceAccounts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeFirewallSourceTags(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallSourceTags(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeFirewallTargetServiceAccounts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallTargetServiceAccounts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeFirewallTargetTags(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeFirewallTargetTags(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func expandComputeFirewallAllow(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallAllow(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -1052,15 +1053,15 @@ func expandComputeFirewallAllow(v interface{}, d TerraformResourceData, config *
 	return req, nil
 }
 
-func expandComputeFirewallAllowProtocol(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallAllowProtocol(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallAllowPorts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallAllowPorts(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallDeny(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallDeny(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -1090,32 +1091,32 @@ func expandComputeFirewallDeny(v interface{}, d TerraformResourceData, config *C
 	return req, nil
 }
 
-func expandComputeFirewallDenyProtocol(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallDenyProtocol(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallDenyPorts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallDenyPorts(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallDestinationRanges(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallDestinationRanges(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandComputeFirewallDirection(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallDirection(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallDisabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallLogConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallLogConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	transformed := make(map[string]interface{})
 
@@ -1135,11 +1136,11 @@ func expandComputeFirewallLogConfig(v interface{}, d TerraformResourceData, conf
 	return transformed, nil
 }
 
-func expandComputeFirewallName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallNetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for network: %s", err)
@@ -1147,31 +1148,31 @@ func expandComputeFirewallNetwork(v interface{}, d TerraformResourceData, config
 	return f.RelativeLink(), nil
 }
 
-func expandComputeFirewallPriority(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallPriority(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeFirewallSourceRanges(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallSourceRanges(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandComputeFirewallSourceServiceAccounts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallSourceServiceAccounts(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandComputeFirewallSourceTags(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallSourceTags(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandComputeFirewallTargetServiceAccounts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallTargetServiceAccounts(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandComputeFirewallTargetTags(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeFirewallTargetTags(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }

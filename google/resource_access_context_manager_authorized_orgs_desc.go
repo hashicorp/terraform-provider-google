@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceAccessContextManagerAuthorizedOrgsDesc() *schema.Resource {
@@ -123,7 +124,7 @@ Example: 'organizations/123456'`,
 }
 
 func resourceAccessContextManagerAuthorizedOrgsDescCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -232,7 +233,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescCreate(d *schema.ResourceData
 }
 
 func resourceAccessContextManagerAuthorizedOrgsDescRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -281,7 +282,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescRead(d *schema.ResourceData, 
 }
 
 func resourceAccessContextManagerAuthorizedOrgsDescUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -345,7 +346,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescUpdate(d *schema.ResourceData
 }
 
 func resourceAccessContextManagerAuthorizedOrgsDescDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -384,7 +385,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescDelete(d *schema.ResourceData
 }
 
 func resourceAccessContextManagerAuthorizedOrgsDescImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -400,55 +401,55 @@ func resourceAccessContextManagerAuthorizedOrgsDescImport(d *schema.ResourceData
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAccessContextManagerAuthorizedOrgsDescCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerAuthorizedOrgsDescCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAuthorizedOrgsDescUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerAuthorizedOrgsDescUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAuthorizedOrgsDescName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerAuthorizedOrgsDescName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAuthorizedOrgsDescOrgs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerAuthorizedOrgsDescOrgs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAuthorizedOrgsDescAssetType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerAuthorizedOrgsDescAssetType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAuthorizedOrgsDescAuthorizationDirection(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerAuthorizedOrgsDescAuthorizationDirection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAuthorizedOrgsDescAuthorizationType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerAuthorizedOrgsDescAuthorizationType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandAccessContextManagerAuthorizedOrgsDescParent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerAuthorizedOrgsDescParent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAuthorizedOrgsDescName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerAuthorizedOrgsDescName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAuthorizedOrgsDescOrgs(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerAuthorizedOrgsDescOrgs(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAuthorizedOrgsDescAssetType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerAuthorizedOrgsDescAssetType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAuthorizedOrgsDescAuthorizationDirection(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerAuthorizedOrgsDescAuthorizationDirection(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAuthorizedOrgsDescAuthorizationType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerAuthorizedOrgsDescAuthorizationType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

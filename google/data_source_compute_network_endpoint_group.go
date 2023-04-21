@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func DataSourceGoogleComputeNetworkEndpointGroup() *schema.Resource {
@@ -24,7 +25,7 @@ func DataSourceGoogleComputeNetworkEndpointGroup() *schema.Resource {
 }
 
 func dataSourceComputeNetworkEndpointGroupRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if name, ok := d.GetOk("name"); ok {
 		project, err := getProject(d, config)
 		if err != nil {

@@ -17,10 +17,12 @@ package google
 import (
 	"fmt"
 	"time"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 type DatabaseMigrationServiceOperationWaiter struct {
-	Config    *Config
+	Config    *transport_tpg.Config
 	UserAgent string
 	Project   string
 	CommonOperationWaiter
@@ -36,7 +38,7 @@ func (w *DatabaseMigrationServiceOperationWaiter) QueryOp() (interface{}, error)
 	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
-func createDatabaseMigrationServiceWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*DatabaseMigrationServiceOperationWaiter, error) {
+func createDatabaseMigrationServiceWaiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*DatabaseMigrationServiceOperationWaiter, error) {
 	w := &DatabaseMigrationServiceOperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
@@ -48,7 +50,7 @@ func createDatabaseMigrationServiceWaiter(config *Config, op map[string]interfac
 	return w, nil
 }
 
-func DatabaseMigrationServiceOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func DatabaseMigrationServiceOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

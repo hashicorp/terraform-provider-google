@@ -3,6 +3,7 @@ package google
 import (
 	"context"
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"strings"
 	"time"
@@ -260,7 +261,7 @@ func shouldStopDataflowJobDeleteQuery(state string, skipWait bool) bool {
 }
 
 func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -300,7 +301,7 @@ func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -383,7 +384,7 @@ func resourceDataflowJobUpdateByReplacement(d *schema.ResourceData, meta interfa
 		return nil
 	}
 
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -434,7 +435,7 @@ func resourceDataflowJobUpdateByReplacement(d *schema.ResourceData, meta interfa
 }
 
 func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -526,35 +527,35 @@ func resourceDataflowJobMapRequestedState(policy string) (string, error) {
 	}
 }
 
-func resourceDataflowJobCreateJob(config *Config, project, region, userAgent string, request *dataflow.CreateJobFromTemplateRequest) (*dataflow.Job, error) {
+func resourceDataflowJobCreateJob(config *transport_tpg.Config, project, region, userAgent string, request *dataflow.CreateJobFromTemplateRequest) (*dataflow.Job, error) {
 	if region == "" {
 		return config.NewDataflowClient(userAgent).Projects.Templates.Create(project, request).Do()
 	}
 	return config.NewDataflowClient(userAgent).Projects.Locations.Templates.Create(project, region, request).Do()
 }
 
-func resourceDataflowJobGetJob(config *Config, project, region, userAgent string, id string) (*dataflow.Job, error) {
+func resourceDataflowJobGetJob(config *transport_tpg.Config, project, region, userAgent string, id string) (*dataflow.Job, error) {
 	if region == "" {
 		return config.NewDataflowClient(userAgent).Projects.Jobs.Get(project, id).View("JOB_VIEW_ALL").Do()
 	}
 	return config.NewDataflowClient(userAgent).Projects.Locations.Jobs.Get(project, region, id).View("JOB_VIEW_ALL").Do()
 }
 
-func resourceDataflowJobUpdateJob(config *Config, project, region, userAgent string, id string, job *dataflow.Job) (*dataflow.Job, error) {
+func resourceDataflowJobUpdateJob(config *transport_tpg.Config, project, region, userAgent string, id string, job *dataflow.Job) (*dataflow.Job, error) {
 	if region == "" {
 		return config.NewDataflowClient(userAgent).Projects.Jobs.Update(project, id, job).Do()
 	}
 	return config.NewDataflowClient(userAgent).Projects.Locations.Jobs.Update(project, region, id, job).Do()
 }
 
-func resourceDataflowJobLaunchTemplate(config *Config, project, region, userAgent string, gcsPath string, request *dataflow.LaunchTemplateParameters) (*dataflow.LaunchTemplateResponse, error) {
+func resourceDataflowJobLaunchTemplate(config *transport_tpg.Config, project, region, userAgent string, gcsPath string, request *dataflow.LaunchTemplateParameters) (*dataflow.LaunchTemplateResponse, error) {
 	if region == "" {
 		return config.NewDataflowClient(userAgent).Projects.Templates.Launch(project, request).GcsPath(gcsPath).Do()
 	}
 	return config.NewDataflowClient(userAgent).Projects.Locations.Templates.Launch(project, region, request).GcsPath(gcsPath).Do()
 }
 
-func resourceDataflowJobSetupEnv(d *schema.ResourceData, config *Config) (dataflow.RuntimeEnvironment, error) {
+func resourceDataflowJobSetupEnv(d *schema.ResourceData, config *transport_tpg.Config) (dataflow.RuntimeEnvironment, error) {
 	zone, _ := getZone(d, config)
 
 	labels := expandStringMap(d, "labels")
@@ -624,7 +625,7 @@ func resourceDataflowJobIsVirtualUpdate(d *schema.ResourceData, resourceSchema m
 	return false
 }
 
-func waitForDataflowJobToBeUpdated(d *schema.ResourceData, config *Config, replacementJobID, userAgent string, timeout time.Duration) error {
+func waitForDataflowJobToBeUpdated(d *schema.ResourceData, config *transport_tpg.Config, replacementJobID, userAgent string, timeout time.Duration) error {
 	return resource.Retry(timeout, func() *resource.RetryError {
 		project, err := getProject(d, config)
 		if err != nil {

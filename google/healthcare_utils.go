@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 type HealthcareDatasetId struct {
@@ -20,7 +22,7 @@ func (s *HealthcareDatasetId) TerraformId() string {
 	return fmt.Sprintf("%s/%s/%s", s.Project, s.Location, s.Name)
 }
 
-func ParseHealthcareDatasetId(id string, config *Config) (*HealthcareDatasetId, error) {
+func ParseHealthcareDatasetId(id string, config *transport_tpg.Config) (*HealthcareDatasetId, error) {
 	parts := strings.Split(id, "/")
 
 	datasetIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,256})$")
@@ -70,9 +72,8 @@ func (s *healthcareFhirStoreId) TerraformId() string {
 	return fmt.Sprintf("%s/%s", s.DatasetId.TerraformId(), s.Name)
 }
 
-func ParseHealthcareFhirStoreId(id string, config *Config) (*healthcareFhirStoreId, error) {
+func ParseHealthcareFhirStoreId(id string, config *transport_tpg.Config) (*healthcareFhirStoreId, error) {
 	parts := strings.Split(id, "/")
-
 	fhirStoreIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,256})/([a-zA-Z0-9_-]{1,256})$")
 	fhirStoreIdWithoutProjectRegex := regexp.MustCompile("^([a-z0-9-])+/([a-zA-Z0-9_-]{1,256})/([a-zA-Z0-9_-]{1,256})$")
 	fhirStoreRelativeLinkRegex := regexp.MustCompile("^projects/(" + ProjectRegex + ")/locations/([a-z0-9-]+)/datasets/([a-zA-Z0-9_-]{1,256})/fhirStores/([a-zA-Z0-9_-]{1,256})$")
@@ -129,9 +130,8 @@ func (s *healthcareHl7V2StoreId) TerraformId() string {
 	return fmt.Sprintf("%s/%s", s.DatasetId.TerraformId(), s.Name)
 }
 
-func ParseHealthcareHl7V2StoreId(id string, config *Config) (*healthcareHl7V2StoreId, error) {
+func ParseHealthcareHl7V2StoreId(id string, config *transport_tpg.Config) (*healthcareHl7V2StoreId, error) {
 	parts := strings.Split(id, "/")
-
 	hl7V2StoreIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,256})/([a-zA-Z0-9_-]{1,256})$")
 	hl7V2StoreIdWithoutProjectRegex := regexp.MustCompile("^([a-z0-9-])+/([a-zA-Z0-9_-]{1,256})/([a-zA-Z0-9_-]{1,256})$")
 	hl7V2StoreRelativeLinkRegex := regexp.MustCompile("^projects/(" + ProjectRegex + ")/locations/([a-z0-9-]+)/datasets/([a-zA-Z0-9_-]{1,256})/hl7V2Stores/([a-zA-Z0-9_-]{1,256})$")
@@ -188,9 +188,8 @@ func (s *healthcareDicomStoreId) TerraformId() string {
 	return fmt.Sprintf("%s/%s", s.DatasetId.TerraformId(), s.Name)
 }
 
-func ParseHealthcareDicomStoreId(id string, config *Config) (*healthcareDicomStoreId, error) {
+func ParseHealthcareDicomStoreId(id string, config *transport_tpg.Config) (*healthcareDicomStoreId, error) {
 	parts := strings.Split(id, "/")
-
 	dicomStoreIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,256})/([a-zA-Z0-9_-]{1,256})$")
 	dicomStoreIdWithoutProjectRegex := regexp.MustCompile("^([a-z0-9-])+/([a-zA-Z0-9_-]{1,256})/([a-zA-Z0-9_-]{1,256})$")
 	dicomStoreRelativeLinkRegex := regexp.MustCompile("^projects/(" + ProjectRegex + ")/locations/([a-z0-9-]+)/datasets/([a-zA-Z0-9_-]{1,256})/dicomStores/([a-zA-Z0-9_-]{1,256})$")

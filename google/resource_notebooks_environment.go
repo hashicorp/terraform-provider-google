@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceNotebooksEnvironment() *schema.Resource {
@@ -136,7 +137,7 @@ Format: projects/{project_id}`,
 }
 
 func resourceNotebooksEnvironmentCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -231,7 +232,7 @@ func resourceNotebooksEnvironmentCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceNotebooksEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -287,7 +288,7 @@ func resourceNotebooksEnvironmentRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceNotebooksEnvironmentUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -365,7 +366,7 @@ func resourceNotebooksEnvironmentUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceNotebooksEnvironmentDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -410,7 +411,7 @@ func resourceNotebooksEnvironmentDelete(d *schema.ResourceData, meta interface{}
 }
 
 func resourceNotebooksEnvironmentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/environments/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -429,23 +430,23 @@ func resourceNotebooksEnvironmentImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenNotebooksEnvironmentDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNotebooksEnvironmentDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNotebooksEnvironmentDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNotebooksEnvironmentDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNotebooksEnvironmentPostStartupScript(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNotebooksEnvironmentPostStartupScript(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNotebooksEnvironmentCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNotebooksEnvironmentCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNotebooksEnvironmentVmImage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNotebooksEnvironmentVmImage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -462,19 +463,19 @@ func flattenNotebooksEnvironmentVmImage(v interface{}, d *schema.ResourceData, c
 		flattenNotebooksEnvironmentVmImageImageFamily(original["imageFamily"], d, config)
 	return []interface{}{transformed}
 }
-func flattenNotebooksEnvironmentVmImageProject(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNotebooksEnvironmentVmImageProject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNotebooksEnvironmentVmImageImageName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNotebooksEnvironmentVmImageImageName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNotebooksEnvironmentVmImageImageFamily(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNotebooksEnvironmentVmImageImageFamily(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNotebooksEnvironmentContainerImage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNotebooksEnvironmentContainerImage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -489,27 +490,27 @@ func flattenNotebooksEnvironmentContainerImage(v interface{}, d *schema.Resource
 		flattenNotebooksEnvironmentContainerImageTag(original["tag"], d, config)
 	return []interface{}{transformed}
 }
-func flattenNotebooksEnvironmentContainerImageRepository(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNotebooksEnvironmentContainerImageRepository(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNotebooksEnvironmentContainerImageTag(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNotebooksEnvironmentContainerImageTag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandNotebooksEnvironmentDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNotebooksEnvironmentDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNotebooksEnvironmentDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNotebooksEnvironmentDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNotebooksEnvironmentPostStartupScript(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNotebooksEnvironmentPostStartupScript(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNotebooksEnvironmentVmImage(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNotebooksEnvironmentVmImage(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -542,19 +543,19 @@ func expandNotebooksEnvironmentVmImage(v interface{}, d TerraformResourceData, c
 	return transformed, nil
 }
 
-func expandNotebooksEnvironmentVmImageProject(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNotebooksEnvironmentVmImageProject(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNotebooksEnvironmentVmImageImageName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNotebooksEnvironmentVmImageImageName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNotebooksEnvironmentVmImageImageFamily(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNotebooksEnvironmentVmImageImageFamily(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNotebooksEnvironmentContainerImage(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNotebooksEnvironmentContainerImage(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -580,10 +581,10 @@ func expandNotebooksEnvironmentContainerImage(v interface{}, d TerraformResource
 	return transformed, nil
 }
 
-func expandNotebooksEnvironmentContainerImageRepository(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNotebooksEnvironmentContainerImageRepository(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNotebooksEnvironmentContainerImageTag(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNotebooksEnvironmentContainerImageTag(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

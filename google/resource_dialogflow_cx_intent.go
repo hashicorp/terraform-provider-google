@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceDialogflowCXIntent() *schema.Resource {
@@ -179,7 +180,7 @@ Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/intents/
 }
 
 func resourceDialogflowCXIntentCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -283,7 +284,7 @@ func resourceDialogflowCXIntentCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceDialogflowCXIntentRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -352,7 +353,7 @@ func resourceDialogflowCXIntentRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceDialogflowCXIntentUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -478,7 +479,7 @@ func resourceDialogflowCXIntentUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceDialogflowCXIntentDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -524,7 +525,7 @@ func resourceDialogflowCXIntentDelete(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceDialogflowCXIntentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value and parent contains slashes
 	if err := ParseImportId([]string{
@@ -544,18 +545,18 @@ func resourceDialogflowCXIntentImport(d *schema.ResourceData, meta interface{}) 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDialogflowCXIntentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenDialogflowCXIntentDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXIntentTrainingPhrases(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentTrainingPhrases(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -575,11 +576,11 @@ func flattenDialogflowCXIntentTrainingPhrases(v interface{}, d *schema.ResourceD
 	}
 	return transformed
 }
-func flattenDialogflowCXIntentTrainingPhrasesId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentTrainingPhrasesId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXIntentTrainingPhrasesParts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentTrainingPhrasesParts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -598,15 +599,15 @@ func flattenDialogflowCXIntentTrainingPhrasesParts(v interface{}, d *schema.Reso
 	}
 	return transformed
 }
-func flattenDialogflowCXIntentTrainingPhrasesPartsText(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentTrainingPhrasesPartsText(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXIntentTrainingPhrasesPartsParameterId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentTrainingPhrasesPartsParameterId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXIntentTrainingPhrasesRepeatCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentTrainingPhrasesRepeatCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -623,7 +624,7 @@ func flattenDialogflowCXIntentTrainingPhrasesRepeatCount(v interface{}, d *schem
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDialogflowCXIntentParameters(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentParameters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -644,23 +645,23 @@ func flattenDialogflowCXIntentParameters(v interface{}, d *schema.ResourceData, 
 	}
 	return transformed
 }
-func flattenDialogflowCXIntentParametersId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentParametersId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXIntentParametersEntityType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentParametersEntityType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXIntentParametersIsList(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentParametersIsList(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXIntentParametersRedact(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentParametersRedact(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXIntentPriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentPriority(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -677,27 +678,27 @@ func flattenDialogflowCXIntentPriority(v interface{}, d *schema.ResourceData, co
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDialogflowCXIntentIsFallback(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentIsFallback(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXIntentLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXIntentDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXIntentLanguageCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXIntentLanguageCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandDialogflowCXIntentDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXIntentDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXIntentTrainingPhrases(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXIntentTrainingPhrases(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -733,11 +734,11 @@ func expandDialogflowCXIntentTrainingPhrases(v interface{}, d TerraformResourceD
 	return req, nil
 }
 
-func expandDialogflowCXIntentTrainingPhrasesId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXIntentTrainingPhrasesId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXIntentTrainingPhrasesParts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXIntentTrainingPhrasesParts(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -766,19 +767,19 @@ func expandDialogflowCXIntentTrainingPhrasesParts(v interface{}, d TerraformReso
 	return req, nil
 }
 
-func expandDialogflowCXIntentTrainingPhrasesPartsText(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXIntentTrainingPhrasesPartsText(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXIntentTrainingPhrasesPartsParameterId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXIntentTrainingPhrasesPartsParameterId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXIntentTrainingPhrasesRepeatCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXIntentTrainingPhrasesRepeatCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXIntentParameters(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXIntentParameters(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -821,31 +822,31 @@ func expandDialogflowCXIntentParameters(v interface{}, d TerraformResourceData, 
 	return req, nil
 }
 
-func expandDialogflowCXIntentParametersId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXIntentParametersId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXIntentParametersEntityType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXIntentParametersEntityType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXIntentParametersIsList(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXIntentParametersIsList(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXIntentParametersRedact(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXIntentParametersRedact(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXIntentPriority(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXIntentPriority(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXIntentIsFallback(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXIntentIsFallback(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXIntentLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandDialogflowCXIntentLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -856,10 +857,10 @@ func expandDialogflowCXIntentLabels(v interface{}, d TerraformResourceData, conf
 	return m, nil
 }
 
-func expandDialogflowCXIntentDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXIntentDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXIntentLanguageCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXIntentLanguageCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

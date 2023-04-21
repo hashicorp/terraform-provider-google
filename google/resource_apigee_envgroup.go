@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceApigeeEnvgroup() *schema.Resource {
@@ -69,7 +70,7 @@ in the format 'organizations/{{org_name}}'.`,
 }
 
 func resourceApigeeEnvgroupCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -144,7 +145,7 @@ func resourceApigeeEnvgroupCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceApigeeEnvgroupRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -178,7 +179,7 @@ func resourceApigeeEnvgroupRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceApigeeEnvgroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -237,7 +238,7 @@ func resourceApigeeEnvgroupUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceApigeeEnvgroupDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -276,7 +277,7 @@ func resourceApigeeEnvgroupDelete(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceApigeeEnvgroupImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -320,18 +321,18 @@ func resourceApigeeEnvgroupImport(d *schema.ResourceData, meta interface{}) ([]*
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenApigeeEnvgroupName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEnvgroupName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvgroupHostnames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEnvgroupHostnames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandApigeeEnvgroupName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEnvgroupName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvgroupHostnames(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEnvgroupHostnames(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

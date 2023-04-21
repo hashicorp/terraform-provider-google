@@ -21,6 +21,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccFilestoreBackup_filestoreBackupBasicExample(t *testing.T) {
@@ -106,7 +107,7 @@ func testAccCheckFilestoreBackupDestroyProducer(t *testing.T) func(s *terraform.
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil, IsNotFilestoreQuotaError)
+			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil, transport_tpg.IsNotFilestoreQuotaError)
 			if err == nil {
 				return fmt.Errorf("FilestoreBackup still exists at %s", url)
 			}

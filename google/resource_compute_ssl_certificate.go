@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeSslCertificate() *schema.Resource {
@@ -129,7 +130,7 @@ These are in the same namespace as the managed SSL certificates.`,
 }
 
 func resourceComputeSslCertificateCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -208,7 +209,7 @@ func resourceComputeSslCertificateCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -267,7 +268,7 @@ func resourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceComputeSslCertificateDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -312,7 +313,7 @@ func resourceComputeSslCertificateDelete(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeSslCertificateImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/sslCertificates/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -331,23 +332,23 @@ func resourceComputeSslCertificateImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeSslCertificateCertificate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSslCertificateCertificate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSslCertificateCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSslCertificateCreationTimestamp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSslCertificateDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSslCertificateDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSslCertificateExpireTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSslCertificateExpireTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSslCertificateCertificateId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSslCertificateCertificateId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -364,19 +365,19 @@ func flattenComputeSslCertificateCertificateId(v interface{}, d *schema.Resource
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeSslCertificateName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSslCertificateName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandComputeSslCertificateCertificate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSslCertificateCertificate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSslCertificateDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSslCertificateDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSslCertificateName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSslCertificateName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	var certName string
 	if v, ok := d.GetOk("name"); ok {
 		certName = v.(string)
@@ -394,6 +395,6 @@ func expandComputeSslCertificateName(v interface{}, d TerraformResourceData, con
 	return certName, nil
 }
 
-func expandComputeSslCertificatePrivateKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSslCertificatePrivateKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

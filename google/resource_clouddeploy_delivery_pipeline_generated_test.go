@@ -22,6 +22,7 @@ import (
 	clouddeploy "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/clouddeploy"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"strings"
 	"testing"
 )
@@ -169,7 +170,7 @@ func testAccCheckClouddeployDeliveryPipelineDestroyProducer(t *testing.T) func(s
 				UpdateTime:  dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
-			client := NewDCLClouddeployClient(config, config.UserAgent, billingProject, 0)
+			client := transport_tpg.NewDCLClouddeployClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetDeliveryPipeline(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_clouddeploy_delivery_pipeline still exists %v", obj)

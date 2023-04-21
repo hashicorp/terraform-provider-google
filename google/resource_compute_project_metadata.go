@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"time"
 
@@ -48,7 +49,7 @@ func ResourceComputeProjectMetadata() *schema.Resource {
 }
 
 func resourceComputeProjectMetadataCreateOrUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -74,7 +75,7 @@ func resourceComputeProjectMetadataCreateOrUpdate(d *schema.ResourceData, meta i
 }
 
 func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -109,7 +110,7 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeProjectMetadataDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -129,7 +130,7 @@ func resourceComputeProjectMetadataDelete(d *schema.ResourceData, meta interface
 	return resourceComputeProjectMetadataRead(d, meta)
 }
 
-func resourceComputeProjectMetadataSet(projectID, userAgent string, config *Config, md *compute.Metadata, timeout time.Duration) error {
+func resourceComputeProjectMetadataSet(projectID, userAgent string, config *transport_tpg.Config, md *compute.Metadata, timeout time.Duration) error {
 	createMD := func() error {
 		log.Printf("[DEBUG] Loading project service: %s", projectID)
 		project, err := config.NewComputeClient(userAgent).Projects.Get(projectID).Do()

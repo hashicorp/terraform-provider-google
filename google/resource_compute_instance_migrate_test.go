@@ -3,6 +3,7 @@ package google
 import (
 	"context"
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"os"
 	"strings"
@@ -901,7 +902,7 @@ func runInstanceMigrateTest(t *testing.T, id, testName string, version int, attr
 	}
 }
 
-func cleanUpInstance(config *Config, instanceName, zone string) {
+func cleanUpInstance(config *transport_tpg.Config, instanceName, zone string) {
 	op, err := config.NewComputeClient(config.UserAgent).Instances.Delete(config.Project, zone, instanceName).Do()
 	if err != nil {
 		log.Printf("[WARNING] Error deleting instance %q, dangling resources may exist: %s", instanceName, err)
@@ -915,7 +916,7 @@ func cleanUpInstance(config *Config, instanceName, zone string) {
 	}
 }
 
-func cleanUpDisk(config *Config, diskName, zone string) {
+func cleanUpDisk(config *transport_tpg.Config, diskName, zone string) {
 	op, err := config.NewComputeClient(config.UserAgent).Disks.Delete(config.Project, zone, diskName).Do()
 	if err != nil {
 		log.Printf("[WARNING] Error deleting disk %q, dangling resources may exist: %s", diskName, err)
@@ -929,20 +930,20 @@ func cleanUpDisk(config *Config, diskName, zone string) {
 	}
 }
 
-func getInitializedConfig(t *testing.T) *Config {
+func getInitializedConfig(t *testing.T) *transport_tpg.Config {
 	// Migrate tests are non standard and handle the config directly
 	SkipIfVcr(t)
 	// Check that all required environment variables are set
 	AccTestPreCheck(t)
 
-	config := &Config{
+	config := &transport_tpg.Config{
 		Project:     GetTestProjectFromEnv(),
 		Credentials: GetTestCredsFromEnv(),
 		Region:      GetTestRegionFromEnv(),
 		Zone:        GetTestZoneFromEnv(),
 	}
 
-	ConfigureBasePaths(config)
+	transport_tpg.ConfigureBasePaths(config)
 
 	err := config.LoadAndValidate(context.Background())
 	if err != nil {

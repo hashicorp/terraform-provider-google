@@ -24,6 +24,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
 	"google.golang.org/api/googleapi"
 )
 
@@ -187,7 +189,7 @@ epoch.`,
 }
 
 func resourceBigQueryRoutineCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -292,7 +294,7 @@ func resourceBigQueryRoutineCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceBigQueryRoutineRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -378,7 +380,7 @@ func resourceBigQueryRoutineRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceBigQueryRoutineUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -478,7 +480,7 @@ func resourceBigQueryRoutineUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceBigQueryRoutineDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -515,7 +517,7 @@ func resourceBigQueryRoutineDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceBigQueryRoutineImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)/routines/(?P<routine_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<dataset_id>[^/]+)/(?P<routine_id>[^/]+)",
@@ -534,7 +536,7 @@ func resourceBigQueryRoutineImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenBigQueryRoutineRoutineReference(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineRoutineReference(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -549,19 +551,19 @@ func flattenBigQueryRoutineRoutineReference(v interface{}, d *schema.ResourceDat
 		flattenBigQueryRoutineRoutineReferenceRoutineId(original["routineId"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigQueryRoutineRoutineReferenceDatasetId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineRoutineReferenceDatasetId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryRoutineRoutineReferenceRoutineId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineRoutineReferenceRoutineId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryRoutineRoutineType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineRoutineType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryRoutineCreationTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineCreationTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -578,7 +580,7 @@ func flattenBigQueryRoutineCreationTime(v interface{}, d *schema.ResourceData, c
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBigQueryRoutineLastModifiedTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineLastModifiedTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -595,11 +597,11 @@ func flattenBigQueryRoutineLastModifiedTime(v interface{}, d *schema.ResourceDat
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBigQueryRoutineLanguage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineLanguage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryRoutineArguments(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineArguments(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -620,19 +622,19 @@ func flattenBigQueryRoutineArguments(v interface{}, d *schema.ResourceData, conf
 	}
 	return transformed
 }
-func flattenBigQueryRoutineArgumentsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineArgumentsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryRoutineArgumentsArgumentKind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineArgumentsArgumentKind(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryRoutineArgumentsMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineArgumentsMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryRoutineArgumentsDataType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineArgumentsDataType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -644,7 +646,7 @@ func flattenBigQueryRoutineArgumentsDataType(v interface{}, d *schema.ResourceDa
 	return string(b)
 }
 
-func flattenBigQueryRoutineReturnType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineReturnType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -656,7 +658,7 @@ func flattenBigQueryRoutineReturnType(v interface{}, d *schema.ResourceData, con
 	return string(b)
 }
 
-func flattenBigQueryRoutineReturnTableType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineReturnTableType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -668,23 +670,23 @@ func flattenBigQueryRoutineReturnTableType(v interface{}, d *schema.ResourceData
 	return string(b)
 }
 
-func flattenBigQueryRoutineImportedLibraries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineImportedLibraries(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryRoutineDefinitionBody(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineDefinitionBody(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryRoutineDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigQueryRoutineDeterminismLevel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigQueryRoutineDeterminismLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandBigQueryRoutineRoutineReference(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryRoutineRoutineReference(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 
 	transformed := make(map[string]interface{})
 	transformed["datasetId"] = d.Get("dataset_id")
@@ -695,15 +697,15 @@ func expandBigQueryRoutineRoutineReference(v interface{}, d TerraformResourceDat
 	return transformed, nil
 }
 
-func expandBigQueryRoutineRoutineType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryRoutineRoutineType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryRoutineLanguage(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryRoutineLanguage(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryRoutineArguments(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryRoutineArguments(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -746,19 +748,19 @@ func expandBigQueryRoutineArguments(v interface{}, d TerraformResourceData, conf
 	return req, nil
 }
 
-func expandBigQueryRoutineArgumentsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryRoutineArgumentsName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryRoutineArgumentsArgumentKind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryRoutineArgumentsArgumentKind(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryRoutineArgumentsMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryRoutineArgumentsMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryRoutineArgumentsDataType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryRoutineArgumentsDataType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	b := []byte(v.(string))
 	if len(b) == 0 {
 		return nil, nil
@@ -770,7 +772,7 @@ func expandBigQueryRoutineArgumentsDataType(v interface{}, d TerraformResourceDa
 	return m, nil
 }
 
-func expandBigQueryRoutineReturnType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryRoutineReturnType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	b := []byte(v.(string))
 	if len(b) == 0 {
 		return nil, nil
@@ -782,7 +784,7 @@ func expandBigQueryRoutineReturnType(v interface{}, d TerraformResourceData, con
 	return m, nil
 }
 
-func expandBigQueryRoutineReturnTableType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryRoutineReturnTableType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	b := []byte(v.(string))
 	if len(b) == 0 {
 		return nil, nil
@@ -794,18 +796,18 @@ func expandBigQueryRoutineReturnTableType(v interface{}, d TerraformResourceData
 	return m, nil
 }
 
-func expandBigQueryRoutineImportedLibraries(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryRoutineImportedLibraries(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryRoutineDefinitionBody(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryRoutineDefinitionBody(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryRoutineDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryRoutineDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryRoutineDeterminismLevel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigQueryRoutineDeterminismLevel(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

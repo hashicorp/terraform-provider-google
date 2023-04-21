@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceAccessContextManagerAccessPolicy() *schema.Resource {
@@ -85,7 +86,7 @@ Format: folders/{{folder_id}} or projects/{{project_id}}`,
 }
 
 func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -178,7 +179,7 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 }
 
 func resourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -224,7 +225,7 @@ func resourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta i
 }
 
 func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -293,7 +294,7 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 }
 
 func resourceAccessContextManagerAccessPolicyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -332,7 +333,7 @@ func resourceAccessContextManagerAccessPolicyDelete(d *schema.ResourceData, meta
 }
 
 func resourceAccessContextManagerAccessPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"(?P<name>[^/]+)",
 	}, d, config); err != nil {
@@ -349,41 +350,41 @@ func resourceAccessContextManagerAccessPolicyImport(d *schema.ResourceData, meta
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAccessContextManagerAccessPolicyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerAccessPolicyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenAccessContextManagerAccessPolicyCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerAccessPolicyCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessPolicyUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerAccessPolicyUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessPolicyParent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerAccessPolicyParent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessPolicyTitle(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerAccessPolicyTitle(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerAccessPolicyScopes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerAccessPolicyScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandAccessContextManagerAccessPolicyParent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerAccessPolicyParent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessPolicyTitle(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerAccessPolicyTitle(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessPolicyScopes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerAccessPolicyScopes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

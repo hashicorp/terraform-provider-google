@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"time"
 
@@ -49,7 +50,7 @@ func ResourceComputeProjectDefaultNetworkTier() *schema.Resource {
 }
 
 func resourceComputeProjectDefaultNetworkTierCreateOrUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -80,7 +81,7 @@ func resourceComputeProjectDefaultNetworkTierCreateOrUpdate(d *schema.ResourceDa
 }
 
 func resourceComputeProjectDefaultNetworkTierRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err

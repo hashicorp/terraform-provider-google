@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceGameServicesGameServerDeployment() *schema.Resource {
@@ -88,7 +89,7 @@ For example,
 }
 
 func resourceGameServicesGameServerDeploymentCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -169,7 +170,7 @@ func resourceGameServicesGameServerDeploymentCreate(d *schema.ResourceData, meta
 }
 
 func resourceGameServicesGameServerDeploymentRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -216,7 +217,7 @@ func resourceGameServicesGameServerDeploymentRead(d *schema.ResourceData, meta i
 }
 
 func resourceGameServicesGameServerDeploymentUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -291,7 +292,7 @@ func resourceGameServicesGameServerDeploymentUpdate(d *schema.ResourceData, meta
 }
 
 func resourceGameServicesGameServerDeploymentDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -336,7 +337,7 @@ func resourceGameServicesGameServerDeploymentDelete(d *schema.ResourceData, meta
 }
 
 func resourceGameServicesGameServerDeploymentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/gameServerDeployments/(?P<deployment_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<deployment_id>[^/]+)",
@@ -355,23 +356,23 @@ func resourceGameServicesGameServerDeploymentImport(d *schema.ResourceData, meta
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenGameServicesGameServerDeploymentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenGameServicesGameServerDeploymentName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenGameServicesGameServerDeploymentDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenGameServicesGameServerDeploymentDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenGameServicesGameServerDeploymentLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenGameServicesGameServerDeploymentLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandGameServicesGameServerDeploymentDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandGameServicesGameServerDeploymentDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandGameServicesGameServerDeploymentLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandGameServicesGameServerDeploymentLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

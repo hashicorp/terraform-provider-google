@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceApigeeKeystoresAliasesSelfSignedCert() *schema.Resource {
@@ -241,7 +242,7 @@ Flag is set to Yes if the certificate is valid, No if expired, or Not yet if not
 }
 
 func resourceApigeeKeystoresAliasesSelfSignedCertCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -316,7 +317,7 @@ func resourceApigeeKeystoresAliasesSelfSignedCertCreate(d *schema.ResourceData, 
 }
 
 func resourceApigeeKeystoresAliasesSelfSignedCertRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -356,7 +357,7 @@ func resourceApigeeKeystoresAliasesSelfSignedCertRead(d *schema.ResourceData, me
 }
 
 func resourceApigeeKeystoresAliasesSelfSignedCertDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -387,7 +388,7 @@ func resourceApigeeKeystoresAliasesSelfSignedCertDelete(d *schema.ResourceData, 
 }
 
 func resourceApigeeKeystoresAliasesSelfSignedCertImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
 	if err := ParseImportId([]string{
@@ -407,7 +408,7 @@ func resourceApigeeKeystoresAliasesSelfSignedCertImport(d *schema.ResourceData, 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfo(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -420,7 +421,7 @@ func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfo(v interface{}, d *sche
 		flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfo(original["certInfo"], d, config)
 	return []interface{}{transformed}
 }
-func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfo(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -448,7 +449,7 @@ func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfo(v interface{},
 	}
 	return transformed
 }
-func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -465,55 +466,55 @@ func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoVersion(v inter
 	return v // let terraform core handle it otherwise
 }
 
-func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoSubject(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoSubject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoIssuer(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoIssuer(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoExpiryDate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoExpiryDate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoValidFrom(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoValidFrom(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoIsValid(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoIsValid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoSubjectAlternativeNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoSubjectAlternativeNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoSigAlgName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoSigAlgName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoPublicKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoPublicKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoBasicConstraints(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoBasicConstraints(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoSerialNumber(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertCertsInfoCertInfoSerialNumber(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeKeystoresAliasesSelfSignedCertType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeKeystoresAliasesSelfSignedCertAlias(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertAlias(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -526,15 +527,15 @@ func flattenApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNames(v int
 		flattenApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNamesSubjectAlternativeName(original["subjectAlternativeName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNamesSubjectAlternativeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNamesSubjectAlternativeName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertAlias(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertAlias(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNames(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNames(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -553,19 +554,19 @@ func expandApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNames(v inte
 	return transformed, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNamesSubjectAlternativeName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNamesSubjectAlternativeName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertKeySize(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertKeySize(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSigAlg(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSigAlg(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubject(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubject(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -626,34 +627,34 @@ func expandApigeeKeystoresAliasesSelfSignedCertSubject(v interface{}, d Terrafor
 	return transformed, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectCountryCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectCountryCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectState(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectState(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectLocality(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectLocality(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectOrg(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectOrg(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectOrgUnit(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectOrgUnit(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectCommonName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectCommonName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectEmail(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertCertValidityInDays(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertCertValidityInDays(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

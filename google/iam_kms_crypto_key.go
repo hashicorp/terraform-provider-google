@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
@@ -20,10 +21,10 @@ var IamKmsCryptoKeySchema = map[string]*schema.Schema{
 type KmsCryptoKeyIamUpdater struct {
 	resourceId string
 	d          TerraformResourceData
-	Config     *Config
+	Config     *transport_tpg.Config
 }
 
-func NewKmsCryptoKeyIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewKmsCryptoKeyIamUpdater(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	cryptoKey := d.Get("crypto_key_id").(string)
 	cryptoKeyId, err := ParseKmsCryptoKeyId(cryptoKey, config)
 
@@ -38,7 +39,7 @@ func NewKmsCryptoKeyIamUpdater(d TerraformResourceData, config *Config) (Resourc
 	}, nil
 }
 
-func CryptoIdParseFunc(d *schema.ResourceData, config *Config) error {
+func CryptoIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	cryptoKeyId, err := ParseKmsCryptoKeyId(d.Id(), config)
 	if err != nil {
 		return err

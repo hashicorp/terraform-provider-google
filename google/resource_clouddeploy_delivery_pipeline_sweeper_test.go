@@ -22,6 +22,7 @@ import (
 
 	clouddeploy "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/clouddeploy"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func init() {
@@ -58,7 +59,7 @@ func testSweepClouddeployDeliveryPipeline(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLClouddeployClient(config, config.UserAgent, "", 0)
+	client := transport_tpg.NewDCLClouddeployClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllDeliveryPipeline(context.Background(), d["project"], d["location"], isDeletableClouddeployDeliveryPipeline)
 	if err != nil {
 		return err

@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeUrlMap() *schema.Resource {
@@ -2758,7 +2759,7 @@ the resource.`,
 }
 
 func resourceComputeUrlMapCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -2873,7 +2874,7 @@ func resourceComputeUrlMapCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceComputeUrlMapRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -2950,7 +2951,7 @@ func resourceComputeUrlMapRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceComputeUrlMapUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -3058,7 +3059,7 @@ func resourceComputeUrlMapUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceComputeUrlMapDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -3103,7 +3104,7 @@ func resourceComputeUrlMapDelete(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceComputeUrlMapImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/urlMaps/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -3122,22 +3123,22 @@ func resourceComputeUrlMapImport(d *schema.ResourceData, meta interface{}) ([]*s
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeUrlMapCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapCreationTimestamp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapMapId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapMapId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -3154,11 +3155,11 @@ func flattenComputeUrlMapMapId(v interface{}, d *schema.ResourceData, config *Co
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapFingerprint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapFingerprint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHeaderAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapHeaderAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3177,7 +3178,7 @@ func flattenComputeUrlMapHeaderAction(v interface{}, d *schema.ResourceData, con
 		flattenComputeUrlMapHeaderActionResponseHeadersToRemove(original["responseHeadersToRemove"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -3197,23 +3198,23 @@ func flattenComputeUrlMapHeaderActionRequestHeadersToAdd(v interface{}, d *schem
 	}
 	return transformed
 }
-func flattenComputeUrlMapHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -3233,23 +3234,23 @@ func flattenComputeUrlMapHeaderActionResponseHeadersToAdd(v interface{}, d *sche
 	}
 	return transformed
 }
-func flattenComputeUrlMapHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHostRule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapHostRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -3269,26 +3270,26 @@ func flattenComputeUrlMapHostRule(v interface{}, d *schema.ResourceData, config 
 	}
 	return transformed
 }
-func flattenComputeUrlMapHostRuleDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapHostRuleDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapHostRuleHosts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapHostRuleHosts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeUrlMapHostRulePathMatcher(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapHostRulePathMatcher(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcher(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcher(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -3313,18 +3314,18 @@ func flattenComputeUrlMapPathMatcher(v interface{}, d *schema.ResourceData, conf
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherDefaultService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPathMatcherDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherHeaderAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3343,7 +3344,7 @@ func flattenComputeUrlMapPathMatcherHeaderAction(v interface{}, d *schema.Resour
 		flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToRemove(original["responseHeadersToRemove"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -3363,23 +3364,23 @@ func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAdd(v interface{
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -3399,27 +3400,27 @@ func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAdd(v interface
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -3440,21 +3441,21 @@ func flattenComputeUrlMapPathMatcherPathRule(v interface{}, d *schema.ResourceDa
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherPathRuleService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPathMatcherPathRulePaths(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRulePaths(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3479,7 +3480,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteAction(v interface{}, d *schema
 		flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServices(original["weightedBackendServices"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3506,35 +3507,35 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicy(v interface{},
 		flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyMaxAge(original["maxAge"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowCredentials(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowCredentials(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowMethods(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowMethods(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowOrigins(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowOrigins(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyExposeHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyExposeHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyMaxAge(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyMaxAge(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -3551,7 +3552,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyMaxAge(v interf
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3566,7 +3567,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicy(v in
 		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelay(original["delay"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3581,7 +3582,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbort
 		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortPercentage(original["percentage"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -3598,11 +3599,11 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbort
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelay(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3617,7 +3618,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelay
 		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayPercentage(original["percentage"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3632,7 +3633,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelay
 		flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(original["seconds"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -3649,15 +3650,15 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelay
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3670,14 +3671,14 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicy(v int
 		flattenComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyBackendService(original["backendService"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyBackendService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyBackendService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3694,7 +3695,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicy(v interface{}
 		flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyRetryConditions(original["retryConditions"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyNumRetries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyNumRetries(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -3711,7 +3712,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyNumRetries(v i
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3726,7 +3727,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeout(
 		flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutSeconds(original["seconds"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -3743,15 +3744,15 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutN
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyRetryConditions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyRetryConditions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3766,7 +3767,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeout(v interface{}, d 
 		flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeoutSeconds(original["seconds"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeoutNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -3783,11 +3784,11 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeoutNanos(v interface{
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionTimeoutSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3802,15 +3803,15 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewrite(v interface{},
 		flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewritePathPrefixRewrite(original["pathPrefixRewrite"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewriteHostRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewriteHostRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewritePathPrefixRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionUrlRewritePathPrefixRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServices(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -3830,14 +3831,14 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServices(v
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesBackendService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesBackendService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3856,7 +3857,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHe
 		flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(original["responseHeadersToRemove"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -3876,23 +3877,23 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHe
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -3912,23 +3913,23 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHe
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -3945,7 +3946,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesWe
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleUrlRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleUrlRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -3968,31 +3969,31 @@ func flattenComputeUrlMapPathMatcherPathRuleUrlRedirect(v interface{}, d *schema
 		flattenComputeUrlMapPathMatcherPathRuleUrlRedirectStripQuery(original["stripQuery"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectHostRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectHostRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectHttpsRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectHttpsRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectPathRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectPathRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectPrefixRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectPrefixRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectRedirectResponseCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectRedirectResponseCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectStripQuery(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherPathRuleUrlRedirectStripQuery(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRules(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -4015,7 +4016,7 @@ func flattenComputeUrlMapPathMatcherRouteRules(v interface{}, d *schema.Resource
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesPriority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesPriority(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -4032,14 +4033,14 @@ func flattenComputeUrlMapPathMatcherRouteRulesPriority(v interface{}, d *schema.
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -4058,7 +4059,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesHeaderAction(v interface{}, d *sch
 		flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToRemove(original["responseHeadersToRemove"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -4078,23 +4079,23 @@ func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAdd(v 
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -4114,23 +4115,23 @@ func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAdd(v
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRules(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -4154,11 +4155,11 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRules(v interface{}, d *schem
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesFullPathMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesFullPathMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatches(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatches(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -4183,27 +4184,27 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatches(v interfac
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesExactMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesExactMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesInvertMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesInvertMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesPrefixMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesPrefixMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesPresentMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesPresentMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -4218,7 +4219,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatch(
 		flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeStart(original["rangeStart"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeEnd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeEnd(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -4235,7 +4236,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchR
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeStart(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeStart(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -4252,19 +4253,19 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchR
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRegexMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRegexMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesSuffixMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesSuffixMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesIgnoreCase(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesIgnoreCase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFilters(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFilters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -4283,7 +4284,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFilters(v interf
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -4302,23 +4303,23 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLab
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabelsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabelsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabelsValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabelsValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterMatchCriteria(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterMatchCriteria(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesPrefixMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesPrefixMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatches(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatches(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -4339,27 +4340,27 @@ func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatches(v 
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesExactMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesExactMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesPresentMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesPresentMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesRegexMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesRegexMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesRegexMatch(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesMatchRulesRegexMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -4384,7 +4385,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteAction(v interface{}, d *sche
 		flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices(original["weightedBackendServices"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -4411,35 +4412,35 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicy(v interface{
 		flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyMaxAge(original["maxAge"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowCredentials(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowCredentials(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowMethods(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowMethods(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowOrigins(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowOrigins(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyExposeHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyExposeHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyMaxAge(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyMaxAge(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -4456,7 +4457,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyMaxAge(v inte
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -4471,7 +4472,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicy(v 
 		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelay(original["delay"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -4486,7 +4487,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbo
 		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortPercentage(original["percentage"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -4503,11 +4504,11 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbo
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelay(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -4522,7 +4523,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDel
 		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayPercentage(original["percentage"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -4537,7 +4538,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDel
 		flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(original["seconds"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -4554,15 +4555,15 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDel
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -4575,14 +4576,14 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicy(v i
 		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyBackendService(original["backendService"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyBackendService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyBackendService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -4599,7 +4600,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicy(v interface
 		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyRetryConditions(original["retryConditions"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyNumRetries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyNumRetries(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -4616,7 +4617,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyNumRetries(v
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -4631,7 +4632,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeou
 		flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutSeconds(original["seconds"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -4648,15 +4649,15 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeou
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyRetryConditions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyRetryConditions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -4671,7 +4672,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeout(v interface{}, 
 		flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutSeconds(original["seconds"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -4688,11 +4689,11 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutNanos(v interfac
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -4707,15 +4708,15 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewrite(v interface{
 		flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewritePathPrefixRewrite(original["pathPrefixRewrite"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewriteHostRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewriteHostRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewritePathPrefixRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewritePathPrefixRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -4735,14 +4736,14 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesBackendService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesBackendService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -4761,7 +4762,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices
 		flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(original["responseHeadersToRemove"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -4781,23 +4782,23 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -4817,23 +4818,23 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -4850,7 +4851,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -4873,31 +4874,31 @@ func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirect(v interface{}, d *sche
 		flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectStripQuery(original["stripQuery"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectHostRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectHostRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectHttpsRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectHttpsRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectPathRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectPathRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectPrefixRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectPrefixRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectRedirectResponseCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectRedirectResponseCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectStripQuery(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherRouteRulesUrlRedirectStripQuery(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultUrlRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultUrlRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -4920,31 +4921,31 @@ func flattenComputeUrlMapPathMatcherDefaultUrlRedirect(v interface{}, d *schema.
 		flattenComputeUrlMapPathMatcherDefaultUrlRedirectStripQuery(original["stripQuery"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherDefaultUrlRedirectHostRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultUrlRedirectHostRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultUrlRedirectHttpsRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultUrlRedirectHttpsRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultUrlRedirectPathRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultUrlRedirectPathRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultUrlRedirectPrefixRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultUrlRedirectPrefixRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultUrlRedirectRedirectResponseCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultUrlRedirectRedirectResponseCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultUrlRedirectStripQuery(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultUrlRedirectStripQuery(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -4969,7 +4970,7 @@ func flattenComputeUrlMapPathMatcherDefaultRouteAction(v interface{}, d *schema.
 		flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicy(original["faultInjectionPolicy"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServices(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -4989,14 +4990,14 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServices(v 
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesBackendService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesBackendService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -5013,7 +5014,7 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesWei
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5032,11 +5033,11 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHea
 		flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(original["responseHeadersToAdd"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -5056,23 +5057,23 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHea
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -5092,19 +5093,19 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHea
 	}
 	return transformed
 }
-func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionUrlRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionUrlRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5119,15 +5120,15 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionUrlRewrite(v interface{}, 
 		flattenComputeUrlMapPathMatcherDefaultRouteActionUrlRewriteHostRewrite(original["hostRewrite"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherDefaultRouteActionUrlRewritePathPrefixRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionUrlRewritePathPrefixRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionUrlRewriteHostRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionUrlRewriteHostRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5142,11 +5143,11 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionTimeout(v interface{}, d *
 		flattenComputeUrlMapPathMatcherDefaultRouteActionTimeoutNanos(original["nanos"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherDefaultRouteActionTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionTimeoutSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionTimeoutNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -5163,7 +5164,7 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionTimeoutNanos(v interface{}
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5180,11 +5181,11 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicy(v interface{},
 		flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeout(original["perTryTimeout"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyRetryConditions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyRetryConditions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyNumRetries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyNumRetries(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -5201,7 +5202,7 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyNumRetries(v in
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5216,11 +5217,11 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeout(v
 		flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeoutNanos(original["nanos"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -5237,7 +5238,7 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeoutNa
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5250,14 +5251,14 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicy(v inte
 		flattenComputeUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicyBackendService(original["backendService"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicyBackendService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicyBackendService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5284,27 +5285,27 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicy(v interface{}, 
 		flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyDisabled(original["disabled"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowOrigins(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowOrigins(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowMethods(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowMethods(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyExposeHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyExposeHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyMaxAge(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyMaxAge(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -5321,15 +5322,15 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyMaxAge(v interfa
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowCredentials(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowCredentials(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5344,7 +5345,7 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicy(v int
 		flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbort(original["abort"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelay(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5359,7 +5360,7 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelay(
 		flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayPercentage(original["percentage"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5374,11 +5375,11 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayF
 		flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayFixedDelayNanos(original["nanos"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -5395,11 +5396,11 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayF
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5414,7 +5415,7 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbort(
 		flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbortPercentage(original["percentage"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -5431,11 +5432,11 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbortH
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapTest(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapTest(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -5456,26 +5457,26 @@ func flattenComputeUrlMapTest(v interface{}, d *schema.ResourceData, config *Con
 	}
 	return transformed
 }
-func flattenComputeUrlMapTestDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapTestDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapTestHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapTestHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapTestPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapTestPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapTestService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapTestService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapDefaultUrlRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultUrlRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5498,31 +5499,31 @@ func flattenComputeUrlMapDefaultUrlRedirect(v interface{}, d *schema.ResourceDat
 		flattenComputeUrlMapDefaultUrlRedirectStripQuery(original["stripQuery"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapDefaultUrlRedirectHostRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultUrlRedirectHostRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultUrlRedirectHttpsRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultUrlRedirectHttpsRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultUrlRedirectPathRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultUrlRedirectPathRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultUrlRedirectPrefixRedirect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultUrlRedirectPrefixRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultUrlRedirectRedirectResponseCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultUrlRedirectRedirectResponseCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultUrlRedirectStripQuery(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultUrlRedirectStripQuery(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5547,7 +5548,7 @@ func flattenComputeUrlMapDefaultRouteAction(v interface{}, d *schema.ResourceDat
 		flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicy(original["faultInjectionPolicy"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapDefaultRouteActionWeightedBackendServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionWeightedBackendServices(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -5567,14 +5568,14 @@ func flattenComputeUrlMapDefaultRouteActionWeightedBackendServices(v interface{}
 	}
 	return transformed
 }
-func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesBackendService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesBackendService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -5591,7 +5592,7 @@ func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesWeight(v inter
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderAction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5610,11 +5611,11 @@ func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderAction(v
 		flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(original["responseHeadersToAdd"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -5634,23 +5635,23 @@ func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRe
 	}
 	return transformed
 }
-func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -5670,19 +5671,19 @@ func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRe
 	}
 	return transformed
 }
-func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionUrlRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionUrlRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5697,15 +5698,15 @@ func flattenComputeUrlMapDefaultRouteActionUrlRewrite(v interface{}, d *schema.R
 		flattenComputeUrlMapDefaultRouteActionUrlRewriteHostRewrite(original["hostRewrite"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapDefaultRouteActionUrlRewritePathPrefixRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionUrlRewritePathPrefixRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionUrlRewriteHostRewrite(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionUrlRewriteHostRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5720,11 +5721,11 @@ func flattenComputeUrlMapDefaultRouteActionTimeout(v interface{}, d *schema.Reso
 		flattenComputeUrlMapDefaultRouteActionTimeoutNanos(original["nanos"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapDefaultRouteActionTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionTimeoutSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionTimeoutNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -5741,7 +5742,7 @@ func flattenComputeUrlMapDefaultRouteActionTimeoutNanos(v interface{}, d *schema
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapDefaultRouteActionRetryPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionRetryPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5758,11 +5759,11 @@ func flattenComputeUrlMapDefaultRouteActionRetryPolicy(v interface{}, d *schema.
 		flattenComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeout(original["perTryTimeout"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapDefaultRouteActionRetryPolicyRetryConditions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionRetryPolicyRetryConditions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionRetryPolicyNumRetries(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionRetryPolicyNumRetries(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -5779,7 +5780,7 @@ func flattenComputeUrlMapDefaultRouteActionRetryPolicyNumRetries(v interface{}, 
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5794,11 +5795,11 @@ func flattenComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeout(v interface{
 		flattenComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeoutNanos(original["nanos"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -5815,7 +5816,7 @@ func flattenComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeoutNanos(v inter
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapDefaultRouteActionRequestMirrorPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionRequestMirrorPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5828,14 +5829,14 @@ func flattenComputeUrlMapDefaultRouteActionRequestMirrorPolicy(v interface{}, d 
 		flattenComputeUrlMapDefaultRouteActionRequestMirrorPolicyBackendService(original["backendService"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapDefaultRouteActionRequestMirrorPolicyBackendService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionRequestMirrorPolicyBackendService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeUrlMapDefaultRouteActionCorsPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionCorsPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5862,27 +5863,27 @@ func flattenComputeUrlMapDefaultRouteActionCorsPolicy(v interface{}, d *schema.R
 		flattenComputeUrlMapDefaultRouteActionCorsPolicyDisabled(original["disabled"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapDefaultRouteActionCorsPolicyAllowOrigins(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionCorsPolicyAllowOrigins(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionCorsPolicyAllowMethods(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionCorsPolicyAllowMethods(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionCorsPolicyAllowHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionCorsPolicyAllowHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionCorsPolicyExposeHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionCorsPolicyExposeHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionCorsPolicyMaxAge(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionCorsPolicyMaxAge(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -5899,15 +5900,15 @@ func flattenComputeUrlMapDefaultRouteActionCorsPolicyMaxAge(v interface{}, d *sc
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapDefaultRouteActionCorsPolicyAllowCredentials(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionCorsPolicyAllowCredentials(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionCorsPolicyDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionCorsPolicyDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5922,7 +5923,7 @@ func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicy(v interface{}, d
 		flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbort(original["abort"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelay(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5937,7 +5938,7 @@ func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelay(v interface
 		flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayPercentage(original["percentage"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5952,11 +5953,11 @@ func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelay(v
 		flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelayNanos(original["nanos"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -5973,11 +5974,11 @@ func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelayNa
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5992,7 +5993,7 @@ func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbort(v interface
 		flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbortPercentage(original["percentage"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -6009,11 +6010,11 @@ func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbortHttpStatus(v
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandComputeUrlMapDefaultService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	// This method returns a full self link from whatever the input is.
 	if v == nil || v.(string) == "" {
 		// It does not try to construct anything from empty.
@@ -6045,15 +6046,15 @@ func expandComputeUrlMapDefaultService(v interface{}, d TerraformResourceData, c
 	return f.RelativeLink(), nil
 }
 
-func expandComputeUrlMapDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapFingerprint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapFingerprint(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapHeaderAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHeaderAction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -6093,7 +6094,7 @@ func expandComputeUrlMapHeaderAction(v interface{}, d TerraformResourceData, con
 	return transformed, nil
 }
 
-func expandComputeUrlMapHeaderActionRequestHeadersToAdd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHeaderActionRequestHeadersToAdd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6129,23 +6130,23 @@ func expandComputeUrlMapHeaderActionRequestHeadersToAdd(v interface{}, d Terrafo
 	return req, nil
 }
 
-func expandComputeUrlMapHeaderActionRequestHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHeaderActionRequestHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapHeaderActionRequestHeadersToAddReplace(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHeaderActionRequestHeadersToAddReplace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapHeaderActionRequestHeadersToRemove(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHeaderActionRequestHeadersToRemove(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapHeaderActionResponseHeadersToAdd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHeaderActionResponseHeadersToAdd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6181,23 +6182,23 @@ func expandComputeUrlMapHeaderActionResponseHeadersToAdd(v interface{}, d Terraf
 	return req, nil
 }
 
-func expandComputeUrlMapHeaderActionResponseHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHeaderActionResponseHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapHeaderActionResponseHeadersToAddReplace(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHeaderActionResponseHeadersToAddReplace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapHeaderActionResponseHeadersToRemove(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHeaderActionResponseHeadersToRemove(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapHostRule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHostRule(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -6234,24 +6235,24 @@ func expandComputeUrlMapHostRule(v interface{}, d TerraformResourceData, config 
 	return req, nil
 }
 
-func expandComputeUrlMapHostRuleDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHostRuleDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapHostRuleHosts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHostRuleHosts(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandComputeUrlMapHostRulePathMatcher(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapHostRulePathMatcher(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcher(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcher(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6322,7 +6323,7 @@ func expandComputeUrlMapPathMatcher(v interface{}, d TerraformResourceData, conf
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	// This method returns a full self link from whatever the input is.
 	if v == nil || v.(string) == "" {
 		// It does not try to construct anything from empty.
@@ -6354,11 +6355,11 @@ func expandComputeUrlMapPathMatcherDefaultService(v interface{}, d TerraformReso
 	return f.RelativeLink(), nil
 }
 
-func expandComputeUrlMapPathMatcherDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherHeaderAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherHeaderAction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -6398,7 +6399,7 @@ func expandComputeUrlMapPathMatcherHeaderAction(v interface{}, d TerraformResour
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherHeaderActionRequestHeadersToAdd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherHeaderActionRequestHeadersToAdd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6434,23 +6435,23 @@ func expandComputeUrlMapPathMatcherHeaderActionRequestHeadersToAdd(v interface{}
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddReplace(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherHeaderActionRequestHeadersToAddReplace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherHeaderActionRequestHeadersToRemove(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherHeaderActionRequestHeadersToRemove(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherHeaderActionResponseHeadersToAdd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherHeaderActionResponseHeadersToAdd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6486,27 +6487,27 @@ func expandComputeUrlMapPathMatcherHeaderActionResponseHeadersToAdd(v interface{
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddReplace(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherHeaderActionResponseHeadersToAddReplace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherHeaderActionResponseHeadersToRemove(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherHeaderActionResponseHeadersToRemove(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRule(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -6549,7 +6550,7 @@ func expandComputeUrlMapPathMatcherPathRule(v interface{}, d TerraformResourceDa
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	// This method returns a full self link from whatever the input is.
 	if v == nil || v.(string) == "" {
 		// It does not try to construct anything from empty.
@@ -6581,12 +6582,12 @@ func expandComputeUrlMapPathMatcherPathRuleService(v interface{}, d TerraformRes
 	return f.RelativeLink(), nil
 }
 
-func expandComputeUrlMapPathMatcherPathRulePaths(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRulePaths(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteAction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -6647,7 +6648,7 @@ func expandComputeUrlMapPathMatcherPathRuleRouteAction(v interface{}, d Terrafor
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -6715,39 +6716,39 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicy(v interface{}, 
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowCredentials(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowCredentials(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowMethods(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowMethods(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowOrigins(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyAllowOrigins(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyDisabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyExposeHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyExposeHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyMaxAge(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionCorsPolicyMaxAge(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -6773,7 +6774,7 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicy(v int
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -6799,15 +6800,15 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbort(
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelay(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -6833,7 +6834,7 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelay(
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -6859,19 +6860,19 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayF
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -6890,7 +6891,7 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicy(v inte
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyBackendService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	// This method returns a full self link from whatever the input is.
 	if v == nil || v.(string) == "" {
 		// It does not try to construct anything from empty.
@@ -6922,7 +6923,7 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyBackend
 	return f.RelativeLink(), nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -6955,11 +6956,11 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicy(v interface{},
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyNumRetries(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyNumRetries(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeout(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeout(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -6985,19 +6986,19 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeout(v
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyRetryConditions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicyRetryConditions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionTimeout(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionTimeout(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7023,15 +7024,15 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionTimeout(v interface{}, d T
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionTimeoutNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionTimeoutNanos(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionTimeoutSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionTimeoutSeconds(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionUrlRewrite(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionUrlRewrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7057,15 +7058,15 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionUrlRewrite(v interface{}, 
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionUrlRewriteHostRewrite(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionUrlRewriteHostRewrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionUrlRewritePathPrefixRewrite(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionUrlRewritePathPrefixRewrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServices(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7101,7 +7102,7 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServices(v 
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesBackendService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	// This method returns a full self link from whatever the input is.
 	if v == nil || v.(string) == "" {
 		// It does not try to construct anything from empty.
@@ -7133,7 +7134,7 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesBac
 	return f.RelativeLink(), nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderAction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7173,7 +7174,7 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHea
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7209,23 +7210,23 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHea
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7261,27 +7262,27 @@ func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHea
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesWeight(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesWeight(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleUrlRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleUrlRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7335,31 +7336,31 @@ func expandComputeUrlMapPathMatcherPathRuleUrlRedirect(v interface{}, d Terrafor
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleUrlRedirectHostRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleUrlRedirectHostRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleUrlRedirectHttpsRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleUrlRedirectHttpsRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleUrlRedirectPathRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleUrlRedirectPathRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleUrlRedirectPrefixRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleUrlRedirectPrefixRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleUrlRedirectRedirectResponseCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleUrlRedirectRedirectResponseCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherPathRuleUrlRedirectStripQuery(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherPathRuleUrlRedirectStripQuery(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRules(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRules(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7416,11 +7417,11 @@ func expandComputeUrlMapPathMatcherRouteRules(v interface{}, d TerraformResource
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesPriority(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesPriority(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	// This method returns a full self link from whatever the input is.
 	if v == nil || v.(string) == "" {
 		// It does not try to construct anything from empty.
@@ -7452,7 +7453,7 @@ func expandComputeUrlMapPathMatcherRouteRulesService(v interface{}, d TerraformR
 	return f.RelativeLink(), nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesHeaderAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesHeaderAction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7492,7 +7493,7 @@ func expandComputeUrlMapPathMatcherRouteRulesHeaderAction(v interface{}, d Terra
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAdd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAdd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7528,23 +7529,23 @@ func expandComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAdd(v i
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddReplace(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToAddReplace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToRemove(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersToRemove(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAdd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAdd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7580,23 +7581,23 @@ func expandComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAdd(v 
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddReplace(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToAddReplace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToRemove(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersToRemove(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRules(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRules(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7660,11 +7661,11 @@ func expandComputeUrlMapPathMatcherRouteRulesMatchRules(v interface{}, d Terrafo
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesFullPathMatch(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesFullPathMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatches(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatches(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7735,27 +7736,27 @@ func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatches(v interface
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesExactMatch(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesExactMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesInvertMatch(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesInvertMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesPrefixMatch(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesPrefixMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesPresentMatch(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesPresentMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatch(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7781,27 +7782,27 @@ func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatch(v
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeEnd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeEnd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeStart(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRangeMatchRangeStart(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRegexMatch(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesRegexMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesSuffixMatch(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesHeaderMatchesSuffixMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesIgnoreCase(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesIgnoreCase(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFilters(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFilters(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7830,7 +7831,7 @@ func expandComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFilters(v interfa
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabels(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7859,23 +7860,23 @@ func expandComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabe
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabelsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabelsName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabelsValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterLabelsValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterMatchCriteria(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFilterMatchCriteria(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesPrefixMatch(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesPrefixMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatches(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatches(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -7918,27 +7919,27 @@ func expandComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatches(v i
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesExactMatch(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesExactMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesPresentMatch(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesPresentMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesRegexMatch(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatchesRegexMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesMatchRulesRegexMatch(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesMatchRulesRegexMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteAction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -7999,7 +8000,7 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteAction(v interface{}, d Terraf
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8067,39 +8068,39 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicy(v interface{}
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowCredentials(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowCredentials(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowMethods(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowMethods(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowOrigins(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyAllowOrigins(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyDisabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyExposeHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyExposeHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyMaxAge(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionCorsPolicyMaxAge(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8125,7 +8126,7 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicy(v i
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8151,15 +8152,15 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbor
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelay(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8185,7 +8186,7 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDela
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8211,19 +8212,19 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDela
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8242,7 +8243,7 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicy(v in
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyBackendService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	// This method returns a full self link from whatever the input is.
 	if v == nil || v.(string) == "" {
 		// It does not try to construct anything from empty.
@@ -8274,7 +8275,7 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyBacke
 	return f.RelativeLink(), nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8307,11 +8308,11 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicy(v interface{
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyNumRetries(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyNumRetries(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeout(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeout(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8337,19 +8338,19 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeout
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyRetryConditions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicyRetryConditions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionTimeout(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionTimeout(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8375,15 +8376,15 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionTimeout(v interface{}, d
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutNanos(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionTimeoutSeconds(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewrite(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8409,15 +8410,15 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewrite(v interface{}
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewriteHostRewrite(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewriteHostRewrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewritePathPrefixRewrite(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionUrlRewritePathPrefixRewrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -8453,7 +8454,7 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices(
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesBackendService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	// This method returns a full self link from whatever the input is.
 	if v == nil || v.(string) == "" {
 		// It does not try to construct anything from empty.
@@ -8485,7 +8486,7 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesB
 	return f.RelativeLink(), nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderAction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8525,7 +8526,7 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesH
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -8561,23 +8562,23 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesH
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -8613,27 +8614,27 @@ func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesH
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesWeight(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesWeight(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesUrlRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesUrlRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8687,31 +8688,31 @@ func expandComputeUrlMapPathMatcherRouteRulesUrlRedirect(v interface{}, d Terraf
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesUrlRedirectHostRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesUrlRedirectHostRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesUrlRedirectHttpsRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesUrlRedirectHttpsRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesUrlRedirectPathRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesUrlRedirectPathRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesUrlRedirectPrefixRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesUrlRedirectPrefixRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesUrlRedirectRedirectResponseCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesUrlRedirectRedirectResponseCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherRouteRulesUrlRedirectStripQuery(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherRouteRulesUrlRedirectStripQuery(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultUrlRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultUrlRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8765,31 +8766,31 @@ func expandComputeUrlMapPathMatcherDefaultUrlRedirect(v interface{}, d Terraform
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultUrlRedirectHostRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultUrlRedirectHostRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultUrlRedirectHttpsRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultUrlRedirectHttpsRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultUrlRedirectPathRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultUrlRedirectPathRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultUrlRedirectPrefixRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultUrlRedirectPrefixRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultUrlRedirectRedirectResponseCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultUrlRedirectRedirectResponseCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultUrlRedirectStripQuery(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultUrlRedirectStripQuery(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteAction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8850,7 +8851,7 @@ func expandComputeUrlMapPathMatcherDefaultRouteAction(v interface{}, d Terraform
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServices(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -8886,7 +8887,7 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServices(v i
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesBackendService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	// This method returns a full self link from whatever the input is.
 	if v == nil || v.(string) == "" {
 		// It does not try to construct anything from empty.
@@ -8918,11 +8919,11 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesBack
 	return f.RelativeLink(), nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesWeight(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesWeight(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderAction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -8962,11 +8963,11 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHead
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -9002,23 +9003,23 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHead
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -9054,19 +9055,19 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHead
 	return req, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionUrlRewrite(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionUrlRewrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -9092,15 +9093,15 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionUrlRewrite(v interface{}, d
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionUrlRewritePathPrefixRewrite(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionUrlRewritePathPrefixRewrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionUrlRewriteHostRewrite(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionUrlRewriteHostRewrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionTimeout(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionTimeout(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -9126,15 +9127,15 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionTimeout(v interface{}, d Te
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionTimeoutSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionTimeoutSeconds(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionTimeoutNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionTimeoutNanos(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionRetryPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionRetryPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -9167,15 +9168,15 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionRetryPolicy(v interface{}, 
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyRetryConditions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyRetryConditions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyNumRetries(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyNumRetries(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeout(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeout(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -9201,15 +9202,15 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeout(v 
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -9228,7 +9229,7 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicy(v inter
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicyBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicyBackendService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	// This method returns a full self link from whatever the input is.
 	if v == nil || v.(string) == "" {
 		// It does not try to construct anything from empty.
@@ -9260,7 +9261,7 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicyBackendS
 	return f.RelativeLink(), nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -9328,39 +9329,39 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicy(v interface{}, d
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowOrigins(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowOrigins(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowMethods(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowMethods(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyExposeHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyExposeHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyMaxAge(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyMaxAge(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowCredentials(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyAllowCredentials(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionCorsPolicyDisabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -9386,7 +9387,7 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicy(v inte
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelay(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -9412,7 +9413,7 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelay(v
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -9438,19 +9439,19 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayFi
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -9476,15 +9477,15 @@ func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbort(v
 	return transformed, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapPathMatcherDefaultRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapTest(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapTest(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -9527,19 +9528,19 @@ func expandComputeUrlMapTest(v interface{}, d TerraformResourceData, config *Con
 	return req, nil
 }
 
-func expandComputeUrlMapTestDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapTestDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapTestHost(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapTestHost(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapTestPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapTestPath(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapTestService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapTestService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	// This method returns a full self link from whatever the input is.
 	if v == nil || v.(string) == "" {
 		// It does not try to construct anything from empty.
@@ -9571,7 +9572,7 @@ func expandComputeUrlMapTestService(v interface{}, d TerraformResourceData, conf
 	return f.RelativeLink(), nil
 }
 
-func expandComputeUrlMapDefaultUrlRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultUrlRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -9625,31 +9626,31 @@ func expandComputeUrlMapDefaultUrlRedirect(v interface{}, d TerraformResourceDat
 	return transformed, nil
 }
 
-func expandComputeUrlMapDefaultUrlRedirectHostRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultUrlRedirectHostRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultUrlRedirectHttpsRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultUrlRedirectHttpsRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultUrlRedirectPathRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultUrlRedirectPathRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultUrlRedirectPrefixRedirect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultUrlRedirectPrefixRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultUrlRedirectRedirectResponseCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultUrlRedirectRedirectResponseCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultUrlRedirectStripQuery(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultUrlRedirectStripQuery(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteAction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -9710,7 +9711,7 @@ func expandComputeUrlMapDefaultRouteAction(v interface{}, d TerraformResourceDat
 	return transformed, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionWeightedBackendServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionWeightedBackendServices(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -9746,7 +9747,7 @@ func expandComputeUrlMapDefaultRouteActionWeightedBackendServices(v interface{},
 	return req, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesBackendService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	// This method returns a full self link from whatever the input is.
 	if v == nil || v.(string) == "" {
 		// It does not try to construct anything from empty.
@@ -9778,11 +9779,11 @@ func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesBackendService(
 	return f.RelativeLink(), nil
 }
 
-func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesWeight(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesWeight(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderAction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderAction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -9822,11 +9823,11 @@ func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderAction(v 
 	return transformed, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToRemove(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAdd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -9862,23 +9863,23 @@ func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionReq
 	return req, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRequestHeadersToAddReplace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToRemove(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAdd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -9914,19 +9915,19 @@ func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionRes
 	return req, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddHeaderValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionWeightedBackendServicesHeaderActionResponseHeadersToAddReplace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionUrlRewrite(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionUrlRewrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -9952,15 +9953,15 @@ func expandComputeUrlMapDefaultRouteActionUrlRewrite(v interface{}, d TerraformR
 	return transformed, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionUrlRewritePathPrefixRewrite(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionUrlRewritePathPrefixRewrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionUrlRewriteHostRewrite(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionUrlRewriteHostRewrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionTimeout(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionTimeout(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -9986,15 +9987,15 @@ func expandComputeUrlMapDefaultRouteActionTimeout(v interface{}, d TerraformReso
 	return transformed, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionTimeoutSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionTimeoutSeconds(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionTimeoutNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionTimeoutNanos(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionRetryPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionRetryPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -10027,15 +10028,15 @@ func expandComputeUrlMapDefaultRouteActionRetryPolicy(v interface{}, d Terraform
 	return transformed, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionRetryPolicyRetryConditions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionRetryPolicyRetryConditions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionRetryPolicyNumRetries(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionRetryPolicyNumRetries(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeout(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeout(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -10061,15 +10062,15 @@ func expandComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeout(v interface{}
 	return transformed, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeoutSeconds(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionRetryPolicyPerTryTimeoutNanos(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionRequestMirrorPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionRequestMirrorPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -10088,7 +10089,7 @@ func expandComputeUrlMapDefaultRouteActionRequestMirrorPolicy(v interface{}, d T
 	return transformed, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionRequestMirrorPolicyBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionRequestMirrorPolicyBackendService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	// This method returns a full self link from whatever the input is.
 	if v == nil || v.(string) == "" {
 		// It does not try to construct anything from empty.
@@ -10120,7 +10121,7 @@ func expandComputeUrlMapDefaultRouteActionRequestMirrorPolicyBackendService(v in
 	return f.RelativeLink(), nil
 }
 
-func expandComputeUrlMapDefaultRouteActionCorsPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionCorsPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -10188,39 +10189,39 @@ func expandComputeUrlMapDefaultRouteActionCorsPolicy(v interface{}, d TerraformR
 	return transformed, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionCorsPolicyAllowOrigins(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionCorsPolicyAllowOrigins(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionCorsPolicyAllowOriginRegexes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionCorsPolicyAllowMethods(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionCorsPolicyAllowMethods(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionCorsPolicyAllowHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionCorsPolicyAllowHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionCorsPolicyExposeHeaders(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionCorsPolicyExposeHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionCorsPolicyMaxAge(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionCorsPolicyMaxAge(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionCorsPolicyAllowCredentials(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionCorsPolicyAllowCredentials(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionCorsPolicyDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionCorsPolicyDisabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -10246,7 +10247,7 @@ func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicy(v interface{}, d 
 	return transformed, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelay(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -10272,7 +10273,7 @@ func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelay(v interface{
 	return transformed, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelay(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -10298,19 +10299,19 @@ func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelay(v 
 	return transformed, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelaySeconds(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayFixedDelayNanos(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyDelayPercentage(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -10336,10 +10337,10 @@ func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbort(v interface{
 	return transformed, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbortHttpStatus(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeUrlMapDefaultRouteActionFaultInjectionPolicyAbortPercentage(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

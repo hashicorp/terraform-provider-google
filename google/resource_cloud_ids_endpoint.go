@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceCloudIdsEndpoint() *schema.Resource {
@@ -113,7 +114,7 @@ func ResourceCloudIdsEndpoint() *schema.Resource {
 }
 
 func resourceCloudIdsEndpointCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -212,7 +213,7 @@ func resourceCloudIdsEndpointCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceCloudIdsEndpointRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -277,7 +278,7 @@ func resourceCloudIdsEndpointRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceCloudIdsEndpointUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -342,7 +343,7 @@ func resourceCloudIdsEndpointUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceCloudIdsEndpointDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -387,7 +388,7 @@ func resourceCloudIdsEndpointDelete(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceCloudIdsEndpointImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/endpoints/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -406,59 +407,59 @@ func resourceCloudIdsEndpointImport(d *schema.ResourceData, meta interface{}) ([
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenCloudIdsEndpointName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdsEndpointName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	parts := strings.Split(d.Get("name").(string), "/")
 	return parts[len(parts)-1]
 }
 
-func flattenCloudIdsEndpointCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdsEndpointCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudIdsEndpointUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdsEndpointUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudIdsEndpointNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdsEndpointNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudIdsEndpointDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdsEndpointDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudIdsEndpointEndpointForwardingRule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdsEndpointEndpointForwardingRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudIdsEndpointEndpointIp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdsEndpointEndpointIp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudIdsEndpointSeverity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdsEndpointSeverity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudIdsEndpointThreatExceptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudIdsEndpointThreatExceptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandCloudIdsEndpointName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudIdsEndpointName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/endpoints/{{name}}")
 }
 
-func expandCloudIdsEndpointNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudIdsEndpointNetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIdsEndpointDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudIdsEndpointDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIdsEndpointSeverity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudIdsEndpointSeverity(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIdsEndpointThreatExceptions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudIdsEndpointThreatExceptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

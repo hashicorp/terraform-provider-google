@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceTagsTagBinding() *schema.Resource {
@@ -63,7 +64,7 @@ func ResourceTagsTagBinding() *schema.Resource {
 }
 
 func resourceTagsTagBindingCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -155,7 +156,7 @@ func resourceTagsTagBindingCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceTagsTagBindingRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -204,7 +205,7 @@ func resourceTagsTagBindingRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceTagsTagBindingDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -250,7 +251,7 @@ func resourceTagsTagBindingDelete(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceTagsTagBindingImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{
@@ -266,7 +267,7 @@ func resourceTagsTagBindingImport(d *schema.ResourceData, meta interface{}) ([]*
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenNestedTagsTagBindingName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedTagsTagBindingName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -274,19 +275,19 @@ func flattenNestedTagsTagBindingName(v interface{}, d *schema.ResourceData, conf
 	return strings.Join(parts[len(parts)-3:], "/")
 }
 
-func flattenNestedTagsTagBindingParent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedTagsTagBindingParent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedTagsTagBindingTagValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedTagsTagBindingTagValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandNestedTagsTagBindingParent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedTagsTagBindingParent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedTagsTagBindingTagValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedTagsTagBindingTagValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -318,7 +319,7 @@ func flattenNestedTagsTagBinding(d *schema.ResourceData, meta interface{}, res m
 
 func resourceTagsTagBindingFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
 	expectedName := d.Get("name")
-	expectedFlattenedName := flattenNestedTagsTagBindingName(expectedName, d, meta.(*Config))
+	expectedFlattenedName := flattenNestedTagsTagBindingName(expectedName, d, meta.(*transport_tpg.Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -327,7 +328,7 @@ func resourceTagsTagBindingFindNestedObjectInList(d *schema.ResourceData, meta i
 		}
 		item := itemRaw.(map[string]interface{})
 
-		itemName := flattenNestedTagsTagBindingName(item["name"], d, meta.(*Config))
+		itemName := flattenNestedTagsTagBindingName(item["name"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
 			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedFlattenedName)

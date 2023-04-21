@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeInstanceGroupNamedPort() *schema.Resource {
@@ -79,7 +80,7 @@ long, and comply with RFC1035.`,
 }
 
 func resourceComputeInstanceGroupNamedPortCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -163,7 +164,7 @@ func resourceComputeInstanceGroupNamedPortCreate(d *schema.ResourceData, meta in
 }
 
 func resourceComputeInstanceGroupNamedPortRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -219,7 +220,7 @@ func resourceComputeInstanceGroupNamedPortRead(d *schema.ResourceData, meta inte
 }
 
 func resourceComputeInstanceGroupNamedPortDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -276,7 +277,7 @@ func resourceComputeInstanceGroupNamedPortDelete(d *schema.ResourceData, meta in
 }
 
 func resourceComputeInstanceGroupNamedPortImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instanceGroups/(?P<group>[^/]+)/(?P<port>[^/]+)/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<group>[^/]+)/(?P<port>[^/]+)/(?P<name>[^/]+)",
@@ -296,11 +297,11 @@ func resourceComputeInstanceGroupNamedPortImport(d *schema.ResourceData, meta in
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenNestedComputeInstanceGroupNamedPortName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeInstanceGroupNamedPortName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeInstanceGroupNamedPortPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeInstanceGroupNamedPortPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -317,16 +318,16 @@ func flattenNestedComputeInstanceGroupNamedPortPort(v interface{}, d *schema.Res
 	return v // let terraform core handle it otherwise
 }
 
-func expandNestedComputeInstanceGroupNamedPortName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeInstanceGroupNamedPortName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeInstanceGroupNamedPortPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeInstanceGroupNamedPortPort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
 func resourceComputeInstanceGroupNamedPortEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	ig, err := ParseInstanceGroupFieldValue(d.Get("group").(string), d, config)
 	if err != nil {
 		return nil, err
@@ -372,16 +373,16 @@ func flattenNestedComputeInstanceGroupNamedPort(d *schema.ResourceData, meta int
 }
 
 func resourceComputeInstanceGroupNamedPortFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedPort, err := expandNestedComputeInstanceGroupNamedPortPort(d.Get("port"), d, meta.(*Config))
+	expectedPort, err := expandNestedComputeInstanceGroupNamedPortPort(d.Get("port"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedPort := flattenNestedComputeInstanceGroupNamedPortPort(expectedPort, d, meta.(*Config))
-	expectedName, err := expandNestedComputeInstanceGroupNamedPortName(d.Get("name"), d, meta.(*Config))
+	expectedFlattenedPort := flattenNestedComputeInstanceGroupNamedPortPort(expectedPort, d, meta.(*transport_tpg.Config))
+	expectedName, err := expandNestedComputeInstanceGroupNamedPortName(d.Get("name"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedName := flattenNestedComputeInstanceGroupNamedPortName(expectedName, d, meta.(*Config))
+	expectedFlattenedName := flattenNestedComputeInstanceGroupNamedPortName(expectedName, d, meta.(*transport_tpg.Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -390,13 +391,13 @@ func resourceComputeInstanceGroupNamedPortFindNestedObjectInList(d *schema.Resou
 		}
 		item := itemRaw.(map[string]interface{})
 
-		itemPort := flattenNestedComputeInstanceGroupNamedPortPort(item["port"], d, meta.(*Config))
+		itemPort := flattenNestedComputeInstanceGroupNamedPortPort(item["port"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemPort)) && isEmptyValue(reflect.ValueOf(expectedFlattenedPort))) && !reflect.DeepEqual(itemPort, expectedFlattenedPort) {
 			log.Printf("[DEBUG] Skipping item with port= %#v, looking for %#v)", itemPort, expectedFlattenedPort)
 			continue
 		}
-		itemName := flattenNestedComputeInstanceGroupNamedPortName(item["name"], d, meta.(*Config))
+		itemName := flattenNestedComputeInstanceGroupNamedPortName(item["name"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
 			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedFlattenedName)
@@ -462,7 +463,7 @@ func resourceComputeInstanceGroupNamedPortPatchDeleteEncoder(d *schema.ResourceD
 // ListForPatch handles making API request to get parent resource and
 // extracting list of objects.
 func resourceComputeInstanceGroupNamedPortListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroups/{{group}}")
 	if err != nil {
 		return nil, err

@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourcePrivatecaCaPool() *schema.Resource {
@@ -584,7 +585,7 @@ also rebuilt shortly after a certificate is revoked.`,
 }
 
 func resourcePrivatecaCaPoolCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -673,7 +674,7 @@ func resourcePrivatecaCaPoolCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourcePrivatecaCaPoolRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -723,7 +724,7 @@ func resourcePrivatecaCaPoolRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourcePrivatecaCaPoolUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -808,7 +809,7 @@ func resourcePrivatecaCaPoolUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourcePrivatecaCaPoolDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -853,7 +854,7 @@ func resourcePrivatecaCaPoolDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourcePrivatecaCaPoolImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/caPools/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -872,11 +873,11 @@ func resourcePrivatecaCaPoolImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenPrivatecaCaPoolTier(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolTier(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCaPoolIssuancePolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -897,7 +898,7 @@ func flattenPrivatecaCaPoolIssuancePolicy(v interface{}, d *schema.ResourceData,
 		flattenPrivatecaCaPoolIssuancePolicyBaselineValues(original["baselineValues"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -916,7 +917,7 @@ func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypes(v interface{}, d *schem
 	}
 	return transformed
 }
-func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsa(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsa(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -931,15 +932,15 @@ func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsa(v interface{}, d *sc
 		flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsaMaxModulusSize(original["maxModulusSize"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsaMinModulusSize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsaMinModulusSize(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsaMaxModulusSize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsaMaxModulusSize(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurve(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurve(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -952,15 +953,15 @@ func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurve(v interfac
 		flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurveSignatureAlgorithm(original["signatureAlgorithm"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurveSignatureAlgorithm(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurveSignatureAlgorithm(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCaPoolIssuancePolicyMaximumLifetime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyMaximumLifetime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCaPoolIssuancePolicyAllowedIssuanceModes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyAllowedIssuanceModes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -975,15 +976,15 @@ func flattenPrivatecaCaPoolIssuancePolicyAllowedIssuanceModes(v interface{}, d *
 		flattenPrivatecaCaPoolIssuancePolicyAllowedIssuanceModesAllowConfigBasedIssuance(original["allowConfigBasedIssuance"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCaPoolIssuancePolicyAllowedIssuanceModesAllowCsrBasedIssuance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyAllowedIssuanceModesAllowCsrBasedIssuance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCaPoolIssuancePolicyAllowedIssuanceModesAllowConfigBasedIssuance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyAllowedIssuanceModesAllowConfigBasedIssuance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraints(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraints(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1000,15 +1001,15 @@ func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraints(v interface{}, d *s
 		flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpression(original["celExpression"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsAllowSubjectPassthrough(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsAllowSubjectPassthrough(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsAllowSubjectAltNamesPassthrough(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsAllowSubjectAltNamesPassthrough(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpression(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpression(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1027,23 +1028,23 @@ func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpression(v inte
 		flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionLocation(original["location"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionExpression(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionExpression(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionTitle(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionTitle(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCaPoolIssuancePolicyBaselineValues(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolIssuancePolicyBaselineValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		v = make(map[string]interface{})
 	}
@@ -1063,7 +1064,7 @@ func flattenPrivatecaCaPoolIssuancePolicyBaselineValues(v interface{}, d *schema
 	return []interface{}{transformed}
 }
 
-func flattenPrivatecaCaPoolPublishingOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolPublishingOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1078,23 +1079,23 @@ func flattenPrivatecaCaPoolPublishingOptions(v interface{}, d *schema.ResourceDa
 		flattenPrivatecaCaPoolPublishingOptionsPublishCrl(original["publishCrl"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCaPoolPublishingOptionsPublishCaCert(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolPublishingOptionsPublishCaCert(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCaPoolPublishingOptionsPublishCrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolPublishingOptionsPublishCrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCaPoolLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCaPoolLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandPrivatecaCaPoolTier(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolTier(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1141,7 +1142,7 @@ func expandPrivatecaCaPoolIssuancePolicy(v interface{}, d TerraformResourceData,
 	return transformed, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1170,7 +1171,7 @@ func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypes(v interface{}, d Terrafo
 	return req, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsa(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsa(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1196,15 +1197,15 @@ func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsa(v interface{}, d Terr
 	return transformed, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsaMinModulusSize(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsaMinModulusSize(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsaMaxModulusSize(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsaMaxModulusSize(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurve(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurve(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1223,15 +1224,15 @@ func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurve(v interface
 	return transformed, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurveSignatureAlgorithm(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurveSignatureAlgorithm(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyMaximumLifetime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyMaximumLifetime(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedIssuanceModes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedIssuanceModes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1257,15 +1258,15 @@ func expandPrivatecaCaPoolIssuancePolicyAllowedIssuanceModes(v interface{}, d Te
 	return transformed, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedIssuanceModesAllowCsrBasedIssuance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedIssuanceModesAllowCsrBasedIssuance(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedIssuanceModesAllowConfigBasedIssuance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedIssuanceModesAllowConfigBasedIssuance(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyIdentityConstraints(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyIdentityConstraints(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1298,15 +1299,15 @@ func expandPrivatecaCaPoolIssuancePolicyIdentityConstraints(v interface{}, d Ter
 	return transformed, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsAllowSubjectPassthrough(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsAllowSubjectPassthrough(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsAllowSubjectAltNamesPassthrough(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsAllowSubjectAltNamesPassthrough(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpression(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpression(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1346,23 +1347,23 @@ func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpression(v inter
 	return transformed, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionExpression(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionExpression(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionTitle(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionTitle(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionLocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionLocation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyBaselineValues(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyBaselineValues(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return v, nil
 	}
@@ -1415,7 +1416,7 @@ func expandPrivatecaCaPoolIssuancePolicyBaselineValues(v interface{}, d Terrafor
 	return transformed, nil
 }
 
-func expandPrivatecaCaPoolPublishingOptions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolPublishingOptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1441,15 +1442,15 @@ func expandPrivatecaCaPoolPublishingOptions(v interface{}, d TerraformResourceDa
 	return transformed, nil
 }
 
-func expandPrivatecaCaPoolPublishingOptionsPublishCaCert(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolPublishingOptionsPublishCaCert(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolPublishingOptionsPublishCrl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCaPoolPublishingOptionsPublishCrl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandPrivatecaCaPoolLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

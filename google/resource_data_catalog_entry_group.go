@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceDataCatalogEntryGroup() *schema.Resource {
@@ -85,7 +86,7 @@ contain only English letters, numbers and underscores, and be at most 64 charact
 }
 
 func resourceDataCatalogEntryGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -145,7 +146,7 @@ func resourceDataCatalogEntryGroupCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceDataCatalogEntryGroupRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -200,7 +201,7 @@ func resourceDataCatalogEntryGroupRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceDataCatalogEntryGroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -267,7 +268,7 @@ func resourceDataCatalogEntryGroupUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceDataCatalogEntryGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -304,7 +305,7 @@ func resourceDataCatalogEntryGroupDelete(d *schema.ResourceData, meta interface{
 }
 
 func resourceDataCatalogEntryGroupImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -330,22 +331,22 @@ func resourceDataCatalogEntryGroupImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDataCatalogEntryGroupName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataCatalogEntryGroupName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataCatalogEntryGroupDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataCatalogEntryGroupDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataCatalogEntryGroupDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataCatalogEntryGroupDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandDataCatalogEntryGroupDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataCatalogEntryGroupDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogEntryGroupDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataCatalogEntryGroupDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceDialogflowCXEntityType() *schema.Resource {
@@ -146,7 +147,7 @@ Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/entityTy
 }
 
 func resourceDialogflowCXEntityTypeCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -244,7 +245,7 @@ func resourceDialogflowCXEntityTypeCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceDialogflowCXEntityTypeRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -310,7 +311,7 @@ func resourceDialogflowCXEntityTypeRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceDialogflowCXEntityTypeUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -436,7 +437,7 @@ func resourceDialogflowCXEntityTypeUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceDialogflowCXEntityTypeDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -482,7 +483,7 @@ func resourceDialogflowCXEntityTypeDelete(d *schema.ResourceData, meta interface
 }
 
 func resourceDialogflowCXEntityTypeImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value and parent contains slashes
 	if err := ParseImportId([]string{
@@ -502,26 +503,26 @@ func resourceDialogflowCXEntityTypeImport(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDialogflowCXEntityTypeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXEntityTypeName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenDialogflowCXEntityTypeDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXEntityTypeDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXEntityTypeKind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXEntityTypeKind(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXEntityTypeAutoExpansionMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXEntityTypeAutoExpansionMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXEntityTypeEntities(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXEntityTypeEntities(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -540,15 +541,15 @@ func flattenDialogflowCXEntityTypeEntities(v interface{}, d *schema.ResourceData
 	}
 	return transformed
 }
-func flattenDialogflowCXEntityTypeEntitiesValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXEntityTypeEntitiesValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXEntityTypeEntitiesSynonyms(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXEntityTypeEntitiesSynonyms(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXEntityTypeExcludedPhrases(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXEntityTypeExcludedPhrases(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -566,31 +567,31 @@ func flattenDialogflowCXEntityTypeExcludedPhrases(v interface{}, d *schema.Resou
 	}
 	return transformed
 }
-func flattenDialogflowCXEntityTypeExcludedPhrasesValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXEntityTypeExcludedPhrasesValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXEntityTypeEnableFuzzyExtraction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXEntityTypeEnableFuzzyExtraction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXEntityTypeRedact(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXEntityTypeRedact(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandDialogflowCXEntityTypeDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXEntityTypeDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXEntityTypeKind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXEntityTypeKind(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXEntityTypeAutoExpansionMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXEntityTypeAutoExpansionMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXEntityTypeEntities(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXEntityTypeEntities(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -619,15 +620,15 @@ func expandDialogflowCXEntityTypeEntities(v interface{}, d TerraformResourceData
 	return req, nil
 }
 
-func expandDialogflowCXEntityTypeEntitiesValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXEntityTypeEntitiesValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXEntityTypeEntitiesSynonyms(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXEntityTypeEntitiesSynonyms(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXEntityTypeExcludedPhrases(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXEntityTypeExcludedPhrases(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -649,14 +650,14 @@ func expandDialogflowCXEntityTypeExcludedPhrases(v interface{}, d TerraformResou
 	return req, nil
 }
 
-func expandDialogflowCXEntityTypeExcludedPhrasesValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXEntityTypeExcludedPhrasesValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXEntityTypeEnableFuzzyExtraction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXEntityTypeEnableFuzzyExtraction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXEntityTypeRedact(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXEntityTypeRedact(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

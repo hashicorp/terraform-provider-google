@@ -3,13 +3,14 @@ package google
 import (
 	"bytes"
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"time"
 
 	"google.golang.org/api/compute/v1"
 )
 
 type DeploymentManagerOperationWaiter struct {
-	Config       *Config
+	Config       *transport_tpg.Config
 	UserAgent    string
 	Project      string
 	OperationUrl string
@@ -36,7 +37,7 @@ func (w *DeploymentManagerOperationWaiter) QueryOp() (interface{}, error) {
 	return op, nil
 }
 
-func DeploymentManagerOperationWaitTime(config *Config, resp interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func DeploymentManagerOperationWaitTime(config *transport_tpg.Config, resp interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	op := &compute.Operation{}
 	err := Convert(resp, op)
 	if err != nil {

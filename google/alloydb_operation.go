@@ -17,10 +17,12 @@ package google
 import (
 	"fmt"
 	"time"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 type AlloydbOperationWaiter struct {
-	Config    *Config
+	Config    *transport_tpg.Config
 	UserAgent string
 	Project   string
 	CommonOperationWaiter
@@ -36,7 +38,7 @@ func (w *AlloydbOperationWaiter) QueryOp() (interface{}, error) {
 	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
-func createAlloydbWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*AlloydbOperationWaiter, error) {
+func createAlloydbWaiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*AlloydbOperationWaiter, error) {
 	w := &AlloydbOperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
@@ -48,7 +50,7 @@ func createAlloydbWaiter(config *Config, op map[string]interface{}, project, act
 	return w, nil
 }
 
-func AlloydbOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func AlloydbOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 const (
@@ -103,15 +104,7 @@ or be the value of [%d], got %d`, k, GcpRouterPartnerAsn, value))
 }
 
 func validateRegexp(re string) schema.SchemaValidateFunc {
-	return func(v interface{}, k string) (ws []string, errors []error) {
-		value := v.(string)
-		if !regexp.MustCompile(re).MatchString(value) {
-			errors = append(errors, fmt.Errorf(
-				"%q (%q) doesn't match regexp %q", k, value, re))
-		}
-
-		return
-	}
+	return transport_tpg.ValidateRegexp(re)
 }
 
 func validateEnum(values []string) schema.SchemaValidateFunc {

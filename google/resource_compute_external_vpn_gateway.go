@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeExternalVpnGateway() *schema.Resource {
@@ -116,7 +117,7 @@ it cannot be an IP address from Google Compute Engine.`,
 }
 
 func resourceComputeExternalVpnGatewayCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -201,7 +202,7 @@ func resourceComputeExternalVpnGatewayCreate(d *schema.ResourceData, meta interf
 }
 
 func resourceComputeExternalVpnGatewayRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -257,7 +258,7 @@ func resourceComputeExternalVpnGatewayRead(d *schema.ResourceData, meta interfac
 }
 
 func resourceComputeExternalVpnGatewayDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -302,7 +303,7 @@ func resourceComputeExternalVpnGatewayDelete(d *schema.ResourceData, meta interf
 }
 
 func resourceComputeExternalVpnGatewayImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/externalVpnGateways/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -321,23 +322,23 @@ func resourceComputeExternalVpnGatewayImport(d *schema.ResourceData, meta interf
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeExternalVpnGatewayDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeExternalVpnGatewayDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeExternalVpnGatewayLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeExternalVpnGatewayLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeExternalVpnGatewayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeExternalVpnGatewayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeExternalVpnGatewayRedundancyType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeExternalVpnGatewayRedundancyType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeExternalVpnGatewayInterface(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeExternalVpnGatewayInterface(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -356,7 +357,7 @@ func flattenComputeExternalVpnGatewayInterface(v interface{}, d *schema.Resource
 	}
 	return transformed
 }
-func flattenComputeExternalVpnGatewayInterfaceId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeExternalVpnGatewayInterfaceId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -373,15 +374,15 @@ func flattenComputeExternalVpnGatewayInterfaceId(v interface{}, d *schema.Resour
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeExternalVpnGatewayInterfaceIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeExternalVpnGatewayInterfaceIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandComputeExternalVpnGatewayDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeExternalVpnGatewayDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeExternalVpnGatewayLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandComputeExternalVpnGatewayLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -392,15 +393,15 @@ func expandComputeExternalVpnGatewayLabels(v interface{}, d TerraformResourceDat
 	return m, nil
 }
 
-func expandComputeExternalVpnGatewayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeExternalVpnGatewayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeExternalVpnGatewayRedundancyType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeExternalVpnGatewayRedundancyType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeExternalVpnGatewayInterface(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeExternalVpnGatewayInterface(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -429,10 +430,10 @@ func expandComputeExternalVpnGatewayInterface(v interface{}, d TerraformResource
 	return req, nil
 }
 
-func expandComputeExternalVpnGatewayInterfaceId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeExternalVpnGatewayInterfaceId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeExternalVpnGatewayInterfaceIpAddress(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeExternalVpnGatewayInterfaceIpAddress(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

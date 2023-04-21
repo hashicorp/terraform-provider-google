@@ -18,10 +18,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 type ApigeeOperationWaiter struct {
-	Config    *Config
+	Config    *transport_tpg.Config
 	UserAgent string
 	CommonOperationWaiter
 }
@@ -36,7 +38,7 @@ func (w *ApigeeOperationWaiter) QueryOp() (interface{}, error) {
 	return SendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
 }
 
-func createApigeeWaiter(config *Config, op map[string]interface{}, activity, userAgent string) (*ApigeeOperationWaiter, error) {
+func createApigeeWaiter(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string) (*ApigeeOperationWaiter, error) {
 	w := &ApigeeOperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
@@ -48,7 +50,7 @@ func createApigeeWaiter(config *Config, op map[string]interface{}, activity, use
 }
 
 // nolint: deadcode,unused
-func ApigeeOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
+func ApigeeOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
 	w, err := createApigeeWaiter(config, op, activity, userAgent)
 	if err != nil {
 		return err
@@ -59,7 +61,7 @@ func ApigeeOperationWaitTimeWithResponse(config *Config, op map[string]interface
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func ApigeeOperationWaitTime(config *Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
+func ApigeeOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

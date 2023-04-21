@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceActiveDirectoryDomain() *schema.Resource {
@@ -113,7 +114,7 @@ Similar to what would be chosen for an Active Directory set up on an internal ne
 }
 
 func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -212,7 +213,7 @@ func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceActiveDirectoryDomainRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -271,7 +272,7 @@ func resourceActiveDirectoryDomainRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceActiveDirectoryDomainUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -356,7 +357,7 @@ func resourceActiveDirectoryDomainUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceActiveDirectoryDomainDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -402,7 +403,7 @@ func resourceActiveDirectoryDomainDelete(d *schema.ResourceData, meta interface{
 
 func resourceActiveDirectoryDomainImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
@@ -412,38 +413,38 @@ func resourceActiveDirectoryDomainImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenActiveDirectoryDomainName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenActiveDirectoryDomainName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenActiveDirectoryDomainLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenActiveDirectoryDomainLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenActiveDirectoryDomainAuthorizedNetworks(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenActiveDirectoryDomainAuthorizedNetworks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenActiveDirectoryDomainReservedIpRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenActiveDirectoryDomainReservedIpRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenActiveDirectoryDomainLocations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenActiveDirectoryDomainLocations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenActiveDirectoryDomainAdmin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenActiveDirectoryDomainAdmin(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenActiveDirectoryDomainFqdn(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenActiveDirectoryDomainFqdn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandActiveDirectoryDomainLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandActiveDirectoryDomainLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -454,19 +455,19 @@ func expandActiveDirectoryDomainLabels(v interface{}, d TerraformResourceData, c
 	return m, nil
 }
 
-func expandActiveDirectoryDomainAuthorizedNetworks(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandActiveDirectoryDomainAuthorizedNetworks(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandActiveDirectoryDomainReservedIpRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandActiveDirectoryDomainReservedIpRange(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandActiveDirectoryDomainLocations(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandActiveDirectoryDomainLocations(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandActiveDirectoryDomainAdmin(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandActiveDirectoryDomainAdmin(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

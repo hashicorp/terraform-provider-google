@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceTagsTagKey() *schema.Resource {
@@ -112,7 +113,7 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 }
 
 func resourceTagsTagKeyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -212,7 +213,7 @@ func resourceTagsTagKeyCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTagsTagKeyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -264,7 +265,7 @@ func resourceTagsTagKeyRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTagsTagKeyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -330,7 +331,7 @@ func resourceTagsTagKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTagsTagKeyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -376,7 +377,7 @@ func resourceTagsTagKeyDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTagsTagKeyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"tagKeys/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -394,58 +395,58 @@ func resourceTagsTagKeyImport(d *schema.ResourceData, meta interface{}) ([]*sche
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenTagsTagKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTagsTagKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenTagsTagKeyParent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTagsTagKeyParent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenTagsTagKeyShortName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTagsTagKeyShortName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenTagsTagKeyNamespacedName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTagsTagKeyNamespacedName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenTagsTagKeyDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTagsTagKeyDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenTagsTagKeyCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTagsTagKeyCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenTagsTagKeyUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTagsTagKeyUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenTagsTagKeyPurpose(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTagsTagKeyPurpose(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandTagsTagKeyParent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTagsTagKeyParent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTagsTagKeyShortName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTagsTagKeyShortName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTagsTagKeyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTagsTagKeyDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTagsTagKeyPurpose(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTagsTagKeyPurpose(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTagsTagKeyPurposeData(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandTagsTagKeyPurposeData(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

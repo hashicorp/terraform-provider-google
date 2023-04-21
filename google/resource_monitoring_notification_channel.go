@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 var sensitiveLabels = []string{"auth_token", "service_key", "password"}
@@ -167,7 +168,7 @@ deleted in a delete operation.`,
 }
 
 func resourceMonitoringNotificationChannelCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -281,7 +282,7 @@ func resourceMonitoringNotificationChannelCreate(d *schema.ResourceData, meta in
 }
 
 func resourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -361,7 +362,7 @@ func resourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta inte
 }
 
 func resourceMonitoringNotificationChannelUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -449,7 +450,7 @@ func resourceMonitoringNotificationChannelUpdate(d *schema.ResourceData, meta in
 }
 
 func resourceMonitoringNotificationChannelDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -494,7 +495,7 @@ func resourceMonitoringNotificationChannelDelete(d *schema.ResourceData, meta in
 
 func resourceMonitoringNotificationChannelImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
@@ -504,39 +505,39 @@ func resourceMonitoringNotificationChannelImport(d *schema.ResourceData, meta in
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenMonitoringNotificationChannelLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringNotificationChannelLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringNotificationChannelName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelVerificationStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringNotificationChannelVerificationStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringNotificationChannelType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelUserLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringNotificationChannelUserLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringNotificationChannelDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringNotificationChannelDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringNotificationChannelEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringNotificationChannelEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandMonitoringNotificationChannelLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandMonitoringNotificationChannelLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -547,11 +548,11 @@ func expandMonitoringNotificationChannelLabels(v interface{}, d TerraformResourc
 	return m, nil
 }
 
-func expandMonitoringNotificationChannelType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringNotificationChannelType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringNotificationChannelUserLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandMonitoringNotificationChannelUserLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -562,15 +563,15 @@ func expandMonitoringNotificationChannelUserLabels(v interface{}, d TerraformRes
 	return m, nil
 }
 
-func expandMonitoringNotificationChannelDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringNotificationChannelDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringNotificationChannelDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringNotificationChannelDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringNotificationChannelEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringNotificationChannelEnabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

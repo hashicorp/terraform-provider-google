@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceApigeeNatAddress() *schema.Resource {
@@ -68,7 +69,7 @@ in the format 'organizations/{{org_name}}/instances/{{instance_name}}'.`,
 }
 
 func resourceApigeeNatAddressCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -137,7 +138,7 @@ func resourceApigeeNatAddressCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceApigeeNatAddressRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -174,7 +175,7 @@ func resourceApigeeNatAddressRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceApigeeNatAddressDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -213,7 +214,7 @@ func resourceApigeeNatAddressDelete(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceApigeeNatAddressImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
 	if err := ParseImportId([]string{
@@ -233,18 +234,18 @@ func resourceApigeeNatAddressImport(d *schema.ResourceData, meta interface{}) ([
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenApigeeNatAddressName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeNatAddressName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeNatAddressIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeNatAddressIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeNatAddressState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeNatAddressState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandApigeeNatAddressName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeNatAddressName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

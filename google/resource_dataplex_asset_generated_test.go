@@ -22,6 +22,7 @@ import (
 	dataplex "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/dataplex"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"strings"
 	"testing"
 )
@@ -223,7 +224,7 @@ func testAccCheckDataplexAssetDestroyProducer(t *testing.T) func(s *terraform.St
 				UpdateTime:   dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
-			client := NewDCLDataplexClient(config, config.UserAgent, billingProject, 0)
+			client := transport_tpg.NewDCLDataplexClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetAsset(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_dataplex_asset still exists %v", obj)

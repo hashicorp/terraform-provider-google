@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceIAM2AccessBoundaryPolicy() *schema.Resource {
@@ -139,7 +140,7 @@ This can be used e.g. in UIs which allow to enter the expression.`,
 }
 
 func resourceIAM2AccessBoundaryPolicyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -206,7 +207,7 @@ func resourceIAM2AccessBoundaryPolicyCreate(d *schema.ResourceData, meta interfa
 }
 
 func resourceIAM2AccessBoundaryPolicyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -243,7 +244,7 @@ func resourceIAM2AccessBoundaryPolicyRead(d *schema.ResourceData, meta interface
 }
 
 func resourceIAM2AccessBoundaryPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -303,7 +304,7 @@ func resourceIAM2AccessBoundaryPolicyUpdate(d *schema.ResourceData, meta interfa
 }
 
 func resourceIAM2AccessBoundaryPolicyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -342,7 +343,7 @@ func resourceIAM2AccessBoundaryPolicyDelete(d *schema.ResourceData, meta interfa
 }
 
 func resourceIAM2AccessBoundaryPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"(?P<parent>[^/]+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {
@@ -359,15 +360,15 @@ func resourceIAM2AccessBoundaryPolicyImport(d *schema.ResourceData, meta interfa
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenIAM2AccessBoundaryPolicyDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAM2AccessBoundaryPolicyDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAM2AccessBoundaryPolicyEtag(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAM2AccessBoundaryPolicyEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAM2AccessBoundaryPolicyRules(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAM2AccessBoundaryPolicyRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -386,11 +387,11 @@ func flattenIAM2AccessBoundaryPolicyRules(v interface{}, d *schema.ResourceData,
 	}
 	return transformed
 }
-func flattenIAM2AccessBoundaryPolicyRulesDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAM2AccessBoundaryPolicyRulesDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -407,15 +408,15 @@ func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRule(v interface{}, d *sc
 		flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityCondition(original["availabilityCondition"], d, config)
 	return []interface{}{transformed}
 }
-func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailableResource(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailableResource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailablePermissions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailablePermissions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityCondition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityCondition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -434,31 +435,31 @@ func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityCondition
 		flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionLocation(original["location"], d, config)
 	return []interface{}{transformed}
 }
-func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionExpression(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionExpression(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionTitle(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionTitle(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionLocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandIAM2AccessBoundaryPolicyDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAM2AccessBoundaryPolicyDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAM2AccessBoundaryPolicyEtag(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAM2AccessBoundaryPolicyEtag(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAM2AccessBoundaryPolicyRules(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAM2AccessBoundaryPolicyRules(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -487,11 +488,11 @@ func expandIAM2AccessBoundaryPolicyRules(v interface{}, d TerraformResourceData,
 	return req, nil
 }
 
-func expandIAM2AccessBoundaryPolicyRulesDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAM2AccessBoundaryPolicyRulesDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRule(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -524,15 +525,15 @@ func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRule(v interface{}, d Terr
 	return transformed, nil
 }
 
-func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailableResource(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailableResource(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailablePermissions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailablePermissions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityCondition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityCondition(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -572,18 +573,18 @@ func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityCondition(
 	return transformed, nil
 }
 
-func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionExpression(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionExpression(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionTitle(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionTitle(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionLocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAM2AccessBoundaryPolicyRulesAccessBoundaryRuleAvailabilityConditionLocation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

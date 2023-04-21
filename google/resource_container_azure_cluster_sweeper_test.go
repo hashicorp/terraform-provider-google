@@ -22,6 +22,7 @@ import (
 
 	containerazure "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/containerazure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func init() {
@@ -58,7 +59,7 @@ func testSweepContainerAzureCluster(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLContainerAzureClient(config, config.UserAgent, "", 0)
+	client := transport_tpg.NewDCLContainerAzureClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllCluster(context.Background(), d["project"], d["location"], isDeletableContainerAzureCluster)
 	if err != nil {
 		return err

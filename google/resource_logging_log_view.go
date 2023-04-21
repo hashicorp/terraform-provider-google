@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceLoggingLogView() *schema.Resource {
@@ -97,7 +98,7 @@ func ResourceLoggingLogView() *schema.Resource {
 }
 
 func resourceLoggingLogViewCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -159,7 +160,7 @@ func resourceLoggingLogViewCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceLoggingLogViewRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -199,7 +200,7 @@ func resourceLoggingLogViewRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceLoggingLogViewUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -265,7 +266,7 @@ func resourceLoggingLogViewUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceLoggingLogViewDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -296,7 +297,7 @@ func resourceLoggingLogViewDelete(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceLoggingLogViewImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"(?P<parent>.+)/locations/(?P<location>[^/]+)/buckets/(?P<bucket>[^/]+)/views/(?P<name>[^/]+)",
 	}, d, config); err != nil {
@@ -313,31 +314,31 @@ func resourceLoggingLogViewImport(d *schema.ResourceData, meta interface{}) ([]*
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenLoggingLogViewDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingLogViewDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingLogViewCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingLogViewCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingLogViewUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingLogViewUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenLoggingLogViewFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenLoggingLogViewFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandLoggingLogViewName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingLogViewName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingLogViewDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingLogViewDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandLoggingLogViewFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandLoggingLogViewFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

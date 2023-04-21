@@ -25,6 +25,8 @@ import (
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
 	privateca "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/privateca"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourcePrivatecaCertificateTemplate() *schema.Resource {
@@ -467,7 +469,7 @@ func PrivatecaCertificateTemplatePredefinedValuesPolicyIdsSchema() *schema.Resou
 }
 
 func resourcePrivatecaCertificateTemplateCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -499,7 +501,7 @@ func resourcePrivatecaCertificateTemplateCreate(d *schema.ResourceData, meta int
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLPrivatecaClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
+	client := transport_tpg.NewDCLPrivatecaClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -522,7 +524,7 @@ func resourcePrivatecaCertificateTemplateCreate(d *schema.ResourceData, meta int
 }
 
 func resourcePrivatecaCertificateTemplateRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -548,7 +550,7 @@ func resourcePrivatecaCertificateTemplateRead(d *schema.ResourceData, meta inter
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLPrivatecaClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
+	client := transport_tpg.NewDCLPrivatecaClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -595,7 +597,7 @@ func resourcePrivatecaCertificateTemplateRead(d *schema.ResourceData, meta inter
 	return nil
 }
 func resourcePrivatecaCertificateTemplateUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -622,7 +624,7 @@ func resourcePrivatecaCertificateTemplateUpdate(d *schema.ResourceData, meta int
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLPrivatecaClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
+	client := transport_tpg.NewDCLPrivatecaClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -645,7 +647,7 @@ func resourcePrivatecaCertificateTemplateUpdate(d *schema.ResourceData, meta int
 }
 
 func resourcePrivatecaCertificateTemplateDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -672,7 +674,7 @@ func resourcePrivatecaCertificateTemplateDelete(d *schema.ResourceData, meta int
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLPrivatecaClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
+	client := transport_tpg.NewDCLPrivatecaClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -688,7 +690,7 @@ func resourcePrivatecaCertificateTemplateDelete(d *schema.ResourceData, meta int
 }
 
 func resourcePrivatecaCertificateTemplateImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/certificateTemplates/(?P<name>[^/]+)",

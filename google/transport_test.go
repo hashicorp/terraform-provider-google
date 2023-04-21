@@ -1,6 +1,7 @@
 package google
 
 import (
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"testing"
 )
 
@@ -8,7 +9,7 @@ func TestReplaceVars(t *testing.T) {
 	cases := map[string]struct {
 		Template      string
 		SchemaValues  map[string]interface{}
-		Config        *Config
+		Config        *transport_tpg.Config
 		Expected      string
 		ExpectedError bool
 	}{
@@ -18,21 +19,21 @@ func TestReplaceVars(t *testing.T) {
 		},
 		"unspecified region fails": {
 			Template: "projects/{{project}}/regions/{{region}}/subnetworks",
-			Config: &Config{
+			Config: &transport_tpg.Config{
 				Project: "default-project",
 			},
 			ExpectedError: true,
 		},
 		"unspecified zone fails": {
 			Template: "projects/{{project}}/zones/{{zone}}/instances",
-			Config: &Config{
+			Config: &transport_tpg.Config{
 				Project: "default-project",
 			},
 			ExpectedError: true,
 		},
 		"regional with default values": {
 			Template: "projects/{{project}}/regions/{{region}}/subnetworks",
-			Config: &Config{
+			Config: &transport_tpg.Config{
 				Project: "default-project",
 				Region:  "default-region",
 			},
@@ -40,7 +41,7 @@ func TestReplaceVars(t *testing.T) {
 		},
 		"zonal with default values": {
 			Template: "projects/{{project}}/zones/{{zone}}/instances",
-			Config: &Config{
+			Config: &transport_tpg.Config{
 				Project: "default-project",
 				Zone:    "default-zone",
 			},
@@ -94,7 +95,7 @@ func TestReplaceVars(t *testing.T) {
 		},
 		"base path recursive replacement": {
 			Template: "{{CloudRunBasePath}}namespaces/{{project}}/services",
-			Config: &Config{
+			Config: &transport_tpg.Config{
 				Project:          "default-project",
 				Region:           "default-region",
 				CloudRunBasePath: "https://{{region}}-run.googleapis.com/",
@@ -111,7 +112,7 @@ func TestReplaceVars(t *testing.T) {
 
 			config := tc.Config
 			if config == nil {
-				config = &Config{}
+				config = &transport_tpg.Config{}
 			}
 
 			v, err := ReplaceVars(d, config, tc.Template)

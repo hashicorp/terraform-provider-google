@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceGameServicesGameServerDeploymentRollout() *schema.Resource {
@@ -110,7 +111,7 @@ eg: 'projects/my-project/locations/global/gameServerDeployments/my-deployment/ro
 }
 
 func resourceGameServicesGameServerDeploymentRolloutCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	// Store the ID now
 	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
 	if err != nil {
@@ -130,7 +131,7 @@ func resourceGameServicesGameServerDeploymentRolloutCreate(d *schema.ResourceDat
 }
 
 func resourceGameServicesGameServerDeploymentRolloutRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -177,7 +178,7 @@ func resourceGameServicesGameServerDeploymentRolloutRead(d *schema.ResourceData,
 }
 
 func resourceGameServicesGameServerDeploymentRolloutUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -252,7 +253,7 @@ func resourceGameServicesGameServerDeploymentRolloutUpdate(d *schema.ResourceDat
 }
 
 func resourceGameServicesGameServerDeploymentRolloutDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -297,7 +298,7 @@ func resourceGameServicesGameServerDeploymentRolloutDelete(d *schema.ResourceDat
 }
 
 func resourceGameServicesGameServerDeploymentRolloutImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/global/gameServerDeployments/(?P<deployment_id>[^/]+)/rollout",
 		"(?P<project>[^/]+)/(?P<deployment_id>[^/]+)",
@@ -316,15 +317,15 @@ func resourceGameServicesGameServerDeploymentRolloutImport(d *schema.ResourceDat
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenGameServicesGameServerDeploymentRolloutName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenGameServicesGameServerDeploymentRolloutName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenGameServicesGameServerDeploymentRolloutDefaultGameServerConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenGameServicesGameServerDeploymentRolloutDefaultGameServerConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenGameServicesGameServerDeploymentRolloutGameServerConfigOverrides(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenGameServicesGameServerDeploymentRolloutGameServerConfigOverrides(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -343,7 +344,7 @@ func flattenGameServicesGameServerDeploymentRolloutGameServerConfigOverrides(v i
 	}
 	return transformed
 }
-func flattenGameServicesGameServerDeploymentRolloutGameServerConfigOverridesRealmsSelector(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenGameServicesGameServerDeploymentRolloutGameServerConfigOverridesRealmsSelector(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -356,19 +357,19 @@ func flattenGameServicesGameServerDeploymentRolloutGameServerConfigOverridesReal
 		flattenGameServicesGameServerDeploymentRolloutGameServerConfigOverridesRealmsSelectorRealms(original["realms"], d, config)
 	return []interface{}{transformed}
 }
-func flattenGameServicesGameServerDeploymentRolloutGameServerConfigOverridesRealmsSelectorRealms(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenGameServicesGameServerDeploymentRolloutGameServerConfigOverridesRealmsSelectorRealms(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenGameServicesGameServerDeploymentRolloutGameServerConfigOverridesConfigVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenGameServicesGameServerDeploymentRolloutGameServerConfigOverridesConfigVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandGameServicesGameServerDeploymentRolloutDefaultGameServerConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandGameServicesGameServerDeploymentRolloutDefaultGameServerConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverrides(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverrides(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -397,7 +398,7 @@ func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverrides(v in
 	return req, nil
 }
 
-func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverridesRealmsSelector(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverridesRealmsSelector(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -416,10 +417,10 @@ func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverridesRealm
 	return transformed, nil
 }
 
-func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverridesRealmsSelectorRealms(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverridesRealmsSelectorRealms(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverridesConfigVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverridesConfigVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

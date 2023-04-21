@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceContainerAnalysisOccurrence() *schema.Resource {
@@ -164,7 +165,7 @@ unambiguously computed to derive the payload.`,
 }
 
 func resourceContainerAnalysisOccurrenceCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -248,7 +249,7 @@ func resourceContainerAnalysisOccurrenceCreate(d *schema.ResourceData, meta inte
 }
 
 func resourceContainerAnalysisOccurrenceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -322,7 +323,7 @@ func resourceContainerAnalysisOccurrenceRead(d *schema.ResourceData, meta interf
 }
 
 func resourceContainerAnalysisOccurrenceUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -401,7 +402,7 @@ func resourceContainerAnalysisOccurrenceUpdate(d *schema.ResourceData, meta inte
 }
 
 func resourceContainerAnalysisOccurrenceDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -445,7 +446,7 @@ func resourceContainerAnalysisOccurrenceDelete(d *schema.ResourceData, meta inte
 }
 
 func resourceContainerAnalysisOccurrenceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/occurrences/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -464,38 +465,38 @@ func resourceContainerAnalysisOccurrenceImport(d *schema.ResourceData, meta inte
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenContainerAnalysisOccurrenceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisOccurrenceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenContainerAnalysisOccurrenceResourceUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisOccurrenceResourceUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAnalysisOccurrenceNoteName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisOccurrenceNoteName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAnalysisOccurrenceKind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisOccurrenceKind(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAnalysisOccurrenceRemediation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisOccurrenceRemediation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAnalysisOccurrenceCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisOccurrenceCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAnalysisOccurrenceUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisOccurrenceUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAnalysisOccurrenceAttestation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisOccurrenceAttestation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -510,11 +511,11 @@ func flattenContainerAnalysisOccurrenceAttestation(v interface{}, d *schema.Reso
 		flattenContainerAnalysisOccurrenceAttestationSignatures(original["signatures"], d, config)
 	return []interface{}{transformed}
 }
-func flattenContainerAnalysisOccurrenceAttestationSerializedPayload(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisOccurrenceAttestationSerializedPayload(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAnalysisOccurrenceAttestationSignatures(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisOccurrenceAttestationSignatures(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -533,27 +534,27 @@ func flattenContainerAnalysisOccurrenceAttestationSignatures(v interface{}, d *s
 	}
 	return transformed
 }
-func flattenContainerAnalysisOccurrenceAttestationSignaturesSignature(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisOccurrenceAttestationSignaturesSignature(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAnalysisOccurrenceAttestationSignaturesPublicKeyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisOccurrenceAttestationSignaturesPublicKeyId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandContainerAnalysisOccurrenceResourceUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisOccurrenceResourceUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisOccurrenceNoteName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisOccurrenceNoteName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisOccurrenceRemediation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisOccurrenceRemediation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisOccurrenceAttestation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisOccurrenceAttestation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -579,11 +580,11 @@ func expandContainerAnalysisOccurrenceAttestation(v interface{}, d TerraformReso
 	return transformed, nil
 }
 
-func expandContainerAnalysisOccurrenceAttestationSerializedPayload(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisOccurrenceAttestationSerializedPayload(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisOccurrenceAttestationSignatures(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisOccurrenceAttestationSignatures(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -613,11 +614,11 @@ func expandContainerAnalysisOccurrenceAttestationSignatures(v interface{}, d Ter
 	return req, nil
 }
 
-func expandContainerAnalysisOccurrenceAttestationSignaturesSignature(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisOccurrenceAttestationSignaturesSignature(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisOccurrenceAttestationSignaturesPublicKeyId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisOccurrenceAttestationSignaturesPublicKeyId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -629,7 +630,7 @@ func resourceContainerAnalysisOccurrenceEncoder(d *schema.ResourceData, meta int
 
 func resourceContainerAnalysisOccurrenceUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// Note is required, even for PATCH
-	noteNameProp, err := expandContainerAnalysisOccurrenceNoteName(d.Get("note_name"), d, meta.(*Config))
+	noteNameProp, err := expandContainerAnalysisOccurrenceNoteName(d.Get("note_name"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return nil, err
 	} else if v, ok := d.GetOkExists("note_name"); !isEmptyValue(reflect.ValueOf(noteNameProp)) && (ok || !reflect.DeepEqual(v, noteNameProp)) {

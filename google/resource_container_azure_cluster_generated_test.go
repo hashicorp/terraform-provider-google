@@ -22,6 +22,7 @@ import (
 	containerazure "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/containerazure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"strings"
 	"testing"
 )
@@ -246,7 +247,7 @@ func testAccCheckContainerAzureClusterDestroyProducer(t *testing.T) func(s *terr
 				UpdateTime:      dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
-			client := NewDCLContainerAzureClient(config, config.UserAgent, billingProject, 0)
+			client := transport_tpg.NewDCLContainerAzureClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetCluster(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_container_azure_cluster still exists %v", obj)

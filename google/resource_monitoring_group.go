@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceMonitoringGroup() *schema.Resource {
@@ -86,7 +87,7 @@ groups with no parent, parentName is the empty string, "".`,
 }
 
 func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -183,7 +184,7 @@ func resourceMonitoringGroupCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -236,7 +237,7 @@ func resourceMonitoringGroupRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceMonitoringGroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -307,7 +308,7 @@ func resourceMonitoringGroupUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceMonitoringGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -352,7 +353,7 @@ func resourceMonitoringGroupDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceMonitoringGroupImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
@@ -362,38 +363,38 @@ func resourceMonitoringGroupImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenMonitoringGroupParentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringGroupParentName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringGroupName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringGroupName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringGroupIsCluster(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringGroupIsCluster(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringGroupDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringGroupDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringGroupFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringGroupFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandMonitoringGroupParentName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringGroupParentName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringGroupIsCluster(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringGroupIsCluster(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringGroupDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringGroupDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringGroupFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringGroupFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -25,6 +25,8 @@ import (
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
 	compute "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/compute"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeRegionNetworkFirewallPolicyRule() *schema.Resource {
@@ -284,7 +286,7 @@ func ComputeRegionNetworkFirewallPolicyRuleTargetSecureTagsSchema() *schema.Reso
 }
 
 func resourceComputeRegionNetworkFirewallPolicyRuleCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -325,7 +327,7 @@ func resourceComputeRegionNetworkFirewallPolicyRuleCreate(d *schema.ResourceData
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
+	client := transport_tpg.NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -348,7 +350,7 @@ func resourceComputeRegionNetworkFirewallPolicyRuleCreate(d *schema.ResourceData
 }
 
 func resourceComputeRegionNetworkFirewallPolicyRuleRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -383,7 +385,7 @@ func resourceComputeRegionNetworkFirewallPolicyRuleRead(d *schema.ResourceData, 
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
+	client := transport_tpg.NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -445,7 +447,7 @@ func resourceComputeRegionNetworkFirewallPolicyRuleRead(d *schema.ResourceData, 
 	return nil
 }
 func resourceComputeRegionNetworkFirewallPolicyRuleUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -481,7 +483,7 @@ func resourceComputeRegionNetworkFirewallPolicyRuleUpdate(d *schema.ResourceData
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
+	client := transport_tpg.NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -504,7 +506,7 @@ func resourceComputeRegionNetworkFirewallPolicyRuleUpdate(d *schema.ResourceData
 }
 
 func resourceComputeRegionNetworkFirewallPolicyRuleDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -540,7 +542,7 @@ func resourceComputeRegionNetworkFirewallPolicyRuleDelete(d *schema.ResourceData
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
+	client := transport_tpg.NewDCLComputeClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -556,7 +558,7 @@ func resourceComputeRegionNetworkFirewallPolicyRuleDelete(d *schema.ResourceData
 }
 
 func resourceComputeRegionNetworkFirewallPolicyRuleImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/firewallPolicies/(?P<firewall_policy>[^/]+)/(?P<priority>[^/]+)",

@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceAccessContextManagerServicePerimeter() *schema.Resource {
@@ -793,7 +794,7 @@ bet set to True if any of the fields in the spec are set to non-default values.`
 }
 
 func resourceAccessContextManagerServicePerimeterCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -916,7 +917,7 @@ func resourceAccessContextManagerServicePerimeterCreate(d *schema.ResourceData, 
 }
 
 func resourceAccessContextManagerServicePerimeterRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -971,7 +972,7 @@ func resourceAccessContextManagerServicePerimeterRead(d *schema.ResourceData, me
 }
 
 func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -1082,7 +1083,7 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 }
 
 func resourceAccessContextManagerServicePerimeterDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -1128,7 +1129,7 @@ func resourceAccessContextManagerServicePerimeterDelete(d *schema.ResourceData, 
 }
 
 func resourceAccessContextManagerServicePerimeterImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -1144,23 +1145,23 @@ func resourceAccessContextManagerServicePerimeterImport(d *schema.ResourceData, 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAccessContextManagerServicePerimeterTitle(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterTitle(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterPerimeterType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterPerimeterType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return "PERIMETER_TYPE_REGULAR"
 	}
@@ -1168,7 +1169,7 @@ func flattenAccessContextManagerServicePerimeterPerimeterType(v interface{}, d *
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1191,22 +1192,22 @@ func flattenAccessContextManagerServicePerimeterStatus(v interface{}, d *schema.
 		flattenAccessContextManagerServicePerimeterStatusEgressPolicies(original["egressPolicies"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerServicePerimeterStatusResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusAccessLevels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusAccessLevels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusRestrictedServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusRestrictedServices(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServices(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1221,18 +1222,18 @@ func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServices(v in
 		flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServices(original["allowedServices"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesEnableRestriction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesEnableRestriction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServices(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenAccessContextManagerServicePerimeterStatusIngressPolicies(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusIngressPolicies(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1251,7 +1252,7 @@ func flattenAccessContextManagerServicePerimeterStatusIngressPolicies(v interfac
 	}
 	return transformed
 }
-func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFrom(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFrom(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1268,15 +1269,15 @@ func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFrom
 		flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromSources(original["sources"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromIdentityType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromIdentityType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromIdentities(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromIdentities(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromSources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromSources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1295,15 +1296,15 @@ func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFrom
 	}
 	return transformed
 }
-func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromSourcesAccessLevel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromSourcesAccessLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromSourcesResource(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromSourcesResource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressTo(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressTo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1318,11 +1319,11 @@ func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressTo(v
 		flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperations(original["operations"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1341,11 +1342,11 @@ func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOp
 	}
 	return transformed
 }
-func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperationsServiceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperationsServiceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperationsMethodSelectors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperationsMethodSelectors(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1364,15 +1365,15 @@ func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOp
 	}
 	return transformed
 }
-func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperationsMethodSelectorsMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperationsMethodSelectorsMethod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperationsMethodSelectorsPermission(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperationsMethodSelectorsPermission(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusEgressPolicies(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusEgressPolicies(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1391,7 +1392,7 @@ func flattenAccessContextManagerServicePerimeterStatusEgressPolicies(v interface
 	}
 	return transformed
 }
-func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFrom(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFrom(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1406,15 +1407,15 @@ func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFrom(v
 		flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFromIdentities(original["identities"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFromIdentityType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFromIdentityType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFromIdentities(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFromIdentities(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressTo(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressTo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1431,15 +1432,15 @@ func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressTo(v i
 		flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperations(original["operations"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToExternalResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToExternalResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1458,11 +1459,11 @@ func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOper
 	}
 	return transformed
 }
-func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperationsServiceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperationsServiceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperationsMethodSelectors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperationsMethodSelectors(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1481,15 +1482,15 @@ func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOper
 	}
 	return transformed
 }
-func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperationsMethodSelectorsMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperationsMethodSelectorsMethod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperationsMethodSelectorsPermission(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperationsMethodSelectorsPermission(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1512,19 +1513,19 @@ func flattenAccessContextManagerServicePerimeterSpec(v interface{}, d *schema.Re
 		flattenAccessContextManagerServicePerimeterSpecEgressPolicies(original["egressPolicies"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerServicePerimeterSpecResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecAccessLevels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecAccessLevels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecRestrictedServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecRestrictedServices(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServices(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1539,15 +1540,15 @@ func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServices(v inte
 		flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServices(original["allowedServices"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesEnableRestriction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesEnableRestriction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServices(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecIngressPolicies(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecIngressPolicies(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1566,7 +1567,7 @@ func flattenAccessContextManagerServicePerimeterSpecIngressPolicies(v interface{
 	}
 	return transformed
 }
-func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFrom(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFrom(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1583,15 +1584,15 @@ func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFrom(v
 		flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromSources(original["sources"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromIdentityType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromIdentityType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromIdentities(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromIdentities(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromSources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromSources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1610,15 +1611,15 @@ func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromSo
 	}
 	return transformed
 }
-func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromSourcesAccessLevel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromSourcesAccessLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromSourcesResource(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromSourcesResource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressTo(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressTo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1633,11 +1634,11 @@ func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressTo(v i
 		flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperations(original["operations"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1656,11 +1657,11 @@ func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOper
 	}
 	return transformed
 }
-func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperationsServiceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperationsServiceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperationsMethodSelectors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperationsMethodSelectors(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1679,15 +1680,15 @@ func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOper
 	}
 	return transformed
 }
-func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperationsMethodSelectorsMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperationsMethodSelectorsMethod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperationsMethodSelectorsPermission(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperationsMethodSelectorsPermission(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecEgressPolicies(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecEgressPolicies(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1706,7 +1707,7 @@ func flattenAccessContextManagerServicePerimeterSpecEgressPolicies(v interface{}
 	}
 	return transformed
 }
-func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFrom(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFrom(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1721,15 +1722,15 @@ func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFrom(v i
 		flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFromIdentities(original["identities"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFromIdentityType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFromIdentityType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFromIdentities(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFromIdentities(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressTo(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressTo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1746,15 +1747,15 @@ func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressTo(v int
 		flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperations(original["operations"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToExternalResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToExternalResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1773,11 +1774,11 @@ func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperat
 	}
 	return transformed
 }
-func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperationsServiceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperationsServiceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperationsMethodSelectors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperationsMethodSelectors(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1796,35 +1797,35 @@ func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperat
 	}
 	return transformed
 }
-func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperationsMethodSelectorsMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperationsMethodSelectorsMethod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperationsMethodSelectorsPermission(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperationsMethodSelectorsPermission(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterUseExplicitDryRunSpec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterUseExplicitDryRunSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessContextManagerServicePerimeterName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessContextManagerServicePerimeterName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandAccessContextManagerServicePerimeterTitle(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterTitle(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterPerimeterType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterPerimeterType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatus(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatus(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1878,20 +1879,20 @@ func expandAccessContextManagerServicePerimeterStatus(v interface{}, d Terraform
 	return transformed, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusResources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusResources(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusAccessLevels(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusAccessLevels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusRestrictedServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusRestrictedServices(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServices(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1917,16 +1918,16 @@ func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServices(v int
 	return transformed, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesEnableRestriction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesEnableRestriction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServices(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusIngressPolicies(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusIngressPolicies(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1955,7 +1956,7 @@ func expandAccessContextManagerServicePerimeterStatusIngressPolicies(v interface
 	return req, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFrom(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFrom(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1988,15 +1989,15 @@ func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFrom(
 	return transformed, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromIdentityType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromIdentityType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromIdentities(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromIdentities(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromSources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromSources(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2025,15 +2026,15 @@ func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromS
 	return req, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromSourcesAccessLevel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromSourcesAccessLevel(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromSourcesResource(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressFromSourcesResource(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressTo(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressTo(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2059,11 +2060,11 @@ func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressTo(v 
 	return transformed, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToResources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToResources(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperations(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperations(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2092,11 +2093,11 @@ func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOpe
 	return req, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperationsServiceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperationsServiceName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperationsMethodSelectors(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperationsMethodSelectors(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2125,15 +2126,15 @@ func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOpe
 	return req, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperationsMethodSelectorsMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperationsMethodSelectorsMethod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperationsMethodSelectorsPermission(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusIngressPoliciesIngressToOperationsMethodSelectorsPermission(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusEgressPolicies(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusEgressPolicies(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2162,7 +2163,7 @@ func expandAccessContextManagerServicePerimeterStatusEgressPolicies(v interface{
 	return req, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFrom(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFrom(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2188,15 +2189,15 @@ func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFrom(v 
 	return transformed, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFromIdentityType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFromIdentityType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFromIdentities(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressFromIdentities(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressTo(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressTo(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2229,15 +2230,15 @@ func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressTo(v in
 	return transformed, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToResources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToResources(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToExternalResources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToExternalResources(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperations(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperations(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2266,11 +2267,11 @@ func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOpera
 	return req, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperationsServiceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperationsServiceName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperationsMethodSelectors(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperationsMethodSelectors(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2299,15 +2300,15 @@ func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOpera
 	return req, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperationsMethodSelectorsMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperationsMethodSelectorsMethod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperationsMethodSelectorsPermission(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterStatusEgressPoliciesEgressToOperationsMethodSelectorsPermission(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2361,19 +2362,19 @@ func expandAccessContextManagerServicePerimeterSpec(v interface{}, d TerraformRe
 	return transformed, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecResources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecResources(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecAccessLevels(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecAccessLevels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecRestrictedServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecRestrictedServices(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServices(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2399,15 +2400,15 @@ func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServices(v inter
 	return transformed, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesEnableRestriction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesEnableRestriction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServices(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecIngressPolicies(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecIngressPolicies(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2436,7 +2437,7 @@ func expandAccessContextManagerServicePerimeterSpecIngressPolicies(v interface{}
 	return req, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFrom(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFrom(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2469,15 +2470,15 @@ func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFrom(v 
 	return transformed, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromIdentityType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromIdentityType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromIdentities(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromIdentities(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromSources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromSources(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2506,15 +2507,15 @@ func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromSou
 	return req, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromSourcesAccessLevel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromSourcesAccessLevel(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromSourcesResource(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressFromSourcesResource(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressTo(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressTo(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2540,11 +2541,11 @@ func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressTo(v in
 	return transformed, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToResources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToResources(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperations(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperations(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2573,11 +2574,11 @@ func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOpera
 	return req, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperationsServiceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperationsServiceName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperationsMethodSelectors(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperationsMethodSelectors(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2606,15 +2607,15 @@ func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOpera
 	return req, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperationsMethodSelectorsMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperationsMethodSelectorsMethod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperationsMethodSelectorsPermission(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecIngressPoliciesIngressToOperationsMethodSelectorsPermission(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecEgressPolicies(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecEgressPolicies(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2643,7 +2644,7 @@ func expandAccessContextManagerServicePerimeterSpecEgressPolicies(v interface{},
 	return req, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFrom(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFrom(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2669,15 +2670,15 @@ func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFrom(v in
 	return transformed, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFromIdentityType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFromIdentityType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFromIdentities(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressFromIdentities(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressTo(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressTo(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2710,15 +2711,15 @@ func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressTo(v inte
 	return transformed, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToResources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToResources(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToExternalResources(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToExternalResources(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperations(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperations(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2747,11 +2748,11 @@ func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperati
 	return req, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperationsServiceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperationsServiceName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperationsMethodSelectors(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperationsMethodSelectors(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2780,23 +2781,23 @@ func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperati
 	return req, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperationsMethodSelectorsMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperationsMethodSelectorsMethod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperationsMethodSelectorsPermission(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterSpecEgressPoliciesEgressToOperationsMethodSelectorsPermission(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterUseExplicitDryRunSpec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterUseExplicitDryRunSpec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterParent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterParent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerServicePerimeterName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessContextManagerServicePerimeterName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

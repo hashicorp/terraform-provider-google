@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourcePrivatecaCertificate() *schema.Resource {
@@ -1409,7 +1410,7 @@ This is in RFC3339 text format.`,
 }
 
 func resourcePrivatecaCertificateCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -1491,7 +1492,7 @@ func resourcePrivatecaCertificateCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourcePrivatecaCertificateRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -1568,7 +1569,7 @@ func resourcePrivatecaCertificateRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourcePrivatecaCertificateUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -1625,7 +1626,7 @@ func resourcePrivatecaCertificateUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourcePrivatecaCertificateDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -1662,7 +1663,7 @@ func resourcePrivatecaCertificateDelete(d *schema.ResourceData, meta interface{}
 }
 
 func resourcePrivatecaCertificateImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/caPools/(?P<pool>[^/]+)/certificates/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<pool>[^/]+)/(?P<name>[^/]+)",
@@ -1681,15 +1682,15 @@ func resourcePrivatecaCertificateImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenPrivatecaCertificateIssuerCertificateAuthority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateIssuerCertificateAuthority(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateLifetime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateLifetime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateRevocationDetails(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateRevocationDetails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1704,19 +1705,19 @@ func flattenPrivatecaCertificateRevocationDetails(v interface{}, d *schema.Resou
 		flattenPrivatecaCertificateRevocationDetailsRevocationTime(original["revocationTime"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateRevocationDetailsRevocationState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateRevocationDetailsRevocationState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateRevocationDetailsRevocationTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateRevocationDetailsRevocationTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificatePemCertificate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificatePemCertificate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1745,7 +1746,7 @@ func flattenPrivatecaCertificateCertificateDescription(v interface{}, d *schema.
 		flattenPrivatecaCertificateCertificateDescriptionCertFingerprint(original["certFingerprint"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1768,7 +1769,7 @@ func flattenPrivatecaCertificateCertificateDescriptionSubjectDescription(v inter
 		flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionNotAfterTime(original["notAfterTime"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubject(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1795,39 +1796,39 @@ func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubject(
 		flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectCommonName(original["commonName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectCountryCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectCountryCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectOrganization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectOrganization(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectOrganizationalUnit(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectOrganizationalUnit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectLocality(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectLocality(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectProvince(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectProvince(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectStreetAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectStreetAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectPostalCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectPostalCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectCommonName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectCommonName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1848,23 +1849,23 @@ func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectA
 		flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameCustomSans(original["customSans"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameDnsNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameDnsNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameUris(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameUris(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameEmailAddresses(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameEmailAddresses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameIpAddresses(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameIpAddresses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameCustomSans(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameCustomSans(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1884,7 +1885,7 @@ func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectA
 	}
 	return transformed
 }
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameCustomSansObectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameCustomSansObectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1897,35 +1898,35 @@ func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectA
 		flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameCustomSansObectIdObjectIdPath(original["objectIdPath"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameCustomSansObectIdObjectIdPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameCustomSansObectIdObjectIdPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameCustomSansCritical(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameCustomSansCritical(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameCustomSansValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectAltNameCustomSansValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionHexSerialNumber(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionHexSerialNumber(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionLifetime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionLifetime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionNotBeforeTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionNotBeforeTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionNotAfterTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionNotAfterTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509Description(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509Description(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1948,7 +1949,7 @@ func flattenPrivatecaCertificateCertificateDescriptionX509Description(v interfac
 		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraints(original["nameConstraints"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1968,15 +1969,15 @@ func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalE
 	}
 	return transformed
 }
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensionsCritical(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensionsCritical(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensionsValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensionsValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensionsObjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensionsObjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1989,11 +1990,11 @@ func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalE
 		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensionsObjectIdObjectIdPath(original["objectIdPath"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensionsObjectIdObjectIdPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalExtensionsObjectIdObjectIdPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionPolicyIds(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionPolicyIds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2011,15 +2012,15 @@ func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionPolicyIds(v
 	}
 	return transformed
 }
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionPolicyIdsObjectIdPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionPolicyIdsObjectIdPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAiaOcspServers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAiaOcspServers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionCaOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionCaOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2034,11 +2035,11 @@ func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionCaOptions(v
 		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionCaOptionsMaxIssuerPathLength(original["maxIssuerPathLength"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionCaOptionsIsCa(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionCaOptionsIsCa(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionCaOptionsMaxIssuerPathLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionCaOptionsMaxIssuerPathLength(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -2055,7 +2056,7 @@ func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionCaOptionsMa
 	return v // let terraform core handle it otherwise
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2072,7 +2073,7 @@ func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsage(v 
 		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageUnknownExtendedKeyUsages(original["unknownExtendedKeyUsages"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2101,43 +2102,43 @@ func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBas
 		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageDecipherOnly(original["decipherOnly"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageDigitalSignature(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageDigitalSignature(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageContentCommitment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageContentCommitment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageKeyEncipherment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageKeyEncipherment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageDataEncipherment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageDataEncipherment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageKeyAgreement(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageKeyAgreement(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageCertSign(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageCertSign(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageCrlSign(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageCrlSign(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageEncipherOnly(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageEncipherOnly(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageDecipherOnly(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageBaseKeyUsageDecipherOnly(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2160,31 +2161,31 @@ func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExt
 		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageOcspSigning(original["ocspSigning"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageServerAuth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageServerAuth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageClientAuth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageClientAuth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageCodeSigning(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageCodeSigning(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageEmailProtection(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageEmailProtection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageTimeStamping(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageTimeStamping(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageOcspSigning(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageExtendedKeyUsageOcspSigning(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageUnknownExtendedKeyUsages(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageUnknownExtendedKeyUsages(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2202,11 +2203,11 @@ func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageUnk
 	}
 	return transformed
 }
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageUnknownExtendedKeyUsagesObjectIdPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageUnknownExtendedKeyUsagesObjectIdPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraints(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraints(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2235,43 +2236,43 @@ func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstra
 		flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsExcludedUris(original["excludedUris"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsCritical(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsCritical(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsPermittedDnsNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsPermittedDnsNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsExcludedDnsNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsExcludedDnsNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsPermittedIpRanges(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsPermittedIpRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsExcludedIpRanges(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsExcludedIpRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsPermittedEmailAddresses(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsPermittedEmailAddresses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsExcludedEmailAddresses(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsExcludedEmailAddresses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsPermittedUris(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsPermittedUris(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsExcludedUris(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstraintsExcludedUris(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionConfigValues(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2284,7 +2285,7 @@ func flattenPrivatecaCertificateCertificateDescriptionConfigValues(v interface{}
 		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsage(original["keyUsage"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2301,7 +2302,7 @@ func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsage(v int
 		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageUnknownExtendedKeyUsages(original["unknownExtendedKeyUsages"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2314,7 +2315,7 @@ func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKe
 		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptions(original["keyUsageOptions"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2343,43 +2344,43 @@ func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKe
 		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsDecipherOnly(original["decipherOnly"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsDigitalSignature(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsDigitalSignature(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsContentCommitment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsContentCommitment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsKeyEncipherment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsKeyEncipherment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsDataEncipherment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsDataEncipherment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsKeyAgreement(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsKeyAgreement(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsCertSign(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsCertSign(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsCrlSign(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsCrlSign(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsEncipherOnly(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsEncipherOnly(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsDecipherOnly(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsDecipherOnly(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2402,31 +2403,31 @@ func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtend
 		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageOcspSigning(original["ocspSigning"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageServerAuth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageServerAuth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageClientAuth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageClientAuth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageCodeSigning(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageCodeSigning(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageEmailProtection(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageEmailProtection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageTimeStamping(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageTimeStamping(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageOcspSigning(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageOcspSigning(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageUnknownExtendedKeyUsages(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageUnknownExtendedKeyUsages(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -2444,7 +2445,7 @@ func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageUnknow
 	}
 	return transformed
 }
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageUnknownExtendedKeyUsagesObectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageUnknownExtendedKeyUsagesObectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2457,11 +2458,11 @@ func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageUnknow
 		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageUnknownExtendedKeyUsagesObectIdObjectIdPath(original["objectIdPath"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageUnknownExtendedKeyUsagesObectIdObjectIdPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageUnknownExtendedKeyUsagesObectIdObjectIdPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionPublicKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionPublicKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2476,15 +2477,15 @@ func flattenPrivatecaCertificateCertificateDescriptionPublicKey(v interface{}, d
 		flattenPrivatecaCertificateCertificateDescriptionPublicKeyFormat(original["format"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionPublicKeyKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionPublicKeyKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionPublicKeyFormat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionPublicKeyFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionSubjectKeyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectKeyId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2497,11 +2498,11 @@ func flattenPrivatecaCertificateCertificateDescriptionSubjectKeyId(v interface{}
 		flattenPrivatecaCertificateCertificateDescriptionSubjectKeyIdKeyId(original["keyId"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionSubjectKeyIdKeyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionSubjectKeyIdKeyId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionAuthorityKeyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionAuthorityKeyId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2514,19 +2515,19 @@ func flattenPrivatecaCertificateCertificateDescriptionAuthorityKeyId(v interface
 		flattenPrivatecaCertificateCertificateDescriptionAuthorityKeyIdKeyId(original["keyId"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionAuthorityKeyIdKeyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionAuthorityKeyIdKeyId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionCrlDistributionPoints(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionCrlDistributionPoints(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionAiaIssuingCertificateUrls(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionAiaIssuingCertificateUrls(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionCertFingerprint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionCertFingerprint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2539,39 +2540,39 @@ func flattenPrivatecaCertificateCertificateDescriptionCertFingerprint(v interfac
 		flattenPrivatecaCertificateCertificateDescriptionCertFingerprintSha256Hash(original["sha256Hash"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateCertificateDescriptionCertFingerprintSha256Hash(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateDescriptionCertFingerprintSha256Hash(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificatePemCertificateChain(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificatePemCertificateChain(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificatePemCertificates(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificatePemCertificates(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateTemplate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateCertificateTemplate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificatePemCsr(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificatePemCsr(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2589,7 +2590,7 @@ func flattenPrivatecaCertificateConfig(v interface{}, d *schema.ResourceData, co
 	return []interface{}{transformed}
 }
 
-func flattenPrivatecaCertificateConfigX509Config(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigX509Config(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		v = make(map[string]interface{})
 	}
@@ -2609,7 +2610,7 @@ func flattenPrivatecaCertificateConfigX509Config(v interface{}, d *schema.Resour
 	return []interface{}{transformed}
 }
 
-func flattenPrivatecaCertificateConfigSubjectConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigSubjectConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2624,7 +2625,7 @@ func flattenPrivatecaCertificateConfigSubjectConfig(v interface{}, d *schema.Res
 		flattenPrivatecaCertificateConfigSubjectConfigSubjectAltName(original["subjectAltName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateConfigSubjectConfigSubject(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigSubjectConfigSubject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2651,39 +2652,39 @@ func flattenPrivatecaCertificateConfigSubjectConfigSubject(v interface{}, d *sch
 		flattenPrivatecaCertificateConfigSubjectConfigSubjectCommonName(original["commonName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateConfigSubjectConfigSubjectCountryCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigSubjectConfigSubjectCountryCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateConfigSubjectConfigSubjectOrganization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigSubjectConfigSubjectOrganization(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateConfigSubjectConfigSubjectOrganizationalUnit(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigSubjectConfigSubjectOrganizationalUnit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateConfigSubjectConfigSubjectLocality(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigSubjectConfigSubjectLocality(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateConfigSubjectConfigSubjectProvince(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigSubjectConfigSubjectProvince(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateConfigSubjectConfigSubjectStreetAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigSubjectConfigSubjectStreetAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateConfigSubjectConfigSubjectPostalCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigSubjectConfigSubjectPostalCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateConfigSubjectConfigSubjectCommonName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigSubjectConfigSubjectCommonName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateConfigSubjectConfigSubjectAltName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigSubjectConfigSubjectAltName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2702,23 +2703,23 @@ func flattenPrivatecaCertificateConfigSubjectConfigSubjectAltName(v interface{},
 		flattenPrivatecaCertificateConfigSubjectConfigSubjectAltNameIpAddresses(original["ipAddresses"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateConfigSubjectConfigSubjectAltNameDnsNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigSubjectConfigSubjectAltNameDnsNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateConfigSubjectConfigSubjectAltNameUris(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigSubjectConfigSubjectAltNameUris(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateConfigSubjectConfigSubjectAltNameEmailAddresses(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigSubjectConfigSubjectAltNameEmailAddresses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateConfigSubjectConfigSubjectAltNameIpAddresses(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigSubjectConfigSubjectAltNameIpAddresses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateConfigPublicKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigPublicKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -2733,23 +2734,23 @@ func flattenPrivatecaCertificateConfigPublicKey(v interface{}, d *schema.Resourc
 		flattenPrivatecaCertificateConfigPublicKeyFormat(original["format"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateConfigPublicKeyKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigPublicKeyKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateConfigPublicKeyFormat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateConfigPublicKeyFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandPrivatecaCertificateLifetime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateLifetime(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateCertificateTemplate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateCertificateTemplate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandPrivatecaCertificateLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -2760,11 +2761,11 @@ func expandPrivatecaCertificateLabels(v interface{}, d TerraformResourceData, co
 	return m, nil
 }
 
-func expandPrivatecaCertificatePemCsr(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificatePemCsr(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2797,7 +2798,7 @@ func expandPrivatecaCertificateConfig(v interface{}, d TerraformResourceData, co
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateConfigX509Config(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigX509Config(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return v, nil
 	}
@@ -2850,7 +2851,7 @@ func expandPrivatecaCertificateConfigX509Config(v interface{}, d TerraformResour
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2876,7 +2877,7 @@ func expandPrivatecaCertificateConfigSubjectConfig(v interface{}, d TerraformRes
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubject(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubject(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2944,39 +2945,39 @@ func expandPrivatecaCertificateConfigSubjectConfigSubject(v interface{}, d Terra
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectCountryCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectCountryCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectOrganization(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectOrganization(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectOrganizationalUnit(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectOrganizationalUnit(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectLocality(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectLocality(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectProvince(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectProvince(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectStreetAddress(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectStreetAddress(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectPostalCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectPostalCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectCommonName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectCommonName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectAltName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectAltName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3016,23 +3017,23 @@ func expandPrivatecaCertificateConfigSubjectConfigSubjectAltName(v interface{}, 
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameDnsNames(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameDnsNames(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameUris(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameUris(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameEmailAddresses(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameEmailAddresses(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameIpAddresses(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameIpAddresses(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigPublicKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigPublicKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3058,10 +3059,10 @@ func expandPrivatecaCertificateConfigPublicKey(v interface{}, d TerraformResourc
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateConfigPublicKeyKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigPublicKeyKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigPublicKeyFormat(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigPublicKeyFormat(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

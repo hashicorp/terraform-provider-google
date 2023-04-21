@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"regexp"
 	"strings"
@@ -785,7 +786,7 @@ func ResourceComposerEnvironment() *schema.Resource {
 }
 
 func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -851,7 +852,7 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -888,7 +889,7 @@ func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{}) error {
-	tfConfig := meta.(*Config)
+	tfConfig := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, tfConfig.UserAgent)
 	if err != nil {
 		return err
@@ -1089,7 +1090,7 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 	return resourceComposerEnvironmentRead(d, tfConfig)
 }
 
-func resourceComposerEnvironmentPostCreateUpdate(updateEnv *composer.Environment, d *schema.ResourceData, cfg *Config, userAgent string) error {
+func resourceComposerEnvironmentPostCreateUpdate(updateEnv *composer.Environment, d *schema.ResourceData, cfg *transport_tpg.Config, userAgent string) error {
 	if updateEnv == nil {
 		return nil
 	}
@@ -1107,7 +1108,7 @@ func resourceComposerEnvironmentPostCreateUpdate(updateEnv *composer.Environment
 	return resourceComposerEnvironmentRead(d, cfg)
 }
 
-func resourceComposerEnvironmentPatchField(updateMask, userAgent string, env *composer.Environment, d *schema.ResourceData, config *Config) error {
+func resourceComposerEnvironmentPatchField(updateMask, userAgent string, env *composer.Environment, d *schema.ResourceData, config *transport_tpg.Config) error {
 	envJson, _ := env.MarshalJSON()
 	log.Printf("[DEBUG] Updating Environment %q (updateMask = %q): %s", d.Id(), updateMask, string(envJson))
 	envName, err := resourceComposerEnvironmentName(d, config)
@@ -1135,7 +1136,7 @@ func resourceComposerEnvironmentPatchField(updateMask, userAgent string, env *co
 }
 
 func resourceComposerEnvironmentDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -1164,7 +1165,7 @@ func resourceComposerEnvironmentDelete(d *schema.ResourceData, meta interface{})
 }
 
 func resourceComposerEnvironmentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/environments/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}
@@ -1440,7 +1441,7 @@ func flattenComposerEnvironmentConfigMasterAuthorizedNetworksConfig(masterAuthNe
 	return []interface{}{masterAuthorizedNetworksConfig}
 }
 
-func expandComposerEnvironmentConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.EnvironmentConfig, error) {
+func expandComposerEnvironmentConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.EnvironmentConfig, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1529,14 +1530,14 @@ func expandComposerEnvironmentConfig(v interface{}, d *schema.ResourceData, conf
 	return transformed, nil
 }
 
-func expandComposerEnvironmentConfigNodeCount(v interface{}, d *schema.ResourceData, config *Config) (int64, error) {
+func expandComposerEnvironmentConfigNodeCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (int64, error) {
 	if v == nil {
 		return 0, nil
 	}
 	return int64(v.(int)), nil
 }
 
-func expandComposerEnvironmentConfigWebServerNetworkAccessControl(v interface{}, d *schema.ResourceData, config *Config) (*composer.WebServerNetworkAccessControl, error) {
+func expandComposerEnvironmentConfigWebServerNetworkAccessControl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.WebServerNetworkAccessControl, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1565,7 +1566,7 @@ func expandComposerEnvironmentConfigWebServerNetworkAccessControl(v interface{},
 	return transformed, nil
 }
 
-func expandComposerEnvironmentConfigMasterAuthorizedNetworksConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.MasterAuthorizedNetworksConfig, error) {
+func expandComposerEnvironmentConfigMasterAuthorizedNetworksConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.MasterAuthorizedNetworksConfig, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1592,7 +1593,7 @@ func expandComposerEnvironmentConfigMasterAuthorizedNetworksConfig(v interface{}
 	return transformed, nil
 }
 
-func expandComposerEnvironmentConfigDatabaseConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.DatabaseConfig, error) {
+func expandComposerEnvironmentConfigDatabaseConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.DatabaseConfig, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1606,7 +1607,7 @@ func expandComposerEnvironmentConfigDatabaseConfig(v interface{}, d *schema.Reso
 	return transformed, nil
 }
 
-func expandComposerEnvironmentConfigWebServerConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.WebServerConfig, error) {
+func expandComposerEnvironmentConfigWebServerConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.WebServerConfig, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1620,7 +1621,7 @@ func expandComposerEnvironmentConfigWebServerConfig(v interface{}, d *schema.Res
 	return transformed, nil
 }
 
-func expandComposerEnvironmentConfigEncryptionConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.EncryptionConfig, error) {
+func expandComposerEnvironmentConfigEncryptionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.EncryptionConfig, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1634,7 +1635,7 @@ func expandComposerEnvironmentConfigEncryptionConfig(v interface{}, d *schema.Re
 	return transformed, nil
 }
 
-func expandComposerEnvironmentConfigMaintenanceWindow(v interface{}, d *schema.ResourceData, config *Config) (*composer.MaintenanceWindow, error) {
+func expandComposerEnvironmentConfigMaintenanceWindow(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.MaintenanceWindow, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1658,7 +1659,7 @@ func expandComposerEnvironmentConfigMaintenanceWindow(v interface{}, d *schema.R
 	return transformed, nil
 }
 
-func expandComposerEnvironmentConfigWorkloadsConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.WorkloadsConfig, error) {
+func expandComposerEnvironmentConfigWorkloadsConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.WorkloadsConfig, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1706,7 +1707,7 @@ func expandComposerEnvironmentConfigWorkloadsConfig(v interface{}, d *schema.Res
 	return transformed, nil
 }
 
-func expandComposerEnvironmentConfigRecoveryConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.RecoveryConfig, error) {
+func expandComposerEnvironmentConfigRecoveryConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.RecoveryConfig, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1730,14 +1731,14 @@ func expandComposerEnvironmentConfigRecoveryConfig(v interface{}, d *schema.Reso
 	return transformed, nil
 }
 
-func expandComposerEnvironmentConfigEnvironmentSize(v interface{}, d *schema.ResourceData, config *Config) (string, error) {
+func expandComposerEnvironmentConfigEnvironmentSize(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (string, error) {
 	if v == nil {
 		return "", nil
 	}
 	return v.(string), nil
 }
 
-func expandComposerEnvironmentConfigPrivateEnvironmentConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.PrivateEnvironmentConfig, error) {
+func expandComposerEnvironmentConfigPrivateEnvironmentConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.PrivateEnvironmentConfig, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1781,7 +1782,7 @@ func expandComposerEnvironmentConfigPrivateEnvironmentConfig(v interface{}, d *s
 	return transformed, nil
 }
 
-func expandComposerEnvironmentConfigNodeConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.NodeConfig, error) {
+func expandComposerEnvironmentConfigNodeConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.NodeConfig, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1860,7 +1861,7 @@ func expandComposerEnvironmentConfigNodeConfig(v interface{}, d *schema.Resource
 	return transformed, nil
 }
 
-func expandComposerEnvironmentIPAllocationPolicy(v interface{}, d *schema.ResourceData, config *Config) (*composer.IPAllocationPolicy, error) {
+func expandComposerEnvironmentIPAllocationPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.IPAllocationPolicy, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1892,7 +1893,7 @@ func expandComposerEnvironmentIPAllocationPolicy(v interface{}, d *schema.Resour
 
 }
 
-func expandComposerEnvironmentServiceAccount(v interface{}, d *schema.ResourceData, config *Config) (string, error) {
+func expandComposerEnvironmentServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (string, error) {
 	serviceAccount := v.(string)
 	if len(serviceAccount) == 0 {
 		return "", nil
@@ -1901,7 +1902,7 @@ func expandComposerEnvironmentServiceAccount(v interface{}, d *schema.ResourceDa
 	return GetResourceNameFromSelfLink(serviceAccount), nil
 }
 
-func expandComposerEnvironmentZone(v interface{}, d *schema.ResourceData, config *Config) (string, error) {
+func expandComposerEnvironmentZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (string, error) {
 	zone := v.(string)
 	if len(zone) == 0 {
 		return zone, nil
@@ -1917,7 +1918,7 @@ func expandComposerEnvironmentZone(v interface{}, d *schema.ResourceData, config
 	return getRelativePath(zone)
 }
 
-func expandComposerEnvironmentMachineType(v interface{}, d *schema.ResourceData, config *Config, nodeCfgZone string) (string, error) {
+func expandComposerEnvironmentMachineType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config, nodeCfgZone string) (string, error) {
 	machineType := v.(string)
 	requiredZone := GetResourceNameFromSelfLink(nodeCfgZone)
 
@@ -1946,7 +1947,7 @@ func expandComposerEnvironmentMachineType(v interface{}, d *schema.ResourceData,
 	return fv.RelativeLink(), nil
 }
 
-func expandComposerEnvironmentNetwork(v interface{}, d *schema.ResourceData, config *Config) (string, error) {
+func expandComposerEnvironmentNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (string, error) {
 	fv, err := ParseNetworkFieldValue(v.(string), d, config)
 	if err != nil {
 		return "", err
@@ -1954,7 +1955,7 @@ func expandComposerEnvironmentNetwork(v interface{}, d *schema.ResourceData, con
 	return fv.RelativeLink(), nil
 }
 
-func expandComposerEnvironmentSubnetwork(v interface{}, d *schema.ResourceData, config *Config) (string, error) {
+func expandComposerEnvironmentSubnetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (string, error) {
 	fv, err := ParseSubnetworkFieldValue(v.(string), d, config)
 	if err != nil {
 		return "", err
@@ -1962,14 +1963,14 @@ func expandComposerEnvironmentSubnetwork(v interface{}, d *schema.ResourceData, 
 	return fv.RelativeLink(), nil
 }
 
-func expandComposerEnvironmentSetList(v interface{}, d *schema.ResourceData, config *Config) ([]string, error) {
+func expandComposerEnvironmentSetList(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) ([]string, error) {
 	if v == nil {
 		return nil, nil
 	}
 	return convertStringArr(v.(*schema.Set).List()), nil
 }
 
-func expandComposerEnvironmentConfigSoftwareConfig(v interface{}, d *schema.ResourceData, config *Config) (*composer.SoftwareConfig, error) {
+func expandComposerEnvironmentConfigSoftwareConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.SoftwareConfig, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -2035,7 +2036,7 @@ func validateComposerEnvironmentEnvVariables(v interface{}, k string) (ws []stri
 	return ws, errors
 }
 
-func handleComposerEnvironmentCreationOpFailure(id string, envName *composerEnvironmentName, d *schema.ResourceData, config *Config) error {
+func handleComposerEnvironmentCreationOpFailure(id string, envName *composerEnvironmentName, d *schema.ResourceData, config *transport_tpg.Config) error {
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -2094,7 +2095,7 @@ func getComposerEnvironmentPostCreateUpdateObj(env *composer.Environment) (updat
 	return updateEnv
 }
 
-func resourceComposerEnvironmentName(d *schema.ResourceData, config *Config) (*composerEnvironmentName, error) {
+func resourceComposerEnvironmentName(d *schema.ResourceData, config *transport_tpg.Config) (*composerEnvironmentName, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err

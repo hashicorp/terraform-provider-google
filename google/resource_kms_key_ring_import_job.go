@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceKMSKeyRingImportJob() *schema.Resource {
@@ -128,7 +129,7 @@ for General Considerations and Textual Encoding of Subject Public Key Info.`,
 }
 
 func resourceKMSKeyRingImportJobCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -182,7 +183,7 @@ func resourceKMSKeyRingImportJobCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceKMSKeyRingImportJobRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -231,7 +232,7 @@ func resourceKMSKeyRingImportJobRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceKMSKeyRingImportJobDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -263,7 +264,7 @@ func resourceKMSKeyRingImportJobDelete(d *schema.ResourceData, meta interface{})
 
 func resourceKMSKeyRingImportJobImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -288,27 +289,27 @@ func resourceKMSKeyRingImportJobImport(d *schema.ResourceData, meta interface{})
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenKMSKeyRingImportJobName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSKeyRingImportJobName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSKeyRingImportJobImportMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSKeyRingImportJobImportMethod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSKeyRingImportJobProtectionLevel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSKeyRingImportJobProtectionLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSKeyRingImportJobExpireTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSKeyRingImportJobExpireTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSKeyRingImportJobState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSKeyRingImportJobState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSKeyRingImportJobPublicKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSKeyRingImportJobPublicKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -321,11 +322,11 @@ func flattenKMSKeyRingImportJobPublicKey(v interface{}, d *schema.ResourceData, 
 		flattenKMSKeyRingImportJobPublicKeyPem(original["pem"], d, config)
 	return []interface{}{transformed}
 }
-func flattenKMSKeyRingImportJobPublicKeyPem(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSKeyRingImportJobPublicKeyPem(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSKeyRingImportJobAttestation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSKeyRingImportJobAttestation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -340,18 +341,18 @@ func flattenKMSKeyRingImportJobAttestation(v interface{}, d *schema.ResourceData
 		flattenKMSKeyRingImportJobAttestationContent(original["content"], d, config)
 	return []interface{}{transformed}
 }
-func flattenKMSKeyRingImportJobAttestationFormat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSKeyRingImportJobAttestationFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenKMSKeyRingImportJobAttestationContent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenKMSKeyRingImportJobAttestationContent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandKMSKeyRingImportJobImportMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandKMSKeyRingImportJobImportMethod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandKMSKeyRingImportJobProtectionLevel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandKMSKeyRingImportJobProtectionLevel(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

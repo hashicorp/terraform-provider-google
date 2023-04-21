@@ -22,6 +22,7 @@ import (
 	monitoring "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/monitoring"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"strings"
 	"testing"
 )
@@ -92,7 +93,7 @@ func testAccCheckMonitoringMonitoredProjectDestroyProducer(t *testing.T) func(s 
 				CreateTime:   dcl.StringOrNil(rs.Primary.Attributes["create_time"]),
 			}
 
-			client := NewDCLMonitoringClient(config, config.UserAgent, billingProject, 0)
+			client := transport_tpg.NewDCLMonitoringClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetMonitoredProject(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_monitoring_monitored_project still exists %v", obj)

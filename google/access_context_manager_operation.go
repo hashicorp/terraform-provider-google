@@ -18,10 +18,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 type AccessContextManagerOperationWaiter struct {
-	Config    *Config
+	Config    *transport_tpg.Config
 	UserAgent string
 	CommonOperationWaiter
 }
@@ -36,7 +38,7 @@ func (w *AccessContextManagerOperationWaiter) QueryOp() (interface{}, error) {
 	return SendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
 }
 
-func createAccessContextManagerWaiter(config *Config, op map[string]interface{}, activity, userAgent string) (*AccessContextManagerOperationWaiter, error) {
+func createAccessContextManagerWaiter(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string) (*AccessContextManagerOperationWaiter, error) {
 	w := &AccessContextManagerOperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
@@ -48,7 +50,7 @@ func createAccessContextManagerWaiter(config *Config, op map[string]interface{},
 }
 
 // nolint: deadcode,unused
-func AccessContextManagerOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
+func AccessContextManagerOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
 	w, err := createAccessContextManagerWaiter(config, op, activity, userAgent)
 	if err != nil {
 		return err
@@ -59,7 +61,7 @@ func AccessContextManagerOperationWaitTimeWithResponse(config *Config, op map[st
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func AccessContextManagerOperationWaitTime(config *Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
+func AccessContextManagerOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

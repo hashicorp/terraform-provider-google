@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"strings"
 	"testing"
 
@@ -14,7 +15,7 @@ func TestComputeAddressIdParsing(t *testing.T) {
 		ImportId            string
 		ExpectedError       bool
 		ExpectedCanonicalId string
-		Config              *Config
+		Config              *transport_tpg.Config
 	}{
 		"id is a full self link": {
 			ImportId:            "https://www.googleapis.com/compute/v1/projects/test-project/regions/us-central1/addresses/test-address",
@@ -35,13 +36,13 @@ func TestComputeAddressIdParsing(t *testing.T) {
 			ImportId:            "us-central1/test-address",
 			ExpectedError:       false,
 			ExpectedCanonicalId: "projects/default-project/regions/us-central1/addresses/test-address",
-			Config:              &Config{Project: "default-project"},
+			Config:              &transport_tpg.Config{Project: "default-project"},
 		},
 		"id is address": {
 			ImportId:            "test-address",
 			ExpectedError:       false,
 			ExpectedCanonicalId: "projects/default-project/regions/us-east1/addresses/test-address",
-			Config:              &Config{Project: "default-project", Region: "us-east1"},
+			Config:              &transport_tpg.Config{Project: "default-project", Region: "us-east1"},
 		},
 		"id has invalid format": {
 			ImportId:      "i/n/v/a/l/i/d",

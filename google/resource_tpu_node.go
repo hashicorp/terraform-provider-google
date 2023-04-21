@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // compareTpuNodeSchedulingConfig diff suppresses for the default
@@ -41,7 +42,7 @@ func compareTpuNodeSchedulingConfig(k, old, new string, d *schema.ResourceData) 
 
 func tpuNodeCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	old, new := diff.GetChange("network")
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	networkLinkRegex := regexp.MustCompile("projects/(.+)/global/networks/(.+)")
 
@@ -227,7 +228,7 @@ permissions to that data.`,
 }
 
 func resourceTPUNodeCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -350,7 +351,7 @@ func resourceTPUNodeCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTPUNodeRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -421,7 +422,7 @@ func resourceTPUNodeRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTPUNodeUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -478,7 +479,7 @@ func resourceTPUNodeUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTPUNodeDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -523,7 +524,7 @@ func resourceTPUNodeDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTPUNodeImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<zone>[^/]+)/nodes/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
@@ -543,42 +544,42 @@ func resourceTPUNodeImport(d *schema.ResourceData, meta interface{}) ([]*schema.
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenTPUNodeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTPUNodeName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenTPUNodeDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTPUNodeDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeAcceleratorType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTPUNodeAcceleratorType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeTensorflowVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTPUNodeTensorflowVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTPUNodeNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeCidrBlock(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTPUNodeCidrBlock(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTPUNodeServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeUseServiceNetworking(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTPUNodeUseServiceNetworking(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeSchedulingConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTPUNodeSchedulingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -591,11 +592,11 @@ func flattenTPUNodeSchedulingConfig(v interface{}, d *schema.ResourceData, confi
 		flattenTPUNodeSchedulingConfigPreemptible(original["preemptible"], d, config)
 	return []interface{}{transformed}
 }
-func flattenTPUNodeSchedulingConfigPreemptible(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTPUNodeSchedulingConfigPreemptible(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeNetworkEndpoints(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTPUNodeNetworkEndpoints(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -614,11 +615,11 @@ func flattenTPUNodeNetworkEndpoints(v interface{}, d *schema.ResourceData, confi
 	}
 	return transformed
 }
-func flattenTPUNodeNetworkEndpointsIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTPUNodeNetworkEndpointsIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenTPUNodeNetworkEndpointsPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTPUNodeNetworkEndpointsPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -635,39 +636,39 @@ func flattenTPUNodeNetworkEndpointsPort(v interface{}, d *schema.ResourceData, c
 	return v // let terraform core handle it otherwise
 }
 
-func flattenTPUNodeLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenTPUNodeLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandTPUNodeName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTPUNodeName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTPUNodeDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTPUNodeDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTPUNodeAcceleratorType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTPUNodeAcceleratorType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTPUNodeTensorflowVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTPUNodeTensorflowVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTPUNodeNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTPUNodeNetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTPUNodeCidrBlock(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTPUNodeCidrBlock(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTPUNodeUseServiceNetworking(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTPUNodeUseServiceNetworking(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTPUNodeSchedulingConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTPUNodeSchedulingConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -686,11 +687,11 @@ func expandTPUNodeSchedulingConfig(v interface{}, d TerraformResourceData, confi
 	return transformed, nil
 }
 
-func expandTPUNodeSchedulingConfigPreemptible(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandTPUNodeSchedulingConfigPreemptible(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTPUNodeLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandTPUNodeLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

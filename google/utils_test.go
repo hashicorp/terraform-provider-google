@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -169,7 +170,7 @@ func TestGetProject(t *testing.T) {
 			// Arrange
 
 			// Create provider config
-			var config Config
+			var config transport_tpg.Config
 			if tc.ProviderProject != "" {
 				config.Project = tc.ProviderProject
 			}
@@ -277,7 +278,7 @@ func TestGetLocation(t *testing.T) {
 			// Arrange
 
 			// Create provider config
-			var config Config
+			var config transport_tpg.Config
 			if v, ok := tc.ProviderConfig["region"]; ok {
 				config.Region = v
 			}
@@ -363,7 +364,7 @@ func TestGetZone(t *testing.T) {
 			// Arrange
 
 			// Create provider config
-			var config Config
+			var config transport_tpg.Config
 			if tc.ProviderZone != "" {
 				config.Zone = tc.ProviderZone
 			}
@@ -433,7 +434,7 @@ func TestGetRegion(t *testing.T) {
 			// Arrange
 
 			// Create provider config
-			var config Config
+			var config transport_tpg.Config
 			if tc.ProviderRegion != "" {
 				config.Region = tc.ProviderRegion
 			}
@@ -757,7 +758,7 @@ func TestServiceAccountFQN(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		config := &Config{Project: tc.project}
+		config := &transport_tpg.Config{Project: tc.project}
 		d := &schema.ResourceData{}
 		serviceAccountName, err := serviceAccountFQN(tc.serviceAccount, d, config)
 		if err != nil {

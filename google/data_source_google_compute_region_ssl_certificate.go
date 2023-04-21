@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func DataSourceGoogleRegionComputeSslCertificate() *schema.Resource {
@@ -24,7 +25,7 @@ func DataSourceGoogleRegionComputeSslCertificate() *schema.Resource {
 }
 
 func dataSourceComputeRegionSslCertificateRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	project, region, name, err := GetRegionalResourcePropertiesFromSelfLinkOrSchema(d, config)
 	if err != nil {

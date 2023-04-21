@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceAccessApprovalOrganizationSettings() *schema.Resource {
@@ -135,7 +136,7 @@ func accessapprovalOrganizationSettingsEnrolledServicesSchema() *schema.Resource
 }
 
 func resourceAccessApprovalOrganizationSettingsCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -214,7 +215,7 @@ func resourceAccessApprovalOrganizationSettingsCreate(d *schema.ResourceData, me
 }
 
 func resourceAccessApprovalOrganizationSettingsRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -263,7 +264,7 @@ func resourceAccessApprovalOrganizationSettingsRead(d *schema.ResourceData, meta
 }
 
 func resourceAccessApprovalOrganizationSettingsUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -334,7 +335,7 @@ func resourceAccessApprovalOrganizationSettingsUpdate(d *schema.ResourceData, me
 }
 
 func resourceAccessApprovalOrganizationSettingsDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -376,7 +377,7 @@ func resourceAccessApprovalOrganizationSettingsDelete(d *schema.ResourceData, me
 }
 
 func resourceAccessApprovalOrganizationSettingsImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"organizations/(?P<organization_id>[^/]+)/accessApprovalSettings",
 		"(?P<organization_id>[^/]+)",
@@ -394,18 +395,18 @@ func resourceAccessApprovalOrganizationSettingsImport(d *schema.ResourceData, me
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAccessApprovalOrganizationSettingsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalOrganizationSettingsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessApprovalOrganizationSettingsNotificationEmails(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalOrganizationSettingsNotificationEmails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenAccessApprovalOrganizationSettingsEnrolledServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalOrganizationSettingsEnrolledServices(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -424,36 +425,36 @@ func flattenAccessApprovalOrganizationSettingsEnrolledServices(v interface{}, d 
 	}
 	return transformed
 }
-func flattenAccessApprovalOrganizationSettingsEnrolledServicesCloudProduct(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalOrganizationSettingsEnrolledServicesCloudProduct(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessApprovalOrganizationSettingsEnrolledServicesEnrollmentLevel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalOrganizationSettingsEnrolledServicesEnrollmentLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessApprovalOrganizationSettingsEnrolledAncestor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalOrganizationSettingsEnrolledAncestor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessApprovalOrganizationSettingsActiveKeyVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalOrganizationSettingsActiveKeyVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessApprovalOrganizationSettingsAncestorHasActiveKeyVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalOrganizationSettingsAncestorHasActiveKeyVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessApprovalOrganizationSettingsInvalidKeyVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalOrganizationSettingsInvalidKeyVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandAccessApprovalOrganizationSettingsNotificationEmails(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessApprovalOrganizationSettingsNotificationEmails(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandAccessApprovalOrganizationSettingsEnrolledServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessApprovalOrganizationSettingsEnrolledServices(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -483,14 +484,14 @@ func expandAccessApprovalOrganizationSettingsEnrolledServices(v interface{}, d T
 	return req, nil
 }
 
-func expandAccessApprovalOrganizationSettingsEnrolledServicesCloudProduct(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessApprovalOrganizationSettingsEnrolledServicesCloudProduct(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessApprovalOrganizationSettingsEnrolledServicesEnrollmentLevel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessApprovalOrganizationSettingsEnrolledServicesEnrollmentLevel(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessApprovalOrganizationSettingsActiveKeyVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessApprovalOrganizationSettingsActiveKeyVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

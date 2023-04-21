@@ -22,6 +22,7 @@ import (
 
 	cloudbuild "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/cloudbuild"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func init() {
@@ -58,7 +59,7 @@ func testSweepCloudbuildWorkerPool(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLCloudbuildClient(config, config.UserAgent, "", 0)
+	client := transport_tpg.NewDCLCloudbuildClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllWorkerPool(context.Background(), d["project"], d["location"], isDeletableCloudbuildWorkerPool)
 	if err != nil {
 		return err

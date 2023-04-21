@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // Check to see if a specified value in the config exists and suppress diffs if so. Otherwise run EmptyOrDefaultStringSuppress.
@@ -392,7 +393,7 @@ billingAccounts/{billingAccountId}/budgets/{budgetId}.`,
 }
 
 func resourceBillingBudgetCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -464,7 +465,7 @@ func resourceBillingBudgetCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceBillingBudgetRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -510,7 +511,7 @@ func resourceBillingBudgetRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceBillingBudgetUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -613,7 +614,7 @@ func resourceBillingBudgetUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceBillingBudgetDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -644,7 +645,7 @@ func resourceBillingBudgetDelete(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceBillingBudgetImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"billingAccounts/(?P<billing_account>[^/]+)/budgets/(?P<name>[^/]+)",
 		"(?P<billing_account>[^/]+)/(?P<name>[^/]+)",
@@ -663,18 +664,18 @@ func resourceBillingBudgetImport(d *schema.ResourceData, meta interface{}) ([]*s
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenBillingBudgetName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenBillingBudgetDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBillingBudgetBudgetFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetBudgetFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -701,30 +702,30 @@ func flattenBillingBudgetBudgetFilter(v interface{}, d *schema.ResourceData, con
 		flattenBillingBudgetBudgetFilterCustomPeriod(original["customPeriod"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBillingBudgetBudgetFilterProjects(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetBudgetFilterProjects(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenBillingBudgetBudgetFilterCreditTypesTreatment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetBudgetFilterCreditTypesTreatment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBillingBudgetBudgetFilterServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetBudgetFilterServices(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBillingBudgetBudgetFilterCreditTypes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetBudgetFilterCreditTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBillingBudgetBudgetFilterSubaccounts(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetBudgetFilterSubaccounts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBillingBudgetBudgetFilterLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetBudgetFilterLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	/*
 	   note: api only accepts below format. Also only takes a single element in the array
 	   labels = {
@@ -749,11 +750,11 @@ func flattenBillingBudgetBudgetFilterLabels(v interface{}, d *schema.ResourceDat
 	return transformed
 }
 
-func flattenBillingBudgetBudgetFilterCalendarPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetBudgetFilterCalendarPeriod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBillingBudgetBudgetFilterCustomPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetBudgetFilterCustomPeriod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -768,7 +769,7 @@ func flattenBillingBudgetBudgetFilterCustomPeriod(v interface{}, d *schema.Resou
 		flattenBillingBudgetBudgetFilterCustomPeriodEndDate(original["endDate"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBillingBudgetBudgetFilterCustomPeriodStartDate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetBudgetFilterCustomPeriodStartDate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -785,7 +786,7 @@ func flattenBillingBudgetBudgetFilterCustomPeriodStartDate(v interface{}, d *sch
 		flattenBillingBudgetBudgetFilterCustomPeriodStartDateDay(original["day"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBillingBudgetBudgetFilterCustomPeriodStartDateYear(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetBudgetFilterCustomPeriodStartDateYear(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -802,7 +803,7 @@ func flattenBillingBudgetBudgetFilterCustomPeriodStartDateYear(v interface{}, d 
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBillingBudgetBudgetFilterCustomPeriodStartDateMonth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetBudgetFilterCustomPeriodStartDateMonth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -819,7 +820,7 @@ func flattenBillingBudgetBudgetFilterCustomPeriodStartDateMonth(v interface{}, d
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBillingBudgetBudgetFilterCustomPeriodStartDateDay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetBudgetFilterCustomPeriodStartDateDay(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -836,7 +837,7 @@ func flattenBillingBudgetBudgetFilterCustomPeriodStartDateDay(v interface{}, d *
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBillingBudgetBudgetFilterCustomPeriodEndDate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetBudgetFilterCustomPeriodEndDate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -853,7 +854,7 @@ func flattenBillingBudgetBudgetFilterCustomPeriodEndDate(v interface{}, d *schem
 		flattenBillingBudgetBudgetFilterCustomPeriodEndDateDay(original["day"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBillingBudgetBudgetFilterCustomPeriodEndDateYear(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetBudgetFilterCustomPeriodEndDateYear(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -870,7 +871,7 @@ func flattenBillingBudgetBudgetFilterCustomPeriodEndDateYear(v interface{}, d *s
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBillingBudgetBudgetFilterCustomPeriodEndDateMonth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetBudgetFilterCustomPeriodEndDateMonth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -887,7 +888,7 @@ func flattenBillingBudgetBudgetFilterCustomPeriodEndDateMonth(v interface{}, d *
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBillingBudgetBudgetFilterCustomPeriodEndDateDay(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetBudgetFilterCustomPeriodEndDateDay(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -904,7 +905,7 @@ func flattenBillingBudgetBudgetFilterCustomPeriodEndDateDay(v interface{}, d *sc
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBillingBudgetAmount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetAmount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -919,7 +920,7 @@ func flattenBillingBudgetAmount(v interface{}, d *schema.ResourceData, config *C
 		flattenBillingBudgetAmountLastPeriodAmount(original["lastPeriodAmount"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBillingBudgetAmountSpecifiedAmount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetAmountSpecifiedAmount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -936,15 +937,15 @@ func flattenBillingBudgetAmountSpecifiedAmount(v interface{}, d *schema.Resource
 		flattenBillingBudgetAmountSpecifiedAmountNanos(original["nanos"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBillingBudgetAmountSpecifiedAmountCurrencyCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetAmountSpecifiedAmountCurrencyCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBillingBudgetAmountSpecifiedAmountUnits(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetAmountSpecifiedAmountUnits(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBillingBudgetAmountSpecifiedAmountNanos(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetAmountSpecifiedAmountNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -961,11 +962,11 @@ func flattenBillingBudgetAmountSpecifiedAmountNanos(v interface{}, d *schema.Res
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBillingBudgetAmountLastPeriodAmount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetAmountLastPeriodAmount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v != nil
 }
 
-func flattenBillingBudgetThresholdRules(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetThresholdRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -984,15 +985,15 @@ func flattenBillingBudgetThresholdRules(v interface{}, d *schema.ResourceData, c
 	}
 	return transformed
 }
-func flattenBillingBudgetThresholdRulesThresholdPercent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetThresholdRulesThresholdPercent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBillingBudgetThresholdRulesSpendBasis(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetThresholdRulesSpendBasis(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBillingBudgetAllUpdatesRule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetAllUpdatesRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1011,11 +1012,11 @@ func flattenBillingBudgetAllUpdatesRule(v interface{}, d *schema.ResourceData, c
 		flattenBillingBudgetAllUpdatesRuleDisableDefaultIamRecipients(original["disableDefaultIamRecipients"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBillingBudgetAllUpdatesRulePubsubTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetAllUpdatesRulePubsubTopic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBillingBudgetAllUpdatesRuleSchemaVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetAllUpdatesRuleSchemaVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return "1.0"
 	}
@@ -1023,19 +1024,19 @@ func flattenBillingBudgetAllUpdatesRuleSchemaVersion(v interface{}, d *schema.Re
 	return v
 }
 
-func flattenBillingBudgetAllUpdatesRuleMonitoringNotificationChannels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetAllUpdatesRuleMonitoringNotificationChannels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBillingBudgetAllUpdatesRuleDisableDefaultIamRecipients(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBillingBudgetAllUpdatesRuleDisableDefaultIamRecipients(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandBillingBudgetDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetBudgetFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetBudgetFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1103,28 +1104,28 @@ func expandBillingBudgetBudgetFilter(v interface{}, d TerraformResourceData, con
 	return transformed, nil
 }
 
-func expandBillingBudgetBudgetFilterProjects(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetBudgetFilterProjects(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandBillingBudgetBudgetFilterCreditTypesTreatment(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetBudgetFilterCreditTypesTreatment(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetBudgetFilterServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetBudgetFilterServices(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetBudgetFilterCreditTypes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetBudgetFilterCreditTypes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetBudgetFilterSubaccounts(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetBudgetFilterSubaccounts(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetBudgetFilterLabels(v interface{}, d TerraformResourceData, config *Config) (map[string][]string, error) {
+func expandBillingBudgetBudgetFilterLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string][]string, error) {
 	if v == nil {
 		return map[string][]string{}, nil
 	}
@@ -1135,11 +1136,11 @@ func expandBillingBudgetBudgetFilterLabels(v interface{}, d TerraformResourceDat
 	return m, nil
 }
 
-func expandBillingBudgetBudgetFilterCalendarPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetBudgetFilterCalendarPeriod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetBudgetFilterCustomPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetBudgetFilterCustomPeriod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1165,7 +1166,7 @@ func expandBillingBudgetBudgetFilterCustomPeriod(v interface{}, d TerraformResou
 	return transformed, nil
 }
 
-func expandBillingBudgetBudgetFilterCustomPeriodStartDate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetBudgetFilterCustomPeriodStartDate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1198,19 +1199,19 @@ func expandBillingBudgetBudgetFilterCustomPeriodStartDate(v interface{}, d Terra
 	return transformed, nil
 }
 
-func expandBillingBudgetBudgetFilterCustomPeriodStartDateYear(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetBudgetFilterCustomPeriodStartDateYear(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetBudgetFilterCustomPeriodStartDateMonth(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetBudgetFilterCustomPeriodStartDateMonth(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetBudgetFilterCustomPeriodStartDateDay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetBudgetFilterCustomPeriodStartDateDay(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetBudgetFilterCustomPeriodEndDate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetBudgetFilterCustomPeriodEndDate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1243,19 +1244,19 @@ func expandBillingBudgetBudgetFilterCustomPeriodEndDate(v interface{}, d Terrafo
 	return transformed, nil
 }
 
-func expandBillingBudgetBudgetFilterCustomPeriodEndDateYear(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetBudgetFilterCustomPeriodEndDateYear(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetBudgetFilterCustomPeriodEndDateMonth(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetBudgetFilterCustomPeriodEndDateMonth(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetBudgetFilterCustomPeriodEndDateDay(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetBudgetFilterCustomPeriodEndDateDay(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetAmount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetAmount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1281,7 +1282,7 @@ func expandBillingBudgetAmount(v interface{}, d TerraformResourceData, config *C
 	return transformed, nil
 }
 
-func expandBillingBudgetAmountSpecifiedAmount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetAmountSpecifiedAmount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1314,19 +1315,19 @@ func expandBillingBudgetAmountSpecifiedAmount(v interface{}, d TerraformResource
 	return transformed, nil
 }
 
-func expandBillingBudgetAmountSpecifiedAmountCurrencyCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetAmountSpecifiedAmountCurrencyCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetAmountSpecifiedAmountUnits(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetAmountSpecifiedAmountUnits(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetAmountSpecifiedAmountNanos(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetAmountSpecifiedAmountNanos(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetAmountLastPeriodAmount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetAmountLastPeriodAmount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil || !v.(bool) {
 		return nil, nil
 	}
@@ -1334,7 +1335,7 @@ func expandBillingBudgetAmountLastPeriodAmount(v interface{}, d TerraformResourc
 	return struct{}{}, nil
 }
 
-func expandBillingBudgetThresholdRules(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetThresholdRules(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1363,15 +1364,15 @@ func expandBillingBudgetThresholdRules(v interface{}, d TerraformResourceData, c
 	return req, nil
 }
 
-func expandBillingBudgetThresholdRulesThresholdPercent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetThresholdRulesThresholdPercent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetThresholdRulesSpendBasis(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetThresholdRulesSpendBasis(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetAllUpdatesRule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetAllUpdatesRule(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1411,19 +1412,19 @@ func expandBillingBudgetAllUpdatesRule(v interface{}, d TerraformResourceData, c
 	return transformed, nil
 }
 
-func expandBillingBudgetAllUpdatesRulePubsubTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetAllUpdatesRulePubsubTopic(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetAllUpdatesRuleSchemaVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetAllUpdatesRuleSchemaVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetAllUpdatesRuleMonitoringNotificationChannels(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetAllUpdatesRuleMonitoringNotificationChannels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBillingBudgetAllUpdatesRuleDisableDefaultIamRecipients(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBillingBudgetAllUpdatesRuleDisableDefaultIamRecipients(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

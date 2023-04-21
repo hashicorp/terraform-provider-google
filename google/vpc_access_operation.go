@@ -18,10 +18,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 type VPCAccessOperationWaiter struct {
-	Config    *Config
+	Config    *transport_tpg.Config
 	UserAgent string
 	Project   string
 	CommonOperationWaiter
@@ -37,7 +39,7 @@ func (w *VPCAccessOperationWaiter) QueryOp() (interface{}, error) {
 	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
-func createVPCAccessWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*VPCAccessOperationWaiter, error) {
+func createVPCAccessWaiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*VPCAccessOperationWaiter, error) {
 	w := &VPCAccessOperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
@@ -50,7 +52,7 @@ func createVPCAccessWaiter(config *Config, op map[string]interface{}, project, a
 }
 
 // nolint: deadcode,unused
-func VPCAccessOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func VPCAccessOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	w, err := createVPCAccessWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
@@ -61,7 +63,7 @@ func VPCAccessOperationWaitTimeWithResponse(config *Config, op map[string]interf
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func VPCAccessOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func VPCAccessOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

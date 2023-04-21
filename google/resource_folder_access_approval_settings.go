@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 var accessApprovalCloudProductMapping = map[string]string{
@@ -175,7 +176,7 @@ Note: These values are supported as input, but considered a legacy format:
 }
 
 func resourceAccessApprovalFolderSettingsCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -254,7 +255,7 @@ func resourceAccessApprovalFolderSettingsCreate(d *schema.ResourceData, meta int
 }
 
 func resourceAccessApprovalFolderSettingsRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -303,7 +304,7 @@ func resourceAccessApprovalFolderSettingsRead(d *schema.ResourceData, meta inter
 }
 
 func resourceAccessApprovalFolderSettingsUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -374,7 +375,7 @@ func resourceAccessApprovalFolderSettingsUpdate(d *schema.ResourceData, meta int
 }
 
 func resourceAccessApprovalFolderSettingsDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -416,7 +417,7 @@ func resourceAccessApprovalFolderSettingsDelete(d *schema.ResourceData, meta int
 }
 
 func resourceAccessApprovalFolderSettingsImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"folders/(?P<folder_id>[^/]+)/accessApprovalSettings",
 		"(?P<folder_id>[^/]+)",
@@ -434,18 +435,18 @@ func resourceAccessApprovalFolderSettingsImport(d *schema.ResourceData, meta int
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAccessApprovalFolderSettingsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalFolderSettingsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessApprovalFolderSettingsNotificationEmails(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalFolderSettingsNotificationEmails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenAccessApprovalFolderSettingsEnrolledServices(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalFolderSettingsEnrolledServices(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -464,36 +465,36 @@ func flattenAccessApprovalFolderSettingsEnrolledServices(v interface{}, d *schem
 	}
 	return transformed
 }
-func flattenAccessApprovalFolderSettingsEnrolledServicesCloudProduct(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalFolderSettingsEnrolledServicesCloudProduct(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessApprovalFolderSettingsEnrolledServicesEnrollmentLevel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalFolderSettingsEnrolledServicesEnrollmentLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessApprovalFolderSettingsEnrolledAncestor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalFolderSettingsEnrolledAncestor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessApprovalFolderSettingsActiveKeyVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalFolderSettingsActiveKeyVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessApprovalFolderSettingsAncestorHasActiveKeyVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalFolderSettingsAncestorHasActiveKeyVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAccessApprovalFolderSettingsInvalidKeyVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAccessApprovalFolderSettingsInvalidKeyVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandAccessApprovalFolderSettingsNotificationEmails(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessApprovalFolderSettingsNotificationEmails(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandAccessApprovalFolderSettingsEnrolledServices(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessApprovalFolderSettingsEnrolledServices(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -523,14 +524,14 @@ func expandAccessApprovalFolderSettingsEnrolledServices(v interface{}, d Terrafo
 	return req, nil
 }
 
-func expandAccessApprovalFolderSettingsEnrolledServicesCloudProduct(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessApprovalFolderSettingsEnrolledServicesCloudProduct(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessApprovalFolderSettingsEnrolledServicesEnrollmentLevel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessApprovalFolderSettingsEnrolledServicesEnrollmentLevel(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessApprovalFolderSettingsActiveKeyVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAccessApprovalFolderSettingsActiveKeyVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

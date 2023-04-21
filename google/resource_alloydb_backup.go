@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceAlloydbBackup() *schema.Resource {
@@ -120,7 +121,7 @@ func ResourceAlloydbBackup() *schema.Resource {
 }
 
 func resourceAlloydbBackupCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -198,7 +199,7 @@ func resourceAlloydbBackupCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceAlloydbBackupRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -266,7 +267,7 @@ func resourceAlloydbBackupRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAlloydbBackupUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -336,7 +337,7 @@ func resourceAlloydbBackupUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceAlloydbBackupDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -381,7 +382,7 @@ func resourceAlloydbBackupDelete(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceAlloydbBackupImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/backups/(?P<backup_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<backup_id>[^/]+)",
@@ -400,51 +401,51 @@ func resourceAlloydbBackupImport(d *schema.ResourceData, meta interface{}) ([]*s
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAlloydbBackupName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbBackupName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbBackupUid(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbBackupUid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbBackupClusterName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbBackupClusterName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbBackupLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbBackupLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbBackupCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbBackupCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbBackupUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbBackupUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbBackupState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbBackupState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbBackupDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbBackupDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbBackupReconciling(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbBackupReconciling(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbBackupEtag(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbBackupEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandAlloydbBackupClusterName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbBackupClusterName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbBackupLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandAlloydbBackupLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -455,7 +456,7 @@ func expandAlloydbBackupLabels(v interface{}, d TerraformResourceData, config *C
 	return m, nil
 }
 
-func expandAlloydbBackupDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbBackupDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

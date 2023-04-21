@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func DefaultBinaryAuthorizationPolicy(project string) map[string]interface{} {
@@ -219,7 +220,7 @@ policy will be subject to the project admission policy. Possible values: ["ENABL
 }
 
 func resourceBinaryAuthorizationPolicyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -294,7 +295,7 @@ func resourceBinaryAuthorizationPolicyCreate(d *schema.ResourceData, meta interf
 }
 
 func resourceBinaryAuthorizationPolicyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -347,7 +348,7 @@ func resourceBinaryAuthorizationPolicyRead(d *schema.ResourceData, meta interfac
 }
 
 func resourceBinaryAuthorizationPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -417,7 +418,7 @@ func resourceBinaryAuthorizationPolicyUpdate(d *schema.ResourceData, meta interf
 }
 
 func resourceBinaryAuthorizationPolicyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -455,7 +456,7 @@ func resourceBinaryAuthorizationPolicyDelete(d *schema.ResourceData, meta interf
 }
 
 func resourceBinaryAuthorizationPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)",
 		"(?P<project>[^/]+)",
@@ -473,15 +474,15 @@ func resourceBinaryAuthorizationPolicyImport(d *schema.ResourceData, meta interf
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenBinaryAuthorizationPolicyDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBinaryAuthorizationPolicyDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBinaryAuthorizationPolicyAdmissionWhitelistPatterns(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBinaryAuthorizationPolicyAdmissionWhitelistPatterns(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -499,11 +500,11 @@ func flattenBinaryAuthorizationPolicyAdmissionWhitelistPatterns(v interface{}, d
 	}
 	return transformed
 }
-func flattenBinaryAuthorizationPolicyAdmissionWhitelistPatternsNamePattern(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBinaryAuthorizationPolicyAdmissionWhitelistPatternsNamePattern(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBinaryAuthorizationPolicyClusterAdmissionRules(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBinaryAuthorizationPolicyClusterAdmissionRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -520,22 +521,22 @@ func flattenBinaryAuthorizationPolicyClusterAdmissionRules(v interface{}, d *sch
 	}
 	return transformed
 }
-func flattenBinaryAuthorizationPolicyClusterAdmissionRulesEvaluationMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBinaryAuthorizationPolicyClusterAdmissionRulesEvaluationMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBinaryAuthorizationPolicyClusterAdmissionRulesRequireAttestationsBy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBinaryAuthorizationPolicyClusterAdmissionRulesRequireAttestationsBy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(selfLinkNameHash, v.([]interface{}))
 }
 
-func flattenBinaryAuthorizationPolicyClusterAdmissionRulesEnforcementMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBinaryAuthorizationPolicyClusterAdmissionRulesEnforcementMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBinaryAuthorizationPolicyDefaultAdmissionRule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBinaryAuthorizationPolicyDefaultAdmissionRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -552,30 +553,30 @@ func flattenBinaryAuthorizationPolicyDefaultAdmissionRule(v interface{}, d *sche
 		flattenBinaryAuthorizationPolicyDefaultAdmissionRuleEnforcementMode(original["enforcementMode"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBinaryAuthorizationPolicyDefaultAdmissionRuleEvaluationMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBinaryAuthorizationPolicyDefaultAdmissionRuleEvaluationMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBinaryAuthorizationPolicyDefaultAdmissionRuleRequireAttestationsBy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBinaryAuthorizationPolicyDefaultAdmissionRuleRequireAttestationsBy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(selfLinkNameHash, v.([]interface{}))
 }
 
-func flattenBinaryAuthorizationPolicyDefaultAdmissionRuleEnforcementMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBinaryAuthorizationPolicyDefaultAdmissionRuleEnforcementMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandBinaryAuthorizationPolicyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBinaryAuthorizationPolicyAdmissionWhitelistPatterns(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyAdmissionWhitelistPatterns(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -597,11 +598,11 @@ func expandBinaryAuthorizationPolicyAdmissionWhitelistPatterns(v interface{}, d 
 	return req, nil
 }
 
-func expandBinaryAuthorizationPolicyAdmissionWhitelistPatternsNamePattern(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyAdmissionWhitelistPatternsNamePattern(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBinaryAuthorizationPolicyClusterAdmissionRules(v interface{}, d TerraformResourceData, config *Config) (map[string]interface{}, error) {
+func expandBinaryAuthorizationPolicyClusterAdmissionRules(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
 	if v == nil {
 		return map[string]interface{}{}, nil
 	}
@@ -640,11 +641,11 @@ func expandBinaryAuthorizationPolicyClusterAdmissionRules(v interface{}, d Terra
 	return m, nil
 }
 
-func expandBinaryAuthorizationPolicyClusterAdmissionRulesEvaluationMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyClusterAdmissionRulesEvaluationMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBinaryAuthorizationPolicyClusterAdmissionRulesRequireAttestationsBy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyClusterAdmissionRulesRequireAttestationsBy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	r := regexp.MustCompile("projects/(.+)/attestors/(.+)")
 
 	// It's possible that all entries in the list will specify a project, in
@@ -671,11 +672,11 @@ func expandBinaryAuthorizationPolicyClusterAdmissionRulesRequireAttestationsBy(v
 	}), nil
 }
 
-func expandBinaryAuthorizationPolicyClusterAdmissionRulesEnforcementMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyClusterAdmissionRulesEnforcementMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBinaryAuthorizationPolicyDefaultAdmissionRule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyDefaultAdmissionRule(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -708,11 +709,11 @@ func expandBinaryAuthorizationPolicyDefaultAdmissionRule(v interface{}, d Terraf
 	return transformed, nil
 }
 
-func expandBinaryAuthorizationPolicyDefaultAdmissionRuleEvaluationMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyDefaultAdmissionRuleEvaluationMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBinaryAuthorizationPolicyDefaultAdmissionRuleRequireAttestationsBy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyDefaultAdmissionRuleRequireAttestationsBy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	r := regexp.MustCompile("projects/(.+)/attestors/(.+)")
 
 	// It's possible that all entries in the list will specify a project, in
@@ -739,6 +740,6 @@ func expandBinaryAuthorizationPolicyDefaultAdmissionRuleRequireAttestationsBy(v 
 	}), nil
 }
 
-func expandBinaryAuthorizationPolicyDefaultAdmissionRuleEnforcementMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyDefaultAdmissionRuleEnforcementMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -25,6 +25,8 @@ import (
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
 	apikeys "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/apikeys"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceApikeysKey() *schema.Resource {
@@ -226,7 +228,7 @@ func ApikeysKeyRestrictionsServerKeyRestrictionsSchema() *schema.Resource {
 }
 
 func resourceApikeysKeyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -254,7 +256,7 @@ func resourceApikeysKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLApikeysClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
+	client := transport_tpg.NewDCLApikeysClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -277,7 +279,7 @@ func resourceApikeysKeyCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceApikeysKeyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -299,7 +301,7 @@ func resourceApikeysKeyRead(d *schema.ResourceData, meta interface{}) error {
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLApikeysClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
+	client := transport_tpg.NewDCLApikeysClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -334,7 +336,7 @@ func resourceApikeysKeyRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 func resourceApikeysKeyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -357,7 +359,7 @@ func resourceApikeysKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLApikeysClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
+	client := transport_tpg.NewDCLApikeysClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -380,7 +382,7 @@ func resourceApikeysKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceApikeysKeyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -403,7 +405,7 @@ func resourceApikeysKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLApikeysClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
+	client := transport_tpg.NewDCLApikeysClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -419,7 +421,7 @@ func resourceApikeysKeyDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceApikeysKeyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/global/keys/(?P<name>[^/]+)",

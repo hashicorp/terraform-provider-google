@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"strings"
 	"time"
@@ -400,7 +401,7 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 }
 
 func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -479,7 +480,7 @@ func computeRIGMWaitForInstanceStatus(d *schema.ResourceData, meta interface{}) 
 type getInstanceManagerFunc func(*schema.ResourceData, interface{}) (*compute.InstanceGroupManager, error)
 
 func getRegionalManager(d *schema.ResourceData, meta interface{}) (*compute.InstanceGroupManager, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -535,7 +536,7 @@ func waitForInstancesRefreshFunc(f getInstanceManagerFunc, waitForUpdates bool, 
 }
 
 func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	manager, err := getRegionalManager(d, meta)
 	if err != nil {
@@ -621,7 +622,7 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 }
 
 func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -739,7 +740,7 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 }
 
 func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	if d.Get("wait_for_instances").(bool) {
 		err := computeRIGMWaitForInstanceStatus(d, meta)
@@ -906,7 +907,7 @@ func resourceRegionInstanceGroupManagerStateImporter(d *schema.ResourceData, met
 	if err := d.Set("wait_for_instances_status", "STABLE"); err != nil {
 		return nil, fmt.Errorf("Error setting wait_for_instances_status: %s", err)
 	}
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/instanceGroupManagers/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)", "(?P<region>[^/]+)/(?P<name>[^/]+)", "(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}

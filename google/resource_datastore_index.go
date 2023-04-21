@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceDatastoreIndex() *schema.Resource {
@@ -94,7 +95,7 @@ func ResourceDatastoreIndex() *schema.Resource {
 }
 
 func resourceDatastoreIndexCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -181,7 +182,7 @@ func resourceDatastoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDatastoreIndexRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -231,7 +232,7 @@ func resourceDatastoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceDatastoreIndexDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -276,7 +277,7 @@ func resourceDatastoreIndexDelete(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDatastoreIndexImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/indexes/(?P<index_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<index_id>[^/]+)",
@@ -295,19 +296,19 @@ func resourceDatastoreIndexImport(d *schema.ResourceData, meta interface{}) ([]*
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDatastoreIndexIndexId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastoreIndexIndexId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastoreIndexKind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastoreIndexKind(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastoreIndexAncestor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastoreIndexAncestor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastoreIndexProperties(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastoreIndexProperties(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -326,23 +327,23 @@ func flattenDatastoreIndexProperties(v interface{}, d *schema.ResourceData, conf
 	}
 	return transformed
 }
-func flattenDatastoreIndexPropertiesName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastoreIndexPropertiesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastoreIndexPropertiesDirection(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastoreIndexPropertiesDirection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandDatastoreIndexKind(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastoreIndexKind(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastoreIndexAncestor(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastoreIndexAncestor(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastoreIndexProperties(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastoreIndexProperties(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -371,10 +372,10 @@ func expandDatastoreIndexProperties(v interface{}, d TerraformResourceData, conf
 	return req, nil
 }
 
-func expandDatastoreIndexPropertiesName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastoreIndexPropertiesName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastoreIndexPropertiesDirection(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastoreIndexPropertiesDirection(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

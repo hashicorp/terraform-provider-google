@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceBeyondcorpAppConnector() *schema.Resource {
@@ -107,7 +108,7 @@ func ResourceBeyondcorpAppConnector() *schema.Resource {
 }
 
 func resourceBeyondcorpAppConnectorCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -190,7 +191,7 @@ func resourceBeyondcorpAppConnectorCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceBeyondcorpAppConnectorRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -240,7 +241,7 @@ func resourceBeyondcorpAppConnectorRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceBeyondcorpAppConnectorUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -325,7 +326,7 @@ func resourceBeyondcorpAppConnectorUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceBeyondcorpAppConnectorDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -370,7 +371,7 @@ func resourceBeyondcorpAppConnectorDelete(d *schema.ResourceData, meta interface
 }
 
 func resourceBeyondcorpAppConnectorImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/appConnectors/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -390,15 +391,15 @@ func resourceBeyondcorpAppConnectorImport(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenBeyondcorpAppConnectorDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectorDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBeyondcorpAppConnectorLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectorLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBeyondcorpAppConnectorPrincipalInfo(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectorPrincipalInfo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -411,7 +412,7 @@ func flattenBeyondcorpAppConnectorPrincipalInfo(v interface{}, d *schema.Resourc
 		flattenBeyondcorpAppConnectorPrincipalInfoServiceAccount(original["serviceAccount"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBeyondcorpAppConnectorPrincipalInfoServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectorPrincipalInfoServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -424,19 +425,19 @@ func flattenBeyondcorpAppConnectorPrincipalInfoServiceAccount(v interface{}, d *
 		flattenBeyondcorpAppConnectorPrincipalInfoServiceAccountEmail(original["email"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBeyondcorpAppConnectorPrincipalInfoServiceAccountEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectorPrincipalInfoServiceAccountEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBeyondcorpAppConnectorState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBeyondcorpAppConnectorState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandBeyondcorpAppConnectorDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBeyondcorpAppConnectorDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBeyondcorpAppConnectorLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandBeyondcorpAppConnectorLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -447,7 +448,7 @@ func expandBeyondcorpAppConnectorLabels(v interface{}, d TerraformResourceData, 
 	return m, nil
 }
 
-func expandBeyondcorpAppConnectorPrincipalInfo(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBeyondcorpAppConnectorPrincipalInfo(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -466,7 +467,7 @@ func expandBeyondcorpAppConnectorPrincipalInfo(v interface{}, d TerraformResourc
 	return transformed, nil
 }
 
-func expandBeyondcorpAppConnectorPrincipalInfoServiceAccount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBeyondcorpAppConnectorPrincipalInfoServiceAccount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -485,6 +486,6 @@ func expandBeyondcorpAppConnectorPrincipalInfoServiceAccount(v interface{}, d Te
 	return transformed, nil
 }
 
-func expandBeyondcorpAppConnectorPrincipalInfoServiceAccountEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBeyondcorpAppConnectorPrincipalInfoServiceAccountEmail(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

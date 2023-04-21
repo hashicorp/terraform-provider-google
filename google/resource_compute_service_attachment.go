@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeServiceAttachment() *schema.Resource {
@@ -181,7 +182,7 @@ updates of this resource.`,
 }
 
 func resourceComputeServiceAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -302,7 +303,7 @@ func resourceComputeServiceAttachmentCreate(d *schema.ResourceData, meta interfa
 }
 
 func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -379,7 +380,7 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 }
 
 func resourceComputeServiceAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -468,7 +469,7 @@ func resourceComputeServiceAttachmentUpdate(d *schema.ResourceData, meta interfa
 }
 
 func resourceComputeServiceAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -513,7 +514,7 @@ func resourceComputeServiceAttachmentDelete(d *schema.ResourceData, meta interfa
 }
 
 func resourceComputeServiceAttachmentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/serviceAttachments/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -533,23 +534,23 @@ func resourceComputeServiceAttachmentImport(d *schema.ResourceData, meta interfa
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeServiceAttachmentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeServiceAttachmentName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeServiceAttachmentDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeServiceAttachmentDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeServiceAttachmentFingerprint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeServiceAttachmentFingerprint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeServiceAttachmentConnectionPreference(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeServiceAttachmentConnectionPreference(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeServiceAttachmentConnectedEndpoints(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeServiceAttachmentConnectedEndpoints(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -568,41 +569,41 @@ func flattenComputeServiceAttachmentConnectedEndpoints(v interface{}, d *schema.
 	}
 	return transformed
 }
-func flattenComputeServiceAttachmentConnectedEndpointsEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeServiceAttachmentConnectedEndpointsEndpoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeServiceAttachmentConnectedEndpointsStatus(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeServiceAttachmentConnectedEndpointsStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeServiceAttachmentTargetService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeServiceAttachmentTargetService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeServiceAttachmentNatSubnets(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeServiceAttachmentNatSubnets(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
-func flattenComputeServiceAttachmentEnableProxyProtocol(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeServiceAttachmentEnableProxyProtocol(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeServiceAttachmentDomainNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeServiceAttachmentDomainNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeServiceAttachmentConsumerRejectLists(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeServiceAttachmentConsumerRejectLists(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeServiceAttachmentConsumerAcceptLists(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeServiceAttachmentConsumerAcceptLists(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -621,11 +622,11 @@ func flattenComputeServiceAttachmentConsumerAcceptLists(v interface{}, d *schema
 	}
 	return transformed
 }
-func flattenComputeServiceAttachmentConsumerAcceptListsProjectIdOrNum(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeServiceAttachmentConsumerAcceptListsProjectIdOrNum(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeServiceAttachmentConsumerAcceptListsConnectionLimit(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeServiceAttachmentConsumerAcceptListsConnectionLimit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -642,30 +643,30 @@ func flattenComputeServiceAttachmentConsumerAcceptListsConnectionLimit(v interfa
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeServiceAttachmentRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeServiceAttachmentRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func expandComputeServiceAttachmentName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeServiceAttachmentName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeServiceAttachmentDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeServiceAttachmentDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeServiceAttachmentFingerprint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeServiceAttachmentFingerprint(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeServiceAttachmentConnectionPreference(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeServiceAttachmentConnectionPreference(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeServiceAttachmentTargetService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeServiceAttachmentTargetService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := parseRegionalFieldValue("forwardingRules", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for target_service: %s", err)
@@ -673,7 +674,7 @@ func expandComputeServiceAttachmentTargetService(v interface{}, d TerraformResou
 	return f.RelativeLink(), nil
 }
 
-func expandComputeServiceAttachmentNatSubnets(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeServiceAttachmentNatSubnets(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -689,19 +690,19 @@ func expandComputeServiceAttachmentNatSubnets(v interface{}, d TerraformResource
 	return req, nil
 }
 
-func expandComputeServiceAttachmentEnableProxyProtocol(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeServiceAttachmentEnableProxyProtocol(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeServiceAttachmentDomainNames(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeServiceAttachmentDomainNames(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeServiceAttachmentConsumerRejectLists(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeServiceAttachmentConsumerRejectLists(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeServiceAttachmentConsumerAcceptLists(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeServiceAttachmentConsumerAcceptLists(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -730,15 +731,15 @@ func expandComputeServiceAttachmentConsumerAcceptLists(v interface{}, d Terrafor
 	return req, nil
 }
 
-func expandComputeServiceAttachmentConsumerAcceptListsProjectIdOrNum(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeServiceAttachmentConsumerAcceptListsProjectIdOrNum(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeServiceAttachmentConsumerAcceptListsConnectionLimit(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeServiceAttachmentConsumerAcceptListsConnectionLimit(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeServiceAttachmentRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeServiceAttachmentRegion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for region: %s", err)

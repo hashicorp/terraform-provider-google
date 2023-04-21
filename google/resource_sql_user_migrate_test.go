@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestSqlUserMigrateState(t *testing.T) {
@@ -25,7 +26,7 @@ func TestSqlUserMigrateState(t *testing.T) {
 				"name":     "tf-user",
 				"instance": "tf-instance",
 			},
-			Meta:       &Config{},
+			Meta:       &transport_tpg.Config{},
 			ID:         "tf-user",
 			ExpectedID: "tf-instance/tf-user",
 		},
@@ -59,7 +60,7 @@ func TestSqlUserMigrateState(t *testing.T) {
 
 func TestSqlUserMigrateState_empty(t *testing.T) {
 	var is *terraform.InstanceState
-	var meta *Config
+	var meta *transport_tpg.Config
 
 	// should handle nil
 	is, err := resourceSqlUserMigrateState(0, is, meta)

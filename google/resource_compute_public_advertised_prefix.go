@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputePublicAdvertisedPrefix() *schema.Resource {
@@ -84,7 +85,7 @@ except the last character, which cannot be a dash.`,
 }
 
 func resourceComputePublicAdvertisedPrefixCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -163,7 +164,7 @@ func resourceComputePublicAdvertisedPrefixCreate(d *schema.ResourceData, meta in
 }
 
 func resourceComputePublicAdvertisedPrefixRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -216,7 +217,7 @@ func resourceComputePublicAdvertisedPrefixRead(d *schema.ResourceData, meta inte
 }
 
 func resourceComputePublicAdvertisedPrefixDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -261,7 +262,7 @@ func resourceComputePublicAdvertisedPrefixDelete(d *schema.ResourceData, meta in
 }
 
 func resourceComputePublicAdvertisedPrefixImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/publicAdvertisedPrefixes/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -280,34 +281,34 @@ func resourceComputePublicAdvertisedPrefixImport(d *schema.ResourceData, meta in
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputePublicAdvertisedPrefixDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputePublicAdvertisedPrefixDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputePublicAdvertisedPrefixName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputePublicAdvertisedPrefixName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputePublicAdvertisedPrefixDnsVerificationIp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputePublicAdvertisedPrefixDnsVerificationIp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputePublicAdvertisedPrefixIpCidrRange(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputePublicAdvertisedPrefixIpCidrRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandComputePublicAdvertisedPrefixDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputePublicAdvertisedPrefixDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputePublicAdvertisedPrefixName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputePublicAdvertisedPrefixName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputePublicAdvertisedPrefixDnsVerificationIp(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputePublicAdvertisedPrefixDnsVerificationIp(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputePublicAdvertisedPrefixIpCidrRange(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputePublicAdvertisedPrefixIpCidrRange(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

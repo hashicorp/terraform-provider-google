@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceIdentityPlatformInboundSamlConfig() *schema.Resource {
@@ -146,7 +147,7 @@ and accept an authentication assertion issued by a SAML identity provider.`,
 }
 
 func resourceIdentityPlatformInboundSamlConfigCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -221,7 +222,7 @@ func resourceIdentityPlatformInboundSamlConfigCreate(d *schema.ResourceData, met
 }
 
 func resourceIdentityPlatformInboundSamlConfigRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -274,7 +275,7 @@ func resourceIdentityPlatformInboundSamlConfigRead(d *schema.ResourceData, meta 
 }
 
 func resourceIdentityPlatformInboundSamlConfigUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -361,7 +362,7 @@ func resourceIdentityPlatformInboundSamlConfigUpdate(d *schema.ResourceData, met
 }
 
 func resourceIdentityPlatformInboundSamlConfigDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -398,7 +399,7 @@ func resourceIdentityPlatformInboundSamlConfigDelete(d *schema.ResourceData, met
 }
 
 func resourceIdentityPlatformInboundSamlConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/inboundSamlConfigs/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -417,22 +418,22 @@ func resourceIdentityPlatformInboundSamlConfigImport(d *schema.ResourceData, met
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenIdentityPlatformInboundSamlConfigName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformInboundSamlConfigName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenIdentityPlatformInboundSamlConfigDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformInboundSamlConfigDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformInboundSamlConfigEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigIdpConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -451,19 +452,19 @@ func flattenIdentityPlatformInboundSamlConfigIdpConfig(v interface{}, d *schema.
 		flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificates(original["idpCertificates"], d, config)
 	return []interface{}{transformed}
 }
-func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpEntityId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpEntityId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigIdpConfigSsoUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfigSsoUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigIdpConfigSignRequest(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfigSignRequest(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificates(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificates(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -481,11 +482,11 @@ func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificates(v interfac
 	}
 	return transformed
 }
-func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificatesX509Certificate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformInboundSamlConfigIdpConfigIdpCertificatesX509Certificate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigSpConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformInboundSamlConfigSpConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -502,15 +503,15 @@ func flattenIdentityPlatformInboundSamlConfigSpConfig(v interface{}, d *schema.R
 		flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificates(original["spCertificates"], d, config)
 	return []interface{}{transformed}
 }
-func flattenIdentityPlatformInboundSamlConfigSpConfigSpEntityId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformInboundSamlConfigSpConfigSpEntityId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigSpConfigCallbackUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformInboundSamlConfigSpConfigCallbackUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificates(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificates(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -528,23 +529,23 @@ func flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificates(v interface{
 	}
 	return transformed
 }
-func flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificatesX509Certificate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformInboundSamlConfigSpConfigSpCertificatesX509Certificate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandIdentityPlatformInboundSamlConfigName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformInboundSamlConfigName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformInboundSamlConfigDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformInboundSamlConfigDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformInboundSamlConfigEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformInboundSamlConfigEnabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformInboundSamlConfigIdpConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformInboundSamlConfigIdpConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -584,19 +585,19 @@ func expandIdentityPlatformInboundSamlConfigIdpConfig(v interface{}, d Terraform
 	return transformed, nil
 }
 
-func expandIdentityPlatformInboundSamlConfigIdpConfigIdpEntityId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformInboundSamlConfigIdpConfigIdpEntityId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformInboundSamlConfigIdpConfigSsoUrl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformInboundSamlConfigIdpConfigSsoUrl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformInboundSamlConfigIdpConfigSignRequest(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformInboundSamlConfigIdpConfigSignRequest(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformInboundSamlConfigIdpConfigIdpCertificates(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformInboundSamlConfigIdpConfigIdpCertificates(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -618,11 +619,11 @@ func expandIdentityPlatformInboundSamlConfigIdpConfigIdpCertificates(v interface
 	return req, nil
 }
 
-func expandIdentityPlatformInboundSamlConfigIdpConfigIdpCertificatesX509Certificate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformInboundSamlConfigIdpConfigIdpCertificatesX509Certificate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformInboundSamlConfigSpConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformInboundSamlConfigSpConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -655,15 +656,15 @@ func expandIdentityPlatformInboundSamlConfigSpConfig(v interface{}, d TerraformR
 	return transformed, nil
 }
 
-func expandIdentityPlatformInboundSamlConfigSpConfigSpEntityId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformInboundSamlConfigSpConfigSpEntityId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformInboundSamlConfigSpConfigCallbackUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformInboundSamlConfigSpConfigCallbackUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformInboundSamlConfigSpConfigSpCertificates(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformInboundSamlConfigSpConfigSpCertificates(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -685,6 +686,6 @@ func expandIdentityPlatformInboundSamlConfigSpConfigSpCertificates(v interface{}
 	return req, nil
 }
 
-func expandIdentityPlatformInboundSamlConfigSpConfigSpCertificatesX509Certificate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformInboundSamlConfigSpConfigSpCertificatesX509Certificate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

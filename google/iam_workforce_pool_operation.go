@@ -17,10 +17,12 @@ package google
 import (
 	"fmt"
 	"time"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 type IAMWorkforcePoolOperationWaiter struct {
-	Config    *Config
+	Config    *transport_tpg.Config
 	UserAgent string
 	CommonOperationWaiter
 }
@@ -35,7 +37,7 @@ func (w *IAMWorkforcePoolOperationWaiter) QueryOp() (interface{}, error) {
 	return SendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
 }
 
-func createIAMWorkforcePoolWaiter(config *Config, op map[string]interface{}, activity, userAgent string) (*IAMWorkforcePoolOperationWaiter, error) {
+func createIAMWorkforcePoolWaiter(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string) (*IAMWorkforcePoolOperationWaiter, error) {
 	w := &IAMWorkforcePoolOperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
@@ -46,7 +48,7 @@ func createIAMWorkforcePoolWaiter(config *Config, op map[string]interface{}, act
 	return w, nil
 }
 
-func IAMWorkforcePoolOperationWaitTime(config *Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
+func IAMWorkforcePoolOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

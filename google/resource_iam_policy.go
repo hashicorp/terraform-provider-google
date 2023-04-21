@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -28,7 +30,7 @@ func iamPolicyImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
 		if resourceIdParser == nil {
 			return nil, errors.New("Import not supported for this IAM resource.")
 		}
-		config := m.(*Config)
+		config := m.(*transport_tpg.Config)
 		err := resourceIdParser(d, config)
 		if err != nil {
 			return nil, err
@@ -63,7 +65,7 @@ func ResourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdate
 
 func ResourceIamPolicyCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
-		config := meta.(*Config)
+		config := meta.(*transport_tpg.Config)
 
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
@@ -81,7 +83,7 @@ func ResourceIamPolicyCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.Cr
 
 func ResourceIamPolicyRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.ReadFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
-		config := meta.(*Config)
+		config := meta.(*transport_tpg.Config)
 
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
@@ -106,7 +108,7 @@ func ResourceIamPolicyRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 
 func ResourceIamPolicyUpdate(newUpdaterFunc newResourceIamUpdaterFunc) schema.UpdateFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
-		config := meta.(*Config)
+		config := meta.(*transport_tpg.Config)
 
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
@@ -125,7 +127,7 @@ func ResourceIamPolicyUpdate(newUpdaterFunc newResourceIamUpdaterFunc) schema.Up
 
 func ResourceIamPolicyDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.DeleteFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
-		config := meta.(*Config)
+		config := meta.(*transport_tpg.Config)
 
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {

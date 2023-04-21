@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeHttpsHealthCheck() *schema.Resource {
@@ -130,7 +131,7 @@ consecutive failures. The default value is 2.`,
 }
 
 func resourceComputeHttpsHealthCheckCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -239,7 +240,7 @@ func resourceComputeHttpsHealthCheckCreate(d *schema.ResourceData, meta interfac
 }
 
 func resourceComputeHttpsHealthCheckRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -310,7 +311,7 @@ func resourceComputeHttpsHealthCheckRead(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeHttpsHealthCheckUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -412,7 +413,7 @@ func resourceComputeHttpsHealthCheckUpdate(d *schema.ResourceData, meta interfac
 }
 
 func resourceComputeHttpsHealthCheckDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -457,7 +458,7 @@ func resourceComputeHttpsHealthCheckDelete(d *schema.ResourceData, meta interfac
 }
 
 func resourceComputeHttpsHealthCheckImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/httpsHealthChecks/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -476,7 +477,7 @@ func resourceComputeHttpsHealthCheckImport(d *schema.ResourceData, meta interfac
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeHttpsHealthCheckCheckIntervalSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeHttpsHealthCheckCheckIntervalSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -493,15 +494,15 @@ func flattenComputeHttpsHealthCheckCheckIntervalSec(v interface{}, d *schema.Res
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeHttpsHealthCheckCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeHttpsHealthCheckCreationTimestamp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeHttpsHealthCheckDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeHttpsHealthCheckDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeHttpsHealthCheckHealthyThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeHttpsHealthCheckHealthyThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -518,15 +519,15 @@ func flattenComputeHttpsHealthCheckHealthyThreshold(v interface{}, d *schema.Res
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeHttpsHealthCheckHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeHttpsHealthCheckHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeHttpsHealthCheckName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeHttpsHealthCheckName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeHttpsHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeHttpsHealthCheckPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -543,11 +544,11 @@ func flattenComputeHttpsHealthCheckPort(v interface{}, d *schema.ResourceData, c
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeHttpsHealthCheckRequestPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeHttpsHealthCheckRequestPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeHttpsHealthCheckTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeHttpsHealthCheckTimeoutSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -564,7 +565,7 @@ func flattenComputeHttpsHealthCheckTimeoutSec(v interface{}, d *schema.ResourceD
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeHttpsHealthCheckUnhealthyThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeHttpsHealthCheckUnhealthyThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -581,38 +582,38 @@ func flattenComputeHttpsHealthCheckUnhealthyThreshold(v interface{}, d *schema.R
 	return v // let terraform core handle it otherwise
 }
 
-func expandComputeHttpsHealthCheckCheckIntervalSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeHttpsHealthCheckCheckIntervalSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHttpsHealthCheckDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeHttpsHealthCheckDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHttpsHealthCheckHealthyThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeHttpsHealthCheckHealthyThreshold(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHttpsHealthCheckHost(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeHttpsHealthCheckHost(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHttpsHealthCheckName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeHttpsHealthCheckName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHttpsHealthCheckPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeHttpsHealthCheckPort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHttpsHealthCheckRequestPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeHttpsHealthCheckRequestPath(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHttpsHealthCheckTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeHttpsHealthCheckTimeoutSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeHttpsHealthCheckUnhealthyThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeHttpsHealthCheckUnhealthyThreshold(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

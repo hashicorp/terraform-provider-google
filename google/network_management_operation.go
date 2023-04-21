@@ -18,10 +18,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 type NetworkManagementOperationWaiter struct {
-	Config    *Config
+	Config    *transport_tpg.Config
 	UserAgent string
 	Project   string
 	CommonOperationWaiter
@@ -37,7 +39,7 @@ func (w *NetworkManagementOperationWaiter) QueryOp() (interface{}, error) {
 	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
-func createNetworkManagementWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*NetworkManagementOperationWaiter, error) {
+func createNetworkManagementWaiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*NetworkManagementOperationWaiter, error) {
 	w := &NetworkManagementOperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
@@ -50,7 +52,7 @@ func createNetworkManagementWaiter(config *Config, op map[string]interface{}, pr
 }
 
 // nolint: deadcode,unused
-func NetworkManagementOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func NetworkManagementOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	w, err := createNetworkManagementWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
@@ -61,7 +63,7 @@ func NetworkManagementOperationWaitTimeWithResponse(config *Config, op map[strin
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func NetworkManagementOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func NetworkManagementOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

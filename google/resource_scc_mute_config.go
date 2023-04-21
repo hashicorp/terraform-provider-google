@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceSecurityCenterMuteConfig() *schema.Resource {
@@ -105,7 +106,7 @@ provided on config creation or update.`,
 }
 
 func resourceSecurityCenterMuteConfigCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -159,7 +160,7 @@ func resourceSecurityCenterMuteConfigCreate(d *schema.ResourceData, meta interfa
 }
 
 func resourceSecurityCenterMuteConfigRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -205,7 +206,7 @@ func resourceSecurityCenterMuteConfigRead(d *schema.ResourceData, meta interface
 }
 
 func resourceSecurityCenterMuteConfigUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -266,7 +267,7 @@ func resourceSecurityCenterMuteConfigUpdate(d *schema.ResourceData, meta interfa
 }
 
 func resourceSecurityCenterMuteConfigDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -297,7 +298,7 @@ func resourceSecurityCenterMuteConfigDelete(d *schema.ResourceData, meta interfa
 }
 
 func resourceSecurityCenterMuteConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
@@ -333,34 +334,34 @@ func resourceSecurityCenterMuteConfigImport(d *schema.ResourceData, meta interfa
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSecurityCenterMuteConfigName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecurityCenterMuteConfigName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterMuteConfigDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecurityCenterMuteConfigDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterMuteConfigFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecurityCenterMuteConfigFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterMuteConfigCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecurityCenterMuteConfigCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterMuteConfigUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecurityCenterMuteConfigUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterMuteConfigMostRecentEditor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecurityCenterMuteConfigMostRecentEditor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandSecurityCenterMuteConfigDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSecurityCenterMuteConfigDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSecurityCenterMuteConfigFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSecurityCenterMuteConfigFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

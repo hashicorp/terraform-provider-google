@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceAccessContextManagerServicePerimeterResource() *schema.Resource {
@@ -60,7 +61,7 @@ Format: projects/{project_number}`,
 }
 
 func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -155,7 +156,7 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 }
 
 func resourceAccessContextManagerServicePerimeterResourceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -198,7 +199,7 @@ func resourceAccessContextManagerServicePerimeterResourceRead(d *schema.Resource
 }
 
 func resourceAccessContextManagerServicePerimeterResourceDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -253,7 +254,7 @@ func resourceAccessContextManagerServicePerimeterResourceDelete(d *schema.Resour
 }
 
 func resourceAccessContextManagerServicePerimeterResourceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	parts, err := getImportIdQualifiers([]string{"accessPolicies/(?P<accessPolicy>[^/]+)/servicePerimeters/(?P<perimeter>[^/]+)/(?P<resource>.+)"}, d, config, d.Id())
@@ -270,11 +271,11 @@ func resourceAccessContextManagerServicePerimeterResourceImport(d *schema.Resour
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenNestedAccessContextManagerServicePerimeterResourceResource(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedAccessContextManagerServicePerimeterResourceResource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandNestedAccessContextManagerServicePerimeterResourceResource(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedAccessContextManagerServicePerimeterResourceResource(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -311,11 +312,11 @@ func flattenNestedAccessContextManagerServicePerimeterResource(d *schema.Resourc
 }
 
 func resourceAccessContextManagerServicePerimeterResourceFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedResource, err := expandNestedAccessContextManagerServicePerimeterResourceResource(d.Get("resource"), d, meta.(*Config))
+	expectedResource, err := expandNestedAccessContextManagerServicePerimeterResourceResource(d.Get("resource"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedResource := flattenNestedAccessContextManagerServicePerimeterResourceResource(expectedResource, d, meta.(*Config))
+	expectedFlattenedResource := flattenNestedAccessContextManagerServicePerimeterResourceResource(expectedResource, d, meta.(*transport_tpg.Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -327,7 +328,7 @@ func resourceAccessContextManagerServicePerimeterResourceFindNestedObjectInList(
 			"resource": itemRaw,
 		}
 
-		itemResource := flattenNestedAccessContextManagerServicePerimeterResourceResource(item["resource"], d, meta.(*Config))
+		itemResource := flattenNestedAccessContextManagerServicePerimeterResourceResource(item["resource"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemResource)) && isEmptyValue(reflect.ValueOf(expectedFlattenedResource))) && !reflect.DeepEqual(itemResource, expectedFlattenedResource) {
 			log.Printf("[DEBUG] Skipping item with resource= %#v, looking for %#v)", itemResource, expectedFlattenedResource)
@@ -401,7 +402,7 @@ func resourceAccessContextManagerServicePerimeterResourcePatchDeleteEncoder(d *s
 // ListForPatch handles making API request to get parent resource and
 // extracting list of objects.
 func resourceAccessContextManagerServicePerimeterResourceListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
 	if err != nil {
 		return nil, err

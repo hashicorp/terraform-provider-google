@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeAddress() *schema.Resource {
@@ -176,7 +177,7 @@ GCE_ENDPOINT/DNS_RESOLVER purposes.`,
 }
 
 func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -291,7 +292,7 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -368,7 +369,7 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -413,7 +414,7 @@ func resourceComputeAddressDelete(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceComputeAddressImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/addresses/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -433,11 +434,11 @@ func resourceComputeAddressImport(d *schema.ResourceData, meta interface{}) ([]*
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeAddressAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeAddressAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressAddressType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeAddressAddressType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
 		return "EXTERNAL"
 	}
@@ -445,45 +446,45 @@ func flattenComputeAddressAddressType(v interface{}, d *schema.ResourceData, con
 	return v
 }
 
-func flattenComputeAddressCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeAddressCreationTimestamp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeAddressDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeAddressName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressPurpose(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeAddressPurpose(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressNetworkTier(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeAddressNetworkTier(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressSubnetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeAddressSubnetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeAddressUsers(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeAddressUsers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeAddressNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeAddressNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeAddressPrefixLength(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeAddressPrefixLength(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -500,38 +501,38 @@ func flattenComputeAddressPrefixLength(v interface{}, d *schema.ResourceData, co
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeAddressRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeAddressRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func expandComputeAddressAddress(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeAddressAddress(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeAddressAddressType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeAddressAddressType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeAddressDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeAddressDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeAddressName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeAddressName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeAddressPurpose(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeAddressPurpose(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeAddressNetworkTier(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeAddressNetworkTier(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeAddressSubnetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeAddressSubnetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := parseRegionalFieldValue("subnetworks", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for subnetwork: %s", err)
@@ -539,7 +540,7 @@ func expandComputeAddressSubnetwork(v interface{}, d TerraformResourceData, conf
 	return f.RelativeLink(), nil
 }
 
-func expandComputeAddressNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeAddressNetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for network: %s", err)
@@ -547,11 +548,11 @@ func expandComputeAddressNetwork(v interface{}, d TerraformResourceData, config 
 	return f.RelativeLink(), nil
 }
 
-func expandComputeAddressPrefixLength(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeAddressPrefixLength(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeAddressRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeAddressRegion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for region: %s", err)

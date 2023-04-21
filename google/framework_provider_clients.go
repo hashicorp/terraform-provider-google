@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // Methods to create new services from config
@@ -19,7 +20,7 @@ import (
 // the basePath value in the client library file.
 
 func (p *frameworkProvider) NewDnsClient(userAgent string, diags *diag.Diagnostics) *dns.Service {
-	dnsClientBasePath := RemoveBasePathVersion(p.DNSBasePath)
+	dnsClientBasePath := transport_tpg.RemoveBasePathVersion(p.DNSBasePath)
 	dnsClientBasePath = strings.ReplaceAll(dnsClientBasePath, "/dns/", "")
 	tflog.Info(p.context, fmt.Sprintf("Instantiating Google Cloud DNS client for path %s", dnsClientBasePath))
 	clientDns, err := dns.NewService(p.context, option.WithHTTPClient(p.client))

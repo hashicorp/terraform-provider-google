@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceBigqueryAnalyticsHubDataExchange() *schema.Resource {
@@ -102,7 +103,7 @@ func ResourceBigqueryAnalyticsHubDataExchange() *schema.Resource {
 }
 
 func resourceBigqueryAnalyticsHubDataExchangeCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -180,7 +181,7 @@ func resourceBigqueryAnalyticsHubDataExchangeCreate(d *schema.ResourceData, meta
 }
 
 func resourceBigqueryAnalyticsHubDataExchangeRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -239,7 +240,7 @@ func resourceBigqueryAnalyticsHubDataExchangeRead(d *schema.ResourceData, meta i
 }
 
 func resourceBigqueryAnalyticsHubDataExchangeUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -336,7 +337,7 @@ func resourceBigqueryAnalyticsHubDataExchangeUpdate(d *schema.ResourceData, meta
 }
 
 func resourceBigqueryAnalyticsHubDataExchangeDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -373,7 +374,7 @@ func resourceBigqueryAnalyticsHubDataExchangeDelete(d *schema.ResourceData, meta
 }
 
 func resourceBigqueryAnalyticsHubDataExchangeImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/dataExchanges/(?P<data_exchange_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<data_exchange_id>[^/]+)",
@@ -393,27 +394,27 @@ func resourceBigqueryAnalyticsHubDataExchangeImport(d *schema.ResourceData, meta
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenBigqueryAnalyticsHubDataExchangeName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryAnalyticsHubDataExchangeName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryAnalyticsHubDataExchangeDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryAnalyticsHubDataExchangeDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryAnalyticsHubDataExchangeDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryAnalyticsHubDataExchangeDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryAnalyticsHubDataExchangePrimaryContact(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryAnalyticsHubDataExchangePrimaryContact(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryAnalyticsHubDataExchangeDocumentation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryAnalyticsHubDataExchangeDocumentation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryAnalyticsHubDataExchangeListingCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryAnalyticsHubDataExchangeListingCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -430,26 +431,26 @@ func flattenBigqueryAnalyticsHubDataExchangeListingCount(v interface{}, d *schem
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBigqueryAnalyticsHubDataExchangeIcon(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryAnalyticsHubDataExchangeIcon(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandBigqueryAnalyticsHubDataExchangeDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryAnalyticsHubDataExchangeDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryAnalyticsHubDataExchangeDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryAnalyticsHubDataExchangeDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryAnalyticsHubDataExchangePrimaryContact(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryAnalyticsHubDataExchangePrimaryContact(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryAnalyticsHubDataExchangeDocumentation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryAnalyticsHubDataExchangeDocumentation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryAnalyticsHubDataExchangeIcon(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryAnalyticsHubDataExchangeIcon(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

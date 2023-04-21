@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceDialogflowCXAgent() *schema.Resource {
@@ -142,7 +143,7 @@ Europe/Paris.`,
 }
 
 func resourceDialogflowCXAgentCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -250,7 +251,7 @@ func resourceDialogflowCXAgentCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceDialogflowCXAgentRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -324,7 +325,7 @@ func resourceDialogflowCXAgentRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceDialogflowCXAgentUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -461,7 +462,7 @@ func resourceDialogflowCXAgentUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceDialogflowCXAgentDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -498,7 +499,7 @@ func resourceDialogflowCXAgentDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceDialogflowCXAgentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/agents/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -517,38 +518,38 @@ func resourceDialogflowCXAgentImport(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDialogflowCXAgentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXAgentName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenDialogflowCXAgentDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXAgentDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXAgentDefaultLanguageCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXAgentDefaultLanguageCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXAgentSupportedLanguageCodes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXAgentSupportedLanguageCodes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXAgentTimeZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXAgentTimeZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXAgentDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXAgentDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXAgentAvatarUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXAgentAvatarUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXAgentSpeechToTextSettings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXAgentSpeechToTextSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -561,51 +562,51 @@ func flattenDialogflowCXAgentSpeechToTextSettings(v interface{}, d *schema.Resou
 		flattenDialogflowCXAgentSpeechToTextSettingsEnableSpeechAdaptation(original["enableSpeechAdaptation"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDialogflowCXAgentSpeechToTextSettingsEnableSpeechAdaptation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXAgentSpeechToTextSettingsEnableSpeechAdaptation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXAgentStartFlow(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXAgentStartFlow(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXAgentSecuritySettings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXAgentSecuritySettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXAgentEnableStackdriverLogging(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXAgentEnableStackdriverLogging(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowCXAgentEnableSpellCorrection(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowCXAgentEnableSpellCorrection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandDialogflowCXAgentDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXAgentDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXAgentDefaultLanguageCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXAgentDefaultLanguageCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXAgentSupportedLanguageCodes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXAgentSupportedLanguageCodes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXAgentTimeZone(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXAgentTimeZone(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXAgentDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXAgentDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXAgentAvatarUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXAgentAvatarUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXAgentSpeechToTextSettings(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXAgentSpeechToTextSettings(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -624,18 +625,18 @@ func expandDialogflowCXAgentSpeechToTextSettings(v interface{}, d TerraformResou
 	return transformed, nil
 }
 
-func expandDialogflowCXAgentSpeechToTextSettingsEnableSpeechAdaptation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXAgentSpeechToTextSettingsEnableSpeechAdaptation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXAgentSecuritySettings(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXAgentSecuritySettings(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXAgentEnableStackdriverLogging(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXAgentEnableStackdriverLogging(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXAgentEnableSpellCorrection(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowCXAgentEnableSpellCorrection(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

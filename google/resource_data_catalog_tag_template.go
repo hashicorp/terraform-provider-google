@@ -23,10 +23,11 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // Use it to delete TagTemplate Field
-func deleteTagTemplateField(d *schema.ResourceData, config *Config, name, billingProject, userAgent string) error {
+func deleteTagTemplateField(d *schema.ResourceData, config *transport_tpg.Config, name, billingProject, userAgent string) error {
 
 	url_delete, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}/fields/"+name+"?force={{force_delete}}")
 	if err != nil {
@@ -43,7 +44,7 @@ func deleteTagTemplateField(d *schema.ResourceData, config *Config, name, billin
 }
 
 // Use it to create TagTemplate Field
-func createTagTemplateField(d *schema.ResourceData, config *Config, body map[string]interface{}, name, billingProject, userAgent string) error {
+func createTagTemplateField(d *schema.ResourceData, config *transport_tpg.Config, body map[string]interface{}, name, billingProject, userAgent string) error {
 
 	url_create, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}/fields")
 	if err != nil {
@@ -225,7 +226,7 @@ func datacatalogTagTemplateFieldsFieldsTypeEnumTypeAllowedValuesSchema() *schema
 }
 
 func resourceDataCatalogTagTemplateCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -285,7 +286,7 @@ func resourceDataCatalogTagTemplateCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceDataCatalogTagTemplateRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -340,7 +341,7 @@ func resourceDataCatalogTagTemplateRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -530,7 +531,7 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceDataCatalogTagTemplateDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -567,7 +568,7 @@ func resourceDataCatalogTagTemplateDelete(d *schema.ResourceData, meta interface
 }
 
 func resourceDataCatalogTagTemplateImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -593,15 +594,15 @@ func resourceDataCatalogTagTemplateImport(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDataCatalogTagTemplateName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataCatalogTagTemplateName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataCatalogTagTemplateDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataCatalogTagTemplateDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataCatalogTagTemplateFields(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataCatalogTagTemplateFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -621,19 +622,19 @@ func flattenDataCatalogTagTemplateFields(v interface{}, d *schema.ResourceData, 
 	}
 	return transformed
 }
-func flattenDataCatalogTagTemplateFieldsName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataCatalogTagTemplateFieldsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataCatalogTagTemplateFieldsDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataCatalogTagTemplateFieldsDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataCatalogTagTemplateFieldsDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataCatalogTagTemplateFieldsDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataCatalogTagTemplateFieldsType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataCatalogTagTemplateFieldsType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -648,11 +649,11 @@ func flattenDataCatalogTagTemplateFieldsType(v interface{}, d *schema.ResourceDa
 		flattenDataCatalogTagTemplateFieldsTypeEnumType(original["enumType"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDataCatalogTagTemplateFieldsTypePrimitiveType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataCatalogTagTemplateFieldsTypePrimitiveType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataCatalogTagTemplateFieldsTypeEnumType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataCatalogTagTemplateFieldsTypeEnumType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -665,7 +666,7 @@ func flattenDataCatalogTagTemplateFieldsTypeEnumType(v interface{}, d *schema.Re
 		flattenDataCatalogTagTemplateFieldsTypeEnumTypeAllowedValues(original["allowedValues"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDataCatalogTagTemplateFieldsTypeEnumTypeAllowedValues(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataCatalogTagTemplateFieldsTypeEnumTypeAllowedValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -683,15 +684,15 @@ func flattenDataCatalogTagTemplateFieldsTypeEnumTypeAllowedValues(v interface{},
 	}
 	return transformed
 }
-func flattenDataCatalogTagTemplateFieldsTypeEnumTypeAllowedValuesDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataCatalogTagTemplateFieldsTypeEnumTypeAllowedValuesDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataCatalogTagTemplateFieldsIsRequired(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataCatalogTagTemplateFieldsIsRequired(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataCatalogTagTemplateFieldsOrder(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataCatalogTagTemplateFieldsOrder(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -708,11 +709,11 @@ func flattenDataCatalogTagTemplateFieldsOrder(v interface{}, d *schema.ResourceD
 	return v // let terraform core handle it otherwise
 }
 
-func expandDataCatalogTagTemplateDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataCatalogTagTemplateDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogTagTemplateFields(v interface{}, d TerraformResourceData, config *Config) (map[string]interface{}, error) {
+func expandDataCatalogTagTemplateFields(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
 	if v == nil {
 		return map[string]interface{}{}, nil
 	}
@@ -772,19 +773,19 @@ func expandDataCatalogTagTemplateFields(v interface{}, d TerraformResourceData, 
 	return m, nil
 }
 
-func expandDataCatalogTagTemplateFieldsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataCatalogTagTemplateFieldsName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogTagTemplateFieldsDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataCatalogTagTemplateFieldsDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogTagTemplateFieldsDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataCatalogTagTemplateFieldsDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogTagTemplateFieldsType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataCatalogTagTemplateFieldsType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -810,11 +811,11 @@ func expandDataCatalogTagTemplateFieldsType(v interface{}, d TerraformResourceDa
 	return transformed, nil
 }
 
-func expandDataCatalogTagTemplateFieldsTypePrimitiveType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataCatalogTagTemplateFieldsTypePrimitiveType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogTagTemplateFieldsTypeEnumType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataCatalogTagTemplateFieldsTypeEnumType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -833,7 +834,7 @@ func expandDataCatalogTagTemplateFieldsTypeEnumType(v interface{}, d TerraformRe
 	return transformed, nil
 }
 
-func expandDataCatalogTagTemplateFieldsTypeEnumTypeAllowedValues(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataCatalogTagTemplateFieldsTypeEnumTypeAllowedValues(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -856,14 +857,14 @@ func expandDataCatalogTagTemplateFieldsTypeEnumTypeAllowedValues(v interface{}, 
 	return req, nil
 }
 
-func expandDataCatalogTagTemplateFieldsTypeEnumTypeAllowedValuesDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataCatalogTagTemplateFieldsTypeEnumTypeAllowedValuesDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogTagTemplateFieldsIsRequired(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataCatalogTagTemplateFieldsIsRequired(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogTagTemplateFieldsOrder(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataCatalogTagTemplateFieldsOrder(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

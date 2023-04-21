@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceAppEngineServiceSplitTraffic() *schema.Resource {
@@ -86,7 +87,7 @@ func ResourceAppEngineServiceSplitTraffic() *schema.Resource {
 }
 
 func resourceAppEngineServiceSplitTrafficCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -160,7 +161,7 @@ func resourceAppEngineServiceSplitTrafficCreate(d *schema.ResourceData, meta int
 }
 
 func resourceAppEngineServiceSplitTrafficRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -201,7 +202,7 @@ func resourceAppEngineServiceSplitTrafficRead(d *schema.ResourceData, meta inter
 }
 
 func resourceAppEngineServiceSplitTrafficUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -292,7 +293,7 @@ func resourceAppEngineServiceSplitTrafficDelete(d *schema.ResourceData, meta int
 }
 
 func resourceAppEngineServiceSplitTrafficImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"apps/(?P<project>[^/]+)/services/(?P<service>[^/]+)",
 		"(?P<project>[^/]+)/(?P<service>[^/]+)",
@@ -311,15 +312,15 @@ func resourceAppEngineServiceSplitTrafficImport(d *schema.ResourceData, meta int
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAppEngineServiceSplitTrafficService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAppEngineServiceSplitTrafficService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandAppEngineServiceSplitTrafficService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAppEngineServiceSplitTrafficService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppEngineServiceSplitTrafficSplit(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAppEngineServiceSplitTrafficSplit(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -345,11 +346,11 @@ func expandAppEngineServiceSplitTrafficSplit(v interface{}, d TerraformResourceD
 	return transformed, nil
 }
 
-func expandAppEngineServiceSplitTrafficSplitShardBy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAppEngineServiceSplitTrafficSplitShardBy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppEngineServiceSplitTrafficSplitAllocations(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandAppEngineServiceSplitTrafficSplitAllocations(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

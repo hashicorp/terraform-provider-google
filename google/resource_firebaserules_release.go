@@ -25,6 +25,8 @@ import (
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
 	firebaserules "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/firebaserules"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceFirebaserulesRelease() *schema.Resource {
@@ -90,7 +92,7 @@ func ResourceFirebaserulesRelease() *schema.Resource {
 }
 
 func resourceFirebaserulesReleaseCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -117,7 +119,7 @@ func resourceFirebaserulesReleaseCreate(d *schema.ResourceData, meta interface{}
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLFirebaserulesClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
+	client := transport_tpg.NewDCLFirebaserulesClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -140,7 +142,7 @@ func resourceFirebaserulesReleaseCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceFirebaserulesReleaseRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -161,7 +163,7 @@ func resourceFirebaserulesReleaseRead(d *schema.ResourceData, meta interface{}) 
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLFirebaserulesClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
+	client := transport_tpg.NewDCLFirebaserulesClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -196,7 +198,7 @@ func resourceFirebaserulesReleaseRead(d *schema.ResourceData, meta interface{}) 
 	return nil
 }
 func resourceFirebaserulesReleaseUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -218,7 +220,7 @@ func resourceFirebaserulesReleaseUpdate(d *schema.ResourceData, meta interface{}
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLFirebaserulesClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
+	client := transport_tpg.NewDCLFirebaserulesClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -241,7 +243,7 @@ func resourceFirebaserulesReleaseUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceFirebaserulesReleaseDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -263,7 +265,7 @@ func resourceFirebaserulesReleaseDelete(d *schema.ResourceData, meta interface{}
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLFirebaserulesClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
+	client := transport_tpg.NewDCLFirebaserulesClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -279,7 +281,7 @@ func resourceFirebaserulesReleaseDelete(d *schema.ResourceData, meta interface{}
 }
 
 func resourceFirebaserulesReleaseImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	if err := ParseImportId([]string{
 		"projects/(?P<project>.+)/releases/(?P<name>.+)",

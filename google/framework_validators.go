@@ -4,19 +4,13 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"regexp"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	googleoauth "golang.org/x/oauth2/google"
 )
-
-func CustomEndpointValidator() validator.String {
-	return stringvalidator.RegexMatches(regexp.MustCompile(`.*/[^/]+/$`), "")
-}
 
 // Credentials Validator
 var _ validator.String = credentialsValidator{}

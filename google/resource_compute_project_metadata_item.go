@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"time"
 
@@ -58,7 +59,7 @@ func ResourceComputeProjectMetadataItem() *schema.Resource {
 }
 
 func resourceComputeProjectMetadataItemCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -83,7 +84,7 @@ func resourceComputeProjectMetadataItemCreate(d *schema.ResourceData, meta inter
 }
 
 func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -122,7 +123,7 @@ func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceComputeProjectMetadataItemUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -147,7 +148,7 @@ func resourceComputeProjectMetadataItemUpdate(d *schema.ResourceData, meta inter
 }
 
 func resourceComputeProjectMetadataItemDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -169,7 +170,7 @@ func resourceComputeProjectMetadataItemDelete(d *schema.ResourceData, meta inter
 	return nil
 }
 
-func updateComputeCommonInstanceMetadata(config *Config, projectID, key, userAgent string, afterVal *string, timeout time.Duration, failIfPresent metadataPresentBehavior) error {
+func updateComputeCommonInstanceMetadata(config *transport_tpg.Config, projectID, key, userAgent string, afterVal *string, timeout time.Duration, failIfPresent metadataPresentBehavior) error {
 	updateMD := func() error {
 		lockName := fmt.Sprintf("projects/%s/commoninstancemetadata", projectID)
 		mutexKV.Lock(lockName)

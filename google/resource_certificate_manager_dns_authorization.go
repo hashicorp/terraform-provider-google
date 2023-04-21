@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceCertificateManagerDnsAuthorization() *schema.Resource {
@@ -108,7 +109,7 @@ E.g. '_acme-challenge.example.com'.`,
 }
 
 func resourceCertificateManagerDnsAuthorizationCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -181,7 +182,7 @@ func resourceCertificateManagerDnsAuthorizationCreate(d *schema.ResourceData, me
 }
 
 func resourceCertificateManagerDnsAuthorizationRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -231,7 +232,7 @@ func resourceCertificateManagerDnsAuthorizationRead(d *schema.ResourceData, meta
 }
 
 func resourceCertificateManagerDnsAuthorizationUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -306,7 +307,7 @@ func resourceCertificateManagerDnsAuthorizationUpdate(d *schema.ResourceData, me
 }
 
 func resourceCertificateManagerDnsAuthorizationDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -351,7 +352,7 @@ func resourceCertificateManagerDnsAuthorizationDelete(d *schema.ResourceData, me
 }
 
 func resourceCertificateManagerDnsAuthorizationImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/global/dnsAuthorizations/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -370,19 +371,19 @@ func resourceCertificateManagerDnsAuthorizationImport(d *schema.ResourceData, me
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenCertificateManagerDnsAuthorizationDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCertificateManagerDnsAuthorizationDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCertificateManagerDnsAuthorizationLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCertificateManagerDnsAuthorizationLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCertificateManagerDnsAuthorizationDomain(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCertificateManagerDnsAuthorizationDomain(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCertificateManagerDnsAuthorizationDnsResourceRecord(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCertificateManagerDnsAuthorizationDnsResourceRecord(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -399,23 +400,23 @@ func flattenCertificateManagerDnsAuthorizationDnsResourceRecord(v interface{}, d
 		flattenCertificateManagerDnsAuthorizationDnsResourceRecordData(original["data"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCertificateManagerDnsAuthorizationDnsResourceRecordName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCertificateManagerDnsAuthorizationDnsResourceRecordName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCertificateManagerDnsAuthorizationDnsResourceRecordType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCertificateManagerDnsAuthorizationDnsResourceRecordType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCertificateManagerDnsAuthorizationDnsResourceRecordData(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCertificateManagerDnsAuthorizationDnsResourceRecordData(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandCertificateManagerDnsAuthorizationDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCertificateManagerDnsAuthorizationDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCertificateManagerDnsAuthorizationLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandCertificateManagerDnsAuthorizationLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -426,6 +427,6 @@ func expandCertificateManagerDnsAuthorizationLabels(v interface{}, d TerraformRe
 	return m, nil
 }
 
-func expandCertificateManagerDnsAuthorizationDomain(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCertificateManagerDnsAuthorizationDomain(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -24,11 +24,13 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
 	"google.golang.org/api/googleapi"
 )
 
 func resourceSecretManagerSecretVersionUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	_, err := expandSecretManagerSecretVersionEnabled(d.Get("enabled"), d, config)
 	if err != nil {
@@ -104,7 +106,7 @@ func ResourceSecretManagerSecretVersion() *schema.Resource {
 }
 
 func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -173,7 +175,7 @@ func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta inter
 }
 
 func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -243,7 +245,7 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceSecretManagerSecretVersionDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -274,7 +276,7 @@ func resourceSecretManagerSecretVersionDelete(d *schema.ResourceData, meta inter
 }
 
 func resourceSecretManagerSecretVersionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -302,7 +304,7 @@ func resourceSecretManagerSecretVersionImport(d *schema.ResourceData, meta inter
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSecretManagerSecretVersionEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecretManagerSecretVersionEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v.(string) == "ENABLED" {
 		return true
 	}
@@ -310,11 +312,11 @@ func flattenSecretManagerSecretVersionEnabled(v interface{}, d *schema.ResourceD
 	return false
 }
 
-func flattenSecretManagerSecretVersionName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecretManagerSecretVersionName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecretManagerSecretVersionVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecretManagerSecretVersionVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	name := d.Get("name").(string)
 	secretRegex := regexp.MustCompile("projects/(.+)/secrets/(.+)/versions/(.+)$")
 
@@ -326,15 +328,15 @@ func flattenSecretManagerSecretVersionVersion(v interface{}, d *schema.ResourceD
 	return parts[3]
 }
 
-func flattenSecretManagerSecretVersionCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecretManagerSecretVersionCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecretManagerSecretVersionDestroyTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecretManagerSecretVersionDestroyTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecretManagerSecretVersionPayload(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecretManagerSecretVersionPayload(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	transformed := make(map[string]interface{})
 
 	// if this secret version is disabled, the api will return an error, as the value cannot be accessed, return what we have
@@ -369,7 +371,7 @@ func flattenSecretManagerSecretVersionPayload(v interface{}, d *schema.ResourceD
 	return []interface{}{transformed}
 }
 
-func expandSecretManagerSecretVersionEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSecretManagerSecretVersionEnabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	name := d.Get("name").(string)
 	if name == "" {
 		return "", nil
@@ -402,7 +404,7 @@ func expandSecretManagerSecretVersionEnabled(v interface{}, d TerraformResourceD
 	return nil, nil
 }
 
-func expandSecretManagerSecretVersionPayload(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSecretManagerSecretVersionPayload(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	transformed := make(map[string]interface{})
 	transformedSecretData, err := expandSecretManagerSecretVersionPayloadSecretData(d.Get("secret_data"), d, config)
 	if err != nil {
@@ -414,7 +416,7 @@ func expandSecretManagerSecretVersionPayload(v interface{}, d TerraformResourceD
 	return transformed, nil
 }
 
-func expandSecretManagerSecretVersionPayloadSecretData(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSecretManagerSecretVersionPayloadSecretData(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
 	}

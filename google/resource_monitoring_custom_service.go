@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceMonitoringService() *schema.Resource {
@@ -102,7 +103,7 @@ projects/[PROJECT_ID]/services/[SERVICE_ID].`,
 }
 
 func resourceMonitoringServiceCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -179,7 +180,7 @@ func resourceMonitoringServiceCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceMonitoringServiceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -232,7 +233,7 @@ func resourceMonitoringServiceRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceMonitoringServiceUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -314,7 +315,7 @@ func resourceMonitoringServiceUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceMonitoringServiceDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -352,7 +353,7 @@ func resourceMonitoringServiceDelete(d *schema.ResourceData, meta interface{}) e
 
 func resourceMonitoringServiceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
@@ -362,19 +363,19 @@ func resourceMonitoringServiceImport(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenMonitoringServiceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringServiceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringServiceDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringServiceDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringServiceUserLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringServiceUserLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringServiceTelemetry(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringServiceTelemetry(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -387,22 +388,22 @@ func flattenMonitoringServiceTelemetry(v interface{}, d *schema.ResourceData, co
 		flattenMonitoringServiceTelemetryResourceName(original["resourceName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenMonitoringServiceTelemetryResourceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringServiceTelemetryResourceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenMonitoringServiceServiceId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenMonitoringServiceServiceId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func expandMonitoringServiceDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringServiceDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringServiceUserLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandMonitoringServiceUserLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -413,7 +414,7 @@ func expandMonitoringServiceUserLabels(v interface{}, d TerraformResourceData, c
 	return m, nil
 }
 
-func expandMonitoringServiceTelemetry(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringServiceTelemetry(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -432,11 +433,11 @@ func expandMonitoringServiceTelemetry(v interface{}, d TerraformResourceData, co
 	return transformed, nil
 }
 
-func expandMonitoringServiceTelemetryResourceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringServiceTelemetryResourceName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringServiceServiceId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandMonitoringServiceServiceId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

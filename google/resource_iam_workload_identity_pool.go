@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 const workloadIdentityPoolIdRegexp = `^[0-9a-z-]+$`
@@ -128,7 +129,7 @@ access again.`,
 }
 
 func resourceIAMBetaWorkloadIdentityPoolCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -201,7 +202,7 @@ func resourceIAMBetaWorkloadIdentityPoolCreate(d *schema.ResourceData, meta inte
 }
 
 func resourceIAMBetaWorkloadIdentityPoolRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -266,7 +267,7 @@ func resourceIAMBetaWorkloadIdentityPoolRead(d *schema.ResourceData, meta interf
 }
 
 func resourceIAMBetaWorkloadIdentityPoolUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -351,7 +352,7 @@ func resourceIAMBetaWorkloadIdentityPoolUpdate(d *schema.ResourceData, meta inte
 }
 
 func resourceIAMBetaWorkloadIdentityPoolDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -396,7 +397,7 @@ func resourceIAMBetaWorkloadIdentityPoolDelete(d *schema.ResourceData, meta inte
 }
 
 func resourceIAMBetaWorkloadIdentityPoolImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/global/workloadIdentityPools/(?P<workload_identity_pool_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<workload_identity_pool_id>[^/]+)",
@@ -415,35 +416,35 @@ func resourceIAMBetaWorkloadIdentityPoolImport(d *schema.ResourceData, meta inte
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenIAMBetaWorkloadIdentityPoolState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMBetaWorkloadIdentityPoolState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMBetaWorkloadIdentityPoolDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMBetaWorkloadIdentityPoolDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMBetaWorkloadIdentityPoolDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMBetaWorkloadIdentityPoolDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMBetaWorkloadIdentityPoolName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMBetaWorkloadIdentityPoolName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMBetaWorkloadIdentityPoolDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMBetaWorkloadIdentityPoolDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandIAMBetaWorkloadIdentityPoolDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMBetaWorkloadIdentityPoolDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAMBetaWorkloadIdentityPoolDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMBetaWorkloadIdentityPoolDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAMBetaWorkloadIdentityPoolDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMBetaWorkloadIdentityPoolDisabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

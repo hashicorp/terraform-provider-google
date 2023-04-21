@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/cloudkms/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
@@ -20,10 +21,10 @@ var IamKmsKeyRingSchema = map[string]*schema.Schema{
 type KmsKeyRingIamUpdater struct {
 	resourceId string
 	d          TerraformResourceData
-	Config     *Config
+	Config     *transport_tpg.Config
 }
 
-func NewKmsKeyRingIamUpdater(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
+func NewKmsKeyRingIamUpdater(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	keyRing := d.Get("key_ring_id").(string)
 	keyRingId, err := parseKmsKeyRingId(keyRing, config)
 
@@ -38,7 +39,7 @@ func NewKmsKeyRingIamUpdater(d TerraformResourceData, config *Config) (ResourceI
 	}, nil
 }
 
-func KeyRingIdParseFunc(d *schema.ResourceData, config *Config) error {
+func KeyRingIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	keyRingId, err := parseKmsKeyRingId(d.Id(), config)
 	if err != nil {
 		return err

@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeTargetSslProxy() *schema.Resource {
@@ -127,7 +128,7 @@ resource will not have any SSL policy configured.`,
 }
 
 func resourceComputeTargetSslProxyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -224,7 +225,7 @@ func resourceComputeTargetSslProxyCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeTargetSslProxyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -292,7 +293,7 @@ func resourceComputeTargetSslProxyRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -485,7 +486,7 @@ func resourceComputeTargetSslProxyUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeTargetSslProxyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -530,7 +531,7 @@ func resourceComputeTargetSslProxyDelete(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeTargetSslProxyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/targetSslProxies/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -549,15 +550,15 @@ func resourceComputeTargetSslProxyImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeTargetSslProxyCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeTargetSslProxyCreationTimestamp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetSslProxyDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeTargetSslProxyDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetSslProxyProxyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeTargetSslProxyProxyId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -574,52 +575,52 @@ func flattenComputeTargetSslProxyProxyId(v interface{}, d *schema.ResourceData, 
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeTargetSslProxyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeTargetSslProxyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetSslProxyProxyHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeTargetSslProxyProxyHeader(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetSslProxyBackendService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeTargetSslProxyBackendService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeTargetSslProxySslCertificates(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeTargetSslProxySslCertificates(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
-func flattenComputeTargetSslProxyCertificateMap(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeTargetSslProxyCertificateMap(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeTargetSslProxySslPolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeTargetSslProxySslPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func expandComputeTargetSslProxyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetSslProxyDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeTargetSslProxyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetSslProxyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeTargetSslProxyProxyHeader(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetSslProxyProxyHeader(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeTargetSslProxyBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetSslProxyBackendService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
@@ -627,7 +628,7 @@ func expandComputeTargetSslProxyBackendService(v interface{}, d TerraformResourc
 	return f.RelativeLink(), nil
 }
 
-func expandComputeTargetSslProxySslCertificates(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetSslProxySslCertificates(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -643,11 +644,11 @@ func expandComputeTargetSslProxySslCertificates(v interface{}, d TerraformResour
 	return req, nil
 }
 
-func expandComputeTargetSslProxyCertificateMap(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetSslProxyCertificateMap(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeTargetSslProxySslPolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeTargetSslProxySslPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("sslPolicies", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for ssl_policy: %s", err)

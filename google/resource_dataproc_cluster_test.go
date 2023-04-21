@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"net/http"
 	"reflect"
 	"regexp"
@@ -1027,7 +1028,7 @@ func testAccCheckDataprocClusterAutoscaling(t *testing.T, cluster *dataproc.Clus
 	}
 }
 
-func validateBucketExists(bucket string, config *Config) (bool, error) {
+func validateBucketExists(bucket string, config *transport_tpg.Config) (bool, error) {
 	_, err := config.NewStorageClient(config.UserAgent).Buckets.Get(bucket).Do()
 
 	if err != nil {

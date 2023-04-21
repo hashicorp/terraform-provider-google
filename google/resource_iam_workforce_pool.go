@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 const workforcePoolIdRegexp = `^[a-z][a-z0-9-]{4,61}[a-z0-9]$`
@@ -137,7 +138,7 @@ Format: 'locations/{location}/workforcePools/{workforcePoolId}'`,
 }
 
 func resourceIAMWorkforcePoolWorkforcePoolCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -216,7 +217,7 @@ func resourceIAMWorkforcePoolWorkforcePoolCreate(d *schema.ResourceData, meta in
 }
 
 func resourceIAMWorkforcePoolWorkforcePoolRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -277,7 +278,7 @@ func resourceIAMWorkforcePoolWorkforcePoolRead(d *schema.ResourceData, meta inte
 }
 
 func resourceIAMWorkforcePoolWorkforcePoolUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -366,7 +367,7 @@ func resourceIAMWorkforcePoolWorkforcePoolUpdate(d *schema.ResourceData, meta in
 }
 
 func resourceIAMWorkforcePoolWorkforcePoolDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -405,7 +406,7 @@ func resourceIAMWorkforcePoolWorkforcePoolDelete(d *schema.ResourceData, meta in
 }
 
 func resourceIAMWorkforcePoolWorkforcePoolImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"locations/(?P<location>[^/]+)/workforcePools/(?P<workforce_pool_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<workforce_pool_id>[^/]+)",
@@ -423,51 +424,51 @@ func resourceIAMWorkforcePoolWorkforcePoolImport(d *schema.ResourceData, meta in
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolParent(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolParent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIAMWorkforcePoolWorkforcePoolSessionDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIAMWorkforcePoolWorkforcePoolSessionDuration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandIAMWorkforcePoolWorkforcePoolParent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMWorkforcePoolWorkforcePoolParent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAMWorkforcePoolWorkforcePoolDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMWorkforcePoolWorkforcePoolDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAMWorkforcePoolWorkforcePoolDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMWorkforcePoolWorkforcePoolDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAMWorkforcePoolWorkforcePoolDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMWorkforcePoolWorkforcePoolDisabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIAMWorkforcePoolWorkforcePoolSessionDuration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIAMWorkforcePoolWorkforcePoolSessionDuration(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

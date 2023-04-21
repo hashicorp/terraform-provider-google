@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceVertexAITensorboard() *schema.Resource {
@@ -120,7 +121,7 @@ Has the form: projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/
 }
 
 func resourceVertexAITensorboardCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -213,7 +214,7 @@ func resourceVertexAITensorboardCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceVertexAITensorboardRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -278,7 +279,7 @@ func resourceVertexAITensorboardRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceVertexAITensorboardUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -363,7 +364,7 @@ func resourceVertexAITensorboardUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceVertexAITensorboardDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -408,7 +409,7 @@ func resourceVertexAITensorboardDelete(d *schema.ResourceData, meta interface{})
 }
 
 func resourceVertexAITensorboardImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/tensorboards/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -432,19 +433,19 @@ func resourceVertexAITensorboardImport(d *schema.ResourceData, meta interface{})
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenVertexAITensorboardName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAITensorboardName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAITensorboardDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAITensorboardDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAITensorboardDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAITensorboardDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAITensorboardEncryptionSpec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAITensorboardEncryptionSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -457,39 +458,39 @@ func flattenVertexAITensorboardEncryptionSpec(v interface{}, d *schema.ResourceD
 		flattenVertexAITensorboardEncryptionSpecKmsKeyName(original["kmsKeyName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAITensorboardEncryptionSpecKmsKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAITensorboardEncryptionSpecKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAITensorboardBlobStoragePathPrefix(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAITensorboardBlobStoragePathPrefix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAITensorboardRunCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAITensorboardRunCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAITensorboardCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAITensorboardCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAITensorboardUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAITensorboardUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAITensorboardLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAITensorboardLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandVertexAITensorboardDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAITensorboardDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAITensorboardDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAITensorboardDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAITensorboardEncryptionSpec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAITensorboardEncryptionSpec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -508,11 +509,11 @@ func expandVertexAITensorboardEncryptionSpec(v interface{}, d TerraformResourceD
 	return transformed, nil
 }
 
-func expandVertexAITensorboardEncryptionSpecKmsKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAITensorboardEncryptionSpecKmsKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAITensorboardLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandVertexAITensorboardLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

@@ -3,11 +3,12 @@ package google
 import (
 	"encoding/json"
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"time"
 )
 
 type VertexAIOperationWaiter struct {
-	Config    *Config
+	Config    *transport_tpg.Config
 	UserAgent string
 	Project   string
 	CommonOperationWaiter
@@ -26,7 +27,7 @@ func (w *VertexAIOperationWaiter) QueryOp() (interface{}, error) {
 	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
-func createVertexAIWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*VertexAIOperationWaiter, error) {
+func createVertexAIWaiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*VertexAIOperationWaiter, error) {
 	w := &VertexAIOperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
@@ -39,7 +40,7 @@ func createVertexAIWaiter(config *Config, op map[string]interface{}, project, ac
 }
 
 // nolint: deadcode,unused
-func VertexAIOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func VertexAIOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	w, err := createVertexAIWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
@@ -50,7 +51,7 @@ func VertexAIOperationWaitTimeWithResponse(config *Config, op map[string]interfa
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func VertexAIOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func VertexAIOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourcePubsubTopic() *schema.Resource {
@@ -141,7 +142,7 @@ if the schema has been deleted.`,
 }
 
 func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -233,7 +234,7 @@ func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourcePubsubTopicPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
 	return func() (map[string]interface{}, error) {
-		config := meta.(*Config)
+		config := meta.(*transport_tpg.Config)
 
 		url, err := ReplaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/topics/{{name}}")
 		if err != nil {
@@ -267,7 +268,7 @@ func resourcePubsubTopicPollRead(d *schema.ResourceData, meta interface{}) PollR
 }
 
 func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -323,7 +324,7 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -425,7 +426,7 @@ func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourcePubsubTopicDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -462,7 +463,7 @@ func resourcePubsubTopicDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourcePubsubTopicImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/topics/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -481,22 +482,22 @@ func resourcePubsubTopicImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenPubsubTopicName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubTopicName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenPubsubTopicKmsKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubTopicKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPubsubTopicLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubTopicLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPubsubTopicMessageStoragePolicy(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubTopicMessageStoragePolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -509,11 +510,11 @@ func flattenPubsubTopicMessageStoragePolicy(v interface{}, d *schema.ResourceDat
 		flattenPubsubTopicMessageStoragePolicyAllowedPersistenceRegions(original["allowedPersistenceRegions"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPubsubTopicMessageStoragePolicyAllowedPersistenceRegions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubTopicMessageStoragePolicyAllowedPersistenceRegions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPubsubTopicSchemaSettings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubTopicSchemaSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -528,27 +529,27 @@ func flattenPubsubTopicSchemaSettings(v interface{}, d *schema.ResourceData, con
 		flattenPubsubTopicSchemaSettingsEncoding(original["encoding"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPubsubTopicSchemaSettingsSchema(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubTopicSchemaSettingsSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPubsubTopicSchemaSettingsEncoding(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubTopicSchemaSettingsEncoding(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPubsubTopicMessageRetentionDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPubsubTopicMessageRetentionDuration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandPubsubTopicName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubTopicName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return GetResourceNameFromSelfLink(v.(string)), nil
 }
 
-func expandPubsubTopicKmsKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubTopicKmsKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPubsubTopicLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandPubsubTopicLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -559,7 +560,7 @@ func expandPubsubTopicLabels(v interface{}, d TerraformResourceData, config *Con
 	return m, nil
 }
 
-func expandPubsubTopicMessageStoragePolicy(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubTopicMessageStoragePolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -578,11 +579,11 @@ func expandPubsubTopicMessageStoragePolicy(v interface{}, d TerraformResourceDat
 	return transformed, nil
 }
 
-func expandPubsubTopicMessageStoragePolicyAllowedPersistenceRegions(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubTopicMessageStoragePolicyAllowedPersistenceRegions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPubsubTopicSchemaSettings(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubTopicSchemaSettings(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -608,15 +609,15 @@ func expandPubsubTopicSchemaSettings(v interface{}, d TerraformResourceData, con
 	return transformed, nil
 }
 
-func expandPubsubTopicSchemaSettingsSchema(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubTopicSchemaSettingsSchema(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPubsubTopicSchemaSettingsEncoding(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubTopicSchemaSettingsEncoding(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPubsubTopicMessageRetentionDuration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPubsubTopicMessageRetentionDuration(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

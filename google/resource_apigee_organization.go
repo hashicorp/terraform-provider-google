@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceApigeeOrganization() *schema.Resource {
@@ -158,7 +159,7 @@ Valid values include trial (free, limited, and for evaluation purposes only) or 
 }
 
 func resourceApigeeOrganizationCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -274,7 +275,7 @@ func resourceApigeeOrganizationCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceApigeeOrganizationRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -335,7 +336,7 @@ func resourceApigeeOrganizationRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceApigeeOrganizationUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -430,7 +431,7 @@ func resourceApigeeOrganizationUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceApigeeOrganizationDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -461,7 +462,7 @@ func resourceApigeeOrganizationDelete(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceApigeeOrganizationImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -503,47 +504,47 @@ func resourceApigeeOrganizationImport(d *schema.ResourceData, meta interface{}) 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenApigeeOrganizationName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeOrganizationName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeOrganizationDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeOrganizationDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeOrganizationDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeOrganizationDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeOrganizationAnalyticsRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeOrganizationAnalyticsRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeOrganizationAuthorizedNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeOrganizationAuthorizedNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeOrganizationRuntimeType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeOrganizationRuntimeType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeOrganizationSubscriptionType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeOrganizationSubscriptionType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeOrganizationBillingType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeOrganizationBillingType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeOrganizationCaCertificate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeOrganizationCaCertificate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeOrganizationRuntimeDatabaseEncryptionKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeOrganizationRuntimeDatabaseEncryptionKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeOrganizationProperties(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeOrganizationProperties(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -556,7 +557,7 @@ func flattenApigeeOrganizationProperties(v interface{}, d *schema.ResourceData, 
 		flattenApigeeOrganizationPropertiesProperty(original["property"], d, config)
 	return []interface{}{transformed}
 }
-func flattenApigeeOrganizationPropertiesProperty(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeOrganizationPropertiesProperty(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -575,43 +576,43 @@ func flattenApigeeOrganizationPropertiesProperty(v interface{}, d *schema.Resour
 	}
 	return transformed
 }
-func flattenApigeeOrganizationPropertiesPropertyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeOrganizationPropertiesPropertyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeOrganizationPropertiesPropertyValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeOrganizationPropertiesPropertyValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandApigeeOrganizationDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeOrganizationDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeOrganizationDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeOrganizationDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeOrganizationAnalyticsRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeOrganizationAnalyticsRegion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeOrganizationAuthorizedNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeOrganizationAuthorizedNetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeOrganizationRuntimeType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeOrganizationRuntimeType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeOrganizationBillingType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeOrganizationBillingType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeOrganizationRuntimeDatabaseEncryptionKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeOrganizationRuntimeDatabaseEncryptionKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeOrganizationProperties(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeOrganizationProperties(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -630,7 +631,7 @@ func expandApigeeOrganizationProperties(v interface{}, d TerraformResourceData, 
 	return transformed, nil
 }
 
-func expandApigeeOrganizationPropertiesProperty(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeOrganizationPropertiesProperty(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -659,11 +660,11 @@ func expandApigeeOrganizationPropertiesProperty(v interface{}, d TerraformResour
 	return req, nil
 }
 
-func expandApigeeOrganizationPropertiesPropertyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeOrganizationPropertiesPropertyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeOrganizationPropertiesPropertyValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeOrganizationPropertiesPropertyValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -22,6 +22,7 @@ import (
 
 	firebaserules "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/firebaserules"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func init() {
@@ -58,7 +59,7 @@ func testSweepFirebaserulesRelease(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLFirebaserulesClient(config, config.UserAgent, "", 0)
+	client := transport_tpg.NewDCLFirebaserulesClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllRelease(context.Background(), d["project"], isDeletableFirebaserulesRelease)
 	if err != nil {
 		return err

@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceHealthcareHl7V2Store() *schema.Resource {
@@ -190,7 +191,7 @@ A base64-encoded string.`,
 }
 
 func resourceHealthcareHl7V2StoreCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -259,7 +260,7 @@ func resourceHealthcareHl7V2StoreCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceHealthcareHl7V2StoreRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -314,7 +315,7 @@ func resourceHealthcareHl7V2StoreRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceHealthcareHl7V2StoreUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -397,7 +398,7 @@ func resourceHealthcareHl7V2StoreUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceHealthcareHl7V2StoreDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -429,7 +430,7 @@ func resourceHealthcareHl7V2StoreDelete(d *schema.ResourceData, meta interface{}
 
 func resourceHealthcareHl7V2StoreImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	hl7v2StoreId, err := ParseHealthcareHl7V2StoreId(d.Id(), config)
 	if err != nil {
@@ -446,11 +447,11 @@ func resourceHealthcareHl7V2StoreImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenHealthcareHl7V2StoreName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenHealthcareHl7V2StoreName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenHealthcareHl7V2StoreParserConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenHealthcareHl7V2StoreParserConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -469,15 +470,15 @@ func flattenHealthcareHl7V2StoreParserConfig(v interface{}, d *schema.ResourceDa
 		flattenHealthcareHl7V2StoreParserConfigVersion(original["version"], d, config)
 	return []interface{}{transformed}
 }
-func flattenHealthcareHl7V2StoreParserConfigAllowNullHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenHealthcareHl7V2StoreParserConfigAllowNullHeader(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenHealthcareHl7V2StoreParserConfigSegmentTerminator(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenHealthcareHl7V2StoreParserConfigSegmentTerminator(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenHealthcareHl7V2StoreParserConfigSchema(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenHealthcareHl7V2StoreParserConfigSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -489,15 +490,15 @@ func flattenHealthcareHl7V2StoreParserConfigSchema(v interface{}, d *schema.Reso
 	return string(b)
 }
 
-func flattenHealthcareHl7V2StoreParserConfigVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenHealthcareHl7V2StoreParserConfigVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenHealthcareHl7V2StoreLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenHealthcareHl7V2StoreLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenHealthcareHl7V2StoreNotificationConfigs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenHealthcareHl7V2StoreNotificationConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -516,15 +517,15 @@ func flattenHealthcareHl7V2StoreNotificationConfigs(v interface{}, d *schema.Res
 	}
 	return transformed
 }
-func flattenHealthcareHl7V2StoreNotificationConfigsPubsubTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenHealthcareHl7V2StoreNotificationConfigsPubsubTopic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenHealthcareHl7V2StoreNotificationConfigsFilter(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenHealthcareHl7V2StoreNotificationConfigsFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenHealthcareHl7V2StoreNotificationConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenHealthcareHl7V2StoreNotificationConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -537,15 +538,15 @@ func flattenHealthcareHl7V2StoreNotificationConfig(v interface{}, d *schema.Reso
 		flattenHealthcareHl7V2StoreNotificationConfigPubsubTopic(original["pubsubTopic"], d, config)
 	return []interface{}{transformed}
 }
-func flattenHealthcareHl7V2StoreNotificationConfigPubsubTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenHealthcareHl7V2StoreNotificationConfigPubsubTopic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandHealthcareHl7V2StoreName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandHealthcareHl7V2StoreName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandHealthcareHl7V2StoreParserConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandHealthcareHl7V2StoreParserConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -585,15 +586,15 @@ func expandHealthcareHl7V2StoreParserConfig(v interface{}, d TerraformResourceDa
 	return transformed, nil
 }
 
-func expandHealthcareHl7V2StoreParserConfigAllowNullHeader(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandHealthcareHl7V2StoreParserConfigAllowNullHeader(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandHealthcareHl7V2StoreParserConfigSegmentTerminator(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandHealthcareHl7V2StoreParserConfigSegmentTerminator(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandHealthcareHl7V2StoreParserConfigSchema(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandHealthcareHl7V2StoreParserConfigSchema(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	b := []byte(v.(string))
 	if len(b) == 0 {
 		return nil, nil
@@ -605,11 +606,11 @@ func expandHealthcareHl7V2StoreParserConfigSchema(v interface{}, d TerraformReso
 	return m, nil
 }
 
-func expandHealthcareHl7V2StoreParserConfigVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandHealthcareHl7V2StoreParserConfigVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandHealthcareHl7V2StoreLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandHealthcareHl7V2StoreLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -620,7 +621,7 @@ func expandHealthcareHl7V2StoreLabels(v interface{}, d TerraformResourceData, co
 	return m, nil
 }
 
-func expandHealthcareHl7V2StoreNotificationConfigs(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandHealthcareHl7V2StoreNotificationConfigs(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -649,15 +650,15 @@ func expandHealthcareHl7V2StoreNotificationConfigs(v interface{}, d TerraformRes
 	return req, nil
 }
 
-func expandHealthcareHl7V2StoreNotificationConfigsPubsubTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandHealthcareHl7V2StoreNotificationConfigsPubsubTopic(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandHealthcareHl7V2StoreNotificationConfigsFilter(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandHealthcareHl7V2StoreNotificationConfigsFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandHealthcareHl7V2StoreNotificationConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandHealthcareHl7V2StoreNotificationConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -676,7 +677,7 @@ func expandHealthcareHl7V2StoreNotificationConfig(v interface{}, d TerraformReso
 	return transformed, nil
 }
 
-func expandHealthcareHl7V2StoreNotificationConfigPubsubTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandHealthcareHl7V2StoreNotificationConfigPubsubTopic(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

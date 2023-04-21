@@ -7,12 +7,14 @@ import (
 	"regexp"
 	"time"
 
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // CA related utilities.
 
-func enableCA(config *Config, d *schema.ResourceData, project string, billingProject string, userAgent string) error {
+func enableCA(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string) error {
 	enableUrl, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:enable")
 	if err != nil {
 		return err
@@ -35,7 +37,7 @@ func enableCA(config *Config, d *schema.ResourceData, project string, billingPro
 	return nil
 }
 
-func disableCA(config *Config, d *schema.ResourceData, project string, billingProject string, userAgent string) error {
+func disableCA(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string) error {
 	disableUrl, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:disable")
 	if err != nil {
 		return err
@@ -58,7 +60,7 @@ func disableCA(config *Config, d *schema.ResourceData, project string, billingPr
 	return nil
 }
 
-func activateSubCAWithThirdPartyIssuer(config *Config, d *schema.ResourceData, project string, billingProject string, userAgent string) error {
+func activateSubCAWithThirdPartyIssuer(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string) error {
 	// 1. prepare parameters
 	signedCACert := d.Get("pem_ca_certificate").(string)
 
@@ -112,7 +114,7 @@ func activateSubCAWithThirdPartyIssuer(config *Config, d *schema.ResourceData, p
 	return nil
 }
 
-func activateSubCAWithFirstPartyIssuer(config *Config, d *schema.ResourceData, project string, billingProject string, userAgent string) error {
+func activateSubCAWithFirstPartyIssuer(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string) error {
 	// 1. get issuer
 	sc, ok := d.GetOk("subordinate_config")
 	if !ok {

@@ -4,6 +4,7 @@ package google
 import (
 	"encoding/json"
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"reflect"
 	"sort"
@@ -46,13 +47,13 @@ type (
 	}
 
 	// Factory for generating ResourceIamUpdater for given ResourceData resource
-	newResourceIamUpdaterFunc func(d TerraformResourceData, config *Config) (ResourceIamUpdater, error)
+	newResourceIamUpdaterFunc func(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error)
 
 	// Describes how to modify a policy for a given Terraform IAM (_policy/_member/_binding/_audit_config) resource
 	iamPolicyModifyFunc func(p *cloudresourcemanager.Policy) error
 
 	// Parser for Terraform resource identifier (d.Id) for resource whose IAM policy is being changed
-	resourceIdParserFunc func(d *schema.ResourceData, config *Config) error
+	resourceIdParserFunc func(d *schema.ResourceData, config *transport_tpg.Config) error
 )
 
 // Locking wrapper around read-only operation with retries.

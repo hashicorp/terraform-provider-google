@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceFirestoreDatabase() *schema.Resource {
@@ -114,7 +115,7 @@ This value may be empty in which case the appid to use for URL-encoded keys is t
 }
 
 func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -219,7 +220,7 @@ func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceFirestoreDatabaseRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -281,7 +282,7 @@ func resourceFirestoreDatabaseRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceFirestoreDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -385,7 +386,7 @@ func resourceFirestoreDatabaseDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceFirestoreDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/databases/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -404,61 +405,61 @@ func resourceFirestoreDatabaseImport(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenFirestoreDatabaseName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFirestoreDatabaseName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenFirestoreDatabaseLocationId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFirestoreDatabaseLocationId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFirestoreDatabaseType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFirestoreDatabaseType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFirestoreDatabaseConcurrencyMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFirestoreDatabaseConcurrencyMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFirestoreDatabaseAppEngineIntegrationMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFirestoreDatabaseAppEngineIntegrationMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFirestoreDatabaseKeyPrefix(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFirestoreDatabaseKeyPrefix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFirestoreDatabaseEtag(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFirestoreDatabaseEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFirestoreDatabaseCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFirestoreDatabaseCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandFirestoreDatabaseName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandFirestoreDatabaseName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return ReplaceVars(d, config, "projects/{{project}}/databases/{{name}}")
 }
 
-func expandFirestoreDatabaseLocationId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandFirestoreDatabaseLocationId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFirestoreDatabaseType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandFirestoreDatabaseType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFirestoreDatabaseConcurrencyMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandFirestoreDatabaseConcurrencyMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFirestoreDatabaseAppEngineIntegrationMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandFirestoreDatabaseAppEngineIntegrationMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFirestoreDatabaseEtag(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandFirestoreDatabaseEtag(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

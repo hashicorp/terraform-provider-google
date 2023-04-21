@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceAlloydbInstance() *schema.Resource {
@@ -172,7 +173,7 @@ func ResourceAlloydbInstance() *schema.Resource {
 
 func resourceAlloydbInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	var project string
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -275,7 +276,7 @@ func resourceAlloydbInstanceCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlloydbInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -349,7 +350,7 @@ func resourceAlloydbInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	var project string
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -479,7 +480,7 @@ func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 func resourceAlloydbInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	var project string
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -518,7 +519,7 @@ func resourceAlloydbInstanceDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlloydbInstanceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{
@@ -537,59 +538,59 @@ func resourceAlloydbInstanceImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenAlloydbInstanceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbInstanceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbInstanceCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbInstanceCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbInstanceUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbInstanceUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbInstanceUid(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbInstanceUid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbInstanceLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbInstanceLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbInstanceAnnotations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbInstanceAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbInstanceState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbInstanceState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbInstanceGceZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbInstanceGceZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbInstanceReconciling(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbInstanceReconciling(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbInstanceDatabaseFlags(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbInstanceDatabaseFlags(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbInstanceAvailabilityType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbInstanceAvailabilityType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbInstanceInstanceType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbInstanceInstanceType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbInstanceIpAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbInstanceIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenAlloydbInstanceReadPoolConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbInstanceReadPoolConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -602,7 +603,7 @@ func flattenAlloydbInstanceReadPoolConfig(v interface{}, d *schema.ResourceData,
 		flattenAlloydbInstanceReadPoolConfigNodeCount(original["nodeCount"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAlloydbInstanceReadPoolConfigNodeCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbInstanceReadPoolConfigNodeCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -619,7 +620,7 @@ func flattenAlloydbInstanceReadPoolConfigNodeCount(v interface{}, d *schema.Reso
 	return v // let terraform core handle it otherwise
 }
 
-func flattenAlloydbInstanceMachineConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbInstanceMachineConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -632,7 +633,7 @@ func flattenAlloydbInstanceMachineConfig(v interface{}, d *schema.ResourceData, 
 		flattenAlloydbInstanceMachineConfigCpuCount(original["cpuCount"], d, config)
 	return []interface{}{transformed}
 }
-func flattenAlloydbInstanceMachineConfigCpuCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenAlloydbInstanceMachineConfigCpuCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -649,7 +650,7 @@ func flattenAlloydbInstanceMachineConfigCpuCount(v interface{}, d *schema.Resour
 	return v // let terraform core handle it otherwise
 }
 
-func expandAlloydbInstanceLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandAlloydbInstanceLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -660,7 +661,7 @@ func expandAlloydbInstanceLabels(v interface{}, d TerraformResourceData, config 
 	return m, nil
 }
 
-func expandAlloydbInstanceAnnotations(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandAlloydbInstanceAnnotations(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -671,15 +672,15 @@ func expandAlloydbInstanceAnnotations(v interface{}, d TerraformResourceData, co
 	return m, nil
 }
 
-func expandAlloydbInstanceDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbInstanceDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbInstanceGceZone(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbInstanceGceZone(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbInstanceDatabaseFlags(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandAlloydbInstanceDatabaseFlags(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -690,15 +691,15 @@ func expandAlloydbInstanceDatabaseFlags(v interface{}, d TerraformResourceData, 
 	return m, nil
 }
 
-func expandAlloydbInstanceAvailabilityType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbInstanceAvailabilityType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbInstanceInstanceType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbInstanceInstanceType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbInstanceReadPoolConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbInstanceReadPoolConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -717,11 +718,11 @@ func expandAlloydbInstanceReadPoolConfig(v interface{}, d TerraformResourceData,
 	return transformed, nil
 }
 
-func expandAlloydbInstanceReadPoolConfigNodeCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbInstanceReadPoolConfigNodeCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAlloydbInstanceMachineConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbInstanceMachineConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -740,6 +741,6 @@ func expandAlloydbInstanceMachineConfig(v interface{}, d TerraformResourceData, 
 	return transformed, nil
 }
 
-func expandAlloydbInstanceMachineConfigCpuCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandAlloydbInstanceMachineConfigCpuCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

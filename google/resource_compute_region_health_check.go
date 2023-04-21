@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeRegionHealthCheck() *schema.Resource {
@@ -583,7 +584,7 @@ consecutive failures. The default value is 2.`,
 }
 
 func resourceComputeRegionHealthCheckCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -727,7 +728,7 @@ func resourceComputeRegionHealthCheckCreate(d *schema.ResourceData, meta interfa
 }
 
 func resourceComputeRegionHealthCheckRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -816,7 +817,7 @@ func resourceComputeRegionHealthCheckRead(d *schema.ResourceData, meta interface
 }
 
 func resourceComputeRegionHealthCheckUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -953,7 +954,7 @@ func resourceComputeRegionHealthCheckUpdate(d *schema.ResourceData, meta interfa
 }
 
 func resourceComputeRegionHealthCheckDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -998,7 +999,7 @@ func resourceComputeRegionHealthCheckDelete(d *schema.ResourceData, meta interfa
 }
 
 func resourceComputeRegionHealthCheckImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/healthChecks/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -1018,7 +1019,7 @@ func resourceComputeRegionHealthCheckImport(d *schema.ResourceData, meta interfa
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeRegionHealthCheckCheckIntervalSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckCheckIntervalSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -1035,15 +1036,15 @@ func flattenComputeRegionHealthCheckCheckIntervalSec(v interface{}, d *schema.Re
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionHealthCheckCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckCreationTimestamp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHealthyThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHealthyThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -1060,11 +1061,11 @@ func flattenComputeRegionHealthCheckHealthyThreshold(v interface{}, d *schema.Re
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionHealthCheckName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckUnhealthyThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckUnhealthyThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -1081,7 +1082,7 @@ func flattenComputeRegionHealthCheckUnhealthyThreshold(v interface{}, d *schema.
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionHealthCheckTimeoutSec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckTimeoutSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -1098,11 +1099,11 @@ func flattenComputeRegionHealthCheckTimeoutSec(v interface{}, d *schema.Resource
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionHealthCheckType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpHealthCheck(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttpHealthCheck(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1127,19 +1128,19 @@ func flattenComputeRegionHealthCheckHttpHealthCheck(v interface{}, d *schema.Res
 		flattenComputeRegionHealthCheckHttpHealthCheckPortSpecification(original["portSpecification"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeRegionHealthCheckHttpHealthCheckHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttpHealthCheckHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpHealthCheckRequestPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttpHealthCheckRequestPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpHealthCheckResponse(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttpHealthCheckResponse(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttpHealthCheckPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -1156,19 +1157,19 @@ func flattenComputeRegionHealthCheckHttpHealthCheckPort(v interface{}, d *schema
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionHealthCheckHttpHealthCheckPortName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttpHealthCheckPortName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpHealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttpHealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpHealthCheckPortSpecification(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttpHealthCheckPortSpecification(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpsHealthCheck(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttpsHealthCheck(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1193,19 +1194,19 @@ func flattenComputeRegionHealthCheckHttpsHealthCheck(v interface{}, d *schema.Re
 		flattenComputeRegionHealthCheckHttpsHealthCheckPortSpecification(original["portSpecification"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeRegionHealthCheckHttpsHealthCheckHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttpsHealthCheckHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpsHealthCheckRequestPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttpsHealthCheckRequestPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpsHealthCheckResponse(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttpsHealthCheckResponse(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpsHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttpsHealthCheckPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -1222,19 +1223,19 @@ func flattenComputeRegionHealthCheckHttpsHealthCheckPort(v interface{}, d *schem
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionHealthCheckHttpsHealthCheckPortName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttpsHealthCheckPortName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpsHealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttpsHealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttpsHealthCheckPortSpecification(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttpsHealthCheckPortSpecification(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckTcpHealthCheck(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckTcpHealthCheck(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1257,15 +1258,15 @@ func flattenComputeRegionHealthCheckTcpHealthCheck(v interface{}, d *schema.Reso
 		flattenComputeRegionHealthCheckTcpHealthCheckPortSpecification(original["portSpecification"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeRegionHealthCheckTcpHealthCheckRequest(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckTcpHealthCheckRequest(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckTcpHealthCheckResponse(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckTcpHealthCheckResponse(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckTcpHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckTcpHealthCheckPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -1282,19 +1283,19 @@ func flattenComputeRegionHealthCheckTcpHealthCheckPort(v interface{}, d *schema.
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionHealthCheckTcpHealthCheckPortName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckTcpHealthCheckPortName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckTcpHealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckTcpHealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckTcpHealthCheckPortSpecification(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckTcpHealthCheckPortSpecification(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckSslHealthCheck(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckSslHealthCheck(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1317,15 +1318,15 @@ func flattenComputeRegionHealthCheckSslHealthCheck(v interface{}, d *schema.Reso
 		flattenComputeRegionHealthCheckSslHealthCheckPortSpecification(original["portSpecification"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeRegionHealthCheckSslHealthCheckRequest(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckSslHealthCheckRequest(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckSslHealthCheckResponse(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckSslHealthCheckResponse(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckSslHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckSslHealthCheckPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -1342,19 +1343,19 @@ func flattenComputeRegionHealthCheckSslHealthCheckPort(v interface{}, d *schema.
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionHealthCheckSslHealthCheckPortName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckSslHealthCheckPortName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckSslHealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckSslHealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckSslHealthCheckPortSpecification(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckSslHealthCheckPortSpecification(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttp2HealthCheck(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttp2HealthCheck(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1379,19 +1380,19 @@ func flattenComputeRegionHealthCheckHttp2HealthCheck(v interface{}, d *schema.Re
 		flattenComputeRegionHealthCheckHttp2HealthCheckPortSpecification(original["portSpecification"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeRegionHealthCheckHttp2HealthCheckHost(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttp2HealthCheckHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttp2HealthCheckRequestPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttp2HealthCheckRequestPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttp2HealthCheckResponse(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttp2HealthCheckResponse(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttp2HealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttp2HealthCheckPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -1408,19 +1409,19 @@ func flattenComputeRegionHealthCheckHttp2HealthCheckPort(v interface{}, d *schem
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionHealthCheckHttp2HealthCheckPortName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttp2HealthCheckPortName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttp2HealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttp2HealthCheckProxyHeader(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckHttp2HealthCheckPortSpecification(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckHttp2HealthCheckPortSpecification(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckGrpcHealthCheck(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckGrpcHealthCheck(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1439,7 +1440,7 @@ func flattenComputeRegionHealthCheckGrpcHealthCheck(v interface{}, d *schema.Res
 		flattenComputeRegionHealthCheckGrpcHealthCheckGrpcServiceName(original["grpcServiceName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeRegionHealthCheckGrpcHealthCheckPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckGrpcHealthCheckPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -1456,19 +1457,19 @@ func flattenComputeRegionHealthCheckGrpcHealthCheckPort(v interface{}, d *schema
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeRegionHealthCheckGrpcHealthCheckPortName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckGrpcHealthCheckPortName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckGrpcHealthCheckPortSpecification(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckGrpcHealthCheckPortSpecification(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckGrpcHealthCheckGrpcServiceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckGrpcHealthCheckGrpcServiceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeRegionHealthCheckLogConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckLogConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	transformed := make(map[string]interface{})
 	if v == nil {
 		// Disabled by default, but API will not return object if value is false
@@ -1481,38 +1482,38 @@ func flattenComputeRegionHealthCheckLogConfig(v interface{}, d *schema.ResourceD
 	return []interface{}{transformed}
 }
 
-func flattenComputeRegionHealthCheckRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeRegionHealthCheckRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func expandComputeRegionHealthCheckCheckIntervalSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckCheckIntervalSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHealthyThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHealthyThreshold(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckUnhealthyThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckUnhealthyThreshold(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckTimeoutSec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckTimeoutSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttpHealthCheck(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttpHealthCheck(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1573,35 +1574,35 @@ func expandComputeRegionHealthCheckHttpHealthCheck(v interface{}, d TerraformRes
 	return transformed, nil
 }
 
-func expandComputeRegionHealthCheckHttpHealthCheckHost(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttpHealthCheckHost(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttpHealthCheckRequestPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttpHealthCheckRequestPath(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttpHealthCheckResponse(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttpHealthCheckResponse(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttpHealthCheckPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttpHealthCheckPort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttpHealthCheckPortName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttpHealthCheckPortName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttpHealthCheckProxyHeader(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttpHealthCheckProxyHeader(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttpHealthCheckPortSpecification(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttpHealthCheckPortSpecification(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttpsHealthCheck(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttpsHealthCheck(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1662,35 +1663,35 @@ func expandComputeRegionHealthCheckHttpsHealthCheck(v interface{}, d TerraformRe
 	return transformed, nil
 }
 
-func expandComputeRegionHealthCheckHttpsHealthCheckHost(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttpsHealthCheckHost(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttpsHealthCheckRequestPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttpsHealthCheckRequestPath(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttpsHealthCheckResponse(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttpsHealthCheckResponse(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttpsHealthCheckPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttpsHealthCheckPort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttpsHealthCheckPortName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttpsHealthCheckPortName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttpsHealthCheckProxyHeader(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttpsHealthCheckProxyHeader(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttpsHealthCheckPortSpecification(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttpsHealthCheckPortSpecification(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckTcpHealthCheck(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckTcpHealthCheck(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1744,31 +1745,31 @@ func expandComputeRegionHealthCheckTcpHealthCheck(v interface{}, d TerraformReso
 	return transformed, nil
 }
 
-func expandComputeRegionHealthCheckTcpHealthCheckRequest(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckTcpHealthCheckRequest(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckTcpHealthCheckResponse(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckTcpHealthCheckResponse(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckTcpHealthCheckPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckTcpHealthCheckPort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckTcpHealthCheckPortName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckTcpHealthCheckPortName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckTcpHealthCheckProxyHeader(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckTcpHealthCheckProxyHeader(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckTcpHealthCheckPortSpecification(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckTcpHealthCheckPortSpecification(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckSslHealthCheck(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckSslHealthCheck(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1822,31 +1823,31 @@ func expandComputeRegionHealthCheckSslHealthCheck(v interface{}, d TerraformReso
 	return transformed, nil
 }
 
-func expandComputeRegionHealthCheckSslHealthCheckRequest(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckSslHealthCheckRequest(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckSslHealthCheckResponse(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckSslHealthCheckResponse(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckSslHealthCheckPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckSslHealthCheckPort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckSslHealthCheckPortName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckSslHealthCheckPortName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckSslHealthCheckProxyHeader(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckSslHealthCheckProxyHeader(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckSslHealthCheckPortSpecification(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckSslHealthCheckPortSpecification(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttp2HealthCheck(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttp2HealthCheck(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1907,35 +1908,35 @@ func expandComputeRegionHealthCheckHttp2HealthCheck(v interface{}, d TerraformRe
 	return transformed, nil
 }
 
-func expandComputeRegionHealthCheckHttp2HealthCheckHost(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttp2HealthCheckHost(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttp2HealthCheckRequestPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttp2HealthCheckRequestPath(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttp2HealthCheckResponse(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttp2HealthCheckResponse(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttp2HealthCheckPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttp2HealthCheckPort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttp2HealthCheckPortName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttp2HealthCheckPortName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttp2HealthCheckProxyHeader(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttp2HealthCheckProxyHeader(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckHttp2HealthCheckPortSpecification(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckHttp2HealthCheckPortSpecification(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckGrpcHealthCheck(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckGrpcHealthCheck(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1975,23 +1976,23 @@ func expandComputeRegionHealthCheckGrpcHealthCheck(v interface{}, d TerraformRes
 	return transformed, nil
 }
 
-func expandComputeRegionHealthCheckGrpcHealthCheckPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckGrpcHealthCheckPort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckGrpcHealthCheckPortName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckGrpcHealthCheckPortName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckGrpcHealthCheckPortSpecification(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckGrpcHealthCheckPortSpecification(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckGrpcHealthCheckGrpcServiceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckGrpcHealthCheckGrpcServiceName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckLogConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckLogConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2010,11 +2011,11 @@ func expandComputeRegionHealthCheckLogConfig(v interface{}, d TerraformResourceD
 	return transformed, nil
 }
 
-func expandComputeRegionHealthCheckLogConfigEnable(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckLogConfigEnable(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionHealthCheckRegion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeRegionHealthCheckRegion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for region: %s", err)

@@ -1,12 +1,9 @@
 package google
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
-	"net/http"
 	"net/url"
 	"reflect"
 	"regexp"
@@ -15,110 +12,25 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/googleapi"
 )
 
-var DefaultRequestTimeout = 5 * time.Minute
+var DefaultRequestTimeout = transport_tpg.DefaultRequestTimeout
 
-func SendRequest(config *Config, method, project, rawurl, userAgent string, body map[string]interface{}, errorRetryPredicates ...RetryErrorPredicateFunc) (map[string]interface{}, error) {
-	return SendRequestWithTimeout(config, method, project, rawurl, userAgent, body, DefaultRequestTimeout, errorRetryPredicates...)
+func SendRequest(config *transport_tpg.Config, method, project, rawurl, userAgent string, body map[string]interface{}, errorRetryPredicates ...transport_tpg.RetryErrorPredicateFunc) (map[string]interface{}, error) {
+	return transport_tpg.SendRequestWithTimeout(config, method, project, rawurl, userAgent, body, DefaultRequestTimeout, errorRetryPredicates...)
 }
 
-func SendRequestWithTimeout(config *Config, method, project, rawurl, userAgent string, body map[string]interface{}, timeout time.Duration, errorRetryPredicates ...RetryErrorPredicateFunc) (map[string]interface{}, error) {
-	reqHeaders := make(http.Header)
-	reqHeaders.Set("User-Agent", userAgent)
-	reqHeaders.Set("Content-Type", "application/json")
-
-	if config.UserProjectOverride && project != "" {
-		// When project is "NO_BILLING_PROJECT_OVERRIDE" in the function GetCurrentUserEmail,
-		// set the header X-Goog-User-Project to be empty string.
-		if project == "NO_BILLING_PROJECT_OVERRIDE" {
-			reqHeaders.Set("X-Goog-User-Project", "")
-		} else {
-			// Pass the project into this fn instead of parsing it from the URL because
-			// both project names and URLs can have colons in them.
-			reqHeaders.Set("X-Goog-User-Project", project)
-		}
-	}
-
-	if timeout == 0 {
-		timeout = time.Duration(1) * time.Hour
-	}
-
-	var res *http.Response
-	err := RetryTimeDuration(
-		func() error {
-			var buf bytes.Buffer
-			if body != nil {
-				err := json.NewEncoder(&buf).Encode(body)
-				if err != nil {
-					return err
-				}
-			}
-
-			u, err := AddQueryParams(rawurl, map[string]string{"alt": "json"})
-			if err != nil {
-				return err
-			}
-			req, err := http.NewRequest(method, u, &buf)
-			if err != nil {
-				return err
-			}
-
-			req.Header = reqHeaders
-			res, err = config.Client.Do(req)
-			if err != nil {
-				return err
-			}
-
-			if err := googleapi.CheckResponse(res); err != nil {
-				googleapi.CloseBody(res)
-				return err
-			}
-
-			return nil
-		},
-		timeout,
-		errorRetryPredicates...,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	if res == nil {
-		return nil, fmt.Errorf("Unable to parse server response. This is most likely a terraform problem, please file a bug at https://github.com/hashicorp/terraform-provider-google/issues.")
-	}
-
-	// The defer call must be made outside of the retryFunc otherwise it's closed too soon.
-	defer googleapi.CloseBody(res)
-
-	// 204 responses will have no body, so we're going to error with "EOF" if we
-	// try to parse it. Instead, we can just return nil.
-	if res.StatusCode == 204 {
-		return nil, nil
-	}
-	result := make(map[string]interface{})
-	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+func SendRequestWithTimeout(config *transport_tpg.Config, method, project, rawurl, userAgent string, body map[string]interface{}, timeout time.Duration, errorRetryPredicates ...transport_tpg.RetryErrorPredicateFunc) (map[string]interface{}, error) {
+	return transport_tpg.SendRequestWithTimeout(config, method, project, rawurl, userAgent, body, DefaultRequestTimeout, errorRetryPredicates...)
 }
 
 func AddQueryParams(rawurl string, params map[string]string) (string, error) {
-	u, err := url.Parse(rawurl)
-	if err != nil {
-		return "", err
-	}
-	q := u.Query()
-	for k, v := range params {
-		q.Set(k, v)
-	}
-	u.RawQuery = q.Encode()
-	return u.String(), nil
+	return transport_tpg.AddQueryParams(rawurl, params)
 }
 
-func ReplaceVars(d TerraformResourceData, config *Config, linkTmpl string) (string, error) {
+func ReplaceVars(d TerraformResourceData, config *transport_tpg.Config, linkTmpl string) (string, error) {
 	return replaceVarsRecursive(d, config, linkTmpl, false, 0)
 }
 
@@ -130,14 +42,14 @@ func ReplaceVars(d TerraformResourceData, config *Config, linkTmpl string) (stri
 // access_policy: accessPolicies/foo
 // access_level: accessPolicies/foo/accessLevels/bar
 // becomes accessPolicies/foo/accessLevels/bar
-func replaceVarsForId(d TerraformResourceData, config *Config, linkTmpl string) (string, error) {
+func replaceVarsForId(d TerraformResourceData, config *transport_tpg.Config, linkTmpl string) (string, error) {
 	return replaceVarsRecursive(d, config, linkTmpl, true, 0)
 }
 
 // ReplaceVars must be done recursively because there are baseUrls that can contain references to regions
 // (eg cloudrun service) there aren't any cases known for 2+ recursion but we will track a run away
 // substitution as 10+ calls to allow for future use cases.
-func replaceVarsRecursive(d TerraformResourceData, config *Config, linkTmpl string, shorten bool, depth int) (string, error) {
+func replaceVarsRecursive(d TerraformResourceData, config *transport_tpg.Config, linkTmpl string, shorten bool, depth int) (string, error) {
 	if depth > 10 {
 		return "", errors.New("Recursive substitution detcted")
 	}
@@ -160,7 +72,7 @@ func replaceVarsRecursive(d TerraformResourceData, config *Config, linkTmpl stri
 // This function replaces references to Terraform properties (in the form of {{var}}) with their value in Terraform
 // It also replaces {{project}}, {{project_id_or_project}}, {{region}}, and {{zone}} with their appropriate values
 // This function supports URL-encoding the result by prepending '%' to the field name e.g. {{%var}}
-func buildReplacementFunc(re *regexp.Regexp, d TerraformResourceData, config *Config, linkTmpl string, shorten bool) (func(string) string, error) {
+func buildReplacementFunc(re *regexp.Regexp, d TerraformResourceData, config *transport_tpg.Config, linkTmpl string, shorten bool) (func(string) string, error) {
 	var project, projectID, region, zone string
 	var err error
 

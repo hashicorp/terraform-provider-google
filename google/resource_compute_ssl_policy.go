@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func sslPolicyCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
@@ -159,7 +160,7 @@ object. This field is used in optimistic locking.`,
 }
 
 func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -244,7 +245,7 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -309,7 +310,7 @@ func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -380,7 +381,7 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceComputeSslPolicyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -425,7 +426,7 @@ func resourceComputeSslPolicyDelete(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceComputeSslPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/sslPolicies/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -444,61 +445,61 @@ func resourceComputeSslPolicyImport(d *schema.ResourceData, meta interface{}) ([
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeSslPolicyCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSslPolicyCreationTimestamp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSslPolicyDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSslPolicyDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSslPolicyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSslPolicyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSslPolicyProfile(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSslPolicyProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSslPolicyMinTlsVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSslPolicyMinTlsVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSslPolicyEnabledFeatures(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSslPolicyEnabledFeatures(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeSslPolicyCustomFeatures(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSslPolicyCustomFeatures(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenComputeSslPolicyFingerprint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSslPolicyFingerprint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandComputeSslPolicyDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSslPolicyDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSslPolicyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSslPolicyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSslPolicyProfile(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSslPolicyProfile(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSslPolicyMinTlsVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSslPolicyMinTlsVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSslPolicyCustomFeatures(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSslPolicyCustomFeatures(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }

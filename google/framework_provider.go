@@ -14,8 +14,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"golang.org/x/oauth2"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
+	"golang.org/x/oauth2"
 	"google.golang.org/api/option"
 )
 
@@ -46,8 +47,8 @@ type frameworkProvider struct {
 	project                    types.String
 	region                     types.String
 	zone                       types.String
-	requestBatcherIam          *RequestBatcher
-	requestBatcherServiceUsage *RequestBatcher
+	RequestBatcherIam          *transport_tpg.RequestBatcher
+	requestBatcherServiceUsage *transport_tpg.RequestBatcher
 	scopes                     []string
 	tokenSource                oauth2.TokenSource
 	userAgent                  string
@@ -219,523 +220,523 @@ func (p *frameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 			"access_approval_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"access_context_manager_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"active_directory_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"alloydb_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"apigee_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"app_engine_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"artifact_registry_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"beyondcorp_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"big_query_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"bigquery_analytics_hub_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"bigquery_connection_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"bigquery_datapolicy_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"bigquery_data_transfer_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"bigquery_reservation_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"bigtable_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"billing_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"binary_authorization_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"certificate_manager_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"cloud_asset_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"cloud_build_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"cloud_functions_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"cloudfunctions2_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"cloud_identity_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"cloud_ids_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"cloud_iot_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"cloud_run_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"cloud_run_v2_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"cloud_scheduler_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"cloud_tasks_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"compute_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"container_analysis_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"container_attached_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"database_migration_service_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"data_catalog_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"data_fusion_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"data_loss_prevention_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"dataplex_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"dataproc_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"dataproc_metastore_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"datastore_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"datastream_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"deployment_manager_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"dialogflow_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"dialogflow_cx_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"dns_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"document_ai_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"essential_contacts_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"filestore_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"firestore_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"game_services_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"gke_backup_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"gke_hub_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"healthcare_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"iam2_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"iam_beta_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"iam_workforce_pool_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"iap_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"identity_platform_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"kms_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"logging_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"memcache_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"ml_engine_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"monitoring_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"network_management_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"network_services_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"notebooks_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"os_config_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"os_login_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"privateca_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"pubsub_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"pubsub_lite_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"redis_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"resource_manager_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"secret_manager_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"security_center_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"service_management_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"service_usage_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"source_repo_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"spanner_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"sql_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"storage_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"storage_transfer_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"tags_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"tpu_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"vertex_ai_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"vpc_access_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"workflows_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 
@@ -743,55 +744,55 @@ func (p *frameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 			"cloud_billing_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"composer_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"container_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"dataflow_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"iam_credentials_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"resource_manager_v3_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"iam_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"service_networking_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"tags_location_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 
@@ -799,13 +800,13 @@ func (p *frameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 			"container_aws_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 			"container_azure_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					CustomEndpointValidator(),
+					transport_tpg.CustomEndpointValidator(),
 				},
 			},
 		},
@@ -828,7 +829,7 @@ func (p *frameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 		},
 	}
 
-	configureDCLCustomEndpointAttributesFramework(&resp.Schema)
+	transport_tpg.ConfigureDCLCustomEndpointAttributesFramework(&resp.Schema)
 }
 
 // Configure prepares an API client for data sources and resources.

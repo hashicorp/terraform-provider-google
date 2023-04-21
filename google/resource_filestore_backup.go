@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceFilestoreBackup() *schema.Resource {
@@ -130,7 +131,7 @@ character, which cannot be a dash.`,
 }
 
 func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -188,7 +189,7 @@ func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IsNotFilestoreQuotaError)
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), transport_tpg.IsNotFilestoreQuotaError)
 	if err != nil {
 		return fmt.Errorf("Error creating Backup: %s", err)
 	}
@@ -226,7 +227,7 @@ func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceFilestoreBackupRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -250,7 +251,7 @@ func resourceFilestoreBackupRead(d *schema.ResourceData, meta interface{}) error
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsNotFilestoreQuotaError)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, transport_tpg.IsNotFilestoreQuotaError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("FilestoreBackup %q", d.Id()))
 	}
@@ -297,7 +298,7 @@ func resourceFilestoreBackupRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceFilestoreBackupUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -369,7 +370,7 @@ func resourceFilestoreBackupUpdate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), IsNotFilestoreQuotaError)
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), transport_tpg.IsNotFilestoreQuotaError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Backup %q: %s", d.Id(), err)
@@ -389,7 +390,7 @@ func resourceFilestoreBackupUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceFilestoreBackupDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -423,7 +424,7 @@ func resourceFilestoreBackupDelete(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IsNotFilestoreQuotaError)
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), transport_tpg.IsNotFilestoreQuotaError)
 	if err != nil {
 		return handleNotFoundError(err, d, "Backup")
 	}
@@ -441,7 +442,7 @@ func resourceFilestoreBackupDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceFilestoreBackupImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/backups/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -460,55 +461,55 @@ func resourceFilestoreBackupImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenFilestoreBackupDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFilestoreBackupDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFilestoreBackupState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFilestoreBackupState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFilestoreBackupCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFilestoreBackupCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFilestoreBackupLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFilestoreBackupLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFilestoreBackupCapacityGb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFilestoreBackupCapacityGb(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFilestoreBackupStorageBytes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFilestoreBackupStorageBytes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFilestoreBackupSourceInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFilestoreBackupSourceInstance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFilestoreBackupSourceFileShare(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFilestoreBackupSourceFileShare(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFilestoreBackupSourceInstanceTier(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFilestoreBackupSourceInstanceTier(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFilestoreBackupDownloadBytes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFilestoreBackupDownloadBytes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFilestoreBackupKmsKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFilestoreBackupKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandFilestoreBackupDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandFilestoreBackupDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreBackupLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandFilestoreBackupLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -519,10 +520,10 @@ func expandFilestoreBackupLabels(v interface{}, d TerraformResourceData, config 
 	return m, nil
 }
 
-func expandFilestoreBackupSourceInstance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandFilestoreBackupSourceInstance(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreBackupSourceFileShare(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandFilestoreBackupSourceFileShare(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

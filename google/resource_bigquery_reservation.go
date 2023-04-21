@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceBigqueryReservationReservation() *schema.Resource {
@@ -120,7 +121,7 @@ If set to true, this reservation is placed in the organization's secondary regio
 }
 
 func resourceBigqueryReservationReservationCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -201,7 +202,7 @@ func resourceBigqueryReservationReservationCreate(d *schema.ResourceData, meta i
 }
 
 func resourceBigqueryReservationReservationRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -257,7 +258,7 @@ func resourceBigqueryReservationReservationRead(d *schema.ResourceData, meta int
 }
 
 func resourceBigqueryReservationReservationUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -354,7 +355,7 @@ func resourceBigqueryReservationReservationUpdate(d *schema.ResourceData, meta i
 }
 
 func resourceBigqueryReservationReservationDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -391,7 +392,7 @@ func resourceBigqueryReservationReservationDelete(d *schema.ResourceData, meta i
 }
 
 func resourceBigqueryReservationReservationImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/reservations/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -410,7 +411,7 @@ func resourceBigqueryReservationReservationImport(d *schema.ResourceData, meta i
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenBigqueryReservationReservationSlotCapacity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryReservationReservationSlotCapacity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -427,11 +428,11 @@ func flattenBigqueryReservationReservationSlotCapacity(v interface{}, d *schema.
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBigqueryReservationReservationIgnoreIdleSlots(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryReservationReservationIgnoreIdleSlots(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryReservationReservationConcurrency(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryReservationReservationConcurrency(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -448,15 +449,15 @@ func flattenBigqueryReservationReservationConcurrency(v interface{}, d *schema.R
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBigqueryReservationReservationMultiRegionAuxiliary(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryReservationReservationMultiRegionAuxiliary(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryReservationReservationEdition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryReservationReservationEdition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryReservationReservationAutoscale(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryReservationReservationAutoscale(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -471,7 +472,7 @@ func flattenBigqueryReservationReservationAutoscale(v interface{}, d *schema.Res
 		flattenBigqueryReservationReservationAutoscaleMaxSlots(original["maxSlots"], d, config)
 	return []interface{}{transformed}
 }
-func flattenBigqueryReservationReservationAutoscaleCurrentSlots(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryReservationReservationAutoscaleCurrentSlots(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -488,7 +489,7 @@ func flattenBigqueryReservationReservationAutoscaleCurrentSlots(v interface{}, d
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBigqueryReservationReservationAutoscaleMaxSlots(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryReservationReservationAutoscaleMaxSlots(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -505,27 +506,27 @@ func flattenBigqueryReservationReservationAutoscaleMaxSlots(v interface{}, d *sc
 	return v // let terraform core handle it otherwise
 }
 
-func expandBigqueryReservationReservationSlotCapacity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryReservationReservationSlotCapacity(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryReservationReservationIgnoreIdleSlots(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryReservationReservationIgnoreIdleSlots(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryReservationReservationConcurrency(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryReservationReservationConcurrency(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryReservationReservationMultiRegionAuxiliary(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryReservationReservationMultiRegionAuxiliary(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryReservationReservationEdition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryReservationReservationEdition(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryReservationReservationAutoscale(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryReservationReservationAutoscale(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -551,10 +552,10 @@ func expandBigqueryReservationReservationAutoscale(v interface{}, d TerraformRes
 	return transformed, nil
 }
 
-func expandBigqueryReservationReservationAutoscaleCurrentSlots(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryReservationReservationAutoscaleCurrentSlots(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryReservationReservationAutoscaleMaxSlots(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryReservationReservationAutoscaleMaxSlots(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

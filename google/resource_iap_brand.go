@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceIapBrand() *schema.Resource {
@@ -81,7 +82,7 @@ brand can be created per project.`,
 }
 
 func resourceIapBrandCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -165,7 +166,7 @@ func resourceIapBrandCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceIapBrandPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
 	return func() (map[string]interface{}, error) {
-		config := meta.(*Config)
+		config := meta.(*transport_tpg.Config)
 
 		url, err := ReplaceVars(d, config, "{{IapBasePath}}{{name}}")
 		if err != nil {
@@ -199,7 +200,7 @@ func resourceIapBrandPollRead(d *schema.ResourceData, meta interface{}) PollRead
 }
 
 func resourceIapBrandRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -258,7 +259,7 @@ func resourceIapBrandDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIapBrandImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -297,26 +298,26 @@ func resourceIapBrandImport(d *schema.ResourceData, meta interface{}) ([]*schema
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenIapBrandSupportEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIapBrandSupportEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIapBrandApplicationTitle(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIapBrandApplicationTitle(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIapBrandOrgInternalOnly(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIapBrandOrgInternalOnly(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIapBrandName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIapBrandName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandIapBrandSupportEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIapBrandSupportEmail(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIapBrandApplicationTitle(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIapBrandApplicationTitle(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

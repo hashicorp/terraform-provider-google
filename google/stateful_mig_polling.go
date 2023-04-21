@@ -5,12 +5,13 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // PerInstanceConfig needs both regular operation polling AND custom polling for deletion which is why this is not generated
 func resourceComputePerInstanceConfigPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
 	return func() (map[string]interface{}, error) {
-		config := meta.(*Config)
+		config := meta.(*transport_tpg.Config)
 		userAgent, err := generateUserAgentString(d, config.UserAgent)
 		if err != nil {
 			return nil, err
@@ -42,7 +43,7 @@ func resourceComputePerInstanceConfigPollRead(d *schema.ResourceData, meta inter
 // RegionPerInstanceConfig needs both regular operation polling AND custom polling for deletion which is why this is not generated
 func resourceComputeRegionPerInstanceConfigPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
 	return func() (map[string]interface{}, error) {
-		config := meta.(*Config)
+		config := meta.(*transport_tpg.Config)
 		userAgent, err := generateUserAgentString(d, config.UserAgent)
 		if err != nil {
 			return nil, err
@@ -73,7 +74,7 @@ func resourceComputeRegionPerInstanceConfigPollRead(d *schema.ResourceData, meta
 
 // Returns an instance name in the form zones/{zone}/instances/{instance} for the managed
 // instance matching the name of a PerInstanceConfig
-func findInstanceName(d *schema.ResourceData, config *Config) (string, error) {
+func findInstanceName(d *schema.ResourceData, config *transport_tpg.Config) (string, error) {
 	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/listManagedInstances")
 	if err != nil {
 		return "", err

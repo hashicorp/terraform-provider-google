@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceAccessContextManagerIngressPolicy() *schema.Resource {
@@ -58,7 +59,7 @@ func ResourceAccessContextManagerIngressPolicy() *schema.Resource {
 }
 
 func resourceAccessContextManagerIngressPolicyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -146,7 +147,7 @@ func resourceAccessContextManagerIngressPolicyCreate(d *schema.ResourceData, met
 }
 
 func resourceAccessContextManagerIngressPolicyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -189,7 +190,7 @@ func resourceAccessContextManagerIngressPolicyRead(d *schema.ResourceData, meta 
 }
 
 func resourceAccessContextManagerIngressPolicyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -237,7 +238,7 @@ func resourceAccessContextManagerIngressPolicyDelete(d *schema.ResourceData, met
 }
 
 func resourceAccessContextManagerIngressPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	parts, err := getImportIdQualifiers([]string{"accessPolicies/(?P<accessPolicy>[^/]+)/servicePerimeters/(?P<perimeter>[^/]+)/(?P<resource>.+)"}, d, config, d.Id())
@@ -254,11 +255,11 @@ func resourceAccessContextManagerIngressPolicyImport(d *schema.ResourceData, met
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenNestedAccessContextManagerIngressPolicyResource(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedAccessContextManagerIngressPolicyResource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandNestedAccessContextManagerIngressPolicyResource(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedAccessContextManagerIngressPolicyResource(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -295,11 +296,11 @@ func flattenNestedAccessContextManagerIngressPolicy(d *schema.ResourceData, meta
 }
 
 func resourceAccessContextManagerIngressPolicyFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedResource, err := expandNestedAccessContextManagerIngressPolicyResource(d.Get("resource"), d, meta.(*Config))
+	expectedResource, err := expandNestedAccessContextManagerIngressPolicyResource(d.Get("resource"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedResource := flattenNestedAccessContextManagerIngressPolicyResource(expectedResource, d, meta.(*Config))
+	expectedFlattenedResource := flattenNestedAccessContextManagerIngressPolicyResource(expectedResource, d, meta.(*transport_tpg.Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -311,7 +312,7 @@ func resourceAccessContextManagerIngressPolicyFindNestedObjectInList(d *schema.R
 			"resource": itemRaw,
 		}
 
-		itemResource := flattenNestedAccessContextManagerIngressPolicyResource(item["resource"], d, meta.(*Config))
+		itemResource := flattenNestedAccessContextManagerIngressPolicyResource(item["resource"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemResource)) && isEmptyValue(reflect.ValueOf(expectedFlattenedResource))) && !reflect.DeepEqual(itemResource, expectedFlattenedResource) {
 			log.Printf("[DEBUG] Skipping item with resource= %#v, looking for %#v)", itemResource, expectedFlattenedResource)
@@ -385,7 +386,7 @@ func resourceAccessContextManagerIngressPolicyPatchDeleteEncoder(d *schema.Resou
 // ListForPatch handles making API request to get parent resource and
 // extracting list of objects.
 func resourceAccessContextManagerIngressPolicyListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{ingress_policy_name}}")
 	if err != nil {
 		return nil, err

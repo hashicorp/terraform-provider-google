@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"strconv"
 	"strings"
@@ -899,7 +900,7 @@ func ResourceComputeInstance() *schema.Resource {
 	}
 }
 
-func getInstance(config *Config, d *schema.ResourceData) (*compute.Instance, error) {
+func getInstance(config *transport_tpg.Config, d *schema.ResourceData) (*compute.Instance, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
@@ -919,7 +920,7 @@ func getInstance(config *Config, d *schema.ResourceData) (*compute.Instance, err
 	return instance, nil
 }
 
-func getDisk(diskUri string, d *schema.ResourceData, config *Config) (*compute.Disk, error) {
+func getDisk(diskUri string, d *schema.ResourceData, config *transport_tpg.Config) (*compute.Disk, error) {
 	source, err := ParseDiskFieldValue(diskUri, d, config)
 	if err != nil {
 		return nil, err
@@ -938,7 +939,7 @@ func getDisk(diskUri string, d *schema.ResourceData, config *Config) (*compute.D
 	return disk, err
 }
 
-func expandComputeInstance(project string, d *schema.ResourceData, config *Config) (*compute.Instance, error) {
+func expandComputeInstance(project string, d *schema.ResourceData, config *transport_tpg.Config) (*compute.Instance, error) {
 	// Get the machine type
 	var machineTypeUrl string
 	if mt, ok := d.GetOk("machine_type"); ok {
@@ -1055,7 +1056,7 @@ func getAllStatusBut(status string) []string {
 	return computeInstanceStatus
 }
 
-func waitUntilInstanceHasDesiredStatus(config *Config, d *schema.ResourceData) error {
+func waitUntilInstanceHasDesiredStatus(config *transport_tpg.Config, d *schema.ResourceData) error {
 	desiredStatus := d.Get("desired_status").(string)
 
 	if desiredStatus != "" {
@@ -1087,7 +1088,7 @@ func waitUntilInstanceHasDesiredStatus(config *Config, d *schema.ResourceData) e
 }
 
 func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -1141,7 +1142,7 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	project, err := getProject(d, config)
 	if err != nil {
@@ -1396,7 +1397,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -2071,7 +2072,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	return resourceComputeInstanceRead(d, meta)
 }
 
-func startInstanceOperation(d *schema.ResourceData, config *Config) (*compute.Operation, error) {
+func startInstanceOperation(d *schema.ResourceData, config *transport_tpg.Config) (*compute.Operation, error) {
 	project, err := getProject(d, config)
 	if err != nil {
 		return nil, err
@@ -2122,7 +2123,7 @@ func startInstanceOperation(d *schema.ResourceData, config *Config) (*compute.Op
 }
 
 func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceData, meta interface{}) (*compute.AttachedDisk, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	s := diskConfig["source"].(string)
 	var sourceLink string
@@ -2177,7 +2178,7 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 
 // See comment on expandInstanceTemplateGuestAccelerators regarding why this
 // code is duplicated.
-func expandInstanceGuestAccelerators(d TerraformResourceData, config *Config) ([]*compute.AcceleratorConfig, error) {
+func expandInstanceGuestAccelerators(d TerraformResourceData, config *transport_tpg.Config) ([]*compute.AcceleratorConfig, error) {
 	configs, ok := d.GetOk("guest_accelerator")
 	if !ok {
 		return nil, nil
@@ -2266,7 +2267,7 @@ func desiredStatusDiff(_ context.Context, diff *schema.ResourceDiff, meta interf
 }
 
 func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -2308,7 +2309,7 @@ func resourceComputeInstanceDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeInstanceImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
@@ -2327,7 +2328,7 @@ func resourceComputeInstanceImportState(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func expandBootDisk(d *schema.ResourceData, config *Config, project string) (*compute.AttachedDisk, error) {
+func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, project string) (*compute.AttachedDisk, error) {
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return nil, err
@@ -2404,7 +2405,7 @@ func expandBootDisk(d *schema.ResourceData, config *Config, project string) (*co
 	return disk, nil
 }
 
-func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config *Config) []map[string]interface{} {
+func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config *transport_tpg.Config) []map[string]interface{} {
 	result := map[string]interface{}{
 		"auto_delete": disk.AutoDelete,
 		"device_name": disk.DeviceName,
@@ -2450,7 +2451,7 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config 
 	return []map[string]interface{}{result}
 }
 
-func expandScratchDisks(d *schema.ResourceData, config *Config, project string) ([]*compute.AttachedDisk, error) {
+func expandScratchDisks(d *schema.ResourceData, config *transport_tpg.Config, project string) ([]*compute.AttachedDisk, error) {
 	diskType, err := readDiskType(config, d, "local-ssd")
 	if err != nil {
 		return nil, fmt.Errorf("Error loading disk type 'local-ssd': %s", err)

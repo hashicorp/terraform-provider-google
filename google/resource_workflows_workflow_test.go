@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccWorkflowsWorkflow_Update(t *testing.T) {
@@ -118,7 +119,7 @@ func TestWorkflowsWorkflowStateUpgradeV0(t *testing.T) {
 			Expected: map[string]string{
 				"name": "my-workflow",
 			},
-			Meta: &Config{},
+			Meta: &transport_tpg.Config{},
 		},
 		"short name stays": {
 			Attributes: map[string]interface{}{
@@ -127,7 +128,7 @@ func TestWorkflowsWorkflowStateUpgradeV0(t *testing.T) {
 			Expected: map[string]string{
 				"name": "my-workflow",
 			},
-			Meta: &Config{},
+			Meta: &transport_tpg.Config{},
 		},
 	}
 	for tn, tc := range cases {

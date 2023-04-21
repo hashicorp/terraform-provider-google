@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceDatastreamConnectionProfile() *schema.Resource {
@@ -340,7 +341,7 @@ If this field is used then the 'client_certificate' and the
 }
 
 func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -463,7 +464,7 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 }
 
 func resourceDatastreamConnectionProfileRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -531,7 +532,7 @@ func resourceDatastreamConnectionProfileRead(d *schema.ResourceData, meta interf
 }
 
 func resourceDatastreamConnectionProfileUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -676,7 +677,7 @@ func resourceDatastreamConnectionProfileUpdate(d *schema.ResourceData, meta inte
 }
 
 func resourceDatastreamConnectionProfileDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -721,7 +722,7 @@ func resourceDatastreamConnectionProfileDelete(d *schema.ResourceData, meta inte
 }
 
 func resourceDatastreamConnectionProfileImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/connectionProfiles/(?P<connection_profile_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<connection_profile_id>[^/]+)",
@@ -740,19 +741,19 @@ func resourceDatastreamConnectionProfileImport(d *schema.ResourceData, meta inte
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDatastreamConnectionProfileName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfileLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfileDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfileOracleProfile(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileOracleProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -775,11 +776,11 @@ func flattenDatastreamConnectionProfileOracleProfile(v interface{}, d *schema.Re
 		flattenDatastreamConnectionProfileOracleProfileConnectionAttributes(original["connectionAttributes"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDatastreamConnectionProfileOracleProfileHostname(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileOracleProfileHostname(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfileOracleProfilePort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileOracleProfilePort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -796,23 +797,23 @@ func flattenDatastreamConnectionProfileOracleProfilePort(v interface{}, d *schem
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDatastreamConnectionProfileOracleProfileUsername(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileOracleProfileUsername(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfileOracleProfilePassword(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileOracleProfilePassword(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("oracle_profile.0.password")
 }
 
-func flattenDatastreamConnectionProfileOracleProfileDatabaseService(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileOracleProfileDatabaseService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfileOracleProfileConnectionAttributes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileOracleProfileConnectionAttributes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfileGcsProfile(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileGcsProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -827,15 +828,15 @@ func flattenDatastreamConnectionProfileGcsProfile(v interface{}, d *schema.Resou
 		flattenDatastreamConnectionProfileGcsProfileRootPath(original["rootPath"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDatastreamConnectionProfileGcsProfileBucket(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileGcsProfileBucket(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfileGcsProfileRootPath(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileGcsProfileRootPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfileMysqlProfile(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileMysqlProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -856,11 +857,11 @@ func flattenDatastreamConnectionProfileMysqlProfile(v interface{}, d *schema.Res
 		flattenDatastreamConnectionProfileMysqlProfileSslConfig(original["sslConfig"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDatastreamConnectionProfileMysqlProfileHostname(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileMysqlProfileHostname(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfileMysqlProfilePort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileMysqlProfilePort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -877,15 +878,15 @@ func flattenDatastreamConnectionProfileMysqlProfilePort(v interface{}, d *schema
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDatastreamConnectionProfileMysqlProfileUsername(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileMysqlProfileUsername(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfileMysqlProfilePassword(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileMysqlProfilePassword(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("mysql_profile.0.password")
 }
 
-func flattenDatastreamConnectionProfileMysqlProfileSslConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileMysqlProfileSslConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -909,31 +910,31 @@ func flattenDatastreamConnectionProfileMysqlProfileSslConfig(v interface{}, d *s
 	return []interface{}{transformed}
 }
 
-func flattenDatastreamConnectionProfileMysqlProfileSslConfigClientKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileMysqlProfileSslConfigClientKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("mysql_profile.0.ssl_config.0.client_key")
 }
 
-func flattenDatastreamConnectionProfileMysqlProfileSslConfigClientKeySet(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileMysqlProfileSslConfigClientKeySet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfileMysqlProfileSslConfigClientCertificate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileMysqlProfileSslConfigClientCertificate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("mysql_profile.0.ssl_config.0.client_certificate")
 }
 
-func flattenDatastreamConnectionProfileMysqlProfileSslConfigClientCertificateSet(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileMysqlProfileSslConfigClientCertificateSet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfileMysqlProfileSslConfigCaCertificate(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileMysqlProfileSslConfigCaCertificate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("mysql_profile.0.ssl_config.0.ca_certificate")
 }
 
-func flattenDatastreamConnectionProfileMysqlProfileSslConfigCaCertificateSet(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileMysqlProfileSslConfigCaCertificateSet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfileBigqueryProfile(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileBigqueryProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -941,7 +942,7 @@ func flattenDatastreamConnectionProfileBigqueryProfile(v interface{}, d *schema.
 	return []interface{}{transformed}
 }
 
-func flattenDatastreamConnectionProfilePostgresqlProfile(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfilePostgresqlProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -962,11 +963,11 @@ func flattenDatastreamConnectionProfilePostgresqlProfile(v interface{}, d *schem
 		flattenDatastreamConnectionProfilePostgresqlProfileDatabase(original["database"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDatastreamConnectionProfilePostgresqlProfileHostname(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfilePostgresqlProfileHostname(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfilePostgresqlProfilePort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfilePostgresqlProfilePort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -983,19 +984,19 @@ func flattenDatastreamConnectionProfilePostgresqlProfilePort(v interface{}, d *s
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDatastreamConnectionProfilePostgresqlProfileUsername(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfilePostgresqlProfileUsername(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfilePostgresqlProfilePassword(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfilePostgresqlProfilePassword(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("postgresql_profile.0.password")
 }
 
-func flattenDatastreamConnectionProfilePostgresqlProfileDatabase(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfilePostgresqlProfileDatabase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfileForwardSshConnectivity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileForwardSshConnectivity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1016,15 +1017,15 @@ func flattenDatastreamConnectionProfileForwardSshConnectivity(v interface{}, d *
 		flattenDatastreamConnectionProfileForwardSshConnectivityPrivateKey(original["privateKey"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDatastreamConnectionProfileForwardSshConnectivityHostname(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileForwardSshConnectivityHostname(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfileForwardSshConnectivityUsername(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileForwardSshConnectivityUsername(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDatastreamConnectionProfileForwardSshConnectivityPort(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileForwardSshConnectivityPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -1041,15 +1042,15 @@ func flattenDatastreamConnectionProfileForwardSshConnectivityPort(v interface{},
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDatastreamConnectionProfileForwardSshConnectivityPassword(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileForwardSshConnectivityPassword(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("forward_ssh_connectivity.0.password")
 }
 
-func flattenDatastreamConnectionProfileForwardSshConnectivityPrivateKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfileForwardSshConnectivityPrivateKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("forward_ssh_connectivity.0.private_key")
 }
 
-func flattenDatastreamConnectionProfilePrivateConnectivity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfilePrivateConnectivity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1062,11 +1063,11 @@ func flattenDatastreamConnectionProfilePrivateConnectivity(v interface{}, d *sch
 		flattenDatastreamConnectionProfilePrivateConnectivityPrivateConnection(original["privateConnection"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDatastreamConnectionProfilePrivateConnectivityPrivateConnection(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDatastreamConnectionProfilePrivateConnectivityPrivateConnection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandDatastreamConnectionProfileLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandDatastreamConnectionProfileLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -1077,11 +1078,11 @@ func expandDatastreamConnectionProfileLabels(v interface{}, d TerraformResourceD
 	return m, nil
 }
 
-func expandDatastreamConnectionProfileDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileOracleProfile(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileOracleProfile(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1135,27 +1136,27 @@ func expandDatastreamConnectionProfileOracleProfile(v interface{}, d TerraformRe
 	return transformed, nil
 }
 
-func expandDatastreamConnectionProfileOracleProfileHostname(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileOracleProfileHostname(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileOracleProfilePort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileOracleProfilePort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileOracleProfileUsername(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileOracleProfileUsername(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileOracleProfilePassword(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileOracleProfilePassword(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileOracleProfileDatabaseService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileOracleProfileDatabaseService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileOracleProfileConnectionAttributes(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandDatastreamConnectionProfileOracleProfileConnectionAttributes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -1166,7 +1167,7 @@ func expandDatastreamConnectionProfileOracleProfileConnectionAttributes(v interf
 	return m, nil
 }
 
-func expandDatastreamConnectionProfileGcsProfile(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileGcsProfile(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1192,15 +1193,15 @@ func expandDatastreamConnectionProfileGcsProfile(v interface{}, d TerraformResou
 	return transformed, nil
 }
 
-func expandDatastreamConnectionProfileGcsProfileBucket(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileGcsProfileBucket(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileGcsProfileRootPath(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileGcsProfileRootPath(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfile(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfile(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1247,23 +1248,23 @@ func expandDatastreamConnectionProfileMysqlProfile(v interface{}, d TerraformRes
 	return transformed, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileHostname(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileHostname(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfilePort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfilePort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileUsername(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileUsername(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfilePassword(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfilePassword(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileSslConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileSslConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1317,31 +1318,31 @@ func expandDatastreamConnectionProfileMysqlProfileSslConfig(v interface{}, d Ter
 	return transformed, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileSslConfigClientKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileSslConfigClientKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileSslConfigClientKeySet(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileSslConfigClientKeySet(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileSslConfigClientCertificate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileSslConfigClientCertificate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileSslConfigClientCertificateSet(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileSslConfigClientCertificateSet(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileSslConfigCaCertificate(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileSslConfigCaCertificate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileSslConfigCaCertificateSet(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileSslConfigCaCertificateSet(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileBigqueryProfile(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileBigqueryProfile(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1356,7 +1357,7 @@ func expandDatastreamConnectionProfileBigqueryProfile(v interface{}, d Terraform
 	return transformed, nil
 }
 
-func expandDatastreamConnectionProfilePostgresqlProfile(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfilePostgresqlProfile(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1403,27 +1404,27 @@ func expandDatastreamConnectionProfilePostgresqlProfile(v interface{}, d Terrafo
 	return transformed, nil
 }
 
-func expandDatastreamConnectionProfilePostgresqlProfileHostname(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfilePostgresqlProfileHostname(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfilePostgresqlProfilePort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfilePostgresqlProfilePort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfilePostgresqlProfileUsername(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfilePostgresqlProfileUsername(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfilePostgresqlProfilePassword(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfilePostgresqlProfilePassword(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfilePostgresqlProfileDatabase(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfilePostgresqlProfileDatabase(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileForwardSshConnectivity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileForwardSshConnectivity(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1470,27 +1471,27 @@ func expandDatastreamConnectionProfileForwardSshConnectivity(v interface{}, d Te
 	return transformed, nil
 }
 
-func expandDatastreamConnectionProfileForwardSshConnectivityHostname(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileForwardSshConnectivityHostname(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileForwardSshConnectivityUsername(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileForwardSshConnectivityUsername(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileForwardSshConnectivityPort(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileForwardSshConnectivityPort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileForwardSshConnectivityPassword(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileForwardSshConnectivityPassword(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileForwardSshConnectivityPrivateKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfileForwardSshConnectivityPrivateKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfilePrivateConnectivity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfilePrivateConnectivity(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1509,6 +1510,6 @@ func expandDatastreamConnectionProfilePrivateConnectivity(v interface{}, d Terra
 	return transformed, nil
 }
 
-func expandDatastreamConnectionProfilePrivateConnectivityPrivateConnection(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDatastreamConnectionProfilePrivateConnectivityPrivateConnection(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

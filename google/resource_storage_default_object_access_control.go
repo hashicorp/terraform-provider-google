@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceStorageDefaultObjectAccessControl() *schema.Resource {
@@ -117,7 +118,7 @@ func ResourceStorageDefaultObjectAccessControl() *schema.Resource {
 }
 
 func resourceStorageDefaultObjectAccessControlCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -187,7 +188,7 @@ func resourceStorageDefaultObjectAccessControlCreate(d *schema.ResourceData, met
 }
 
 func resourceStorageDefaultObjectAccessControlRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -239,7 +240,7 @@ func resourceStorageDefaultObjectAccessControlRead(d *schema.ResourceData, meta 
 }
 
 func resourceStorageDefaultObjectAccessControlUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -304,7 +305,7 @@ func resourceStorageDefaultObjectAccessControlUpdate(d *schema.ResourceData, met
 }
 
 func resourceStorageDefaultObjectAccessControlDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -342,7 +343,7 @@ func resourceStorageDefaultObjectAccessControlDelete(d *schema.ResourceData, met
 }
 
 func resourceStorageDefaultObjectAccessControlImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"(?P<bucket>[^/]+)/(?P<entity>[^/]+)",
 	}, d, config); err != nil {
@@ -359,23 +360,23 @@ func resourceStorageDefaultObjectAccessControlImport(d *schema.ResourceData, met
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenStorageDefaultObjectAccessControlDomain(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageDefaultObjectAccessControlDomain(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenStorageDefaultObjectAccessControlEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageDefaultObjectAccessControlEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenStorageDefaultObjectAccessControlEntity(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageDefaultObjectAccessControlEntity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenStorageDefaultObjectAccessControlEntityId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageDefaultObjectAccessControlEntityId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenStorageDefaultObjectAccessControlGeneration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageDefaultObjectAccessControlGeneration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -392,11 +393,11 @@ func flattenStorageDefaultObjectAccessControlGeneration(v interface{}, d *schema
 	return v // let terraform core handle it otherwise
 }
 
-func flattenStorageDefaultObjectAccessControlObject(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageDefaultObjectAccessControlObject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenStorageDefaultObjectAccessControlProjectTeam(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageDefaultObjectAccessControlProjectTeam(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -411,30 +412,30 @@ func flattenStorageDefaultObjectAccessControlProjectTeam(v interface{}, d *schem
 		flattenStorageDefaultObjectAccessControlProjectTeamTeam(original["team"], d, config)
 	return []interface{}{transformed}
 }
-func flattenStorageDefaultObjectAccessControlProjectTeamProjectNumber(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageDefaultObjectAccessControlProjectTeamProjectNumber(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenStorageDefaultObjectAccessControlProjectTeamTeam(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageDefaultObjectAccessControlProjectTeamTeam(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenStorageDefaultObjectAccessControlRole(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenStorageDefaultObjectAccessControlRole(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandStorageDefaultObjectAccessControlBucket(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandStorageDefaultObjectAccessControlBucket(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandStorageDefaultObjectAccessControlEntity(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandStorageDefaultObjectAccessControlEntity(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandStorageDefaultObjectAccessControlObject(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandStorageDefaultObjectAccessControlObject(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandStorageDefaultObjectAccessControlRole(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandStorageDefaultObjectAccessControlRole(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

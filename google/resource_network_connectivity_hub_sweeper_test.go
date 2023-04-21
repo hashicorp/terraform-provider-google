@@ -22,6 +22,7 @@ import (
 
 	networkconnectivity "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/networkconnectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func init() {
@@ -58,7 +59,7 @@ func testSweepNetworkConnectivityHub(region string) error {
 		"billing_account": billingId,
 	}
 
-	client := NewDCLNetworkConnectivityClient(config, config.UserAgent, "", 0)
+	client := transport_tpg.NewDCLNetworkConnectivityClient(config, config.UserAgent, "", 0)
 	err = client.DeleteAllHub(context.Background(), d["project"], isDeletableNetworkConnectivityHub)
 	if err != nil {
 		return err

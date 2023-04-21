@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // customizeDiff func for additional checks on google_spanner_database properties:
@@ -220,7 +221,7 @@ in Terraform state, a 'terraform destroy' or 'terraform apply' that would delete
 }
 
 func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -406,7 +407,7 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -480,7 +481,7 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceSpannerDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -563,7 +564,7 @@ func resourceSpannerDatabaseUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceSpannerDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -611,7 +612,7 @@ func resourceSpannerDatabaseDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceSpannerDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
 		"instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
@@ -636,22 +637,22 @@ func resourceSpannerDatabaseImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSpannerDatabaseName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSpannerDatabaseName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenSpannerDatabaseVersionRetentionPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSpannerDatabaseVersionRetentionPeriod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSpannerDatabaseState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSpannerDatabaseState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSpannerDatabaseEncryptionConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSpannerDatabaseEncryptionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -664,34 +665,34 @@ func flattenSpannerDatabaseEncryptionConfig(v interface{}, d *schema.ResourceDat
 		flattenSpannerDatabaseEncryptionConfigKmsKeyName(original["kmsKeyName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenSpannerDatabaseEncryptionConfigKmsKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSpannerDatabaseEncryptionConfigKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSpannerDatabaseDatabaseDialect(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSpannerDatabaseDatabaseDialect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSpannerDatabaseInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSpannerDatabaseInstance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func expandSpannerDatabaseName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSpannerDatabaseName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSpannerDatabaseVersionRetentionPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSpannerDatabaseVersionRetentionPeriod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSpannerDatabaseDdl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSpannerDatabaseDdl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSpannerDatabaseEncryptionConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSpannerDatabaseEncryptionConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -710,15 +711,15 @@ func expandSpannerDatabaseEncryptionConfig(v interface{}, d TerraformResourceDat
 	return transformed, nil
 }
 
-func expandSpannerDatabaseEncryptionConfigKmsKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSpannerDatabaseEncryptionConfigKmsKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSpannerDatabaseDatabaseDialect(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSpannerDatabaseDatabaseDialect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSpannerDatabaseInstance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSpannerDatabaseInstance(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("instances", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for instance: %s", err)
@@ -777,7 +778,7 @@ func resourceSpannerDatabaseUpdateEncoder(d *schema.ResourceData, meta interface
 }
 
 func resourceSpannerDatabaseDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	d.SetId(res["name"].(string))
 	if err := ParseImportId([]string{"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err

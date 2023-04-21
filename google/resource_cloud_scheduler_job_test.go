@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestCloudScheduler_FlattenHttpHeaders(t *testing.T) {
@@ -88,7 +89,7 @@ func TestCloudScheduler_FlattenHttpHeaders(t *testing.T) {
 
 	for _, c := range cases {
 		d := &schema.ResourceData{}
-		output := flattenCloudSchedulerJobAppEngineHttpTargetHeaders(c.Input, d, &Config{})
+		output := flattenCloudSchedulerJobAppEngineHttpTargetHeaders(c.Input, d, &transport_tpg.Config{})
 		if !reflect.DeepEqual(output, c.Output) {
 			t.Fatalf("Error matching output and expected: %#v vs %#v", output, c.Output)
 		}

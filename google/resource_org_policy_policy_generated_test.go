@@ -22,6 +22,7 @@ import (
 	orgpolicy "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/orgpolicy"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"strings"
 	"testing"
 )
@@ -368,7 +369,7 @@ func testAccCheckOrgPolicyPolicyDestroyProducer(t *testing.T) func(s *terraform.
 				Parent: dcl.String(rs.Primary.Attributes["parent"]),
 			}
 
-			client := NewDCLOrgPolicyClient(config, config.UserAgent, billingProject, 0)
+			client := transport_tpg.NewDCLOrgPolicyClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetPolicy(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_org_policy_policy still exists %v", obj)

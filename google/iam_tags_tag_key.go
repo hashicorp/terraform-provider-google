@@ -20,6 +20,8 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 var TagsTagKeyIamSchema = map[string]*schema.Schema{
@@ -34,10 +36,10 @@ var TagsTagKeyIamSchema = map[string]*schema.Schema{
 type TagsTagKeyIamUpdater struct {
 	tagKey string
 	d      TerraformResourceData
-	Config *Config
+	Config *transport_tpg.Config
 }
 
-func TagsTagKeyIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
+func TagsTagKeyIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	if v, ok := d.GetOk("tag_key"); ok {
@@ -67,7 +69,7 @@ func TagsTagKeyIamUpdaterProducer(d TerraformResourceData, config *Config) (Reso
 	return u, nil
 }
 
-func TagsTagKeyIdParseFunc(d *schema.ResourceData, config *Config) error {
+func TagsTagKeyIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
 	m, err := getImportIdQualifiers([]string{"tagKeys/(?P<tag_key>[^/]+)", "(?P<tag_key>[^/]+)"}, d, config, d.Id())

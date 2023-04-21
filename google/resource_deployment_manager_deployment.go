@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func customDiffDeploymentManagerDeployment(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
@@ -218,7 +219,7 @@ func deploymentmanagerDeploymentLabelsSchema() *schema.Resource {
 }
 
 func resourceDeploymentManagerDeploymentCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -298,7 +299,7 @@ func resourceDeploymentManagerDeploymentCreate(d *schema.ResourceData, meta inte
 }
 
 func resourceDeploymentManagerDeploymentRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -354,7 +355,7 @@ func resourceDeploymentManagerDeploymentRead(d *schema.ResourceData, meta interf
 }
 
 func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -484,7 +485,7 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 }
 
 func resourceDeploymentManagerDeploymentDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -529,7 +530,7 @@ func resourceDeploymentManagerDeploymentDelete(d *schema.ResourceData, meta inte
 }
 
 func resourceDeploymentManagerDeploymentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/deployments/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -548,15 +549,15 @@ func resourceDeploymentManagerDeploymentImport(d *schema.ResourceData, meta inte
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDeploymentManagerDeploymentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDeploymentManagerDeploymentName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDeploymentManagerDeploymentDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDeploymentManagerDeploymentLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -575,35 +576,35 @@ func flattenDeploymentManagerDeploymentLabels(v interface{}, d *schema.ResourceD
 	}
 	return transformed
 }
-func flattenDeploymentManagerDeploymentLabelsKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDeploymentManagerDeploymentLabelsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentLabelsValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDeploymentManagerDeploymentLabelsValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentDeploymentId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDeploymentManagerDeploymentDeploymentId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentManifest(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDeploymentManagerDeploymentManifest(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDeploymentManagerDeploymentSelfLink(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDeploymentManagerDeploymentSelfLink(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandDeploymentManagerDeploymentName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDeploymentManagerDeploymentName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDeploymentManagerDeploymentDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDeploymentManagerDeploymentDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDeploymentManagerDeploymentLabels(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDeploymentManagerDeploymentLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -633,15 +634,15 @@ func expandDeploymentManagerDeploymentLabels(v interface{}, d TerraformResourceD
 	return req, nil
 }
 
-func expandDeploymentManagerDeploymentLabelsKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDeploymentManagerDeploymentLabelsKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDeploymentManagerDeploymentLabelsValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDeploymentManagerDeploymentLabelsValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDeploymentManagerDeploymentTarget(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDeploymentManagerDeploymentTarget(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -667,7 +668,7 @@ func expandDeploymentManagerDeploymentTarget(v interface{}, d TerraformResourceD
 	return transformed, nil
 }
 
-func expandDeploymentManagerDeploymentTargetConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDeploymentManagerDeploymentTargetConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -686,11 +687,11 @@ func expandDeploymentManagerDeploymentTargetConfig(v interface{}, d TerraformRes
 	return transformed, nil
 }
 
-func expandDeploymentManagerDeploymentTargetConfigContent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDeploymentManagerDeploymentTargetConfigContent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDeploymentManagerDeploymentTargetImports(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDeploymentManagerDeploymentTargetImports(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -719,11 +720,11 @@ func expandDeploymentManagerDeploymentTargetImports(v interface{}, d TerraformRe
 	return req, nil
 }
 
-func expandDeploymentManagerDeploymentTargetImportsContent(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDeploymentManagerDeploymentTargetImportsContent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDeploymentManagerDeploymentTargetImportsName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDeploymentManagerDeploymentTargetImportsName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

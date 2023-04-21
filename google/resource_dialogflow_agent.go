@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceDialogflowAgent() *schema.Resource {
@@ -147,7 +148,7 @@ the [avatarUri] field can be used.`,
 }
 
 func resourceDialogflowAgentCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -258,7 +259,7 @@ func resourceDialogflowAgentCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceDialogflowAgentRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -326,7 +327,7 @@ func resourceDialogflowAgentRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceDialogflowAgentUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -432,7 +433,7 @@ func resourceDialogflowAgentUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceDialogflowAgentDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -469,7 +470,7 @@ func resourceDialogflowAgentDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceDialogflowAgentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"(?P<project>[^/]+)",
 	}, d, config); err != nil {
@@ -486,86 +487,86 @@ func resourceDialogflowAgentImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDialogflowAgentDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowAgentDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentDefaultLanguageCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowAgentDefaultLanguageCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentSupportedLanguageCodes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowAgentSupportedLanguageCodes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentTimeZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowAgentTimeZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowAgentDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentAvatarUriBackend(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowAgentAvatarUriBackend(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentEnableLogging(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowAgentEnableLogging(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentMatchMode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowAgentMatchMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentClassificationThreshold(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowAgentClassificationThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDialogflowAgentApiVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDialogflowAgentApiVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandDialogflowAgentDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowAgentDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentDefaultLanguageCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowAgentDefaultLanguageCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentSupportedLanguageCodes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowAgentSupportedLanguageCodes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentTimeZone(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowAgentTimeZone(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowAgentDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentAvatarUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowAgentAvatarUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentEnableLogging(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowAgentEnableLogging(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentMatchMode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowAgentMatchMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentClassificationThreshold(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowAgentClassificationThreshold(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentApiVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowAgentApiVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentTier(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDialogflowAgentTier(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

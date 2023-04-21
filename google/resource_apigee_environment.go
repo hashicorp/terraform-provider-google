@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceApigeeEnvironment() *schema.Resource {
@@ -127,7 +128,7 @@ all instances.`,
 }
 
 func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -226,7 +227,7 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceApigeeEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -272,7 +273,7 @@ func resourceApigeeEnvironmentRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -331,7 +332,7 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceApigeeEnvironmentDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -370,7 +371,7 @@ func resourceApigeeEnvironmentDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceApigeeEnvironmentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -414,27 +415,27 @@ func resourceApigeeEnvironmentImport(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenApigeeEnvironmentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEnvironmentName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvironmentDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEnvironmentDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvironmentDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEnvironmentDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvironmentDeploymentType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEnvironmentDeploymentType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvironmentApiProxyType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEnvironmentApiProxyType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvironmentNodeConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEnvironmentNodeConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -451,39 +452,39 @@ func flattenApigeeEnvironmentNodeConfig(v interface{}, d *schema.ResourceData, c
 		flattenApigeeEnvironmentNodeConfigCurrentAggregateNodeCount(original["currentAggregateNodeCount"], d, config)
 	return []interface{}{transformed}
 }
-func flattenApigeeEnvironmentNodeConfigMinNodeCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEnvironmentNodeConfigMinNodeCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvironmentNodeConfigMaxNodeCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEnvironmentNodeConfigMaxNodeCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeEnvironmentNodeConfigCurrentAggregateNodeCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeEnvironmentNodeConfigCurrentAggregateNodeCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandApigeeEnvironmentName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEnvironmentName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvironmentDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEnvironmentDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvironmentDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEnvironmentDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvironmentDeploymentType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEnvironmentDeploymentType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvironmentApiProxyType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEnvironmentApiProxyType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvironmentNodeConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEnvironmentNodeConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -516,14 +517,14 @@ func expandApigeeEnvironmentNodeConfig(v interface{}, d TerraformResourceData, c
 	return transformed, nil
 }
 
-func expandApigeeEnvironmentNodeConfigMinNodeCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEnvironmentNodeConfigMinNodeCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvironmentNodeConfigMaxNodeCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEnvironmentNodeConfigMaxNodeCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvironmentNodeConfigCurrentAggregateNodeCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeEnvironmentNodeConfigCurrentAggregateNodeCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func resourceSourceRepoRepositoryPubSubConfigsHash(v interface{}) int {
@@ -121,7 +122,7 @@ If unspecified, it defaults to the compute engine default service account.`,
 }
 
 func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -184,7 +185,7 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -234,7 +235,7 @@ func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceSourceRepoRepositoryUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -296,7 +297,7 @@ func resourceSourceRepoRepositoryUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceSourceRepoRepositoryDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -333,7 +334,7 @@ func resourceSourceRepoRepositoryDelete(d *schema.ResourceData, meta interface{}
 }
 
 func resourceSourceRepoRepositoryImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/repos/(?P<name>.+)",
 		"(?P<name>.+)",
@@ -351,7 +352,7 @@ func resourceSourceRepoRepositoryImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSourceRepoRepositoryName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSourceRepoRepositoryName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -361,11 +362,11 @@ func flattenSourceRepoRepositoryName(v interface{}, d *schema.ResourceData, conf
 	return parts[3]
 }
 
-func flattenSourceRepoRepositoryUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSourceRepoRepositoryUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSourceRepoRepositorySize(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSourceRepoRepositorySize(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -382,7 +383,7 @@ func flattenSourceRepoRepositorySize(v interface{}, d *schema.ResourceData, conf
 	return v // let terraform core handle it otherwise
 }
 
-func flattenSourceRepoRepositoryPubsubConfigs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSourceRepoRepositoryPubsubConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -398,19 +399,19 @@ func flattenSourceRepoRepositoryPubsubConfigs(v interface{}, d *schema.ResourceD
 	}
 	return transformed
 }
-func flattenSourceRepoRepositoryPubsubConfigsMessageFormat(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSourceRepoRepositoryPubsubConfigsMessageFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSourceRepoRepositoryPubsubConfigsServiceAccountEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSourceRepoRepositoryPubsubConfigsServiceAccountEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandSourceRepoRepositoryName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSourceRepoRepositoryName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return ReplaceVars(d, config, "projects/{{project}}/repos/{{name}}")
 }
 
-func expandSourceRepoRepositoryPubsubConfigs(v interface{}, d TerraformResourceData, config *Config) (map[string]interface{}, error) {
+func expandSourceRepoRepositoryPubsubConfigs(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
 	if v == nil {
 		return map[string]interface{}{}, nil
 	}
@@ -442,11 +443,11 @@ func expandSourceRepoRepositoryPubsubConfigs(v interface{}, d TerraformResourceD
 	return m, nil
 }
 
-func expandSourceRepoRepositoryPubsubConfigsMessageFormat(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSourceRepoRepositoryPubsubConfigsMessageFormat(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSourceRepoRepositoryPubsubConfigsServiceAccountEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSourceRepoRepositoryPubsubConfigsServiceAccountEmail(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

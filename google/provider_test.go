@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"io/ioutil"
 	"regexp"
 	"testing"
@@ -276,7 +277,7 @@ func TestProvider_providerConfigure_credentials(t *testing.T) {
 
 			v := d.Get("credentials")
 			val := v.(string)
-			config := c.(*Config) // Should be non-nil value, as test cases reaching this point experienced no errors
+			config := c.(*transport_tpg.Config) // Should be non-nil value, as test cases reaching this point experienced no errors
 
 			if v != tc.ExpectedSchemaValue {
 				t.Fatalf("expected credentials value set in provider data to be %s, got %s", tc.ExpectedSchemaValue, val)
@@ -368,7 +369,7 @@ func TestProvider_providerConfigure_accessToken(t *testing.T) {
 
 			v := d.Get("access_token")
 			val := v.(string)
-			config := c.(*Config) // Should be non-nil value, as test cases reaching this point experienced no errors
+			config := c.(*transport_tpg.Config) // Should be non-nil value, as test cases reaching this point experienced no errors
 
 			if val != tc.ExpectedSchemaValue {
 				t.Fatalf("expected access_token value set in provider data to be %s, got %s", tc.ExpectedSchemaValue, val)
@@ -449,7 +450,7 @@ func TestProvider_providerConfigure_impersonateServiceAccount(t *testing.T) {
 
 			v := d.Get("impersonate_service_account")
 			val := v.(string)
-			config := c.(*Config) // Should be non-nil value, as test cases reaching this point experienced no errors
+			config := c.(*transport_tpg.Config) // Should be non-nil value, as test cases reaching this point experienced no errors
 
 			if val != tc.ExpectedValue {
 				t.Fatalf("expected impersonate_service_account value set in provider data to be %s, got %s", tc.ExpectedValue, val)
@@ -525,7 +526,7 @@ func TestProvider_providerConfigure_impersonateServiceAccountDelegates(t *testin
 
 			v := d.Get("impersonate_service_account_delegates")
 			val := v.([]interface{})
-			config := c.(*Config) // Should be non-nil value, as test cases reaching this point experienced no errors
+			config := c.(*transport_tpg.Config) // Should be non-nil value, as test cases reaching this point experienced no errors
 
 			if len(val) != len(tc.ExpectedValue) {
 				t.Fatalf("expected impersonate_service_account_delegates value set in provider data to be %#v, got %#v", tc.ExpectedValue, val)
@@ -658,7 +659,7 @@ func TestProvider_providerConfigure_project(t *testing.T) {
 
 			v := d.Get("project")
 			val := v.(string)
-			config := c.(*Config) // Should be non-nil value, as test cases reaching this point experienced no errors
+			config := c.(*transport_tpg.Config) // Should be non-nil value, as test cases reaching this point experienced no errors
 
 			if val != tc.ExpectedValue {
 				t.Fatalf("expected project value set in provider data to be %s, got %s", tc.ExpectedValue, val)

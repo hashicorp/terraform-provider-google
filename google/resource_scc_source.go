@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceSecurityCenterSource() *schema.Resource {
@@ -78,7 +79,7 @@ lives in.`,
 }
 
 func resourceSecurityCenterSourceCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -150,7 +151,7 @@ func resourceSecurityCenterSourceCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceSecurityCenterSourceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -187,7 +188,7 @@ func resourceSecurityCenterSourceRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceSecurityCenterSourceUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -257,7 +258,7 @@ func resourceSecurityCenterSourceDelete(d *schema.ResourceData, meta interface{}
 }
 
 func resourceSecurityCenterSourceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
@@ -279,22 +280,22 @@ func resourceSecurityCenterSourceImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSecurityCenterSourceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecurityCenterSourceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterSourceDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecurityCenterSourceDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterSourceDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenSecurityCenterSourceDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandSecurityCenterSourceDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSecurityCenterSourceDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSecurityCenterSourceDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandSecurityCenterSourceDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // Both oidc and oauth headers cannot be set
@@ -442,7 +443,7 @@ The value of this field must be a time zone name from the tz database.`,
 }
 
 func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -574,7 +575,7 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -653,7 +654,7 @@ func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceCloudSchedulerJobUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -777,7 +778,7 @@ func resourceCloudSchedulerJobUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceCloudSchedulerJobDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -814,7 +815,7 @@ func resourceCloudSchedulerJobDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceCloudSchedulerJobImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/jobs/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -834,30 +835,30 @@ func resourceCloudSchedulerJobImport(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenCloudSchedulerJobName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenCloudSchedulerJobDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobSchedule(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobSchedule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobTimeZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobTimeZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobPaused(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobPaused(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	state := d.Get("state")
 	if state == "PAUSED" {
 		return true
@@ -868,11 +869,11 @@ func flattenCloudSchedulerJobPaused(v interface{}, d *schema.ResourceData, confi
 	return false // Job has an error state that's not paused or enabled
 }
 
-func flattenCloudSchedulerJobAttemptDeadline(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobAttemptDeadline(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobRetryConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobRetryConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -893,7 +894,7 @@ func flattenCloudSchedulerJobRetryConfig(v interface{}, d *schema.ResourceData, 
 		flattenCloudSchedulerJobRetryConfigMaxDoublings(original["maxDoublings"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudSchedulerJobRetryConfigRetryCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobRetryConfigRetryCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -910,19 +911,19 @@ func flattenCloudSchedulerJobRetryConfigRetryCount(v interface{}, d *schema.Reso
 	return v // let terraform core handle it otherwise
 }
 
-func flattenCloudSchedulerJobRetryConfigMaxRetryDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobRetryConfigMaxRetryDuration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobRetryConfigMinBackoffDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobRetryConfigMinBackoffDuration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobRetryConfigMaxBackoffDuration(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobRetryConfigMaxBackoffDuration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobRetryConfigMaxDoublings(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobRetryConfigMaxDoublings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -939,7 +940,7 @@ func flattenCloudSchedulerJobRetryConfigMaxDoublings(v interface{}, d *schema.Re
 	return v // let terraform core handle it otherwise
 }
 
-func flattenCloudSchedulerJobPubsubTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobPubsubTarget(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -956,19 +957,19 @@ func flattenCloudSchedulerJobPubsubTarget(v interface{}, d *schema.ResourceData,
 		flattenCloudSchedulerJobPubsubTargetAttributes(original["attributes"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudSchedulerJobPubsubTargetTopicName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobPubsubTargetTopicName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobPubsubTargetData(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobPubsubTargetData(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobPubsubTargetAttributes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobPubsubTargetAttributes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobAppEngineHttpTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobAppEngineHttpTarget(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -989,12 +990,12 @@ func flattenCloudSchedulerJobAppEngineHttpTarget(v interface{}, d *schema.Resour
 		flattenCloudSchedulerJobAppEngineHttpTargetHeaders(original["headers"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudSchedulerJobAppEngineHttpTargetHttpMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobAppEngineHttpTargetHttpMethod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
 // An `appEngineRouting` in API response is useless, so we set config values rather than api response to state.
-func flattenCloudSchedulerJobAppEngineHttpTargetAppEngineRouting(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobAppEngineHttpTargetAppEngineRouting(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1012,15 +1013,15 @@ func flattenCloudSchedulerJobAppEngineHttpTargetAppEngineRouting(v interface{}, 
 	return []interface{}{transformed}
 }
 
-func flattenCloudSchedulerJobAppEngineHttpTargetRelativeUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobAppEngineHttpTargetRelativeUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobAppEngineHttpTargetBody(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobAppEngineHttpTargetBody(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobAppEngineHttpTargetHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobAppEngineHttpTargetHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	var headers = v.(map[string]interface{})
 	if v, ok := headers["User-Agent"]; ok {
 		if v.(string) == "AppEngine-Google; (+http://code.google.com/appengine)" {
@@ -1045,7 +1046,7 @@ func flattenCloudSchedulerJobAppEngineHttpTargetHeaders(v interface{}, d *schema
 	return headers
 }
 
-func flattenCloudSchedulerJobHttpTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobHttpTarget(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1068,19 +1069,19 @@ func flattenCloudSchedulerJobHttpTarget(v interface{}, d *schema.ResourceData, c
 		flattenCloudSchedulerJobHttpTargetOidcToken(original["oidcToken"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudSchedulerJobHttpTargetUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobHttpTargetUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobHttpTargetHttpMethod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobHttpTargetHttpMethod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobHttpTargetBody(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobHttpTargetBody(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobHttpTargetHeaders(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobHttpTargetHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	var headers = v.(map[string]interface{})
 	if v, ok := headers["User-Agent"]; ok {
 		if v.(string) == "AppEngine-Google; (+http://code.google.com/appengine)" {
@@ -1105,7 +1106,7 @@ func flattenCloudSchedulerJobHttpTargetHeaders(v interface{}, d *schema.Resource
 	return headers
 }
 
-func flattenCloudSchedulerJobHttpTargetOauthToken(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobHttpTargetOauthToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1120,15 +1121,15 @@ func flattenCloudSchedulerJobHttpTargetOauthToken(v interface{}, d *schema.Resou
 		flattenCloudSchedulerJobHttpTargetOauthTokenScope(original["scope"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudSchedulerJobHttpTargetOauthTokenServiceAccountEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobHttpTargetOauthTokenServiceAccountEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobHttpTargetOauthTokenScope(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobHttpTargetOauthTokenScope(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobHttpTargetOidcToken(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobHttpTargetOidcToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1143,39 +1144,39 @@ func flattenCloudSchedulerJobHttpTargetOidcToken(v interface{}, d *schema.Resour
 		flattenCloudSchedulerJobHttpTargetOidcTokenAudience(original["audience"], d, config)
 	return []interface{}{transformed}
 }
-func flattenCloudSchedulerJobHttpTargetOidcTokenServiceAccountEmail(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobHttpTargetOidcTokenServiceAccountEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenCloudSchedulerJobHttpTargetOidcTokenAudience(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenCloudSchedulerJobHttpTargetOidcTokenAudience(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandCloudSchedulerJobName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 }
 
-func expandCloudSchedulerJobDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobSchedule(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobSchedule(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobTimeZone(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobTimeZone(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobPaused(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobPaused(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobAttemptDeadline(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobAttemptDeadline(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobRetryConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobRetryConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1222,27 +1223,27 @@ func expandCloudSchedulerJobRetryConfig(v interface{}, d TerraformResourceData, 
 	return transformed, nil
 }
 
-func expandCloudSchedulerJobRetryConfigRetryCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobRetryConfigRetryCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobRetryConfigMaxRetryDuration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobRetryConfigMaxRetryDuration(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobRetryConfigMinBackoffDuration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobRetryConfigMinBackoffDuration(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobRetryConfigMaxBackoffDuration(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobRetryConfigMaxBackoffDuration(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobRetryConfigMaxDoublings(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobRetryConfigMaxDoublings(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobPubsubTarget(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobPubsubTarget(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1275,15 +1276,15 @@ func expandCloudSchedulerJobPubsubTarget(v interface{}, d TerraformResourceData,
 	return transformed, nil
 }
 
-func expandCloudSchedulerJobPubsubTargetTopicName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobPubsubTargetTopicName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobPubsubTargetData(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobPubsubTargetData(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobPubsubTargetAttributes(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandCloudSchedulerJobPubsubTargetAttributes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -1294,7 +1295,7 @@ func expandCloudSchedulerJobPubsubTargetAttributes(v interface{}, d TerraformRes
 	return m, nil
 }
 
-func expandCloudSchedulerJobAppEngineHttpTarget(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobAppEngineHttpTarget(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1341,11 +1342,11 @@ func expandCloudSchedulerJobAppEngineHttpTarget(v interface{}, d TerraformResour
 	return transformed, nil
 }
 
-func expandCloudSchedulerJobAppEngineHttpTargetHttpMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobAppEngineHttpTargetHttpMethod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobAppEngineHttpTargetAppEngineRouting(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobAppEngineHttpTargetAppEngineRouting(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1378,27 +1379,27 @@ func expandCloudSchedulerJobAppEngineHttpTargetAppEngineRouting(v interface{}, d
 	return transformed, nil
 }
 
-func expandCloudSchedulerJobAppEngineHttpTargetAppEngineRoutingService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobAppEngineHttpTargetAppEngineRoutingService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobAppEngineHttpTargetAppEngineRoutingVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobAppEngineHttpTargetAppEngineRoutingVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobAppEngineHttpTargetAppEngineRoutingInstance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobAppEngineHttpTargetAppEngineRoutingInstance(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobAppEngineHttpTargetRelativeUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobAppEngineHttpTargetRelativeUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobAppEngineHttpTargetBody(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobAppEngineHttpTargetBody(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobAppEngineHttpTargetHeaders(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandCloudSchedulerJobAppEngineHttpTargetHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -1409,7 +1410,7 @@ func expandCloudSchedulerJobAppEngineHttpTargetHeaders(v interface{}, d Terrafor
 	return m, nil
 }
 
-func expandCloudSchedulerJobHttpTarget(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobHttpTarget(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1463,19 +1464,19 @@ func expandCloudSchedulerJobHttpTarget(v interface{}, d TerraformResourceData, c
 	return transformed, nil
 }
 
-func expandCloudSchedulerJobHttpTargetUri(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobHttpTargetUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobHttpTargetHttpMethod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobHttpTargetHttpMethod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobHttpTargetBody(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobHttpTargetBody(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobHttpTargetHeaders(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandCloudSchedulerJobHttpTargetHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -1486,7 +1487,7 @@ func expandCloudSchedulerJobHttpTargetHeaders(v interface{}, d TerraformResource
 	return m, nil
 }
 
-func expandCloudSchedulerJobHttpTargetOauthToken(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobHttpTargetOauthToken(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1512,15 +1513,15 @@ func expandCloudSchedulerJobHttpTargetOauthToken(v interface{}, d TerraformResou
 	return transformed, nil
 }
 
-func expandCloudSchedulerJobHttpTargetOauthTokenServiceAccountEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobHttpTargetOauthTokenServiceAccountEmail(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobHttpTargetOauthTokenScope(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobHttpTargetOauthTokenScope(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobHttpTargetOidcToken(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobHttpTargetOidcToken(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1546,11 +1547,11 @@ func expandCloudSchedulerJobHttpTargetOidcToken(v interface{}, d TerraformResour
 	return transformed, nil
 }
 
-func expandCloudSchedulerJobHttpTargetOidcTokenServiceAccountEmail(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobHttpTargetOidcTokenServiceAccountEmail(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudSchedulerJobHttpTargetOidcTokenAudience(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandCloudSchedulerJobHttpTargetOidcTokenAudience(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

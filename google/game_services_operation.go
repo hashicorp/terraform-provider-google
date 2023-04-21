@@ -18,10 +18,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 type GameServicesOperationWaiter struct {
-	Config    *Config
+	Config    *transport_tpg.Config
 	UserAgent string
 	Project   string
 	CommonOperationWaiter
@@ -37,7 +39,7 @@ func (w *GameServicesOperationWaiter) QueryOp() (interface{}, error) {
 	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
-func createGameServicesWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*GameServicesOperationWaiter, error) {
+func createGameServicesWaiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*GameServicesOperationWaiter, error) {
 	w := &GameServicesOperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
@@ -50,7 +52,7 @@ func createGameServicesWaiter(config *Config, op map[string]interface{}, project
 }
 
 // nolint: deadcode,unused
-func GameServicesOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func GameServicesOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	w, err := createGameServicesWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
@@ -61,7 +63,7 @@ func GameServicesOperationWaitTimeWithResponse(config *Config, op map[string]int
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func GameServicesOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func GameServicesOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

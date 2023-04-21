@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceFilestoreSnapshot() *schema.Resource {
@@ -105,7 +106,7 @@ character, which cannot be a dash.`,
 }
 
 func resourceFilestoreSnapshotCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -151,7 +152,7 @@ func resourceFilestoreSnapshotCreate(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IsNotFilestoreQuotaError)
+	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), transport_tpg.IsNotFilestoreQuotaError)
 	if err != nil {
 		return fmt.Errorf("Error creating Snapshot: %s", err)
 	}
@@ -189,7 +190,7 @@ func resourceFilestoreSnapshotCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceFilestoreSnapshotRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -213,7 +214,7 @@ func resourceFilestoreSnapshotRead(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsNotFilestoreQuotaError)
+	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, transport_tpg.IsNotFilestoreQuotaError)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("FilestoreSnapshot %q", d.Id()))
 	}
@@ -242,7 +243,7 @@ func resourceFilestoreSnapshotRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceFilestoreSnapshotUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -304,7 +305,7 @@ func resourceFilestoreSnapshotUpdate(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), IsNotFilestoreQuotaError)
+	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), transport_tpg.IsNotFilestoreQuotaError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Snapshot %q: %s", d.Id(), err)
@@ -324,7 +325,7 @@ func resourceFilestoreSnapshotUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceFilestoreSnapshotDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -358,7 +359,7 @@ func resourceFilestoreSnapshotDelete(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IsNotFilestoreQuotaError)
+	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), transport_tpg.IsNotFilestoreQuotaError)
 	if err != nil {
 		return handleNotFoundError(err, d, "Snapshot")
 	}
@@ -376,7 +377,7 @@ func resourceFilestoreSnapshotDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceFilestoreSnapshotImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/instances/(?P<instance>[^/]+)/snapshots/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)",
@@ -395,31 +396,31 @@ func resourceFilestoreSnapshotImport(d *schema.ResourceData, meta interface{}) (
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenFilestoreSnapshotDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFilestoreSnapshotDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFilestoreSnapshotState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFilestoreSnapshotState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFilestoreSnapshotCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFilestoreSnapshotCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFilestoreSnapshotLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFilestoreSnapshotLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenFilestoreSnapshotFilesystemUsedBytes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenFilestoreSnapshotFilesystemUsedBytes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandFilestoreSnapshotDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandFilestoreSnapshotDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreSnapshotLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandFilestoreSnapshotLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

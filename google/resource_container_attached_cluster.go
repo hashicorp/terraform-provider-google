@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func suppressAttachedClustersLoggingConfigDiff(_, old, new string, d *schema.ResourceData) bool {
@@ -326,7 +327,7 @@ the Workload Identity Pool.`,
 }
 
 func resourceContainerAttachedClusterCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -455,7 +456,7 @@ func resourceContainerAttachedClusterCreate(d *schema.ResourceData, meta interfa
 }
 
 func resourceContainerAttachedClusterRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -556,7 +557,7 @@ func resourceContainerAttachedClusterRead(d *schema.ResourceData, meta interface
 }
 
 func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -714,7 +715,7 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 }
 
 func resourceContainerAttachedClusterDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -767,7 +768,7 @@ func resourceContainerAttachedClusterDelete(d *schema.ResourceData, meta interfa
 }
 
 func resourceContainerAttachedClusterImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/attachedClusters/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -791,18 +792,18 @@ func resourceContainerAttachedClusterImport(d *schema.ResourceData, meta interfa
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenContainerAttachedClusterName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenContainerAttachedClusterDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterOidcConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterOidcConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -817,27 +818,27 @@ func flattenContainerAttachedClusterOidcConfig(v interface{}, d *schema.Resource
 		flattenContainerAttachedClusterOidcConfigJwks(original["jwks"], d, config)
 	return []interface{}{transformed}
 }
-func flattenContainerAttachedClusterOidcConfigIssuerUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterOidcConfigIssuerUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterOidcConfigJwks(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterOidcConfigJwks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterPlatformVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterPlatformVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterDistribution(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterDistribution(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterClusterRegion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterClusterRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterFleet(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterFleet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -852,43 +853,43 @@ func flattenContainerAttachedClusterFleet(v interface{}, d *schema.ResourceData,
 		flattenContainerAttachedClusterFleetProject(original["project"], d, config)
 	return []interface{}{transformed}
 }
-func flattenContainerAttachedClusterFleetMembership(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterFleetMembership(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterFleetProject(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterFleetProject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterUid(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterUid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterReconciling(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterReconciling(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterKubernetesVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterKubernetesVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterAnnotations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterWorkloadIdentityConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterWorkloadIdentityConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -905,19 +906,19 @@ func flattenContainerAttachedClusterWorkloadIdentityConfig(v interface{}, d *sch
 		flattenContainerAttachedClusterWorkloadIdentityConfigWorkloadPool(original["workloadPool"], d, config)
 	return []interface{}{transformed}
 }
-func flattenContainerAttachedClusterWorkloadIdentityConfigIdentityProvider(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterWorkloadIdentityConfigIdentityProvider(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterWorkloadIdentityConfigIssuerUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterWorkloadIdentityConfigIssuerUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterWorkloadIdentityConfigWorkloadPool(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterWorkloadIdentityConfigWorkloadPool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterLoggingConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterLoggingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -927,7 +928,7 @@ func flattenContainerAttachedClusterLoggingConfig(v interface{}, d *schema.Resou
 		flattenContainerAttachedClusterLoggingConfigComponentConfig(original["componentConfig"], d, config)
 	return []interface{}{transformed}
 }
-func flattenContainerAttachedClusterLoggingConfigComponentConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterLoggingConfigComponentConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -937,11 +938,11 @@ func flattenContainerAttachedClusterLoggingConfigComponentConfig(v interface{}, 
 		flattenContainerAttachedClusterLoggingConfigComponentConfigEnableComponents(original["enableComponents"], d, config)
 	return []interface{}{transformed}
 }
-func flattenContainerAttachedClusterLoggingConfigComponentConfigEnableComponents(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterLoggingConfigComponentConfigEnableComponents(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAttachedClusterErrors(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterErrors(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -959,7 +960,7 @@ func flattenContainerAttachedClusterErrors(v interface{}, d *schema.ResourceData
 	}
 	return transformed
 }
-func flattenContainerAttachedClusterErrorsMessage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterErrorsMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -980,7 +981,7 @@ func flattenContainerAttachedClusterErrorsMessage(v interface{}, d *schema.Resou
 //	     "user2"
 //	   ]
 //	}
-func flattenContainerAttachedClusterAuthorization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterAuthorization(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -997,7 +998,7 @@ func flattenContainerAttachedClusterAuthorization(v interface{}, d *schema.Resou
 	return []interface{}{transformed}
 }
 
-func flattenContainerAttachedClusterMonitoringConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterMonitoringConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1007,7 +1008,7 @@ func flattenContainerAttachedClusterMonitoringConfig(v interface{}, d *schema.Re
 		flattenContainerAttachedClusterMonitoringConfigManagedPrometheusConfig(original["managedPrometheusConfig"], d, config)
 	return []interface{}{transformed}
 }
-func flattenContainerAttachedClusterMonitoringConfigManagedPrometheusConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterMonitoringConfigManagedPrometheusConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1017,19 +1018,19 @@ func flattenContainerAttachedClusterMonitoringConfigManagedPrometheusConfig(v in
 		flattenContainerAttachedClusterMonitoringConfigManagedPrometheusConfigEnabled(original["enabled"], d, config)
 	return []interface{}{transformed}
 }
-func flattenContainerAttachedClusterMonitoringConfigManagedPrometheusConfigEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAttachedClusterMonitoringConfigManagedPrometheusConfigEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandContainerAttachedClusterName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAttachedClusterName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAttachedClusterDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAttachedClusterDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAttachedClusterOidcConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAttachedClusterOidcConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1055,23 +1056,23 @@ func expandContainerAttachedClusterOidcConfig(v interface{}, d TerraformResource
 	return transformed, nil
 }
 
-func expandContainerAttachedClusterOidcConfigIssuerUrl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAttachedClusterOidcConfigIssuerUrl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAttachedClusterOidcConfigJwks(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAttachedClusterOidcConfigJwks(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAttachedClusterPlatformVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAttachedClusterPlatformVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAttachedClusterDistribution(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAttachedClusterDistribution(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAttachedClusterFleet(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAttachedClusterFleet(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1097,15 +1098,15 @@ func expandContainerAttachedClusterFleet(v interface{}, d TerraformResourceData,
 	return transformed, nil
 }
 
-func expandContainerAttachedClusterFleetMembership(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAttachedClusterFleetMembership(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAttachedClusterFleetProject(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAttachedClusterFleetProject(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAttachedClusterAnnotations(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandContainerAttachedClusterAnnotations(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -1116,7 +1117,7 @@ func expandContainerAttachedClusterAnnotations(v interface{}, d TerraformResourc
 	return m, nil
 }
 
-func expandContainerAttachedClusterLoggingConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAttachedClusterLoggingConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		transformed := make(map[string]interface{})
@@ -1136,7 +1137,7 @@ func expandContainerAttachedClusterLoggingConfig(v interface{}, d TerraformResou
 	return transformed, nil
 }
 
-func expandContainerAttachedClusterLoggingConfigComponentConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAttachedClusterLoggingConfigComponentConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1160,7 +1161,7 @@ func expandContainerAttachedClusterLoggingConfigComponentConfig(v interface{}, d
 	return transformed, nil
 }
 
-func expandContainerAttachedClusterLoggingConfigComponentConfigEnableComponents(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAttachedClusterLoggingConfigComponentConfigEnableComponents(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1185,7 +1186,7 @@ type attachedClusterUser struct {
 //	     "user2"
 //	   ]
 //	}
-func expandContainerAttachedClusterAuthorization(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAttachedClusterAuthorization(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1202,7 +1203,7 @@ func expandContainerAttachedClusterAuthorization(v interface{}, d TerraformResou
 	return transformed, nil
 }
 
-func expandContainerAttachedClusterMonitoringConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAttachedClusterMonitoringConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1226,7 +1227,7 @@ func expandContainerAttachedClusterMonitoringConfig(v interface{}, d TerraformRe
 	return transformed, nil
 }
 
-func expandContainerAttachedClusterMonitoringConfigManagedPrometheusConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAttachedClusterMonitoringConfigManagedPrometheusConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1250,6 +1251,6 @@ func expandContainerAttachedClusterMonitoringConfigManagedPrometheusConfig(v int
 	return transformed, nil
 }
 
-func expandContainerAttachedClusterMonitoringConfigManagedPrometheusConfigEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAttachedClusterMonitoringConfigManagedPrometheusConfigEnabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceVertexAIFeaturestoreEntitytype() *schema.Resource {
@@ -190,7 +191,7 @@ If both FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days a
 
 func resourceVertexAIFeaturestoreEntitytypeCreate(d *schema.ResourceData, meta interface{}) error {
 	var project string
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -281,7 +282,7 @@ func resourceVertexAIFeaturestoreEntitytypeCreate(d *schema.ResourceData, meta i
 }
 
 func resourceVertexAIFeaturestoreEntitytypeRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -324,7 +325,7 @@ func resourceVertexAIFeaturestoreEntitytypeRead(d *schema.ResourceData, meta int
 }
 
 func resourceVertexAIFeaturestoreEntitytypeUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -401,7 +402,7 @@ func resourceVertexAIFeaturestoreEntitytypeUpdate(d *schema.ResourceData, meta i
 
 func resourceVertexAIFeaturestoreEntitytypeDelete(d *schema.ResourceData, meta interface{}) error {
 	var project string
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -449,7 +450,7 @@ func resourceVertexAIFeaturestoreEntitytypeDelete(d *schema.ResourceData, meta i
 }
 
 func resourceVertexAIFeaturestoreEntitytypeImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"(?P<featurestore>.+)/entityTypes/(?P<name>[^/]+)",
 	}, d, config); err != nil {
@@ -473,23 +474,23 @@ func resourceVertexAIFeaturestoreEntitytypeImport(d *schema.ResourceData, meta i
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenVertexAIFeaturestoreEntitytypeDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIFeaturestoreEntitytypeCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIFeaturestoreEntitytypeUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIFeaturestoreEntitytypeLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIFeaturestoreEntitytypeMonitoringConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeMonitoringConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -508,7 +509,7 @@ func flattenVertexAIFeaturestoreEntitytypeMonitoringConfig(v interface{}, d *sch
 		flattenVertexAIFeaturestoreEntitytypeMonitoringConfigCategoricalThresholdConfig(original["categoricalThresholdConfig"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysis(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysis(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -525,11 +526,11 @@ func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysis(v int
 		flattenVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysisStalenessDays(original["stalenessDays"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysisDisabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysisDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysisMonitoringIntervalDays(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysisMonitoringIntervalDays(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -546,7 +547,7 @@ func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysisMonito
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysisStalenessDays(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysisStalenessDays(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -563,7 +564,7 @@ func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysisStalen
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigImportFeaturesAnalysis(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigImportFeaturesAnalysis(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -578,15 +579,15 @@ func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigImportFeaturesAnalysis
 		flattenVertexAIFeaturestoreEntitytypeMonitoringConfigImportFeaturesAnalysisAnomalyDetectionBaseline(original["anomalyDetectionBaseline"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigImportFeaturesAnalysisState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigImportFeaturesAnalysisState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigImportFeaturesAnalysisAnomalyDetectionBaseline(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigImportFeaturesAnalysisAnomalyDetectionBaseline(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigNumericalThresholdConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigNumericalThresholdConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -599,11 +600,11 @@ func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigNumericalThresholdConf
 		flattenVertexAIFeaturestoreEntitytypeMonitoringConfigNumericalThresholdConfigValue(original["value"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigNumericalThresholdConfigValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigNumericalThresholdConfigValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigCategoricalThresholdConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigCategoricalThresholdConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -616,15 +617,15 @@ func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigCategoricalThresholdCo
 		flattenVertexAIFeaturestoreEntitytypeMonitoringConfigCategoricalThresholdConfigValue(original["value"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigCategoricalThresholdConfigValue(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIFeaturestoreEntitytypeMonitoringConfigCategoricalThresholdConfigValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandVertexAIFeaturestoreEntitytypeDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreEntitytypeDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIFeaturestoreEntitytypeLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandVertexAIFeaturestoreEntitytypeLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -635,7 +636,7 @@ func expandVertexAIFeaturestoreEntitytypeLabels(v interface{}, d TerraformResour
 	return m, nil
 }
 
-func expandVertexAIFeaturestoreEntitytypeMonitoringConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreEntitytypeMonitoringConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -675,7 +676,7 @@ func expandVertexAIFeaturestoreEntitytypeMonitoringConfig(v interface{}, d Terra
 	return transformed, nil
 }
 
-func expandVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysis(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysis(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -708,19 +709,19 @@ func expandVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysis(v inte
 	return transformed, nil
 }
 
-func expandVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysisDisabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysisDisabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysisMonitoringIntervalDays(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysisMonitoringIntervalDays(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysisStalenessDays(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreEntitytypeMonitoringConfigSnapshotAnalysisStalenessDays(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIFeaturestoreEntitytypeMonitoringConfigImportFeaturesAnalysis(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreEntitytypeMonitoringConfigImportFeaturesAnalysis(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -746,15 +747,15 @@ func expandVertexAIFeaturestoreEntitytypeMonitoringConfigImportFeaturesAnalysis(
 	return transformed, nil
 }
 
-func expandVertexAIFeaturestoreEntitytypeMonitoringConfigImportFeaturesAnalysisState(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreEntitytypeMonitoringConfigImportFeaturesAnalysisState(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIFeaturestoreEntitytypeMonitoringConfigImportFeaturesAnalysisAnomalyDetectionBaseline(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreEntitytypeMonitoringConfigImportFeaturesAnalysisAnomalyDetectionBaseline(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIFeaturestoreEntitytypeMonitoringConfigNumericalThresholdConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreEntitytypeMonitoringConfigNumericalThresholdConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -773,11 +774,11 @@ func expandVertexAIFeaturestoreEntitytypeMonitoringConfigNumericalThresholdConfi
 	return transformed, nil
 }
 
-func expandVertexAIFeaturestoreEntitytypeMonitoringConfigNumericalThresholdConfigValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreEntitytypeMonitoringConfigNumericalThresholdConfigValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIFeaturestoreEntitytypeMonitoringConfigCategoricalThresholdConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreEntitytypeMonitoringConfigCategoricalThresholdConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -796,7 +797,7 @@ func expandVertexAIFeaturestoreEntitytypeMonitoringConfigCategoricalThresholdCon
 	return transformed, nil
 }
 
-func expandVertexAIFeaturestoreEntitytypeMonitoringConfigCategoricalThresholdConfigValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIFeaturestoreEntitytypeMonitoringConfigCategoricalThresholdConfigValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

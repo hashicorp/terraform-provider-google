@@ -3,6 +3,7 @@ package google
 import (
 	"encoding/json"
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"strings"
 
@@ -91,7 +92,7 @@ func recurseOnSchema(s map[string]*schema.Schema, f func(*schema.Schema)) {
 }
 
 func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -222,7 +223,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 
 // Instances have disks spread across multiple schema properties. This function
 // ensures that overriding one of these properties does not override the others.
-func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *Config, it *compute.InstanceTemplate, zone *compute.Zone, project string, isFromRegionalTemplate bool) ([]*compute.AttachedDisk, error) {
+func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *transport_tpg.Config, it *compute.InstanceTemplate, zone *compute.Zone, project string, isFromRegionalTemplate bool) ([]*compute.AttachedDisk, error) {
 	disks := []*compute.AttachedDisk{}
 	if _, hasBootDisk := d.GetOk("boot_disk"); hasBootDisk {
 		bootDisk, err := expandBootDisk(d, config, project)

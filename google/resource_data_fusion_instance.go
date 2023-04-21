@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 var instanceAcceleratorOptions = []string{
@@ -314,7 +315,7 @@ able to access the public internet.`,
 }
 
 func resourceDataFusionInstanceCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -485,7 +486,7 @@ func resourceDataFusionInstanceCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceDataFusionInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -609,7 +610,7 @@ func resourceDataFusionInstanceRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceDataFusionInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -720,7 +721,7 @@ func resourceDataFusionInstanceUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceDataFusionInstanceDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -765,7 +766,7 @@ func resourceDataFusionInstanceDelete(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceDataFusionInstanceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/instances/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -785,82 +786,82 @@ func resourceDataFusionInstanceImport(d *schema.ResourceData, meta interface{}) 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDataFusionInstanceName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenDataFusionInstanceDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceEnableStackdriverLogging(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceEnableStackdriverLogging(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceEnableStackdriverMonitoring(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceEnableStackdriverMonitoring(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceEnableRbac(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceEnableRbac(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceOptions(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceStateMessage(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceStateMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceServiceEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceServiceEndpoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstancePrivateInstance(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstancePrivateInstance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceDataprocServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceDataprocServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceTenantProjectId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceTenantProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceGcsBucket(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceGcsBucket(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceNetworkConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceNetworkConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -875,31 +876,31 @@ func flattenDataFusionInstanceNetworkConfig(v interface{}, d *schema.ResourceDat
 		flattenDataFusionInstanceNetworkConfigNetwork(original["network"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDataFusionInstanceNetworkConfigIpAllocation(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceNetworkConfigIpAllocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceNetworkConfigNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceNetworkConfigNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceZone(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceApiEndpoint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceApiEndpoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceP4ServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceP4ServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceCryptoKeyConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceCryptoKeyConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -912,11 +913,11 @@ func flattenDataFusionInstanceCryptoKeyConfig(v interface{}, d *schema.ResourceD
 		flattenDataFusionInstanceCryptoKeyConfigKeyReference(original["keyReference"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDataFusionInstanceCryptoKeyConfigKeyReference(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceCryptoKeyConfigKeyReference(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceEventPublishConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceEventPublishConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -931,15 +932,15 @@ func flattenDataFusionInstanceEventPublishConfig(v interface{}, d *schema.Resour
 		flattenDataFusionInstanceEventPublishConfigTopic(original["topic"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDataFusionInstanceEventPublishConfigEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceEventPublishConfigEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceEventPublishConfigTopic(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceEventPublishConfigTopic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceAccelerators(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceAccelerators(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -958,39 +959,39 @@ func flattenDataFusionInstanceAccelerators(v interface{}, d *schema.ResourceData
 	}
 	return transformed
 }
-func flattenDataFusionInstanceAcceleratorsAcceleratorType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceAcceleratorsAcceleratorType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataFusionInstanceAcceleratorsState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataFusionInstanceAcceleratorsState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandDataFusionInstanceName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/instances/{{name}}")
 }
 
-func expandDataFusionInstanceDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataFusionInstanceType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataFusionInstanceEnableStackdriverLogging(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceEnableStackdriverLogging(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataFusionInstanceEnableStackdriverMonitoring(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceEnableStackdriverMonitoring(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataFusionInstanceEnableRbac(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceEnableRbac(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataFusionInstanceLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandDataFusionInstanceLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -1001,7 +1002,7 @@ func expandDataFusionInstanceLabels(v interface{}, d TerraformResourceData, conf
 	return m, nil
 }
 
-func expandDataFusionInstanceOptions(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandDataFusionInstanceOptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -1012,19 +1013,19 @@ func expandDataFusionInstanceOptions(v interface{}, d TerraformResourceData, con
 	return m, nil
 }
 
-func expandDataFusionInstanceVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataFusionInstancePrivateInstance(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstancePrivateInstance(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataFusionInstanceDataprocServiceAccount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceDataprocServiceAccount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataFusionInstanceNetworkConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceNetworkConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1050,23 +1051,23 @@ func expandDataFusionInstanceNetworkConfig(v interface{}, d TerraformResourceDat
 	return transformed, nil
 }
 
-func expandDataFusionInstanceNetworkConfigIpAllocation(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceNetworkConfigIpAllocation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataFusionInstanceNetworkConfigNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceNetworkConfigNetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataFusionInstanceZone(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceZone(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataFusionInstanceDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataFusionInstanceCryptoKeyConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceCryptoKeyConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1085,11 +1086,11 @@ func expandDataFusionInstanceCryptoKeyConfig(v interface{}, d TerraformResourceD
 	return transformed, nil
 }
 
-func expandDataFusionInstanceCryptoKeyConfigKeyReference(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceCryptoKeyConfigKeyReference(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataFusionInstanceEventPublishConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceEventPublishConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1115,15 +1116,15 @@ func expandDataFusionInstanceEventPublishConfig(v interface{}, d TerraformResour
 	return transformed, nil
 }
 
-func expandDataFusionInstanceEventPublishConfigEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceEventPublishConfigEnabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataFusionInstanceEventPublishConfigTopic(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceEventPublishConfigTopic(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataFusionInstanceAccelerators(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceAccelerators(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1152,10 +1153,10 @@ func expandDataFusionInstanceAccelerators(v interface{}, d TerraformResourceData
 	return req, nil
 }
 
-func expandDataFusionInstanceAcceleratorsAcceleratorType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceAcceleratorsAcceleratorType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataFusionInstanceAcceleratorsState(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataFusionInstanceAcceleratorsState(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

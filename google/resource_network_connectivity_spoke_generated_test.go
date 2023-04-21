@@ -22,6 +22,7 @@ import (
 	networkconnectivity "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/networkconnectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"strings"
 	"testing"
 )
@@ -216,7 +217,7 @@ func testAccCheckNetworkConnectivitySpokeDestroyProducer(t *testing.T) func(s *t
 				UpdateTime:  dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
-			client := NewDCLNetworkConnectivityClient(config, config.UserAgent, billingProject, 0)
+			client := transport_tpg.NewDCLNetworkConnectivityClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetSpoke(context.Background(), obj)
 			if err == nil {
 				return fmt.Errorf("google_network_connectivity_spoke still exists %v", obj)

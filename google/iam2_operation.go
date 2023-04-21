@@ -17,10 +17,12 @@ package google
 import (
 	"fmt"
 	"time"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 type IAM2OperationWaiter struct {
-	Config    *Config
+	Config    *transport_tpg.Config
 	UserAgent string
 	CommonOperationWaiter
 }
@@ -35,7 +37,7 @@ func (w *IAM2OperationWaiter) QueryOp() (interface{}, error) {
 	return SendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
 }
 
-func createIAM2Waiter(config *Config, op map[string]interface{}, activity, userAgent string) (*IAM2OperationWaiter, error) {
+func createIAM2Waiter(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string) (*IAM2OperationWaiter, error) {
 	w := &IAM2OperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
@@ -46,7 +48,7 @@ func createIAM2Waiter(config *Config, op map[string]interface{}, activity, userA
 	return w, nil
 }
 
-func IAM2OperationWaitTime(config *Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
+func IAM2OperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

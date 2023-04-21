@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceDataprocAutoscalingPolicy() *schema.Resource {
@@ -241,7 +242,7 @@ only on primary workers, the cluster will use primary workers only and no second
 }
 
 func resourceDataprocAutoscalingPolicyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -313,7 +314,7 @@ func resourceDataprocAutoscalingPolicyCreate(d *schema.ResourceData, meta interf
 }
 
 func resourceDataprocAutoscalingPolicyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -366,7 +367,7 @@ func resourceDataprocAutoscalingPolicyRead(d *schema.ResourceData, meta interfac
 }
 
 func resourceDataprocAutoscalingPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -430,7 +431,7 @@ func resourceDataprocAutoscalingPolicyUpdate(d *schema.ResourceData, meta interf
 }
 
 func resourceDataprocAutoscalingPolicyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -467,7 +468,7 @@ func resourceDataprocAutoscalingPolicyDelete(d *schema.ResourceData, meta interf
 }
 
 func resourceDataprocAutoscalingPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/autoscalingPolicies/(?P<policy_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<policy_id>[^/]+)",
@@ -486,15 +487,15 @@ func resourceDataprocAutoscalingPolicyImport(d *schema.ResourceData, meta interf
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenDataprocAutoscalingPolicyPolicyId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicyPolicyId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataprocAutoscalingPolicyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataprocAutoscalingPolicyWorkerConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicyWorkerConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -511,7 +512,7 @@ func flattenDataprocAutoscalingPolicyWorkerConfig(v interface{}, d *schema.Resou
 		flattenDataprocAutoscalingPolicyWorkerConfigWeight(original["weight"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDataprocAutoscalingPolicyWorkerConfigMinInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicyWorkerConfigMinInstances(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -528,7 +529,7 @@ func flattenDataprocAutoscalingPolicyWorkerConfigMinInstances(v interface{}, d *
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDataprocAutoscalingPolicyWorkerConfigMaxInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicyWorkerConfigMaxInstances(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -545,7 +546,7 @@ func flattenDataprocAutoscalingPolicyWorkerConfigMaxInstances(v interface{}, d *
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDataprocAutoscalingPolicyWorkerConfigWeight(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicyWorkerConfigWeight(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -562,7 +563,7 @@ func flattenDataprocAutoscalingPolicyWorkerConfigWeight(v interface{}, d *schema
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDataprocAutoscalingPolicySecondaryWorkerConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicySecondaryWorkerConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -579,7 +580,7 @@ func flattenDataprocAutoscalingPolicySecondaryWorkerConfig(v interface{}, d *sch
 		flattenDataprocAutoscalingPolicySecondaryWorkerConfigWeight(original["weight"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDataprocAutoscalingPolicySecondaryWorkerConfigMinInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicySecondaryWorkerConfigMinInstances(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -596,7 +597,7 @@ func flattenDataprocAutoscalingPolicySecondaryWorkerConfigMinInstances(v interfa
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDataprocAutoscalingPolicySecondaryWorkerConfigMaxInstances(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicySecondaryWorkerConfigMaxInstances(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -613,7 +614,7 @@ func flattenDataprocAutoscalingPolicySecondaryWorkerConfigMaxInstances(v interfa
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDataprocAutoscalingPolicySecondaryWorkerConfigWeight(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicySecondaryWorkerConfigWeight(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -630,7 +631,7 @@ func flattenDataprocAutoscalingPolicySecondaryWorkerConfigWeight(v interface{}, 
 	return v // let terraform core handle it otherwise
 }
 
-func flattenDataprocAutoscalingPolicyBasicAlgorithm(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicyBasicAlgorithm(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -645,11 +646,11 @@ func flattenDataprocAutoscalingPolicyBasicAlgorithm(v interface{}, d *schema.Res
 		flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfig(original["yarnConfig"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDataprocAutoscalingPolicyBasicAlgorithmCooldownPeriod(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicyBasicAlgorithmCooldownPeriod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -670,31 +671,31 @@ func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfig(v interface{}, d *
 		flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownMinWorkerFraction(original["scaleDownMinWorkerFraction"], d, config)
 	return []interface{}{transformed}
 }
-func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigGracefulDecommissionTimeout(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigGracefulDecommissionTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleUpFactor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleUpFactor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownFactor(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownFactor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleUpMinWorkerFraction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleUpMinWorkerFraction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownMinWorkerFraction(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownMinWorkerFraction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandDataprocAutoscalingPolicyPolicyId(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataprocAutoscalingPolicyPolicyId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataprocAutoscalingPolicyWorkerConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataprocAutoscalingPolicyWorkerConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -727,19 +728,19 @@ func expandDataprocAutoscalingPolicyWorkerConfig(v interface{}, d TerraformResou
 	return transformed, nil
 }
 
-func expandDataprocAutoscalingPolicyWorkerConfigMinInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataprocAutoscalingPolicyWorkerConfigMinInstances(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataprocAutoscalingPolicyWorkerConfigMaxInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataprocAutoscalingPolicyWorkerConfigMaxInstances(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataprocAutoscalingPolicyWorkerConfigWeight(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataprocAutoscalingPolicyWorkerConfigWeight(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataprocAutoscalingPolicySecondaryWorkerConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataprocAutoscalingPolicySecondaryWorkerConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -772,19 +773,19 @@ func expandDataprocAutoscalingPolicySecondaryWorkerConfig(v interface{}, d Terra
 	return transformed, nil
 }
 
-func expandDataprocAutoscalingPolicySecondaryWorkerConfigMinInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataprocAutoscalingPolicySecondaryWorkerConfigMinInstances(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataprocAutoscalingPolicySecondaryWorkerConfigMaxInstances(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataprocAutoscalingPolicySecondaryWorkerConfigMaxInstances(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataprocAutoscalingPolicySecondaryWorkerConfigWeight(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataprocAutoscalingPolicySecondaryWorkerConfigWeight(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataprocAutoscalingPolicyBasicAlgorithm(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataprocAutoscalingPolicyBasicAlgorithm(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -810,11 +811,11 @@ func expandDataprocAutoscalingPolicyBasicAlgorithm(v interface{}, d TerraformRes
 	return transformed, nil
 }
 
-func expandDataprocAutoscalingPolicyBasicAlgorithmCooldownPeriod(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataprocAutoscalingPolicyBasicAlgorithmCooldownPeriod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataprocAutoscalingPolicyBasicAlgorithmYarnConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataprocAutoscalingPolicyBasicAlgorithmYarnConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -861,22 +862,22 @@ func expandDataprocAutoscalingPolicyBasicAlgorithmYarnConfig(v interface{}, d Te
 	return transformed, nil
 }
 
-func expandDataprocAutoscalingPolicyBasicAlgorithmYarnConfigGracefulDecommissionTimeout(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataprocAutoscalingPolicyBasicAlgorithmYarnConfigGracefulDecommissionTimeout(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleUpFactor(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleUpFactor(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownFactor(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownFactor(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleUpMinWorkerFraction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleUpMinWorkerFraction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownMinWorkerFraction(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandDataprocAutoscalingPolicyBasicAlgorithmYarnConfigScaleDownMinWorkerFraction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

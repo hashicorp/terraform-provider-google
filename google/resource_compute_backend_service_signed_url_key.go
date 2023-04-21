@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeBackendServiceSignedUrlKey() *schema.Resource {
@@ -69,7 +70,7 @@ valid RFC 4648 Section 5 base64url encoded string.`,
 }
 
 func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -149,7 +150,7 @@ func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, met
 }
 
 func resourceComputeBackendServiceSignedUrlKeyRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -202,7 +203,7 @@ func resourceComputeBackendServiceSignedUrlKeyRead(d *schema.ResourceData, meta 
 }
 
 func resourceComputeBackendServiceSignedUrlKeyDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -253,19 +254,19 @@ func resourceComputeBackendServiceSignedUrlKeyDelete(d *schema.ResourceData, met
 	return nil
 }
 
-func flattenNestedComputeBackendServiceSignedUrlKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeBackendServiceSignedUrlKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandNestedComputeBackendServiceSignedUrlKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeBackendServiceSignedUrlKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeBackendServiceSignedUrlKeyKeyValue(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeBackendServiceSignedUrlKeyKeyValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeBackendServiceSignedUrlKeyBackendService(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeBackendServiceSignedUrlKeyBackendService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
@@ -306,11 +307,11 @@ func flattenNestedComputeBackendServiceSignedUrlKey(d *schema.ResourceData, meta
 }
 
 func resourceComputeBackendServiceSignedUrlKeyFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedName, err := expandNestedComputeBackendServiceSignedUrlKeyName(d.Get("name"), d, meta.(*Config))
+	expectedName, err := expandNestedComputeBackendServiceSignedUrlKeyName(d.Get("name"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedName := flattenNestedComputeBackendServiceSignedUrlKeyName(expectedName, d, meta.(*Config))
+	expectedFlattenedName := flattenNestedComputeBackendServiceSignedUrlKeyName(expectedName, d, meta.(*transport_tpg.Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -322,7 +323,7 @@ func resourceComputeBackendServiceSignedUrlKeyFindNestedObjectInList(d *schema.R
 			"keyName": itemRaw,
 		}
 
-		itemName := flattenNestedComputeBackendServiceSignedUrlKeyName(item["keyName"], d, meta.(*Config))
+		itemName := flattenNestedComputeBackendServiceSignedUrlKeyName(item["keyName"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
 			log.Printf("[DEBUG] Skipping item with keyName= %#v, looking for %#v)", itemName, expectedFlattenedName)

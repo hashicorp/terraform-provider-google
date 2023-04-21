@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceContainerAnalysisNote() *schema.Resource {
@@ -164,7 +165,7 @@ func containeranalysisNoteRelatedUrlSchema() *schema.Resource {
 }
 
 func resourceContainerAnalysisNoteCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -263,7 +264,7 @@ func resourceContainerAnalysisNoteCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceContainerAnalysisNoteRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -343,7 +344,7 @@ func resourceContainerAnalysisNoteRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceContainerAnalysisNoteUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -462,7 +463,7 @@ func resourceContainerAnalysisNoteUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceContainerAnalysisNoteDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -506,7 +507,7 @@ func resourceContainerAnalysisNoteDelete(d *schema.ResourceData, meta interface{
 }
 
 func resourceContainerAnalysisNoteImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/notes/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -525,26 +526,26 @@ func resourceContainerAnalysisNoteImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenContainerAnalysisNoteName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisNoteName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenContainerAnalysisNoteShortDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisNoteShortDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAnalysisNoteLongDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisNoteLongDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAnalysisNoteKind(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisNoteKind(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAnalysisNoteRelatedUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisNoteRelatedUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -563,34 +564,34 @@ func flattenContainerAnalysisNoteRelatedUrl(v interface{}, d *schema.ResourceDat
 	}
 	return transformed
 }
-func flattenContainerAnalysisNoteRelatedUrlUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisNoteRelatedUrlUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAnalysisNoteRelatedUrlLabel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisNoteRelatedUrlLabel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAnalysisNoteExpirationTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisNoteExpirationTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAnalysisNoteCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisNoteCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAnalysisNoteUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisNoteUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenContainerAnalysisNoteRelatedNoteNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisNoteRelatedNoteNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
-func flattenContainerAnalysisNoteAttestationAuthority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisNoteAttestationAuthority(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -603,7 +604,7 @@ func flattenContainerAnalysisNoteAttestationAuthority(v interface{}, d *schema.R
 		flattenContainerAnalysisNoteAttestationAuthorityHint(original["hint"], d, config)
 	return []interface{}{transformed}
 }
-func flattenContainerAnalysisNoteAttestationAuthorityHint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisNoteAttestationAuthorityHint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -616,23 +617,23 @@ func flattenContainerAnalysisNoteAttestationAuthorityHint(v interface{}, d *sche
 		flattenContainerAnalysisNoteAttestationAuthorityHintHumanReadableName(original["humanReadableName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenContainerAnalysisNoteAttestationAuthorityHintHumanReadableName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenContainerAnalysisNoteAttestationAuthorityHintHumanReadableName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandContainerAnalysisNoteName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisNoteName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisNoteShortDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisNoteShortDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisNoteLongDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisNoteLongDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisNoteRelatedUrl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisNoteRelatedUrl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -662,24 +663,24 @@ func expandContainerAnalysisNoteRelatedUrl(v interface{}, d TerraformResourceDat
 	return req, nil
 }
 
-func expandContainerAnalysisNoteRelatedUrlUrl(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisNoteRelatedUrlUrl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisNoteRelatedUrlLabel(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisNoteRelatedUrlLabel(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisNoteExpirationTime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisNoteExpirationTime(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisNoteRelatedNoteNames(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisNoteRelatedNoteNames(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandContainerAnalysisNoteAttestationAuthority(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisNoteAttestationAuthority(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -698,7 +699,7 @@ func expandContainerAnalysisNoteAttestationAuthority(v interface{}, d TerraformR
 	return transformed, nil
 }
 
-func expandContainerAnalysisNoteAttestationAuthorityHint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisNoteAttestationAuthorityHint(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -717,7 +718,7 @@ func expandContainerAnalysisNoteAttestationAuthorityHint(v interface{}, d Terraf
 	return transformed, nil
 }
 
-func expandContainerAnalysisNoteAttestationAuthorityHintHumanReadableName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandContainerAnalysisNoteAttestationAuthorityHintHumanReadableName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

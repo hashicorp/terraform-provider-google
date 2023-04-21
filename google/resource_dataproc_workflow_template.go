@@ -25,6 +25,8 @@ import (
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
 	dataproc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/dataproc"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceDataprocWorkflowTemplate() *schema.Resource {
@@ -2071,7 +2073,7 @@ func DataprocWorkflowTemplateParametersValidationValuesSchema() *schema.Resource
 }
 
 func resourceDataprocWorkflowTemplateCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -2104,7 +2106,7 @@ func resourceDataprocWorkflowTemplateCreate(d *schema.ResourceData, meta interfa
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLDataprocClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
+	client := transport_tpg.NewDCLDataprocClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -2127,7 +2129,7 @@ func resourceDataprocWorkflowTemplateCreate(d *schema.ResourceData, meta interfa
 }
 
 func resourceDataprocWorkflowTemplateRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -2154,7 +2156,7 @@ func resourceDataprocWorkflowTemplateRead(d *schema.ResourceData, meta interface
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLDataprocClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
+	client := transport_tpg.NewDCLDataprocClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -2205,7 +2207,7 @@ func resourceDataprocWorkflowTemplateRead(d *schema.ResourceData, meta interface
 }
 
 func resourceDataprocWorkflowTemplateDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	project, err := getProject(d, config)
 	if err != nil {
 		return err
@@ -2233,7 +2235,7 @@ func resourceDataprocWorkflowTemplateDelete(d *schema.ResourceData, meta interfa
 	if bp, err := getBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	client := NewDCLDataprocClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
+	client := transport_tpg.NewDCLDataprocClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
 	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
@@ -2249,7 +2251,7 @@ func resourceDataprocWorkflowTemplateDelete(d *schema.ResourceData, meta interfa
 }
 
 func resourceDataprocWorkflowTemplateImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/workflowTemplates/(?P<name>[^/]+)",

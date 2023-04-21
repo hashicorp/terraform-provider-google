@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
 )
 
@@ -29,7 +30,7 @@ func DataSourceGoogleActiveFolder() *schema.Resource {
 }
 
 func dataSourceGoogleActiveFolderRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err

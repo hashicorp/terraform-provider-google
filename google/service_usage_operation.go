@@ -21,11 +21,12 @@ import (
 	"strings"
 	"time"
 
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/googleapi"
 )
 
 type ServiceUsageOperationWaiter struct {
-	Config     *Config
+	Config     *transport_tpg.Config
 	UserAgent  string
 	Project    string
 	retryCount int
@@ -56,7 +57,7 @@ func (w *ServiceUsageOperationWaiter) IsRetryable(err error) bool {
 	return false
 }
 
-func createServiceUsageWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*ServiceUsageOperationWaiter, error) {
+func createServiceUsageWaiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*ServiceUsageOperationWaiter, error) {
 	w := &ServiceUsageOperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
@@ -69,7 +70,7 @@ func createServiceUsageWaiter(config *Config, op map[string]interface{}, project
 }
 
 // nolint: deadcode,unused
-func ServiceUsageOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func ServiceUsageOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	w, err := createServiceUsageWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
@@ -80,7 +81,7 @@ func ServiceUsageOperationWaitTimeWithResponse(config *Config, op map[string]int
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func ServiceUsageOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func ServiceUsageOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

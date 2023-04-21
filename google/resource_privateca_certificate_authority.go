@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func resourcePrivateCaCACustomDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
@@ -816,7 +817,7 @@ in Terraform state, a 'terraform destroy' or 'terraform apply' that would delete
 }
 
 func resourcePrivatecaCertificateAuthorityCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -962,7 +963,7 @@ func resourcePrivatecaCertificateAuthorityCreate(d *schema.ResourceData, meta in
 }
 
 func resourcePrivatecaCertificateAuthorityRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -1057,7 +1058,7 @@ func resourcePrivatecaCertificateAuthorityRead(d *schema.ResourceData, meta inte
 }
 
 func resourcePrivatecaCertificateAuthorityUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -1175,7 +1176,7 @@ func resourcePrivatecaCertificateAuthorityUpdate(d *schema.ResourceData, meta in
 }
 
 func resourcePrivatecaCertificateAuthorityDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -1245,7 +1246,7 @@ func resourcePrivatecaCertificateAuthorityDelete(d *schema.ResourceData, meta in
 }
 
 func resourcePrivatecaCertificateAuthorityImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/caPools/(?P<pool>[^/]+)/certificateAuthorities/(?P<certificate_authority_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<pool>[^/]+)/(?P<certificate_authority_id>[^/]+)",
@@ -1272,15 +1273,15 @@ func resourcePrivatecaCertificateAuthorityImport(d *schema.ResourceData, meta in
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenPrivatecaCertificateAuthorityName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1296,7 +1297,7 @@ func flattenPrivatecaCertificateAuthorityConfig(v interface{}, d *schema.Resourc
 	return []interface{}{transformed}
 }
 
-func flattenPrivatecaCertificateAuthorityConfigX509Config(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityConfigX509Config(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		v = make(map[string]interface{})
 	}
@@ -1316,7 +1317,7 @@ func flattenPrivatecaCertificateAuthorityConfigX509Config(v interface{}, d *sche
 	return []interface{}{transformed}
 }
 
-func flattenPrivatecaCertificateAuthorityConfigSubjectConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityConfigSubjectConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1331,7 +1332,7 @@ func flattenPrivatecaCertificateAuthorityConfigSubjectConfig(v interface{}, d *s
 		flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltName(original["subjectAltName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubject(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1358,39 +1359,39 @@ func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubject(v interface{
 		flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectCommonName(original["commonName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectCountryCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectCountryCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectOrganization(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectOrganization(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectOrganizationalUnit(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectOrganizationalUnit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectLocality(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectLocality(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectProvince(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectProvince(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectStreetAddress(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectStreetAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectPostalCode(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectPostalCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectCommonName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectCommonName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1409,27 +1410,27 @@ func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltName(v int
 		flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltNameIpAddresses(original["ipAddresses"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltNameDnsNames(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltNameDnsNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltNameUris(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltNameUris(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltNameEmailAddresses(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltNameEmailAddresses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltNameIpAddresses(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltNameIpAddresses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityLifetime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityLifetime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityKeySpec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityKeySpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1444,15 +1445,15 @@ func flattenPrivatecaCertificateAuthorityKeySpec(v interface{}, d *schema.Resour
 		flattenPrivatecaCertificateAuthorityKeySpecAlgorithm(original["algorithm"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateAuthorityKeySpecCloudKmsKeyVersion(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityKeySpecCloudKmsKeyVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityKeySpecAlgorithm(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityKeySpecAlgorithm(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthoritySubordinateConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthoritySubordinateConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1467,11 +1468,11 @@ func flattenPrivatecaCertificateAuthoritySubordinateConfig(v interface{}, d *sch
 		flattenPrivatecaCertificateAuthoritySubordinateConfigPemIssuerChain(original["pemIssuerChain"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateAuthoritySubordinateConfigCertificateAuthority(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthoritySubordinateConfigCertificateAuthority(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthoritySubordinateConfigPemIssuerChain(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthoritySubordinateConfigPemIssuerChain(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1484,23 +1485,23 @@ func flattenPrivatecaCertificateAuthoritySubordinateConfigPemIssuerChain(v inter
 		flattenPrivatecaCertificateAuthoritySubordinateConfigPemIssuerChainPemCertificates(original["pemCertificates"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateAuthoritySubordinateConfigPemIssuerChainPemCertificates(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthoritySubordinateConfigPemIssuerChainPemCertificates(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityPemCaCertificates(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityPemCaCertificates(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityGcsBucket(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityGcsBucket(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityAccessUrls(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityAccessUrls(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1515,31 +1516,31 @@ func flattenPrivatecaCertificateAuthorityAccessUrls(v interface{}, d *schema.Res
 		flattenPrivatecaCertificateAuthorityAccessUrlsCrlAccessUrls(original["crlAccessUrls"], d, config)
 	return []interface{}{transformed}
 }
-func flattenPrivatecaCertificateAuthorityAccessUrlsCaCertificateAccessUrl(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityAccessUrlsCaCertificateAccessUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityAccessUrlsCrlAccessUrls(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityAccessUrlsCrlAccessUrls(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenPrivatecaCertificateAuthorityLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenPrivatecaCertificateAuthorityLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandPrivatecaCertificateAuthorityType(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1565,7 +1566,7 @@ func expandPrivatecaCertificateAuthorityConfig(v interface{}, d TerraformResourc
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateAuthorityConfigX509Config(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityConfigX509Config(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return v, nil
 	}
@@ -1618,7 +1619,7 @@ func expandPrivatecaCertificateAuthorityConfigX509Config(v interface{}, d Terraf
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateAuthorityConfigSubjectConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityConfigSubjectConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1644,7 +1645,7 @@ func expandPrivatecaCertificateAuthorityConfigSubjectConfig(v interface{}, d Ter
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubject(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubject(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1712,39 +1713,39 @@ func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubject(v interface{}
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectCountryCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectCountryCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectOrganization(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectOrganization(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectOrganizationalUnit(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectOrganizationalUnit(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectLocality(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectLocality(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectProvince(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectProvince(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectStreetAddress(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectStreetAddress(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectPostalCode(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectPostalCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectCommonName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectCommonName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1784,27 +1785,27 @@ func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltName(v inte
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltNameDnsNames(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltNameDnsNames(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltNameUris(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltNameUris(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltNameEmailAddresses(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltNameEmailAddresses(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltNameIpAddresses(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityConfigSubjectConfigSubjectAltNameIpAddresses(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityLifetime(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityLifetime(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityKeySpec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityKeySpec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1830,15 +1831,15 @@ func expandPrivatecaCertificateAuthorityKeySpec(v interface{}, d TerraformResour
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateAuthorityKeySpecCloudKmsKeyVersion(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityKeySpecCloudKmsKeyVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityKeySpecAlgorithm(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityKeySpecAlgorithm(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthoritySubordinateConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthoritySubordinateConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1864,11 +1865,11 @@ func expandPrivatecaCertificateAuthoritySubordinateConfig(v interface{}, d Terra
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateAuthoritySubordinateConfigCertificateAuthority(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthoritySubordinateConfigCertificateAuthority(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthoritySubordinateConfigPemIssuerChain(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthoritySubordinateConfigPemIssuerChain(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1887,15 +1888,15 @@ func expandPrivatecaCertificateAuthoritySubordinateConfigPemIssuerChain(v interf
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateAuthoritySubordinateConfigPemIssuerChainPemCertificates(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthoritySubordinateConfigPemIssuerChainPemCertificates(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityGcsBucket(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandPrivatecaCertificateAuthorityGcsBucket(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandPrivatecaCertificateAuthorityLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

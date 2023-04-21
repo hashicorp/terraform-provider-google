@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeSnapshot() *schema.Resource {
@@ -237,7 +238,7 @@ creation/deletion.`,
 }
 
 func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -353,7 +354,7 @@ func resourceComputeSnapshotCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -445,7 +446,7 @@ func resourceComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -508,7 +509,7 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeSnapshotDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -553,7 +554,7 @@ func resourceComputeSnapshotDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeSnapshotImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/snapshots/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -572,11 +573,11 @@ func resourceComputeSnapshotImport(d *schema.ResourceData, meta interface{}) ([]
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenComputeSnapshotCreationTimestamp(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSnapshotCreationTimestamp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSnapshotSnapshotId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSnapshotSnapshotId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -593,7 +594,7 @@ func flattenComputeSnapshotSnapshotId(v interface{}, d *schema.ResourceData, con
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeSnapshotDiskSizeGb(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSnapshotDiskSizeGb(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -610,19 +611,19 @@ func flattenComputeSnapshotDiskSizeGb(v interface{}, d *schema.ResourceData, con
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeSnapshotChainName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSnapshotChainName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSnapshotName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSnapshotName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSnapshotDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSnapshotDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSnapshotStorageBytes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSnapshotStorageBytes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -639,33 +640,33 @@ func flattenComputeSnapshotStorageBytes(v interface{}, d *schema.ResourceData, c
 	return v // let terraform core handle it otherwise
 }
 
-func flattenComputeSnapshotStorageLocations(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSnapshotStorageLocations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSnapshotLicenses(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSnapshotLicenses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
 }
 
-func flattenComputeSnapshotLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSnapshotLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSnapshotLabelFingerprint(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSnapshotLabelFingerprint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSnapshotSourceDisk(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSnapshotSourceDisk(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return ConvertSelfLinkToV1(v.(string))
 }
 
-func flattenComputeSnapshotSnapshotEncryptionKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSnapshotSnapshotEncryptionKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -684,39 +685,39 @@ func flattenComputeSnapshotSnapshotEncryptionKey(v interface{}, d *schema.Resour
 		flattenComputeSnapshotSnapshotEncryptionKeyKmsKeyServiceAccount(original["kmsKeyServiceAccount"], d, config)
 	return []interface{}{transformed}
 }
-func flattenComputeSnapshotSnapshotEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSnapshotSnapshotEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("snapshot_encryption_key.0.raw_key")
 }
 
-func flattenComputeSnapshotSnapshotEncryptionKeySha256(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSnapshotSnapshotEncryptionKeySha256(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSnapshotSnapshotEncryptionKeyKmsKeySelfLink(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSnapshotSnapshotEncryptionKeyKmsKeySelfLink(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenComputeSnapshotSnapshotEncryptionKeyKmsKeyServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenComputeSnapshotSnapshotEncryptionKeyKmsKeyServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandComputeSnapshotChainName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotChainName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSnapshotName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSnapshotDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSnapshotStorageLocations(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotStorageLocations(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSnapshotLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandComputeSnapshotLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -727,11 +728,11 @@ func expandComputeSnapshotLabels(v interface{}, d TerraformResourceData, config 
 	return m, nil
 }
 
-func expandComputeSnapshotLabelFingerprint(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotLabelFingerprint(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSnapshotSourceDisk(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotSourceDisk(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := parseZonalFieldValue("disks", v.(string), "project", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for source_disk: %s", err)
@@ -739,7 +740,7 @@ func expandComputeSnapshotSourceDisk(v interface{}, d TerraformResourceData, con
 	return f.RelativeLink(), nil
 }
 
-func expandComputeSnapshotZone(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotZone(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := parseGlobalFieldValue("zones", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for zone: %s", err)
@@ -747,7 +748,7 @@ func expandComputeSnapshotZone(v interface{}, d TerraformResourceData, config *C
 	return f.RelativeLink(), nil
 }
 
-func expandComputeSnapshotSnapshotEncryptionKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotSnapshotEncryptionKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -787,23 +788,23 @@ func expandComputeSnapshotSnapshotEncryptionKey(v interface{}, d TerraformResour
 	return transformed, nil
 }
 
-func expandComputeSnapshotSnapshotEncryptionKeyRawKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotSnapshotEncryptionKeyRawKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSnapshotSnapshotEncryptionKeySha256(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotSnapshotEncryptionKeySha256(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSnapshotSnapshotEncryptionKeyKmsKeySelfLink(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotSnapshotEncryptionKeyKmsKeySelfLink(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSnapshotSnapshotEncryptionKeyKmsKeyServiceAccount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotSnapshotEncryptionKeyKmsKeyServiceAccount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSnapshotSourceDiskEncryptionKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotSourceDiskEncryptionKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -829,11 +830,11 @@ func expandComputeSnapshotSourceDiskEncryptionKey(v interface{}, d TerraformReso
 	return transformed, nil
 }
 
-func expandComputeSnapshotSourceDiskEncryptionKeyRawKey(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotSourceDiskEncryptionKeyRawKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSnapshotSourceDiskEncryptionKeyKmsKeyServiceAccount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandComputeSnapshotSourceDiskEncryptionKeyKmsKeyServiceAccount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

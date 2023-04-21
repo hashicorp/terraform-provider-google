@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceBigqueryReservationCapacityCommitment() *schema.Resource {
@@ -119,7 +120,7 @@ Examples: US, EU, asia-northeast1. The default value is US.`,
 }
 
 func resourceBigqueryReservationCapacityCommitmentCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -191,7 +192,7 @@ func resourceBigqueryReservationCapacityCommitmentCreate(d *schema.ResourceData,
 }
 
 func resourceBigqueryReservationCapacityCommitmentRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -253,7 +254,7 @@ func resourceBigqueryReservationCapacityCommitmentRead(d *schema.ResourceData, m
 }
 
 func resourceBigqueryReservationCapacityCommitmentUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -320,7 +321,7 @@ func resourceBigqueryReservationCapacityCommitmentUpdate(d *schema.ResourceData,
 }
 
 func resourceBigqueryReservationCapacityCommitmentDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -357,7 +358,7 @@ func resourceBigqueryReservationCapacityCommitmentDelete(d *schema.ResourceData,
 }
 
 func resourceBigqueryReservationCapacityCommitmentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/capacityCommitments/(?P<capacity_commitment_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<capacity_commitment_id>[^/]+)",
@@ -376,11 +377,11 @@ func resourceBigqueryReservationCapacityCommitmentImport(d *schema.ResourceData,
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenBigqueryReservationCapacityCommitmentName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryReservationCapacityCommitmentName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryReservationCapacityCommitmentSlotCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryReservationCapacityCommitmentSlotCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -397,42 +398,42 @@ func flattenBigqueryReservationCapacityCommitmentSlotCount(v interface{}, d *sch
 	return v // let terraform core handle it otherwise
 }
 
-func flattenBigqueryReservationCapacityCommitmentPlan(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryReservationCapacityCommitmentPlan(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryReservationCapacityCommitmentState(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryReservationCapacityCommitmentState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryReservationCapacityCommitmentCommitmentStartTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryReservationCapacityCommitmentCommitmentStartTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryReservationCapacityCommitmentCommitmentEndTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryReservationCapacityCommitmentCommitmentEndTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryReservationCapacityCommitmentRenewalPlan(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryReservationCapacityCommitmentRenewalPlan(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenBigqueryReservationCapacityCommitmentEdition(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenBigqueryReservationCapacityCommitmentEdition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandBigqueryReservationCapacityCommitmentSlotCount(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryReservationCapacityCommitmentSlotCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryReservationCapacityCommitmentPlan(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryReservationCapacityCommitmentPlan(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryReservationCapacityCommitmentRenewalPlan(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryReservationCapacityCommitmentRenewalPlan(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigqueryReservationCapacityCommitmentEdition(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandBigqueryReservationCapacityCommitmentEdition(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

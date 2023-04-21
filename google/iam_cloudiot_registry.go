@@ -20,6 +20,8 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 var CloudIotDeviceRegistryIamSchema = map[string]*schema.Schema{
@@ -48,10 +50,10 @@ type CloudIotDeviceRegistryIamUpdater struct {
 	region  string
 	name    string
 	d       TerraformResourceData
-	Config  *Config
+	Config  *transport_tpg.Config
 }
 
-func CloudIotDeviceRegistryIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
+func CloudIotDeviceRegistryIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)
@@ -103,7 +105,7 @@ func CloudIotDeviceRegistryIamUpdaterProducer(d TerraformResourceData, config *C
 	return u, nil
 }
 
-func CloudIotDeviceRegistryIdParseFunc(d *schema.ResourceData, config *Config) error {
+func CloudIotDeviceRegistryIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)

@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceApigeeAddonsConfig() *schema.Resource {
@@ -149,7 +150,7 @@ func ResourceApigeeAddonsConfig() *schema.Resource {
 }
 
 func resourceApigeeAddonsConfigCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -204,7 +205,7 @@ func resourceApigeeAddonsConfigCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceApigeeAddonsConfigRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -235,7 +236,7 @@ func resourceApigeeAddonsConfigRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceApigeeAddonsConfigUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -283,7 +284,7 @@ func resourceApigeeAddonsConfigUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceApigeeAddonsConfigDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -322,7 +323,7 @@ func resourceApigeeAddonsConfigDelete(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceApigeeAddonsConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
 	if err := ParseImportId([]string{"(?P<org>.+)"}, d, config); err != nil {
@@ -360,7 +361,7 @@ func resourceApigeeAddonsConfigImport(d *schema.ResourceData, meta interface{}) 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenApigeeAddonsConfigAddonsConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeAddonsConfigAddonsConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -381,7 +382,7 @@ func flattenApigeeAddonsConfigAddonsConfig(v interface{}, d *schema.ResourceData
 		flattenApigeeAddonsConfigAddonsConfigConnectorsPlatformConfig(original["connectorsPlatformConfig"], d, config)
 	return []interface{}{transformed}
 }
-func flattenApigeeAddonsConfigAddonsConfigAdvancedApiOpsConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeAddonsConfigAddonsConfigAdvancedApiOpsConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -394,11 +395,11 @@ func flattenApigeeAddonsConfigAddonsConfigAdvancedApiOpsConfig(v interface{}, d 
 		flattenApigeeAddonsConfigAddonsConfigAdvancedApiOpsConfigEnabled(original["enabled"], d, config)
 	return []interface{}{transformed}
 }
-func flattenApigeeAddonsConfigAddonsConfigAdvancedApiOpsConfigEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeAddonsConfigAddonsConfigAdvancedApiOpsConfigEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeAddonsConfigAddonsConfigIntegrationConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeAddonsConfigAddonsConfigIntegrationConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -411,11 +412,11 @@ func flattenApigeeAddonsConfigAddonsConfigIntegrationConfig(v interface{}, d *sc
 		flattenApigeeAddonsConfigAddonsConfigIntegrationConfigEnabled(original["enabled"], d, config)
 	return []interface{}{transformed}
 }
-func flattenApigeeAddonsConfigAddonsConfigIntegrationConfigEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeAddonsConfigAddonsConfigIntegrationConfigEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeAddonsConfigAddonsConfigMonetizationConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeAddonsConfigAddonsConfigMonetizationConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -428,11 +429,11 @@ func flattenApigeeAddonsConfigAddonsConfigMonetizationConfig(v interface{}, d *s
 		flattenApigeeAddonsConfigAddonsConfigMonetizationConfigEnabled(original["enabled"], d, config)
 	return []interface{}{transformed}
 }
-func flattenApigeeAddonsConfigAddonsConfigMonetizationConfigEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeAddonsConfigAddonsConfigMonetizationConfigEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeAddonsConfigAddonsConfigApiSecurityConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeAddonsConfigAddonsConfigApiSecurityConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -447,15 +448,15 @@ func flattenApigeeAddonsConfigAddonsConfigApiSecurityConfig(v interface{}, d *sc
 		flattenApigeeAddonsConfigAddonsConfigApiSecurityConfigExpiresAt(original["expiresAt"], d, config)
 	return []interface{}{transformed}
 }
-func flattenApigeeAddonsConfigAddonsConfigApiSecurityConfigEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeAddonsConfigAddonsConfigApiSecurityConfigEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeAddonsConfigAddonsConfigApiSecurityConfigExpiresAt(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeAddonsConfigAddonsConfigApiSecurityConfigExpiresAt(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeAddonsConfigAddonsConfigConnectorsPlatformConfig(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeAddonsConfigAddonsConfigConnectorsPlatformConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -470,15 +471,15 @@ func flattenApigeeAddonsConfigAddonsConfigConnectorsPlatformConfig(v interface{}
 		flattenApigeeAddonsConfigAddonsConfigConnectorsPlatformConfigExpiresAt(original["expiresAt"], d, config)
 	return []interface{}{transformed}
 }
-func flattenApigeeAddonsConfigAddonsConfigConnectorsPlatformConfigEnabled(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeAddonsConfigAddonsConfigConnectorsPlatformConfigEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenApigeeAddonsConfigAddonsConfigConnectorsPlatformConfigExpiresAt(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenApigeeAddonsConfigAddonsConfigConnectorsPlatformConfigExpiresAt(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandApigeeAddonsConfigAddonsConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeAddonsConfigAddonsConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -525,7 +526,7 @@ func expandApigeeAddonsConfigAddonsConfig(v interface{}, d TerraformResourceData
 	return transformed, nil
 }
 
-func expandApigeeAddonsConfigAddonsConfigAdvancedApiOpsConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeAddonsConfigAddonsConfigAdvancedApiOpsConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -544,11 +545,11 @@ func expandApigeeAddonsConfigAddonsConfigAdvancedApiOpsConfig(v interface{}, d T
 	return transformed, nil
 }
 
-func expandApigeeAddonsConfigAddonsConfigAdvancedApiOpsConfigEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeAddonsConfigAddonsConfigAdvancedApiOpsConfigEnabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeAddonsConfigAddonsConfigIntegrationConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeAddonsConfigAddonsConfigIntegrationConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -567,11 +568,11 @@ func expandApigeeAddonsConfigAddonsConfigIntegrationConfig(v interface{}, d Terr
 	return transformed, nil
 }
 
-func expandApigeeAddonsConfigAddonsConfigIntegrationConfigEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeAddonsConfigAddonsConfigIntegrationConfigEnabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeAddonsConfigAddonsConfigMonetizationConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeAddonsConfigAddonsConfigMonetizationConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -590,11 +591,11 @@ func expandApigeeAddonsConfigAddonsConfigMonetizationConfig(v interface{}, d Ter
 	return transformed, nil
 }
 
-func expandApigeeAddonsConfigAddonsConfigMonetizationConfigEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeAddonsConfigAddonsConfigMonetizationConfigEnabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeAddonsConfigAddonsConfigApiSecurityConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeAddonsConfigAddonsConfigApiSecurityConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -620,15 +621,15 @@ func expandApigeeAddonsConfigAddonsConfigApiSecurityConfig(v interface{}, d Terr
 	return transformed, nil
 }
 
-func expandApigeeAddonsConfigAddonsConfigApiSecurityConfigEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeAddonsConfigAddonsConfigApiSecurityConfigEnabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeAddonsConfigAddonsConfigApiSecurityConfigExpiresAt(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeAddonsConfigAddonsConfigApiSecurityConfigExpiresAt(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeAddonsConfigAddonsConfigConnectorsPlatformConfig(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeAddonsConfigAddonsConfigConnectorsPlatformConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -654,10 +655,10 @@ func expandApigeeAddonsConfigAddonsConfigConnectorsPlatformConfig(v interface{},
 	return transformed, nil
 }
 
-func expandApigeeAddonsConfigAddonsConfigConnectorsPlatformConfigEnabled(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeAddonsConfigAddonsConfigConnectorsPlatformConfigEnabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeAddonsConfigAddonsConfigConnectorsPlatformConfigExpiresAt(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandApigeeAddonsConfigAddonsConfigConnectorsPlatformConfigExpiresAt(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

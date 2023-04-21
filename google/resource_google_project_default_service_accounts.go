@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/iam/v1"
 )
@@ -64,7 +65,7 @@ func ResourceGoogleProjectDefaultServiceAccounts() *schema.Resource {
 }
 
 func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData, meta interface{}, action, uniqueID, email, project string) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -136,7 +137,7 @@ func resourceGoogleProjectDefaultServiceAccountsDoAction(d *schema.ResourceData,
 }
 
 func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -169,7 +170,7 @@ func resourceGoogleProjectDefaultServiceAccountsCreate(d *schema.ResourceData, m
 	return nil
 }
 
-func listServiceAccounts(config *Config, d *schema.ResourceData, userAgent string) ([]*iam.ServiceAccount, error) {
+func listServiceAccounts(config *transport_tpg.Config, d *schema.ResourceData, userAgent string) ([]*iam.ServiceAccount, error) {
 	pid := d.Get("project").(string)
 	response, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.List(PrefixedProject(pid)).Do()
 	if err != nil {

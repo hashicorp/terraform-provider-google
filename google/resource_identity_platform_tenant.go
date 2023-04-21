@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceIdentityPlatformTenant() *schema.Resource {
@@ -81,7 +82,7 @@ are not able to manage its users.`,
 }
 
 func resourceIdentityPlatformTenantCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -168,7 +169,7 @@ func resourceIdentityPlatformTenantCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceIdentityPlatformTenantRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -221,7 +222,7 @@ func resourceIdentityPlatformTenantRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceIdentityPlatformTenantUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -308,7 +309,7 @@ func resourceIdentityPlatformTenantUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceIdentityPlatformTenantDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -345,7 +346,7 @@ func resourceIdentityPlatformTenantDelete(d *schema.ResourceData, meta interface
 }
 
 func resourceIdentityPlatformTenantImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/tenants/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
@@ -364,41 +365,41 @@ func resourceIdentityPlatformTenantImport(d *schema.ResourceData, meta interface
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenIdentityPlatformTenantName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformTenantName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
 	return NameFromSelfLinkStateFunc(v)
 }
 
-func flattenIdentityPlatformTenantDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformTenantDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformTenantAllowPasswordSignup(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformTenantAllowPasswordSignup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformTenantEnableEmailLinkSignin(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformTenantEnableEmailLinkSignin(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenIdentityPlatformTenantDisableAuth(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenIdentityPlatformTenantDisableAuth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandIdentityPlatformTenantDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformTenantDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformTenantAllowPasswordSignup(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformTenantAllowPasswordSignup(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformTenantEnableEmailLinkSignin(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformTenantEnableEmailLinkSignin(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformTenantDisableAuth(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandIdentityPlatformTenantDisableAuth(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

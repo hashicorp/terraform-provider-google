@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceComputeNetworkPeeringRoutesConfig() *schema.Resource {
@@ -74,7 +75,7 @@ func ResourceComputeNetworkPeeringRoutesConfig() *schema.Resource {
 }
 
 func resourceComputeNetworkPeeringRoutesConfigCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -159,7 +160,7 @@ func resourceComputeNetworkPeeringRoutesConfigCreate(d *schema.ResourceData, met
 }
 
 func resourceComputeNetworkPeeringRoutesConfigRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -218,7 +219,7 @@ func resourceComputeNetworkPeeringRoutesConfigRead(d *schema.ResourceData, meta 
 }
 
 func resourceComputeNetworkPeeringRoutesConfigUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -305,7 +306,7 @@ func resourceComputeNetworkPeeringRoutesConfigDelete(d *schema.ResourceData, met
 }
 
 func resourceComputeNetworkPeeringRoutesConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/networks/(?P<network>[^/]+)/networkPeerings/(?P<peering>[^/]+)",
 		"(?P<project>[^/]+)/(?P<network>[^/]+)/(?P<peering>[^/]+)",
@@ -324,27 +325,27 @@ func resourceComputeNetworkPeeringRoutesConfigImport(d *schema.ResourceData, met
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenNestedComputeNetworkPeeringRoutesConfigPeering(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeNetworkPeeringRoutesConfigPeering(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeNetworkPeeringRoutesConfigExportCustomRoutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeNetworkPeeringRoutesConfigExportCustomRoutes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedComputeNetworkPeeringRoutesConfigImportCustomRoutes(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenNestedComputeNetworkPeeringRoutesConfigImportCustomRoutes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandNestedComputeNetworkPeeringRoutesConfigPeering(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeNetworkPeeringRoutesConfigPeering(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeNetworkPeeringRoutesConfigExportCustomRoutes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeNetworkPeeringRoutesConfigExportCustomRoutes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeNetworkPeeringRoutesConfigImportCustomRoutes(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandNestedComputeNetworkPeeringRoutesConfigImportCustomRoutes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -383,11 +384,11 @@ func flattenNestedComputeNetworkPeeringRoutesConfig(d *schema.ResourceData, meta
 }
 
 func resourceComputeNetworkPeeringRoutesConfigFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedPeering, err := expandNestedComputeNetworkPeeringRoutesConfigPeering(d.Get("peering"), d, meta.(*Config))
+	expectedPeering, err := expandNestedComputeNetworkPeeringRoutesConfigPeering(d.Get("peering"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedPeering := flattenNestedComputeNetworkPeeringRoutesConfigPeering(expectedPeering, d, meta.(*Config))
+	expectedFlattenedPeering := flattenNestedComputeNetworkPeeringRoutesConfigPeering(expectedPeering, d, meta.(*transport_tpg.Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -396,7 +397,7 @@ func resourceComputeNetworkPeeringRoutesConfigFindNestedObjectInList(d *schema.R
 		}
 		item := itemRaw.(map[string]interface{})
 
-		itemPeering := flattenNestedComputeNetworkPeeringRoutesConfigPeering(item["name"], d, meta.(*Config))
+		itemPeering := flattenNestedComputeNetworkPeeringRoutesConfigPeering(item["name"], d, meta.(*transport_tpg.Config))
 		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(isEmptyValue(reflect.ValueOf(itemPeering)) && isEmptyValue(reflect.ValueOf(expectedFlattenedPeering))) && !reflect.DeepEqual(itemPeering, expectedFlattenedPeering) {
 			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemPeering, expectedFlattenedPeering)

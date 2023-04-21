@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func ResourceVertexAIEndpoint() *schema.Resource {
@@ -295,7 +296,7 @@ func ResourceVertexAIEndpoint() *schema.Resource {
 }
 
 func resourceVertexAIEndpointCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -390,7 +391,7 @@ func resourceVertexAIEndpointCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceVertexAIEndpointRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -455,7 +456,7 @@ func resourceVertexAIEndpointRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceVertexAIEndpointUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -532,7 +533,7 @@ func resourceVertexAIEndpointUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceVertexAIEndpointDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -577,7 +578,7 @@ func resourceVertexAIEndpointDelete(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceVertexAIEndpointImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/endpoints/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -596,15 +597,15 @@ func resourceVertexAIEndpointImport(d *schema.ResourceData, meta interface{}) ([
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenVertexAIEndpointDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointDescription(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointDeployedModels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -633,7 +634,7 @@ func flattenVertexAIEndpointDeployedModels(v interface{}, d *schema.ResourceData
 	}
 	return transformed
 }
-func flattenVertexAIEndpointDeployedModelsDedicatedResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsDedicatedResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -652,7 +653,7 @@ func flattenVertexAIEndpointDeployedModelsDedicatedResources(v interface{}, d *s
 		flattenVertexAIEndpointDeployedModelsDedicatedResourcesAutoscalingMetricSpecs(original["autoscalingMetricSpecs"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIEndpointDeployedModelsDedicatedResourcesMachineSpec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsDedicatedResourcesMachineSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -669,15 +670,15 @@ func flattenVertexAIEndpointDeployedModelsDedicatedResourcesMachineSpec(v interf
 		flattenVertexAIEndpointDeployedModelsDedicatedResourcesMachineSpecAcceleratorCount(original["acceleratorCount"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIEndpointDeployedModelsDedicatedResourcesMachineSpecMachineType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsDedicatedResourcesMachineSpecMachineType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointDeployedModelsDedicatedResourcesMachineSpecAcceleratorType(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsDedicatedResourcesMachineSpecAcceleratorType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointDeployedModelsDedicatedResourcesMachineSpecAcceleratorCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsDedicatedResourcesMachineSpecAcceleratorCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -694,7 +695,7 @@ func flattenVertexAIEndpointDeployedModelsDedicatedResourcesMachineSpecAccelerat
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVertexAIEndpointDeployedModelsDedicatedResourcesMinReplicaCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsDedicatedResourcesMinReplicaCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -711,7 +712,7 @@ func flattenVertexAIEndpointDeployedModelsDedicatedResourcesMinReplicaCount(v in
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVertexAIEndpointDeployedModelsDedicatedResourcesMaxReplicaCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsDedicatedResourcesMaxReplicaCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -728,7 +729,7 @@ func flattenVertexAIEndpointDeployedModelsDedicatedResourcesMaxReplicaCount(v in
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVertexAIEndpointDeployedModelsDedicatedResourcesAutoscalingMetricSpecs(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsDedicatedResourcesAutoscalingMetricSpecs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -747,11 +748,11 @@ func flattenVertexAIEndpointDeployedModelsDedicatedResourcesAutoscalingMetricSpe
 	}
 	return transformed
 }
-func flattenVertexAIEndpointDeployedModelsDedicatedResourcesAutoscalingMetricSpecsMetricName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsDedicatedResourcesAutoscalingMetricSpecsMetricName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointDeployedModelsDedicatedResourcesAutoscalingMetricSpecsTarget(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsDedicatedResourcesAutoscalingMetricSpecsTarget(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -768,7 +769,7 @@ func flattenVertexAIEndpointDeployedModelsDedicatedResourcesAutoscalingMetricSpe
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVertexAIEndpointDeployedModelsAutomaticResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsAutomaticResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -783,7 +784,7 @@ func flattenVertexAIEndpointDeployedModelsAutomaticResources(v interface{}, d *s
 		flattenVertexAIEndpointDeployedModelsAutomaticResourcesMaxReplicaCount(original["maxReplicaCount"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIEndpointDeployedModelsAutomaticResourcesMinReplicaCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsAutomaticResourcesMinReplicaCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -800,7 +801,7 @@ func flattenVertexAIEndpointDeployedModelsAutomaticResourcesMinReplicaCount(v in
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVertexAIEndpointDeployedModelsAutomaticResourcesMaxReplicaCount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsAutomaticResourcesMaxReplicaCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -817,35 +818,35 @@ func flattenVertexAIEndpointDeployedModelsAutomaticResourcesMaxReplicaCount(v in
 	return v // let terraform core handle it otherwise
 }
 
-func flattenVertexAIEndpointDeployedModelsId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointDeployedModelsModel(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsModel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointDeployedModelsModelVersionId(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsModelVersionId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointDeployedModelsDisplayName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointDeployedModelsCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointDeployedModelsServiceAccount(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointDeployedModelsEnableAccessLogging(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsEnableAccessLogging(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointDeployedModelsPrivateEndpoints(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsPrivateEndpoints(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -864,43 +865,43 @@ func flattenVertexAIEndpointDeployedModelsPrivateEndpoints(v interface{}, d *sch
 		flattenVertexAIEndpointDeployedModelsPrivateEndpointsServiceAttachment(original["serviceAttachment"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIEndpointDeployedModelsPrivateEndpointsPredictHttpUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsPrivateEndpointsPredictHttpUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointDeployedModelsPrivateEndpointsExplainHttpUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsPrivateEndpointsExplainHttpUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointDeployedModelsPrivateEndpointsHealthHttpUri(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsPrivateEndpointsHealthHttpUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointDeployedModelsPrivateEndpointsServiceAttachment(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsPrivateEndpointsServiceAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointDeployedModelsSharedResources(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsSharedResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointDeployedModelsEnableContainerLogging(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointDeployedModelsEnableContainerLogging(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointLabels(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointCreateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointUpdateTime(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointEncryptionSpec(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointEncryptionSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -913,27 +914,27 @@ func flattenVertexAIEndpointEncryptionSpec(v interface{}, d *schema.ResourceData
 		flattenVertexAIEndpointEncryptionSpecKmsKeyName(original["kmsKeyName"], d, config)
 	return []interface{}{transformed}
 }
-func flattenVertexAIEndpointEncryptionSpecKmsKeyName(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointEncryptionSpecKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointNetwork(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenVertexAIEndpointModelDeploymentMonitoringJob(v interface{}, d *schema.ResourceData, config *Config) interface{} {
+func flattenVertexAIEndpointModelDeploymentMonitoringJob(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandVertexAIEndpointDisplayName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIEndpointDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIEndpointDescription(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIEndpointDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIEndpointLabels(v interface{}, d TerraformResourceData, config *Config) (map[string]string, error) {
+func expandVertexAIEndpointLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -944,7 +945,7 @@ func expandVertexAIEndpointLabels(v interface{}, d TerraformResourceData, config
 	return m, nil
 }
 
-func expandVertexAIEndpointEncryptionSpec(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIEndpointEncryptionSpec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -963,10 +964,10 @@ func expandVertexAIEndpointEncryptionSpec(v interface{}, d TerraformResourceData
 	return transformed, nil
 }
 
-func expandVertexAIEndpointEncryptionSpecKmsKeyName(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIEndpointEncryptionSpecKmsKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIEndpointNetwork(v interface{}, d TerraformResourceData, config *Config) (interface{}, error) {
+func expandVertexAIEndpointNetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

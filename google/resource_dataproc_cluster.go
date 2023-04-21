@@ -3,6 +3,7 @@ package google
 import (
 	"errors"
 	"fmt"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"regexp"
 	"strconv"
@@ -1293,7 +1294,7 @@ func acceleratorsSchema() *schema.Resource {
 }
 
 func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -1353,7 +1354,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 	return resourceDataprocClusterRead(d, meta)
 }
 
-func expandVirtualClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.VirtualClusterConfig, error) {
+func expandVirtualClusterConfig(d *schema.ResourceData, config *transport_tpg.Config) (*dataproc.VirtualClusterConfig, error) {
 	conf := &dataproc.VirtualClusterConfig{}
 
 	if v, ok := d.GetOk("virtual_cluster_config"); ok {
@@ -1535,7 +1536,7 @@ func expandGkeNodePoolAutoscalingConfig(cfg map[string]interface{}) *dataproc.Gk
 	return conf
 }
 
-func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.ClusterConfig, error) {
+func expandClusterConfig(d *schema.ResourceData, config *transport_tpg.Config) (*dataproc.ClusterConfig, error) {
 	conf := &dataproc.ClusterConfig{
 		// SDK requires GceClusterConfig to be specified,
 		// even if no explicit values specified
@@ -1616,7 +1617,7 @@ func expandClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.Clus
 	return conf, nil
 }
 
-func expandGceClusterConfig(d *schema.ResourceData, config *Config) (*dataproc.GceClusterConfig, error) {
+func expandGceClusterConfig(d *schema.ResourceData, config *transport_tpg.Config) (*dataproc.GceClusterConfig, error) {
 	conf := &dataproc.GceClusterConfig{}
 
 	v, ok := d.GetOk("cluster_config.0.gce_cluster_config")
@@ -1943,7 +1944,7 @@ func expandAccelerators(configured []interface{}) []*dataproc.AcceleratorConfig 
 }
 
 func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -2050,7 +2051,7 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -2532,7 +2533,7 @@ func extractInitTimeout(t string) (int, error) {
 }
 
 func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*transport_tpg.Config)
 	userAgent, err := generateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err

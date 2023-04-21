@@ -18,10 +18,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 type CloudBuildOperationWaiter struct {
-	Config    *Config
+	Config    *transport_tpg.Config
 	UserAgent string
 	Project   string
 	CommonOperationWaiter
@@ -37,7 +39,7 @@ func (w *CloudBuildOperationWaiter) QueryOp() (interface{}, error) {
 	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
-func createCloudBuildWaiter(config *Config, op map[string]interface{}, project, activity, userAgent string) (*CloudBuildOperationWaiter, error) {
+func createCloudBuildWaiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*CloudBuildOperationWaiter, error) {
 	w := &CloudBuildOperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
@@ -50,7 +52,7 @@ func createCloudBuildWaiter(config *Config, op map[string]interface{}, project, 
 }
 
 // nolint: deadcode,unused
-func CloudBuildOperationWaitTimeWithResponse(config *Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func CloudBuildOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	w, err := createCloudBuildWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
@@ -61,7 +63,7 @@ func CloudBuildOperationWaitTimeWithResponse(config *Config, op map[string]inter
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func CloudBuildOperationWaitTime(config *Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func CloudBuildOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

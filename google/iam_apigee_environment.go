@@ -20,6 +20,8 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 var ApigeeEnvironmentIamSchema = map[string]*schema.Schema{
@@ -40,10 +42,10 @@ type ApigeeEnvironmentIamUpdater struct {
 	orgId  string
 	envId  string
 	d      TerraformResourceData
-	Config *Config
+	Config *transport_tpg.Config
 }
 
-func ApigeeEnvironmentIamUpdaterProducer(d TerraformResourceData, config *Config) (ResourceIamUpdater, error) {
+func ApigeeEnvironmentIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	if v, ok := d.GetOk("org_id"); ok {
@@ -81,7 +83,7 @@ func ApigeeEnvironmentIamUpdaterProducer(d TerraformResourceData, config *Config
 	return u, nil
 }
 
-func ApigeeEnvironmentIdParseFunc(d *schema.ResourceData, config *Config) error {
+func ApigeeEnvironmentIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
 	m, err := getImportIdQualifiers([]string{"(?P<org_id>.+)/environments/(?P<env_id>[^/]+)", "(?P<env_id>[^/]+)"}, d, config, d.Id())
