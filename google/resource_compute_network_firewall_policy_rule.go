@@ -154,6 +154,13 @@ func ComputeNetworkFirewallPolicyRuleMatchSchema() *schema.Resource {
 				Elem:        ComputeNetworkFirewallPolicyRuleMatchLayer4ConfigsSchema(),
 			},
 
+			"dest_address_groups": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Address groups which should be matched against the traffic destination. Maximum number of destination address groups is 10. Destination address groups is only supported in Egress rules.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
 			"dest_fqdns": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -179,6 +186,13 @@ func ComputeNetworkFirewallPolicyRuleMatchSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "Name of the Google Cloud Threat Intelligence list.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"src_address_groups": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Address groups which should be matched against the traffic source. Maximum number of source address groups is 10. Source address groups is only supported in Ingress rules.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -558,10 +572,12 @@ func expandComputeNetworkFirewallPolicyRuleMatch(o interface{}) *compute.Network
 	obj := objArr[0].(map[string]interface{})
 	return &compute.NetworkFirewallPolicyRuleMatch{
 		Layer4Configs:           expandComputeNetworkFirewallPolicyRuleMatchLayer4ConfigsArray(obj["layer4_configs"]),
+		DestAddressGroups:       expandStringArray(obj["dest_address_groups"]),
 		DestFqdns:               expandStringArray(obj["dest_fqdns"]),
 		DestIPRanges:            expandStringArray(obj["dest_ip_ranges"]),
 		DestRegionCodes:         expandStringArray(obj["dest_region_codes"]),
 		DestThreatIntelligences: expandStringArray(obj["dest_threat_intelligences"]),
+		SrcAddressGroups:        expandStringArray(obj["src_address_groups"]),
 		SrcFqdns:                expandStringArray(obj["src_fqdns"]),
 		SrcIPRanges:             expandStringArray(obj["src_ip_ranges"]),
 		SrcRegionCodes:          expandStringArray(obj["src_region_codes"]),
@@ -576,10 +592,12 @@ func flattenComputeNetworkFirewallPolicyRuleMatch(obj *compute.NetworkFirewallPo
 	}
 	transformed := map[string]interface{}{
 		"layer4_configs":            flattenComputeNetworkFirewallPolicyRuleMatchLayer4ConfigsArray(obj.Layer4Configs),
+		"dest_address_groups":       obj.DestAddressGroups,
 		"dest_fqdns":                obj.DestFqdns,
 		"dest_ip_ranges":            obj.DestIPRanges,
 		"dest_region_codes":         obj.DestRegionCodes,
 		"dest_threat_intelligences": obj.DestThreatIntelligences,
+		"src_address_groups":        obj.SrcAddressGroups,
 		"src_fqdns":                 obj.SrcFqdns,
 		"src_ip_ranges":             obj.SrcIPRanges,
 		"src_region_codes":          obj.SrcRegionCodes,

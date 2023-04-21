@@ -110,6 +110,10 @@ The following arguments are supported:
 
 The `match` block supports:
     
+* `dest_address_groups` -
+  (Optional)
+  Address groups which should be matched against the traffic destination. Maximum number of destination address groups is 10. Destination address groups is only supported in Egress rules.
+    
 * `dest_fqdns` -
   (Optional)
   Domain names that will be used to match against the resolved domain name of destination of traffic. Can only be specified if DIRECTION is egress.
@@ -129,6 +133,10 @@ The `match` block supports:
 * `layer4_configs` -
   (Required)
   Pairs of IP protocols and ports that the rule should match.
+    
+* `src_address_groups` -
+  (Optional)
+  Address groups which should be matched against the traffic source. Maximum number of source address groups is 10. Source address groups is only supported in Ingress rules.
     
 * `src_fqdns` -
   (Optional)
