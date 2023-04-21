@@ -292,6 +292,24 @@ The following arguments are supported:
   The VM instance must be located in zones contained in the same region as
   this Cloud Router. The VM instance is the peer side of the BGP session.
 
+* `enable_ipv6` -
+  (Optional)
+  Enable IPv6 traffic over BGP Peer. If not specified, it is disabled by default.
+
+* `ipv6_nexthop_address` -
+  (Optional)
+  IPv6 address of the interface inside Google Cloud Platform.
+  The address must be in the range 2600:2d00:0:2::/64 or 2600:2d00:0:3::/64.
+  If you do not specify the next hop addresses, Google Cloud automatically
+  assigns unused addresses from the 2600:2d00:0:2::/64 or 2600:2d00:0:3::/64 range for you.
+
+* `peer_ipv6_nexthop_address` -
+  (Optional)
+  IPv6 address of the BGP interface outside Google Cloud Platform.
+  The address must be in the range 2600:2d00:0:2::/64 or 2600:2d00:0:3::/64.
+  If you do not specify the next hop addresses, Google Cloud automatically
+  assigns unused addresses from the 2600:2d00:0:2::/64 or 2600:2d00:0:3::/64 range for you.
+
 * `region` -
   (Optional)
   Region where the router and BgpPeer reside.
