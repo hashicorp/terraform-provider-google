@@ -25,6 +25,32 @@ const TestEnvVar = "TF_ACC"
 var TestAccProviders map[string]*schema.Provider
 var testAccProvider *schema.Provider
 
+// providerConfigEnvNames returns a list of all the environment variables that could be set by a user to configure the provider
+func providerConfigEnvNames() []string {
+
+	envs := []string{}
+
+	// Use existing collections of ENV names
+	envVarsSets := [][]string{
+		CredsEnvVars,   // credentials field
+		ProjectEnvVars, // project field
+		regionEnvVars,  //region field
+		zoneEnvVars,    // zone field
+	}
+	for _, set := range envVarsSets {
+		envs = append(envs, set...)
+	}
+
+	// Add remaining ENVs
+	envs = append(envs, "GOOGLE_OAUTH_ACCESS_TOKEN")          // access_token field
+	envs = append(envs, "GOOGLE_BILLING_PROJECT")             // billing_project field
+	envs = append(envs, "GOOGLE_IMPERSONATE_SERVICE_ACCOUNT") // impersonate_service_account field
+	envs = append(envs, "USER_PROJECT_OVERRIDE")              // user_project_override field
+	envs = append(envs, "CLOUDSDK_CORE_REQUEST_REASON")       // request_reason field
+
+	return envs
+}
+
 var CredsEnvVars = []string{
 	"GOOGLE_CREDENTIALS",
 	"GOOGLE_CLOUD_KEYFILE_JSON",
