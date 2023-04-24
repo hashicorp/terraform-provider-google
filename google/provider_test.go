@@ -121,7 +121,16 @@ func setupSDKProviderConfigTest(t *testing.T, configValues map[string]interface{
 		}
 	}
 
-	// Set ENVs
+	// Unset any ENVs in the test environment here
+	// The testing package restores the original values afterwards
+	envs := providerConfigEnvNames()
+	if len(envs) > 0 {
+		for _, k := range envs {
+			t.Setenv(k, "")
+		}
+	}
+
+	// Set ENVs for the test case
 	if len(envValues) > 0 {
 		for k, v := range envValues {
 			t.Setenv(k, v)
