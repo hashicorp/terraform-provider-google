@@ -28,7 +28,7 @@ To get more information about Dataset, see:
 * How-to Guides
     * [Datasets Intro](https://cloud.google.com/bigquery/docs/datasets-intro)
 
-~> **Warning:** You must specify the role field using the legacy format `OWNER` instead of `roles/bigquery.dataOwner`. 
+~> **Warning:** You must specify the role field using the legacy format `OWNER` instead of `roles/bigquery.dataOwner`.
 The API does accept both formats but it will always return the legacy format which results in Terraform
 showing permanent diff on each plan and apply operation.
 

@@ -81,7 +81,7 @@ resource "google_bigquery_connection_iam_member" "member" {
 
 The following arguments are supported:
 
-* `connection_id` - (Required) Optional connection id that should be assigned to the created connection. 
+* `connection_id` - (Required) Optional connection id that should be assigned to the created connection.
  Used to find the parent resource to bind the IAM policy to
 * `location` - (Required) The geographic location where the connection should reside.
 Cloud SQL instance must be in the same location as the connection

@@ -19,11 +19,11 @@ description: |-
 
 # google\_access\_context\_manager\_ingress\_policy
 
-IngressPolicies match requests based on ingressFrom and ingressTo stanzas. For an ingress policy to match, 
-both the ingressFrom and ingressTo stanzas must be matched. If an IngressPolicy matches a request, 
+IngressPolicies match requests based on ingressFrom and ingressTo stanzas. For an ingress policy to match,
+both the ingressFrom and ingressTo stanzas must be matched. If an IngressPolicy matches a request,
 the request is allowed through the perimeter boundary from outside the perimeter.
-For example, access from the internet can be allowed either based on an AccessLevel or, 
-for traffic hosted on Google Cloud, the project of the source network. 
+For example, access from the internet can be allowed either based on an AccessLevel or,
+for traffic hosted on Google Cloud, the project of the source network.
 For access from private networks, using the project of the hosting network is required.
 Individual ingress policies can be limited by restricting which services and/
 or actions they match using the ingressTo field.

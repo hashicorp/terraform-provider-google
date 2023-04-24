@@ -384,7 +384,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/connections/{{connection_id}}`
 
 * `name` -
-  The resource name of the connection in the form of: 
+  The resource name of the connection in the form of:
   "projects/{project_id}/locations/{location_id}/connections/{connectionId}"
 
 * `has_credential` -
