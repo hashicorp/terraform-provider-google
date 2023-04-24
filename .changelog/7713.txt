@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_network_security_address_group`
+```
