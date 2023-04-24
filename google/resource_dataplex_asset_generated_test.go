@@ -66,7 +66,7 @@ func TestAccDataplexAsset_BasicAssetHandWritten(t *testing.T) {
 func testAccDataplexAsset_BasicAssetHandWritten(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "basic_bucket" {
-  name          = "dataplex-bucket-%{random_suffix}"
+  name          = "tf-test-bucket%{random_suffix}"
   location      = "%{region}"
   uniform_bucket_level_access = true
   lifecycle {
@@ -116,7 +116,7 @@ resource "google_dataplex_asset" "primary" {
   }
  
   resource_spec {
-    name = "projects/%{project_name}/buckets/dataplex-bucket-%{random_suffix}"
+    name = "projects/%{project_name}/buckets/tf-test-bucket%{random_suffix}"
     type = "STORAGE_BUCKET"
   }
  
@@ -131,7 +131,7 @@ resource "google_dataplex_asset" "primary" {
 func testAccDataplexAsset_BasicAssetHandWrittenUpdate0(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "basic_bucket" {
-  name          = "dataplex-bucket-%{random_suffix}"
+  name          = "tf-test-bucket%{random_suffix}"
   location      = "%{region}"
   uniform_bucket_level_access = true
   lifecycle {
@@ -181,7 +181,7 @@ resource "google_dataplex_asset" "primary" {
   }
  
   resource_spec {
-    name = "projects/%{project_name}/buckets/dataplex-bucket-%{random_suffix}"
+    name = "projects/%{project_name}/buckets/tf-test-bucket%{random_suffix}"
     type = "STORAGE_BUCKET"
   }
  
