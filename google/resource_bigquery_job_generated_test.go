@@ -253,7 +253,7 @@ locals {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${local.project}-tf-test-bq-geojson-sample%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "${local.project}-tf-test-bq-geojson%{random_suffix}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
