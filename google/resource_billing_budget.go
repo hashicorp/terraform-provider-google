@@ -262,7 +262,7 @@ Exactly one of 'calendar_period', 'custom_period' must be provided.`,
 									"end_date": {
 										Type:     schema.TypeList,
 										Optional: true,
-										Description: `Optional. The end date of the time period. Budgets with elapsed end date won't be processed. 
+										Description: `Optional. The end date of the time period. Budgets with elapsed end date won't be processed.
 If unset, specifies to track all usage incurred since the startDate.`,
 										MaxItems: 1,
 										Elem: &schema.Resource{

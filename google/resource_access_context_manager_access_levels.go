@@ -243,7 +243,7 @@ for the AccessLevel to be applied. Default value: "AND" Possible values: ["AND",
 			"custom": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Description: `Custom access level conditions are set using the Cloud Common Expression Language to represent the necessary conditions for the level to apply to a request. 
+				Description: `Custom access level conditions are set using the Cloud Common Expression Language to represent the necessary conditions for the level to apply to a request.
 See CEL spec at: https://github.com/google/cel-spec.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -252,7 +252,7 @@ See CEL spec at: https://github.com/google/cel-spec.`,
 							Type:     schema.TypeList,
 							Required: true,
 							Description: `Represents a textual expression in the Common Expression Language (CEL) syntax. CEL is a C-like expression language.
-This page details the objects and attributes that are used to the build the CEL expressions for 
+This page details the objects and attributes that are used to the build the CEL expressions for
 custom access levels - https://cloud.google.com/access-context-manager/docs/custom-access-level-spec.`,
 							MaxItems: 1,
 							Elem: &schema.Resource{

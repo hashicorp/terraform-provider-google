@@ -48,13 +48,13 @@ func ResourceActiveDirectoryDomain() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateADDomainName(),
-				Description: `The fully qualified domain name. e.g. mydomain.myorganization.com, with the restrictions, 
+				Description: `The fully qualified domain name. e.g. mydomain.myorganization.com, with the restrictions,
 https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locations.global.domains.`,
 			},
 			"locations": {
 				Type:     schema.TypeList,
 				Required: true,
-				Description: `Locations where domain needs to be provisioned. [regions][compute/docs/regions-zones/] 
+				Description: `Locations where domain needs to be provisioned. [regions][compute/docs/regions-zones/]
 e.g. us-west1 or us-east4 Service supports up to 4 locations at once. Each location will use a /26 block.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -64,14 +64,14 @@ e.g. us-west1 or us-east4 Service supports up to 4 locations at once. Each locat
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				Description: `The CIDR range of internal addresses that are reserved for this domain. Reserved networks must be /24 or larger. 
+				Description: `The CIDR range of internal addresses that are reserved for this domain. Reserved networks must be /24 or larger.
 Ranges must be unique and non-overlapping with existing subnets in authorizedNetworks`,
 			},
 			"admin": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Description: `The name of delegated administrator account used to perform Active Directory operations. 
+				Description: `The name of delegated administrator account used to perform Active Directory operations.
 If not specified, setupadmin will be used.`,
 				Default: "setupadmin",
 			},
@@ -94,7 +94,7 @@ If CIDR subnets overlap between networks, domain creation will fail.`,
 			"fqdn": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `The fully-qualified domain name of the exposed domain used by clients to connect to the service. 
+				Description: `The fully-qualified domain name of the exposed domain used by clients to connect to the service.
 Similar to what would be chosen for an Active Directory set up on an internal network.`,
 			},
 			"name": {

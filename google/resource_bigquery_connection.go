@@ -252,7 +252,7 @@ Azure allowed regions are azure-eastus2`,
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `The resource name of the connection in the form of: 
+				Description: `The resource name of the connection in the form of:
 "projects/{project_id}/locations/{location_id}/connections/{connectionId}"`,
 			},
 			"project": {

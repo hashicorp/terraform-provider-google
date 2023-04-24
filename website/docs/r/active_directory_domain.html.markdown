@@ -46,17 +46,17 @@ The following arguments are supported:
 
 * `reserved_ip_range` -
   (Required)
-  The CIDR range of internal addresses that are reserved for this domain. Reserved networks must be /24 or larger. 
+  The CIDR range of internal addresses that are reserved for this domain. Reserved networks must be /24 or larger.
   Ranges must be unique and non-overlapping with existing subnets in authorizedNetworks
 
 * `locations` -
   (Required)
-  Locations where domain needs to be provisioned. [regions][compute/docs/regions-zones/] 
+  Locations where domain needs to be provisioned. [regions][compute/docs/regions-zones/]
   e.g. us-west1 or us-east4 Service supports up to 4 locations at once. Each location will use a /26 block.
 
 * `domain_name` -
   (Required)
-  The fully qualified domain name. e.g. mydomain.myorganization.com, with the restrictions, 
+  The fully qualified domain name. e.g. mydomain.myorganization.com, with the restrictions,
   https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locations.global.domains.
 
 
@@ -74,7 +74,7 @@ The following arguments are supported:
 
 * `admin` -
   (Optional)
-  The name of delegated administrator account used to perform Active Directory operations. 
+  The name of delegated administrator account used to perform Active Directory operations.
   If not specified, setupadmin will be used.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
@@ -91,7 +91,7 @@ In addition to the arguments listed above, the following computed attributes are
   The unique name of the domain using the format: `projects/{project}/locations/global/domains/{domainName}`.
 
 * `fqdn` -
-  The fully-qualified domain name of the exposed domain used by clients to connect to the service. 
+  The fully-qualified domain name of the exposed domain used by clients to connect to the service.
   Similar to what would be chosen for an Active Directory set up on an internal network.
 
 

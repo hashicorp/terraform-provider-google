@@ -137,8 +137,8 @@ The following arguments are supported:
 
 * `alias` -
   (Required)
-  Alias for the key/certificate pair. Values must match the regular expression [\w\s-.]{1,255}. 
-  This must be provided for all formats except selfsignedcert; self-signed certs may specify the alias in either 
+  Alias for the key/certificate pair. Values must match the regular expression [\w\s-.]{1,255}.
+  This must be provided for all formats except selfsignedcert; self-signed certs may specify the alias in either
   this parameter or the JSON body.
 
 * `sig_alg` -
@@ -250,7 +250,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `is_valid` -
   (Output)
-  Flag that specifies whether the certificate is valid. 
+  Flag that specifies whether the certificate is valid.
   Flag is set to Yes if the certificate is valid, No if expired, or Not yet if not yet valid.
 
 * `subject_alternative_names` -
