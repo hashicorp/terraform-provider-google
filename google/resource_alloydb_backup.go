@@ -68,6 +68,22 @@ func ResourceAlloydbBackup() *schema.Resource {
 				ForceNew:    true,
 				Description: `User-provided description of the backup.`,
 			},
+			"encryption_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `EncryptionConfig describes the encryption config of a cluster or a backup that is encrypted with a CMEK (customer-managed encryption key).`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"kms_key_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The fully-qualified resource name of the KMS key. Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].`,
+						},
+					},
+				},
+			},
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -78,6 +94,28 @@ func ResourceAlloydbBackup() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Time the Backup was created in UTC.`,
+			},
+			"encryption_info": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `EncryptionInfo describes the encryption information of a cluster or a backup.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"encryption_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Output only. Type of encryption.`,
+						},
+						"kms_key_versions": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Output only. Cloud KMS key versions that are being used to protect the database or the backup.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
 			},
 			"etag": {
 				Type:        schema.TypeString,
@@ -145,6 +183,12 @@ func resourceAlloydbBackupCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	encryptionConfigProp, err := expandAlloydbBackupEncryptionConfig(d.Get("encryption_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_config"); !isEmptyValue(reflect.ValueOf(encryptionConfigProp)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
+		obj["encryptionConfig"] = encryptionConfigProp
 	}
 
 	obj, err = resourceAlloydbBackupEncoder(d, meta, obj)
@@ -262,6 +306,12 @@ func resourceAlloydbBackupRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("etag", flattenAlloydbBackupEtag(res["etag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Backup: %s", err)
 	}
+	if err := d.Set("encryption_config", flattenAlloydbBackupEncryptionConfig(res["encryptionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err := d.Set("encryption_info", flattenAlloydbBackupEncryptionInfo(res["encryptionInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
 
 	return nil
 }
@@ -288,6 +338,12 @@ func resourceAlloydbBackupUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
+	encryptionConfigProp, err := expandAlloydbBackupEncryptionConfig(d.Get("encryption_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
+		obj["encryptionConfig"] = encryptionConfigProp
+	}
 
 	obj, err = resourceAlloydbBackupEncoder(d, meta, obj)
 	if err != nil {
@@ -304,6 +360,10 @@ func resourceAlloydbBackupUpdate(d *schema.ResourceData, meta interface{}) error
 
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
+	}
+
+	if d.HasChange("encryption_config") {
+		updateMask = append(updateMask, "encryptionConfig")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -441,6 +501,46 @@ func flattenAlloydbBackupEtag(v interface{}, d *schema.ResourceData, config *tra
 	return v
 }
 
+func flattenAlloydbBackupEncryptionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kms_key_name"] =
+		flattenAlloydbBackupEncryptionConfigKmsKeyName(original["kmsKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAlloydbBackupEncryptionConfigKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbBackupEncryptionInfo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["encryption_type"] =
+		flattenAlloydbBackupEncryptionInfoEncryptionType(original["encryptionType"], d, config)
+	transformed["kms_key_versions"] =
+		flattenAlloydbBackupEncryptionInfoKmsKeyVersions(original["kmsKeyVersions"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAlloydbBackupEncryptionInfoEncryptionType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbBackupEncryptionInfoKmsKeyVersions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandAlloydbBackupClusterName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -457,6 +557,29 @@ func expandAlloydbBackupLabels(v interface{}, d TerraformResourceData, config *t
 }
 
 func expandAlloydbBackupDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbBackupEncryptionConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKmsKeyName, err := expandAlloydbBackupEncryptionConfigKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandAlloydbBackupEncryptionConfigKmsKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
