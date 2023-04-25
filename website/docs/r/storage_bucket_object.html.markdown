@@ -26,6 +26,16 @@ resource "google_storage_bucket_object" "picture" {
 }
 ```
 
+Example creating an empty folder in an existing `image-store` bucket.
+
+```hcl
+resource "google_storage_bucket_object" "empty_folder" {
+  name   = "empty_folder/" # folder name should end with '/'
+  content = " "            # content is ignored but should be non-empty
+  bucket = "image-store"
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
