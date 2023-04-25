@@ -1,0 +1,3 @@
+```release-note:none
+storage: documented how to create empty folder in the bucket in `storage_bucket_object`
+```
