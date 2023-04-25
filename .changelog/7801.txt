@@ -1,0 +1,3 @@
+```release-note:new-datasource
+Added `google_sql_tiers` data source. This allows customers to list the tiers available for a project.
+```

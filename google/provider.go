@@ -687,6 +687,7 @@ func Provider() *schema.Provider {
 			"google_sourcerepo_repository":                        DataSourceGoogleSourceRepoRepository(),
 			"google_spanner_instance":                             DataSourceSpannerInstance(),
 			"google_sql_ca_certs":                                 DataSourceGoogleSQLCaCerts(),
+			"google_sql_tiers":                                    DataSourceGoogleSQLTiers(),
 			"google_sql_backup_run":                               DataSourceSqlBackupRun(),
 			"google_sql_databases":                                DataSourceSqlDatabases(),
 			"google_sql_database":                                 DataSourceSqlDatabase(),
