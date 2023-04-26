@@ -129,6 +129,42 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 	}
 }
 ```
+## Example Usage - Dlp Deidentify Template Image Transformations
+
+
+```hcl
+resource "google_data_loss_prevention_deidentify_template" "basic" {
+  parent = "projects/my-project-name"
+  description = "Description"
+  display_name = "Displayname"
+  
+  deidentify_config {
+    image_transformations {
+      transforms {
+        redaction_color {
+          red = 0.5
+          blue = 1
+          green = 0.2
+        }
+        selected_info_types {
+          info_types {
+            name = "COLOR_INFO"
+            version = "latest"
+          }
+        }
+      }
+
+      transforms {
+        all_info_types {}
+      }
+
+      transforms {
+        all_text {}
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -151,6 +187,11 @@ The following arguments are supported:
 
 <a name="nested_deidentify_config"></a>The `deidentify_config` block supports:
 
+* `image_transformations` -
+  (Optional)
+  Treat the dataset as an image and redact.
+  Structure is [documented below](#nested_image_transformations).
+
 * `info_type_transformations` -
   (Optional)
   Treat the dataset as free-form text and apply the same free text transformation everywhere
@@ -161,6 +202,68 @@ The following arguments are supported:
   Treat the dataset as structured. Transformations can be applied to specific locations within structured datasets, such as transforming a column within a table.
   Structure is [documented below](#nested_record_transformations).
 
+
+<a name="nested_image_transformations"></a>The `image_transformations` block supports:
+
+* `transforms` -
+  (Required)
+  For determination of how redaction of images should occur.
+  Structure is [documented below](#nested_transforms).
+
+
+<a name="nested_transforms"></a>The `transforms` block supports:
+
+* `redaction_color` -
+  (Optional)
+  The color to use when redacting content from an image. If not specified, the default is black.
+  Structure is [documented below](#nested_redaction_color).
+
+* `selected_info_types` -
+  (Optional)
+  Apply transformation to the selected infoTypes.
+  Structure is [documented below](#nested_selected_info_types).
+
+* `all_info_types` -
+  (Optional)
+  Apply transformation to all findings not specified in other ImageTransformation's selectedInfoTypes.
+
+* `all_text` -
+  (Optional)
+  Apply transformation to all text that doesn't match an infoType.
+
+
+<a name="nested_redaction_color"></a>The `redaction_color` block supports:
+
+* `red` -
+  (Optional)
+  The amount of red in the color as a value in the interval [0, 1].
+
+* `blue` -
+  (Optional)
+  The amount of blue in the color as a value in the interval [0, 1].
+
+* `green` -
+  (Optional)
+  The amount of green in the color as a value in the interval [0, 1].
+
+<a name="nested_selected_info_types"></a>The `selected_info_types` block supports:
+
+* `info_types` -
+  (Required)
+  InfoTypes to apply the transformation to. Leaving this empty will apply the transformation to apply to
+  all findings that correspond to infoTypes that were requested in InspectConfig.
+  Structure is [documented below](#nested_info_types).
+
+
+<a name="nested_info_types"></a>The `info_types` block supports:
+
+* `name` -
+  (Required)
+  Name of the information type.
+
+* `version` -
+  (Optional)
+  Version name for this InfoType.
 
 <a name="nested_info_type_transformations"></a>The `info_type_transformations` block supports:
 
@@ -191,6 +294,10 @@ The following arguments are supported:
   (Required)
   Name of the information type.
 
+* `version` -
+  (Optional)
+  Version name for this InfoType.
+
 <a name="nested_primitive_transformation"></a>The `primitive_transformation` block supports:
 
 * `replace_config` -
@@ -218,6 +325,11 @@ The following arguments are supported:
   Replaces an identifier with a surrogate using Format Preserving Encryption (FPE) with the FFX mode of operation; however when used in the `content.reidentify` API method, it serves the opposite function by reversing the surrogate back into the original identifier. The identifier must be encoded as ASCII. For a given crypto key and context, the same identifier will be replaced with the same surrogate. Identifiers must be at least two characters long. In the case that the identifier is the empty string, it will be skipped. See [https://cloud.google.com/dlp/docs/pseudonymization](https://cloud.google.com/dlp/docs/pseudonymization) to learn more.
   Note: We recommend using CryptoDeterministicConfig for all use cases which do not require preserving the input alphabet space and size, plus warrant referential integrity.
   Structure is [documented below](#nested_crypto_replace_ffx_fpe_config).
+
+* `replace_dictionary_config` -
+  (Optional)
+  Replace with a value randomly drawn (with replacement) from a dictionary.
+  Structure is [documented below](#nested_replace_dictionary_config).
 
 
 <a name="nested_replace_config"></a>The `replace_config` block supports:
@@ -529,6 +641,20 @@ The following arguments are supported:
 * `version` -
   (Optional)
   Optional version name for this InfoType.
+
+<a name="nested_replace_dictionary_config"></a>The `replace_dictionary_config` block supports:
+
+* `word_list` -
+  (Required)
+  A list of words to select from for random replacement. The [limits](https://cloud.google.com/dlp/limits) page contains details about the size limits of dictionaries.
+  Structure is [documented below](#nested_word_list).
+
+
+<a name="nested_word_list"></a>The `word_list` block supports:
+
+* `words` -
+  (Required)
+  Words or phrases defining the dictionary. The dictionary must contain at least one phrase and every phrase must contain at least 2 characters that are letters or digits.
 
 <a name="nested_record_transformations"></a>The `record_transformations` block supports:
 
@@ -1784,6 +1910,12 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `name` -
   The resource name of the template. Set by the server.
+
+* `create_time` -
+  The creation timestamp of an deidentifyTemplate. Set by the server.
+
+* `update_time` -
+  The last update timestamp of an deidentifyTemplate. Set by the server.
 
 
 ## Timeouts

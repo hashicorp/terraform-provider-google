@@ -1,0 +1,6 @@
+```release-note:enhancement
+dlp: added `image_transformations` field to `google_data_loss_prevention_deidentify_template` resource
+```
+```release-note:enhancement
+dlp: added `replace_dictionary_config` field to `info_type_transformations` in `google_data_loss_prevention_deidentify_template` resource
+```
