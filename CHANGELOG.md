@@ -1,5 +1,32 @@
 ## 4.63.0 (Unreleased)
 
+## 4.63.1 (April 26, 2023)
+
+BUG FIXES:
+* bigtable: fixed plan failure because of an unused zone being unavailable
+
+## 4.63.0 (April 24, 2023)
+
+NOTES:
+* alloydb: changed `location` from `optional` to `required` for `google_alloydb_cluster` and `google_alloydb_backup` resources. `location` had previously been marked as optional, but operations failed if it was omitted, and there was no way for `location` to be inherited from the provider configuration or from an environment variable. This means there was no way to have a working configuration without `location` specified. ([#14330](https://github.com/hashicorp/terraform-provider-google/pull/14330), [#14334](https://github.com/hashicorp/terraform-provider-google/pull/14334))
+
+FEATURES:
+* **New Resource:** `google_access_context_manager_ingress_policy` ([#14302](https://github.com/hashicorp/terraform-provider-google/pull/14302))
+* **New Resource:** `google_compute_public_advertised_prefix` ([#14303](https://github.com/hashicorp/terraform-provider-google/pull/14303))
+* **New Resource:** `google_compute_public_delegated_prefix` ([#14303](https://github.com/hashicorp/terraform-provider-google/pull/14303))
+* **New Resource:** `google_compute_region_commitment` ([#14301](https://github.com/hashicorp/terraform-provider-google/pull/14301))
+* **New Resource:** `google_network_services_http_route` ([#14294](https://github.com/hashicorp/terraform-provider-google/pull/14294))
+
+IMPROVEMENTS:
+* dlp: added `inspect_job.actions.job_notification_emails` and `inspect_job.actions.deidentify`  fields to `google_data_loss_prevention_job_trigger` resource ([#14309](https://github.com/hashicorp/terraform-provider-google/pull/14309))
+* dlp: added `triggers.manual` and `inspect_job.storage_config.hybrid_options` to `google_data_loss_prevention_job_trigger` ([#14326](https://github.com/hashicorp/terraform-provider-google/pull/14326))
+* iam: added `oidc.web_sso_config` field to `google_iam_workforce_pool_provider` ([#14327](https://github.com/hashicorp/terraform-provider-google/pull/14327))
+
+BUG FIXES:
+* alloydb: changed `weekly_schedule` (under `automated_backup_policy`) from required to optional for `google_alloydb_cluster` ([#14335](https://github.com/hashicorp/terraform-provider-google/pull/14335))
+* compute: fixed an issue with TTLs being sent when `USE_ORIGIN_HEADERS` is set in `google_compute_backend_bucket` ([#14323](https://github.com/hashicorp/terraform-provider-google/pull/14323))
+* networkservices: increased default timeouts for `google_network_services_edge_cache_keyset` to 60m (from 30m) ([#14314](https://github.com/hashicorp/terraform-provider-google/pull/14314))
+* sql: fixed an issue that prevented setting `enable_private_path_for_google_cloud_services` to `false` in `google_sql_database_instance` ([#14316](https://github.com/hashicorp/terraform-provider-google/pull/14316))
 
 ## 4.62.1 (April 19, 2023)
 
