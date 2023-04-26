@@ -67,6 +67,39 @@ resource "google_compute_disk" "default" {
   physical_block_size_bytes = 4096
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=disk_async&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Disk Async
+
+
+```hcl
+resource "google_compute_disk" "primary" {
+  provider = google-beta
+
+  name  = "async-test-disk"
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+
+  physical_block_size_bytes = 4096
+}
+
+resource "google_compute_disk" "secondary" {
+  provider = google-beta
+
+  name  = "async-secondary-test-disk"
+  type  = "pd-ssd"
+  zone  = "us-east1-c"
+
+  async_primary_disk {
+    disk = google_compute_disk.primary.id
+  }
+
+  physical_block_size_bytes = 4096
+}
+```
 
 ## Argument Reference
 
@@ -167,6 +200,11 @@ The following arguments are supported:
   (Optional)
   Indicates how many IOPS must be provisioned for the disk.
 
+* `async_primary_disk` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A nested object resource
+  Structure is [documented below](#nested_async_primary_disk).
+
 * `zone` -
   (Optional)
   A reference to the zone where the disk resides.
@@ -211,6 +249,12 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_async_primary_disk"></a>The `async_primary_disk` block supports:
+
+* `disk` -
+  (Required)
+  Primary disk for asynchronous disk replication.
 
 <a name="nested_source_image_encryption_key"></a>The `source_image_encryption_key` block supports:
 
