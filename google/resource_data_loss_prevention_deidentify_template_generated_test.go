@@ -277,6 +277,68 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 `, context)
 }
 
+func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateImageTransformationsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateImageTransformationsExample(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_deidentify_template.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent"},
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateImageTransformationsExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "basic" {
+  parent = "projects/%{project}"
+  description = "Description"
+  display_name = "Displayname"
+  
+  deidentify_config {
+    image_transformations {
+      transforms {
+        redaction_color {
+          red = 0.5
+          blue = 1
+          green = 0.2
+        }
+        selected_info_types {
+          info_types {
+            name = "COLOR_INFO"
+            version = "latest"
+          }
+        }
+      }
+
+      transforms {
+        all_info_types {}
+      }
+
+      transforms {
+        all_text {}
+      }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

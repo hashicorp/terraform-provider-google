@@ -51,6 +51,102 @@ func ResourceDataLossPreventionDeidentifyTemplate() *schema.Resource {
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"image_transformations": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Treat the dataset as an image and redact.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"transforms": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `For determination of how redaction of images should occur.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"all_info_types": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Apply transformation to all findings not specified in other ImageTransformation's selectedInfoTypes.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+												},
+												"all_text": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Apply transformation to all text that doesn't match an infoType.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+												},
+												"redaction_color": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `The color to use when redacting content from an image. If not specified, the default is black.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"blue": {
+																Type:        schema.TypeFloat,
+																Optional:    true,
+																Description: `The amount of blue in the color as a value in the interval [0, 1].`,
+																Default:     0.0,
+															},
+															"green": {
+																Type:        schema.TypeFloat,
+																Optional:    true,
+																Description: `The amount of green in the color as a value in the interval [0, 1].`,
+																Default:     0.0,
+															},
+															"red": {
+																Type:        schema.TypeFloat,
+																Optional:    true,
+																Description: `The amount of red in the color as a value in the interval [0, 1].`,
+																Default:     0.0,
+															},
+														},
+													},
+												},
+												"selected_info_types": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Apply transformation to the selected infoTypes.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"info_types": {
+																Type:     schema.TypeList,
+																Required: true,
+																Description: `InfoTypes to apply the transformation to. Leaving this empty will apply the transformation to apply to
+all findings that correspond to infoTypes that were requested in InspectConfig.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"name": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Name of the information type.`,
+																		},
+																		"version": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Version name for this InfoType.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+							ExactlyOneOf: []string{"deidentify_config.0.info_type_transformations", "deidentify_config.0.record_transformations", "deidentify_config.0.image_transformations"},
+						},
 						"info_type_transformations": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -516,6 +612,34 @@ Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 																	},
 																},
 															},
+															"replace_dictionary_config": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Replace with a value randomly drawn (with replacement) from a dictionary.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"word_list": {
+																			Type:        schema.TypeList,
+																			Required:    true,
+																			Description: `A list of words to select from for random replacement. The [limits](https://cloud.google.com/dlp/limits) page contains details about the size limits of dictionaries.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"words": {
+																						Type:        schema.TypeList,
+																						Required:    true,
+																						Description: `Words or phrases defining the dictionary. The dictionary must contain at least one phrase and every phrase must contain at least 2 characters that are letters or digits.`,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
 															"replace_with_info_type_config": {
 																Type:        schema.TypeBool,
 																Optional:    true,
@@ -536,6 +660,11 @@ all findings that correspond to infoTypes that were requested in InspectConfig.`
 																Required:    true,
 																Description: `Name of the information type.`,
 															},
+															"version": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Version name for this InfoType.`,
+															},
 														},
 													},
 												},
@@ -544,7 +673,7 @@ all findings that correspond to infoTypes that were requested in InspectConfig.`
 									},
 								},
 							},
-							ExactlyOneOf: []string{"deidentify_config.0.info_type_transformations", "deidentify_config.0.record_transformations"},
+							ExactlyOneOf: []string{"deidentify_config.0.info_type_transformations", "deidentify_config.0.record_transformations", "deidentify_config.0.image_transformations"},
 						},
 						"record_transformations": {
 							Type:        schema.TypeList,
@@ -2170,7 +2299,7 @@ This argument is mandatory, except for conditions using the 'EXISTS' operator.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"deidentify_config.0.info_type_transformations", "deidentify_config.0.record_transformations"},
+							ExactlyOneOf: []string{"deidentify_config.0.info_type_transformations", "deidentify_config.0.record_transformations", "deidentify_config.0.image_transformations"},
 						},
 					},
 				},
@@ -2196,10 +2325,20 @@ This argument is mandatory, except for conditions using the 'EXISTS' operator.`,
 				Optional:    true,
 				Description: `User set display name of the template.`,
 			},
+			"create_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation timestamp of an deidentifyTemplate. Set by the server.`,
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The resource name of the template. Set by the server.`,
+			},
+			"update_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The last update timestamp of an deidentifyTemplate. Set by the server.`,
 			},
 		},
 		UseJSONNumber: true,
@@ -2302,6 +2441,12 @@ func resourceDataLossPreventionDeidentifyTemplateRead(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading DeidentifyTemplate: %s", err)
 	}
 	if err := d.Set("display_name", flattenDataLossPreventionDeidentifyTemplateDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DeidentifyTemplate: %s", err)
+	}
+	if err := d.Set("create_time", flattenDataLossPreventionDeidentifyTemplateCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DeidentifyTemplate: %s", err)
+	}
+	if err := d.Set("update_time", flattenDataLossPreventionDeidentifyTemplateUpdateTime(res["updateTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DeidentifyTemplate: %s", err)
 	}
 	if err := d.Set("deidentify_config", flattenDataLossPreventionDeidentifyTemplateDeidentifyConfig(res["deidentifyConfig"], d, config)); err != nil {
@@ -2468,6 +2613,14 @@ func flattenDataLossPreventionDeidentifyTemplateDisplayName(v interface{}, d *sc
 	return v
 }
 
+func flattenDataLossPreventionDeidentifyTemplateCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -2477,12 +2630,133 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfig(v interface{}, 
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["image_transformations"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformations(original["imageTransformations"], d, config)
 	transformed["info_type_transformations"] =
 		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformations(original["infoTypeTransformations"], d, config)
 	transformed["record_transformations"] =
 		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformations(original["recordTransformations"], d, config)
 	return []interface{}{transformed}
 }
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["transforms"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransforms(original["transforms"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransforms(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"redaction_color":     flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsRedactionColor(original["redactionColor"], d, config),
+			"selected_info_types": flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsSelectedInfoTypes(original["selectedInfoTypes"], d, config),
+			"all_info_types":      flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsAllInfoTypes(original["allInfoTypes"], d, config),
+			"all_text":            flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsAllText(original["allText"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsRedactionColor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["red"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsRedactionColorRed(original["red"], d, config)
+	transformed["blue"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsRedactionColorBlue(original["blue"], d, config)
+	transformed["green"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsRedactionColorGreen(original["green"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsRedactionColorRed(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsRedactionColorBlue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsRedactionColorGreen(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsSelectedInfoTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["info_types"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsSelectedInfoTypesInfoTypes(original["infoTypes"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsSelectedInfoTypesInfoTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsSelectedInfoTypesInfoTypesName(original["name"], d, config),
+			"version": flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsSelectedInfoTypesInfoTypesVersion(original["version"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsSelectedInfoTypesInfoTypesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsSelectedInfoTypesInfoTypesVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsAllInfoTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsAllText(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -2528,12 +2802,17 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name": flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypesName(original["name"], d, config),
+			"name":    flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypesName(original["name"], d, config),
+			"version": flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypesVersion(original["version"], d, config),
 		})
 	}
 	return transformed
 }
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypesVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2556,6 +2835,8 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoDeterministicConfig(original["cryptoDeterministicConfig"], d, config)
 	transformed["crypto_replace_ffx_fpe_config"] =
 		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfig(original["cryptoReplaceFfxFpeConfig"], d, config)
+	transformed["replace_dictionary_config"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceDictionaryConfig(original["replaceDictionaryConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3156,6 +3437,36 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceDictionaryConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["word_list"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceDictionaryConfigWordList(original["wordList"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceDictionaryConfigWordList(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["words"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceDictionaryConfigWordListWords(original["words"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceDictionaryConfigWordListWords(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -5820,6 +6131,13 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfig(v interface{}, d
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedImageTransformations, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformations(original["image_transformations"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedImageTransformations); val.IsValid() && !isEmptyValue(val) {
+		transformed["imageTransformations"] = transformedImageTransformations
+	}
+
 	transformedInfoTypeTransformations, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformations(original["info_type_transformations"], d, config)
 	if err != nil {
 		return nil, err
@@ -5833,6 +6151,199 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfig(v interface{}, d
 	} else if val := reflect.ValueOf(transformedRecordTransformations); val.IsValid() && !isEmptyValue(val) {
 		transformed["recordTransformations"] = transformedRecordTransformations
 	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformations(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTransforms, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransforms(original["transforms"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTransforms); val.IsValid() && !isEmptyValue(val) {
+		transformed["transforms"] = transformedTransforms
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransforms(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedRedactionColor, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsRedactionColor(original["redaction_color"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRedactionColor); val.IsValid() && !isEmptyValue(val) {
+			transformed["redactionColor"] = transformedRedactionColor
+		}
+
+		transformedSelectedInfoTypes, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsSelectedInfoTypes(original["selected_info_types"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSelectedInfoTypes); val.IsValid() && !isEmptyValue(val) {
+			transformed["selectedInfoTypes"] = transformedSelectedInfoTypes
+		}
+
+		transformedAllInfoTypes, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsAllInfoTypes(original["all_info_types"], d, config)
+		if err != nil {
+			return nil, err
+		} else {
+			transformed["allInfoTypes"] = transformedAllInfoTypes
+		}
+
+		transformedAllText, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsAllText(original["all_text"], d, config)
+		if err != nil {
+			return nil, err
+		} else {
+			transformed["allText"] = transformedAllText
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsRedactionColor(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRed, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsRedactionColorRed(original["red"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRed); val.IsValid() && !isEmptyValue(val) {
+		transformed["red"] = transformedRed
+	}
+
+	transformedBlue, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsRedactionColorBlue(original["blue"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBlue); val.IsValid() && !isEmptyValue(val) {
+		transformed["blue"] = transformedBlue
+	}
+
+	transformedGreen, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsRedactionColorGreen(original["green"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGreen); val.IsValid() && !isEmptyValue(val) {
+		transformed["green"] = transformedGreen
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsRedactionColorRed(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsRedactionColorBlue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsRedactionColorGreen(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsSelectedInfoTypes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInfoTypes, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsSelectedInfoTypesInfoTypes(original["info_types"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInfoTypes); val.IsValid() && !isEmptyValue(val) {
+		transformed["infoTypes"] = transformedInfoTypes
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsSelectedInfoTypesInfoTypes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsSelectedInfoTypesInfoTypesName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedVersion, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsSelectedInfoTypesInfoTypesVersion(original["version"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !isEmptyValue(val) {
+			transformed["version"] = transformedVersion
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsSelectedInfoTypesInfoTypesName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsSelectedInfoTypesInfoTypesVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsAllInfoTypes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigImageTransformationsTransformsAllText(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
 
 	return transformed, nil
 }
@@ -5902,12 +6413,23 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransform
 			transformed["name"] = transformedName
 		}
 
+		transformedVersion, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypesVersion(original["version"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !isEmptyValue(val) {
+			transformed["version"] = transformedVersion
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
 }
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypesName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsInfoTypesVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -5953,6 +6475,13 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransform
 		return nil, err
 	} else if val := reflect.ValueOf(transformedCryptoReplaceFfxFpeConfig); val.IsValid() && !isEmptyValue(val) {
 		transformed["cryptoReplaceFfxFpeConfig"] = transformedCryptoReplaceFfxFpeConfig
+	}
+
+	transformedReplaceDictionaryConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceDictionaryConfig(original["replace_dictionary_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReplaceDictionaryConfig); val.IsValid() && !isEmptyValue(val) {
+		transformed["replaceDictionaryConfig"] = transformedReplaceDictionaryConfig
 	}
 
 	return transformed, nil
@@ -6703,6 +7232,48 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransform
 }
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoReplaceFfxFpeConfigRadix(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceDictionaryConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedWordList, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceDictionaryConfigWordList(original["word_list"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWordList); val.IsValid() && !isEmptyValue(val) {
+		transformed["wordList"] = transformedWordList
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceDictionaryConfigWordList(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedWords, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceDictionaryConfigWordListWords(original["words"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWords); val.IsValid() && !isEmptyValue(val) {
+		transformed["words"] = transformedWords
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceDictionaryConfigWordListWords(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
