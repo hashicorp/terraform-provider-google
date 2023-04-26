@@ -87,6 +87,21 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 							Optional:    true,
 							Description: `Whether automated backups are enabled.`,
 						},
+						"encryption_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `EncryptionConfig describes the encryption config of a cluster or a backup that is encrypted with a CMEK (customer-managed encryption key).`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"kms_key_name": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The fully-qualified resource name of the KMS key. Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].`,
+									},
+								},
+							},
+						},
 						"labels": {
 							Type:        schema.TypeMap,
 							Optional:    true,
@@ -189,6 +204,22 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 				Optional:    true,
 				Description: `User-settable and human-readable display name for the Cluster.`,
 			},
+			"encryption_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `EncryptionConfig describes the encryption config of a cluster or a backup that is encrypted with a CMEK (customer-managed encryption key).`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"kms_key_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The fully-qualified resource name of the KMS key. Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].`,
+						},
+					},
+				},
+			},
 			"initial_user": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -234,6 +265,28 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The database engine major version. This is an output-only field and it's populated at the Cluster creation time. This field cannot be changed after cluster creation.`,
+			},
+			"encryption_info": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `EncryptionInfo describes the encryption information of a cluster or a backup.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"encryption_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Output only. Type of encryption.`,
+						},
+						"kms_key_versions": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Output only. Cloud KMS key versions that are being used to protect the database or the backup.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
 			},
 			"migration_source": {
 				Type:        schema.TypeList,
@@ -293,6 +346,12 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
+	}
+	encryptionConfigProp, err := expandAlloydbClusterEncryptionConfig(d.Get("encryption_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_config"); !isEmptyValue(reflect.ValueOf(encryptionConfigProp)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
+		obj["encryptionConfig"] = encryptionConfigProp
 	}
 	networkProp, err := expandAlloydbClusterNetwork(d.Get("network"), d, config)
 	if err != nil {
@@ -408,6 +467,12 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("labels", flattenAlloydbClusterLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("encryption_config", flattenAlloydbClusterEncryptionConfig(res["encryptionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("encryption_info", flattenAlloydbClusterEncryptionInfo(res["encryptionInfo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("network", flattenAlloydbClusterNetwork(res["network"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -452,6 +517,12 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
+	encryptionConfigProp, err := expandAlloydbClusterEncryptionConfig(d.Get("encryption_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
+		obj["encryptionConfig"] = encryptionConfigProp
+	}
 	networkProp, err := expandAlloydbClusterNetwork(d.Get("network"), d, config)
 	if err != nil {
 		return err
@@ -487,6 +558,10 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
+	}
+
+	if d.HasChange("encryption_config") {
+		updateMask = append(updateMask, "encryptionConfig")
 	}
 
 	if d.HasChange("network") {
@@ -613,6 +688,46 @@ func flattenAlloydbClusterLabels(v interface{}, d *schema.ResourceData, config *
 	return v
 }
 
+func flattenAlloydbClusterEncryptionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kms_key_name"] =
+		flattenAlloydbClusterEncryptionConfigKmsKeyName(original["kmsKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAlloydbClusterEncryptionConfigKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbClusterEncryptionInfo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["encryption_type"] =
+		flattenAlloydbClusterEncryptionInfoEncryptionType(original["encryptionType"], d, config)
+	transformed["kms_key_versions"] =
+		flattenAlloydbClusterEncryptionInfoKmsKeyVersions(original["kmsKeyVersions"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAlloydbClusterEncryptionInfoEncryptionType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbClusterEncryptionInfoKmsKeyVersions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenAlloydbClusterNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -640,6 +755,8 @@ func flattenAlloydbClusterAutomatedBackupPolicy(v interface{}, d *schema.Resourc
 		flattenAlloydbClusterAutomatedBackupPolicyLocation(original["location"], d, config)
 	transformed["labels"] =
 		flattenAlloydbClusterAutomatedBackupPolicyLabels(original["labels"], d, config)
+	transformed["encryption_config"] =
+		flattenAlloydbClusterAutomatedBackupPolicyEncryptionConfig(original["encryptionConfig"], d, config)
 	transformed["weekly_schedule"] =
 		flattenAlloydbClusterAutomatedBackupPolicyWeeklySchedule(original["weeklySchedule"], d, config)
 	transformed["time_based_retention"] =
@@ -659,6 +776,23 @@ func flattenAlloydbClusterAutomatedBackupPolicyLocation(v interface{}, d *schema
 }
 
 func flattenAlloydbClusterAutomatedBackupPolicyLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbClusterAutomatedBackupPolicyEncryptionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kms_key_name"] =
+		flattenAlloydbClusterAutomatedBackupPolicyEncryptionConfigKmsKeyName(original["kmsKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAlloydbClusterAutomatedBackupPolicyEncryptionConfigKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -878,6 +1012,29 @@ func expandAlloydbClusterLabels(v interface{}, d TerraformResourceData, config *
 	return m, nil
 }
 
+func expandAlloydbClusterEncryptionConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKmsKeyName, err := expandAlloydbClusterEncryptionConfigKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandAlloydbClusterEncryptionConfigKmsKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandAlloydbClusterNetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -950,6 +1107,13 @@ func expandAlloydbClusterAutomatedBackupPolicy(v interface{}, d TerraformResourc
 		transformed["labels"] = transformedLabels
 	}
 
+	transformedEncryptionConfig, err := expandAlloydbClusterAutomatedBackupPolicyEncryptionConfig(original["encryption_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEncryptionConfig); val.IsValid() && !isEmptyValue(val) {
+		transformed["encryptionConfig"] = transformedEncryptionConfig
+	}
+
 	transformedWeeklySchedule, err := expandAlloydbClusterAutomatedBackupPolicyWeeklySchedule(original["weekly_schedule"], d, config)
 	if err != nil {
 		return nil, err
@@ -998,6 +1162,29 @@ func expandAlloydbClusterAutomatedBackupPolicyLabels(v interface{}, d TerraformR
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandAlloydbClusterAutomatedBackupPolicyEncryptionConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKmsKeyName, err := expandAlloydbClusterAutomatedBackupPolicyEncryptionConfigKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !isEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandAlloydbClusterAutomatedBackupPolicyEncryptionConfigKmsKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandAlloydbClusterAutomatedBackupPolicyWeeklySchedule(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

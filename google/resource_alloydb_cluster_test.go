@@ -460,3 +460,284 @@ resource "google_compute_network" "default" {
 }
 `, context)
 }
+func TestAccAlloydbCluster_usingCMEK(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+		"key_name":      "tf-test-key-" + RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbCluster_usingCMEK(context),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccAlloydbCluster_usingCMEK(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+  encryption_config {
+    kms_key_name = google_kms_crypto_key.key.id
+  }
+  depends_on = [google_kms_crypto_key_iam_binding.crypto_key]
+}
+resource "google_compute_network" "default" {
+  name = "tf-test-alloydb-cluster%{random_suffix}"
+}
+data "google_project" "project" {}
+resource "google_kms_key_ring" "keyring" {
+  name     = "%{key_name}"
+  location = "us-central1"
+}  
+resource "google_kms_crypto_key" "key" {
+  name     = "%{key_name}"
+  key_ring = google_kms_key_ring.keyring.id
+}
+resource "google_kms_crypto_key_iam_binding" "crypto_key" {
+  crypto_key_id = google_kms_crypto_key.key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  members = [
+	"serviceAccount:service-${data.google_project.project.number}@gcp-sa-alloydb.iam.gserviceaccount.com",
+  ]
+}
+`, context)
+}
+
+func TestAccAlloydbCluster_CMEKInAutomatedBackupIsUpdatable(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+		"key_name":      "tf-test-key-" + RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbCluster_usingCMEKInClusterAndAutomatedBackup(context),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster_id", "location"},
+			},
+			{
+				Config: testAccAlloydbCluster_updateCMEKInAutomatedBackup(context),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster_id", "location"},
+			},
+			{
+				Config: testAccAlloydbCluster_usingCMEKallowDeletion(context),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccAlloydbCluster_usingCMEKInClusterAndAutomatedBackup(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+  encryption_config {
+    kms_key_name = google_kms_crypto_key.key.id
+  }
+  automated_backup_policy {
+    location      = "us-central1"
+    backup_window = "1800s"
+    enabled       = true
+    encryption_config {
+      kms_key_name = google_kms_crypto_key.key.id
+    }
+    time_based_retention {
+      retention_period = "510s"
+    }
+  }
+  lifecycle {
+	prevent_destroy = true
+  }
+  depends_on = [google_kms_crypto_key_iam_binding.crypto_key]
+}
+
+resource "google_compute_network" "default" {
+  name = "tf-test-alloydb-cluster%{random_suffix}"
+}
+
+data "google_project" "project" {}
+
+resource "google_kms_key_ring" "keyring" {
+  name     = "%{key_name}"
+  location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "key" {
+  name     = "%{key_name}"
+  key_ring = google_kms_key_ring.keyring.id
+}
+
+resource "google_kms_crypto_key_iam_binding" "crypto_key" {
+  crypto_key_id = google_kms_crypto_key.key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  members = [
+	"serviceAccount:service-${data.google_project.project.number}@gcp-sa-alloydb.iam.gserviceaccount.com",
+  ]
+}
+`, context)
+}
+
+func testAccAlloydbCluster_updateCMEKInAutomatedBackup(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+  encryption_config {
+    kms_key_name = google_kms_crypto_key.key.id
+  }
+  automated_backup_policy {
+    location      = "us-central1"
+    backup_window = "1800s"
+    enabled       = true
+    encryption_config {
+      kms_key_name = google_kms_crypto_key.key2.id
+    }
+    time_based_retention {
+      retention_period = "510s"
+    }
+  }
+  lifecycle {
+	prevent_destroy = true
+  }
+  depends_on = [google_kms_crypto_key_iam_binding.crypto_key]
+}
+
+resource "google_compute_network" "default" {
+  name = "tf-test-alloydb-cluster%{random_suffix}"
+}
+
+data "google_project" "project" {}
+
+resource "google_kms_key_ring" "keyring" {
+  name     = "%{key_name}"
+  location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "key" {
+  name     = "%{key_name}"
+  key_ring = google_kms_key_ring.keyring.id
+}
+
+resource "google_kms_crypto_key" "key2" {
+	name     = "%{key_name}-2"
+	key_ring = google_kms_key_ring.keyring.id
+}
+
+resource "google_kms_crypto_key_iam_binding" "crypto_key" {
+  crypto_key_id = google_kms_crypto_key.key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  members = [
+	"serviceAccount:service-${data.google_project.project.number}@gcp-sa-alloydb.iam.gserviceaccount.com",
+  ]
+}
+
+resource "google_kms_crypto_key_iam_binding" "crypto_key2" {
+	crypto_key_id = google_kms_crypto_key.key2.id
+	role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+	members = [
+	  "serviceAccount:service-${data.google_project.project.number}@gcp-sa-alloydb.iam.gserviceaccount.com",
+	]
+}
+`, context)
+}
+
+func testAccAlloydbCluster_usingCMEKallowDeletion(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+  encryption_config {
+    kms_key_name = google_kms_crypto_key.key.id
+  }
+  automated_backup_policy {
+    location      = "us-central1"
+    backup_window = "1800s"
+    enabled       = true
+    encryption_config {
+      kms_key_name = google_kms_crypto_key.key2.id
+    }
+    time_based_retention {
+      retention_period = "510s"
+    }
+  }
+  depends_on = [google_kms_crypto_key_iam_binding.crypto_key]
+}
+
+resource "google_compute_network" "default" {
+  name = "tf-test-alloydb-cluster%{random_suffix}"
+}
+
+data "google_project" "project" {}
+
+resource "google_kms_key_ring" "keyring" {
+  name     = "%{key_name}"
+  location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "key" {
+  name     = "%{key_name}"
+  key_ring = google_kms_key_ring.keyring.id
+}
+
+resource "google_kms_crypto_key" "key2" {
+	name     = "%{key_name}-2"
+	key_ring = google_kms_key_ring.keyring.id
+}
+
+resource "google_kms_crypto_key_iam_binding" "crypto_key" {
+  crypto_key_id = google_kms_crypto_key.key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  members = [
+	"serviceAccount:service-${data.google_project.project.number}@gcp-sa-alloydb.iam.gserviceaccount.com",
+  ]
+}
+
+resource "google_kms_crypto_key_iam_binding" "crypto_key2" {
+	crypto_key_id = google_kms_crypto_key.key2.id
+	role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+	members = [
+	  "serviceAccount:service-${data.google_project.project.number}@gcp-sa-alloydb.iam.gserviceaccount.com",
+	]
+}
+`, context)
+}
