@@ -76,8 +76,27 @@ resource "google_certificate_manager_dns_authorization" "instance2" {
 ```hcl
 resource "google_certificate_manager_certificate" "default" {
   name        = "self-managed-cert"
-  description = "The default cert"
+  description = "Global cert"
   scope       = "EDGE_CACHE"
+  self_managed {
+    pem_certificate = file("test-fixtures/certificatemanager/cert.pem")
+    pem_private_key = file("test-fixtures/certificatemanager/private-key.pem")
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=certificate_manager_self_managed_certificate_regional&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Certificate Manager Self Managed Certificate Regional
+
+
+```hcl
+resource "google_certificate_manager_certificate" "default" {
+  name        = "self-managed-cert"
+  description = "Regional cert"
+  location    = "us-central1"
   self_managed {
     pem_certificate = file("test-fixtures/certificatemanager/cert.pem")
     pem_private_key = file("test-fixtures/certificatemanager/private-key.pem")
@@ -130,6 +149,10 @@ The following arguments are supported:
   Certificate Manager provisions and renews Managed Certificates
   automatically, for as long as it's authorized to do so.
   Structure is [documented below](#nested_managed).
+
+* `location` -
+  (Optional)
+  The Certificate Manager location. If not specified, "global" is used.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -221,7 +244,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `projects/{{project}}/locations/global/certificates/{{name}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/certificates/{{name}}`
 
 
 ## Timeouts
@@ -239,9 +262,9 @@ This resource provides the following
 Certificate can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_certificate_manager_certificate.default projects/{{project}}/locations/global/certificates/{{name}}
-$ terraform import google_certificate_manager_certificate.default {{project}}/{{name}}
-$ terraform import google_certificate_manager_certificate.default {{name}}
+$ terraform import google_certificate_manager_certificate.default projects/{{project}}/locations/{{location}}/certificates/{{name}}
+$ terraform import google_certificate_manager_certificate.default {{project}}/{{location}}/{{name}}
+$ terraform import google_certificate_manager_certificate.default {{location}}/{{name}}
 ```
 
 ## User Project Overrides

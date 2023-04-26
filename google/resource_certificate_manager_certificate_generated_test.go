@@ -42,7 +42,7 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 				ResourceName:            "google_certificate_manager_certificate.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"self_managed", "name"},
+				ImportStateVerifyIgnore: []string{"self_managed", "name", "location"},
 			},
 		},
 	})
@@ -100,7 +100,7 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 				ResourceName:            "google_certificate_manager_certificate.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"self_managed", "name"},
+				ImportStateVerifyIgnore: []string{"self_managed", "name", "location"},
 			},
 		},
 	})
@@ -110,8 +110,47 @@ func testAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 	return Nprintf(`
 resource "google_certificate_manager_certificate" "default" {
   name        = "tf-test-self-managed-cert%{random_suffix}"
-  description = "The default cert"
+  description = "Global cert"
   scope       = "EDGE_CACHE"
+  self_managed {
+    pem_certificate = file("test-fixtures/certificatemanager/cert.pem")
+    pem_private_key = file("test-fixtures/certificatemanager/private-key.pem")
+  }
+}
+`, context)
+}
+
+func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateRegionalExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCertificateManagerCertificateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateRegionalExample(context),
+			},
+			{
+				ResourceName:            "google_certificate_manager_certificate.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"self_managed", "name", "location"},
+			},
+		},
+	})
+}
+
+func testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateRegionalExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_certificate_manager_certificate" "default" {
+  name        = "tf-test-self-managed-cert%{random_suffix}"
+  description = "Regional cert"
+  location    = "us-central1"
   self_managed {
     pem_certificate = file("test-fixtures/certificatemanager/cert.pem")
     pem_private_key = file("test-fixtures/certificatemanager/private-key.pem")
@@ -132,7 +171,7 @@ func testAccCheckCertificateManagerCertificateDestroyProducer(t *testing.T) func
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/certificates/{{name}}")
+			url, err := replaceVarsForTest(config, rs, "{{CertificateManagerBasePath}}projects/{{project}}/locations/{{location}}/certificates/{{name}}")
 			if err != nil {
 				return err
 			}

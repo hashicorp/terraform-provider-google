@@ -15,6 +15,7 @@
 package google
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -49,6 +50,15 @@ func ResourceCertificateManagerCertificate() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceCertificateManagerCertificateResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceCertificateManagerCertificateUpgradeV0,
+				Version: 0,
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -68,6 +78,12 @@ and all following characters must be a dash, underscore, letter or digit.`,
 				Optional:    true,
 				Description: `Set of label tags associated with the Certificate resource.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"location": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The Certificate Manager location. If not specified, "global" is used.`,
+				Default:     "global",
 			},
 			"managed": {
 				Type:     schema.TypeList,
@@ -273,7 +289,7 @@ func resourceCertificateManagerCertificateCreate(d *schema.ResourceData, meta in
 		obj["managed"] = managedProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/certificates?certificateId={{name}}")
+	url, err := ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/{{location}}/certificates?certificateId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -298,7 +314,7 @@ func resourceCertificateManagerCertificateCreate(d *schema.ResourceData, meta in
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/certificates/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/certificates/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -326,7 +342,7 @@ func resourceCertificateManagerCertificateRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/certificates/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/{{location}}/certificates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -398,7 +414,7 @@ func resourceCertificateManagerCertificateUpdate(d *schema.ResourceData, meta in
 		obj["labels"] = labelsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/certificates/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/{{location}}/certificates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -459,7 +475,7 @@ func resourceCertificateManagerCertificateDelete(d *schema.ResourceData, meta in
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/certificates/{{name}}")
+	url, err := ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/{{location}}/certificates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -492,15 +508,15 @@ func resourceCertificateManagerCertificateDelete(d *schema.ResourceData, meta in
 func resourceCertificateManagerCertificateImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/global/certificates/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
+		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/certificates/(?P<name>[^/]+)",
+		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
+		"(?P<location>[^/]+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/certificates/{{name}}")
+	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/certificates/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -839,4 +855,214 @@ func expandCertificateManagerCertificateManagedAuthorizationAttemptInfoFailureRe
 
 func expandCertificateManagerCertificateManagedAuthorizationAttemptInfoDetails(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func ResourceCertificateManagerCertificateUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
+	// Version 0 didn't support location. Default it to global.
+	rawState["location"] = "global"
+	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
+	return rawState, nil
+}
+
+func resourceCertificateManagerCertificateResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Create: resourceCertificateManagerCertificateCreate,
+		Read:   resourceCertificateManagerCertificateRead,
+		Update: resourceCertificateManagerCertificateUpdate,
+		Delete: resourceCertificateManagerCertificateDelete,
+
+		Importer: &schema.ResourceImporter{
+			State: resourceCertificateManagerCertificateImport,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
+		},
+
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `A user-defined name of the certificate. Certificate names must be unique
+The name must be 1-64 characters long, and match the regular expression [a-zA-Z][a-zA-Z0-9_-]* which means the first character must be a letter,
+and all following characters must be a dash, underscore, letter or digit.`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A human-readable description of the resource.`,
+			},
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `Set of label tags associated with the Certificate resource.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"managed": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `Configuration and state of a Managed Certificate.
+Certificate Manager provisions and renews Managed Certificates
+automatically, for as long as it's authorized to do so.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"dns_authorizations": {
+							Type:             schema.TypeList,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: ProjectNumberDiffSuppress,
+							Description:      `Authorizations that will be used for performing domain authorization`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"domains": {
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Description: `The domains for which a managed SSL certificate will be generated.
+Wildcard domains are only supported with DNS challenge resolution`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"authorization_attempt_info": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Description: `Detailed state of the latest authorization attempt for each domain
+specified for this Managed Certificate.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"details": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Description: `Human readable explanation for reaching the state. Provided to help
+address the configuration issues.
+Not guaranteed to be stable. For programmatic access use 'failure_reason' field.`,
+									},
+									"domain": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Domain name of the authorization attempt.`,
+									},
+									"failure_reason": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Reason for failure of the authorization attempt for the domain.`,
+									},
+									"state": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `State of the domain for managed certificate issuance.`,
+									},
+								},
+							},
+						},
+						"provisioning_issue": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Information about issues with provisioning this Managed Certificate.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"details": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Description: `Human readable explanation about the issue. Provided to help address
+the configuration issues.
+Not guaranteed to be stable. For programmatic access use 'reason' field.`,
+									},
+									"reason": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Reason for provisioning failures.`,
+									},
+								},
+							},
+						},
+						"state": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `A state of this Managed Certificate.`,
+						},
+					},
+				},
+				ExactlyOneOf: []string{"self_managed", "managed"},
+			},
+			"scope": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: certManagerDefaultScopeDiffSuppress,
+				Description: `The scope of the certificate.
+
+DEFAULT: Certificates with default scope are served from core Google data centers.
+If unsure, choose this option.
+
+EDGE_CACHE: Certificates with scope EDGE_CACHE are special-purposed certificates,
+served from non-core Google data centers.
+Currently allowed only for managed certificates.`,
+				Default: "DEFAULT",
+			},
+			"self_managed": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `Certificate data for a SelfManaged Certificate.
+SelfManaged Certificates are uploaded by the user. Updating such
+certificates before they expire remains the user's responsibility.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"certificate_pem": {
+							Type:       schema.TypeString,
+							Optional:   true,
+							Deprecated: "Deprecated in favor of `pem_certificate`",
+							Description: `**Deprecated** The certificate chain in PEM-encoded form.
+
+Leaf certificate comes first, followed by intermediate ones if any.`,
+							Sensitive:    true,
+							ExactlyOneOf: []string{"self_managed.0.certificate_pem", "self_managed.0.pem_certificate"},
+						},
+						"pem_certificate": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The certificate chain in PEM-encoded form.
+
+Leaf certificate comes first, followed by intermediate ones if any.`,
+							ExactlyOneOf: []string{"self_managed.0.certificate_pem", "self_managed.0.pem_certificate"},
+						},
+						"pem_private_key": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `The private key of the leaf certificate in PEM-encoded form.`,
+							Sensitive:    true,
+							ExactlyOneOf: []string{"self_managed.0.private_key_pem", "self_managed.0.pem_private_key"},
+						},
+						"private_key_pem": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Deprecated:   "Deprecated in favor of `pem_private_key`",
+							Description:  `**Deprecated** The private key of the leaf certificate in PEM-encoded form.`,
+							Sensitive:    true,
+							ExactlyOneOf: []string{"self_managed.0.private_key_pem", "self_managed.0.pem_private_key"},
+						},
+					},
+				},
+				ExactlyOneOf: []string{"self_managed", "managed"},
+			},
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+		},
+		UseJSONNumber: true,
+	}
 }
