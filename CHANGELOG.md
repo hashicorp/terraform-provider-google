@@ -1,4 +1,9 @@
-## 4.63.0 (Unreleased)
+## 4.63.1 (Unreleased)
+
+BUG FIXES:
+* bigtable: fixed plan failure because of an unused zone being unavailable
+
+## 4.63.0 (April 24, 2023)
 
 NOTES:
 * alloydb: changed `location` from `optional` to `required` for `google_alloydb_cluster` and `google_alloydb_backup` resources. `location` had previously been marked as optional, but operations failed if it was omitted, and there was no way for `location` to be inherited from the provider configuration or from an environment variable. This means there was no way to have a working configuration without `location` specified. ([#14330](https://github.com/hashicorp/terraform-provider-google/pull/14330), [#14334](https://github.com/hashicorp/terraform-provider-google/pull/14334))
