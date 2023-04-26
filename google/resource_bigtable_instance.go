@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"cloud.google.com/go/bigtable"
@@ -260,7 +262,17 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 	clusters, err := c.Clusters(ctx, instance.Name)
 	if err != nil {
-		return fmt.Errorf("Error retrieving instance clusters. %s", err)
+		partiallyUnavailableErr, ok := err.(bigtable.ErrPartiallyUnavailable)
+
+		if !ok {
+			return fmt.Errorf("Error retrieving instance clusters. %s", err)
+		}
+
+		unavailableClusterZones := getUnavailableClusterZones(d.Get("cluster").([]interface{}), partiallyUnavailableErr.Locations)
+
+		if len(unavailableClusterZones) > 0 {
+			return fmt.Errorf("Error retrieving instance clusters. The following zones are unavailable: %s", strings.Join(unavailableClusterZones, ", "))
+		}
 	}
 
 	clustersNewState := []map[string]interface{}{}
@@ -403,6 +415,23 @@ func flattenBigtableCluster(c *bigtable.ClusterInfo) map[string]interface{} {
 		autoscaling_config[0]["storage_target"] = c.AutoscalingConfig.StorageUtilizationPerNode
 	}
 	return cluster
+}
+
+func getUnavailableClusterZones(clusters []interface{}, unavailableZones []string) []string {
+	var zones []string
+
+	for _, c := range clusters {
+		cluster := c.(map[string]interface{})
+		zone := cluster["zone"].(string)
+
+		for _, unavailableZone := range unavailableZones {
+			if zone == unavailableZone {
+				zones = append(zones, zone)
+				break
+			}
+		}
+	}
+	return zones
 }
 
 func expandBigtableClusters(clusters []interface{}, instanceID string, config *transport_tpg.Config) ([]bigtable.ClusterConfig, error) {
