@@ -239,3 +239,623 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
 }
 `, context)
 }
+
+func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withInfoTypesVersion(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withInfoTypesVersionBasic(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_inspect_template.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withInfoTypesVersionUpdate(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_inspect_template.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withInfoTypesVersionBasic(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_inspect_template" "basic" {
+	parent = "projects/%{project}"
+	description = "Description"
+	display_name = "Display"
+
+	inspect_config {
+		custom_info_types {
+			info_type {
+				name    = "MY_CUSTOM_TYPE"
+				version = "0.1"
+			}
+	  
+			likelihood = "UNLIKELY"
+	  
+			regex {
+				pattern = "test*"
+			}
+		}
+		info_types {
+			name = "EMAIL_ADDRESS"
+		}
+		info_types {
+			name    = "PERSON_NAME"
+			version = "latest"
+		}
+		info_types {
+			name = "LAST_NAME"
+		}
+		info_types {
+			name = "DOMAIN_NAME"
+		}
+		info_types {
+			name = "PHONE_NUMBER"
+		}
+		info_types {
+			name = "FIRST_NAME"
+		}
+
+		min_likelihood = "UNLIKELY"
+		rule_set {
+			info_types {
+				name = "EMAIL_ADDRESS"
+			}
+			rules {
+				exclusion_rule {
+					matching_type = "MATCHING_TYPE_FULL_MATCH"
+					exclude_info_types {
+						info_types {
+							name    = "EMAIL_ADDRESS"
+							version = "0.1"
+						}
+						info_types {
+							name    = "FIRST_NAME"
+							version = "0.3"
+						}
+					}
+				}
+			}
+		}
+		rule_set {
+			info_types {
+				name    = "EMAIL_ADDRESS"
+				version = "0.1"
+			}
+			info_types {
+				name = "DOMAIN_NAME"
+			}
+			info_types {
+				name    = "PHONE_NUMBER"
+				version = "0.4"
+			}
+			info_types {
+				name = "PERSON_NAME"
+			}
+			info_types {
+				name = "FIRST_NAME"
+			}
+			rules {
+				exclusion_rule {
+					dictionary {
+						word_list {
+							words = ["TEST"]
+						}
+					}
+					matching_type = "MATCHING_TYPE_PARTIAL_MATCH"
+				}
+			}
+		}
+
+		rule_set {
+			info_types {
+				name = "PERSON_NAME"
+			}
+			rules {
+				hotword_rule {
+					hotword_regex {
+						pattern = "patient"
+					}
+					proximity {
+						window_before = 50
+					}
+					likelihood_adjustment {
+						fixed_likelihood = "VERY_LIKELY"
+					}
+				}
+			}
+		}
+
+		limits {
+			max_findings_per_item    = 10
+			max_findings_per_request = 50
+			max_findings_per_info_type {
+				max_findings = "75"
+				info_type {
+					name    = "PERSON_NAME"
+					version = "1.0"
+				}
+			}
+			max_findings_per_info_type {
+				max_findings = "80"
+				info_type {
+					name    = "LAST_NAME"
+					version = "0.5"
+				}
+			}
+		}
+	}
+}
+`, context)
+}
+
+func testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withInfoTypesVersionUpdate(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_inspect_template" "basic" {
+	parent = "projects/%{project}"
+	description = "Description"
+	display_name = "Display"
+
+	inspect_config {
+		custom_info_types {
+			info_type {
+				name    = "MY_CUSTOM_TYPE"
+				version = "0.3"
+			}
+	  
+			likelihood = "UNLIKELY"
+	  
+			regex {
+				pattern = "test*"
+			}
+		}
+		info_types {
+			name = "EMAIL_ADDRESS"
+		}
+		info_types {
+			name = "PERSON_NAME"
+		}
+		info_types {
+			name = "LAST_NAME"
+		}
+		info_types {
+			name = "DOMAIN_NAME"
+		}
+		info_types {
+			name = "PHONE_NUMBER"
+		}
+		info_types {
+			name = "FIRST_NAME"
+		}
+
+		min_likelihood = "UNLIKELY"
+		rule_set {
+			info_types {
+				name = "EMAIL_ADDRESS"
+			}
+			rules {
+				exclusion_rule {
+					matching_type = "MATCHING_TYPE_FULL_MATCH"
+					exclude_info_types {
+						info_types {
+							name    = "EMAIL_ADDRESS"
+							version = "0.5"
+						}
+						info_types {
+							name = "FIRST_NAME"
+						}
+					}
+				}
+			}
+		}
+		rule_set {
+			info_types {
+				name = "EMAIL_ADDRESS"
+			}
+			info_types {
+				name = "DOMAIN_NAME"
+			}
+			info_types {
+				name    = "PHONE_NUMBER"
+				version = "0.5"
+			}
+			info_types {
+				name = "PERSON_NAME"
+			}
+			info_types {
+				name    = "FIRST_NAME"
+				version = "0.1"
+			}
+			rules {
+				exclusion_rule {
+					dictionary {
+						word_list {
+							words = ["TEST"]
+						}
+					}
+					matching_type = "MATCHING_TYPE_PARTIAL_MATCH"
+				}
+			}
+		}
+
+		rule_set {
+			info_types {
+				name = "PERSON_NAME"
+			}
+			rules {
+				hotword_rule {
+					hotword_regex {
+						pattern = "patient"
+					}
+					proximity {
+						window_before = 50
+					}
+					likelihood_adjustment {
+						fixed_likelihood = "VERY_LIKELY"
+					}
+				}
+			}
+		}
+
+		limits {
+			max_findings_per_item    = 10
+			max_findings_per_request = 50
+			max_findings_per_info_type {
+				max_findings = "75"
+				info_type {
+					name    = "PERSON_NAME"
+					version = "1.4"
+				}
+			}
+			max_findings_per_info_type {
+				max_findings = "80"
+				info_type {
+					name = "LAST_NAME"
+				}
+			}
+		}
+	}
+}
+`, context)
+}
+
+func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withExcludeByHotword(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withExcludeByHotwordBasic(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_inspect_template.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withExcludeByHotwordUpdate(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_inspect_template.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withExcludeByHotwordBasic(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_inspect_template" "basic" {
+	parent = "projects/%{project}"
+	description = "Description"
+	display_name = "Display"
+
+	inspect_config {
+		custom_info_types {
+			info_type {
+				name = "MY_CUSTOM_TYPE"
+			}
+	  
+			likelihood = "UNLIKELY"
+	  
+			regex {
+				pattern = "test*"
+			}
+		}
+		info_types {
+			name = "EMAIL_ADDRESS"
+		}
+		info_types {
+			name    = "PERSON_NAME"
+			version = "latest"
+		}
+		info_types {
+			name = "LAST_NAME"
+		}
+		info_types {
+			name = "DOMAIN_NAME"
+		}
+		info_types {
+			name = "PHONE_NUMBER"
+		}
+		info_types {
+			name = "FIRST_NAME"
+		}
+
+		min_likelihood = "UNLIKELY"
+		rule_set {
+			info_types {
+				name = "EMAIL_ADDRESS"
+			}
+			rules {
+				exclusion_rule {
+					matching_type = "MATCHING_TYPE_FULL_MATCH"
+					exclude_info_types {
+						info_types {
+							name = "EMAIL_ADDRESS"
+						}
+						info_types {
+							name = "FIRST_NAME"
+						}
+					}
+				}
+			}
+		}
+		rule_set {
+			info_types {
+				name = "EMAIL_ADDRESS"
+			}
+			info_types {
+				name = "DOMAIN_NAME"
+			}
+			info_types {
+				name = "PHONE_NUMBER"
+			}
+			info_types {
+				name = "PERSON_NAME"
+			}
+			info_types {
+				name = "FIRST_NAME"
+			}
+			rules {
+				exclusion_rule {
+					dictionary {
+						word_list {
+							words = ["TEST"]
+						}
+					}
+					matching_type = "MATCHING_TYPE_PARTIAL_MATCH"
+				}
+			}
+		}
+		rule_set {
+			info_types {
+				name = "PERSON_NAME"
+			}
+			rules {
+				exclusion_rule {
+					matching_type = "MATCHING_TYPE_FULL_MATCH"
+					exclude_by_hotword {
+						hotword_regex {
+							pattern = "test*"
+						}
+						proximity {
+							window_before = 12
+							window_after  = 14
+						}
+					}
+				}
+			}
+		}
+
+		rule_set {
+			info_types {
+				name = "PERSON_NAME"
+			}
+			rules {
+				hotword_rule {
+					hotword_regex {
+						pattern = "patient"
+					}
+					proximity {
+						window_before = 50
+					}
+					likelihood_adjustment {
+						fixed_likelihood = "VERY_LIKELY"
+					}
+				}
+			}
+		}
+
+		limits {
+			max_findings_per_item    = 10
+			max_findings_per_request = 50
+			max_findings_per_info_type {
+				max_findings = "75"
+				info_type {
+					name = "PERSON_NAME"
+				}
+			}
+			max_findings_per_info_type {
+				max_findings = "80"
+				info_type {
+					name = "LAST_NAME"
+				}
+			}
+		}
+	}
+}
+`, context)
+}
+
+func testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withExcludeByHotwordUpdate(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_inspect_template" "basic" {
+	parent = "projects/%{project}"
+	description = "Description"
+	display_name = "Display"
+
+	inspect_config {
+		custom_info_types {
+			info_type {
+				name = "MY_CUSTOM_TYPE"
+			}
+	  
+			likelihood = "UNLIKELY"
+	  
+			regex {
+				pattern = "test*"
+			}
+		}
+		info_types {
+			name = "EMAIL_ADDRESS"
+		}
+		info_types {
+			name    = "PERSON_NAME"
+			version = "latest"
+		}
+		info_types {
+			name = "LAST_NAME"
+		}
+		info_types {
+			name = "DOMAIN_NAME"
+		}
+		info_types {
+			name = "PHONE_NUMBER"
+		}
+		info_types {
+			name = "FIRST_NAME"
+		}
+
+		min_likelihood = "UNLIKELY"
+		rule_set {
+			info_types {
+				name = "EMAIL_ADDRESS"
+			}
+			rules {
+				exclusion_rule {
+					matching_type = "MATCHING_TYPE_FULL_MATCH"
+					exclude_info_types {
+						info_types {
+							name = "EMAIL_ADDRESS"
+						}
+						info_types {
+							name = "FIRST_NAME"
+						}
+					}
+				}
+			}
+		}
+		rule_set {
+			info_types {
+				name = "EMAIL_ADDRESS"
+			}
+			info_types {
+				name = "DOMAIN_NAME"
+			}
+			info_types {
+				name = "PHONE_NUMBER"
+			}
+			info_types {
+				name = "PERSON_NAME"
+			}
+			info_types {
+				name = "FIRST_NAME"
+			}
+			rules {
+				exclusion_rule {
+					dictionary {
+						word_list {
+							words = ["TEST"]
+						}
+					}
+					matching_type = "MATCHING_TYPE_PARTIAL_MATCH"
+				}
+			}
+		}
+		rule_set {
+			info_types {
+				name = "PERSON_NAME"
+			}
+			rules {
+				exclusion_rule {
+					matching_type = "MATCHING_TYPE_FULL_MATCH"
+					exclude_by_hotword {
+						hotword_regex {
+							pattern       = "updatetest*"
+							group_indexes = [2]
+						}
+						proximity {
+							window_before = 2
+							window_after  = 4
+						}
+					}
+				}
+			}
+		}
+
+		rule_set {
+			info_types {
+				name = "PERSON_NAME"
+			}
+			rules {
+				hotword_rule {
+					hotword_regex {
+						pattern = "patient"
+					}
+					proximity {
+						window_before = 50
+					}
+					likelihood_adjustment {
+						fixed_likelihood = "VERY_LIKELY"
+					}
+				}
+			}
+		}
+
+		limits {
+			max_findings_per_item    = 10
+			max_findings_per_request = 50
+			max_findings_per_info_type {
+				max_findings = "75"
+				info_type {
+					name = "PERSON_NAME"
+				}
+			}
+			max_findings_per_info_type {
+				max_findings = "80"
+				info_type {
+					name = "LAST_NAME"
+				}
+			}
+		}
+	}
+}
+`, context)
+}
