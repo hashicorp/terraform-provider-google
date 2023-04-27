@@ -63,6 +63,46 @@ resource "google_sql_source_representation_instance" "instance" {
 `, context)
 }
 
+func TestAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstancePostgresExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSQLSourceRepresentationInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstancePostgresExample(context),
+			},
+			{
+				ResourceName:            "google_sql_source_representation_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
+			},
+		},
+	})
+}
+
+func testAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstancePostgresExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_sql_source_representation_instance" "instance" {
+  name               = "tf-test-my-instance%{random_suffix}"
+  region             = "us-central1"
+  database_version   = "POSTGRES_9_6"
+  host               = "10.20.30.40"
+  port               = 3306
+  username           = "some-user"
+  password           = "password-for-the-user"
+  dump_file_path     = "gs://replica-bucket/source-database.sql.gz"
+}
+`, context)
+}
+
 func testAccCheckSQLSourceRepresentationInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

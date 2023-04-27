@@ -52,6 +52,26 @@ resource "google_sql_source_representation_instance" "instance" {
   dump_file_path     = "gs://replica-bucket/source-database.sql.gz"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=sql_source_representation_instance_postgres&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Sql Source Representation Instance Postgres
+
+
+```hcl
+resource "google_sql_source_representation_instance" "instance" {
+  name               = "my-instance"
+  region             = "us-central1"
+  database_version   = "POSTGRES_9_6"
+  host               = "10.20.30.40"
+  port               = 3306
+  username           = "some-user"
+  password           = "password-for-the-user"
+  dump_file_path     = "gs://replica-bucket/source-database.sql.gz"
+}
+```
 
 ## Argument Reference
 
@@ -65,7 +85,7 @@ The following arguments are supported:
 * `database_version` -
   (Required)
   The MySQL version running on your source database server.
-  Possible values are: `MYSQL_5_5`, `MYSQL_5_6`, `MYSQL_5_7`, `MYSQL_8_0`.
+  Possible values are: `MYSQL_5_6`, `MYSQL_5_7`, `MYSQL_8_0`, `POSTGRES_9_6`, `POSTGRES_10`, `POSTGRES_11`, `POSTGRES_12`, `POSTGRES_13`, `POSTGRES_14`.
 
 * `host` -
   (Required)
