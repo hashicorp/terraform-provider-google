@@ -346,8 +346,7 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 <a name="nested_service_account"></a>The `service_account` block supports:
 
-* `email` - (Optional) The service account e-mail address. If not given, the
-    default Google Compute Engine service account is used.
+* `email` - (Optional) The service account e-mail address.
     **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true or your instance must have a `desired_status` of `TERMINATED` in order to update this field.
 
 * `scopes` - (Required) A list of service scopes. Both OAuth2 URLs and gcloud
