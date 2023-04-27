@@ -45,7 +45,6 @@ func testAccCloudRunV2Job_cloudrunv2JobFull(context map[string]interface{}) stri
   resource "google_cloud_run_v2_job" "default" {
     name     = "tf-test-cloudrun-job%{random_suffix}"
     location = "us-central1"
-    launch_stage = "BETA"
     labels = {
       label-1 = "value-1"
     }
@@ -108,7 +107,6 @@ func testAccCloudRunV2Job_cloudrunv2JobFullUpdate(context map[string]interface{}
 resource "google_cloud_run_v2_job" "default" {
   name     = "tf-test-cloudrun-job%{random_suffix}"
   location = "us-central1"
-  launch_stage = "BETA"
   binary_authorization {
     use_default = true
     breakglass_justification = "Some justification"

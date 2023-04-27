@@ -53,7 +53,6 @@ func testAccCloudRunV2Job_cloudrunv2JobBasicExample(context map[string]interface
 resource "google_cloud_run_v2_job" "default" {
   name     = "tf-test-cloudrun-job%{random_suffix}"
   location = "us-central1"
-  launch_stage = "BETA"
 
   template {
     template {
@@ -103,7 +102,6 @@ func testAccCloudRunV2Job_cloudrunv2JobSqlExample(context map[string]interface{}
 resource "google_cloud_run_v2_job" "default" {
   name     = "tf-test-cloudrun-job%{random_suffix}"
   location = "us-central1"
-  launch_stage = "BETA"
   
   template {
     template{
@@ -210,7 +208,6 @@ func testAccCloudRunV2Job_cloudrunv2JobVpcaccessExample(context map[string]inter
 resource "google_cloud_run_v2_job" "default" {
   name     = "tf-test-cloudrun-job%{random_suffix}"
   location = "us-central1"
-  launch_stage = "BETA"
 
   template {
     template{
@@ -284,7 +281,6 @@ func testAccCloudRunV2Job_cloudrunv2JobSecretExample(context map[string]interfac
 resource "google_cloud_run_v2_job" "default" {
   name     = "tf-test-cloudrun-job%{random_suffix}"
   location = "us-central1"
-  launch_stage = "BETA"
 
   template {
     template {
