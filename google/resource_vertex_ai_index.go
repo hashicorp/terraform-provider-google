@@ -155,7 +155,7 @@ Required if tree-AH algorithm is used.`,
 									"feature_norm_type": {
 										Type:     schema.TypeString,
 										Optional: true,
-										Description: `Type of normalization to be carried out on each vector. The value must be one of the followings: 
+										Description: `Type of normalization to be carried out on each vector. The value must be one of the followings:
 * UNIT_L2_NORM: Unit L2 normalization type
 * NONE: No normalization type is specified.`,
 										Default: "NONE",
