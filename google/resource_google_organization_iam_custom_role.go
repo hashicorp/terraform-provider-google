@@ -22,10 +22,11 @@ func ResourceGoogleOrganizationIamCustomRole() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"role_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The role id to use for this role.`,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				Description:  `The role id to use for this role.`,
+				ValidateFunc: validateIAMCustomRoleID,
 			},
 			"org_id": {
 				Type:        schema.TypeString,
