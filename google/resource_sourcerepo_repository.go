@@ -71,7 +71,7 @@ The repo name may contain slashes. eg, 'name/with/slash'`,
 			"pubsub_configs": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				Description: `How this repository publishes a change in the repository through Cloud Pub/Sub. 
+				Description: `How this repository publishes a change in the repository through Cloud Pub/Sub.
 Keyed by the topic names.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -83,7 +83,7 @@ Keyed by the topic names.`,
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validateEnum([]string{"PROTOBUF", "JSON"}),
-							Description: `The format of the Cloud Pub/Sub messages. 
+							Description: `The format of the Cloud Pub/Sub messages.
 - PROTOBUF: The message payload is a serialized protocol buffer of SourceRepoEvent.
 - JSON: The message payload is a JSON string of SourceRepoEvent. Possible values: ["PROTOBUF", "JSON"]`,
 						},
@@ -91,9 +91,9 @@ Keyed by the topic names.`,
 							Type:     schema.TypeString,
 							Computed: true,
 							Optional: true,
-							Description: `Email address of the service account used for publishing Cloud Pub/Sub messages. 
-This service account needs to be in the same project as the PubsubConfig. When added, 
-the caller needs to have iam.serviceAccounts.actAs permission on this service account. 
+							Description: `Email address of the service account used for publishing Cloud Pub/Sub messages.
+This service account needs to be in the same project as the PubsubConfig. When added,
+the caller needs to have iam.serviceAccounts.actAs permission on this service account.
 If unspecified, it defaults to the compute engine default service account.`,
 						},
 					},

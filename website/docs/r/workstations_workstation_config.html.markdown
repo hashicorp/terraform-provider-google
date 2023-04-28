@@ -558,7 +558,7 @@ In addition to the arguments listed above, the following computed attributes are
   The system-generated UID of the resource.
 
 * `etag` -
-  Checksum computed by the server. 
+  Checksum computed by the server.
   May be sent on update and delete requests to ensure that the client has an up-to-date value before proceeding.
 
 * `create_time` -

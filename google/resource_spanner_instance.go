@@ -146,7 +146,7 @@ must be present in terraform.`,
 				Type:     schema.TypeInt,
 				Computed: true,
 				Optional: true,
-				Description: `The number of processing units allocated to this instance. Exactly one of processing_units 
+				Description: `The number of processing units allocated to this instance. Exactly one of processing_units
 or node_count must be present in terraform.`,
 				ExactlyOneOf: []string{"num_nodes", "processing_units"},
 			},

@@ -199,7 +199,7 @@ The following arguments are supported:
 
 * `feature_norm_type` -
   (Optional)
-  Type of normalization to be carried out on each vector. The value must be one of the followings: 
+  Type of normalization to be carried out on each vector. The value must be one of the followings:
   * UNIT_L2_NORM: Unit L2 normalization type
   * NONE: No normalization type is specified.
 
