@@ -148,7 +148,7 @@ permission to Acknowledge() messages on this subscription.`,
 Format is 'projects/{project}/topics/{topic}'.
 
 The Cloud Pub/Sub service account associated with the enclosing subscription's
-parent project (i.e., 
+parent project (i.e.,
 service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com) must have
 permission to Publish() to this topic.
 
@@ -162,7 +162,7 @@ since messages published to a topic with no subscriptions are lost.`,
 							Description: `The maximum number of delivery attempts for any message. The value must be
 between 5 and 100.
 
-The number of delivery attempts is defined as 1 + (the sum of number of 
+The number of delivery attempts is defined as 1 + (the sum of number of
 NACKs and number of times the acknowledgement deadline has been exceeded for the message).
 
 A NACK is any call to ModifyAckDeadline with a 0 deadline. Note that
@@ -227,9 +227,9 @@ Example - "3.5s".`,
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Description: `The subscription only delivers the messages that match the filter. 
+				Description: `The subscription only delivers the messages that match the filter.
 Pub/Sub automatically acknowledges the messages that don't match the filter. You can filter messages
-by their attributes. The maximum length of a filter is 256 bytes. After creating the subscription, 
+by their attributes. The maximum length of a filter is 256 bytes. After creating the subscription,
 you can't modify the filter.`,
 			},
 			"labels": {
@@ -343,7 +343,7 @@ messageRetentionDuration window.`,
 				Optional: true,
 				Description: `A policy that specifies how Pub/Sub retries message delivery for this subscription.
 
-If not set, the default retry policy is applied. This generally implies that messages will be retried as soon as possible for healthy subscribers. 
+If not set, the default retry policy is applied. This generally implies that messages will be retried as soon as possible for healthy subscribers.
 RetryPolicy will be triggered on NACKs or acknowledgement deadline exceeded events for a given message`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -353,7 +353,7 @@ RetryPolicy will be triggered on NACKs or acknowledgement deadline exceeded even
 							Computed:         true,
 							Optional:         true,
 							DiffSuppressFunc: DurationDiffSuppress,
-							Description: `The maximum delay between consecutive deliveries of a given message. Value should be between 0 and 600 seconds. Defaults to 600 seconds. 
+							Description: `The maximum delay between consecutive deliveries of a given message. Value should be between 0 and 600 seconds. Defaults to 600 seconds.
 A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
 						},
 						"minimum_backoff": {

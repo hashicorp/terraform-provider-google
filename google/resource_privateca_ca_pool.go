@@ -169,7 +169,7 @@ subordinate CA certificates that are allowed. If this value is less than 0, the 
 												"non_ca": {
 													Type:     schema.TypeBool,
 													Optional: true,
-													Description: `When true, the "CA" in Basic Constraints extension will be set to false. 
+													Description: `When true, the "CA" in Basic Constraints extension will be set to false.
 If both 'is_ca' and 'non_ca' are unset, the extension will be omitted from the CA certificate.`,
 												},
 												"zero_max_issuer_path_length": {

@@ -133,7 +133,7 @@ The following arguments are supported:
 
 * `skip_initial_version_creation` -
   (Optional)
-  If set to true, the request will create a CryptoKey without any CryptoKeyVersions. 
+  If set to true, the request will create a CryptoKey without any CryptoKeyVersions.
   You must use the `google_kms_key_ring_import_job` resource to import the CryptoKeyVersion.
 
 

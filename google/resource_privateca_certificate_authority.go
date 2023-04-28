@@ -240,7 +240,7 @@ requires setting 'zero_max_issuer_path_length = true'.`,
 													Type:     schema.TypeBool,
 													Optional: true,
 													ForceNew: true,
-													Description: `When true, the "CA" in Basic Constraints extension will be set to false. 
+													Description: `When true, the "CA" in Basic Constraints extension will be set to false.
 If both 'is_ca' and 'non_ca' are unset, the extension will be omitted from the CA certificate.`,
 												},
 												"zero_max_issuer_path_length": {
@@ -700,7 +700,7 @@ and usability purposes only. The resource name is in the format
 						"pem_issuer_chain": {
 							Type:     schema.TypeList,
 							Optional: true,
-							Description: `Contains the PEM certificate chain for the issuers of this CertificateAuthority, 
+							Description: `Contains the PEM certificate chain for the issuers of this CertificateAuthority,
 but not pem certificate for this CA itself.`,
 							MaxItems: 1,
 							Elem: &schema.Resource{

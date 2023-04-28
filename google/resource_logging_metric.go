@@ -203,8 +203,8 @@ For counter metrics, set this to INT64. Possible values: ["BOOL", "INT64", "DOUB
 						"display_name": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `A concise name for the metric, which can be displayed in user interfaces. Use sentence case 
-without an ending period, for example "Request count". This field is optional but it is 
+							Description: `A concise name for the metric, which can be displayed in user interfaces. Use sentence case
+without an ending period, for example "Request count". This field is optional but it is
 recommended to be set for any metrics associated with user-visible concepts, such as Quota.`,
 						},
 						"labels": {

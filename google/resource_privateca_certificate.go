@@ -463,7 +463,7 @@ subordinate CA certificates that are allowed. If this value is less than 0, the 
 													Type:     schema.TypeBool,
 													Optional: true,
 													ForceNew: true,
-													Description: `When true, the "CA" in Basic Constraints extension will be set to false. 
+													Description: `When true, the "CA" in Basic Constraints extension will be set to false.
 If both 'is_ca' and 'non_ca' are unset, the extension will be omitted from the CA certificate.`,
 												},
 												"zero_max_issuer_path_length": {
@@ -1375,7 +1375,7 @@ This is in RFC3339 text format.`,
 			"revocation_details": {
 				Type:     schema.TypeList,
 				Computed: true,
-				Description: `Output only. Details regarding the revocation of this Certificate. This Certificate is 
+				Description: `Output only. Details regarding the revocation of this Certificate. This Certificate is
 considered revoked if and only if this field is present.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

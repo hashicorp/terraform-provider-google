@@ -24,9 +24,9 @@ programmatically via API. To convert it into an external brands
 please use the GCP Console.
 
 
-~> **Note:** Brands can only be created once for a Google Cloud 
-project and the underlying Google API doesn't not support DELETE or PATCH methods. 
-Destroying a Terraform-managed Brand will remove it from state 
+~> **Note:** Brands can only be created once for a Google Cloud
+project and the underlying Google API doesn't not support DELETE or PATCH methods.
+Destroying a Terraform-managed Brand will remove it from state
 but *will not delete it from Google Cloud.*
 
 

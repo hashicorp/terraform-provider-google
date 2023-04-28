@@ -23,7 +23,7 @@ Identity Platform configuration for a Cloud project. Identity Platform is an
 end-to-end authentication system for third-party users to access apps
 and services.
 
-This entity is created only once during intialization and cannot be deleted, 
+This entity is created only once during intialization and cannot be deleted,
 individual Identity Providers may be disabled instead.  This resource may only
 be created in billing-enabled projects.
 

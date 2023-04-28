@@ -96,7 +96,7 @@ The following arguments are supported:
 * `session_duration` -
   (Optional)
   Duration that the Google Cloud access tokens, console sign-in sessions,
-  and `gcloud` sign-in sessions from this pool are valid.  
+  and `gcloud` sign-in sessions from this pool are valid.
   Must be greater than 15 minutes (900s) and less than 12 hours (43200s).
   If `sessionDuration` is not configured, minted credentials have a default duration of one hour (3600s).
   A duration in seconds with up to nine fractional digits, ending with '`s`'. Example: "`3.5s`".
