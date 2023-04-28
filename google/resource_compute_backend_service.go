@@ -233,6 +233,21 @@ When the load balancing scheme is INTERNAL, this field is not used.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"bypass_cache_on_request_headers": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Bypass the cache when the specified request headers are matched - e.g. Pragma or Authorization headers. Up to 5 headers can be specified.
+The cache is bypassed for all cdnPolicy.cacheMode settings.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"header_name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The header field name to match on when bypassing cache. Values are case-insensitive.`,
+									},
+								},
+							},
+						},
 						"cache_key_policy": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -2334,6 +2349,8 @@ func flattenComputeBackendServiceCdnPolicy(v interface{}, d *schema.ResourceData
 		flattenComputeBackendServiceCdnPolicyCacheMode(original["cacheMode"], d, config)
 	transformed["serve_while_stale"] =
 		flattenComputeBackendServiceCdnPolicyServeWhileStale(original["serveWhileStale"], d, config)
+	transformed["bypass_cache_on_request_headers"] =
+		flattenComputeBackendServiceCdnPolicyBypassCacheOnRequestHeaders(original["bypassCacheOnRequestHeaders"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeBackendServiceCdnPolicyCacheKeyPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2539,6 +2556,28 @@ func flattenComputeBackendServiceCdnPolicyServeWhileStale(v interface{}, d *sche
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeBackendServiceCdnPolicyBypassCacheOnRequestHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"header_name": flattenComputeBackendServiceCdnPolicyBypassCacheOnRequestHeadersHeaderName(original["headerName"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeBackendServiceCdnPolicyBypassCacheOnRequestHeadersHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenComputeBackendServiceConnectionDraining(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3495,6 +3534,13 @@ func expandComputeBackendServiceCdnPolicy(v interface{}, d TerraformResourceData
 		transformed["serveWhileStale"] = transformedServeWhileStale
 	}
 
+	transformedBypassCacheOnRequestHeaders, err := expandComputeBackendServiceCdnPolicyBypassCacheOnRequestHeaders(original["bypass_cache_on_request_headers"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBypassCacheOnRequestHeaders); val.IsValid() && !isEmptyValue(val) {
+		transformed["bypassCacheOnRequestHeaders"] = transformedBypassCacheOnRequestHeaders
+	}
+
 	return transformed, nil
 }
 
@@ -3651,6 +3697,32 @@ func expandComputeBackendServiceCdnPolicyCacheMode(v interface{}, d TerraformRes
 }
 
 func expandComputeBackendServiceCdnPolicyServeWhileStale(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceCdnPolicyBypassCacheOnRequestHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedHeaderName, err := expandComputeBackendServiceCdnPolicyBypassCacheOnRequestHeadersHeaderName(original["header_name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedHeaderName); val.IsValid() && !isEmptyValue(val) {
+			transformed["headerName"] = transformedHeaderName
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeBackendServiceCdnPolicyBypassCacheOnRequestHeadersHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
