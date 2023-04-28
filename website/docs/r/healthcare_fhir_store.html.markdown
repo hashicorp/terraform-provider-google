@@ -363,9 +363,9 @@ The following arguments are supported:
 * `send_full_resource` -
   (Optional)
   Whether to send full FHIR resource to this Pub/Sub topic for Create and Update operation.
-  Note that setting this to true does not guarantee that all resources will be sent in the format of 
+  Note that setting this to true does not guarantee that all resources will be sent in the format of
   full FHIR resource. When a resource change is too large or during heavy traffic, only the resource name will be
-  sent. Clients should always check the "payloadType" label from a Pub/Sub message to determine whether 
+  sent. Clients should always check the "payloadType" label from a Pub/Sub message to determine whether
   it needs to fetch the full resource as a separate operation.
 
 ## Attributes Reference
