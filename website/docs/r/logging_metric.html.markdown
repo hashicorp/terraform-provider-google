@@ -256,8 +256,8 @@ The following arguments are supported:
 
 * `display_name` -
   (Optional)
-  A concise name for the metric, which can be displayed in user interfaces. Use sentence case 
-  without an ending period, for example "Request count". This field is optional but it is 
+  A concise name for the metric, which can be displayed in user interfaces. Use sentence case
+  without an ending period, for example "Request count". This field is optional but it is
   recommended to be set for any metrics associated with user-visible concepts, such as Quota.
 
 

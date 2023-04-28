@@ -112,7 +112,7 @@ letter 's' (seconds). It must be greater than a day (ie, 86400).`,
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
-				Description: `If set to true, the request will create a CryptoKey without any CryptoKeyVersions. 
+				Description: `If set to true, the request will create a CryptoKey without any CryptoKeyVersions.
 You must use the 'google_kms_key_ring_import_job' resource to import the CryptoKeyVersion.`,
 			},
 			"version_template": {

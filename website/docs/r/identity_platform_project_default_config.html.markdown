@@ -109,8 +109,8 @@ The following arguments are supported:
 
 * `password_required` -
   (Optional)
-  Whether a password is required for email auth or not. If true, both an email and 
-  password must be provided to sign in. If false, a user may sign in via either 
+  Whether a password is required for email auth or not. If true, both an email and
+  password must be provided to sign in. If false, a user may sign in via either
   email/password or email link.
 
 <a name="nested_phone_number"></a>The `phone_number` block supports:

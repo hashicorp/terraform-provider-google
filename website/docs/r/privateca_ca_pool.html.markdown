@@ -372,7 +372,7 @@ The following arguments are supported:
 
 * `non_ca` -
   (Optional)
-  When true, the "CA" in Basic Constraints extension will be set to false. 
+  When true, the "CA" in Basic Constraints extension will be set to false.
   If both `is_ca` and `non_ca` are unset, the extension will be omitted from the CA certificate.
 
 * `max_issuer_path_length` -

@@ -243,7 +243,7 @@ The following arguments are supported:
 
 * `rules` -
   (Required)
-  Rules that define how traffic is routed and handled. At least one RouteRule must be supplied. 
+  Rules that define how traffic is routed and handled. At least one RouteRule must be supplied.
   If there are multiple rules then the action taken will be the first rule to match.
   Structure is [documented below](#nested_rules).
 
@@ -256,7 +256,7 @@ The following arguments are supported:
 
 * `matches` -
   (Optional)
-  RouteMatch defines the predicate used to match requests to a given action. Multiple match types are "OR"ed for evaluation. 
+  RouteMatch defines the predicate used to match requests to a given action. Multiple match types are "OR"ed for evaluation.
   If no routeMatch field is specified, this rule will unconditionally match traffic.
   Structure is [documented below](#nested_matches).
 
@@ -270,7 +270,7 @@ The following arguments are supported:
 
 * `address` -
   (Required)
-  Must be specified in the CIDR range format. A CIDR range consists of an IP Address and a prefix length to construct the subnet mask. 
+  Must be specified in the CIDR range format. A CIDR range consists of an IP Address and a prefix length to construct the subnet mask.
   By default, the prefix length is 32 (i.e. matches a single IP address). Only IPV4 addresses are supported. Examples: "10.0.0.1" - matches against this exact IP address. "10.0.0.0/8" - matches against any IP address within the 10.0.0.0 subnet and 255.255.255.0 mask. "0.0.0.0/0" - matches against any IP address'.
 
 * `port` -

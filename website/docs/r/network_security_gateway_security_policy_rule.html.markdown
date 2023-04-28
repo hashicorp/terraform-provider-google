@@ -138,7 +138,7 @@ The following arguments are supported:
 
 * `tls_inspection_enabled` -
   (Optional)
-  Flag to enable TLS inspection of traffic matching on. Can only be true if the 
+  Flag to enable TLS inspection of traffic matching on. Can only be true if the
   parent GatewaySecurityPolicy references a TLSInspectionConfig.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.

@@ -64,14 +64,14 @@ https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring/api/api-struc
 							Type:     schema.TypeMap,
 							Optional: true,
 							ForceNew: true,
-							Description: `Labels that specify the resource that emits the monitoring data 
+							Description: `Labels that specify the resource that emits the monitoring data
 which is used for SLO reporting of this 'Service'.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 						"service_type": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `The type of service that this basic service defines, e.g. 
+							Description: `The type of service that this basic service defines, e.g.
 APP_ENGINE service type`,
 						},
 					},
