@@ -80,7 +80,7 @@ recreated to modify this field.`,
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
-				Description: `Enable ULA internal ipv6 on this network. Enabling this feature will assign 
+				Description: `Enable ULA internal ipv6 on this network. Enabling this feature will assign
 a /48 from google defined ULA prefix fd20::/20.`,
 			},
 			"internal_ipv6_range": {
@@ -88,10 +88,10 @@ a /48 from google defined ULA prefix fd20::/20.`,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
-				Description: `When enabling ula internal ipv6, caller optionally can specify the /48 range 
-they want from the google defined ULA prefix fd20::/20. The input must be a 
-valid /48 ULA IPv6 address and must be within the fd20::/20. Operation will 
-fail if the speficied /48 is already in used by another resource. 
+				Description: `When enabling ula internal ipv6, caller optionally can specify the /48 range
+they want from the google defined ULA prefix fd20::/20. The input must be a
+valid /48 ULA IPv6 address and must be within the fd20::/20. Operation will
+fail if the speficied /48 is already in used by another resource.
 If the field is not speficied, then a /48 range will be randomly allocated from fd20::/20 and returned via this field.`,
 			},
 			"mtu": {
@@ -99,10 +99,10 @@ If the field is not speficied, then a /48 range will be randomly allocated from 
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
-				Description: `Maximum Transmission Unit in bytes. The default value is 1460 bytes. 
+				Description: `Maximum Transmission Unit in bytes. The default value is 1460 bytes.
 The minimum value for this field is 1300 and the maximum value is 8896 bytes (jumbo frames).
 Note that packets larger than 1500 bytes (standard Ethernet) can be subject to TCP-MSS clamping or dropped
-with an ICMP 'Fragmentation-Needed' message if the packets are routed to the Internet or other VPCs 
+with an ICMP 'Fragmentation-Needed' message if the packets are routed to the Internet or other VPCs
 with varying MTUs.`,
 			},
 			"network_firewall_policy_enforcement_order": {

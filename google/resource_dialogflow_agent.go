@@ -47,7 +47,7 @@ func ResourceDialogflowAgent() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				Description: `The default language of the agent as a language tag. [See Language Support](https://cloud.google.com/dialogflow/docs/reference/language) 
+				Description: `The default language of the agent as a language tag. [See Language Support](https://cloud.google.com/dialogflow/docs/reference/language)
 for a list of the currently supported language codes. This field cannot be updated after creation.`,
 			},
 			"display_name": {
@@ -67,7 +67,7 @@ Europe/Paris.`,
 				Optional:     true,
 				ValidateFunc: validateEnum([]string{"API_VERSION_V1", "API_VERSION_V2", "API_VERSION_V2_BETA_1", ""}),
 				Description: `API version displayed in Dialogflow console. If not specified, V2 API is assumed. Clients are free to query
-different service endpoints for different API versions. However, bots connectors and webhook calls will follow 
+different service endpoints for different API versions. However, bots connectors and webhook calls will follow
 the specified API version.
 * API_VERSION_V1: Legacy V1 API.
 * API_VERSION_V2: V2 API.
@@ -85,8 +85,8 @@ from the API will be shown in the [avatarUriBackend] field.`,
 				Optional: true,
 				Description: `To filter out false positive results and still get variety in matched natural language inputs for your agent,
 you can tune the machine learning classification threshold. If the returned score value is less than the threshold
-value, then a fallback intent will be triggered or, if there are no fallback intents defined, no intent will be 
-triggered. The score values range from 0.0 (completely uncertain) to 1.0 (completely certain). If set to 0.0, the 
+value, then a fallback intent will be triggered or, if there are no fallback intents defined, no intent will be
+triggered. The score values range from 0.0 (completely uncertain) to 1.0 (completely certain). If set to 0.0, the
 default of 0.3 is used.`,
 			},
 			"description": {
@@ -127,7 +127,7 @@ using @sys.any or very large developer entities. Possible values: ["MATCH_MODE_H
 * TIER_STANDARD: Standard tier.
 * TIER_ENTERPRISE: Enterprise tier (Essentials).
 * TIER_ENTERPRISE_PLUS: Enterprise tier (Plus).
-NOTE: Due to consistency issues, the provider will not read this field from the API. Drift is possible between 
+NOTE: Due to consistency issues, the provider will not read this field from the API. Drift is possible between
 the Terraform state and Dialogflow if the agent tier is changed outside of Terraform. Possible values: ["TIER_STANDARD", "TIER_ENTERPRISE", "TIER_ENTERPRISE_PLUS"]`,
 			},
 			"avatar_uri_backend": {

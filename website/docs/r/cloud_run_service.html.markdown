@@ -214,8 +214,8 @@ The following arguments are supported:
 
 * `url` -
   (Output)
-  URL displays the URL for accessing tagged traffic targets. URL is displayed in status, 
-  and is disallowed on spec. URL must contain a scheme (e.g. http://) and a hostname, 
+  URL displays the URL for accessing tagged traffic targets. URL is displayed in status,
+  and is disallowed on spec. URL must contain a scheme (e.g. http://) and a hostname,
   but may not contain anything else (e.g. basic auth, url path, etc.)
 
 <a name="nested_template"></a>The `template` block supports:
@@ -511,10 +511,10 @@ The following arguments are supported:
 
 * `name` -
   (Required)
-  The name of the secret in Cloud Secret Manager. By default, the secret is assumed to be in the same project. 
-  If the secret is in another project, you must define an alias. 
-  An alias definition has the form: :projects/{project-id|project-number}/secrets/. 
-  If multiple alias definitions are needed, they must be separated by commas. 
+  The name of the secret in Cloud Secret Manager. By default, the secret is assumed to be in the same project.
+  If the secret is in another project, you must define an alias.
+  An alias definition has the form: :projects/{project-id|project-number}/secrets/.
+  If multiple alias definitions are needed, they must be separated by commas.
   The alias definitions must be set on the run.googleapis.com/secrets annotation.
 
 <a name="nested_ports"></a>The `ports` block supports:

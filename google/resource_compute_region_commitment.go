@@ -64,9 +64,9 @@ The currently supported plans are TWELVE_MONTH (1 year), and THIRTY_SIX_MONTH (3
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
-				Description: `Specifies whether to enable automatic renewal for the commitment. 
-The default value is false if not specified. 
-If the field is set to true, the commitment will be automatically renewed for either 
+				Description: `Specifies whether to enable automatic renewal for the commitment.
+The default value is false if not specified.
+If the field is set to true, the commitment will be automatically renewed for either
 one or three years according to the terms of the existing commitment.`,
 			},
 			"category": {
@@ -127,7 +127,7 @@ Note that only MACHINE commitments should have a Type specified. Possible values
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
-				Description: `A list of commitment amounts for particular resources. 
+				Description: `A list of commitment amounts for particular resources.
 Note that VCPU and MEMORY resource commitments must occur together.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -162,7 +162,7 @@ Possible values are VCPU, MEMORY, LOCAL_SSD, and ACCELERATOR.`,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateEnum([]string{"MEMORY_OPTIMIZED", "ACCELERATOR_OPTIMIZED", ""}),
-				Description: `The type of commitment, which affects the discount rate and the eligible resources. 
+				Description: `The type of commitment, which affects the discount rate and the eligible resources.
 Type MEMORY_OPTIMIZED specifies a commitment that will only apply to memory optimized
 machines. Type ACCELERATOR_OPTIMIZED specifies a commitment that will only apply to
 accelerator optimized machines. Possible values: ["MEMORY_OPTIMIZED", "ACCELERATOR_OPTIMIZED"]`,

@@ -304,8 +304,8 @@ the source disk is deleted. Default value: "KEEP_AUTO_SNAPSHOTS" Possible values
 										Type:     schema.TypeString,
 										Optional: true,
 										ForceNew: true,
-										Description: `Creates the new snapshot in the snapshot chain labeled with the 
-specified name. The chain name must be 1-63 characters long and comply 
+										Description: `Creates the new snapshot in the snapshot chain labeled with the
+specified name. The chain name must be 1-63 characters long and comply
 with RFC1035.`,
 									},
 									"guest_flush": {

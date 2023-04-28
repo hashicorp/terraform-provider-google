@@ -359,8 +359,8 @@ RFC 4648 base64 to either encrypt or decrypt this resource.`,
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-							Description: `Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit 
-customer-supplied encryption key to either encrypt or decrypt 
+							Description: `Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit
+customer-supplied encryption key to either encrypt or decrypt
 this resource. You can provide either the rawKey or the rsaEncryptedKey.`,
 							Sensitive: true,
 						},

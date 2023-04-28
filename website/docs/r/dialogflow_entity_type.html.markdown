@@ -113,7 +113,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
-  The unique identifier of the entity type. 
+  The unique identifier of the entity type.
   Format: projects/<Project ID>/agent/entityTypes/<Entity type ID>.
 
 

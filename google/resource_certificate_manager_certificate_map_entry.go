@@ -65,8 +65,8 @@ Each certificate must match pattern projects/*/locations/*/certificates/*.`,
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				Description: `A user-defined name of the Certificate Map Entry. Certificate Map Entry 
-names must be unique globally and match pattern 
+				Description: `A user-defined name of the Certificate Map Entry. Certificate Map Entry
+names must be unique globally and match pattern
 'projects/*/locations/*/certificateMaps/*/certificateMapEntries/*'`,
 			},
 			"description": {
@@ -102,8 +102,8 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 			"create_time": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `Creation timestamp of a Certificate Map Entry. Timestamp in RFC3339 UTC "Zulu" format, 
-with nanosecond resolution and up to nine fractional digits. 
+				Description: `Creation timestamp of a Certificate Map Entry. Timestamp in RFC3339 UTC "Zulu" format,
+with nanosecond resolution and up to nine fractional digits.
 Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 			},
 			"state": {
@@ -114,8 +114,8 @@ Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 			"update_time": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `Update timestamp of a Certificate Map Entry. Timestamp in RFC3339 UTC "Zulu" format, 
-with nanosecond resolution and up to nine fractional digits. 
+				Description: `Update timestamp of a Certificate Map Entry. Timestamp in RFC3339 UTC "Zulu" format,
+with nanosecond resolution and up to nine fractional digits.
 Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 			},
 			"project": {

@@ -137,7 +137,7 @@ Form of: gs://bucket/folder/ or gs://bucket`,
 													Optional: true,
 													Description: `List of user-specified file type groups to transform. If specified, only the files with these filetypes will be transformed.
 
-If empty, all supported files will be transformed. Supported types may be automatically added over time. 
+If empty, all supported files will be transformed. Supported types may be automatically added over time.
 
 If a file type is set in this field that isn't supported by the Deidentify action then the job will fail and will not be successfully created/started. Possible values: ["IMAGE", "TEXT_FILE", "CSV", "TSV"]`,
 													Elem: &schema.Schema{
@@ -382,22 +382,22 @@ If not specified, no identifying fields will be returned for findings.`,
 												"rows_limit": {
 													Type:     schema.TypeInt,
 													Optional: true,
-													Description: `Max number of rows to scan. If the table has more rows than this value, the rest of the rows are omitted. 
-If not set, or if set to 0, all rows will be scanned. Only one of rowsLimit and rowsLimitPercent can be 
+													Description: `Max number of rows to scan. If the table has more rows than this value, the rest of the rows are omitted.
+If not set, or if set to 0, all rows will be scanned. Only one of rowsLimit and rowsLimitPercent can be
 specified. Cannot be used in conjunction with TimespanConfig.`,
 												},
 												"rows_limit_percent": {
 													Type:     schema.TypeInt,
 													Optional: true,
-													Description: `Max percentage of rows to scan. The rest are omitted. The number of rows scanned is rounded down. 
-Must be between 0 and 100, inclusively. Both 0 and 100 means no limit. Defaults to 0. Only one of 
+													Description: `Max percentage of rows to scan. The rest are omitted. The number of rows scanned is rounded down.
+Must be between 0 and 100, inclusively. Both 0 and 100 means no limit. Defaults to 0. Only one of
 rowsLimit and rowsLimitPercent can be specified. Cannot be used in conjunction with TimespanConfig.`,
 												},
 												"sample_method": {
 													Type:         schema.TypeString,
 													Optional:     true,
 													ValidateFunc: validateEnum([]string{"TOP", "RANDOM_START", ""}),
-													Description: `How to sample rows if not all rows are scanned. Meaningful only when used in conjunction with either 
+													Description: `How to sample rows if not all rows are scanned. Meaningful only when used in conjunction with either
 rowsLimit or rowsLimitPercent. If not specified, rows are scanned in the order BigQuery reads them. Default value: "TOP" Possible values: ["TOP", "RANDOM_START"]`,
 													Default: "TOP",
 												},

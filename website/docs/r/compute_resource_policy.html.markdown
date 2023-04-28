@@ -357,8 +357,8 @@ The following arguments are supported:
 
 * `chain_name` -
   (Optional)
-  Creates the new snapshot in the snapshot chain labeled with the 
-  specified name. The chain name must be 1-63 characters long and comply 
+  Creates the new snapshot in the snapshot chain labeled with the
+  specified name. The chain name must be 1-63 characters long and comply
   with RFC1035.
 
 <a name="nested_group_placement_policy"></a>The `group_placement_policy` block supports:

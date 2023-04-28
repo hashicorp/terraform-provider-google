@@ -125,7 +125,7 @@ func ResourceCloudSchedulerJob() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Description: `App Engine HTTP target.
-If the job providers a App Engine HTTP target the cron will 
+If the job providers a App Engine HTTP target the cron will
 send a request to the service instance`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -134,9 +134,9 @@ send a request to the service instance`,
 							Type:     schema.TypeString,
 							Required: true,
 							Description: `The relative URI.
-The relative URL must begin with "/" and must be a valid HTTP relative URL. 
-It can contain a path, query string arguments, and \# fragments. 
-If the relative URL is empty, then the root path "/" will be used. 
+The relative URL must begin with "/" and must be a valid HTTP relative URL.
+It can contain a path, query string arguments, and \# fragments.
+If the relative URL is empty, then the root path "/" will be used.
 No spaces are allowed, and the maximum length allowed is 2083 characters`,
 						},
 						"app_engine_routing": {
@@ -174,8 +174,8 @@ By default, the job is sent to the version which is the default version when the
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validateBase64String,
-							Description: `HTTP request body. 
-A request body is allowed only if the HTTP method is POST or PUT. 
+							Description: `HTTP request body.
+A request body is allowed only if the HTTP method is POST or PUT.
 It will result in invalid argument error to set a body on a job with an incompatible HttpMethod.
 
 A base64-encoded string.`,
@@ -185,7 +185,7 @@ A base64-encoded string.`,
 							Optional:     true,
 							ValidateFunc: validateHttpHeaders(),
 							Description: `HTTP request headers.
-This map contains the header field names and values. 
+This map contains the header field names and values.
 Headers can be set when the job is created.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
@@ -215,14 +215,14 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Description: `A human-readable description for the job. 
+				Description: `A human-readable description for the job.
 This string must not contain more than 500 characters.`,
 			},
 			"http_target": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Description: `HTTP target.
-If the job providers a http_target the cron will 
+If the job providers a http_target the cron will
 send a request to the targeted url`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -237,8 +237,8 @@ send a request to the targeted url`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validateBase64String,
-							Description: `HTTP request body. 
-A request body is allowed only if the HTTP method is POST, PUT, or PATCH. 
+							Description: `HTTP request body.
+A request body is allowed only if the HTTP method is POST, PUT, or PATCH.
 It is an error to set body on a job with an incompatible HttpMethod.
 
 A base64-encoded string.`,
@@ -247,7 +247,7 @@ A base64-encoded string.`,
 							Type:         schema.TypeMap,
 							Optional:     true,
 							ValidateFunc: validateHttpHeaders(),
-							Description: `This map contains the header field names and values. 
+							Description: `This map contains the header field names and values.
 Repeated headers are not supported, but a header value can contain commas.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
@@ -361,8 +361,8 @@ Pubsub message must contain either non-empty data, or at least one attribute.
 			"retry_config": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Description: `By default, if a job does not complete successfully, 
-meaning that an acknowledgement is not received from the handler, 
+				Description: `By default, if a job does not complete successfully,
+meaning that an acknowledgement is not received from the handler,
 then it will be retried with exponential backoff according to the settings`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -380,8 +380,8 @@ A duration in seconds with up to nine fractional digits, terminated by 's'.`,
 							Computed: true,
 							Optional: true,
 							Description: `The time between retries will double maxDoublings times.
-A job's retry interval starts at minBackoffDuration, 
-then doubles maxDoublings times, then increases linearly, 
+A job's retry interval starts at minBackoffDuration,
+then doubles maxDoublings times, then increases linearly,
 and finally retries retries at intervals of maxBackoffDuration up to retryCount times.`,
 							AtLeastOneOf: []string{"retry_config.0.retry_count", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.max_backoff_duration", "retry_config.0.max_doublings"},
 						},
@@ -389,7 +389,7 @@ and finally retries retries at intervals of maxBackoffDuration up to retryCount 
 							Type:     schema.TypeString,
 							Computed: true,
 							Optional: true,
-							Description: `The time limit for retrying a failed job, measured from time when an execution was first attempted. 
+							Description: `The time limit for retrying a failed job, measured from time when an execution was first attempted.
 If specified with retryCount, the job will be retried until both limits are reached.
 A duration in seconds with up to nine fractional digits, terminated by 's'.`,
 							AtLeastOneOf: []string{"retry_config.0.retry_count", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.max_backoff_duration", "retry_config.0.max_doublings"},
@@ -406,7 +406,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'.`,
 							Type:     schema.TypeInt,
 							Computed: true,
 							Optional: true,
-							Description: `The number of attempts that the system will make to run a 
+							Description: `The number of attempts that the system will make to run a
 job using the exponential backoff procedure described by maxDoublings.
 Values greater than 5 and negative values are not allowed.`,
 							AtLeastOneOf: []string{"retry_config.0.retry_count", "retry_config.0.max_retry_duration", "retry_config.0.min_backoff_duration", "retry_config.0.max_backoff_duration", "retry_config.0.max_doublings"},

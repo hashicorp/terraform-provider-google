@@ -101,8 +101,8 @@ func ResourceCloudBuildTrigger() *schema.Resource {
 				Type:     schema.TypeList,
 				Computed: true,
 				Optional: true,
-				Description: `Configuration for manual approval to start a build invocation of this BuildTrigger. 
-Builds created by this trigger will require approval before they execute. 
+				Description: `Configuration for manual approval to start a build invocation of this BuildTrigger.
+Builds created by this trigger will require approval before they execute.
 Any user with a Cloud Build Approver role for the project can approve a build.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -110,7 +110,7 @@ Any user with a Cloud Build Approver role for the project can approve a build.`,
 						"approval_required": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							Description: `Whether or not approval is needed. If this is set on a build, it will become pending when run, 
+							Description: `Whether or not approval is needed. If this is set on a build, it will become pending when run,
 and will need to be explicitly approved to start.`,
 							Default: false,
 						},
@@ -223,7 +223,7 @@ run directly. If not, the host will attempt to pull the image first, using
 the builder service account's credentials if necessary.
 
 The Docker daemon's cache will already have the latest versions of all of
-the officially supported build steps (see https://github.com/GoogleCloudPlatform/cloud-builders 
+the officially supported build steps (see https://github.com/GoogleCloudPlatform/cloud-builders
 for images and examples).
 The Docker daemon will also have cached many of the layers for some popular
 images, like "ubuntu", "debian", but they will be refreshed at the time
@@ -289,7 +289,7 @@ reference this build step as a dependency.`,
 									"script": {
 										Type:     schema.TypeString,
 										Optional: true,
-										Description: `A shell script to be executed in the step. 
+										Description: `A shell script to be executed in the step.
 When script is provided, the user cannot specify the entrypoint or args.`,
 									},
 									"secret_env": {
@@ -492,7 +492,7 @@ If any of the images fail to be pushed, the build status is marked FAILURE.`,
 						"logs_bucket": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `Google Cloud Storage bucket where logs should be written. 
+							Description: `Google Cloud Storage bucket where logs should be written.
 Logs file names will be of the format ${logsBucket}/log-${build_id}.txt.`,
 						},
 						"options": {
@@ -627,7 +627,7 @@ This field is experimental.`,
 						"queue_ttl": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `TTL in queue for this build. If provided and the build is enqueued longer than this value, 
+							Description: `TTL in queue for this build. If provided and the build is enqueued longer than this value,
 the build will expire and the build status will be EXPIRED.
 The TTL starts ticking from createTime.
 A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
@@ -647,8 +647,8 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 										Type:     schema.TypeMap,
 										Optional: true,
 										Description: `Map of environment variable name to its encrypted value.
-Secret environment variables must be unique across all of a build's secrets, 
-and must be used by at least one build step. Values can be at most 64 KB in size. 
+Secret environment variables must be unique across all of a build's secrets,
+and must be used by at least one build step. Values can be at most 64 KB in size.
 There can be at most 100 secret values across all of a build's secrets.`,
 										Elem: &schema.Schema{Type: schema.TypeString},
 									},
@@ -680,7 +680,7 @@ One of 'storageSource' or 'repoSource' must be provided.`,
 													Type:     schema.TypeString,
 													Optional: true,
 													Description: `Regex matching branches to build. Exactly one a of branch name, tag, or commit SHA must be provided.
-The syntax of the regular expressions accepted is the syntax accepted by RE2 and 
+The syntax of the regular expressions accepted is the syntax accepted by RE2 and
 described at https://github.com/google/re2/wiki/Syntax`,
 													ExactlyOneOf: []string{"build.0.source.0.repo_source.0.branch_name", "build.0.source.0.repo_source.0.commit_sha", "build.0.source.0.repo_source.0.tag_name"},
 												},
@@ -694,7 +694,7 @@ described at https://github.com/google/re2/wiki/Syntax`,
 													Type:     schema.TypeString,
 													Optional: true,
 													Description: `Directory, relative to the source root, in which to run the build.
-This must be a relative path. If a step's dir is specified and is an absolute path, 
+This must be a relative path. If a step's dir is specified and is an absolute path,
 this value is ignored for that step's execution.`,
 												},
 												"invert_regex": {
@@ -705,7 +705,7 @@ this value is ignored for that step's execution.`,
 												"project_id": {
 													Type:     schema.TypeString,
 													Optional: true,
-													Description: `ID of the project that owns the Cloud Source Repository. 
+													Description: `ID of the project that owns the Cloud Source Repository.
 If omitted, the project ID requesting the build is assumed.`,
 												},
 												"substitutions": {
@@ -718,7 +718,7 @@ If omitted, the project ID requesting the build is assumed.`,
 													Type:     schema.TypeString,
 													Optional: true,
 													Description: `Regex matching tags to build. Exactly one a of branch name, tag, or commit SHA must be provided.
-The syntax of the regular expressions accepted is the syntax accepted by RE2 and 
+The syntax of the regular expressions accepted is the syntax accepted by RE2 and
 described at https://github.com/google/re2/wiki/Syntax`,
 													ExactlyOneOf: []string{"build.0.source.0.repo_source.0.branch_name", "build.0.source.0.repo_source.0.commit_sha", "build.0.source.0.repo_source.0.tag_name"},
 												},
@@ -746,7 +746,7 @@ This object must be a gzipped archive file (.tar.gz) containing source to build.
 												"generation": {
 													Type:     schema.TypeString,
 													Optional: true,
-													Description: `Google Cloud Storage generation for the object. 
+													Description: `Google Cloud Storage generation for the object.
 If the generation is omitted, the latest generation will be used`,
 												},
 											},
@@ -796,7 +796,7 @@ Default time is ten minutes (600s).`,
 			"filename": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Description: `Path, from the source root, to a file whose contents is used for the template. 
+				Description: `Path, from the source root, to a file whose contents is used for the template.
 Either a filename or build template must be provided. Set this only when using trigger_template or github.
 When using Pub/Sub, Webhook or Manual set the file name using git_file_source instead.`,
 				ExactlyOneOf: []string{"filename", "build", "git_file_source"},
@@ -822,7 +822,7 @@ When using Pub/Sub, Webhook or Manual set the file name using git_file_source in
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validateEnum([]string{"UNKNOWN", "CLOUD_SOURCE_REPOSITORIES", "GITHUB", "BITBUCKET_SERVER"}),
-							Description: `The type of the repo, since it may not be explicit from the repo field (e.g from a URL). 
+							Description: `The type of the repo, since it may not be explicit from the repo field (e.g from a URL).
 Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB, BITBUCKET_SERVER Possible values: ["UNKNOWN", "CLOUD_SOURCE_REPOSITORIES", "GITHUB", "BITBUCKET_SERVER"]`,
 						},
 						"github_enterprise_config": {
@@ -834,14 +834,14 @@ Format: projects/{project}/locations/{location}/githubEnterpriseConfigs/{id}. pr
 						"revision": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `The branch, tag, arbitrary ref, or SHA version of the repo to use when resolving the 
-filename (optional). This field respects the same syntax/resolution as described here: https://git-scm.com/docs/gitrevisions 
+							Description: `The branch, tag, arbitrary ref, or SHA version of the repo to use when resolving the
+filename (optional). This field respects the same syntax/resolution as described here: https://git-scm.com/docs/gitrevisions
 If unspecified, the revision from which the trigger invocation originated is assumed to be the revision from which to read the specified path.`,
 						},
 						"uri": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `The URI of the repo (optional). If unspecified, the repo from which the trigger 
+							Description: `The URI of the repo (optional). If unspecified, the repo from which the trigger
 invocation originated is assumed to be the repo from which to read the specified path.`,
 						},
 					},
@@ -993,7 +993,7 @@ If not specified, "global" is used.`,
 			"pubsub_config": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Description: `PubsubConfig describes the configuration of a trigger that creates 
+				Description: `PubsubConfig describes the configuration of a trigger that creates
 a build whenever a Pub/Sub message is published.
 
 One of 'trigger_template', 'github', 'pubsub_config' 'webhook_config' or 'source_to_build' must be provided.`,
@@ -1039,9 +1039,9 @@ Format: projects/{PROJECT_ID}/serviceAccounts/{ACCOUNT_ID_OR_EMAIL}`,
 			"source_to_build": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Description: `The repo and ref of the repository from which to build. 
-This field is used only for those triggers that do not respond to SCM events. 
-Triggers that respond to such events build source at whatever commit caused the event. 
+				Description: `The repo and ref of the repository from which to build.
+This field is used only for those triggers that do not respond to SCM events.
+Triggers that respond to such events build source at whatever commit caused the event.
 This field is currently only used by Webhook, Pub/Sub, Manual, and Cron triggers.
 
 One of 'trigger_template', 'github', 'pubsub_config' 'webhook_config' or 'source_to_build' must be provided.`,
@@ -1156,7 +1156,7 @@ This field is a regular expression.`,
 			"webhook_config": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Description: `WebhookConfig describes the configuration of a trigger that creates 
+				Description: `WebhookConfig describes the configuration of a trigger that creates
 a build whenever a webhook is sent to a trigger's webhook URL.
 
 One of 'trigger_template', 'github', 'pubsub_config' 'webhook_config' or 'source_to_build' must be provided.`,

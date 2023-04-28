@@ -531,7 +531,7 @@ The following arguments are supported:
 
 * `filename` -
   (Optional)
-  Path, from the source root, to a file whose contents is used for the template. 
+  Path, from the source root, to a file whose contents is used for the template.
   Either a filename or build template must be provided. Set this only when using trigger_template or github.
   When using Pub/Sub, Webhook or Manual set the file name using git_file_source instead.
 
@@ -551,9 +551,9 @@ The following arguments are supported:
 
 * `source_to_build` -
   (Optional)
-  The repo and ref of the repository from which to build. 
-  This field is used only for those triggers that do not respond to SCM events. 
-  Triggers that respond to such events build source at whatever commit caused the event. 
+  The repo and ref of the repository from which to build.
+  This field is used only for those triggers that do not respond to SCM events.
+  Triggers that respond to such events build source at whatever commit caused the event.
   This field is currently only used by Webhook, Pub/Sub, Manual, and Cron triggers.
   One of `trigger_template`, `github`, `pubsub_config` `webhook_config` or `source_to_build` must be provided.
   Structure is [documented below](#nested_source_to_build).
@@ -602,22 +602,22 @@ The following arguments are supported:
 
 * `pubsub_config` -
   (Optional)
-  PubsubConfig describes the configuration of a trigger that creates 
+  PubsubConfig describes the configuration of a trigger that creates
   a build whenever a Pub/Sub message is published.
   One of `trigger_template`, `github`, `pubsub_config` `webhook_config` or `source_to_build` must be provided.
   Structure is [documented below](#nested_pubsub_config).
 
 * `webhook_config` -
   (Optional)
-  WebhookConfig describes the configuration of a trigger that creates 
+  WebhookConfig describes the configuration of a trigger that creates
   a build whenever a webhook is sent to a trigger's webhook URL.
   One of `trigger_template`, `github`, `pubsub_config` `webhook_config` or `source_to_build` must be provided.
   Structure is [documented below](#nested_webhook_config).
 
 * `approval_config` -
   (Optional)
-  Configuration for manual approval to start a build invocation of this BuildTrigger. 
-  Builds created by this trigger will require approval before they execute. 
+  Configuration for manual approval to start a build invocation of this BuildTrigger.
+  Builds created by this trigger will require approval before they execute.
   Any user with a Cloud Build Approver role for the project can approve a build.
   Structure is [documented below](#nested_approval_config).
 
@@ -643,19 +643,19 @@ The following arguments are supported:
 
 * `uri` -
   (Optional)
-  The URI of the repo (optional). If unspecified, the repo from which the trigger 
+  The URI of the repo (optional). If unspecified, the repo from which the trigger
   invocation originated is assumed to be the repo from which to read the specified path.
 
 * `repo_type` -
   (Required)
-  The type of the repo, since it may not be explicit from the repo field (e.g from a URL). 
+  The type of the repo, since it may not be explicit from the repo field (e.g from a URL).
   Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB, BITBUCKET_SERVER
   Possible values are: `UNKNOWN`, `CLOUD_SOURCE_REPOSITORIES`, `GITHUB`, `BITBUCKET_SERVER`.
 
 * `revision` -
   (Optional)
-  The branch, tag, arbitrary ref, or SHA version of the repo to use when resolving the 
-  filename (optional). This field respects the same syntax/resolution as described here: https://git-scm.com/docs/gitrevisions 
+  The branch, tag, arbitrary ref, or SHA version of the repo to use when resolving the
+  filename (optional). This field respects the same syntax/resolution as described here: https://git-scm.com/docs/gitrevisions
   If unspecified, the revision from which the trigger invocation originated is assumed to be the revision from which to read the specified path.
 
 * `github_enterprise_config` -
@@ -919,7 +919,7 @@ The following arguments are supported:
 
 * `approval_required` -
   (Optional)
-  Whether or not approval is needed. If this is set on a build, it will become pending when run, 
+  Whether or not approval is needed. If this is set on a build, it will become pending when run,
   and will need to be explicitly approved to start.
 
 <a name="nested_build"></a>The `build` block supports:
@@ -947,14 +947,14 @@ The following arguments are supported:
 
 * `queue_ttl` -
   (Optional)
-  TTL in queue for this build. If provided and the build is enqueued longer than this value, 
+  TTL in queue for this build. If provided and the build is enqueued longer than this value,
   the build will expire and the build status will be EXPIRED.
   The TTL starts ticking from createTime.
   A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
 
 * `logs_bucket` -
   (Optional)
-  Google Cloud Storage bucket where logs should be written. 
+  Google Cloud Storage bucket where logs should be written.
   Logs file names will be of the format ${logsBucket}/log-${build_id}.txt.
 
 * `timeout` -
@@ -1017,14 +1017,14 @@ The following arguments are supported:
 
 * `generation` -
   (Optional)
-  Google Cloud Storage generation for the object. 
+  Google Cloud Storage generation for the object.
   If the generation is omitted, the latest generation will be used
 
 <a name="nested_repo_source"></a>The `repo_source` block supports:
 
 * `project_id` -
   (Optional)
-  ID of the project that owns the Cloud Source Repository. 
+  ID of the project that owns the Cloud Source Repository.
   If omitted, the project ID requesting the build is assumed.
 
 * `repo_name` -
@@ -1034,7 +1034,7 @@ The following arguments are supported:
 * `dir` -
   (Optional)
   Directory, relative to the source root, in which to run the build.
-  This must be a relative path. If a step's dir is specified and is an absolute path, 
+  This must be a relative path. If a step's dir is specified and is an absolute path,
   this value is ignored for that step's execution.
 
 * `invert_regex` -
@@ -1048,13 +1048,13 @@ The following arguments are supported:
 * `branch_name` -
   (Optional)
   Regex matching branches to build. Exactly one a of branch name, tag, or commit SHA must be provided.
-  The syntax of the regular expressions accepted is the syntax accepted by RE2 and 
+  The syntax of the regular expressions accepted is the syntax accepted by RE2 and
   described at https://github.com/google/re2/wiki/Syntax
 
 * `tag_name` -
   (Optional)
   Regex matching tags to build. Exactly one a of branch name, tag, or commit SHA must be provided.
-  The syntax of the regular expressions accepted is the syntax accepted by RE2 and 
+  The syntax of the regular expressions accepted is the syntax accepted by RE2 and
   described at https://github.com/google/re2/wiki/Syntax
 
 * `commit_sha` -
@@ -1070,8 +1070,8 @@ The following arguments are supported:
 * `secret_env` -
   (Optional)
   Map of environment variable name to its encrypted value.
-  Secret environment variables must be unique across all of a build's secrets, 
-  and must be used by at least one build step. Values can be at most 64 KB in size. 
+  Secret environment variables must be unique across all of a build's secrets,
+  and must be used by at least one build step. Values can be at most 64 KB in size.
   There can be at most 100 secret values across all of a build's secrets.
 
 <a name="nested_available_secrets"></a>The `available_secrets` block supports:
@@ -1103,7 +1103,7 @@ The following arguments are supported:
   run directly. If not, the host will attempt to pull the image first, using
   the builder service account's credentials if necessary.
   The Docker daemon's cache will already have the latest versions of all of
-  the officially supported build steps (see https://github.com/GoogleCloudPlatform/cloud-builders 
+  the officially supported build steps (see https://github.com/GoogleCloudPlatform/cloud-builders
   for images and examples).
   The Docker daemon will also have cached many of the layers for some popular
   images, like "ubuntu", "debian", but they will be refreshed at the time
@@ -1189,7 +1189,7 @@ The following arguments are supported:
 
 * `script` -
   (Optional)
-  A shell script to be executed in the step. 
+  A shell script to be executed in the step.
   When script is provided, the user cannot specify the entrypoint or args.
 
 

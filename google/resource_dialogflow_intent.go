@@ -69,7 +69,7 @@ Note: The action name must not contain whitespaces.`,
 				Type:     schema.TypeList,
 				Optional: true,
 				Description: `The collection of event names that trigger the intent. If the collection of input contexts is not empty, all of
-the contexts must be present in the active user session for an event to trigger this intent. See the 
+the contexts must be present in the active user session for an event to trigger this intent. See the
 [events reference](https://cloud.google.com/dialogflow/docs/events-overview) for more details.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -156,7 +156,7 @@ Format: projects/<Project ID>/agent/intents/<Intent ID>.`,
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `The unique identifier of this intent. 
+				Description: `The unique identifier of this intent.
 Format: projects/<Project ID>/agent/intents/<Intent ID>.`,
 			},
 			"root_followup_intent_name": {
