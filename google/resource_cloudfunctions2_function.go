@@ -119,14 +119,14 @@ function, optional when updating an existing function.`,
 												"invert_regex": {
 													Type:     schema.TypeBool,
 													Optional: true,
-													Description: `Only trigger a build if the revision regex does 
+													Description: `Only trigger a build if the revision regex does
 NOT match the revision regex.`,
 												},
 												"project_id": {
 													Type:     schema.TypeString,
 													Optional: true,
 													ForceNew: true,
-													Description: `ID of the project that owns the Cloud Source Repository. If omitted, the 
+													Description: `ID of the project that owns the Cloud Source Repository. If omitted, the
 project ID requesting the build is assumed.`,
 												},
 												"repo_name": {
@@ -159,7 +159,7 @@ project ID requesting the build is assumed.`,
 												"generation": {
 													Type:     schema.TypeInt,
 													Optional: true,
-													Description: `Google Cloud Storage generation for the object. If the generation 
+													Description: `Google Cloud Storage generation for the object. If the generation
 is omitted, the latest generation will be used.`,
 												},
 												"object": {

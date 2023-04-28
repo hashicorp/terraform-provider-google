@@ -100,13 +100,13 @@ The following arguments are supported:
 
 * `resources` -
   (Optional)
-  A list of commitment amounts for particular resources. 
+  A list of commitment amounts for particular resources.
   Note that VCPU and MEMORY resource commitments must occur together.
   Structure is [documented below](#nested_resources).
 
 * `type` -
   (Optional)
-  The type of commitment, which affects the discount rate and the eligible resources. 
+  The type of commitment, which affects the discount rate and the eligible resources.
   Type MEMORY_OPTIMIZED specifies a commitment that will only apply to memory optimized
   machines. Type ACCELERATOR_OPTIMIZED specifies a commitment that will only apply to
   accelerator optimized machines.
@@ -127,9 +127,9 @@ The following arguments are supported:
 
 * `auto_renew` -
   (Optional)
-  Specifies whether to enable automatic renewal for the commitment. 
-  The default value is false if not specified. 
-  If the field is set to true, the commitment will be automatically renewed for either 
+  Specifies whether to enable automatic renewal for the commitment.
+  The default value is false if not specified.
+  If the field is set to true, the commitment will be automatically renewed for either
   one or three years according to the terms of the existing commitment.
 
 * `region` -

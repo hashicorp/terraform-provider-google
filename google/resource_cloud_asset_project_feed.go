@@ -77,7 +77,7 @@ func ResourceCloudAssetProjectFeed() *schema.Resource {
 			"asset_names": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Description: `A list of the full names of the assets to receive updates. You must specify either or both of 
+				Description: `A list of the full names of the assets to receive updates. You must specify either or both of
 assetNames and assetTypes. Only asset updates matching specified assetNames and assetTypes are
 exported to the feed. For example: //compute.googleapis.com/projects/my_project_123/zones/zone1/instances/instance1.
 See https://cloud.google.com/apis/design/resourceNames#fullResourceName for more info.`,
@@ -102,7 +102,7 @@ supported asset types.`,
 				Optional: true,
 				ForceNew: true,
 				Description: `The project whose identity will be used when sending messages to the
-destination pubsub topic. It also specifies the project for API 
+destination pubsub topic. It also specifies the project for API
 enablement check, quota, and billing. If not specified, the resource's
 project will be used.`,
 			},
@@ -131,7 +131,7 @@ e.g. when hovered over it in a UI.`,
 						"location": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `String indicating the location of the expression for error reporting, e.g. a file 
+							Description: `String indicating the location of the expression for error reporting, e.g. a file
 name and a position in the file.`,
 						},
 						"title": {

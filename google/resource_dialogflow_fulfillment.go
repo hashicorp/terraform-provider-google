@@ -103,7 +103,7 @@ func ResourceDialogflowFulfillment() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `The unique identifier of the fulfillment. 
+				Description: `The unique identifier of the fulfillment.
 Format: projects/<Project ID>/agent/fulfillment - projects/<Project ID>/locations/<Location ID>/agent/fulfillment`,
 			},
 			"project": {

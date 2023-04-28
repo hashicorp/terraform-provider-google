@@ -466,8 +466,8 @@ The following arguments are supported:
 
 * `gke_cluster_name` -
   (Required)
-  The resource name of the cluster to bind this ManagedZone to.  
-  This should be specified in the format like  
+  The resource name of the cluster to bind this ManagedZone to.
+  This should be specified in the format like
   `projects/*/locations/*/clusters/*`
 
 <a name="nested_networks"></a>The `networks` block supports:

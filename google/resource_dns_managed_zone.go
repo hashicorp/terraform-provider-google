@@ -260,8 +260,8 @@ blocks in an update and then apply another update adding all of them back simult
 									"gke_cluster_name": {
 										Type:     schema.TypeString,
 										Required: true,
-										Description: `The resource name of the cluster to bind this ManagedZone to.  
-This should be specified in the format like  
+										Description: `The resource name of the cluster to bind this ManagedZone to.
+This should be specified in the format like
 'projects/*/locations/*/clusters/*'`,
 									},
 								},

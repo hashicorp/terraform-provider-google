@@ -110,9 +110,9 @@ Changing this field will result in deleting/ recreating the resource.`,
 			"peered_network": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Description: `The network to be used when reaching out to the Bitbucket Server instance. The VPC network must be enabled for private service connection. 
-This should be set if the Bitbucket Server instance is hosted on-premises and not reachable by public internet. If this field is left empty, 
-no network peering will occur and calls to the Bitbucket Server instance will be made over the public internet. Must be in the format 
+				Description: `The network to be used when reaching out to the Bitbucket Server instance. The VPC network must be enabled for private service connection.
+This should be set if the Bitbucket Server instance is hosted on-premises and not reachable by public internet. If this field is left empty,
+no network peering will occur and calls to the Bitbucket Server instance will be made over the public internet. Must be in the format
 projects/{project}/global/networks/{network}, where {project} is a project number or id and {network} is the name of a VPC network in the project.`,
 			},
 			"ssl_ca": {

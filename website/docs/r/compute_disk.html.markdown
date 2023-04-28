@@ -291,8 +291,8 @@ The following arguments are supported:
 
 * `rsa_encrypted_key` -
   (Optional)
-  Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit 
-  customer-supplied encryption key to either encrypt or decrypt 
+  Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit
+  customer-supplied encryption key to either encrypt or decrypt
   this resource. You can provide either the rawKey or the rsaEncryptedKey.
   **Note**: This property is sensitive and will not be displayed in the plan.
 

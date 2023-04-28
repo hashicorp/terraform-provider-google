@@ -135,7 +135,7 @@ The following arguments are supported:
 
 * `certificate_map` -
   (Optional)
-  A reference to the CertificateMap resource uri that identifies a certificate map 
+  A reference to the CertificateMap resource uri that identifies a certificate map
   associated with the given target proxy. This field can only be set for global target proxies.
   Accepted format is `//certificatemanager.googleapis.com/projects/{project}/locations/{location}/certificateMaps/{resourceName}`.
 

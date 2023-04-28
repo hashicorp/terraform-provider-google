@@ -214,7 +214,7 @@ The following arguments are supported:
   - ENTERPRISE: Enterprise Data Fusion instance. In Enterprise type, the user will have more features
   available, such as support for streaming pipelines, higher number of concurrent pipelines, etc.
   - DEVELOPER: Developer Data Fusion instance. In Developer type, the user will have all features available but
-  with restrictive capabilities. This is to help enterprises design and develop their data ingestion and integration 
+  with restrictive capabilities. This is to help enterprises design and develop their data ingestion and integration
   pipelines at low cost.
   Possible values are: `BASIC`, `ENTERPRISE`, `DEVELOPER`.
 
@@ -287,7 +287,7 @@ The following arguments are supported:
 * `accelerators` -
   (Optional)
   List of accelerators enabled for this CDF instance.
-  If accelerators are enabled it is possible a permadiff will be created with the Options field. 
+  If accelerators are enabled it is possible a permadiff will be created with the Options field.
   Users will need to either manually update their state file to include these diffed options, or include the field in a [lifecycle ignore changes block](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle#ignore_changes).
   Structure is [documented below](#nested_accelerators).
 
