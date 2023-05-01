@@ -197,6 +197,64 @@ resource "google_compute_subnetwork" "default" {
 `, context)
 }
 
+func TestAccComputeForwardingRule_forwardingRuleRegionalSteeringExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeForwardingRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeForwardingRule_forwardingRuleRegionalSteeringExample(context),
+			},
+			{
+				ResourceName:            "google_compute_forwarding_rule.steering",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backend_service", "network", "subnetwork", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeForwardingRule_forwardingRuleRegionalSteeringExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_compute_forwarding_rule" "steering" {
+  name = "tf-test-steering-rule%{random_suffix}"
+  region = "us-central1"
+  ip_address = google_compute_address.basic.self_link
+  backend_service = google_compute_region_backend_service.external.self_link
+  load_balancing_scheme = "EXTERNAL"
+  source_ip_ranges = ["34.121.88.0/24", "35.187.239.137"]
+  depends_on = [google_compute_forwarding_rule.external]
+}
+
+resource "google_compute_address" "basic" {
+  name = "tf-test-website-ip%{random_suffix}"
+  region = "us-central1"
+}
+
+resource "google_compute_region_backend_service" "external" {
+  name = "tf-test-service-backend%{random_suffix}"
+  region = "us-central1"
+  load_balancing_scheme = "EXTERNAL"
+}
+
+resource "google_compute_forwarding_rule" "external" {
+  name = "tf-test-external-forwarding-rule%{random_suffix}"
+  region = "us-central1"
+  ip_address = google_compute_address.basic.self_link
+  backend_service = google_compute_region_backend_service.external.self_link
+  load_balancing_scheme = "EXTERNAL"
+}
+`, context)
+}
+
 func testAccCheckComputeForwardingRuleDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
