@@ -133,3 +133,19 @@ func (e SqlAdminOperationError) Error() string {
 
 	return buf.String()
 }
+
+// Retry if Cloud SQL operation returns a 429 with a specific message for
+// concurrent operations.
+func IsSqlInternalError(err error) (bool, string) {
+	if gerr, ok := err.(*SqlAdminOperationError); ok {
+		// SqlAdminOperationError is a non-interface type so we need to cast it through
+		// a layer of interface{}.  :)
+		var ierr interface{}
+		ierr = gerr
+		if serr, ok := ierr.(*sqladmin.OperationErrors); ok && serr.Errors[0].Code == "INTERNAL_ERROR" {
+			return true, "Received an internal error, which is sometimes retryable for some SQL resources.  Optimistically retrying."
+		}
+
+	}
+	return false, ""
+}

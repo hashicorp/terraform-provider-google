@@ -3,8 +3,6 @@ package google
 import (
 	"fmt"
 
-	sqladmin "google.golang.org/api/sqladmin/v1beta4"
-
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -29,22 +27,6 @@ func IamMemberMissing(err error) (bool, string) {
 // See https://github.com/hashicorp/terraform-provider-google/issues/4349
 func PubsubTopicProjectNotReady(err error) (bool, string) {
 	return transport_tpg.PubsubTopicProjectNotReady(err)
-}
-
-// Retry if Cloud SQL operation returns a 429 with a specific message for
-// concurrent operations.
-func IsSqlInternalError(err error) (bool, string) {
-	if gerr, ok := err.(*SqlAdminOperationError); ok {
-		// SqlAdminOperationError is a non-interface type so we need to cast it through
-		// a layer of interface{}.  :)
-		var ierr interface{}
-		ierr = gerr
-		if serr, ok := ierr.(*sqladmin.OperationErrors); ok && serr.Errors[0].Code == "INTERNAL_ERROR" {
-			return true, "Received an internal error, which is sometimes retryable for some SQL resources.  Optimistically retrying."
-		}
-
-	}
-	return false, ""
 }
 
 // Retry if Cloud SQL operation returns a 429 with a specific message for
