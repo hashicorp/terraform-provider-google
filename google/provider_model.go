@@ -138,11 +138,6 @@ type ProviderModel struct {
 	RecaptchaEnterpriseCustomEndpoint  types.String `tfsdk:"recaptcha_enterprise_custom_endpoint"`
 }
 
-type ProviderBatching struct {
-	SendAfter      types.String `tfsdk:"send_after"`
-	EnableBatching types.Bool   `tfsdk:"enable_batching"`
-}
-
 var ProviderBatchingAttributes = map[string]attr.Type{
 	"send_after":      types.StringType,
 	"enable_batching": types.BoolType,
