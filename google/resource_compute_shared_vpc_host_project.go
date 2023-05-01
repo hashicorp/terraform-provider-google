@@ -70,7 +70,7 @@ func resourceComputeSharedVpcHostProjectRead(d *schema.ResourceData, meta interf
 
 	project, err := config.NewComputeClient(userAgent).Projects.Get(hostProject).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Project data for project %q", hostProject))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Project data for project %q", hostProject))
 	}
 
 	if project.XpnProjectStatus != "HOST" {

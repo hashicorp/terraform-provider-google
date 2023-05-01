@@ -3,23 +3,20 @@ package google
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/url"
 	"reflect"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-	"google.golang.org/api/googleapi"
 )
 
 var DefaultRequestTimeout = transport_tpg.DefaultRequestTimeout
 
 func SendRequest(config *transport_tpg.Config, method, project, rawurl, userAgent string, body map[string]interface{}, errorRetryPredicates ...transport_tpg.RetryErrorPredicateFunc) (map[string]interface{}, error) {
-	return transport_tpg.SendRequestWithTimeout(config, method, project, rawurl, userAgent, body, DefaultRequestTimeout, errorRetryPredicates...)
+	return transport_tpg.SendRequest(config, method, project, rawurl, userAgent, body, errorRetryPredicates...)
 }
 
 func SendRequestWithTimeout(config *transport_tpg.Config, method, project, rawurl, userAgent string, body map[string]interface{}, timeout time.Duration, errorRetryPredicates ...transport_tpg.RetryErrorPredicateFunc) (map[string]interface{}, error) {
@@ -158,38 +155,13 @@ func buildReplacementFunc(re *regexp.Regexp, d TerraformResourceData, config *tr
 }
 
 func handleNotFoundError(err error, d *schema.ResourceData, resource string) error {
-	if IsGoogleApiErrorWithCode(err, 404) {
-		log.Printf("[WARN] Removing %s because it's gone", resource)
-		// The resource doesn't exist anymore
-		d.SetId("")
-
-		return nil
-	}
-
-	return errwrap.Wrapf(
-		fmt.Sprintf("Error when reading or editing %s: {{err}}", resource), err)
+	return transport_tpg.HandleNotFoundError(err, d, resource)
 }
 
 func IsGoogleApiErrorWithCode(err error, errCode int) bool {
-	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
-	return ok && gerr != nil && gerr.Code == errCode
+	return transport_tpg.IsGoogleApiErrorWithCode(err, errCode)
 }
 
 func isApiNotEnabledError(err error) bool {
-	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
-	if !ok {
-		return false
-	}
-	if gerr == nil {
-		return false
-	}
-	if gerr.Code != 403 {
-		return false
-	}
-	for _, e := range gerr.Errors {
-		if e.Reason == "accessNotConfigured" {
-			return true
-		}
-	}
-	return false
+	return transport_tpg.IsApiNotEnabledError(err)
 }

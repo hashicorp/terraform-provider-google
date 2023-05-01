@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // Since each test here is acting on the same organization and only one AccessPolicy
@@ -58,7 +59,7 @@ func testAccCheckAccessContextManagerAccessLevelConditionPresent(t *testing.T, n
 			return err
 		}
 
-		al, err := SendRequest(config, "GET", "", url, config.UserAgent, nil)
+		al, err := transport_tpg.SendRequest(config, "GET", "", url, config.UserAgent, nil)
 		if err != nil {
 			return err
 		}
@@ -86,7 +87,7 @@ func testAccCheckAccessContextManagerAccessLevelConditionDestroyProducer(t *test
 				return err
 			}
 
-			_, err = SendRequest(config, "GET", "", url, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(config, "GET", "", url, config.UserAgent, nil)
 			if err == nil {
 				return fmt.Errorf("AccessLevel still exists at %s", url)
 			}

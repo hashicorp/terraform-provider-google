@@ -270,7 +270,7 @@ func resourceDeploymentManagerDeploymentCreate(d *schema.ResourceData, meta inte
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Deployment: %s", err)
 	}
@@ -323,9 +323,9 @@ func resourceDeploymentManagerDeploymentRead(d *schema.ResourceData, meta interf
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("DeploymentManagerDeployment %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DeploymentManagerDeployment %q", d.Id()))
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -384,9 +384,9 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 			billingProject = bp
 		}
 
-		getRes, err := SendRequest(config, "GET", billingProject, getUrl, userAgent, nil)
+		getRes, err := transport_tpg.SendRequest(config, "GET", billingProject, getUrl, userAgent, nil)
 		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("DeploymentManagerDeployment %q", d.Id()))
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DeploymentManagerDeployment %q", d.Id()))
 		}
 
 		obj["fingerprint"] = getRes["fingerprint"]
@@ -401,7 +401,7 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 			billingProject = bp
 		}
 
-		res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Deployment %q: %s", d.Id(), err)
 		} else {
@@ -428,9 +428,9 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 			billingProject = bp
 		}
 
-		getRes, err := SendRequest(config, "GET", billingProject, getUrl, userAgent, nil)
+		getRes, err := transport_tpg.SendRequest(config, "GET", billingProject, getUrl, userAgent, nil)
 		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("DeploymentManagerDeployment %q", d.Id()))
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DeploymentManagerDeployment %q", d.Id()))
 		}
 
 		obj["fingerprint"] = getRes["fingerprint"]
@@ -464,7 +464,7 @@ func resourceDeploymentManagerDeploymentUpdate(d *schema.ResourceData, meta inte
 			billingProject = bp
 		}
 
-		res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Deployment %q: %s", d.Id(), err)
 		} else {
@@ -512,9 +512,9 @@ func resourceDeploymentManagerDeploymentDelete(d *schema.ResourceData, meta inte
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "Deployment")
+		return transport_tpg.HandleNotFoundError(err, d, "Deployment")
 	}
 
 	err = DeploymentManagerOperationWaitTime(

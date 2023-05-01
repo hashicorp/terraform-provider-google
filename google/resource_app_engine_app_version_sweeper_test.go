@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // This will sweep both Standard and Flexible App Engine App Versions
@@ -33,7 +34,7 @@ func testSweepAppEngineAppVersion(region string) error {
 	}
 
 	servicesUrl := "https://appengine.googleapis.com/v1/apps/" + config.Project + "/services"
-	res, err := SendRequest(config, "GET", config.Project, servicesUrl, config.UserAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", config.Project, servicesUrl, config.UserAgent, nil)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", servicesUrl, err)
 		return nil
@@ -66,7 +67,7 @@ func testSweepAppEngineAppVersion(region string) error {
 
 		deleteUrl := servicesUrl + "/" + id
 		// Don't wait on operations as we may have a lot to delete
-		_, err = SendRequest(config, "DELETE", config.Project, deleteUrl, config.UserAgent, nil)
+		_, err = transport_tpg.SendRequest(config, "DELETE", config.Project, deleteUrl, config.UserAgent, nil)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
 		} else {

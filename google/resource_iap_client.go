@@ -99,7 +99,7 @@ func resourceIapClientCreate(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IapClient409Operation)
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), transport_tpg.IapClient409Operation)
 	if err != nil {
 		return fmt.Errorf("Error creating Client: %s", err)
 	}
@@ -143,9 +143,9 @@ func resourceIapClientRead(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IapClient409Operation)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil, transport_tpg.IapClient409Operation)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("IapClient %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IapClient %q", d.Id()))
 	}
 
 	if err := d.Set("secret", flattenIapClientSecret(res["secret"], d, config)); err != nil {
@@ -183,9 +183,9 @@ func resourceIapClientDelete(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IapClient409Operation)
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), transport_tpg.IapClient409Operation)
 	if err != nil {
-		return handleNotFoundError(err, d, "Client")
+		return transport_tpg.HandleNotFoundError(err, d, "Client")
 	}
 
 	log.Printf("[DEBUG] Finished deleting Client %q: %#v", d.Id(), res)

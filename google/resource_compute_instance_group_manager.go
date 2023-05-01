@@ -560,7 +560,7 @@ func getManager(d *schema.ResourceData, meta interface{}) (*compute.InstanceGrou
 
 	manager, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Get(project, zone, name).Do()
 	if err != nil {
-		return nil, handleNotFoundError(err, d, fmt.Sprintf("Instance Group Manager %q", name))
+		return nil, transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Instance Group Manager %q", name))
 	}
 
 	if manager == nil {

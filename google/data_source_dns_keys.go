@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // Ensure the implementation satisfies the expected interfaces
@@ -174,7 +175,7 @@ func (d *GoogleDnsKeysDataSource) Read(ctx context.Context, req datasource.ReadR
 
 	clientResp, err := d.client.DnsKeys.List(data.Project.ValueString(), data.ManagedZone.ValueString()).Do()
 	if err != nil {
-		if !IsGoogleApiErrorWithCode(err, 404) {
+		if !transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 			resp.Diagnostics.AddError(fmt.Sprintf("Error when reading or editing dataSourceDnsKeys"), err.Error())
 		}
 		// Save data into Terraform state

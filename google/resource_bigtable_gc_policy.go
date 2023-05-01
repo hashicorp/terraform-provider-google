@@ -222,7 +222,7 @@ func resourceBigtableGCPolicyUpsert(d *schema.ResourceData, meta interface{}) er
 	// Mutations to gc policies can only happen one-at-a-time and take some amount of time.
 	// Use a fixed polling rate of 30s based on the RetryInfo returned by the server rather than
 	// the standard up-to-10s exponential backoff for those operations.
-	_, err = retryWithPolling(retryFunc, timeout, pollInterval, transport_tpg.IsBigTableRetryableError)
+	_, err = transport_tpg.RetryWithPolling(retryFunc, timeout, pollInterval, transport_tpg.IsBigTableRetryableError)
 	if err != nil {
 		return err
 	}
@@ -411,7 +411,7 @@ func resourceBigtableGCPolicyDestroy(d *schema.ResourceData, meta interface{}) e
 	// The default delete timeout is 20 minutes.
 	timeout := d.Timeout(schema.TimeoutDelete)
 	pollInterval := time.Duration(30) * time.Second
-	_, err = retryWithPolling(retryFunc, timeout, pollInterval, transport_tpg.IsBigTableRetryableError)
+	_, err = transport_tpg.RetryWithPolling(retryFunc, timeout, pollInterval, transport_tpg.IsBigTableRetryableError)
 	if err != nil {
 		return err
 	}

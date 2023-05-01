@@ -188,7 +188,7 @@ func resourceStorageObjectAclRead(d *schema.ResourceData, meta interface{}) erro
 
 	roleEntities, err := getRoleEntitiesAsStringsFromApi(config, bucket, object, userAgent)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Storage Object ACL for Bucket %q", d.Get("bucket").(string)))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Storage Object ACL for Bucket %q", d.Get("bucket").(string)))
 	}
 
 	err = d.Set("role_entity", roleEntities)

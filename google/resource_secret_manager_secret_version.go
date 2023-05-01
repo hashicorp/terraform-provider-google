@@ -139,7 +139,7 @@ func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating SecretVersion: %s", err)
 	}
@@ -193,9 +193,9 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("SecretManagerSecretVersion %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecretManagerSecretVersion %q", d.Id()))
 	}
 
 	res, err = resourceSecretManagerSecretVersionDecoder(d, meta, res)
@@ -266,9 +266,9 @@ func resourceSecretManagerSecretVersionDelete(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "SecretVersion")
+		return transport_tpg.HandleNotFoundError(err, d, "SecretVersion")
 	}
 
 	log.Printf("[DEBUG] Finished deleting SecretVersion %q: %#v", d.Id(), res)
@@ -358,7 +358,7 @@ func flattenSecretManagerSecretVersionPayload(v interface{}, d *schema.ResourceD
 		return err
 	}
 
-	accessRes, err := SendRequest(config, "GET", project, url, userAgent, nil)
+	accessRes, err := transport_tpg.SendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return err
 	}
@@ -396,7 +396,7 @@ func expandSecretManagerSecretVersionEnabled(v interface{}, d TerraformResourceD
 		return nil, err
 	}
 
-	_, err = SendRequest(config, "POST", project, url, userAgent, nil)
+	_, err = transport_tpg.SendRequest(config, "POST", project, url, userAgent, nil)
 	if err != nil {
 		return nil, err
 	}

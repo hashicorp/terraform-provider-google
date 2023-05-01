@@ -162,7 +162,7 @@ func resourceSqlSslCertRead(d *schema.ResourceData, meta interface{}) error {
 
 	sslCerts, err := config.NewSqlAdminClient(userAgent).SslCerts.Get(project, instance, fingerprint).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("SQL Ssl Cert %q in instance %q", commonName, instance))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SQL Ssl Cert %q in instance %q", commonName, instance))
 	}
 
 	if sslCerts == nil {

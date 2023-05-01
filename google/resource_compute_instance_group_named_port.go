@@ -136,7 +136,7 @@ func resourceComputeInstanceGroupNamedPortCreate(d *schema.ResourceData, meta in
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating InstanceGroupNamedPort: %s", err)
 	}
@@ -188,9 +188,9 @@ func resourceComputeInstanceGroupNamedPortRead(d *schema.ResourceData, meta inte
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeInstanceGroupNamedPort %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeInstanceGroupNamedPort %q", d.Id()))
 	}
 
 	res, err = flattenNestedComputeInstanceGroupNamedPort(d, meta, res)
@@ -250,7 +250,7 @@ func resourceComputeInstanceGroupNamedPortDelete(d *schema.ResourceData, meta in
 
 	obj, err = resourceComputeInstanceGroupNamedPortPatchDeleteEncoder(d, meta, obj)
 	if err != nil {
-		return handleNotFoundError(err, d, "InstanceGroupNamedPort")
+		return transport_tpg.HandleNotFoundError(err, d, "InstanceGroupNamedPort")
 	}
 	log.Printf("[DEBUG] Deleting InstanceGroupNamedPort %q", d.Id())
 
@@ -259,9 +259,9 @@ func resourceComputeInstanceGroupNamedPortDelete(d *schema.ResourceData, meta in
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "InstanceGroupNamedPort")
+		return transport_tpg.HandleNotFoundError(err, d, "InstanceGroupNamedPort")
 	}
 
 	err = ComputeOperationWaitTime(
@@ -478,7 +478,7 @@ func resourceComputeInstanceGroupNamedPortListForPatch(d *schema.ResourceData, m
 		return nil, err
 	}
 
-	res, err := SendRequest(config, "GET", project, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return nil, err
 	}

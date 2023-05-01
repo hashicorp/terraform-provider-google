@@ -326,7 +326,7 @@ func setupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 	}
 
 	var op *cloudresourcemanager.Operation
-	err := RetryTimeDuration(func() (reqErr error) {
+	err := transport_tpg.RetryTimeDuration(func() (reqErr error) {
 		op, reqErr = rmService.Projects.Create(project).Do()
 		return reqErr
 	}, 5*time.Minute)
@@ -357,7 +357,7 @@ func setupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 	project.ProjectId = p2
 	project.Name = fmt.Sprintf("%s-2", pid)
 
-	err = RetryTimeDuration(func() (reqErr error) {
+	err = transport_tpg.RetryTimeDuration(func() (reqErr error) {
 		op, reqErr = rmService.Projects.Create(project).Do()
 		return reqErr
 	}, 5*time.Minute)

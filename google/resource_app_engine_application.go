@@ -251,7 +251,7 @@ func resourceAppEngineApplicationRead(d *schema.ResourceData, meta interface{}) 
 
 	app, err := config.NewAppEngineClient(userAgent).Apps.Get(pid).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("App Engine Application %q", pid))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("App Engine Application %q", pid))
 	}
 	if err := d.Set("auth_domain", app.AuthDomain); err != nil {
 		return fmt.Errorf("Error setting auth_domain: %s", err)

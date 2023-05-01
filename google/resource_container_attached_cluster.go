@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func suppressAttachedClustersLoggingConfigDiff(_, old, new string, d *schema.ResourceData) bool {
@@ -72,7 +73,7 @@ func ResourceContainerAttachedCluster() *schema.Resource {
 							Type:         schema.TypeString,
 							Required:     true,
 							ForceNew:     true,
-							ValidateFunc: validateRegexp(`^projects/[0-9]+$`),
+							ValidateFunc: verify.ValidateRegexp(`^projects/[0-9]+$`),
 							Description:  `The number of the Fleet host project where this cluster will be registered.`,
 						},
 						"membership": {
@@ -414,7 +415,7 @@ func resourceContainerAttachedClusterCreate(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Cluster: %s", err)
 	}
@@ -480,9 +481,9 @@ func resourceContainerAttachedClusterRead(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ContainerAttachedCluster %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ContainerAttachedCluster %q", d.Id()))
 	}
 
 	// Explicitly set virtual fields to default values if unset
@@ -662,7 +663,7 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -685,7 +686,7 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 		newUpdateMask = append(newUpdateMask, mask)
 	}
 	// Overwrite the previously set mask.
-	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(newUpdateMask, ",")})
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(newUpdateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -695,7 +696,7 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Cluster %q: %s", d.Id(), err)
@@ -737,7 +738,7 @@ func resourceContainerAttachedClusterDelete(d *schema.ResourceData, meta interfa
 	var obj map[string]interface{}
 	if v, ok := d.GetOk("deletion_policy"); ok {
 		if v == "DELETE_IGNORE_ERRORS" {
-			url, err = AddQueryParams(url, map[string]string{"ignore_errors": "true"})
+			url, err = transport_tpg.AddQueryParams(url, map[string]string{"ignore_errors": "true"})
 			if err != nil {
 				return err
 			}
@@ -750,9 +751,9 @@ func resourceContainerAttachedClusterDelete(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "Cluster")
+		return transport_tpg.HandleNotFoundError(err, d, "Cluster")
 	}
 
 	err = ContainerAttachedOperationWaitTime(

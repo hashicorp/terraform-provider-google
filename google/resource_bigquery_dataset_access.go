@@ -460,7 +460,7 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IsBigqueryIAMQuotaError)
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), transport_tpg.IsBigqueryIAMQuotaError)
 	if err != nil {
 		return fmt.Errorf("Error creating DatasetAccess: %s", err)
 	}
@@ -530,9 +530,9 @@ func resourceBigQueryDatasetAccessRead(d *schema.ResourceData, meta interface{})
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsBigqueryIAMQuotaError)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil, transport_tpg.IsBigqueryIAMQuotaError)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("BigQueryDatasetAccess %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BigQueryDatasetAccess %q", d.Id()))
 	}
 
 	res, err = flattenNestedBigQueryDatasetAccess(d, meta, res)
@@ -613,7 +613,7 @@ func resourceBigQueryDatasetAccessDelete(d *schema.ResourceData, meta interface{
 
 	obj, err = resourceBigQueryDatasetAccessPatchDeleteEncoder(d, meta, obj)
 	if err != nil {
-		return handleNotFoundError(err, d, "DatasetAccess")
+		return transport_tpg.HandleNotFoundError(err, d, "DatasetAccess")
 	}
 	log.Printf("[DEBUG] Deleting DatasetAccess %q", d.Id())
 
@@ -622,9 +622,9 @@ func resourceBigQueryDatasetAccessDelete(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IsBigqueryIAMQuotaError)
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), transport_tpg.IsBigqueryIAMQuotaError)
 	if err != nil {
-		return handleNotFoundError(err, d, "DatasetAccess")
+		return transport_tpg.HandleNotFoundError(err, d, "DatasetAccess")
 	}
 
 	log.Printf("[DEBUG] Finished deleting DatasetAccess %q: %#v", d.Id(), res)
@@ -1153,7 +1153,7 @@ func resourceBigQueryDatasetAccessListForPatch(d *schema.ResourceData, meta inte
 		return nil, err
 	}
 
-	res, err := SendRequest(config, "GET", project, url, userAgent, nil, IsBigqueryIAMQuotaError)
+	res, err := transport_tpg.SendRequest(config, "GET", project, url, userAgent, nil, transport_tpg.IsBigqueryIAMQuotaError)
 	if err != nil {
 		return nil, err
 	}

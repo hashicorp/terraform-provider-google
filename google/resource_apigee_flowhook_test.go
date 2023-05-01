@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccApigeeFlowhook_apigeeFlowhookTestExample(t *testing.T) {
@@ -149,7 +150,7 @@ func testAccCheckApigeeFlowhookDestroyProducer(t *testing.T) func(s *terraform.S
 			if config.BillingProject != "" {
 				billingProject = config.BillingProject
 			}
-			res, err := SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
+			res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
 			// Flowhooks always exist, we treat the binding as a removable resource, thus we check if the sharedFlow field to detect sharedflow attachment
 			if err == nil && res != nil && res["sharedFlow"] != nil {
 				return fmt.Errorf("Flowhook still has an attachment at %s", url)

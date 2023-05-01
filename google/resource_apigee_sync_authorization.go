@@ -107,7 +107,7 @@ func resourceApigeeSyncAuthorizationCreate(d *schema.ResourceData, meta interfac
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating SyncAuthorization: %s", err)
 	}
@@ -143,9 +143,9 @@ func resourceApigeeSyncAuthorizationRead(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "POST", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "POST", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ApigeeSyncAuthorization %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeSyncAuthorization %q", d.Id()))
 	}
 
 	if err := d.Set("identities", flattenApigeeSyncAuthorizationIdentities(res["identities"], d, config)); err != nil {
@@ -193,7 +193,7 @@ func resourceApigeeSyncAuthorizationUpdate(d *schema.ResourceData, meta interfac
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating SyncAuthorization %q: %s", d.Id(), err)

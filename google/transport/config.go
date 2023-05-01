@@ -24,6 +24,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/option"
 
+	"github.com/hashicorp/terraform-provider-google/google/verify"
+
 	"golang.org/x/oauth2"
 	googleoauth "golang.org/x/oauth2/google"
 	appengine "google.golang.org/api/appengine/v1"
@@ -1750,7 +1752,7 @@ type StaticTokenSource struct {
 // instead.
 func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bool) (googleoauth.Credentials, error) {
 	if c.AccessToken != "" {
-		contents, _, err := PathOrContents(c.AccessToken)
+		contents, _, err := verify.PathOrContents(c.AccessToken)
 		if err != nil {
 			return googleoauth.Credentials{}, fmt.Errorf("Error loading access token: %s", err)
 		}
@@ -1773,7 +1775,7 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 	}
 
 	if c.Credentials != "" {
-		contents, _, err := PathOrContents(c.Credentials)
+		contents, _, err := verify.PathOrContents(c.Credentials)
 		if err != nil {
 			return googleoauth.Credentials{}, fmt.Errorf("error loading credentials: %s", err)
 		}

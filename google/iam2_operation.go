@@ -34,7 +34,7 @@ func (w *IAM2OperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.IAM2BasePath, w.CommonOperationWaiter.Op.Name)
 
-	return SendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
+	return transport_tpg.SendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
 }
 
 func createIAM2Waiter(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string) (*IAM2OperationWaiter, error) {

@@ -412,7 +412,7 @@ func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) err
 	tpool, err := config.NewComputeClient(userAgent).TargetPools.Get(
 		project, region, d.Get("name").(string)).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Target Pool %q", d.Get("name").(string)))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Target Pool %q", d.Get("name").(string)))
 	}
 
 	if err := d.Set("self_link", tpool.SelfLink); err != nil {

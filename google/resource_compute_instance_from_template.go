@@ -152,7 +152,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 			return err
 		}
 
-		instanceTemplate, err := SendRequest(config, "GET", project, url, userAgent, nil)
+		instanceTemplate, err := transport_tpg.SendRequest(config, "GET", project, url, userAgent, nil)
 		if err != nil {
 			return err
 		}

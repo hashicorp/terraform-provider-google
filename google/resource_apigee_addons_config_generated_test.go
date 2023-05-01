@@ -21,6 +21,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccApigeeAddonsConfig_apigeeAddonsTestExample(t *testing.T) {
@@ -155,11 +157,11 @@ func testAccCheckApigeeAddonsConfigDestroyProducer(t *testing.T) func(s *terrafo
 				billingProject = config.BillingProject
 			}
 
-			res, err := SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
+			res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
 
 			if err != nil {
 				// If the Apigee org doesn't exist, then a 403 can also be returned.
-				if IsGoogleApiErrorWithCode(err, 403) || IsGoogleApiErrorWithCode(err, 404) {
+				if transport_tpg.IsGoogleApiErrorWithCode(err, 403) || transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 					return nil
 				} else {
 					return err

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
@@ -204,7 +205,7 @@ func testAccComputeNetworkEndpointsListEndpointPorts(t *testing.T, negId string)
 	config := GoogleProviderConfig(t)
 
 	url := fmt.Sprintf("https://www.googleapis.com/compute/v1/%s/listNetworkEndpoints", negId)
-	res, err := SendRequest(config, "POST", "", url, config.UserAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "POST", "", url, config.UserAgent, nil)
 	if err != nil {
 		return nil, err
 	}

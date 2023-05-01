@@ -81,7 +81,7 @@ func resourceApigeeSharedflowDeploymentCreate(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, nil, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, nil, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating SharedflowDeployment: %s", err)
 	}
@@ -119,9 +119,9 @@ func resourceApigeeSharedflowDeploymentRead(d *schema.ResourceData, meta interfa
 
 	log.Printf("[DEBUG] Reading SharedflowDeployment at %s", url)
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ApigeeSharedflowDeployment %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeSharedflowDeployment %q", d.Id()))
 	}
 	log.Printf("[DEBUG] ApigeeSharedflowDeployment deployStartTime %s", res["deployStartTime"])
 
@@ -150,9 +150,9 @@ func resourceApigeeSharedflowDeploymentDelete(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "SharedflowDeployment")
+		return transport_tpg.HandleNotFoundError(err, d, "SharedflowDeployment")
 	}
 
 	log.Printf("[DEBUG] Finished deleting SharedflowDeployment %q: %#v", d.Id(), res)

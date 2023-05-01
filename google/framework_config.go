@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/sirupsen/logrus"
@@ -1317,7 +1318,7 @@ func GetCredentials(ctx context.Context, data ProviderModel, initialCredentialsO
 	}
 
 	if !data.AccessToken.IsNull() {
-		contents, _, err := pathOrContents(data.AccessToken.ValueString())
+		contents, _, err := verify.PathOrContents(data.AccessToken.ValueString())
 		if err != nil {
 			diags.AddError("error loading access token", err.Error())
 			return googleoauth.Credentials{}
@@ -1342,7 +1343,7 @@ func GetCredentials(ctx context.Context, data ProviderModel, initialCredentialsO
 	}
 
 	if !data.Credentials.IsNull() {
-		contents, _, err := pathOrContents(data.Credentials.ValueString())
+		contents, _, err := verify.PathOrContents(data.Credentials.ValueString())
 		if err != nil {
 			diags.AddError(fmt.Sprintf("error loading credentials: %s", err), err.Error())
 			return googleoauth.Credentials{}

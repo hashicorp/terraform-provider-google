@@ -42,7 +42,7 @@ func dataSourceGoogleBigqueryDefaultServiceAccountRead(d *schema.ResourceData, m
 
 	projectResource, err := config.NewBigQueryClient(userAgent).Projects.GetServiceAccount(project).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, "BigQuery service account not found")
+		return transport_tpg.HandleNotFoundError(err, d, "BigQuery service account not found")
 	}
 
 	d.SetId(projectResource.Email)

@@ -249,7 +249,7 @@ func deleteCryptoKeyVersions(cryptoKeyVersionId *kmsCryptoKeyVersionId, d *schem
 	}
 	_, err := destroyCall.Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ID %s", cryptoKeyVersionId.Name))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ID %s", cryptoKeyVersionId.Name))
 	}
 
 	return nil

@@ -137,7 +137,7 @@ func resourceStorageNotificationRead(d *schema.ResourceData, meta interface{}) e
 
 	res, err := config.NewStorageClient(userAgent).Notifications.Get(bucket, notificationID).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Notification configuration %s for bucket %s", notificationID, bucket))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Notification configuration %s for bucket %s", notificationID, bucket))
 	}
 
 	if err := d.Set("bucket", bucket); err != nil {

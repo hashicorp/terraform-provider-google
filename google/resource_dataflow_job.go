@@ -321,7 +321,7 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 
 	job, err := resourceDataflowJobGetJob(config, project, region, userAgent, id)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Dataflow job %s", id))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Dataflow job %s", id))
 	}
 
 	if err := d.Set("job_id", job.Id); err != nil {
@@ -417,10 +417,10 @@ func resourceDataflowJobUpdateByReplacement(d *schema.ResourceData, meta interfa
 	}
 
 	var response *dataflow.LaunchTemplateResponse
-	err = RetryTimeDuration(func() (updateErr error) {
+	err = transport_tpg.RetryTimeDuration(func() (updateErr error) {
 		response, updateErr = resourceDataflowJobLaunchTemplate(config, project, region, userAgent, d.Get("template_gcs_path").(string), &request)
 		return updateErr
-	}, time.Minute*time.Duration(5), IsDataflowJobUpdateRetryableError)
+	}, time.Minute*time.Duration(5), transport_tpg.IsDataflowJobUpdateRetryableError)
 	if err != nil {
 		return err
 	}
@@ -639,7 +639,7 @@ func waitForDataflowJobToBeUpdated(d *schema.ResourceData, config *transport_tpg
 
 		replacementJob, err := resourceDataflowJobGetJob(config, project, region, userAgent, replacementJobID)
 		if err != nil {
-			if isRetryableError(err) {
+			if transport_tpg.IsRetryableError(err) {
 				return resource.RetryableError(err)
 			}
 			return resource.NonRetryableError(err)

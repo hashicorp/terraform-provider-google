@@ -2,11 +2,13 @@ package google
 
 import (
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"sort"
 	"strings"
 	"time"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
@@ -45,7 +47,7 @@ func ResourceComputeNetworkPeering() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				ValidateFunc:     validateRegexp(peerNetworkLinkRegex),
+				ValidateFunc:     verify.ValidateRegexp(peerNetworkLinkRegex),
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
 				Description:      `The primary network of the peering.`,
 			},
@@ -54,7 +56,7 @@ func ResourceComputeNetworkPeering() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				ValidateFunc:     validateRegexp(peerNetworkLinkRegex),
+				ValidateFunc:     verify.ValidateRegexp(peerNetworkLinkRegex),
 				DiffSuppressFunc: compareSelfLinkRelativePaths,
 				Description:      `The peer network in the peering. The peer network may belong to a different project.`,
 			},
@@ -159,7 +161,7 @@ func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{})
 
 	network, err := config.NewComputeClient(userAgent).Networks.Get(networkFieldValue.Project, networkFieldValue.Name).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Network %q", networkFieldValue.Name))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Network %q", networkFieldValue.Name))
 	}
 
 	peering := findPeeringFromNetwork(network, peeringName)
@@ -335,7 +337,7 @@ func resourceComputeNetworkPeeringImport(d *schema.ResourceData, meta interface{
 	// just read the network self link from the API.
 	net, err := config.NewComputeClient(userAgent).Networks.Get(project, network).Do()
 	if err != nil {
-		return nil, handleNotFoundError(err, d, fmt.Sprintf("Network %q", splits[1]))
+		return nil, transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Network %q", splits[1]))
 	}
 
 	if err := d.Set("network", ConvertSelfLinkToV1(net.SelfLink)); err != nil {

@@ -2068,7 +2068,7 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 	cluster, err := config.NewDataprocClient(userAgent).Projects.Regions.Clusters.Get(
 		project, region, clusterName).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Dataproc Cluster %q", clusterName))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Dataproc Cluster %q", clusterName))
 	}
 
 	if err := d.Set("name", cluster.ClusterName); err != nil {

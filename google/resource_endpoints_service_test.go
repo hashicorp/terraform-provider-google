@@ -211,7 +211,7 @@ func testAccCheckEndpointServiceDestroyProducer(t *testing.T) func(s *terraform.
 			service, err := config.NewServiceManClient(config.UserAgent).Services.GetConfig(serviceName).Do()
 			if err != nil {
 				// ServiceManagement returns 403 if service doesn't exist.
-				if !IsGoogleApiErrorWithCode(err, 403) {
+				if !transport_tpg.IsGoogleApiErrorWithCode(err, 403) {
 					return err
 				}
 			}

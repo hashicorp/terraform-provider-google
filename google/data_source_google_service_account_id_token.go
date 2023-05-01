@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
+
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
 	"google.golang.org/api/idtoken"
 	"google.golang.org/api/option"
@@ -29,14 +31,14 @@ func DataSourceGoogleServiceAccountIdToken() *schema.Resource {
 			"target_service_account": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateRegexp("(" + strings.Join(PossibleServiceAccountNames, "|") + ")"),
+				ValidateFunc: verify.ValidateRegexp("(" + strings.Join(PossibleServiceAccountNames, "|") + ")"),
 			},
 			"delegates": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: validateRegexp(ServiceAccountLinkRegex),
+					ValidateFunc: verify.ValidateRegexp(ServiceAccountLinkRegex),
 				},
 			},
 			"include_email": {

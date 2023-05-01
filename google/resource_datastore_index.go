@@ -140,7 +140,7 @@ func resourceDatastoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), DatastoreIndex409Contention)
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), transport_tpg.DatastoreIndex409Contention)
 	if err != nil {
 		return fmt.Errorf("Error creating Index: %s", err)
 	}
@@ -206,9 +206,9 @@ func resourceDatastoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, DatastoreIndex409Contention)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil, transport_tpg.DatastoreIndex409Contention)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("DatastoreIndex %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DatastoreIndex %q", d.Id()))
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -259,9 +259,9 @@ func resourceDatastoreIndexDelete(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), DatastoreIndex409Contention)
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), transport_tpg.DatastoreIndex409Contention)
 	if err != nil {
-		return handleNotFoundError(err, d, "Index")
+		return transport_tpg.HandleNotFoundError(err, d, "Index")
 	}
 
 	err = DatastoreOperationWaitTime(

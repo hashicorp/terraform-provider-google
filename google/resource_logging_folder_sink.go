@@ -70,7 +70,7 @@ func resourceLoggingFolderSinkRead(d *schema.ResourceData, meta interface{}) err
 
 	sink, err := config.NewLoggingClient(userAgent).Folders.Sinks.Get(d.Id()).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Folder Logging Sink %s", d.Get("name").(string)))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Folder Logging Sink %s", d.Get("name").(string)))
 	}
 
 	if err := flattenResourceLoggingSink(d, sink); err != nil {

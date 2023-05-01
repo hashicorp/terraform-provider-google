@@ -545,7 +545,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 	var res *storage.Bucket
 
-	err = retry(func() error {
+	err = transport_tpg.Retry(func() error {
 		res, err = config.NewStorageClient(userAgent).Buckets.Insert(project, sb).Do()
 		return err
 	})
@@ -560,10 +560,10 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 	// There seems to be some eventual consistency errors in some cases, so we want to check a few times
 	// to make sure it exists before moving on
-	err = RetryTimeDuration(func() (operr error) {
+	err = transport_tpg.RetryTimeDuration(func() (operr error) {
 		_, retryErr := config.NewStorageClient(userAgent).Buckets.Get(res.Name).Do()
 		return retryErr
-	}, d.Timeout(schema.TimeoutCreate), IsNotFoundRetryableError("bucket creation"))
+	}, d.Timeout(schema.TimeoutCreate), transport_tpg.IsNotFoundRetryableError("bucket creation"))
 
 	if err != nil {
 		return fmt.Errorf("Error reading bucket after creation: %s", err)
@@ -708,10 +708,10 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 
 	// There seems to be some eventual consistency errors in some cases, so we want to check a few times
 	// to make sure it exists before moving on
-	err = RetryTimeDuration(func() (operr error) {
+	err = transport_tpg.RetryTimeDuration(func() (operr error) {
 		_, retryErr := config.NewStorageClient(userAgent).Buckets.Get(res.Name).Do()
 		return retryErr
-	}, d.Timeout(schema.TimeoutUpdate), IsNotFoundRetryableError("bucket update"))
+	}, d.Timeout(schema.TimeoutUpdate), transport_tpg.IsNotFoundRetryableError("bucket update"))
 
 	if err != nil {
 		return fmt.Errorf("Error reading bucket after update: %s", err)
@@ -754,14 +754,14 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	var res *storage.Bucket
 	// There seems to be some eventual consistency errors in some cases, so we want to check a few times
 	// to make sure it exists before moving on
-	err = RetryTimeDuration(func() (operr error) {
+	err = transport_tpg.RetryTimeDuration(func() (operr error) {
 		var retryErr error
 		res, retryErr = config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
 		return retryErr
-	}, d.Timeout(schema.TimeoutRead), IsNotFoundRetryableError("bucket read"))
+	}, d.Timeout(schema.TimeoutRead), transport_tpg.IsNotFoundRetryableError("bucket read"))
 
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Storage Bucket %q", d.Get("name").(string)))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Storage Bucket %q", d.Get("name").(string)))
 	}
 	log.Printf("[DEBUG] Read bucket %v at location %v\n\n", res.Name, res.SelfLink)
 

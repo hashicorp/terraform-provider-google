@@ -3,9 +3,10 @@ package google
 import (
 	"bytes"
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"time"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
@@ -69,13 +70,13 @@ func (w *SqlAdminOperationWaiter) QueryOp() (interface{}, error) {
 
 	var op interface{}
 	var err error
-	err = RetryTimeDuration(
+	err = transport_tpg.RetryTimeDuration(
 		func() error {
 			op, err = w.Service.Operations.Get(w.Project, w.Op.Name).Do()
 			return err
 		},
 
-		DefaultRequestTimeout,
+		transport_tpg.DefaultRequestTimeout,
 	)
 
 	return op, err

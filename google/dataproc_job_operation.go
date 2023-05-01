@@ -95,7 +95,7 @@ func (w *DataprocDeleteJobOperationWaiter) QueryOp() (interface{}, error) {
 	}
 	job, err := w.Service.Projects.Regions.Jobs.Get(w.ProjectId, w.Region, w.JobId).Do()
 	if err != nil {
-		if IsGoogleApiErrorWithCode(err, http.StatusNotFound) {
+		if transport_tpg.IsGoogleApiErrorWithCode(err, http.StatusNotFound) {
 			w.Status = "DELETED"
 			return job, nil
 		}

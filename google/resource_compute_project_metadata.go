@@ -94,7 +94,7 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 
 	project, err := config.NewComputeClient(userAgent).Projects.Get(projectId).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Project metadata for project %q", projectId))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Project metadata for project %q", projectId))
 	}
 
 	err = d.Set("metadata", flattenMetadata(project.CommonInstanceMetadata))
@@ -148,6 +148,6 @@ func resourceComputeProjectMetadataSet(projectID, userAgent string, config *tran
 		return ComputeOperationWaitTime(config, op, project.Name, "SetCommonMetadata", userAgent, timeout)
 	}
 
-	err := MetadataRetryWrapper(createMD)
+	err := transport_tpg.MetadataRetryWrapper(createMD)
 	return err
 }

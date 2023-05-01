@@ -36,7 +36,7 @@ func (w *WorkflowsOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.WorkflowsBasePath, w.CommonOperationWaiter.Op.Name)
 
-	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
+	return transport_tpg.SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
 func createWorkflowsWaiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*WorkflowsOperationWaiter, error) {

@@ -36,7 +36,7 @@ func (w *GKEHubOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.GKEHubBasePath, w.CommonOperationWaiter.Op.Name)
 
-	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
+	return transport_tpg.SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
 func createGKEHubWaiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*GKEHubOperationWaiter, error) {

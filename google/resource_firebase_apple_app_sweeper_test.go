@@ -1,9 +1,3 @@
-// ----------------------------------------------------------------------------
-//
-//     ***     HANDWRITTEN CODE    ***    Type: MMv1     ***
-//
-// ----------------------------------------------------------------------------
-
 package google
 
 import (
@@ -14,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func init() {
@@ -61,7 +56,7 @@ func testSweepFirebaseAppleApp(region string) error {
 		return nil
 	}
 
-	res, err := SendRequest(config, "GET", config.Project, listUrl, config.UserAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", config.Project, listUrl, config.UserAgent, nil)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", listUrl, err)
 		return nil
@@ -98,7 +93,7 @@ func testSweepFirebaseAppleApp(region string) error {
 		body["immediate"] = true
 
 		// Don't wait on operations as we may have a lot to delete
-		_, err = SendRequest(config, "POST", config.Project, deleteUrl, config.UserAgent, body)
+		_, err = transport_tpg.SendRequest(config, "POST", config.Project, deleteUrl, config.UserAgent, body)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
 		} else {

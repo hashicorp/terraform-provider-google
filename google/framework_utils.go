@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 const uaEnvVar = "TF_APPEND_USER_AGENT"
@@ -80,7 +81,7 @@ func getProjectFromFrameworkSchema(projectSchemaField string, rVal, pVal types.S
 }
 
 func handleDatasourceNotFoundError(ctx context.Context, err error, state *tfsdk.State, resource string, diags *diag.Diagnostics) {
-	if IsGoogleApiErrorWithCode(err, 404) {
+	if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		tflog.Warn(ctx, fmt.Sprintf("Removing %s because it's gone", resource))
 		// The resource doesn't exist anymore
 		state.RemoveResource(ctx)

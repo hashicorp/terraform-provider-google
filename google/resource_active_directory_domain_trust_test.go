@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccActiveDirectoryDomainTrust_activeDirectoryDomainTrustBasicExample(t *testing.T) {
@@ -92,7 +93,7 @@ func testAccCheckActiveDirectoryDomainTrustDestroyProducer(t *testing.T) func(s 
 				return err
 			}
 
-			res, _ := SendRequest(config, "GET", "", url, config.UserAgent, nil)
+			res, _ := transport_tpg.SendRequest(config, "GET", "", url, config.UserAgent, nil)
 
 			var v interface{}
 			var ok bool

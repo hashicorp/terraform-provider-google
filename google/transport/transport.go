@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
 
+	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 )
 
@@ -109,4 +112,41 @@ func AddQueryParams(rawurl string, params map[string]string) (string, error) {
 	}
 	u.RawQuery = q.Encode()
 	return u.String(), nil
+}
+
+func HandleNotFoundError(err error, d *schema.ResourceData, resource string) error {
+	if IsGoogleApiErrorWithCode(err, 404) {
+		log.Printf("[WARN] Removing %s because it's gone", resource)
+		// The resource doesn't exist anymore
+		d.SetId("")
+
+		return nil
+	}
+
+	return errwrap.Wrapf(
+		fmt.Sprintf("Error when reading or editing %s: {{err}}", resource), err)
+}
+
+func IsGoogleApiErrorWithCode(err error, errCode int) bool {
+	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
+	return ok && gerr != nil && gerr.Code == errCode
+}
+
+func IsApiNotEnabledError(err error) bool {
+	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
+	if !ok {
+		return false
+	}
+	if gerr == nil {
+		return false
+	}
+	if gerr.Code != 403 {
+		return false
+	}
+	for _, e := range gerr.Errors {
+		if e.Reason == "accessNotConfigured" {
+			return true
+		}
+	}
+	return false
 }

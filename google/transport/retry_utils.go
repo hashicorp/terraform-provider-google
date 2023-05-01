@@ -8,6 +8,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+func Retry(retryFunc func() error) error {
+	return RetryTime(retryFunc, 1)
+}
+
+func RetryTime(retryFunc func() error, minutes int) error {
+	return RetryTimeDuration(retryFunc, time.Duration(minutes)*time.Minute)
+}
+
 func RetryTimeDuration(retryFunc func() error, duration time.Duration, errorRetryPredicates ...RetryErrorPredicateFunc) error {
 	return resource.Retry(duration, func() *resource.RetryError {
 		err := retryFunc()
@@ -43,4 +51,35 @@ func IsRetryableError(topErr error, customPredicates ...RetryErrorPredicateFunc)
 		}
 	})
 	return isRetryable
+}
+
+// The polling overrides the default backoff logic with max backoff of 10s. The poll interval can be greater than 10s.
+func RetryWithPolling(retryFunc func() (interface{}, error), timeout time.Duration, pollInterval time.Duration, errorRetryPredicates ...RetryErrorPredicateFunc) (interface{}, error) {
+	refreshFunc := func() (interface{}, string, error) {
+		result, err := retryFunc()
+		if err == nil {
+			return result, "done", nil
+		}
+
+		// Check if it is a retryable error.
+		if IsRetryableError(err, errorRetryPredicates...) {
+			return result, "retrying", nil
+		}
+
+		// The error is not retryable.
+		return result, "done", err
+	}
+	stateChange := &resource.StateChangeConf{
+		Pending: []string{
+			"retrying",
+		},
+		Target: []string{
+			"done",
+		},
+		Refresh:      refreshFunc,
+		Timeout:      timeout,
+		PollInterval: pollInterval,
+	}
+
+	return stateChange.WaitForState()
 }

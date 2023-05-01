@@ -1,4 +1,4 @@
-package transport
+package verify
 
 import (
 	"io/ioutil"

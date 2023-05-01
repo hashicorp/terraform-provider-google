@@ -71,7 +71,7 @@ func dataSourceGoogleComputeVpnGatewayRead(d *schema.ResourceData, meta interfac
 
 	gateway, err := vpnGatewaysService.Get(project, region, name).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("VPN Gateway Not Found : %s", name))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("VPN Gateway Not Found : %s", name))
 	}
 	if err := d.Set("network", ConvertSelfLinkToV1(gateway.Network)); err != nil {
 		return fmt.Errorf("Error setting network: %s", err)

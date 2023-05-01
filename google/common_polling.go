@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 type (
@@ -109,7 +110,7 @@ func RetryWithTargetOccurrences(timeout time.Duration, targetOccurrences int,
 // and returns any other error.
 func PollCheckForExistence(_ map[string]interface{}, respErr error) PollResult {
 	if respErr != nil {
-		if IsGoogleApiErrorWithCode(respErr, 404) {
+		if transport_tpg.IsGoogleApiErrorWithCode(respErr, 404) {
 			return PendingStatusPollResult("not found")
 		}
 		return ErrorPollResult(respErr)
@@ -121,7 +122,7 @@ func PollCheckForExistence(_ map[string]interface{}, respErr error) PollResult {
 // and returns any other error.
 func PollCheckForExistenceWith403(_ map[string]interface{}, respErr error) PollResult {
 	if respErr != nil {
-		if IsGoogleApiErrorWithCode(respErr, 404) || IsGoogleApiErrorWithCode(respErr, 403) {
+		if transport_tpg.IsGoogleApiErrorWithCode(respErr, 404) || transport_tpg.IsGoogleApiErrorWithCode(respErr, 403) {
 			return PendingStatusPollResult("not found")
 		}
 		return ErrorPollResult(respErr)
@@ -133,7 +134,7 @@ func PollCheckForExistenceWith403(_ map[string]interface{}, respErr error) PollR
 // response, and returns any other error.
 func PollCheckForAbsenceWith403(_ map[string]interface{}, respErr error) PollResult {
 	if respErr != nil {
-		if IsGoogleApiErrorWithCode(respErr, 404) || IsGoogleApiErrorWithCode(respErr, 403) {
+		if transport_tpg.IsGoogleApiErrorWithCode(respErr, 404) || transport_tpg.IsGoogleApiErrorWithCode(respErr, 403) {
 			return SuccessPollResult()
 		}
 		return ErrorPollResult(respErr)
@@ -145,7 +146,7 @@ func PollCheckForAbsenceWith403(_ map[string]interface{}, respErr error) PollRes
 // response, and returns any other error.
 func PollCheckForAbsence(_ map[string]interface{}, respErr error) PollResult {
 	if respErr != nil {
-		if IsGoogleApiErrorWithCode(respErr, 404) {
+		if transport_tpg.IsGoogleApiErrorWithCode(respErr, 404) {
 			return SuccessPollResult()
 		}
 		return ErrorPollResult(respErr)

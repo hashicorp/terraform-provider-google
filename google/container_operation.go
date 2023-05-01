@@ -76,14 +76,14 @@ func (w *ContainerOperationWaiter) QueryOp() (interface{}, error) {
 	default:
 		// default must be here to keep the previous case from blocking
 	}
-	err := RetryTimeDuration(func() (opErr error) {
+	err := transport_tpg.RetryTimeDuration(func() (opErr error) {
 		opGetCall := w.Service.Projects.Locations.Operations.Get(name)
 		if w.UserProjectOverride {
 			opGetCall.Header().Add("X-Goog-User-Project", w.Project)
 		}
 		op, opErr = opGetCall.Do()
 		return opErr
-	}, DefaultRequestTimeout)
+	}, transport_tpg.DefaultRequestTimeout)
 
 	return op, err
 }

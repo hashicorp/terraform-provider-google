@@ -138,9 +138,9 @@ func dataSourceAlloydbSupportedDatabaseFlagsRead(d *schema.ResourceData, meta in
 	if err != nil {
 		return fmt.Errorf("Error setting api endpoint")
 	}
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("SupportedDatabaseFlags %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SupportedDatabaseFlags %q", d.Id()))
 	}
 	var supportedDatabaseFlags []map[string]interface{}
 	for {
@@ -206,9 +206,9 @@ func dataSourceAlloydbSupportedDatabaseFlagsRead(d *schema.ResourceData, meta in
 		if err != nil {
 			return fmt.Errorf("Error setting api endpoint")
 		}
-		res, err = SendRequest(config, "GET", billingProject, url, userAgent, nil)
+		res, err = transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("SupportedDatabaseFlags %q", d.Id()))
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SupportedDatabaseFlags %q", d.Id()))
 		}
 	}
 	if err := d.Set("supported_database_flags", supportedDatabaseFlags); err != nil {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // Stackdriver tests cannot be run in parallel otherwise they will error out with:
@@ -168,7 +169,7 @@ func testAccCheckAlertPolicyDestroyProducer(t *testing.T) func(s *terraform.Stat
 			name := rs.Primary.Attributes["name"]
 
 			url := fmt.Sprintf("https://monitoring.googleapis.com/v3/%s", name)
-			_, err := SendRequest(config, "GET", "", url, config.UserAgent, nil)
+			_, err := transport_tpg.SendRequest(config, "GET", "", url, config.UserAgent, nil)
 
 			if err == nil {
 				return fmt.Errorf("Error, alert policy %s still exists", name)

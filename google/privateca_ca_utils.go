@@ -22,7 +22,7 @@ func enableCA(config *transport_tpg.Config, d *schema.ResourceData, project stri
 
 	log.Printf("[DEBUG] Enabling CertificateAuthority")
 
-	res, err := SendRequest(config, "POST", billingProject, enableUrl, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "POST", billingProject, enableUrl, userAgent, nil)
 	if err != nil {
 		return fmt.Errorf("Error enabling CertificateAuthority: %s", err)
 	}
@@ -45,7 +45,7 @@ func disableCA(config *transport_tpg.Config, d *schema.ResourceData, project str
 
 	log.Printf("[DEBUG] Disabling CA")
 
-	dRes, err := SendRequest(config, "POST", billingProject, disableUrl, userAgent, nil)
+	dRes, err := transport_tpg.SendRequest(config, "POST", billingProject, disableUrl, userAgent, nil)
 	if err != nil {
 		return fmt.Errorf("Error disabling CA: %s", err)
 	}
@@ -99,7 +99,7 @@ func activateSubCAWithThirdPartyIssuer(config *transport_tpg.Config, d *schema.R
 	}
 
 	log.Printf("[DEBUG] Activating CertificateAuthority: %#v", activateObj)
-	res, err := SendRequest(config, "POST", billingProject, activateUrl, userAgent, activateObj)
+	res, err := transport_tpg.SendRequest(config, "POST", billingProject, activateUrl, userAgent, activateObj)
 	if err != nil {
 		return fmt.Errorf("Error enabling CertificateAuthority: %s", err)
 	}
@@ -135,7 +135,7 @@ func activateSubCAWithFirstPartyIssuer(config *transport_tpg.Config, d *schema.R
 	if err != nil {
 		return err
 	}
-	res, err := SendRequest(config, "GET", billingProject, fetchCSRUrl, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, fetchCSRUrl, userAgent, nil)
 	if err != nil {
 		return fmt.Errorf("failed to fetch CSR: %v", err)
 	}
@@ -183,13 +183,13 @@ func activateSubCAWithFirstPartyIssuer(config *transport_tpg.Config, d *schema.R
 		return err
 	}
 	signUrl := fmt.Sprintf("%v%v/certificates?certificateId=%v", PrivatecaBasePath, poolName, certId)
-	signUrl, err = AddQueryParams(signUrl, map[string]string{"issuingCertificateAuthorityId": issuerId})
+	signUrl, err = transport_tpg.AddQueryParams(signUrl, map[string]string{"issuingCertificateAuthorityId": issuerId})
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Signing CA Certificate: %#v", obj)
-	res, err = SendRequestWithTimeout(config, "POST", billingProject, signUrl, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err = transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, signUrl, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Certificate: %s", err)
 	}
@@ -207,7 +207,7 @@ func activateSubCAWithFirstPartyIssuer(config *transport_tpg.Config, d *schema.R
 	}
 
 	log.Printf("[DEBUG] Activating CertificateAuthority: %#v", activateObj)
-	res, err = SendRequest(config, "POST", billingProject, activateUrl, userAgent, activateObj)
+	res, err = transport_tpg.SendRequest(config, "POST", billingProject, activateUrl, userAgent, activateObj)
 	if err != nil {
 		return fmt.Errorf("Error enabling CertificateAuthority: %s", err)
 	}

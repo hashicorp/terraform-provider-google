@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceDataCatalogEntry() *schema.Resource {
@@ -151,7 +152,7 @@ Currently, only FILESET enum value is allowed. All other entries created through
 			"user_specified_system": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateRegexp(`^[A-z_][A-z0-9_]{0,63}$`),
+				ValidateFunc: verify.ValidateRegexp(`^[A-z_][A-z0-9_]{0,63}$`),
 				Description: `This field indicates the entry's source system that Data Catalog does not integrate with.
 userSpecifiedSystem strings must begin with a letter or underscore and can only contain letters, numbers,
 and underscores; are case insensitive; must be at least 1 character and at most 64 characters long.`,
@@ -159,7 +160,7 @@ and underscores; are case insensitive; must be at least 1 character and at most 
 			"user_specified_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateRegexp(`^[A-z_][A-z0-9_]{0,63}$`),
+				ValidateFunc: verify.ValidateRegexp(`^[A-z_][A-z0-9_]{0,63}$`),
 				Description: `Entry type if it does not fit any of the input-allowed values listed in EntryType enum above.
 When creating an entry, users should check the enum values first, if nothing matches the entry
 to be created, then provide a custom value, for example "my_special_type".
@@ -330,7 +331,7 @@ func resourceDataCatalogEntryCreate(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Entry: %s", err)
 	}
@@ -373,9 +374,9 @@ func resourceDataCatalogEntryRead(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("DataCatalogEntry %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DataCatalogEntry %q", d.Id()))
 	}
 
 	if err := d.Set("name", flattenDataCatalogEntryName(res["name"], d, config)); err != nil {
@@ -508,7 +509,7 @@ func resourceDataCatalogEntryUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -521,7 +522,7 @@ func resourceDataCatalogEntryUpdate(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Entry %q: %s", d.Id(), err)
@@ -559,9 +560,9 @@ func resourceDataCatalogEntryDelete(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "Entry")
+		return transport_tpg.HandleNotFoundError(err, d, "Entry")
 	}
 
 	log.Printf("[DEBUG] Finished deleting Entry %q: %#v", d.Id(), res)

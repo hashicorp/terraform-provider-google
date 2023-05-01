@@ -76,12 +76,12 @@ func datasourceGoogleProjectsRead(d *schema.ResourceData, meta interface{}) erro
 		params["filter"] = d.Get("filter").(string)
 		url := "https://cloudresourcemanager.googleapis.com/v1/projects"
 
-		url, err := AddQueryParams(url, params)
+		url, err := transport_tpg.AddQueryParams(url, params)
 		if err != nil {
 			return err
 		}
 
-		res, err := SendRequest(config, "GET", "", url, userAgent, nil)
+		res, err := transport_tpg.SendRequest(config, "GET", "", url, userAgent, nil)
 		if err != nil {
 			return fmt.Errorf("Error retrieving projects: %s", err)
 		}

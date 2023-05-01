@@ -257,7 +257,7 @@ func resourceAccessContextManagerAccessLevelConditionCreate(d *schema.ResourceDa
 	if err != nil {
 		return err
 	}
-	url, err = AddQueryParams(url, map[string]string{"updateMask": "basic.conditions"})
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "basic.conditions"})
 	if err != nil {
 		return err
 	}
@@ -268,7 +268,7 @@ func resourceAccessContextManagerAccessLevelConditionCreate(d *schema.ResourceDa
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating AccessLevelCondition: %s", err)
 	}
@@ -311,7 +311,7 @@ func resourceAccessContextManagerAccessLevelConditionPollRead(d *schema.Resource
 			return nil, err
 		}
 
-		res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+		res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 		if err != nil {
 			return res, err
 		}
@@ -347,9 +347,9 @@ func resourceAccessContextManagerAccessLevelConditionRead(d *schema.ResourceData
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerAccessLevelCondition %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerAccessLevelCondition %q", d.Id()))
 	}
 
 	res, err = flattenNestedAccessContextManagerAccessLevelCondition(d, meta, res)
@@ -411,9 +411,9 @@ func resourceAccessContextManagerAccessLevelConditionDelete(d *schema.ResourceDa
 
 	obj, err = resourceAccessContextManagerAccessLevelConditionPatchDeleteEncoder(d, meta, obj)
 	if err != nil {
-		return handleNotFoundError(err, d, "AccessLevelCondition")
+		return transport_tpg.HandleNotFoundError(err, d, "AccessLevelCondition")
 	}
-	url, err = AddQueryParams(url, map[string]string{"updateMask": "basic.conditions"})
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "basic.conditions"})
 	if err != nil {
 		return err
 	}
@@ -424,9 +424,9 @@ func resourceAccessContextManagerAccessLevelConditionDelete(d *schema.ResourceDa
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "AccessLevelCondition")
+		return transport_tpg.HandleNotFoundError(err, d, "AccessLevelCondition")
 	}
 
 	log.Printf("[DEBUG] Finished deleting AccessLevelCondition %q: %#v", d.Id(), res)
@@ -840,7 +840,7 @@ func resourceAccessContextManagerAccessLevelConditionListForPatch(d *schema.Reso
 		return nil, err
 	}
 
-	res, err := SendRequest(config, "GET", "", url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", "", url, userAgent, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -84,7 +84,7 @@ func resourceAccessContextManagerEgressPolicyCreate(d *schema.ResourceData, meta
 	if err != nil {
 		return err
 	}
-	url, err = AddQueryParams(url, map[string]string{"updateMask": "status.resources"})
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "status.resources"})
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func resourceAccessContextManagerEgressPolicyCreate(d *schema.ResourceData, meta
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating EgressPolicy: %s", err)
 	}
@@ -165,9 +165,9 @@ func resourceAccessContextManagerEgressPolicyRead(d *schema.ResourceData, meta i
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerEgressPolicy %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerEgressPolicy %q", d.Id()))
 	}
 
 	res, err = flattenNestedAccessContextManagerEgressPolicy(d, meta, res)
@@ -207,9 +207,9 @@ func resourceAccessContextManagerEgressPolicyDelete(d *schema.ResourceData, meta
 
 	obj, err = resourceAccessContextManagerEgressPolicyPatchDeleteEncoder(d, meta, obj)
 	if err != nil {
-		return handleNotFoundError(err, d, "EgressPolicy")
+		return transport_tpg.HandleNotFoundError(err, d, "EgressPolicy")
 	}
-	url, err = AddQueryParams(url, map[string]string{"updateMask": "status.resources"})
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "status.resources"})
 	if err != nil {
 		return err
 	}
@@ -220,9 +220,9 @@ func resourceAccessContextManagerEgressPolicyDelete(d *schema.ResourceData, meta
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "EgressPolicy")
+		return transport_tpg.HandleNotFoundError(err, d, "EgressPolicy")
 	}
 
 	err = AccessContextManagerOperationWaitTime(
@@ -397,7 +397,7 @@ func resourceAccessContextManagerEgressPolicyListForPatch(d *schema.ResourceData
 		return nil, err
 	}
 
-	res, err := SendRequest(config, "GET", "", url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", "", url, userAgent, nil)
 	if err != nil {
 		return nil, err
 	}

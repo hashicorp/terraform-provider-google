@@ -73,12 +73,12 @@ func dataSourceGoogleFoldersRead(d *schema.ResourceData, meta interface{}) error
 		params["parent"] = d.Get("parent_id").(string)
 		url := "https://cloudresourcemanager.googleapis.com/v3/folders"
 
-		url, err := AddQueryParams(url, params)
+		url, err := transport_tpg.AddQueryParams(url, params)
 		if err != nil {
 			return err
 		}
 
-		res, err := SendRequest(config, "GET", "", url, userAgent, nil)
+		res, err := transport_tpg.SendRequest(config, "GET", "", url, userAgent, nil)
 		if err != nil {
 			return fmt.Errorf("Error retrieving folders: %s", err)
 		}

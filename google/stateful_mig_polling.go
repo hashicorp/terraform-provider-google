@@ -26,7 +26,7 @@ func resourceComputePerInstanceConfigPollRead(d *schema.ResourceData, meta inter
 		if err != nil {
 			return nil, err
 		}
-		res, err := SendRequest(config, "POST", project, url, userAgent, nil)
+		res, err := transport_tpg.SendRequest(config, "POST", project, url, userAgent, nil)
 		if err != nil {
 			return res, err
 		}
@@ -58,7 +58,7 @@ func resourceComputeRegionPerInstanceConfigPollRead(d *schema.ResourceData, meta
 		if err != nil {
 			return nil, err
 		}
-		res, err := SendRequest(config, "POST", project, url, userAgent, nil)
+		res, err := transport_tpg.SendRequest(config, "POST", project, url, userAgent, nil)
 		if err != nil {
 			return res, err
 		}
@@ -99,7 +99,7 @@ func findInstanceName(d *schema.ResourceData, config *transport_tpg.Config) (str
 		} else {
 			urlWithToken = fmt.Sprintf("%s?maxResults=1", url)
 		}
-		res, err := SendRequest(config, "POST", project, urlWithToken, userAgent, nil)
+		res, err := transport_tpg.SendRequest(config, "POST", project, urlWithToken, userAgent, nil)
 		if err != nil {
 			return "", err
 		}
