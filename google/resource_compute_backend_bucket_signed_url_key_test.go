@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccComputeBackendBucketSignedUrlKey_basic(t *testing.T) {
@@ -55,7 +56,7 @@ resource "google_storage_bucket" "bucket" {
 func testAccCheckComputeBackendBucketSignedUrlKeyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		exists, err := checkComputeBackendBucketSignedUrlKeyExists(t, s)
-		if err != nil && !IsGoogleApiErrorWithCode(err, 404) {
+		if err != nil && !transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 			return err
 		}
 		if exists {
@@ -95,7 +96,7 @@ func checkComputeBackendBucketSignedUrlKeyExists(t *testing.T, s *terraform.Stat
 			return false, err
 		}
 
-		res, err := SendRequest(config, "GET", "", url, config.UserAgent, nil)
+		res, err := transport_tpg.SendRequest(config, "GET", "", url, config.UserAgent, nil)
 		if err != nil {
 			return false, err
 		}

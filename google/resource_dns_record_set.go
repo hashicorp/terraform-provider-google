@@ -397,14 +397,14 @@ func resourceDnsRecordSetRead(d *schema.ResourceData, meta interface{}) error {
 	dnsType := d.Get("type").(string)
 
 	var resp *dns.ResourceRecordSetsListResponse
-	err = retry(func() error {
+	err = transport_tpg.Retry(func() error {
 		var reqErr error
 		resp, reqErr = config.NewDnsClient(userAgent).ResourceRecordSets.List(
 			project, zone).Name(name).Type(dnsType).Do()
 		return reqErr
 	})
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("DNS Record Set %q", d.Get("name").(string)))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DNS Record Set %q", d.Get("name").(string)))
 	}
 	if len(resp.Rrsets) == 0 {
 		// The resource doesn't exist anymore
@@ -494,7 +494,7 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] DNS Record delete request: %#v", chg)
 	chg, err = config.NewDnsClient(userAgent).Changes.Create(project, zone, chg).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, "google_dns_record_set")
+		return transport_tpg.HandleNotFoundError(err, d, "google_dns_record_set")
 	}
 
 	w := &DnsChangeWaiter{

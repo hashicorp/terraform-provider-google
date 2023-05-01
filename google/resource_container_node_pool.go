@@ -487,7 +487,7 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		clusterNodePoolsGetCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 	}
 	_, err = clusterNodePoolsGetCall.Do()
-	if err != nil && IsGoogleApiErrorWithCode(err, 404) {
+	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		// Set the ID before we attempt to create if the resource doesn't exist. That
 		// way, if we receive an error but the resource is created anyway, it will be
 		// refreshed on the next call to apply.
@@ -601,7 +601,7 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 	}
 	nodePool, err := clusterNodePoolsGetCall.Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", name, nodePoolInfo.cluster))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NodePool %q from cluster %q", name, nodePoolInfo.cluster))
 	}
 
 	npMap, err := flattenNodePool(d, config, nodePool, "")
@@ -680,7 +680,7 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		// If the node pool doesn't get created and then we try to delete it, we get an error,
 		// but I don't think we need an error during delete if it doesn't exist
-		if IsGoogleApiErrorWithCode(err, 404) {
+		if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 			log.Printf("node pool %q not found, doesn't need to be cleaned up", name)
 			return nil
 		} else {
@@ -760,7 +760,7 @@ func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (
 	_, err = clusterNodePoolsGetCall.Do()
 
 	if err != nil {
-		if err = handleNotFoundError(err, d, fmt.Sprintf("Container NodePool %s", name)); err == nil {
+		if err = transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Container NodePool %s", name)); err == nil {
 			return false, nil
 		}
 		// There was some other error in reading the resource
@@ -1010,7 +1010,7 @@ func flattenNodePool(d *schema.ResourceData, config *transport_tpg.Config, np *c
 			return nil, fmt.Errorf("Error reading instance group manage URL '%q'", url)
 		}
 		igm, err := config.NewComputeClient(userAgent).InstanceGroupManagers.Get(matches[1], matches[2], matches[3]).Do()
-		if IsGoogleApiErrorWithCode(err, 404) {
+		if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 			// The IGM URL in is stale; don't include it
 			continue
 		}

@@ -149,7 +149,7 @@ func resourceComputeNetworkEndpointCreate(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating NetworkEndpoint: %s", err)
 	}
@@ -201,9 +201,9 @@ func resourceComputeNetworkEndpointRead(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "POST", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "POST", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeNetworkEndpoint %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeNetworkEndpoint %q", d.Id()))
 	}
 
 	res, err = flattenNestedComputeNetworkEndpoint(d, meta, res)
@@ -308,9 +308,9 @@ func resourceComputeNetworkEndpointDelete(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "NetworkEndpoint")
+		return transport_tpg.HandleNotFoundError(err, d, "NetworkEndpoint")
 	}
 
 	err = ComputeOperationWaitTime(

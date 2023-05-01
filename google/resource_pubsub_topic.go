@@ -210,7 +210,7 @@ func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), PubsubTopicProjectNotReady)
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), transport_tpg.PubsubTopicProjectNotReady)
 	if err != nil {
 		return fmt.Errorf("Error creating Topic: %s", err)
 	}
@@ -259,7 +259,7 @@ func resourcePubsubTopicPollRead(d *schema.ResourceData, meta interface{}) PollR
 			return nil, err
 		}
 
-		res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, PubsubTopicProjectNotReady)
+		res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil, transport_tpg.PubsubTopicProjectNotReady)
 		if err != nil {
 			return res, err
 		}
@@ -292,9 +292,9 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, PubsubTopicProjectNotReady)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil, transport_tpg.PubsubTopicProjectNotReady)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("PubsubTopic %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("PubsubTopic %q", d.Id()))
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -404,7 +404,7 @@ func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -414,7 +414,7 @@ func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), PubsubTopicProjectNotReady)
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), transport_tpg.PubsubTopicProjectNotReady)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Topic %q: %s", d.Id(), err)
@@ -453,9 +453,9 @@ func resourcePubsubTopicDelete(d *schema.ResourceData, meta interface{}) error {
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), PubsubTopicProjectNotReady)
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), transport_tpg.PubsubTopicProjectNotReady)
 	if err != nil {
-		return handleNotFoundError(err, d, "Topic")
+		return transport_tpg.HandleNotFoundError(err, d, "Topic")
 	}
 
 	log.Printf("[DEBUG] Finished deleting Topic %q: %#v", d.Id(), res)

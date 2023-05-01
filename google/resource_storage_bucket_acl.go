@@ -231,7 +231,7 @@ func resourceStorageBucketAclRead(d *schema.ResourceData, meta interface{}) erro
 		res, err := config.NewStorageClient(userAgent).BucketAccessControls.List(bucket).Do()
 
 		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Storage Bucket ACL for bucket %q", d.Get("bucket").(string)))
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Storage Bucket ACL for bucket %q", d.Get("bucket").(string)))
 		}
 		entities := make([]string, 0, len(res.Items))
 		for _, item := range res.Items {

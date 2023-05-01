@@ -75,7 +75,7 @@ func dataSourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta in
 	params := map[string]string{
 		"filter": filter,
 	}
-	url, err = AddQueryParams(url, params)
+	url, err = transport_tpg.AddQueryParams(url, params)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func dataSourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	response, err := SendRequest(config, "GET", project, url, userAgent, nil)
+	response, err := transport_tpg.SendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return fmt.Errorf("Error retrieving NotificationChannels: %s", err)
 	}

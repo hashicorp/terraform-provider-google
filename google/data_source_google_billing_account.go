@@ -58,7 +58,7 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 	if v, ok := d.GetOk("billing_account"); ok {
 		resp, err := config.NewBillingClient(userAgent).BillingAccounts.Get(canonicalBillingAccountName(v.(string))).Do()
 		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Billing Account Not Found : %s", v))
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Billing Account Not Found : %s", v))
 		}
 
 		if openOk && resp.Open != open.(bool) {

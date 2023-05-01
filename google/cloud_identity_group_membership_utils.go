@@ -14,7 +14,7 @@ func transformCloudIdentityGroupMembershipReadError(err error) error {
 			// This error occurs when either the group membership does not exist, or permission is denied. It is
 			// deliberately ambiguous so that existence information is not revealed to the caller. However, for
 			// the Read function, we can only assume that the membership does not exist, and proceed with attempting
-			// other operations. Since handleNotFoundError(...) expects an error code of 404 when a resource does not
+			// other operations. Since HandleNotFoundError(...) expects an error code of 404 when a resource does not
 			// exist, to get the desired behavior, we modify the error code to be 404.
 			gErr.Code = 404
 		}

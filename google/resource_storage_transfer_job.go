@@ -564,7 +564,7 @@ func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) 
 
 	var res *storagetransfer.TransferJob
 
-	err = retry(func() error {
+	err = transport_tpg.Retry(func() error {
 		res, err = config.NewStorageTransferClient(userAgent).TransferJobs.Create(transferJob).Do()
 		return err
 	})
@@ -599,7 +599,7 @@ func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) er
 	name := d.Get("name").(string)
 	res, err := config.NewStorageTransferClient(userAgent).TransferJobs.Get(name, project).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Transfer Job %q", name))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Transfer Job %q", name))
 	}
 
 	if res.Status == "DELETED" {

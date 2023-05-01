@@ -170,7 +170,7 @@ func resourceCloudIdentityGroupMembershipCreate(d *schema.ResourceData, meta int
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating GroupMembership: %s", err)
 	}
@@ -227,9 +227,9 @@ func resourceCloudIdentityGroupMembershipRead(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(transformCloudIdentityGroupMembershipReadError(err), d, fmt.Sprintf("CloudIdentityGroupMembership %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(transformCloudIdentityGroupMembershipReadError(err), d, fmt.Sprintf("CloudIdentityGroupMembership %q", d.Id()))
 	}
 
 	if err := d.Set("name", flattenCloudIdentityGroupMembershipName(res["name"], d, config)); err != nil {
@@ -290,7 +290,7 @@ func resourceCloudIdentityGroupMembershipUpdate(d *schema.ResourceData, meta int
 			billingProject = bp
 		}
 
-		res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating GroupMembership %q: %s", d.Id(), err)
 		} else {
@@ -326,9 +326,9 @@ func resourceCloudIdentityGroupMembershipDelete(d *schema.ResourceData, meta int
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "GroupMembership")
+		return transport_tpg.HandleNotFoundError(err, d, "GroupMembership")
 	}
 
 	log.Printf("[DEBUG] Finished deleting GroupMembership %q: %#v", d.Id(), res)

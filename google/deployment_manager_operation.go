@@ -26,7 +26,7 @@ func (w *DeploymentManagerOperationWaiter) QueryOp() (interface{}, error) {
 		return nil, fmt.Errorf("cannot query unset/nil operation")
 	}
 
-	resp, err := SendRequest(w.Config, "GET", w.Project, w.Op.SelfLink, w.UserAgent, nil)
+	resp, err := transport_tpg.SendRequest(w.Config, "GET", w.Project, w.Op.SelfLink, w.UserAgent, nil)
 	if err != nil {
 		return nil, err
 	}

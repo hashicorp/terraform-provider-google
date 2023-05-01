@@ -127,7 +127,7 @@ func resourceStorageHmacKeyCreate(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating HmacKey: %s", err)
 	}
@@ -204,7 +204,7 @@ func resourceStorageHmacKeyPollRead(d *schema.ResourceData, meta interface{}) Po
 			return nil, err
 		}
 
-		res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+		res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 		if err != nil {
 			return res, err
 		}
@@ -245,9 +245,9 @@ func resourceStorageHmacKeyRead(d *schema.ResourceData, meta interface{}) error 
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("StorageHmacKey %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("StorageHmacKey %q", d.Id()))
 	}
 
 	res, err = resourceStorageHmacKeyDecoder(d, meta, res)
@@ -315,9 +315,9 @@ func resourceStorageHmacKeyUpdate(d *schema.ResourceData, meta interface{}) erro
 			billingProject = bp
 		}
 
-		getRes, err := SendRequest(config, "GET", billingProject, getUrl, userAgent, nil)
+		getRes, err := transport_tpg.SendRequest(config, "GET", billingProject, getUrl, userAgent, nil)
 		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("StorageHmacKey %q", d.Id()))
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("StorageHmacKey %q", d.Id()))
 		}
 
 		obj["etag"] = getRes["etag"]
@@ -339,7 +339,7 @@ func resourceStorageHmacKeyUpdate(d *schema.ResourceData, meta interface{}) erro
 			billingProject = bp
 		}
 
-		res, err := SendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := transport_tpg.SendRequestWithTimeout(config, "PUT", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating HmacKey %q: %s", d.Id(), err)
 		} else {
@@ -379,9 +379,9 @@ func resourceStorageHmacKeyDelete(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	getRes, err := SendRequest(config, "GET", project, getUrl, userAgent, nil)
+	getRes, err := transport_tpg.SendRequest(config, "GET", project, getUrl, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("StorageHmacKey %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("StorageHmacKey %q", d.Id()))
 	}
 
 	// HmacKeys need to be INACTIVE to be deleted and the API doesn't accept noop
@@ -394,7 +394,7 @@ func resourceStorageHmacKeyDelete(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		log.Printf("[DEBUG] Deactivating HmacKey %q: %#v", d.Id(), getRes)
-		_, err = SendRequestWithTimeout(config, "PUT", project, updateUrl, userAgent, getRes, d.Timeout(schema.TimeoutUpdate))
+		_, err = transport_tpg.SendRequestWithTimeout(config, "PUT", project, updateUrl, userAgent, getRes, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error deactivating HmacKey %q: %s", d.Id(), err)
 		}
@@ -406,9 +406,9 @@ func resourceStorageHmacKeyDelete(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "HmacKey")
+		return transport_tpg.HandleNotFoundError(err, d, "HmacKey")
 	}
 
 	log.Printf("[DEBUG] Finished deleting HmacKey %q: %#v", d.Id(), res)

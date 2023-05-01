@@ -420,7 +420,7 @@ func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating RouterBgpPeer: %s", err)
 	}
@@ -472,9 +472,9 @@ func resourceComputeRouterBgpPeerRead(d *schema.ResourceData, meta interface{}) 
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRouterBgpPeer %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeRouterBgpPeer %q", d.Id()))
 	}
 
 	res, err = flattenNestedComputeRouterBgpPeer(d, meta, res)
@@ -664,7 +664,7 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating RouterBgpPeer %q: %s", d.Id(), err)
@@ -714,7 +714,7 @@ func resourceComputeRouterBgpPeerDelete(d *schema.ResourceData, meta interface{}
 
 	obj, err = resourceComputeRouterBgpPeerPatchDeleteEncoder(d, meta, obj)
 	if err != nil {
-		return handleNotFoundError(err, d, "RouterBgpPeer")
+		return transport_tpg.HandleNotFoundError(err, d, "RouterBgpPeer")
 	}
 	log.Printf("[DEBUG] Deleting RouterBgpPeer %q", d.Id())
 
@@ -723,9 +723,9 @@ func resourceComputeRouterBgpPeerDelete(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "RouterBgpPeer")
+		return transport_tpg.HandleNotFoundError(err, d, "RouterBgpPeer")
 	}
 
 	err = ComputeOperationWaitTime(
@@ -1265,7 +1265,7 @@ func resourceComputeRouterBgpPeerListForPatch(d *schema.ResourceData, meta inter
 		return nil, err
 	}
 
-	res, err := SendRequest(config, "GET", project, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -87,7 +87,7 @@ func dataSourceGoogleComputeSubnetworkRead(d *schema.ResourceData, meta interfac
 
 	subnetwork, err := config.NewComputeClient(userAgent).Subnetworks.Get(project, region, name).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Subnetwork Not Found : %s", name))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Subnetwork Not Found : %s", name))
 	}
 
 	if err := d.Set("ip_cidr_range", subnetwork.IpCidrRange); err != nil {

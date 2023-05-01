@@ -147,7 +147,7 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 
 	instance, err := config.NewComputeClient(userAgent).Instances.Get(zv.Project, zv.Zone, zv.Name).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("AttachedDisk %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AttachedDisk %q", d.Id()))
 	}
 
 	// Iterate through the instance's attached disks as this is the only way to

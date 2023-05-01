@@ -604,7 +604,7 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating RouterNat: %s", err)
 	}
@@ -656,9 +656,9 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComputeRouterNat %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeRouterNat %q", d.Id()))
 	}
 
 	res, err = flattenNestedComputeRouterNat(d, meta, res)
@@ -869,7 +869,7 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating RouterNat %q: %s", d.Id(), err)
@@ -919,7 +919,7 @@ func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) er
 
 	obj, err = resourceComputeRouterNatPatchDeleteEncoder(d, meta, obj)
 	if err != nil {
-		return handleNotFoundError(err, d, "RouterNat")
+		return transport_tpg.HandleNotFoundError(err, d, "RouterNat")
 	}
 	log.Printf("[DEBUG] Deleting RouterNat %q", d.Id())
 
@@ -928,9 +928,9 @@ func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "RouterNat")
+		return transport_tpg.HandleNotFoundError(err, d, "RouterNat")
 	}
 
 	err = ComputeOperationWaitTime(
@@ -1683,7 +1683,7 @@ func resourceComputeRouterNatListForPatch(d *schema.ResourceData, meta interface
 		return nil, err
 	}
 
-	res, err := SendRequest(config, "GET", project, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return nil, err
 	}

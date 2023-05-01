@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // This will sweep GCE Disk resources
@@ -35,7 +36,7 @@ func testSweepDisk(region string) error {
 	zones := []string{"us-central1-a", "us-central1-b", "us-central1-c", "us-central1-f", "us-east1-b", "us-east1-c", "us-east1-d", "us-west1-a", "us-west1-b", "us-west1-c"}
 	for _, zone := range zones {
 		servicesUrl := "https://compute.googleapis.com/compute/v1/projects/" + config.Project + "/zones/" + zone + "/disks"
-		res, err := SendRequest(config, "GET", config.Project, servicesUrl, config.UserAgent, nil)
+		res, err := transport_tpg.SendRequest(config, "GET", config.Project, servicesUrl, config.UserAgent, nil)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", servicesUrl, err)
 			return nil
@@ -68,7 +69,7 @@ func testSweepDisk(region string) error {
 
 			deleteUrl := servicesUrl + "/" + id
 			// Don't wait on operations as we may have a lot to delete
-			_, err = SendRequest(config, "DELETE", config.Project, deleteUrl, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(config, "DELETE", config.Project, deleteUrl, config.UserAgent, nil)
 			if err != nil {
 				log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
 			} else {

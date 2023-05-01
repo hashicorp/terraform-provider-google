@@ -358,7 +358,7 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IamMemberMissing)
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), transport_tpg.IamMemberMissing)
 	if err != nil {
 		return fmt.Errorf("Error creating Config: %s", err)
 	}
@@ -421,9 +421,9 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IamMemberMissing)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil, transport_tpg.IamMemberMissing)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("BigqueryDataTransferConfig %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BigqueryDataTransferConfig %q", d.Id()))
 	}
 
 	res, err = resourceBigqueryDataTransferConfigDecoder(d, meta, res)
@@ -600,7 +600,7 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -610,7 +610,7 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), IamMemberMissing)
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), transport_tpg.IamMemberMissing)
 
 	if err != nil {
 		return fmt.Errorf("Error updating Config %q: %s", d.Id(), err)
@@ -649,9 +649,9 @@ func resourceBigqueryDataTransferConfigDelete(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IamMemberMissing)
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), transport_tpg.IamMemberMissing)
 	if err != nil {
-		return handleNotFoundError(err, d, "Config")
+		return transport_tpg.HandleNotFoundError(err, d, "Config")
 	}
 
 	log.Printf("[DEBUG] Finished deleting Config %q: %#v", d.Id(), res)

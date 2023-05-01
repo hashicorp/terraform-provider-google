@@ -232,9 +232,9 @@ func resourceApigeeSharedFlowRead(d *schema.ResourceData, meta interface{}) erro
 	}
 	log.Printf("[DEBUG] resourceApigeeSharedFlowRead sendRequest")
 	log.Printf("[DEBUG] resourceApigeeSharedFlowRead, url=, 	%s", url)
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ApigeeSharedFlow %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeSharedFlow %q", d.Id()))
 	}
 	log.Printf("[DEBUG] resourceApigeeSharedFlowRead sendRequest completed")
 	previousLastModifiedAt := getApigeeSharedFlowLastModifiedAt(d)
@@ -301,9 +301,9 @@ func resourceApigeeSharedFlowDelete(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "SharedFlow")
+		return transport_tpg.HandleNotFoundError(err, d, "SharedFlow")
 	}
 
 	log.Printf("[DEBUG] Finished deleting SharedFlow %q: %#v", d.Id(), res)
@@ -397,7 +397,7 @@ func sendRequestRawBodyWithTimeout(config *transport_tpg.Config, method, project
 
 	log.Printf("[DEBUG] sendRequestRawBodyWithTimeout sending request")
 
-	err := RetryTimeDuration(
+	err := transport_tpg.RetryTimeDuration(
 		func() error {
 			req, err := http.NewRequest(method, rawurl, body)
 			if err != nil {

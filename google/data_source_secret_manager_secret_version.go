@@ -92,7 +92,7 @@ func dataSourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta inter
 	}
 
 	var version map[string]interface{}
-	version, err = SendRequest(config, "GET", project, url, userAgent, nil)
+	version, err = transport_tpg.SendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return fmt.Errorf("Error retrieving available secret manager secret versions: %s", err.Error())
 	}
@@ -112,7 +112,7 @@ func dataSourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta inter
 	}
 
 	url = fmt.Sprintf("%s:access", url)
-	resp, err := SendRequest(config, "GET", project, url, userAgent, nil)
+	resp, err := transport_tpg.SendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return fmt.Errorf("Error retrieving available secret manager secret version access: %s", err.Error())
 	}

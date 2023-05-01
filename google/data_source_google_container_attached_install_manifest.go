@@ -67,11 +67,11 @@ func dataSourceGoogleContainerAttachedInstallManifestRead(d *schema.ResourceData
 		"attached_cluster_id": clusterId,
 		"platform_version":    platformVersion,
 	}
-	url, err = AddQueryParams(url, params)
+	url, err = transport_tpg.AddQueryParams(url, params)
 	if err != nil {
 		return err
 	}
-	res, err := SendRequest(config, "GET", project, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", project, url, userAgent, nil)
 	if err != nil {
 		return err
 	}

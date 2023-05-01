@@ -411,7 +411,7 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 	res, err := getCall.Do()
 
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Storage Bucket Object %q", d.Get("name").(string)))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Storage Bucket Object %q", d.Get("name").(string)))
 	}
 
 	if err := d.Set("md5hash", res.Md5Hash); err != nil {

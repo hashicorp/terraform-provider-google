@@ -134,7 +134,7 @@ func (u *PubsubTopicIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Po
 		return nil, err
 	}
 
-	policy, err := SendRequest(u.Config, "GET", project, url, userAgent, obj, PubsubTopicProjectNotReady)
+	policy, err := transport_tpg.SendRequest(u.Config, "GET", project, url, userAgent, obj, transport_tpg.PubsubTopicProjectNotReady)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -171,7 +171,7 @@ func (u *PubsubTopicIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanage
 		return err
 	}
 
-	_, err = SendRequestWithTimeout(u.Config, "POST", project, url, userAgent, obj, u.d.Timeout(schema.TimeoutCreate), PubsubTopicProjectNotReady)
+	_, err = transport_tpg.SendRequestWithTimeout(u.Config, "POST", project, url, userAgent, obj, u.d.Timeout(schema.TimeoutCreate), transport_tpg.PubsubTopicProjectNotReady)
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

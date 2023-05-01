@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccBigQueryDatasetAccess_basic(t *testing.T) {
@@ -292,7 +293,7 @@ func testAccCheckBigQueryDatasetAccess(t *testing.T, n string, expected map[stri
 			return err
 		}
 
-		ds, err := SendRequest(config, "GET", "", url, config.UserAgent, nil)
+		ds, err := transport_tpg.SendRequest(config, "GET", "", url, config.UserAgent, nil)
 		if err != nil {
 			return err
 		}

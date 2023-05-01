@@ -2,11 +2,13 @@ package google
 
 import (
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"regexp"
 	"strings"
 	"time"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -400,7 +402,7 @@ func ResourceComposerEnvironment() *schema.Resource {
 										Optional:         true,
 										ForceNew:         true,
 										AtLeastOneOf:     composerSoftwareConfigKeys,
-										ValidateFunc:     validateRegexp(composerEnvironmentVersionRegexp),
+										ValidateFunc:     verify.ValidateRegexp(composerEnvironmentVersionRegexp),
 										DiffSuppressFunc: composerImageVersionDiffSuppress,
 										Description:      `The version of the software running in the environment. This encapsulates both the version of Cloud Composer functionality and the version of Apache Airflow. It must match the regular expression composer-([0-9]+(\.[0-9]+\.[0-9]+(-preview\.[0-9]+)?)?|latest)-airflow-([0-9]+(\.[0-9]+(\.[0-9]+)?)?). The Cloud Composer portion of the image version is a full semantic version, or an alias in the form of major version number or 'latest'. The Apache Airflow portion of the image version is a full semantic version that points to one of the supported Apache Airflow versions, or an alias in the form of only major or major.minor versions specified. See documentation for more details and version list.`,
 									},
@@ -865,7 +867,7 @@ func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) e
 
 	res, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Get(envName.resourceName()).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ComposerEnvironment %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComposerEnvironment %q", d.Id()))
 	}
 
 	// Set from getProject(d)
@@ -2048,7 +2050,7 @@ func handleComposerEnvironmentCreationOpFailure(id string, envName *composerEnvi
 	if err != nil {
 		// If error is 401, we don't have to clean up environment, return nil.
 		// Otherwise, we encountered another error.
-		return handleNotFoundError(err, d, fmt.Sprintf("Composer Environment %q", envName.resourceName()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Composer Environment %q", envName.resourceName()))
 	}
 
 	if env.State == "CREATING" {

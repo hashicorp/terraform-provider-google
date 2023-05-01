@@ -21,6 +21,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccIapClient_iapClientExample(t *testing.T) {
@@ -99,7 +101,7 @@ func testAccCheckIapClientDestroyProducer(t *testing.T) func(s *terraform.State)
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil, IapClient409Operation)
+			_, err = transport_tpg.SendRequest(config, "GET", billingProject, url, config.UserAgent, nil, transport_tpg.IapClient409Operation)
 			if err == nil {
 				return fmt.Errorf("IapClient still exists at %s", url)
 			}

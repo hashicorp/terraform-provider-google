@@ -2,6 +2,7 @@ package transport
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 // For generated resources, endpoint entries live in product-specific provider
@@ -117,5 +118,5 @@ var TagsLocationCustomEndpointEntry = &schema.Schema{
 
 func ValidateCustomEndpoint(v interface{}, k string) (ws []string, errors []error) {
 	re := `.*/[^/]+/$`
-	return ValidateRegexp(re)(v, k)
+	return verify.ValidateRegexp(re)(v, k)
 }

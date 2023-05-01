@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 // Use it to delete TagTemplate Field
@@ -34,7 +35,7 @@ func deleteTagTemplateField(d *schema.ResourceData, config *transport_tpg.Config
 		return err
 	}
 	var obj map[string]interface{}
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url_delete, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url_delete, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return fmt.Errorf("Error deleting TagTemplate Field %v: %s", name, err)
 	}
@@ -51,12 +52,12 @@ func createTagTemplateField(d *schema.ResourceData, config *transport_tpg.Config
 		return err
 	}
 
-	url_create, err = AddQueryParams(url_create, map[string]string{"tagTemplateFieldId": name})
+	url_create, err = transport_tpg.AddQueryParams(url_create, map[string]string{"tagTemplateFieldId": name})
 	if err != nil {
 		return err
 	}
 
-	res_create, err := SendRequestWithTimeout(config, "POST", billingProject, url_create, userAgent, body, d.Timeout(schema.TimeoutCreate))
+	res_create, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url_create, userAgent, body, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating TagTemplate Field: %s", err)
 	}
@@ -176,7 +177,7 @@ Multiple fields can have the same order, and field orders within a tag do not ha
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateRegexp(`^[a-z_][a-z0-9_]{0,63}$`),
+				ValidateFunc: verify.ValidateRegexp(`^[a-z_][a-z0-9_]{0,63}$`),
 				Description:  `The id of the tag template to create.`,
 			},
 			"display_name": {
@@ -265,7 +266,7 @@ func resourceDataCatalogTagTemplateCreate(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating TagTemplate: %s", err)
 	}
@@ -310,9 +311,9 @@ func resourceDataCatalogTagTemplateRead(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("DataCatalogTagTemplate %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DataCatalogTagTemplate %q", d.Id()))
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -383,7 +384,7 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
-	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -395,7 +396,7 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 			billingProject = bp
 		}
 
-		res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
 			return fmt.Errorf("Error updating TagTemplate %q: %s", d.Id(), err)
@@ -519,7 +520,7 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 				return resourceDataCatalogTagTemplateRead(d, meta)
 			}
 
-			res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url1, userAgent, changeNewProp, d.Timeout(schema.TimeoutDelete))
+			res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url1, userAgent, changeNewProp, d.Timeout(schema.TimeoutDelete))
 			if err != nil {
 				return fmt.Errorf("Error updating TagTemplate Field %v: %s", name, err)
 			}
@@ -558,9 +559,9 @@ func resourceDataCatalogTagTemplateDelete(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "TagTemplate")
+		return transport_tpg.HandleNotFoundError(err, d, "TagTemplate")
 	}
 
 	log.Printf("[DEBUG] Finished deleting TagTemplate %q: %#v", d.Id(), res)

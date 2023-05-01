@@ -256,9 +256,9 @@ func resourceApigeeKeystoresAliasesKeyCertFileRead(d *schema.ResourceData, meta 
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ApigeeKeystoresAliasesKeyCertFile %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeKeystoresAliasesKeyCertFile %q", d.Id()))
 	}
 
 	if err := d.Set("alias", flattenApigeeKeystoresAliasesKeyCertFileAlias(res["alias"], d, config)); err != nil {
@@ -335,9 +335,9 @@ func resourceApigeeKeystoresAliasesKeyCertFileDelete(d *schema.ResourceData, met
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "KeystoresAliasesKeyCertFile")
+		return transport_tpg.HandleNotFoundError(err, d, "KeystoresAliasesKeyCertFile")
 	}
 
 	log.Printf("[DEBUG] Finished deleting KeystoresAliasesKeyCertFile %q: %#v", d.Id(), res)

@@ -91,7 +91,7 @@ func resourceComputeProjectDefaultNetworkTierRead(d *schema.ResourceData, meta i
 
 	project, err := config.NewComputeClient(userAgent).Projects.Get(projectId).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Project data for project %q", projectId))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Project data for project %q", projectId))
 	}
 
 	err = d.Set("network_tier", project.DefaultNetworkTier)

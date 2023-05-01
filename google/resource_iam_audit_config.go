@@ -74,7 +74,7 @@ func resourceIamAuditConfigRead(newUpdaterFunc newResourceIamUpdaterFunc) schema
 		eAuditConfig := getResourceIamAuditConfig(d)
 		p, err := iamPolicyReadWithRetry(updater)
 		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("AuditConfig for %s on %q", eAuditConfig.Service, updater.DescribeResource()))
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AuditConfig for %s on %q", eAuditConfig.Service, updater.DescribeResource()))
 		}
 		log.Printf("[DEBUG]: Retrieved policy for %s: %+v", updater.DescribeResource(), p)
 
@@ -186,7 +186,7 @@ func resourceIamAuditConfigDelete(newUpdaterFunc newResourceIamUpdaterFunc, enab
 			err = iamPolicyReadModifyWrite(updater, modifyF)
 		}
 		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Resource %s with IAM audit config %q", updater.DescribeResource(), d.Id()))
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Resource %s with IAM audit config %q", updater.DescribeResource(), d.Id()))
 		}
 
 		return resourceIamAuditConfigRead(newUpdaterFunc)(d, meta)

@@ -249,7 +249,7 @@ func resourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) 
 	instanceGroup, err := config.NewComputeClient(userAgent).InstanceGroups.Get(
 		project, zone, name).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Instance Group %q", name))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Instance Group %q", name))
 	}
 
 	// retrieve instance group members

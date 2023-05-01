@@ -500,7 +500,7 @@ func getRegionalManager(d *schema.ResourceData, meta interface{}) (*compute.Inst
 	name := d.Get("name").(string)
 	manager, err := config.NewComputeClient(userAgent).RegionInstanceGroupManagers.Get(project, region, name).Do()
 	if err != nil {
-		return nil, handleNotFoundError(err, d, fmt.Sprintf("Region Instance Manager %q", name))
+		return nil, transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Region Instance Manager %q", name))
 	}
 
 	return manager, nil

@@ -321,7 +321,7 @@ func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), IsCloudRunCreationConflict)
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), transport_tpg.IsCloudRunCreationConflict)
 	if err != nil {
 		return fmt.Errorf("Error creating DomainMapping: %s", err)
 	}
@@ -370,7 +370,7 @@ func resourceCloudRunDomainMappingPollRead(d *schema.ResourceData, meta interfac
 			return nil, err
 		}
 
-		res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsCloudRunCreationConflict)
+		res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil, transport_tpg.IsCloudRunCreationConflict)
 		if err != nil {
 			return res, err
 		}
@@ -411,9 +411,9 @@ func resourceCloudRunDomainMappingRead(d *schema.ResourceData, meta interface{})
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, IsCloudRunCreationConflict)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil, transport_tpg.IsCloudRunCreationConflict)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("CloudRunDomainMapping %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("CloudRunDomainMapping %q", d.Id()))
 	}
 
 	res, err = resourceCloudRunDomainMappingDecoder(d, meta, res)
@@ -473,9 +473,9 @@ func resourceCloudRunDomainMappingDelete(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), IsCloudRunCreationConflict)
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), transport_tpg.IsCloudRunCreationConflict)
 	if err != nil {
-		return handleNotFoundError(err, d, "DomainMapping")
+		return transport_tpg.HandleNotFoundError(err, d, "DomainMapping")
 	}
 
 	log.Printf("[DEBUG] Finished deleting DomainMapping %q: %#v", d.Id(), res)

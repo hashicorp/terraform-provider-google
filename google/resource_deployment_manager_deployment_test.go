@@ -383,7 +383,7 @@ func testCheckDeploymentServiceAccountExists(accountId string, config *transport
 	_, err = config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.Get(
 		fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", GetTestProjectFromEnv(), accountId, GetTestProjectFromEnv())).Do()
 	if err != nil {
-		if IsGoogleApiErrorWithCode(err, 404) {
+		if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 			return false, nil
 		}
 		return false, fmt.Errorf("unexpected error while trying to confirm deployment service account %q exists: %v", accountId, err)
@@ -401,8 +401,8 @@ func testAccCheckDeploymentManagerDestroyInvalidDeployment(t *testing.T, deploym
 
 		config := GoogleProviderConfig(t)
 		url := fmt.Sprintf("%sprojects/%s/global/deployments/%s", config.DeploymentManagerBasePath, GetTestProjectFromEnv(), deploymentName)
-		_, err := SendRequest(config, "GET", "", url, config.UserAgent, nil)
-		if !IsGoogleApiErrorWithCode(err, 404) {
+		_, err := transport_tpg.SendRequest(config, "GET", "", url, config.UserAgent, nil)
+		if !transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 			return fmt.Errorf("Unexpected error while trying to confirm DeploymentManagerDeployment deleted: %v", err)
 		}
 		if err == nil {
@@ -429,7 +429,7 @@ func testAccCheckDeploymentManagerDeploymentDestroyProducer(t *testing.T) func(s
 				return err
 			}
 
-			_, err = SendRequest(config, "GET", "", url, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(config, "GET", "", url, config.UserAgent, nil)
 			if err == nil {
 				return fmt.Errorf("DeploymentManagerDeployment still exists at %s", url)
 			}

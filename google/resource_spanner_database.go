@@ -25,6 +25,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 // customizeDiff func for additional checks on google_spanner_database properties:
@@ -144,7 +145,7 @@ func ResourceSpannerDatabase() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateRegexp(`^[a-z][a-z0-9_\-]*[a-z0-9]$`),
+				ValidateFunc: verify.ValidateRegexp(`^[a-z][a-z0-9_\-]*[a-z0-9]$`),
 				Description: `A unique identifier for the database, which cannot be changed after
 the instance is created. Values are of the form [a-z][-a-z0-9]*[a-z0-9].`,
 			},
@@ -289,7 +290,7 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Database: %s", err)
 	}
@@ -382,7 +383,7 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 				return err
 			}
 
-			res, err = SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+			res, err = transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return fmt.Errorf("Error executing DDL statements on Database: %s", err)
 			}
@@ -431,9 +432,9 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("SpannerDatabase %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SpannerDatabase %q", d.Id()))
 	}
 
 	res, err = resourceSpannerDatabaseDecoder(d, meta, res)
@@ -543,7 +544,7 @@ func resourceSpannerDatabaseUpdate(d *schema.ResourceData, meta interface{}) err
 			billingProject = bp
 		}
 
-		res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+		res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Database %q: %s", d.Id(), err)
 		} else {
@@ -594,9 +595,9 @@ func resourceSpannerDatabaseDelete(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "Database")
+		return transport_tpg.HandleNotFoundError(err, d, "Database")
 	}
 
 	err = SpannerOperationWaitTime(

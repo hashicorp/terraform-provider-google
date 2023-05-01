@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func TestValidateGCEName(t *testing.T) {
@@ -134,7 +135,7 @@ func TestValidateServiceAccountLink(t *testing.T) {
 		},
 	}
 
-	es := testStringValidationCases(cases, validateRegexp(ServiceAccountLinkRegex))
+	es := testStringValidationCases(cases, verify.ValidateRegexp(ServiceAccountLinkRegex))
 	if len(es) > 0 {
 		t.Errorf("Failed to validate Service Account Links: %v", es)
 	}

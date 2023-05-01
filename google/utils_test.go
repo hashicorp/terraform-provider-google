@@ -778,7 +778,7 @@ func TestRetryTimeDuration(t *testing.T) {
 			Code: 500,
 		}
 	}
-	if err := RetryTimeDuration(f, time.Duration(1000)*time.Millisecond); err == nil || err.(*googleapi.Error).Code != 500 {
+	if err := transport_tpg.RetryTimeDuration(f, time.Duration(1000)*time.Millisecond); err == nil || err.(*googleapi.Error).Code != 500 {
 		t.Errorf("unexpected error retrying: %v", err)
 	}
 	if i < 2 {
@@ -795,7 +795,7 @@ func TestRetryTimeDuration_wrapped(t *testing.T) {
 		}
 		return errwrap.Wrapf("nested error: {{err}}", err)
 	}
-	if err := RetryTimeDuration(f, time.Duration(1000)*time.Millisecond); err == nil {
+	if err := transport_tpg.RetryTimeDuration(f, time.Duration(1000)*time.Millisecond); err == nil {
 		t.Errorf("unexpected nil error, expected an error")
 	} else {
 		innerErr := errwrap.GetType(err, &googleapi.Error{})
@@ -820,7 +820,7 @@ func TestRetryTimeDuration_noretry(t *testing.T) {
 			Code: 400,
 		}
 	}
-	if err := RetryTimeDuration(f, time.Duration(1000)*time.Millisecond); err == nil || err.(*googleapi.Error).Code != 400 {
+	if err := transport_tpg.RetryTimeDuration(f, time.Duration(1000)*time.Millisecond); err == nil || err.(*googleapi.Error).Code != 400 {
 		t.Errorf("unexpected error retrying: %v", err)
 	}
 	if i != 1 {
@@ -839,7 +839,7 @@ func TestRetryTimeDuration_URLTimeoutsShouldRetry(t *testing.T) {
 		}
 		return nil
 	}
-	err := RetryTimeDuration(retryFunc, 1*time.Minute)
+	err := transport_tpg.RetryTimeDuration(retryFunc, 1*time.Minute)
 	if err != nil {
 		t.Errorf("unexpected error: got '%v' want 'nil'", err)
 	}
@@ -857,7 +857,7 @@ func TestRetryWithPolling_noRetry(t *testing.T) {
 			Code: 400,
 		}
 	}
-	result, err := retryWithPolling(retryFunc, time.Duration(1000)*time.Millisecond, time.Duration(100)*time.Millisecond)
+	result, err := transport_tpg.RetryWithPolling(retryFunc, time.Duration(1000)*time.Millisecond, time.Duration(100)*time.Millisecond)
 	if err == nil || err.(*googleapi.Error).Code != 400 || result.(string) != "" {
 		t.Errorf("unexpected error %v and result %v", err, result)
 	}
@@ -878,7 +878,7 @@ func TestRetryWithPolling_notRetryable(t *testing.T) {
 	isRetryableFunc := func(err error) (bool, string) {
 		return err.(*googleapi.Error).Code != 400, ""
 	}
-	result, err := retryWithPolling(retryFunc, time.Duration(1000)*time.Millisecond, time.Duration(100)*time.Millisecond, isRetryableFunc)
+	result, err := transport_tpg.RetryWithPolling(retryFunc, time.Duration(1000)*time.Millisecond, time.Duration(100)*time.Millisecond, isRetryableFunc)
 	if err == nil || err.(*googleapi.Error).Code != 400 || result.(string) != "" {
 		t.Errorf("unexpected error %v and result %v", err, result)
 	}
@@ -904,7 +904,7 @@ func TestRetryWithPolling_retriedAndSucceeded(t *testing.T) {
 	isRetryableFunc := func(err error) (bool, string) {
 		return err.(*googleapi.Error).Code != 400, ""
 	}
-	result, err := retryWithPolling(retryFunc, time.Duration(1000)*time.Millisecond, time.Duration(100)*time.Millisecond, isRetryableFunc)
+	result, err := transport_tpg.RetryWithPolling(retryFunc, time.Duration(1000)*time.Millisecond, time.Duration(100)*time.Millisecond, isRetryableFunc)
 	if err != nil {
 		t.Errorf("unexpected error %v", err)
 	}
@@ -935,7 +935,7 @@ func TestRetryWithPolling_retriedAndFailed(t *testing.T) {
 	isRetryableFunc := func(err error) (bool, string) {
 		return err.(*googleapi.Error).Code != 400, ""
 	}
-	result, err := retryWithPolling(retryFunc, time.Duration(1000)*time.Millisecond, time.Duration(100)*time.Millisecond, isRetryableFunc)
+	result, err := transport_tpg.RetryWithPolling(retryFunc, time.Duration(1000)*time.Millisecond, time.Duration(100)*time.Millisecond, isRetryableFunc)
 	if err == nil || err.(*googleapi.Error).Code != 400 || result.(string) != "" {
 		t.Errorf("unexpected error %v and result %v", err, result)
 	}

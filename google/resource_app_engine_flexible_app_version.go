@@ -1056,7 +1056,7 @@ func resourceAppEngineFlexibleAppVersionCreate(d *schema.ResourceData, meta inte
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), transport_tpg.IsAppEngineRetryableError)
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate), transport_tpg.IsAppEngineRetryableError)
 	if err != nil {
 		return fmt.Errorf("Error creating FlexibleAppVersion: %s", err)
 	}
@@ -1108,9 +1108,9 @@ func resourceAppEngineFlexibleAppVersionRead(d *schema.ResourceData, meta interf
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil, transport_tpg.IsAppEngineRetryableError)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil, transport_tpg.IsAppEngineRetryableError)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("AppEngineFlexibleAppVersion %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AppEngineFlexibleAppVersion %q", d.Id()))
 	}
 
 	// Explicitly set virtual fields to default values if unset
@@ -1392,7 +1392,7 @@ func resourceAppEngineFlexibleAppVersionUpdate(d *schema.ResourceData, meta inte
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), transport_tpg.IsAppEngineRetryableError)
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate), transport_tpg.IsAppEngineRetryableError)
 
 	if err != nil {
 		return fmt.Errorf("Error updating FlexibleAppVersion %q: %s", d.Id(), err)
@@ -1442,9 +1442,9 @@ func resourceAppEngineFlexibleAppVersionDelete(d *schema.ResourceData, meta inte
 		}
 		var obj map[string]interface{}
 		log.Printf("[DEBUG] Deleting Service %q", d.Id())
-		res, err := SendRequestWithTimeout(config, "DELETE", project, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), transport_tpg.IsAppEngineRetryableError)
+		res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", project, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), transport_tpg.IsAppEngineRetryableError)
 		if err != nil {
-			return handleNotFoundError(err, d, "Service")
+			return transport_tpg.HandleNotFoundError(err, d, "Service")
 		}
 		err = AppEngineOperationWaitTime(
 			config, res, project, "Deleting Service", userAgent,
@@ -1462,9 +1462,9 @@ func resourceAppEngineFlexibleAppVersionDelete(d *schema.ResourceData, meta inte
 		}
 		var obj map[string]interface{}
 		log.Printf("[DEBUG] Deleting AppVersion %q", d.Id())
-		res, err := SendRequestWithTimeout(config, "DELETE", project, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), transport_tpg.IsAppEngineRetryableError)
+		res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", project, url, userAgent, obj, d.Timeout(schema.TimeoutDelete), transport_tpg.IsAppEngineRetryableError)
 		if err != nil {
-			return handleNotFoundError(err, d, "AppVersion")
+			return transport_tpg.HandleNotFoundError(err, d, "AppVersion")
 		}
 		err = AppEngineOperationWaitTime(
 			config, res, project, "Deleting AppVersion", userAgent,

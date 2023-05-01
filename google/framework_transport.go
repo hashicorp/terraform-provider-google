@@ -13,7 +13,7 @@ import (
 )
 
 func sendFrameworkRequest(p *frameworkProvider, method, project, rawurl, userAgent string, body map[string]interface{}, errorRetryPredicates ...transport_tpg.RetryErrorPredicateFunc) (map[string]interface{}, diag.Diagnostics) {
-	return sendFrameworkRequestWithTimeout(p, method, project, rawurl, userAgent, body, DefaultRequestTimeout, errorRetryPredicates...)
+	return sendFrameworkRequestWithTimeout(p, method, project, rawurl, userAgent, body, transport_tpg.DefaultRequestTimeout, errorRetryPredicates...)
 }
 
 func sendFrameworkRequestWithTimeout(p *frameworkProvider, method, project, rawurl, userAgent string, body map[string]interface{}, timeout time.Duration, errorRetryPredicates ...transport_tpg.RetryErrorPredicateFunc) (map[string]interface{}, diag.Diagnostics) {
@@ -40,7 +40,7 @@ func sendFrameworkRequestWithTimeout(p *frameworkProvider, method, project, rawu
 	}
 
 	var res *http.Response
-	err := RetryTimeDuration(
+	err := transport_tpg.RetryTimeDuration(
 		func() error {
 			var buf bytes.Buffer
 			if body != nil {
@@ -50,7 +50,7 @@ func sendFrameworkRequestWithTimeout(p *frameworkProvider, method, project, rawu
 				}
 			}
 
-			u, err := AddQueryParams(rawurl, map[string]string{"alt": "json"})
+			u, err := transport_tpg.AddQueryParams(rawurl, map[string]string{"alt": "json"})
 			if err != nil {
 				return err
 			}

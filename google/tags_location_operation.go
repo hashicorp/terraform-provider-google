@@ -24,10 +24,10 @@ func (w *TagsLocationOperationWaiter) QueryOp() (interface{}, error) {
 	if location != w.CommonOperationWaiter.Op.Name {
 		// Found location in Op.Name, fill it in TagsLocationBasePath and rewrite URL
 		url := fmt.Sprintf("%s%s", strings.Replace(w.Config.TagsLocationBasePath, "{{location}}", location, 1), w.CommonOperationWaiter.Op.Name)
-		return SendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
+		return transport_tpg.SendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
 	} else {
 		url := fmt.Sprintf("%s%s", w.Config.TagsBasePath, w.CommonOperationWaiter.Op.Name)
-		return SendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
+		return transport_tpg.SendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
 	}
 }
 

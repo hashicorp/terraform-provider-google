@@ -92,7 +92,7 @@ func resourceTagsLocationTagBindingCreate(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating LocationTagBinding: %s", err)
 	}
@@ -155,9 +155,9 @@ func resourceTagsLocationTagBindingRead(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("TagsLocationTagBinding %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("TagsLocationTagBinding %q", d.Id()))
 	}
 	log.Printf("[DEBUG] Skipping res with name for import = %#v,)", res)
 
@@ -170,13 +170,13 @@ func resourceTagsLocationTagBindingRead(d *schema.ResourceData, meta interface{}
 	//if there are more than 300 bindings - handling pagination over here
 	if pageToken, ok := res["nextPageToken"].(string); ok {
 		for pageToken != "" {
-			url, err = AddQueryParams(url, map[string]string{"pageToken": fmt.Sprintf("%s", res["nextPageToken"])})
+			url, err = transport_tpg.AddQueryParams(url, map[string]string{"pageToken": fmt.Sprintf("%s", res["nextPageToken"])})
 			if err != nil {
-				return handleNotFoundError(err, d, fmt.Sprintf("TagsLocationTagBinding %q", d.Id()))
+				return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("TagsLocationTagBinding %q", d.Id()))
 			}
-			resp, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+			resp, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 			if err != nil {
-				return handleNotFoundError(err, d, fmt.Sprintf("TagsLocationTagBinding %q", d.Id()))
+				return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("TagsLocationTagBinding %q", d.Id()))
 			}
 			if resp == nil {
 				d.SetId("")
@@ -238,9 +238,9 @@ func resourceTagsLocationTagBindingDelete(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "LocationTagBinding")
+		return transport_tpg.HandleNotFoundError(err, d, "LocationTagBinding")
 	}
 
 	err = TagsLocationOperationWaitTime(

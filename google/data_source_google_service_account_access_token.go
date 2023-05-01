@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"log"
 
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"strings"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
@@ -19,7 +21,7 @@ func DataSourceGoogleServiceAccountAccessToken() *schema.Resource {
 			"target_service_account": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validateRegexp("(" + strings.Join(PossibleServiceAccountNames, "|") + ")"),
+				ValidateFunc: verify.ValidateRegexp("(" + strings.Join(PossibleServiceAccountNames, "|") + ")"),
 			},
 			"access_token": {
 				Type:      schema.TypeString,
@@ -42,7 +44,7 @@ func DataSourceGoogleServiceAccountAccessToken() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: validateRegexp(ServiceAccountLinkRegex),
+					ValidateFunc: verify.ValidateRegexp(ServiceAccountLinkRegex),
 				},
 			},
 			"lifetime": {

@@ -35,7 +35,7 @@ func (w *CertificateManagerOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.CertificateManagerBasePath, w.CommonOperationWaiter.Op.Name)
 
-	return SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
+	return transport_tpg.SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
 }
 
 func createCertificateManagerWaiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*CertificateManagerOperationWaiter, error) {

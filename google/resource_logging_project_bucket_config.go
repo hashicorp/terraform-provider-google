@@ -152,7 +152,7 @@ func resourceLoggingProjectBucketConfigAcquireOrCreate(parentType string, iDFunc
 				return err
 			}
 
-			res, _ := SendRequest(config, "GET", "", url, userAgent, nil)
+			res, _ := transport_tpg.SendRequest(config, "GET", "", url, userAgent, nil)
 			if res == nil {
 				log.Printf("[DEGUG] Loggin Bucket not exist %s", id)
 				// we need to pass the id in here because we don't want to set it in state
@@ -201,7 +201,7 @@ func resourceLoggingProjectBucketConfigCreate(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Bucket: %s", err)
 	}
@@ -227,7 +227,7 @@ func resourceLoggingProjectBucketConfigRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	res, err := SendRequest(config, "GET", "", url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", "", url, userAgent, nil)
 	if err != nil {
 		log.Printf("[WARN] Unable to acquire logging bucket config at %s", d.Id())
 
@@ -278,11 +278,11 @@ func resourceLoggingProjectBucketConfigUpdate(d *schema.ResourceData, meta inter
 	if d.HasChange("enable_analytics") {
 		obj["analyticsEnabled"] = d.Get("enable_analytics")
 		updateMaskAnalytics = append(updateMaskAnalytics, "analyticsEnabled")
-		url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMaskAnalytics, ",")})
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMaskAnalytics, ",")})
 		if err != nil {
 			return err
 		}
-		_, err = SendRequestWithTimeout(config, "PATCH", "", url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+		_, err = transport_tpg.SendRequestWithTimeout(config, "PATCH", "", url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error updating Logging Bucket Config %q: %s", d.Id(), err)
 		}
@@ -301,12 +301,12 @@ func resourceLoggingProjectBucketConfigUpdate(d *schema.ResourceData, meta inter
 	if d.HasChange("cmek_settings") {
 		updateMask = append(updateMask, "cmekSettings")
 	}
-	url, err = AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
 	if len(updateMask) > 0 {
-		_, err = SendRequestWithTimeout(config, "PATCH", "", url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+		_, err = transport_tpg.SendRequestWithTimeout(config, "PATCH", "", url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 	}
 	if err != nil {
 		return fmt.Errorf("Error updating Logging Bucket Config %q: %s", d.Id(), err)

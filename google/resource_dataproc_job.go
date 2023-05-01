@@ -2,10 +2,12 @@ package google
 
 import (
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"strings"
 	"time"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -68,7 +70,7 @@ func ResourceDataprocJob() *schema.Resource {
 							Optional:     true,
 							ForceNew:     true,
 							Computed:     true,
-							ValidateFunc: validateRegexp("^[a-zA-Z0-9_-]{1,100}$"),
+							ValidateFunc: verify.ValidateRegexp("^[a-zA-Z0-9_-]{1,100}$"),
 						},
 					},
 				},
@@ -301,7 +303,7 @@ func resourceDataprocJobRead(d *schema.ResourceData, meta interface{}) error {
 	job, err := config.NewDataprocClient(userAgent).Projects.Regions.Jobs.Get(
 		project, region, jobId).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Dataproc Job %q", jobId))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Dataproc Job %q", jobId))
 	}
 
 	if err := d.Set("force_delete", d.Get("force_delete")); err != nil {

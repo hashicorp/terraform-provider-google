@@ -101,7 +101,7 @@ func dataSourceComputeRegionInstanceGroupRead(d *schema.ResourceData, meta inter
 	instanceGroup, err := config.NewComputeClient(userAgent).RegionInstanceGroups.Get(
 		project, region, name).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Region Instance Group %q", name))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Region Instance Group %q", name))
 	}
 
 	members, err := config.NewComputeClient(userAgent).RegionInstanceGroups.ListInstances(

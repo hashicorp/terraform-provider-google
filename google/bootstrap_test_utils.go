@@ -78,7 +78,7 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 	kmsClient := config.NewKmsClient(config.UserAgent)
 	keyRing, err := kmsClient.Projects.Locations.KeyRings.Get(keyRingName).Do()
 	if err != nil {
-		if IsGoogleApiErrorWithCode(err, 404) {
+		if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 			keyRing, err = kmsClient.Projects.Locations.KeyRings.Create(keyRingParent, &cloudkms.KeyRing{}).
 				KeyRingId(SharedKeyRing).Do()
 			if err != nil {
@@ -96,7 +96,7 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 	// Get or Create the hard coded, shared crypto key for testing
 	cryptoKey, err := kmsClient.Projects.Locations.KeyRings.CryptoKeys.Get(keyName).Do()
 	if err != nil {
-		if IsGoogleApiErrorWithCode(err, 404) {
+		if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 			algos := map[string]string{
 				"ENCRYPT_DECRYPT":    "GOOGLE_SYMMETRIC_ENCRYPTION",
 				"ASYMMETRIC_SIGN":    "RSA_SIGN_PKCS1_4096_SHA512",
@@ -143,7 +143,7 @@ func getOrCreateServiceAccount(config *transport_tpg.Config, project string) (*i
 	log.Printf("[DEBUG] Verifying %s as bootstrapped service account.\n", name)
 
 	sa, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.Get(name).Do()
-	if err != nil && !IsGoogleApiErrorWithCode(err, 404) {
+	if err != nil && !transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		return nil, err
 	}
 
@@ -228,8 +228,8 @@ func BootstrapSharedTestADDomain(t *testing.T, testId string, networkName string
 
 	log.Printf("[DEBUG] Getting shared test active directory domain %q", adDomainName)
 	getURL := fmt.Sprintf("%s%s", config.ActiveDirectoryBasePath, adDomainName)
-	_, err := SendRequestWithTimeout(config, "GET", project, getURL, config.UserAgent, nil, 4*time.Minute)
-	if err != nil && IsGoogleApiErrorWithCode(err, 404) {
+	_, err := transport_tpg.SendRequestWithTimeout(config, "GET", project, getURL, config.UserAgent, nil, 4*time.Minute)
+	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] AD domain %q not found, bootstrapping", sharedADDomain)
 		postURL := fmt.Sprintf("%sprojects/%s/locations/global/domains?domainName=%s", config.ActiveDirectoryBasePath, project, sharedADDomain)
 		domainObj := map[string]interface{}{
@@ -238,7 +238,7 @@ func BootstrapSharedTestADDomain(t *testing.T, testId string, networkName string
 			"authorizedNetworks": []string{fmt.Sprintf("projects/%s/global/networks/%s", project, networkName)},
 		}
 
-		_, err := SendRequestWithTimeout(config, "POST", project, postURL, config.UserAgent, domainObj, 60*time.Minute)
+		_, err := transport_tpg.SendRequestWithTimeout(config, "POST", project, postURL, config.UserAgent, domainObj, 60*time.Minute)
 		if err != nil {
 			t.Fatalf("Error bootstrapping shared active directory domain %q: %s", adDomainName, err)
 		}
@@ -246,7 +246,7 @@ func BootstrapSharedTestADDomain(t *testing.T, testId string, networkName string
 		log.Printf("[DEBUG] Waiting for active directory domain creation to finish")
 	}
 
-	_, err = SendRequestWithTimeout(config, "GET", project, getURL, config.UserAgent, nil, 4*time.Minute)
+	_, err = transport_tpg.SendRequestWithTimeout(config, "GET", project, getURL, config.UserAgent, nil, 4*time.Minute)
 
 	if err != nil {
 		t.Fatalf("Error getting shared active directory domain %q: %s", adDomainName, err)
@@ -285,7 +285,7 @@ func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 
 	log.Printf("[DEBUG] Getting shared test network %q", networkName)
 	_, err := config.NewComputeClient(config.UserAgent).Networks.Get(project, networkName).Do()
-	if err != nil && IsGoogleApiErrorWithCode(err, 404) {
+	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] Network %q not found, bootstrapping", networkName)
 		url := fmt.Sprintf("%sprojects/%s/global/networks", config.ComputeBasePath, project)
 		netObj := map[string]interface{}{
@@ -293,7 +293,7 @@ func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 			"autoCreateSubnetworks": false,
 		}
 
-		res, err := SendRequestWithTimeout(config, "POST", project, url, config.UserAgent, netObj, 4*time.Minute)
+		res, err := transport_tpg.SendRequestWithTimeout(config, "POST", project, url, config.UserAgent, netObj, 4*time.Minute)
 		if err != nil {
 			t.Fatalf("Error bootstrapping shared test network %q: %s", networkName, err)
 		}
@@ -448,7 +448,7 @@ func BootstrapProject(t *testing.T, projectIDPrefix, billingAccount string, serv
 
 	project, err := crmClient.Projects.Get(projectID).Do()
 	if err != nil {
-		if !IsGoogleApiErrorWithCode(err, 403) {
+		if !transport_tpg.IsGoogleApiErrorWithCode(err, 403) {
 			t.Fatalf("Error getting bootstrapped project: %s", err)
 		}
 		org := GetTestOrgFromEnv(t)
@@ -492,7 +492,7 @@ func BootstrapProject(t *testing.T, projectIDPrefix, billingAccount string, serv
 	if billingAccount != "" {
 		billingClient := config.NewBillingClient(config.UserAgent)
 		var pbi *cloudbilling.ProjectBillingInfo
-		err = RetryTimeDuration(func() error {
+		err = transport_tpg.RetryTimeDuration(func() error {
 			var reqErr error
 			pbi, reqErr = billingClient.Projects.GetBillingInfo(PrefixedProject(projectID)).Do()
 			return reqErr
@@ -502,7 +502,7 @@ func BootstrapProject(t *testing.T, projectIDPrefix, billingAccount string, serv
 		}
 		if strings.TrimPrefix(pbi.BillingAccountName, "billingAccounts/") != billingAccount {
 			pbi.BillingAccountName = "billingAccounts/" + billingAccount
-			err := RetryTimeDuration(func() error {
+			err := transport_tpg.RetryTimeDuration(func() error {
 				_, err := config.NewBillingClient(config.UserAgent).Projects.UpdateBillingInfo(PrefixedProject(projectID), pbi).Do()
 				return err
 			}, 2*time.Minute)
@@ -608,10 +608,10 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 		}
 
 		var op *sqladmin.Operation
-		err = RetryTimeDuration(func() (operr error) {
+		err = transport_tpg.RetryTimeDuration(func() (operr error) {
 			op, operr = config.NewSqlAdminClient(config.UserAgent).Instances.Insert(project, bootstrapInstance).Do()
 			return operr
-		}, time.Duration(20)*time.Minute, IsSqlOperationInProgressError)
+		}, time.Duration(20)*time.Minute, transport_tpg.IsSqlOperationInProgressError)
 		if err != nil {
 			t.Fatalf("Error, failed to create instance %s: %s", bootstrapInstance.Name, err)
 		}
@@ -634,10 +634,10 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 		}
 
 		var op *sqladmin.Operation
-		err = RetryTimeDuration(func() (operr error) {
+		err = transport_tpg.RetryTimeDuration(func() (operr error) {
 			op, operr = config.NewSqlAdminClient(config.UserAgent).BackupRuns.Insert(project, bootstrapInstance.Name, backupRun).Do()
 			return operr
-		}, time.Duration(20)*time.Minute, IsSqlOperationInProgressError)
+		}, time.Duration(20)*time.Minute, transport_tpg.IsSqlOperationInProgressError)
 		if err != nil {
 			t.Fatalf("Error, failed to create instance backup: %s", err)
 		}
@@ -661,14 +661,14 @@ func BootstrapSharedCaPoolInLocation(t *testing.T, location string) string {
 
 	log.Printf("[DEBUG] Getting shared CA pool %q", poolName)
 	url := fmt.Sprintf("%sprojects/%s/locations/%s/caPools/%s", config.PrivatecaBasePath, project, location, poolName)
-	_, err := SendRequest(config, "GET", project, url, config.UserAgent, nil)
+	_, err := transport_tpg.SendRequest(config, "GET", project, url, config.UserAgent, nil)
 	if err != nil {
 		log.Printf("[DEBUG] CA pool %q not found, bootstrapping", poolName)
 		poolObj := map[string]interface{}{
 			"tier": "ENTERPRISE",
 		}
 		createUrl := fmt.Sprintf("%sprojects/%s/locations/%s/caPools?caPoolId=%s", config.PrivatecaBasePath, project, location, poolName)
-		res, err := SendRequestWithTimeout(config, "POST", project, createUrl, config.UserAgent, poolObj, 4*time.Minute)
+		res, err := transport_tpg.SendRequestWithTimeout(config, "POST", project, createUrl, config.UserAgent, poolObj, 4*time.Minute)
 		if err != nil {
 			t.Fatalf("Error bootstrapping shared CA pool %q: %s", poolName, err)
 		}
@@ -681,7 +681,7 @@ func BootstrapSharedCaPoolInLocation(t *testing.T, location string) string {
 		if err != nil {
 			t.Errorf("Error getting shared CA pool %q: %s", poolName, err)
 		}
-		_, err = SendRequest(config, "GET", project, url, config.UserAgent, nil)
+		_, err = transport_tpg.SendRequest(config, "GET", project, url, config.UserAgent, nil)
 		if err != nil {
 			t.Errorf("Error getting shared CA pool %q: %s", poolName, err)
 		}

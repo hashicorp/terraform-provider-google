@@ -2447,7 +2447,7 @@ func testSweepComposerEnvironmentBuckets(config *transport_tpg.Config, region st
 	artifactsBName := fmt.Sprintf("artifacts.%s.appspot.com", config.Project)
 	artifactBucket, err := config.NewStorageClient(config.UserAgent).Buckets.Get(artifactsBName).Do()
 	if err != nil {
-		if IsGoogleApiErrorWithCode(err, 404) {
+		if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 			log.Printf("composer environment bucket %q not found, doesn't need to be cleaned up", artifactsBName)
 		} else {
 			return err

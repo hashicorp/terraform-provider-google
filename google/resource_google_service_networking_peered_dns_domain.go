@@ -220,11 +220,11 @@ func resourceGoogleServiceNetworkingPeeredDNSDomainDelete(d *schema.ResourceData
 	apiService := config.NewServiceNetworkingClient(userAgent)
 	peeredDnsDomainsService := servicenetworking.NewServicesProjectsGlobalNetworksPeeredDnsDomainsService(apiService)
 
-	if err := RetryTimeDuration(func() error {
+	if err := transport_tpg.RetryTimeDuration(func() error {
 		_, delErr := peeredDnsDomainsService.Delete(d.Id()).Do()
 		return delErr
 	}, d.Timeout(schema.TimeoutDelete)); err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Peered DNS domain %s", name))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Peered DNS domain %s", name))
 	}
 
 	d.SetId("")

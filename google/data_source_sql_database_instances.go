@@ -99,10 +99,10 @@ func dataSourceSqlDatabaseInstancesRead(d *schema.ResourceData, meta interface{}
 	databaseInstances := make([]map[string]interface{}, 0)
 	for {
 		var instances *sqladmin.InstancesListResponse
-		err = RetryTimeDuration(func() (rerr error) {
+		err = transport_tpg.RetryTimeDuration(func() (rerr error) {
 			instances, rerr = config.NewSqlAdminClient(userAgent).Instances.List(project).Filter(filter).PageToken(pageToken).Do()
 			return rerr
-		}, d.Timeout(schema.TimeoutRead), IsSqlOperationInProgressError)
+		}, d.Timeout(schema.TimeoutRead), transport_tpg.IsSqlOperationInProgressError)
 		if err != nil {
 			return err
 		}

@@ -70,7 +70,7 @@ func resourceContainerRegistryCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	_, err = SendRequestWithTimeout(config, "GET", project, url, userAgent, nil, d.Timeout(schema.TimeoutCreate))
+	_, err = transport_tpg.SendRequestWithTimeout(config, "GET", project, url, userAgent, nil, d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		return err
@@ -99,7 +99,7 @@ func resourceContainerRegistryRead(d *schema.ResourceData, meta interface{}) err
 
 	res, err := config.NewStorageClient(userAgent).Buckets.Get(name).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Container Registry Storage Bucket %q", name))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Container Registry Storage Bucket %q", name))
 	}
 	log.Printf("[DEBUG] Read bucket %v at location %v\n\n", res.Name, res.SelfLink)
 

@@ -104,7 +104,7 @@ func (u *StorageBucketIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.
 	}
 
 	var obj map[string]interface{}
-	url, err = AddQueryParams(url, map[string]string{"optionsRequestedPolicyVersion": fmt.Sprintf("%d", IamPolicyVersion)})
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"optionsRequestedPolicyVersion": fmt.Sprintf("%d", IamPolicyVersion)})
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (u *StorageBucketIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.
 		return nil, err
 	}
 
-	policy, err := SendRequest(u.Config, "GET", "", url, userAgent, obj)
+	policy, err := transport_tpg.SendRequest(u.Config, "GET", "", url, userAgent, obj)
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -146,7 +146,7 @@ func (u *StorageBucketIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 		return err
 	}
 
-	_, err = SendRequestWithTimeout(u.Config, "PUT", "", url, userAgent, obj, u.d.Timeout(schema.TimeoutCreate))
+	_, err = transport_tpg.SendRequestWithTimeout(u.Config, "PUT", "", url, userAgent, obj, u.d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

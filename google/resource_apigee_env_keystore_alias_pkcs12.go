@@ -230,9 +230,9 @@ func ResourceApigeeKeystoresAliasesPkcs12Read(d *schema.ResourceData, meta inter
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ApigeeKeystoreAliasesPkcs %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeKeystoreAliasesPkcs %q", d.Id()))
 	}
 
 	if err := d.Set("alias", flattenApigeeKeystoreAliasesPkcsAlias(res["alias"], d, config)); err != nil {
@@ -272,9 +272,9 @@ func ResourceApigeeKeystoresAliasesPkcs12Delete(d *schema.ResourceData, meta int
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "KeystoreAliasesPkcs")
+		return transport_tpg.HandleNotFoundError(err, d, "KeystoreAliasesPkcs")
 	}
 
 	log.Printf("[DEBUG] Finished deleting KeystoreAliasesPkcs %q: %#v", d.Id(), res)

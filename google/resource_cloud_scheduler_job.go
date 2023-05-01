@@ -535,7 +535,7 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating Job: %s", err)
 	}
@@ -562,7 +562,7 @@ func resourceCloudSchedulerJobCreate(d *schema.ResourceData, meta interface{}) e
 
 	emptyReqBody := make(map[string]interface{})
 
-	_, err = SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, emptyReqBody, d.Timeout(schema.TimeoutUpdate))
+	_, err = transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, emptyReqBody, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return fmt.Errorf("Error setting Cloud Scheduler Job status: %s", err)
 	}
@@ -599,9 +599,9 @@ func resourceCloudSchedulerJobRead(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("CloudSchedulerJob %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("CloudSchedulerJob %q", d.Id()))
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -741,7 +741,7 @@ func resourceCloudSchedulerJobUpdate(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
 		return fmt.Errorf("Error updating Job %q: %s", d.Id(), err)
@@ -767,7 +767,7 @@ func resourceCloudSchedulerJobUpdate(d *schema.ResourceData, meta interface{}) e
 
 		emptyReqBody := make(map[string]interface{})
 
-		_, err = SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, emptyReqBody, d.Timeout(schema.TimeoutUpdate))
+		_, err = transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, emptyReqBody, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return fmt.Errorf("Error setting Cloud Scheduler Job status: %s", err)
 		}
@@ -805,9 +805,9 @@ func resourceCloudSchedulerJobDelete(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "Job")
+		return transport_tpg.HandleNotFoundError(err, d, "Job")
 	}
 
 	log.Printf("[DEBUG] Finished deleting Job %q: %#v", d.Id(), res)

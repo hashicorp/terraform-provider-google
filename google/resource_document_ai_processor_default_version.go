@@ -99,7 +99,7 @@ func resourceDocumentAIProcessorDefaultVersionCreate(d *schema.ResourceData, met
 		url = strings.TrimPrefix(url, "https://")
 		url = "https://" + location + url
 	}
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating ProcessorDefaultVersion: %s", err)
 	}
@@ -140,9 +140,9 @@ func resourceDocumentAIProcessorDefaultVersionRead(d *schema.ResourceData, meta 
 		url = strings.TrimPrefix(url, "https://")
 		url = "https://" + location + url
 	}
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("DocumentAIProcessorDefaultVersion %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DocumentAIProcessorDefaultVersion %q", d.Id()))
 	}
 
 	if err := d.Set("version", flattenDocumentAIProcessorDefaultVersionVersion(res["defaultProcessorVersion"], d, config)); err != nil {

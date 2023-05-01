@@ -103,7 +103,7 @@ func resourceGoogleProjectIamCustomRoleCreate(d *schema.ResourceData, meta inter
 			// If a role with same name exists and is enabled, just return error
 			return fmt.Errorf("Custom project role %s already exists and must be imported", roleId)
 		}
-	} else if err := handleNotFoundError(err, d, fmt.Sprintf("Custom Project Role %q", roleId)); err == nil {
+	} else if err := transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Custom Project Role %q", roleId)); err == nil {
 		// If no role is found, actually create a new role.
 		role, err := config.NewIamClient(userAgent).Projects.Roles.Create("projects/"+project, &iam.CreateRoleRequest{
 			RoleId: d.Get("role_id").(string),
@@ -143,7 +143,7 @@ func resourceGoogleProjectIamCustomRoleRead(d *schema.ResourceData, meta interfa
 
 	role, err := config.NewIamClient(userAgent).Projects.Roles.Get(d.Id()).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, d.Id())
+		return transport_tpg.HandleNotFoundError(err, d, d.Id())
 	}
 
 	if err := d.Set("role_id", GetResourceNameFromSelfLink(role.Name)); err != nil {

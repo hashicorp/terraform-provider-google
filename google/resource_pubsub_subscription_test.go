@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccPubsubSubscription_emptyTTL(t *testing.T) {
@@ -284,11 +285,11 @@ func testAccCheckPubsubSubscriptionCache404(t *testing.T, subName string) resour
 	return func(s *terraform.State) error {
 		config := GoogleProviderConfig(t)
 		url := fmt.Sprintf("%sprojects/%s/subscriptions/%s", config.PubsubBasePath, GetTestProjectFromEnv(), subName)
-		resp, err := SendRequest(config, "GET", "", url, config.UserAgent, nil)
+		resp, err := transport_tpg.SendRequest(config, "GET", "", url, config.UserAgent, nil)
 		if err == nil {
 			return fmt.Errorf("Expected Pubsub Subscription %q not to exist, was found", resp["name"])
 		}
-		if !IsGoogleApiErrorWithCode(err, 404) {
+		if !transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 			return fmt.Errorf("Got non-404 error while trying to read Pubsub Subscription %q: %v", subName, err)
 		}
 		return nil

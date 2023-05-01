@@ -27,7 +27,7 @@ func diffSuppressIamUserName(_, old, new string, d *schema.ResourceData) bool {
 }
 
 func handleUserNotFoundError(err error, d *schema.ResourceData, resource string) error {
-	if IsGoogleApiErrorWithCode(err, 404) || IsGoogleApiErrorWithCode(err, 403) {
+	if transport_tpg.IsGoogleApiErrorWithCode(err, 404) || transport_tpg.IsGoogleApiErrorWithCode(err, 403) {
 		log.Printf("[WARN] Removing %s because it's gone", resource)
 		// The resource doesn't exist anymore
 		d.SetId("")
@@ -259,12 +259,12 @@ func resourceSqlUserCreate(d *schema.ResourceData, meta interface{}) error {
 	if v, ok := d.GetOk("host"); ok {
 		if v.(string) != "" {
 			var fetchedInstance *sqladmin.DatabaseInstance
-			err = RetryTimeDuration(func() (rerr error) {
+			err = transport_tpg.RetryTimeDuration(func() (rerr error) {
 				fetchedInstance, rerr = config.NewSqlAdminClient(userAgent).Instances.Get(project, instance).Do()
 				return rerr
-			}, d.Timeout(schema.TimeoutRead), IsSqlOperationInProgressError)
+			}, d.Timeout(schema.TimeoutRead), transport_tpg.IsSqlOperationInProgressError)
 			if err != nil {
-				return handleNotFoundError(err, d, fmt.Sprintf("SQL Database Instance %q", d.Get("instance").(string)))
+				return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SQL Database Instance %q", d.Get("instance").(string)))
 			}
 			if !strings.Contains(fetchedInstance.DatabaseVersion, "MYSQL") {
 				return fmt.Errorf("Error: Host field is only supported for MySQL instances: %s", fetchedInstance.DatabaseVersion)
@@ -278,7 +278,7 @@ func resourceSqlUserCreate(d *schema.ResourceData, meta interface{}) error {
 			user).Do()
 		return err
 	}
-	err = RetryTimeDuration(insertFunc, d.Timeout(schema.TimeoutCreate))
+	err = transport_tpg.RetryTimeDuration(insertFunc, d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		return fmt.Errorf("Error, failed to insert "+
@@ -317,12 +317,12 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 
 	var users *sqladmin.UsersListResponse
 	err = nil
-	err = retryTime(func() error {
+	err = transport_tpg.RetryTime(func() error {
 		users, err = config.NewSqlAdminClient(userAgent).Users.List(project, instance).Do()
 		return err
 	}, 5)
 	if err != nil {
-		// move away from handleNotFoundError() as we need to handle both 404 and 403
+		// move away from transport_tpg.HandleNotFoundError() as we need to handle both 404 and 403
 		return handleUserNotFoundError(err, d, fmt.Sprintf("SQL User %q in instance %q", name, instance))
 	}
 
@@ -455,7 +455,7 @@ func resourceSqlUserUpdate(d *schema.ResourceData, meta interface{}) error {
 			op, err = config.NewSqlAdminClient(userAgent).Users.Update(project, instance, user).Host(host).Name(name).Do()
 			return err
 		}
-		err = RetryTimeDuration(updateFunc, d.Timeout(schema.TimeoutUpdate))
+		err = transport_tpg.RetryTimeDuration(updateFunc, d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
 			return fmt.Errorf("Error, failed to update"+
@@ -502,7 +502,7 @@ func resourceSqlUserDelete(d *schema.ResourceData, meta interface{}) error {
 	defer mutexKV.Unlock(instanceMutexKey(project, instance))
 
 	var op *sqladmin.Operation
-	err = RetryTimeDuration(func() error {
+	err = transport_tpg.RetryTimeDuration(func() error {
 		op, err = config.NewSqlAdminClient(userAgent).Users.Delete(project, instance).Host(host).Name(name).Do()
 		if err != nil {
 			return err
@@ -512,7 +512,7 @@ func resourceSqlUserDelete(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 		return nil
-	}, d.Timeout(schema.TimeoutDelete), IsSqlOperationInProgressError, IsSqlInternalError)
+	}, d.Timeout(schema.TimeoutDelete), transport_tpg.IsSqlOperationInProgressError, IsSqlInternalError)
 
 	if err != nil {
 		return fmt.Errorf("Error, failed to delete"+

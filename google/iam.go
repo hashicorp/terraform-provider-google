@@ -85,7 +85,7 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 	for {
 		log.Printf("[DEBUG]: Retrieving policy for %s\n", updater.DescribeResource())
 		p, err := updater.GetResourceIamPolicy()
-		if IsGoogleApiErrorWithCode(err, 429) {
+		if transport_tpg.IsGoogleApiErrorWithCode(err, 429) {
 			log.Printf("[DEBUG] 429 while attempting to read policy for %s, waiting %v before attempting again", updater.DescribeResource(), backoff)
 			time.Sleep(backoff)
 			continue
@@ -112,7 +112,7 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 				new_p, err := updater.GetResourceIamPolicy()
 				if err != nil {
 					// Quota for Read is pretty limited, so watch out for running out of quota.
-					if IsGoogleApiErrorWithCode(err, 429) {
+					if transport_tpg.IsGoogleApiErrorWithCode(err, 429) {
 						fetchBackoff = fetchBackoff * 2
 					} else {
 						return err
@@ -153,7 +153,7 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 
 		// retry in the case that a service account is not found. This can happen when a service account is deleted
 		// out of band.
-		if isServiceAccountNotFoundError, _ := IamServiceAccountNotFound(err); isServiceAccountNotFoundError {
+		if isServiceAccountNotFoundError, _ := transport_tpg.IamServiceAccountNotFound(err); isServiceAccountNotFoundError {
 			// calling a retryable function within a retry loop is not
 			// strictly the _best_ idea, but this error only happens in
 			// high-traffic projects anyways

@@ -64,9 +64,9 @@ func dataSourcePrivatecaCertificateAuthorityRead(d *schema.ResourceData, meta in
 			billingProject = bp
 		}
 
-		res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+		res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("PrivatecaCertificateAuthority %q", d.Id()))
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("PrivatecaCertificateAuthority %q", d.Id()))
 		}
 		if err := d.Set("pem_csr", res["pemCsr"]); err != nil {
 			return fmt.Errorf("Error fetching CertificateAuthority: %s", err)

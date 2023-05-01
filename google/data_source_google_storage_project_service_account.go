@@ -54,7 +54,7 @@ func dataSourceGoogleStorageProjectServiceAccountRead(d *schema.ResourceData, me
 
 	serviceAccount, err := serviceAccountGetRequest.Do()
 	if err != nil {
-		return handleNotFoundError(err, d, "GCS service account not found")
+		return transport_tpg.HandleNotFoundError(err, d, "GCS service account not found")
 	}
 
 	if err := d.Set("project", project); err != nil {

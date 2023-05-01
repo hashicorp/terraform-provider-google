@@ -84,7 +84,7 @@ func resourceAccessContextManagerIngressPolicyCreate(d *schema.ResourceData, met
 	if err != nil {
 		return err
 	}
-	url, err = AddQueryParams(url, map[string]string{"updateMask": "status.resources"})
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "status.resources"})
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func resourceAccessContextManagerIngressPolicyCreate(d *schema.ResourceData, met
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating IngressPolicy: %s", err)
 	}
@@ -165,9 +165,9 @@ func resourceAccessContextManagerIngressPolicyRead(d *schema.ResourceData, meta 
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerIngressPolicy %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerIngressPolicy %q", d.Id()))
 	}
 
 	res, err = flattenNestedAccessContextManagerIngressPolicy(d, meta, res)
@@ -207,9 +207,9 @@ func resourceAccessContextManagerIngressPolicyDelete(d *schema.ResourceData, met
 
 	obj, err = resourceAccessContextManagerIngressPolicyPatchDeleteEncoder(d, meta, obj)
 	if err != nil {
-		return handleNotFoundError(err, d, "IngressPolicy")
+		return transport_tpg.HandleNotFoundError(err, d, "IngressPolicy")
 	}
-	url, err = AddQueryParams(url, map[string]string{"updateMask": "status.resources"})
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "status.resources"})
 	if err != nil {
 		return err
 	}
@@ -220,9 +220,9 @@ func resourceAccessContextManagerIngressPolicyDelete(d *schema.ResourceData, met
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "PATCH", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "IngressPolicy")
+		return transport_tpg.HandleNotFoundError(err, d, "IngressPolicy")
 	}
 
 	err = AccessContextManagerOperationWaitTime(
@@ -397,7 +397,7 @@ func resourceAccessContextManagerIngressPolicyListForPatch(d *schema.ResourceDat
 		return nil, err
 	}
 
-	res, err := SendRequest(config, "GET", "", url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", "", url, userAgent, nil)
 	if err != nil {
 		return nil, err
 	}

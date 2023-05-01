@@ -225,5 +225,5 @@ func updateComputeCommonInstanceMetadata(config *transport_tpg.Config, projectID
 		return ComputeOperationWaitTime(config, op, project.Name, "SetCommonInstanceMetadata", userAgent, timeout)
 	}
 
-	return MetadataRetryWrapper(updateMD)
+	return transport_tpg.MetadataRetryWrapper(updateMD)
 }

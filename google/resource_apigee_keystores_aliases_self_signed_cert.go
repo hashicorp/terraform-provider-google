@@ -299,7 +299,7 @@ func resourceApigeeKeystoresAliasesSelfSignedCertCreate(d *schema.ResourceData, 
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return fmt.Errorf("Error creating KeystoresAliasesSelfSignedCert: %s", err)
 	}
@@ -335,9 +335,9 @@ func resourceApigeeKeystoresAliasesSelfSignedCertRead(d *schema.ResourceData, me
 		billingProject = bp
 	}
 
-	res, err := SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("ApigeeKeystoresAliasesSelfSignedCert %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeKeystoresAliasesSelfSignedCert %q", d.Id()))
 	}
 
 	if err := d.Set("certs_info", flattenApigeeKeystoresAliasesSelfSignedCertCertsInfo(res["certsInfo"], d, config)); err != nil {
@@ -378,9 +378,9 @@ func resourceApigeeKeystoresAliasesSelfSignedCertDelete(d *schema.ResourceData, 
 		billingProject = bp
 	}
 
-	res, err := SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
+	res, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return handleNotFoundError(err, d, "KeystoresAliasesSelfSignedCert")
+		return transport_tpg.HandleNotFoundError(err, d, "KeystoresAliasesSelfSignedCert")
 	}
 
 	log.Printf("[DEBUG] Finished deleting KeystoresAliasesSelfSignedCert %q: %#v", d.Id(), res)

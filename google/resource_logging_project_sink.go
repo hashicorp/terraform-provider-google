@@ -102,7 +102,7 @@ func resourceLoggingProjectSinkRead(d *schema.ResourceData, meta interface{}) er
 
 	sink, err := config.NewLoggingClient(userAgent).Projects.Sinks.Get(d.Id()).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Project Logging Sink %s", d.Get("name").(string)))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Project Logging Sink %s", d.Get("name").(string)))
 	}
 
 	if err := d.Set("project", project); err != nil {

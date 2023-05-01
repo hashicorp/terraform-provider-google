@@ -70,7 +70,7 @@ func resourceLoggingOrganizationSinkRead(d *schema.ResourceData, meta interface{
 
 	sink, err := config.NewLoggingClient(userAgent).Organizations.Sinks.Get(d.Id()).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Organization Logging Sink %s", d.Get("name").(string)))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Organization Logging Sink %s", d.Get("name").(string)))
 	}
 
 	if err := flattenResourceLoggingSink(d, sink); err != nil {

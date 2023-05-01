@@ -87,14 +87,14 @@ func resourceGoogleFolderOrganizationPolicyRead(d *schema.ResourceData, meta int
 	folder := canonicalFolderId(d.Get("folder").(string))
 
 	var policy *cloudresourcemanager.OrgPolicy
-	err = RetryTimeDuration(func() (getErr error) {
+	err = transport_tpg.RetryTimeDuration(func() (getErr error) {
 		policy, getErr = config.NewResourceManagerClient(userAgent).Folders.GetOrgPolicy(folder, &cloudresourcemanager.GetOrgPolicyRequest{
 			Constraint: canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
 		}).Do()
 		return getErr
 	}, d.Timeout(schema.TimeoutRead))
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Organization policy for %s", folder))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Organization policy for %s", folder))
 	}
 
 	if err := d.Set("constraint", policy.Constraint); err != nil {
@@ -142,7 +142,7 @@ func resourceGoogleFolderOrganizationPolicyDelete(d *schema.ResourceData, meta i
 	}
 	folder := canonicalFolderId(d.Get("folder").(string))
 
-	return RetryTimeDuration(func() (delErr error) {
+	return transport_tpg.RetryTimeDuration(func() (delErr error) {
 		_, delErr = config.NewResourceManagerClient(userAgent).Folders.ClearOrgPolicy(folder, &cloudresourcemanager.ClearOrgPolicyRequest{
 			Constraint: canonicalOrgPolicyConstraint(d.Get("constraint").(string)),
 		}).Do()
@@ -169,7 +169,7 @@ func setFolderOrganizationPolicy(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	return RetryTimeDuration(func() (setErr error) {
+	return transport_tpg.RetryTimeDuration(func() (setErr error) {
 		_, setErr = config.NewResourceManagerClient(userAgent).Folders.SetOrgPolicy(folder, &cloudresourcemanager.SetOrgPolicyRequest{
 			Policy: &cloudresourcemanager.OrgPolicy{
 				Constraint:     canonicalOrgPolicyConstraint(d.Get("constraint").(string)),

@@ -64,7 +64,7 @@ func resourceProjectUsageBucketRead(d *schema.ResourceData, meta interface{}) er
 
 	p, err := config.NewComputeClient(userAgent).Projects.Get(project).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Project data for project %s", project))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Project data for project %s", project))
 	}
 
 	if p.UsageExportLocation == nil {
