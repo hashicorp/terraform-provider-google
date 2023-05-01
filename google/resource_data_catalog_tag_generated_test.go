@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -34,7 +35,7 @@ func TestAccDataCatalogTag_dataCatalogEntryTagBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataCatalogTagDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -129,7 +130,7 @@ func TestAccDataCatalogTag_dataCatalogEntryGroupTagExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataCatalogTagDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -224,7 +225,7 @@ resource "google_data_catalog_tag" "entry_group_tag" {
 }
 
 func TestAccDataCatalogTag_dataCatalogEntryTagFullExample(t *testing.T) {
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -233,7 +234,7 @@ func TestAccDataCatalogTag_dataCatalogEntryTagFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataCatalogTagDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -396,7 +397,7 @@ func TestAccDataCatalogTag_dataCatalogEntryTagFalseExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataCatalogTagDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -494,7 +495,7 @@ func testAccCheckDataCatalogTagDestroyProducer(t *testing.T) func(s *terraform.S
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DataCatalogBasePath}}{{parent}}/tags")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{DataCatalogBasePath}}{{parent}}/tags")
 			if err != nil {
 				return err
 			}

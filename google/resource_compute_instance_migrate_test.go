@@ -3,6 +3,7 @@ package google
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"os"
@@ -18,8 +19,8 @@ import (
 func TestAccComputeInstanceMigrateState(t *testing.T) {
 	t.Parallel()
 
-	if os.Getenv(TestEnvVar) == "" {
-		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
+	if os.Getenv(acctest.TestEnvVar) == "" {
+		t.Skipf("Network access not allowed; use %s=1 to enable", acctest.TestEnvVar)
 	}
 	cases := map[string]struct {
 		StateVersion int
@@ -122,8 +123,8 @@ func TestAccComputeInstanceMigrateState(t *testing.T) {
 func TestAccComputeInstanceMigrateState_empty(t *testing.T) {
 	t.Parallel()
 
-	if os.Getenv(TestEnvVar) == "" {
-		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
+	if os.Getenv(acctest.TestEnvVar) == "" {
+		t.Skipf("Network access not allowed; use %s=1 to enable", acctest.TestEnvVar)
 	}
 	var is *terraform.InstanceState
 	var meta interface{}
@@ -150,8 +151,8 @@ func TestAccComputeInstanceMigrateState_empty(t *testing.T) {
 func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
 	t.Parallel()
 
-	if os.Getenv(TestEnvVar) == "" {
-		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
+	if os.Getenv(acctest.TestEnvVar) == "" {
+		t.Skipf("Network access not allowed; use %s=1 to enable", acctest.TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -218,8 +219,8 @@ func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
 func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
 	t.Parallel()
 
-	if os.Getenv(TestEnvVar) == "" {
-		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
+	if os.Getenv(acctest.TestEnvVar) == "" {
+		t.Skipf("Network access not allowed; use %s=1 to enable", acctest.TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -285,8 +286,8 @@ func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
 func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 	t.Parallel()
 
-	if os.Getenv(TestEnvVar) == "" {
-		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
+	if os.Getenv(acctest.TestEnvVar) == "" {
+		t.Skipf("Network access not allowed; use %s=1 to enable", acctest.TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -366,8 +367,8 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T) {
 	t.Parallel()
 
-	if os.Getenv(TestEnvVar) == "" {
-		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
+	if os.Getenv(acctest.TestEnvVar) == "" {
+		t.Skipf("Network access not allowed; use %s=1 to enable", acctest.TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -446,8 +447,8 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing.T) {
 	t.Parallel()
 
-	if os.Getenv(TestEnvVar) == "" {
-		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
+	if os.Getenv(acctest.TestEnvVar) == "" {
+		t.Skipf("Network access not allowed; use %s=1 to enable", acctest.TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -515,8 +516,8 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing
 func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *testing.T) {
 	t.Parallel()
 
-	if os.Getenv(TestEnvVar) == "" {
-		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
+	if os.Getenv(acctest.TestEnvVar) == "" {
+		t.Skipf("Network access not allowed; use %s=1 to enable", acctest.TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -583,8 +584,8 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *te
 func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *testing.T) {
 	t.Parallel()
 
-	if os.Getenv(TestEnvVar) == "" {
-		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
+	if os.Getenv(acctest.TestEnvVar) == "" {
+		t.Skipf("Network access not allowed; use %s=1 to enable", acctest.TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -656,8 +657,8 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *te
 func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromAutoDeleteAndImage(t *testing.T) {
 	t.Parallel()
 
-	if os.Getenv(TestEnvVar) == "" {
-		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
+	if os.Getenv(acctest.TestEnvVar) == "" {
+		t.Skipf("Network access not allowed; use %s=1 to enable", acctest.TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -728,8 +729,8 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromAutoDeleteAndImage(
 func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
 	t.Parallel()
 
-	if os.Getenv(TestEnvVar) == "" {
-		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
+	if os.Getenv(acctest.TestEnvVar) == "" {
+		t.Skipf("Network access not allowed; use %s=1 to enable", acctest.TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -794,8 +795,8 @@ func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
 func TestAccComputeInstanceMigrateState_v4FixScratchDisk(t *testing.T) {
 	t.Parallel()
 
-	if os.Getenv(TestEnvVar) == "" {
-		t.Skipf("Network access not allowed; use %s=1 to enable", TestEnvVar)
+	if os.Getenv(acctest.TestEnvVar) == "" {
+		t.Skipf("Network access not allowed; use %s=1 to enable", acctest.TestEnvVar)
 	}
 	config := getInitializedConfig(t)
 	zone := "us-central1-f"
@@ -932,15 +933,15 @@ func cleanUpDisk(config *transport_tpg.Config, diskName, zone string) {
 
 func getInitializedConfig(t *testing.T) *transport_tpg.Config {
 	// Migrate tests are non standard and handle the config directly
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	// Check that all required environment variables are set
-	AccTestPreCheck(t)
+	acctest.AccTestPreCheck(t)
 
 	config := &transport_tpg.Config{
-		Project:     GetTestProjectFromEnv(),
-		Credentials: GetTestCredsFromEnv(),
-		Region:      GetTestRegionFromEnv(),
-		Zone:        GetTestZoneFromEnv(),
+		Project:     acctest.GetTestProjectFromEnv(),
+		Credentials: acctest.GetTestCredsFromEnv(),
+		Region:      acctest.GetTestRegionFromEnv(),
+		Zone:        acctest.GetTestZoneFromEnv(),
 	}
 
 	transport_tpg.ConfigureBasePaths(config)

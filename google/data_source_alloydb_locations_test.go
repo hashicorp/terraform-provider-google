@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataSourceAlloydbLocations_basic(t *testing.T) {
@@ -18,7 +19,7 @@ func TestAccDataSourceAlloydbLocations_basic(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { AccTestPreCheck(t) },
+		PreCheck:     func() { acctest.AccTestPreCheck(t) },
 		Providers:    TestAccProviders,
 		CheckDestroy: testAccSqlDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{

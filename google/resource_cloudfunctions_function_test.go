@@ -13,6 +13,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"google.golang.org/api/cloudfunctions/v1"
 )
 
@@ -260,7 +261,7 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 	defer os.Remove(zipFilePath) // clean up
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudFunctionsFunctionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -320,7 +321,7 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 	defer os.Remove(zipFilePath) // clean up
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -386,12 +387,12 @@ func TestAccCloudFunctionsFunction_buildworkerpool(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", RandInt(t))
 	location := "us-central1"
 	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
-	proj := GetTestProjectFromEnv()
+	proj := acctest.GetTestProjectFromEnv()
 
 	defer os.Remove(zipFilePath) // clean up
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudFunctionsFunctionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -427,7 +428,7 @@ func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 	defer os.Remove(zipFilePath) // clean up
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudFunctionsFunctionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -458,7 +459,7 @@ func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
 	defer os.Remove(zipFilePath) // clean up
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudFunctionsFunctionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -493,7 +494,7 @@ func TestAccCloudFunctionsFunction_firestore(t *testing.T) {
 	defer os.Remove(zipFilePath) // clean up
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudFunctionsFunctionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -515,10 +516,10 @@ func TestAccCloudFunctionsFunction_sourceRepo(t *testing.T) {
 
 	funcResourceName := "google_cloudfunctions_function.function"
 	functionName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	proj := GetTestProjectFromEnv()
+	proj := acctest.GetTestProjectFromEnv()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudFunctionsFunctionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -545,7 +546,7 @@ func TestAccCloudFunctionsFunction_serviceAccountEmail(t *testing.T) {
 	defer os.Remove(zipFilePath) // clean up
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudFunctionsFunctionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -575,7 +576,7 @@ func TestAccCloudFunctionsFunction_vpcConnector(t *testing.T) {
 	defer os.Remove(zipFilePath) // clean up
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudFunctionsFunctionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -616,7 +617,7 @@ func TestAccCloudFunctionsFunction_secretEnvVar(t *testing.T) {
 	defer os.Remove(zipFilePath) // clean up
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudFunctionsFunctionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -658,7 +659,7 @@ func TestAccCloudFunctionsFunction_secretMount(t *testing.T) {
 	defer os.Remove(zipFilePath) // clean up
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudFunctionsFunctionDestroyProducer(t),
 		Steps: []resource.TestStep{

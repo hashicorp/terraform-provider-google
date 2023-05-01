@@ -19,6 +19,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccBinaryAuthorizationAttestorIamBindingGenerated(t *testing.T) {
@@ -30,7 +32,7 @@ func TestAccBinaryAuthorizationAttestorIamBindingGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -38,7 +40,7 @@ func TestAccBinaryAuthorizationAttestorIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -48,7 +50,7 @@ func TestAccBinaryAuthorizationAttestorIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -65,7 +67,7 @@ func TestAccBinaryAuthorizationAttestorIamMemberGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -74,7 +76,7 @@ func TestAccBinaryAuthorizationAttestorIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer user:admin@hashicorptest.com", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s roles/viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -91,7 +93,7 @@ func TestAccBinaryAuthorizationAttestorIamPolicyGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -99,7 +101,7 @@ func TestAccBinaryAuthorizationAttestorIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -108,7 +110,7 @@ func TestAccBinaryAuthorizationAttestorIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/attestors/%s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-test-attestor%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

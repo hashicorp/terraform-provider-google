@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccNetworkServicesEdgeCacheService_updateAndImport(t *testing.T) {
@@ -13,7 +14,7 @@ func TestAccNetworkServicesEdgeCacheService_updateAndImport(t *testing.T) {
 	nameorigin := "tf-test-origin-" + RandString(t, 10)
 	nameservice := "tf-test-service-" + RandString(t, 10)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckNetworkServicesEdgeCacheServiceDestroyProducer(t),
 		Steps: []resource.TestStep{

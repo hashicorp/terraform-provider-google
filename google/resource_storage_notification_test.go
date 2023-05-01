@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"os"
 	"reflect"
 	"testing"
@@ -18,7 +19,7 @@ var (
 func TestAccStorageNotification_basic(t *testing.T) {
 	t.Parallel()
 
-	SkipIfEnvNotSet(t, "GOOGLE_PROJECT")
+	acctest.SkipIfEnvNotSet(t, "GOOGLE_PROJECT")
 
 	var notification storage.Notification
 	bucketName := testBucketName(t)
@@ -26,7 +27,7 @@ func TestAccStorageNotification_basic(t *testing.T) {
 	topic := fmt.Sprintf("//pubsub.googleapis.com/projects/%s/topics/%s", os.Getenv("GOOGLE_PROJECT"), topicName)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageNotificationDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -62,7 +63,7 @@ func TestAccStorageNotification_basic(t *testing.T) {
 func TestAccStorageNotification_withEventsAndAttributes(t *testing.T) {
 	t.Parallel()
 
-	SkipIfEnvNotSet(t, "GOOGLE_PROJECT")
+	acctest.SkipIfEnvNotSet(t, "GOOGLE_PROJECT")
 
 	var notification storage.Notification
 	bucketName := testBucketName(t)
@@ -72,7 +73,7 @@ func TestAccStorageNotification_withEventsAndAttributes(t *testing.T) {
 	eventType2 := "OBJECT_ARCHIVE"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageNotificationDestroyProducer(t),
 		Steps: []resource.TestStep{

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"io/ioutil"
 	"regexp"
@@ -123,7 +124,7 @@ func setupSDKProviderConfigTest(t *testing.T, configValues map[string]interface{
 
 	// Unset any ENVs in the test environment here
 	// The testing package restores the original values afterwards
-	envs := providerConfigEnvNames()
+	envs := acctest.ProviderConfigEnvNames()
 	if len(envs) > 0 {
 		for _, k := range envs {
 			t.Setenv(k, "")
@@ -684,7 +685,7 @@ func TestAccProviderBasePath_setBasePath(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -704,7 +705,7 @@ func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -721,7 +722,7 @@ func TestAccProviderMeta_setModuleName(t *testing.T) {
 
 	moduleName := "my-module"
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -739,11 +740,11 @@ func TestAccProviderMeta_setModuleName(t *testing.T) {
 
 func TestAccProviderUserProjectOverride(t *testing.T) {
 	// Parallel fine-grained resource creation
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
-	billing := GetTestBillingAccountFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
+	billing := acctest.GetTestBillingAccountFromEnv(t)
 	pid := "tf-test-" + RandString(t, 10)
 	topicName := "tf-test-topic-" + RandString(t, 10)
 
@@ -754,7 +755,7 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		// No TestDestroy since that's not really the point of this test
 		Steps: []resource.TestStep{
@@ -781,11 +782,11 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 // a reference to a different resource instead of a project field.
 func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 	// Parallel fine-grained resource creation
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
-	billing := GetTestBillingAccountFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
+	billing := acctest.GetTestBillingAccountFromEnv(t)
 	pid := "tf-test-" + RandString(t, 10)
 
 	config := BootstrapConfig(t)
@@ -795,7 +796,7 @@ func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		// No TestDestroy since that's not really the point of this test
 		Steps: []resource.TestStep{

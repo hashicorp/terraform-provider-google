@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -21,7 +22,7 @@ func testSweepStorageBucket(region string) error {
 	resourceName := "StorageBucket"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := SharedConfigForRegion(region)
+	config, err := acctest.SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -65,7 +66,7 @@ func testSweepStorageBucket(region string) error {
 
 		id := obj["name"].(string)
 		// Increment count and skip if resource is not sweepable.
-		if !IsSweepableTestResource(id) {
+		if !acctest.IsSweepableTestResource(id) {
 			nonPrefixCount++
 			continue
 		}

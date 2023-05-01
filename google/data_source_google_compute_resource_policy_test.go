@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"strings"
 	"testing"
 
@@ -20,13 +21,13 @@ func TestAccDataSourceComputeResourcePolicy(t *testing.T) {
 	dsFullName := fmt.Sprintf("data.google_compute_resource_policy.%s", dsName)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataSourceComputeResourcePolicyDestroy(t, rsFullName),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceComputeResourcePolicyConfig(rsName, dsName, randomSuffix),
-				Check:  CheckDataSourceStateMatchesResourceState(rsFullName, dsFullName),
+				Check:  acctest.CheckDataSourceStateMatchesResourceState(rsFullName, dsFullName),
 			},
 		},
 	})

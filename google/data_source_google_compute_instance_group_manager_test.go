@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataSourceGoogleComputeInstanceGroupManager(t *testing.T) {
@@ -22,20 +23,20 @@ func TestAccDataSourceGoogleComputeInstanceGroupManager(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleComputeInstanceGroupManager_basic1(context),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "project", GetTestProjectFromEnv()),
+					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "project", acctest.GetTestProjectFromEnv()),
 					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "zone", zoneName),
 					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "name", igmName)),
 			},
 			{
 				Config: testAccDataSourceGoogleComputeInstanceGroupManager_basic2(context),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "project", GetTestProjectFromEnv()),
+					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "project", acctest.GetTestProjectFromEnv()),
 					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "zone", zoneName),
 					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "name", igmName)),
 			},

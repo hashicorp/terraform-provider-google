@@ -3,6 +3,7 @@ package google
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"strings"
 	"testing"
 
@@ -16,14 +17,14 @@ import (
 func TestAccEventarcTrigger_channel(t *testing.T) {
 	t.Parallel()
 
-	region := GetTestRegionFromEnv()
+	region := acctest.GetTestRegionFromEnv()
 	key1 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-trigger-key1")
 	key2 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-trigger-key2")
 
 	context := map[string]interface{}{
 		"region":          region,
-		"project_name":    GetTestProjectFromEnv(),
-		"service_account": GetTestServiceAccountFromEnv(t),
+		"project_name":    acctest.GetTestProjectFromEnv(),
+		"service_account": acctest.GetTestServiceAccountFromEnv(t),
 		"key_ring":        GetResourceNameFromSelfLink(key1.KeyRing.Name),
 		"key1":            GetResourceNameFromSelfLink(key1.CryptoKey.Name),
 		"key2":            GetResourceNameFromSelfLink(key2.CryptoKey.Name),
@@ -31,7 +32,7 @@ func TestAccEventarcTrigger_channel(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckEventarcChannelTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{

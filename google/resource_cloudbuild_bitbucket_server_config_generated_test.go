@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -33,7 +34,7 @@ func TestAccCloudBuildBitbucketServerConfig_cloudbuildBitbucketServerConfigExamp
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudBuildBitbucketServerConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -76,7 +77,7 @@ func TestAccCloudBuildBitbucketServerConfig_cloudbuildBitbucketServerConfigPeere
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudBuildBitbucketServerConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -152,7 +153,7 @@ func testAccCheckCloudBuildBitbucketServerConfigDestroyProducer(t *testing.T) fu
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/bitbucketServerConfigs/{{config_id}}")
 			if err != nil {
 				return err
 			}

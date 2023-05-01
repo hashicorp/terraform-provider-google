@@ -7,11 +7,12 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataSourceDnsRecordSet_basic(t *testing.T) {
 	// TODO: https://github.com/hashicorp/terraform-provider-google/issues/14158
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	var ttl1, ttl2 string // ttl is a computed string-type attribute that is easy to compare in the test
@@ -19,7 +20,7 @@ func TestAccDataSourceDnsRecordSet_basic(t *testing.T) {
 	managedZoneName := fmt.Sprintf("tf-test-zone-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { AccTestPreCheck(t) },
+		PreCheck:     func() { acctest.AccTestPreCheck(t) },
 		CheckDestroy: testAccCheckDnsRecordSetDestroyProducerFramework(t),
 		Steps: []resource.TestStep{
 			{
@@ -31,7 +32,7 @@ func TestAccDataSourceDnsRecordSet_basic(t *testing.T) {
 				},
 				Config: testAccDataSourceDnsRecordSet_basic(managedZoneName, RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
-					CheckDataSourceStateMatchesResourceState("data.google_dns_record_set.rs", "google_dns_record_set.rs"),
+					acctest.CheckDataSourceStateMatchesResourceState("data.google_dns_record_set.rs", "google_dns_record_set.rs"),
 					testExtractResourceAttr("data.google_dns_record_set.rs", "ttl", &ttl1),
 				),
 			},
@@ -39,7 +40,7 @@ func TestAccDataSourceDnsRecordSet_basic(t *testing.T) {
 				ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 				Config:                   testAccDataSourceDnsRecordSet_basic(managedZoneName, RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
-					CheckDataSourceStateMatchesResourceState("data.google_dns_record_set.rs", "google_dns_record_set.rs"),
+					acctest.CheckDataSourceStateMatchesResourceState("data.google_dns_record_set.rs", "google_dns_record_set.rs"),
 					testExtractResourceAttr("data.google_dns_record_set.rs", "ttl", &ttl2),
 					testCheckAttributeValuesEqual(&ttl1, &ttl2),
 				),

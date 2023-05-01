@@ -20,6 +20,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccIapWebBackendServiceIamBindingGenerated(t *testing.T) {
@@ -36,7 +38,7 @@ func TestAccIapWebBackendServiceIamBindingGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -44,7 +46,7 @@ func TestAccIapWebBackendServiceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -54,7 +56,7 @@ func TestAccIapWebBackendServiceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -76,7 +78,7 @@ func TestAccIapWebBackendServiceIamMemberGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -85,7 +87,7 @@ func TestAccIapWebBackendServiceIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -107,7 +109,7 @@ func TestAccIapWebBackendServiceIamPolicyGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -115,7 +117,7 @@ func TestAccIapWebBackendServiceIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -124,7 +126,7 @@ func TestAccIapWebBackendServiceIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -146,7 +148,7 @@ func TestAccIapWebBackendServiceIamBindingGenerated_withCondition(t *testing.T) 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -154,7 +156,7 @@ func TestAccIapWebBackendServiceIamBindingGenerated_withCondition(t *testing.T) 
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor %s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -164,7 +166,7 @@ func TestAccIapWebBackendServiceIamBindingGenerated_withCondition(t *testing.T) 
 
 func TestAccIapWebBackendServiceIamBindingGenerated_withAndWithoutCondition(t *testing.T) {
 	// Multiple fine-grained resources
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -178,7 +180,7 @@ func TestAccIapWebBackendServiceIamBindingGenerated_withAndWithoutCondition(t *t
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -186,19 +188,19 @@ func TestAccIapWebBackendServiceIamBindingGenerated_withAndWithoutCondition(t *t
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_binding.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor %s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_binding.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor %s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"]), context["condition_title_no_desc"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -220,7 +222,7 @@ func TestAccIapWebBackendServiceIamMemberGenerated_withCondition(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -228,7 +230,7 @@ func TestAccIapWebBackendServiceIamMemberGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -238,7 +240,7 @@ func TestAccIapWebBackendServiceIamMemberGenerated_withCondition(t *testing.T) {
 
 func TestAccIapWebBackendServiceIamMemberGenerated_withAndWithoutCondition(t *testing.T) {
 	// Multiple fine-grained resources
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -252,7 +254,7 @@ func TestAccIapWebBackendServiceIamMemberGenerated_withAndWithoutCondition(t *te
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -260,19 +262,19 @@ func TestAccIapWebBackendServiceIamMemberGenerated_withAndWithoutCondition(t *te
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_member.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_member.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"]), context["condition_title_no_desc"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -298,7 +300,7 @@ func TestAccIapWebBackendServiceIamPolicyGenerated_withCondition(t *testing.T) {
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -312,7 +314,7 @@ func TestAccIapWebBackendServiceIamPolicyGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_web_backend_service_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/compute/services/%s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-backend-service%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

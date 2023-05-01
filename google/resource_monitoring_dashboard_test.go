@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"strings"
 	"testing"
 
@@ -14,7 +15,7 @@ func TestAccMonitoringDashboard_basic(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringDashboardDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -41,7 +42,7 @@ func TestAccMonitoringDashboard_gridLayout(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringDashboardDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -62,7 +63,7 @@ func TestAccMonitoringDashboard_rowLayout(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringDashboardDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -85,7 +86,7 @@ func TestAccMonitoringDashboard_update(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringDashboardDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -132,7 +133,7 @@ func testAccCheckMonitoringDashboardDestroyProducer(t *testing.T) func(s *terraf
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{MonitoringBasePath}}v1/{{name}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{MonitoringBasePath}}v1/{{name}}")
 			if err != nil {
 				return err
 			}

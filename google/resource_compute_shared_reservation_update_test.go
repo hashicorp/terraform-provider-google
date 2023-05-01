@@ -4,21 +4,22 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccComputeSharedReservation_update(t *testing.T) {
-	SkipIfVcr(t) // large number of parallel resources.
+	acctest.SkipIfVcr(t) // large number of parallel resources.
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":         GetTestProjectFromEnv(),
-		"org_id":          GetTestOrgFromEnv(t),
-		"billing_account": GetTestBillingAccountFromEnv(t),
+		"project":         acctest.GetTestProjectFromEnv(),
+		"org_id":          acctest.GetTestOrgFromEnv(t),
+		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
 		"random_suffix":   RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeReservationDestroyProducer(t),
 		Steps: []resource.TestStep{

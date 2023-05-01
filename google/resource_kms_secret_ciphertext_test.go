@@ -3,6 +3,7 @@ package google
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"log"
 	"testing"
 
@@ -20,7 +21,7 @@ func TestAccKmsSecretCiphertext_basic(t *testing.T) {
 	aad := "plainaad"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{

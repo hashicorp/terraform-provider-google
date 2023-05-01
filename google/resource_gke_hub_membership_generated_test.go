@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -33,7 +34,7 @@ func TestAccGKEHubMembership_gkehubMembershipBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGKEHubMembershipDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -73,12 +74,12 @@ func TestAccGKEHubMembership_gkehubMembershipIssuerExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGKEHubMembershipDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -132,7 +133,7 @@ func testAccCheckGKEHubMembershipDestroyProducer(t *testing.T) func(s *terraform
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
 			if err != nil {
 				return err
 			}

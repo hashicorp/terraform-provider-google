@@ -1,6 +1,7 @@
 package google
 
 import (
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"reflect"
 	"strings"
 	"testing"
@@ -14,25 +15,25 @@ import (
 
 func TestAccEndpointsService_basic(t *testing.T) {
 	// Uses random provider
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 	serviceId := "tf-test" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		CheckDestroy:             testAccCheckEndpointServiceDestroyProducer(t),
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEndpointsService_basic(serviceId, GetTestProjectFromEnv(), "1"),
+				Config: testAccEndpointsService_basic(serviceId, acctest.GetTestProjectFromEnv(), "1"),
 				Check:  testAccCheckEndpointExistsByName(t, serviceId),
 			},
 			{
-				Config: testAccEndpointsService_basic(serviceId, GetTestProjectFromEnv(), "2"),
+				Config: testAccEndpointsService_basic(serviceId, acctest.GetTestProjectFromEnv(), "2"),
 				Check:  testAccCheckEndpointExistsByName(t, serviceId),
 			},
 			{
-				Config: testAccEndpointsService_basic(serviceId, GetTestProjectFromEnv(), "3"),
+				Config: testAccEndpointsService_basic(serviceId, acctest.GetTestProjectFromEnv(), "3"),
 				Check:  testAccCheckEndpointExistsByName(t, serviceId),
 			},
 		},
@@ -44,12 +45,12 @@ func TestAccEndpointsService_grpc(t *testing.T) {
 	serviceId := "tf-test" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckEndpointServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEndpointsService_grpc(serviceId, GetTestProjectFromEnv()),
+				Config: testAccEndpointsService_grpc(serviceId, acctest.GetTestProjectFromEnv()),
 				Check:  testAccCheckEndpointExistsByName(t, serviceId),
 			},
 		},

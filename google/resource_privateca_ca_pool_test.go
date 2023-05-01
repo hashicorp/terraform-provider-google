@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccPrivatecaCaPool_privatecaCapoolUpdate(t *testing.T) {
@@ -14,7 +15,7 @@ func TestAccPrivatecaCaPool_privatecaCapoolUpdate(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPrivatecaCaPoolDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -221,7 +222,7 @@ func TestAccPrivatecaCaPool_privatecaCapoolEmptyBaseline(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPrivatecaCaPoolDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -285,7 +286,7 @@ func TestAccPrivatecaCaPool_privatecaCapoolEmptyPublishingOptions(t *testing.T) 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPrivatecaCaPoolDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -327,7 +328,7 @@ func TestAccPrivatecaCaPool_updateCaOption(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPrivatecaCaPoolDestroyProducer(t),
 		Steps: []resource.TestStep{

@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"strings"
 	"testing"
 
@@ -16,7 +17,7 @@ func TestAccActiveDirectoryDomainTrust_activeDirectoryDomainTrustBasicExample(t 
 
 	// This test continues to fail due to AD setup required
 	// Skipping in VCR to allow for fully successful test runs
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -24,7 +25,7 @@ func TestAccActiveDirectoryDomainTrust_activeDirectoryDomainTrustBasicExample(t 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckActiveDirectoryDomainTrustDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -88,7 +89,7 @@ func testAccCheckActiveDirectoryDomainTrustDestroyProducer(t *testing.T) func(s 
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ActiveDirectoryBasePath}}projects/{{project}}/locations/global/domains/{{domain}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{ActiveDirectoryBasePath}}projects/{{project}}/locations/global/domains/{{domain}}")
 			if err != nil {
 				return err
 			}

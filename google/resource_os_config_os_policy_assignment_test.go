@@ -7,6 +7,7 @@ import (
 	osconfig "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/osconfig"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"strings"
@@ -17,15 +18,15 @@ func TestAccOsConfigOsPolicyAssignment_basicOsPolicyAssignment(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_name":  GetTestProjectFromEnv(),
-		"zone":          GetTestZoneFromEnv(),
+		"project_name":  acctest.GetTestProjectFromEnv(),
+		"zone":          acctest.GetTestZoneFromEnv(),
 		"random_suffix": RandString(t, 10),
-		"org_id":        GetTestOrgFromEnv(t),
-		"billing_act":   GetTestBillingAccountFromEnv(t),
+		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"billing_act":   acctest.GetTestBillingAccountFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckOsConfigOsPolicyAssignmentDestroyProducer(t),
 		Steps: []resource.TestStep{

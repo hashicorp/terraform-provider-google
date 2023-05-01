@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -33,7 +34,7 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDialogflowCXFlowDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -129,7 +130,7 @@ func testAccCheckDialogflowCXFlowDestroyProducer(t *testing.T) func(s *terraform
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DialogflowCXBasePath}}{{parent}}/flows/{{name}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{DialogflowCXBasePath}}{{parent}}/flows/{{name}}")
 			if err != nil {
 				return err
 			}

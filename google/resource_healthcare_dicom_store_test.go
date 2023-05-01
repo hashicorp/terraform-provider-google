@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"path"
 	"testing"
@@ -79,7 +80,7 @@ func TestAccHealthcareDicomStore_basic(t *testing.T) {
 	resourceName := "google_healthcare_dicom_store.default"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckHealthcareDicomStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -165,7 +166,7 @@ func testAccCheckGoogleHealthcareDicomStoreUpdate(t *testing.T, pubsubTopic stri
 
 			config := GoogleProviderConfig(t)
 
-			gcpResourceUri, err := replaceVarsForTest(config, rs, "{{dataset}}/dicomStores/{{name}}")
+			gcpResourceUri, err := acctest.ReplaceVarsForTest(config, rs, "{{dataset}}/dicomStores/{{name}}")
 			if err != nil {
 				return err
 			}

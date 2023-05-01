@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -29,13 +30,13 @@ func TestAccCloudIotDeviceRegistry_cloudiotDeviceRegistryBasicExample(t *testing
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       GetTestProjectFromEnv(),
-		"region":        GetTestRegionFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
+		"region":        acctest.GetTestRegionFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudIotDeviceRegistryDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -64,13 +65,13 @@ func TestAccCloudIotDeviceRegistry_cloudiotDeviceRegistrySingleEventNotification
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       GetTestProjectFromEnv(),
-		"region":        GetTestRegionFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
+		"region":        acctest.GetTestRegionFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudIotDeviceRegistryDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -109,13 +110,13 @@ func TestAccCloudIotDeviceRegistry_cloudiotDeviceRegistryFullExample(t *testing.
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       GetTestProjectFromEnv(),
-		"region":        GetTestRegionFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
+		"region":        acctest.GetTestRegionFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudIotDeviceRegistryDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -195,7 +196,7 @@ func testAccCheckCloudIotDeviceRegistryDestroyProducer(t *testing.T) func(s *ter
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries/{{name}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries/{{name}}")
 			if err != nil {
 				return err
 			}

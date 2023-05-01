@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -33,7 +34,7 @@ func TestAccMLEngineModel_mlModelBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMLEngineModelDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -67,7 +68,7 @@ func TestAccMLEngineModel_mlModelFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMLEngineModelDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -110,7 +111,7 @@ func testAccCheckMLEngineModelDestroyProducer(t *testing.T) func(s *terraform.St
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{MLEngineBasePath}}projects/{{project}}/models/{{name}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{MLEngineBasePath}}projects/{{project}}/models/{{name}}")
 			if err != nil {
 				return err
 			}

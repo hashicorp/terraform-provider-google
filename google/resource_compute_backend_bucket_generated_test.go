@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -33,7 +34,7 @@ func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -73,7 +74,7 @@ func TestAccComputeBackendBucket_backendBucketFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -124,7 +125,7 @@ func TestAccComputeBackendBucket_backendBucketSecurityPolicyExample(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -171,7 +172,7 @@ func TestAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(t *tes
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -216,7 +217,7 @@ func TestAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(t *testi
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -261,7 +262,7 @@ func TestAccComputeBackendBucket_externalCdnLbWithBackendBucketExample(t *testin
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -391,7 +392,7 @@ func TestAccComputeBackendBucket_backendBucketBypassCacheExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -436,7 +437,7 @@ func TestAccComputeBackendBucket_backendBucketCoalescingExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -483,7 +484,7 @@ func testAccCheckComputeBackendBucketDestroyProducer(t *testing.T) func(s *terra
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{name}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{name}}")
 			if err != nil {
 				return err
 			}

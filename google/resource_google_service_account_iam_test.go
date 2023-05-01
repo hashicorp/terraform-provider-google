@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"strings"
 	"testing"
 
@@ -15,7 +16,7 @@ func TestAccServiceAccountIamBinding(t *testing.T) {
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -40,7 +41,7 @@ func TestAccServiceAccountIamBinding_withCondition(t *testing.T) {
 	conditionTitle := "expires_after_2019_12_31"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -59,7 +60,7 @@ func TestAccServiceAccountIamBinding_withCondition(t *testing.T) {
 
 func TestAccServiceAccountIamBinding_withAndWithoutCondition(t *testing.T) {
 	// Resource creation race condition
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
@@ -67,7 +68,7 @@ func TestAccServiceAccountIamBinding_withAndWithoutCondition(t *testing.T) {
 	conditionTitle := "expires_after_2019_12_31"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -98,7 +99,7 @@ func TestAccServiceAccountIamMember(t *testing.T) {
 	identity := fmt.Sprintf("serviceAccount:%s", email)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -131,7 +132,7 @@ func TestAccServiceAccountIamMember_withCondition(t *testing.T) {
 	conditionTitle := "expires_after_2019_12_31"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -150,7 +151,7 @@ func TestAccServiceAccountIamMember_withCondition(t *testing.T) {
 
 func TestAccServiceAccountIamMember_withAndWithoutCondition(t *testing.T) {
 	// Resource creation race condition
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
@@ -158,7 +159,7 @@ func TestAccServiceAccountIamMember_withAndWithoutCondition(t *testing.T) {
 	conditionTitle := "expires_after_2019_12_31"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -187,7 +188,7 @@ func TestAccServiceAccountIamPolicy(t *testing.T) {
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -209,7 +210,7 @@ func TestAccServiceAccountIamPolicy_withCondition(t *testing.T) {
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -244,11 +245,11 @@ func testAccCheckGoogleServiceAccountIam(t *testing.T, account string, numBindin
 }
 
 func serviceAccountCanonicalId(account string) string {
-	return fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", GetTestProjectFromEnv(), account, GetTestProjectFromEnv())
+	return fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", acctest.GetTestProjectFromEnv(), account, acctest.GetTestProjectFromEnv())
 }
 
 func serviceAccountCanonicalEmail(account string) string {
-	return fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv())
+	return fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, acctest.GetTestProjectFromEnv())
 }
 
 func testAccServiceAccountIamBinding_basic(account string) string {

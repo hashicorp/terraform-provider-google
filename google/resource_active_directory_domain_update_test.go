@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"strings"
 	"testing"
 
@@ -25,7 +26,7 @@ func TestAccActiveDirectoryDomain_update(t *testing.T) {
 	resourceName := Nprintf("google_active_directory_domain.%{resource_name}", context)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckActiveDirectoryDomainDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -97,7 +98,7 @@ func testAccCheckActiveDirectoryDomainDestroyProducer(t *testing.T) func(s *terr
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ActiveDirectoryBasePath}}{{name}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{ActiveDirectoryBasePath}}{{name}}")
 			if err != nil {
 				return err
 			}

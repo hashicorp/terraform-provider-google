@@ -7,15 +7,16 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 	// TODO: https://github.com/hashicorp/terraform-provider-google/issues/14158
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { AccTestPreCheck(t) },
+		PreCheck:     func() { acctest.AccTestPreCheck(t) },
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducerFramework(t),
 		Steps: []resource.TestStep{
 			{
@@ -26,7 +27,7 @@ func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 					},
 				},
 				Config: testAccDataSourceDnsManagedZone_basic(RandString(t, 10)),
-				Check: CheckDataSourceStateMatchesResourceStateWithIgnores(
+				Check: acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 					"data.google_dns_managed_zone.qa",
 					"google_dns_managed_zone.foo",
 					map[string]struct{}{
@@ -46,7 +47,7 @@ func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 			{
 				ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 				Config:                   testAccDataSourceDnsManagedZone_basic(RandString(t, 10)),
-				Check: CheckDataSourceStateMatchesResourceStateWithIgnores(
+				Check: acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 					"data.google_dns_managed_zone.qa",
 					"google_dns_managed_zone.foo",
 					map[string]struct{}{

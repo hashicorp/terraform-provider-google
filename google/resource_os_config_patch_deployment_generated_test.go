@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -33,7 +34,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentBasicExample(t *testi
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -74,7 +75,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyExample(t *testi
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -124,7 +125,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyMidnightExample(
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -174,7 +175,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentInstanceExample(t *te
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -263,7 +264,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentFullExample(t *testin
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckOSConfigPatchDeploymentDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -403,7 +404,7 @@ func testAccCheckOSConfigPatchDeploymentDestroyProducer(t *testing.T) func(s *te
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{OSConfigBasePath}}{{name}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{OSConfigBasePath}}{{name}}")
 			if err != nil {
 				return err
 			}

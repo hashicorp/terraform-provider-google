@@ -3,6 +3,7 @@ package google
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"strings"
 	"testing"
 
@@ -17,13 +18,13 @@ func TestAccEventarcChannel_basic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"region":        GetTestRegionFromEnv(),
-		"project_name":  GetTestProjectFromEnv(),
+		"region":        acctest.GetTestRegionFromEnv(),
+		"project_name":  acctest.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckEventarcChannelDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -42,13 +43,13 @@ func TestAccEventarcChannel_basic(t *testing.T) {
 func TestAccEventarcChannel_cryptoKeyUpdate(t *testing.T) {
 	t.Parallel()
 
-	region := GetTestRegionFromEnv()
+	region := acctest.GetTestRegionFromEnv()
 	key1 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-channel-key1")
 	key2 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-channel-key2")
 
 	context := map[string]interface{}{
 		"region":        region,
-		"project_name":  GetTestProjectFromEnv(),
+		"project_name":  acctest.GetTestProjectFromEnv(),
 		"key_ring":      GetResourceNameFromSelfLink(key1.KeyRing.Name),
 		"key1":          GetResourceNameFromSelfLink(key1.CryptoKey.Name),
 		"key2":          GetResourceNameFromSelfLink(key2.CryptoKey.Name),
@@ -56,7 +57,7 @@ func TestAccEventarcChannel_cryptoKeyUpdate(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckEventarcChannelDestroyProducer(t),
 		Steps: []resource.TestStep{

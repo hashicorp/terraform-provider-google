@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -29,13 +30,13 @@ func TestAccCloudAssetFolderFeed_cloudAssetFolderFeedExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       GetTestProjectFromEnv(),
-		"org_id":        GetTestOrgFromEnv(t),
+		"project":       acctest.GetTestProjectFromEnv(),
+		"org_id":        acctest.GetTestOrgFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudAssetFolderFeedDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -115,7 +116,7 @@ func testAccCheckCloudAssetFolderFeedDestroyProducer(t *testing.T) func(s *terra
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{CloudAssetBasePath}}{{name}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{CloudAssetBasePath}}{{name}}")
 			if err != nil {
 				return err
 			}

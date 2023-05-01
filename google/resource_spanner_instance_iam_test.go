@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccSpannerInstanceIamBinding(t *testing.T) {
@@ -12,11 +13,11 @@ func TestAccSpannerInstanceIamBinding(t *testing.T) {
 
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/spanner.databaseAdmin"
-	project := GetTestProjectFromEnv()
+	project := acctest.GetTestProjectFromEnv()
 	instance := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -51,14 +52,14 @@ func TestAccSpannerInstanceIamBinding(t *testing.T) {
 func TestAccSpannerInstanceIamMember(t *testing.T) {
 	t.Parallel()
 
-	project := GetTestProjectFromEnv()
+	project := acctest.GetTestProjectFromEnv()
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/spanner.databaseAdmin"
 	instance := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	conditionTitle := "Access only database one"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -81,13 +82,13 @@ func TestAccSpannerInstanceIamMember(t *testing.T) {
 func TestAccSpannerInstanceIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	project := GetTestProjectFromEnv()
+	project := acctest.GetTestProjectFromEnv()
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/spanner.databaseAdmin"
 	instance := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{

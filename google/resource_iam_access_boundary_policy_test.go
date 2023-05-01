@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"strings"
 	"testing"
 
@@ -32,13 +33,13 @@ func TestAccIAM2AccessBoundaryPolicy(t *testing.T) {
 
 func testAccIAM2AccessBoundaryPolicy_iamAccessBoundaryPolicyBasic(t *testing.T) {
 	context := map[string]interface{}{
-		"org_id":          GetTestOrgFromEnv(t),
-		"billing_account": GetTestBillingAccountFromEnv(t),
+		"org_id":          acctest.GetTestOrgFromEnv(t),
+		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
 		"random_suffix":   RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckIAM2AccessBoundaryPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -183,7 +184,7 @@ func testAccCheckIAM2AccessBoundaryPolicyDestroyProducer(t *testing.T) func(s *t
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{IAM2BasePath}}policies/{{parent}}/accessboundarypolicies/{{name}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{IAM2BasePath}}policies/{{parent}}/accessboundarypolicies/{{name}}")
 			if err != nil {
 				return err
 			}

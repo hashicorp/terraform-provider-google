@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -9,18 +10,18 @@ import (
 
 func TestAccDataSourceRegionInstanceGroup(t *testing.T) {
 	// Randomness in instance template
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 	name := "tf-test-" + RandString(t, 6)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceRegionInstanceGroup_basic(fmt.Sprintf("tf-test-rigm--%d", RandInt(t)), name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "name", name),
-					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "project", GetTestProjectFromEnv()),
+					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "project", acctest.GetTestProjectFromEnv()),
 					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "instances.#", "1")),
 			},
 		},

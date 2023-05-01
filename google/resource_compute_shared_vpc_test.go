@@ -6,11 +6,12 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccComputeSharedVpc_basic(t *testing.T) {
-	org := GetTestOrgFromEnv(t)
-	billingId := GetTestBillingAccountFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
+	billingId := acctest.GetTestBillingAccountFromEnv(t)
 
 	hostProject := fmt.Sprintf("tf-test-h-%d", RandInt(t))
 	serviceProject := fmt.Sprintf("tf-test-s-%d", RandInt(t))
@@ -19,7 +20,7 @@ func TestAccComputeSharedVpc_basic(t *testing.T) {
 	serviceProjectResourceName := "google_compute_shared_vpc_service_project.service"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			//Create resources with the deletion_policy flag

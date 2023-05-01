@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccVertexAITensorboard_Update(t *testing.T) {
@@ -13,7 +14,7 @@ func TestAccVertexAITensorboard_Update(t *testing.T) {
 	random_suffix := "tf-test-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckVertexAITensorboardDestroyProducer(t),
 		Steps: []resource.TestStep{

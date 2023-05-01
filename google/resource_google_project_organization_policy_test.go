@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"reflect"
 	"sort"
 	"strings"
@@ -38,10 +39,10 @@ func TestAccProjectOrganizationPolicy(t *testing.T) {
 }
 
 func testAccProjectOrganizationPolicy_boolean(t *testing.T) {
-	projectId := GetTestProjectFromEnv()
+	projectId := acctest.GetTestProjectFromEnv()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -74,10 +75,10 @@ func testAccProjectOrganizationPolicy_boolean(t *testing.T) {
 }
 
 func testAccProjectOrganizationPolicy_list_allowAll(t *testing.T) {
-	projectId := GetTestProjectFromEnv()
+	projectId := acctest.GetTestProjectFromEnv()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -95,10 +96,10 @@ func testAccProjectOrganizationPolicy_list_allowAll(t *testing.T) {
 }
 
 func testAccProjectOrganizationPolicy_list_allowSome(t *testing.T) {
-	project := GetTestProjectFromEnv()
+	project := acctest.GetTestProjectFromEnv()
 	canonicalProject := canonicalProjectId(project)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -116,9 +117,9 @@ func testAccProjectOrganizationPolicy_list_allowSome(t *testing.T) {
 }
 
 func testAccProjectOrganizationPolicy_list_denySome(t *testing.T) {
-	projectId := GetTestProjectFromEnv()
+	projectId := acctest.GetTestProjectFromEnv()
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -136,9 +137,9 @@ func testAccProjectOrganizationPolicy_list_denySome(t *testing.T) {
 }
 
 func testAccProjectOrganizationPolicy_list_update(t *testing.T) {
-	projectId := GetTestProjectFromEnv()
+	projectId := acctest.GetTestProjectFromEnv()
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -160,10 +161,10 @@ func testAccProjectOrganizationPolicy_list_update(t *testing.T) {
 }
 
 func testAccProjectOrganizationPolicy_restore_defaultTrue(t *testing.T) {
-	projectId := GetTestProjectFromEnv()
+	projectId := acctest.GetTestProjectFromEnv()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -181,10 +182,10 @@ func testAccProjectOrganizationPolicy_restore_defaultTrue(t *testing.T) {
 }
 
 func testAccProjectOrganizationPolicy_none(t *testing.T) {
-	projectId := GetTestProjectFromEnv()
+	projectId := acctest.GetTestProjectFromEnv()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGoogleProjectOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{

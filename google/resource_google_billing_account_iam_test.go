@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"reflect"
 	"sort"
 	"testing"
@@ -12,21 +13,21 @@ import (
 
 func TestAccBillingAccountIam(t *testing.T) {
 	// Deletes two fine-grained resources in same step
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	billing := GetTestMasterBillingAccountFromEnv(t)
+	billing := acctest.GetTestMasterBillingAccountFromEnv(t)
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/billing.viewer"
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
 				Config: testAccBillingAccountIamBinding_basic(account, billing, role),
 				Check: testAccCheckGoogleBillingAccountIamBindingExists(t, "foo", role, []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, acctest.GetTestProjectFromEnv()),
 				}),
 			},
 			{
@@ -39,8 +40,8 @@ func TestAccBillingAccountIam(t *testing.T) {
 				// Test Iam Binding update
 				Config: testAccBillingAccountIamBinding_update(account, billing, role),
 				Check: testAccCheckGoogleBillingAccountIamBindingExists(t, "foo", role, []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
-					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, acctest.GetTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, acctest.GetTestProjectFromEnv()),
 				}),
 			},
 			{
@@ -59,12 +60,12 @@ func TestAccBillingAccountIam(t *testing.T) {
 				// Test Iam Member creation (no update for member, no need to test)
 				Config: testAccBillingAccountIamMember_basic(account, billing, role),
 				Check: testAccCheckGoogleBillingAccountIamMemberExists(t, "foo", "roles/billing.viewer",
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, acctest.GetTestProjectFromEnv()),
 				),
 			},
 			{
 				ResourceName:      "google_billing_account_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("%s roles/billing.viewer serviceAccount:%s@%s.iam.gserviceaccount.com", billing, account, GetTestProjectFromEnv()),
+				ImportStateId:     fmt.Sprintf("%s roles/billing.viewer serviceAccount:%s@%s.iam.gserviceaccount.com", billing, account, acctest.GetTestProjectFromEnv()),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

@@ -5,18 +5,19 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataSourceGoogleProjectOrganizationPolicy_basic(t *testing.T) {
-	project := GetTestProjectFromEnv()
+	project := acctest.GetTestProjectFromEnv()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleProjectOrganizationPolicy_basic(project),
-				Check: CheckDataSourceStateMatchesResourceState(
+				Check: acctest.CheckDataSourceStateMatchesResourceState(
 					"data.google_project_organization_policy.data",
 					"google_project_organization_policy.resource"),
 			},

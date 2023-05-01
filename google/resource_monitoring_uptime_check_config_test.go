@@ -5,15 +5,16 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccMonitoringUptimeCheckConfig_update(t *testing.T) {
 	t.Parallel()
-	project := GetTestProjectFromEnv()
+	project := acctest.GetTestProjectFromEnv()
 	host := "192.168.1.1"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringUptimeCheckConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -43,10 +44,10 @@ func TestAccMonitoringUptimeCheckConfig_update(t *testing.T) {
 // updatable in place
 func TestAccMonitoringUptimeCheckConfig_changeNonUpdatableFields(t *testing.T) {
 	t.Parallel()
-	project := GetTestProjectFromEnv()
+	project := acctest.GetTestProjectFromEnv()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringUptimeCheckConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -83,12 +84,12 @@ func TestAccMonitoringUptimeCheckConfig_changeNonUpdatableFields(t *testing.T) {
 
 func TestAccMonitoringUptimeCheckConfig_jsonPathUpdate(t *testing.T) {
 	t.Parallel()
-	project := GetTestProjectFromEnv()
+	project := acctest.GetTestProjectFromEnv()
 	host := "192.168.1.1"
 	suffix := RandString(t, 4)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringUptimeCheckConfigDestroyProducer(t),
 		Steps: []resource.TestStep{

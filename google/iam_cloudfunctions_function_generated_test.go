@@ -19,6 +19,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccCloudFunctionsCloudFunctionIamBindingGenerated(t *testing.T) {
@@ -31,7 +33,7 @@ func TestAccCloudFunctionsCloudFunctionIamBindingGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -39,7 +41,7 @@ func TestAccCloudFunctionsCloudFunctionIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudfunctions_function_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-function%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-function%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -49,7 +51,7 @@ func TestAccCloudFunctionsCloudFunctionIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudfunctions_function_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-function%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-function%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -67,7 +69,7 @@ func TestAccCloudFunctionsCloudFunctionIamMemberGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -76,7 +78,7 @@ func TestAccCloudFunctionsCloudFunctionIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudfunctions_function_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s roles/viewer user:admin@hashicorptest.com", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-function%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s roles/viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-function%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -94,7 +96,7 @@ func TestAccCloudFunctionsCloudFunctionIamPolicyGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -102,7 +104,7 @@ func TestAccCloudFunctionsCloudFunctionIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudfunctions_function_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-function%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-function%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -111,7 +113,7 @@ func TestAccCloudFunctionsCloudFunctionIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudfunctions_function_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-function%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/functions/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-function%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 // This will sweep BigqueryReservation Reservation and Assignment resources
@@ -22,7 +23,7 @@ func testSweepBigqueryReservation(region string) error {
 	resourceName := "BigqueryReservation"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := SharedConfigForRegion(region)
+	config, err := acctest.SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -62,7 +63,7 @@ func testSweepBigqueryReservation(region string) error {
 		reservationNameParts := strings.Split(reservationName, "/")
 		reservationShortName := reservationNameParts[len(reservationNameParts)-1]
 		// Increment count and skip if resource is not sweepable.
-		if !IsSweepableTestResource(reservationShortName) {
+		if !acctest.IsSweepableTestResource(reservationShortName) {
 			nonPrefixCount++
 			continue
 		}

@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -34,7 +35,7 @@ func TestAccDataFusionInstance_dataFusionInstanceBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataFusionInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -71,7 +72,7 @@ func TestAccDataFusionInstance_dataFusionInstanceFullExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataFusionInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -142,7 +143,7 @@ func TestAccDataFusionInstance_dataFusionInstanceCmekExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataFusionInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -205,7 +206,7 @@ func TestAccDataFusionInstance_dataFusionInstanceEnterpriseExample(t *testing.T)
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataFusionInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -242,7 +243,7 @@ func TestAccDataFusionInstance_dataFusionInstanceEventExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataFusionInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -286,7 +287,7 @@ func TestAccDataFusionInstance_dataFusionInstanceZoneExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataFusionInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -326,7 +327,7 @@ func testAccCheckDataFusionInstanceDestroyProducer(t *testing.T) func(s *terrafo
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DataFusionBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{DataFusionBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
 			if err != nil {
 				return err
 			}

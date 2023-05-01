@@ -19,6 +19,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccBigqueryAnalyticsHubDataExchangeIamBindingGenerated(t *testing.T) {
@@ -30,7 +32,7 @@ func TestAccBigqueryAnalyticsHubDataExchangeIamBindingGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -38,7 +40,7 @@ func TestAccBigqueryAnalyticsHubDataExchangeIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_data_exchange_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s roles/viewer", GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s roles/viewer", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -48,7 +50,7 @@ func TestAccBigqueryAnalyticsHubDataExchangeIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_data_exchange_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s roles/viewer", GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s roles/viewer", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -65,7 +67,7 @@ func TestAccBigqueryAnalyticsHubDataExchangeIamMemberGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -74,7 +76,7 @@ func TestAccBigqueryAnalyticsHubDataExchangeIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_data_exchange_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s roles/viewer user:admin@hashicorptest.com", GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s roles/viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -91,7 +93,7 @@ func TestAccBigqueryAnalyticsHubDataExchangeIamPolicyGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -99,7 +101,7 @@ func TestAccBigqueryAnalyticsHubDataExchangeIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_data_exchange_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s", GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -108,7 +110,7 @@ func TestAccBigqueryAnalyticsHubDataExchangeIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_data_exchange_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s", GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

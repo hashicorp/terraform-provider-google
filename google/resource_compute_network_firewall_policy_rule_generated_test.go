@@ -22,23 +22,25 @@ import (
 	compute "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/compute"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccComputeNetworkFirewallPolicyRule_GlobalHandWritten(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":        GetTestOrgFromEnv(t),
-		"project_name":  GetTestProjectFromEnv(),
-		"service_acct":  GetTestServiceAccountFromEnv(t),
+		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"project_name":  acctest.GetTestProjectFromEnv(),
+		"service_acct":  acctest.GetTestServiceAccountFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeNetworkFirewallPolicyRuleDestroyProducer(t),
 		Steps: []resource.TestStep{

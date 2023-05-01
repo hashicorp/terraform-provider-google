@@ -22,9 +22,11 @@ import (
 	containerazure "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/containerazure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccContainerAzureClient_BasicHandWritten(t *testing.T) {
@@ -33,12 +35,12 @@ func TestAccContainerAzureClient_BasicHandWritten(t *testing.T) {
 	context := map[string]interface{}{
 		"azure_app":     "00000000-0000-0000-0000-17aad2f0f61f",
 		"azure_tenant":  "00000000-0000-0000-0000-17aad2f0f61f",
-		"project_name":  GetTestProjectFromEnv(),
+		"project_name":  acctest.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckContainerAzureClientDestroyProducer(t),
 		Steps: []resource.TestStep{

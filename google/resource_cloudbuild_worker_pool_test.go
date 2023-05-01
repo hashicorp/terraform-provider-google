@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -15,11 +16,11 @@ func TestAccCloudbuildWorkerPool_basic(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             funcAccTestCloudbuildWorkerPoolCheckDestroy(t),
 		Steps: []resource.TestStep{
@@ -93,11 +94,11 @@ func TestAccCloudbuildWorkerPool_withNetwork(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             funcAccTestCloudbuildWorkerPoolCheckDestroy(t),
 		Steps: []resource.TestStep{
@@ -170,7 +171,7 @@ func funcAccTestCloudbuildWorkerPoolCheckDestroy(t *testing.T) func(s *terraform
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/workerPools/{{name}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{CloudBuildBasePath}}projects/{{project}}/locations/{{location}}/workerPools/{{name}}")
 			if err != nil {
 				return err
 			}

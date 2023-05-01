@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccComputeNetworkEndpointGroup_networkEndpointGroup(t *testing.T) {
@@ -14,7 +15,7 @@ func TestAccComputeNetworkEndpointGroup_networkEndpointGroup(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -39,7 +40,7 @@ func TestAccComputeNetworkEndpointGroup_internalEndpoint(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{

@@ -8,16 +8,17 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"google.golang.org/api/cloudkms/v1"
 )
 
 func TestAccKmsSecret_basic(t *testing.T) {
 	// Nested tests confuse VCR
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	projectOrg := GetTestOrgFromEnv(t)
-	projectBillingAccount := GetTestBillingAccountFromEnv(t)
+	projectOrg := acctest.GetTestOrgFromEnv(t)
+	projectBillingAccount := acctest.GetTestBillingAccountFromEnv(t)
 
 	projectId := "tf-test-" + RandString(t, 10)
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
@@ -28,7 +29,7 @@ func TestAccKmsSecret_basic(t *testing.T) {
 
 	// The first test creates resources needed to encrypt plaintext and produce ciphertext
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -42,7 +43,7 @@ func TestAccKmsSecret_basic(t *testing.T) {
 
 					// The second test asserts that the data source has the correct plaintext, given the created ciphertext
 					VcrTest(t, resource.TestCase{
-						PreCheck:                 func() { AccTestPreCheck(t) },
+						PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 						ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 						Steps: []resource.TestStep{
 							{
@@ -67,7 +68,7 @@ func TestAccKmsSecret_basic(t *testing.T) {
 
 					// The second test asserts that the data source has the correct plaintext, given the created ciphertext
 					VcrTest(t, resource.TestCase{
-						PreCheck:                 func() { AccTestPreCheck(t) },
+						PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 						ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 						Steps: []resource.TestStep{
 							{

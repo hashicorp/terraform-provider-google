@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -34,7 +35,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupFunction
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -97,7 +98,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupCloudrun
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -154,7 +155,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengin
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -254,7 +255,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscExamp
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -291,7 +292,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscServi
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -392,7 +393,7 @@ func testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t *testing.T) 
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/networkEndpointGroups/{{name}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/networkEndpointGroups/{{name}}")
 			if err != nil {
 				return err
 			}

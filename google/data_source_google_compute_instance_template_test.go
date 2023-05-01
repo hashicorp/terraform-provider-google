@@ -4,19 +4,20 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccInstanceTemplateDatasource_name(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccInstanceTemplate_name(GetTestProjectFromEnv(), RandString(t, 10)),
+				Config: testAccInstanceTemplate_name(acctest.GetTestProjectFromEnv(), RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
-					CheckDataSourceStateMatchesResourceStateWithIgnores(
+					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_compute_instance_template.default",
 						"google_compute_instance_template.default",
 						map[string]struct{}{},
@@ -31,13 +32,13 @@ func TestAccInstanceTemplateDatasource_filter(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccInstanceTemplate_filter(GetTestProjectFromEnv(), RandString(t, 10)),
+				Config: testAccInstanceTemplate_filter(acctest.GetTestProjectFromEnv(), RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
-					CheckDataSourceStateMatchesResourceStateWithIgnores(
+					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_compute_instance_template.default",
 						"google_compute_instance_template.c",
 						map[string]struct{}{},
@@ -52,13 +53,13 @@ func TestAccInstanceTemplateDatasource_filter_mostRecent(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccInstanceTemplate_filter_mostRecent(GetTestProjectFromEnv(), RandString(t, 10)),
+				Config: testAccInstanceTemplate_filter_mostRecent(acctest.GetTestProjectFromEnv(), RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
-					CheckDataSourceStateMatchesResourceStateWithIgnores(
+					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_compute_instance_template.default",
 						"google_compute_instance_template.c",
 						map[string]struct{}{},
@@ -73,13 +74,13 @@ func TestAccInstanceTemplateDatasource_self_link_unique(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccInstanceTemplate_self_link_unique(GetTestProjectFromEnv(), RandString(t, 10)),
+				Config: testAccInstanceTemplate_self_link_unique(acctest.GetTestProjectFromEnv(), RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
-					CheckDataSourceStateMatchesResourceStateWithIgnores(
+					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_compute_instance_template.default",
 						"google_compute_instance_template.default",
 						// we don't compare the id here as we start this test from a self_link_unique url

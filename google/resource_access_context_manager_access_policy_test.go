@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -20,7 +21,7 @@ func init() {
 }
 
 func testSweepAccessContextManagerPolicies(region string) error {
-	config, err := SharedConfigForRegion(region)
+	config, err := acctest.SharedConfigForRegion(region)
 	if err != nil {
 		log.Fatalf("error getting shared config for region %q: %s", region, err)
 	}
@@ -30,7 +31,7 @@ func testSweepAccessContextManagerPolicies(region string) error {
 		log.Fatalf("error loading and validating shared config for region %q: %s", region, err)
 	}
 
-	testOrg := GetTestOrgFromEnv(nil)
+	testOrg := acctest.GetTestOrgFromEnv(nil)
 	if testOrg == "" {
 		log.Printf("test org not set for test environment, skip sweep")
 		return nil
@@ -108,10 +109,10 @@ func TestAccAccessContextManager(t *testing.T) {
 }
 
 func testAccAccessContextManagerAccessPolicy_basicTest(t *testing.T) {
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckAccessContextManagerAccessPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -144,7 +145,7 @@ func testAccCheckAccessContextManagerAccessPolicyDestroyProducer(t *testing.T) f
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -169,10 +170,10 @@ resource "google_access_context_manager_access_policy" "test-access" {
 }
 
 func testAccAccessContextManagerAccessPolicy_scopedTest(t *testing.T) {
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckAccessContextManagerAccessPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{

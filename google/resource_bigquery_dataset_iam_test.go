@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccBigqueryDatasetIamBinding(t *testing.T) {
@@ -15,10 +16,10 @@ func TestAccBigqueryDatasetIamBinding(t *testing.T) {
 	role := "roles/bigquery.dataViewer"
 
 	importId := fmt.Sprintf("projects/%s/datasets/%s %s",
-		GetTestProjectFromEnv(), dataset, role)
+		acctest.GetTestProjectFromEnv(), dataset, role)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -57,13 +58,13 @@ func TestAccBigqueryDatasetIamMember(t *testing.T) {
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/datasets/%s %s serviceAccount:%s",
-		GetTestProjectFromEnv(),
+		acctest.GetTestProjectFromEnv(),
 		dataset,
 		role,
 		serviceAccountCanonicalEmail(account))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -94,10 +95,10 @@ func TestAccBigqueryDatasetIamPolicy(t *testing.T) {
 	role := "roles/bigquery.dataOwner"
 
 	importId := fmt.Sprintf("projects/%s/datasets/%s",
-		GetTestProjectFromEnv(), dataset)
+		acctest.GetTestProjectFromEnv(), dataset)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
