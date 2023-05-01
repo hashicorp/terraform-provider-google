@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"reflect"
 	"sort"
 	"testing"
@@ -18,27 +19,27 @@ func TestAccPubsubSubscriptionIamBinding(t *testing.T) {
 	account := "tf-test-iam-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
 				Config: testAccPubsubSubscriptionIamBinding_basic(subscription, topic, account),
 				Check: testAccCheckPubsubSubscriptionIam(t, subscription, "roles/pubsub.subscriber", []string{
-					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, acctest.GetTestProjectFromEnv()),
 				}),
 			},
 			{
 				// Test IAM Binding update
 				Config: testAccPubsubSubscriptionIamBinding_update(subscription, topic, account),
 				Check: testAccCheckPubsubSubscriptionIam(t, subscription, "roles/pubsub.subscriber", []string{
-					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
-					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s-1@%s.iam.gserviceaccount.com", account, acctest.GetTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s-2@%s.iam.gserviceaccount.com", account, acctest.GetTestProjectFromEnv()),
 				}),
 			},
 			{
 				ResourceName:      "google_pubsub_subscription_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s roles/pubsub.subscriber", getComputedSubscriptionName(GetTestProjectFromEnv(), subscription)),
+				ImportStateId:     fmt.Sprintf("%s roles/pubsub.subscriber", getComputedSubscriptionName(acctest.GetTestProjectFromEnv(), subscription)),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -52,10 +53,10 @@ func TestAccPubsubSubscriptionIamMember(t *testing.T) {
 	topic := "tf-test-topic-iam-" + RandString(t, 10)
 	subscription := "tf-test-sub-iam-" + RandString(t, 10)
 	account := "tf-test-iam-" + RandString(t, 10)
-	accountEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv())
+	accountEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, acctest.GetTestProjectFromEnv())
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -67,7 +68,7 @@ func TestAccPubsubSubscriptionIamMember(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_subscription_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("%s roles/pubsub.subscriber serviceAccount:%s", getComputedSubscriptionName(GetTestProjectFromEnv(), subscription), accountEmail),
+				ImportStateId:     fmt.Sprintf("%s roles/pubsub.subscriber serviceAccount:%s", getComputedSubscriptionName(acctest.GetTestProjectFromEnv(), subscription), accountEmail),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -83,24 +84,24 @@ func TestAccPubsubSubscriptionIamPolicy(t *testing.T) {
 	account := "tf-test-iam-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSubscriptionIamPolicy_basic(subscription, topic, account, "roles/pubsub.subscriber"),
 				Check: testAccCheckPubsubSubscriptionIam(t, subscription, "roles/pubsub.subscriber", []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, acctest.GetTestProjectFromEnv()),
 				}),
 			},
 			{
 				Config: testAccPubsubSubscriptionIamPolicy_basic(subscription, topic, account, "roles/pubsub.viewer"),
 				Check: testAccCheckPubsubSubscriptionIam(t, subscription, "roles/pubsub.viewer", []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv()),
+					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, acctest.GetTestProjectFromEnv()),
 				}),
 			},
 			{
 				ResourceName:      "google_pubsub_subscription_iam_policy.foo",
-				ImportStateId:     getComputedSubscriptionName(GetTestProjectFromEnv(), subscription),
+				ImportStateId:     getComputedSubscriptionName(acctest.GetTestProjectFromEnv(), subscription),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -111,7 +112,7 @@ func TestAccPubsubSubscriptionIamPolicy(t *testing.T) {
 func testAccCheckPubsubSubscriptionIam(t *testing.T, subscription, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := GoogleProviderConfig(t)
-		p, err := config.NewPubsubClient(config.UserAgent).Projects.Subscriptions.GetIamPolicy(getComputedSubscriptionName(GetTestProjectFromEnv(), subscription)).Do()
+		p, err := config.NewPubsubClient(config.UserAgent).Projects.Subscriptions.GetIamPolicy(getComputedSubscriptionName(acctest.GetTestProjectFromEnv(), subscription)).Do()
 		if err != nil {
 			return err
 		}

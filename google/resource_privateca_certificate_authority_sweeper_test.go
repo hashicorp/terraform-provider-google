@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -22,7 +23,7 @@ func testSweepCertificateAuthority(region string) error {
 	resourceName := "CertificateAuthority"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := SharedConfigForRegion(region)
+	config, err := acctest.SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -91,7 +92,7 @@ func testSweepCertificateAuthority(region string) error {
 			// Increment count and skip if resource is not sweepable.
 			nameParts := strings.Split(caName, "/")
 			id := nameParts[len(nameParts)-1]
-			if !IsSweepableTestResource(id) {
+			if !acctest.IsSweepableTestResource(id) {
 				nonPrefixCount++
 				continue
 			}

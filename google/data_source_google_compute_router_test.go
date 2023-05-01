@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataSourceComputeRouter(t *testing.T) {
@@ -12,7 +13,7 @@ func TestAccDataSourceComputeRouter(t *testing.T) {
 	name := fmt.Sprintf("tf-test-router-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -20,7 +21,7 @@ func TestAccDataSourceComputeRouter(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_compute_router.myrouter", "id", name),
 					resource.TestCheckResourceAttr("data.google_compute_router.myrouter", "name", name),
-					resource.TestCheckResourceAttr("data.google_compute_router.myrouter", "network", fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s/global/networks/%s", GetTestProjectFromEnv(), name)),
+					resource.TestCheckResourceAttr("data.google_compute_router.myrouter", "network", fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s/global/networks/%s", acctest.GetTestProjectFromEnv(), name)),
 				),
 			},
 		},

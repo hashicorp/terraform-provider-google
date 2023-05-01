@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -14,14 +15,14 @@ import (
 
 func testAccAccessContextManagerEgressPolicy_basicTest(t *testing.T) {
 	// Multiple fine-grained resources
-	SkipIfVcr(t)
-	org := GetTestOrgFromEnv(t)
+	acctest.SkipIfVcr(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	projects := BootstrapServicePerimeterProjects(t, 1)
 	policyTitle := RandString(t, 10)
 	perimeterTitle := "perimeter"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -49,7 +50,7 @@ func testAccCheckAccessContextManagerEgressPolicyDestroyProducer(t *testing.T) f
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{egress_policy_name}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{egress_policy_name}}")
 			if err != nil {
 				return err
 			}

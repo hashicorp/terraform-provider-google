@@ -22,6 +22,7 @@ import (
 
 	apikeys "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/apikeys"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -35,7 +36,7 @@ func init() {
 func testSweepApikeysKey(region string) error {
 	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for ApikeysKey")
 
-	config, err := SharedConfigForRegion(region)
+	config, err := acctest.SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -48,7 +49,7 @@ func testSweepApikeysKey(region string) error {
 	}
 
 	t := &testing.T{}
-	billingId := GetTestBillingAccountFromEnv(t)
+	billingId := acctest.GetTestBillingAccountFromEnv(t)
 
 	// Setup variables to be used for Delete arguments.
 	d := map[string]string{
@@ -68,5 +69,5 @@ func testSweepApikeysKey(region string) error {
 }
 
 func isDeletableApikeysKey(r *apikeys.Key) bool {
-	return IsSweepableTestResource(*r.Name)
+	return acctest.IsSweepableTestResource(*r.Name)
 }

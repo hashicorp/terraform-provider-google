@@ -13,6 +13,8 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 var (
@@ -36,7 +38,7 @@ func init() {
 }
 
 func testSweepProject(region string) error {
-	config, err := SharedConfigForRegion(region)
+	config, err := acctest.SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -48,7 +50,7 @@ func testSweepProject(region string) error {
 		return err
 	}
 
-	org := UnsafeGetTestOrgFromEnv()
+	org := acctest.UnsafeGetTestOrgFromEnv()
 	if org == "" {
 		log.Printf("[INFO][SWEEPER_LOG] no organization set, failing project sweeper")
 		return fmt.Errorf("no organization set")
@@ -83,14 +85,14 @@ func testSweepProject(region string) error {
 func TestAccProject_createWithoutOrg(t *testing.T) {
 	t.Parallel()
 
-	creds := MultiEnvSearch(CredsEnvVars)
+	creds := transport_tpg.MultiEnvSearch(acctest.CredsEnvVars)
 	if strings.Contains(creds, "iam.gserviceaccount.com") {
 		t.Skip("Service accounts cannot create projects without a parent. Requires user credentials.")
 	}
 
 	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// This step creates a new project
@@ -109,10 +111,10 @@ func TestAccProject_createWithoutOrg(t *testing.T) {
 func TestAccProject_create(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// This step creates a new project
@@ -130,15 +132,15 @@ func TestAccProject_create(t *testing.T) {
 // billing account
 func TestAccProject_billing(t *testing.T) {
 	t.Parallel()
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	// This is a second billing account that can be charged, which is used only in this test to
 	// verify that a project can update its billing account.
-	SkipIfEnvNotSet(t, "GOOGLE_BILLING_ACCOUNT_2")
+	acctest.SkipIfEnvNotSet(t, "GOOGLE_BILLING_ACCOUNT_2")
 	billingId2 := os.Getenv("GOOGLE_BILLING_ACCOUNT_2")
-	billingId := GetTestBillingAccountFromEnv(t)
+	billingId := acctest.GetTestBillingAccountFromEnv(t)
 	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// This step creates a new project with a billing account
@@ -177,10 +179,10 @@ func TestAccProject_billing(t *testing.T) {
 func TestAccProject_labels(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -219,11 +221,11 @@ func TestAccProject_labels(t *testing.T) {
 func TestAccProject_deleteDefaultNetwork(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
-	billingId := GetTestBillingAccountFromEnv(t)
+	billingId := acctest.GetTestBillingAccountFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -236,11 +238,11 @@ func TestAccProject_deleteDefaultNetwork(t *testing.T) {
 func TestAccProject_parentFolder(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
 	folderDisplayName := TestPrefix + RandString(t, 10)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -253,11 +255,11 @@ func TestAccProject_parentFolder(t *testing.T) {
 func TestAccProject_migrateParent(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
 	folderDisplayName := TestPrefix + RandString(t, 10)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{

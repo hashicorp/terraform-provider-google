@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 // This will sweep Compute Instance Templates
@@ -20,7 +21,7 @@ func testSweepComputeInstanceTemplate(region string) error {
 	resourceName := "ComputeInstanceTemplate"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := SharedConfigForRegion(region)
+	config, err := acctest.SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -49,7 +50,7 @@ func testSweepComputeInstanceTemplate(region string) error {
 	nonPrefixCount := 0
 	for _, instanceTemplate := range instanceTemplates.Items {
 		// Increment count and skip if resource is not sweepable.
-		if !IsSweepableTestResource(instanceTemplate.Name) {
+		if !acctest.IsSweepableTestResource(instanceTemplate.Name) {
 			nonPrefixCount++
 			continue
 		}

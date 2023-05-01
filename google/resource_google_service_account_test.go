@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 // Test that a service account resource can be created, updated, and destroyed
@@ -18,10 +19,10 @@ func TestAccServiceAccount_basic(t *testing.T) {
 	displayName2 := "Terraform Test Update"
 	desc := "test description"
 	desc2 := ""
-	project := GetTestProjectFromEnv()
+	project := acctest.GetTestProjectFromEnv()
 	expectedEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", accountId, project)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// The first step creates a basic service account
@@ -93,10 +94,10 @@ func TestAccServiceAccount_Disabled(t *testing.T) {
 	uniqueId := ""
 	displayName := "Terraform Test"
 	desc := "test description"
-	project := GetTestProjectFromEnv()
+	project := acctest.GetTestProjectFromEnv()
 	expectedEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", accountId, project)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// The first step creates a basic service account

@@ -6,12 +6,13 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 // Tests schema version migration by creating a trigger with an old version of the provider (4.30.0)
 // and then updating it with the current version the provider.
 func TestAccCloudBuildTrigger_migration(t *testing.T) {
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 	name := fmt.Sprintf("tf-test-%d", RandInt(t))
 
@@ -26,7 +27,7 @@ func TestAccCloudBuildTrigger_migration(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { AccTestPreCheck(t) },
+		PreCheck:     func() { acctest.AccTestPreCheck(t) },
 		CheckDestroy: testAccCheckCloudBuildTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

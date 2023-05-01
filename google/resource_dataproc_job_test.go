@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/googleapi"
 )
@@ -27,7 +28,7 @@ type jobTestField struct {
 // 	t.Parallel()
 
 // 	VcrTest(t, resource.TestCase{
-// 		PreCheck:                 func() { AccTestPreCheck(t) },
+// 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 // 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 // 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 // 		Steps: []resource.TestStep{
@@ -46,7 +47,7 @@ func TestAccDataprocJob_updatable(t *testing.T) {
 	rnd := RandString(t, 10)
 	jobId := fmt.Sprintf("dproc-update-job-id-%s", rnd)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -75,7 +76,7 @@ func TestAccDataprocJob_PySpark(t *testing.T) {
 	rnd := RandString(t, 10)
 	jobId := fmt.Sprintf("dproc-custom-job-id-%s", rnd)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -113,7 +114,7 @@ func TestAccDataprocJob_Spark(t *testing.T) {
 	var job dataproc.Job
 	rnd := RandString(t, 10)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -145,7 +146,7 @@ func TestAccDataprocJob_Hadoop(t *testing.T) {
 	var job dataproc.Job
 	rnd := RandString(t, 10)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -177,7 +178,7 @@ func TestAccDataprocJob_Hive(t *testing.T) {
 	var job dataproc.Job
 	rnd := RandString(t, 10)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -209,7 +210,7 @@ func TestAccDataprocJob_Pig(t *testing.T) {
 	var job dataproc.Job
 	rnd := RandString(t, 10)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -241,7 +242,7 @@ func TestAccDataprocJob_SparkSql(t *testing.T) {
 	var job dataproc.Job
 	rnd := RandString(t, 10)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -273,7 +274,7 @@ func TestAccDataprocJob_Presto(t *testing.T) {
 	var job dataproc.Job
 	rnd := RandString(t, 10)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -313,7 +314,7 @@ func testAccCheckDataprocJobDestroyProducer(t *testing.T) func(s *terraform.Stat
 			}
 			attributes := rs.Primary.Attributes
 
-			project, err := GetTestProject(rs.Primary, config)
+			project, err := acctest.GetTestProject(rs.Primary, config)
 			if err != nil {
 				return err
 			}
@@ -343,7 +344,7 @@ func testAccCheckDataprocJobCompletesSuccessfully(t *testing.T, n string, job *d
 
 		attributes := s.RootModule().Resources[n].Primary.Attributes
 		region := attributes["region"]
-		project, err := GetTestProject(s.RootModule().Resources[n].Primary, config)
+		project, err := acctest.GetTestProject(s.RootModule().Resources[n].Primary, config)
 		if err != nil {
 			return err
 		}
@@ -407,7 +408,7 @@ func testAccCheckDataprocJobExists(t *testing.T, n string, job *dataproc.Job) re
 		config := GoogleProviderConfig(t)
 		parts := strings.Split(s.RootModule().Resources[n].Primary.ID, "/")
 		jobId := parts[len(parts)-1]
-		project, err := GetTestProject(s.RootModule().Resources[n].Primary, config)
+		project, err := acctest.GetTestProject(s.RootModule().Resources[n].Primary, config)
 		if err != nil {
 			return err
 		}

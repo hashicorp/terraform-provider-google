@@ -3,10 +3,12 @@ package google
 import (
 	"errors"
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"net/url"
 	"regexp"
 	"strings"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -81,8 +83,7 @@ func ConvertSelfLinkToV1(link string) string {
 }
 
 func GetResourceNameFromSelfLink(link string) string {
-	parts := strings.Split(link, "/")
-	return parts[len(parts)-1]
+	return tpgresource.GetResourceNameFromSelfLink(link)
 }
 
 func NameFromSelfLinkStateFunc(v interface{}) string {

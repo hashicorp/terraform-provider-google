@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataSourceGoogleCloudRunService_basic(t *testing.T) {
@@ -14,14 +15,14 @@ func TestAccDataSourceGoogleCloudRunService_basic(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleCloudRunService_basic(context),
 				Check: resource.ComposeTestCheckFunc(
-					CheckDataSourceStateMatchesResourceState("data.google_cloud_run_service.foo", "google_cloud_run_service.foo"),
+					acctest.CheckDataSourceStateMatchesResourceState("data.google_cloud_run_service.foo", "google_cloud_run_service.foo"),
 				),
 			},
 		},
@@ -36,14 +37,14 @@ func TestAccDataSourceGoogleCloudRunService_optionalProject(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudRunServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleCloudRunService_optionalProject(context),
 				Check: resource.ComposeTestCheckFunc(
-					CheckDataSourceStateMatchesResourceState("data.google_cloud_run_service.foo", "google_cloud_run_service.foo"),
+					acctest.CheckDataSourceStateMatchesResourceState("data.google_cloud_run_service.foo", "google_cloud_run_service.foo"),
 				),
 			},
 		},

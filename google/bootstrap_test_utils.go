@@ -9,12 +9,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/cloudbilling/v1"
 	cloudkms "google.golang.org/api/cloudkms/v1"
 	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
 	iam "google.golang.org/api/iam/v1"
+	"google.golang.org/api/iamcredentials/v1"
+	"google.golang.org/api/serviceusage/v1"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
@@ -68,7 +71,7 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 		}
 	}
 
-	projectID := GetTestProjectFromEnv()
+	projectID := acctest.GetTestProjectFromEnv()
 	keyRingParent := fmt.Sprintf("projects/%s/locations/%s", projectID, locationID)
 	keyRingName := fmt.Sprintf("%s/keyRings/%s", keyRingParent, SharedKeyRing)
 	keyParent := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s", projectID, locationID, SharedKeyRing)
@@ -217,7 +220,7 @@ func BootstrapServiceAccount(t *testing.T, project, testRunner string) string {
 const SharedTestADDomainPrefix = "tf-bootstrap-ad"
 
 func BootstrapSharedTestADDomain(t *testing.T, testId string, networkName string) string {
-	project := GetTestProjectFromEnv()
+	project := acctest.GetTestProjectFromEnv()
 	sharedADDomain := fmt.Sprintf("%s.%s.com", SharedTestADDomainPrefix, testId)
 	adDomainName := fmt.Sprintf("projects/%s/locations/global/domains/%s", project, sharedADDomain)
 
@@ -275,7 +278,7 @@ const SharedTestNetworkPrefix = "tf-bootstrap-net-"
 // Returns the name of a network, creating it if it hasn't been created in the
 // test project.
 func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
-	project := GetTestProjectFromEnv()
+	project := acctest.GetTestProjectFromEnv()
 	networkName := SharedTestNetworkPrefix + testId
 
 	config := BootstrapConfig(t)
@@ -323,7 +326,7 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 		return nil
 	}
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 
 	// The filter endpoint works differently if you provide both the parent id and parent type, and
 	// doesn't seem to allow for prefix matching. Don't change this to include the parent type unless
@@ -441,7 +444,7 @@ func BootstrapProject(t *testing.T, projectIDPrefix, billingAccount string, serv
 		return nil
 	}
 
-	projectIDSuffix := strings.Replace(GetTestProjectFromEnv(), "ci-test-project-", "", 1)
+	projectIDSuffix := strings.Replace(acctest.GetTestProjectFromEnv(), "ci-test-project-", "", 1)
 	projectID := projectIDPrefix + projectIDSuffix
 
 	crmClient := config.NewResourceManagerClient(config.UserAgent)
@@ -451,7 +454,7 @@ func BootstrapProject(t *testing.T, projectIDPrefix, billingAccount string, serv
 		if !transport_tpg.IsGoogleApiErrorWithCode(err, 403) {
 			t.Fatalf("Error getting bootstrapped project: %s", err)
 		}
-		org := GetTestOrgFromEnv(t)
+		org := acctest.GetTestOrgFromEnv(t)
 
 		op, err := crmClient.Projects.Create(&cloudresourcemanager.Project{
 			ProjectId: projectID,
@@ -544,10 +547,10 @@ func BootstrapConfig(t *testing.T) *transport_tpg.Config {
 	}
 
 	config := &transport_tpg.Config{
-		Credentials: GetTestCredsFromEnv(),
-		Project:     GetTestProjectFromEnv(),
-		Region:      GetTestRegionFromEnv(),
-		Zone:        GetTestZoneFromEnv(),
+		Credentials: acctest.GetTestCredsFromEnv(),
+		Project:     acctest.GetTestProjectFromEnv(),
+		Region:      acctest.GetTestRegionFromEnv(),
+		Zone:        acctest.GetTestZoneFromEnv(),
 	}
 
 	transport_tpg.ConfigureBasePaths(config)
@@ -564,7 +567,7 @@ const SharedTestSQLInstanceNamePrefix = "tf-bootstrap-"
 // BootstrapSharedSQLInstanceBackupRun will return a shared SQL db instance that
 // has a backup created for it.
 func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
-	project := GetTestProjectFromEnv()
+	project := acctest.GetTestProjectFromEnv()
 
 	config := BootstrapConfig(t)
 	if config == nil {
@@ -651,7 +654,7 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 }
 
 func BootstrapSharedCaPoolInLocation(t *testing.T, location string) string {
-	project := GetTestProjectFromEnv()
+	project := acctest.GetTestProjectFromEnv()
 	poolName := "static-ca-pool"
 
 	config := BootstrapConfig(t)
@@ -687,4 +690,195 @@ func BootstrapSharedCaPoolInLocation(t *testing.T, location string) string {
 		}
 	}
 	return poolName
+}
+
+func setupProjectsAndGetAccessToken(org, billing, pid, service string, config *transport_tpg.Config) (string, error) {
+	// Create project-1 and project-2
+	rmService := config.NewResourceManagerClient(config.UserAgent)
+
+	project := &cloudresourcemanager.Project{
+		ProjectId: pid,
+		Name:      pid,
+		Parent: &cloudresourcemanager.ResourceId{
+			Id:   org,
+			Type: "organization",
+		},
+	}
+
+	var op *cloudresourcemanager.Operation
+	err := transport_tpg.RetryTimeDuration(func() (reqErr error) {
+		op, reqErr = rmService.Projects.Create(project).Do()
+		return reqErr
+	}, 5*time.Minute)
+	if err != nil {
+		return "", err
+	}
+
+	// Wait for the operation to complete
+	opAsMap, err := ConvertToMap(op)
+	if err != nil {
+		return "", err
+	}
+
+	waitErr := ResourceManagerOperationWaitTime(config, opAsMap, "creating project", config.UserAgent, 5*time.Minute)
+	if waitErr != nil {
+		return "", waitErr
+	}
+
+	ba := &cloudbilling.ProjectBillingInfo{
+		BillingAccountName: fmt.Sprintf("billingAccounts/%s", billing),
+	}
+	_, err = config.NewBillingClient(config.UserAgent).Projects.UpdateBillingInfo(PrefixedProject(pid), ba).Do()
+	if err != nil {
+		return "", err
+	}
+
+	p2 := fmt.Sprintf("%s-2", pid)
+	project.ProjectId = p2
+	project.Name = fmt.Sprintf("%s-2", pid)
+
+	err = transport_tpg.RetryTimeDuration(func() (reqErr error) {
+		op, reqErr = rmService.Projects.Create(project).Do()
+		return reqErr
+	}, 5*time.Minute)
+	if err != nil {
+		return "", err
+	}
+
+	// Wait for the operation to complete
+	opAsMap, err = ConvertToMap(op)
+	if err != nil {
+		return "", err
+	}
+
+	waitErr = ResourceManagerOperationWaitTime(config, opAsMap, "creating project", config.UserAgent, 5*time.Minute)
+	if waitErr != nil {
+		return "", waitErr
+	}
+
+	_, err = config.NewBillingClient(config.UserAgent).Projects.UpdateBillingInfo(PrefixedProject(p2), ba).Do()
+	if err != nil {
+		return "", err
+	}
+
+	// Enable the appropriate service in project-2 only
+	suService := config.NewServiceUsageClient(config.UserAgent)
+
+	serviceReq := &serviceusage.BatchEnableServicesRequest{
+		ServiceIds: []string{fmt.Sprintf("%s.googleapis.com", service)},
+	}
+
+	_, err = suService.Services.BatchEnable(fmt.Sprintf("projects/%s", p2), serviceReq).Do()
+	if err != nil {
+		return "", err
+	}
+
+	// Enable the test runner to create service accounts and get an access token on behalf of
+	// the project 1 service account
+	curEmail, err := transport_tpg.GetCurrentUserEmail(config, config.UserAgent)
+	if err != nil {
+		return "", err
+	}
+
+	proj1SATokenCreator := &cloudresourcemanager.Binding{
+		Members: []string{fmt.Sprintf("serviceAccount:%s", curEmail)},
+		Role:    "roles/iam.serviceAccountTokenCreator",
+	}
+
+	proj1SACreator := &cloudresourcemanager.Binding{
+		Members: []string{fmt.Sprintf("serviceAccount:%s", curEmail)},
+		Role:    "roles/iam.serviceAccountCreator",
+	}
+
+	bindings := MergeBindings([]*cloudresourcemanager.Binding{proj1SATokenCreator, proj1SACreator})
+
+	p, err := rmService.Projects.GetIamPolicy(pid,
+		&cloudresourcemanager.GetIamPolicyRequest{
+			Options: &cloudresourcemanager.GetPolicyOptions{
+				RequestedPolicyVersion: IamPolicyVersion,
+			},
+		}).Do()
+	if err != nil {
+		return "", err
+	}
+
+	p.Bindings = MergeBindings(append(p.Bindings, bindings...))
+	_, err = config.NewResourceManagerClient(config.UserAgent).Projects.SetIamPolicy(pid,
+		&cloudresourcemanager.SetIamPolicyRequest{
+			Policy:     p,
+			UpdateMask: "bindings,etag,auditConfigs",
+		}).Do()
+	if err != nil {
+		return "", err
+	}
+
+	// Create a service account for project-1
+	sa1, err := getOrCreateServiceAccount(config, pid)
+	if err != nil {
+		return "", err
+	}
+
+	// Add permissions to service accounts
+
+	// Permission needed for user_project_override
+	proj2ServiceUsageBinding := &cloudresourcemanager.Binding{
+		Members: []string{fmt.Sprintf("serviceAccount:%s", sa1.Email)},
+		Role:    "roles/serviceusage.serviceUsageConsumer",
+	}
+
+	// Admin permission for service
+	proj2ServiceAdminBinding := &cloudresourcemanager.Binding{
+		Members: []string{fmt.Sprintf("serviceAccount:%s", sa1.Email)},
+		Role:    fmt.Sprintf("roles/%s.admin", service),
+	}
+
+	bindings = MergeBindings([]*cloudresourcemanager.Binding{proj2ServiceUsageBinding, proj2ServiceAdminBinding})
+
+	// For KMS test only
+	if service == "cloudkms" {
+		proj2CryptoKeyBinding := &cloudresourcemanager.Binding{
+			Members: []string{fmt.Sprintf("serviceAccount:%s", sa1.Email)},
+			Role:    "roles/cloudkms.cryptoKeyEncrypter",
+		}
+
+		bindings = MergeBindings(append(bindings, proj2CryptoKeyBinding))
+	}
+
+	p, err = rmService.Projects.GetIamPolicy(p2,
+		&cloudresourcemanager.GetIamPolicyRequest{
+			Options: &cloudresourcemanager.GetPolicyOptions{
+				RequestedPolicyVersion: IamPolicyVersion,
+			},
+		}).Do()
+	if err != nil {
+		return "", err
+	}
+
+	p.Bindings = MergeBindings(append(p.Bindings, bindings...))
+	_, err = config.NewResourceManagerClient(config.UserAgent).Projects.SetIamPolicy(p2,
+		&cloudresourcemanager.SetIamPolicyRequest{
+			Policy:     p,
+			UpdateMask: "bindings,etag,auditConfigs",
+		}).Do()
+	if err != nil {
+		return "", err
+	}
+
+	// The token creator IAM API call returns success long before the policy is
+	// actually usable. Wait a solid 2 minutes to ensure we can use it.
+	time.Sleep(2 * time.Minute)
+
+	iamCredsService := config.NewIamCredentialsClient(config.UserAgent)
+	tokenRequest := &iamcredentials.GenerateAccessTokenRequest{
+		Lifetime: "300s",
+		Scope:    []string{"https://www.googleapis.com/auth/cloud-platform"},
+	}
+	atResp, err := iamCredsService.Projects.ServiceAccounts.GenerateAccessToken(fmt.Sprintf("projects/-/serviceAccounts/%s", sa1.Email), tokenRequest).Do()
+	if err != nil {
+		return "", err
+	}
+
+	accessToken := atResp.AccessToken
+
+	return accessToken, nil
 }

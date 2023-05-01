@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"strings"
 	"testing"
 
@@ -12,11 +13,11 @@ import (
 func TestAccFolderIamAuditConfig_basic(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	fname := "tf-test-" + RandString(t, 10)
 	service := "cloudkms.googleapis.com"
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
@@ -37,16 +38,16 @@ func TestAccFolderIamAuditConfig_basic(t *testing.T) {
 // Test that multiple IAM audit configs can be applied to a folder, one at a time
 func TestAccFolderIamAuditConfig_multiple(t *testing.T) {
 	// Multiple fine-grained resources
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	fname := "tf-test-" + RandString(t, 10)
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
@@ -71,16 +72,16 @@ func TestAccFolderIamAuditConfig_multiple(t *testing.T) {
 // Test that multiple IAM audit configs can be applied to a folder all at once
 func TestAccFolderIamAuditConfig_multipleAtOnce(t *testing.T) {
 	// Multiple fine-grained resources
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	fname := "tf-test-" + RandString(t, 10)
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
@@ -102,12 +103,12 @@ func TestAccFolderIamAuditConfig_multipleAtOnce(t *testing.T) {
 func TestAccFolderIamAuditConfig_update(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	fname := "tf-test-" + RandString(t, 10)
 	service := "cloudkms.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
@@ -136,16 +137,16 @@ func TestAccFolderIamAuditConfig_update(t *testing.T) {
 // Test that an IAM audit config can be removed from a folder
 func TestAccFolderIamAuditConfig_remove(t *testing.T) {
 	// Multiple fine-grained resources
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	fname := "tf-test-" + RandString(t, 10)
 	service := "cloudkms.googleapis.com"
 	service2 := "cloudsql.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
@@ -174,14 +175,14 @@ func TestAccFolderIamAuditConfig_remove(t *testing.T) {
 func TestAccFolderIamAuditConfig_addFirstExemptMember(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	fname := "tf-test-" + RandString(t, 10)
 	service := "cloudkms.googleapis.com"
 	members := []string{}
 	members2 := []string{"user:gterraformtest1@gmail.com"}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
@@ -207,14 +208,14 @@ func TestAccFolderIamAuditConfig_addFirstExemptMember(t *testing.T) {
 func TestAccFolderIamAuditConfig_removeLastExemptMember(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	fname := "tf-test-" + RandString(t, 10)
 	service := "cloudkms.googleapis.com"
 	members2 := []string{}
 	members := []string{"user:gterraformtest1@gmail.com"}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder
@@ -240,14 +241,14 @@ func TestAccFolderIamAuditConfig_removeLastExemptMember(t *testing.T) {
 func TestAccFolderIamAuditConfig_updateNoExemptMembers(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	fname := "tf-test-" + RandString(t, 10)
 	logType := "DATA_READ"
 	logType2 := "DATA_WRITE"
 	service := "cloudkms.googleapis.com"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new folder

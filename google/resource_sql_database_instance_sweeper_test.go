@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func init() {
@@ -18,7 +19,7 @@ func init() {
 }
 
 func testSweepSQLDatabaseInstance(region string) error {
-	config, err := SharedConfigForRegion(region)
+	config, err := acctest.SharedConfigForRegion(region)
 	if err != nil {
 		return fmt.Errorf("error getting shared config for region: %s", err)
 	}
@@ -42,7 +43,7 @@ func testSweepSQLDatabaseInstance(region string) error {
 	running := map[string]struct{}{}
 
 	for _, d := range found.Items {
-		if !IsSweepableTestResource(d.Name) {
+		if !acctest.IsSweepableTestResource(d.Name) {
 			continue
 		}
 
@@ -53,7 +54,7 @@ func testSweepSQLDatabaseInstance(region string) error {
 	}
 
 	for _, d := range found.Items {
-		if !IsSweepableTestResource(d.Name) {
+		if !acctest.IsSweepableTestResource(d.Name) {
 			continue
 		}
 

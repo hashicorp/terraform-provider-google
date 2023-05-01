@@ -1381,13 +1381,13 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	// only check environment variables if neither value was set in config- this
 	// means config beats env var in all cases.
 	if config.AccessToken == "" && config.Credentials == "" {
-		config.Credentials = MultiEnvSearch([]string{
+		config.Credentials = transport_tpg.MultiEnvSearch([]string{
 			"GOOGLE_CREDENTIALS",
 			"GOOGLE_CLOUD_KEYFILE_JSON",
 			"GCLOUD_KEYFILE_JSON",
 		})
 
-		config.AccessToken = MultiEnvSearch([]string{
+		config.AccessToken = transport_tpg.MultiEnvSearch([]string{
 			"GOOGLE_OAUTH_ACCESS_TOKEN",
 		})
 	}

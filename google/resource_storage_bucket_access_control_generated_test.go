@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -33,7 +34,7 @@ func TestAccStorageBucketAccessControl_storageBucketAccessControlPublicBucketExa
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckStorageBucketAccessControlDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -77,7 +78,7 @@ func testAccCheckStorageBucketAccessControlDestroyProducer(t *testing.T) func(s 
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{StorageBasePath}}b/{{bucket}}/acl/{{entity}}")
+			url, err := acctest.ReplaceVarsForTest(config, rs, "{{StorageBasePath}}b/{{bucket}}/acl/{{entity}}")
 			if err != nil {
 				return err
 			}

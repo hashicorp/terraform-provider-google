@@ -2,6 +2,7 @@ package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"strings"
 	"testing"
 
@@ -14,11 +15,11 @@ func TestAccResourceManagerLien_basic(t *testing.T) {
 	t.Parallel()
 
 	projectName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	var lien resourceManager.Lien
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckResourceManagerLienDestroyProducer(t),
 		Steps: []resource.TestStep{

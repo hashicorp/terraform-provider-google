@@ -19,6 +19,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccServiceManagementServiceConsumersIamBindingGenerated(t *testing.T) {
@@ -27,12 +29,12 @@ func TestAccServiceManagementServiceConsumersIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":    RandString(t, 10),
 		"role":             "roles/servicemanagement.serviceController",
-		"project_name":     GetTestProjectFromEnv(),
-		"consumer_project": GetTestProjectFromEnv(),
+		"project_name":     acctest.GetTestProjectFromEnv(),
+		"consumer_project": acctest.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -64,12 +66,12 @@ func TestAccServiceManagementServiceConsumersIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":    RandString(t, 10),
 		"role":             "roles/servicemanagement.serviceController",
-		"project_name":     GetTestProjectFromEnv(),
-		"consumer_project": GetTestProjectFromEnv(),
+		"project_name":     acctest.GetTestProjectFromEnv(),
+		"consumer_project": acctest.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -92,12 +94,12 @@ func TestAccServiceManagementServiceConsumersIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":    RandString(t, 10),
 		"role":             "roles/servicemanagement.serviceController",
-		"project_name":     GetTestProjectFromEnv(),
-		"consumer_project": GetTestProjectFromEnv(),
+		"project_name":     acctest.GetTestProjectFromEnv(),
+		"consumer_project": acctest.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{

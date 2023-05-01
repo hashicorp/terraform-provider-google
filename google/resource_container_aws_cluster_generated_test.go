@@ -22,9 +22,11 @@ import (
 	containeraws "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/containeraws"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccContainerAwsCluster_BasicHandWritten(t *testing.T) {
@@ -39,14 +41,14 @@ func TestAccContainerAwsCluster_BasicHandWritten(t *testing.T) {
 		"aws_vol_key":    "00000000-0000-0000-0000-17aad2f0f61f",
 		"aws_vpc":        "vpc-0b3f63cb91b247628",
 		"byo_prefix":     "mmv2",
-		"project_name":   GetTestProjectFromEnv(),
-		"project_number": GetTestProjectNumberFromEnv(),
-		"service_acct":   GetTestServiceAccountFromEnv(t),
+		"project_name":   acctest.GetTestProjectFromEnv(),
+		"project_number": acctest.GetTestProjectNumberFromEnv(),
+		"service_acct":   acctest.GetTestServiceAccountFromEnv(t),
 		"random_suffix":  RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckContainerAwsClusterDestroyProducer(t),
 		Steps: []resource.TestStep{

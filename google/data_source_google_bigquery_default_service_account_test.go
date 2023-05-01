@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataSourceGoogleBigqueryDefaultServiceAccount_basic(t *testing.T) {
@@ -12,7 +13,7 @@ func TestAccDataSourceGoogleBigqueryDefaultServiceAccount_basic(t *testing.T) {
 	resourceName := "data.google_bigquery_default_service_account.bq_account"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
