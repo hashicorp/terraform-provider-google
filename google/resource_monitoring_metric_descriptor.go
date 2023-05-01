@@ -137,12 +137,13 @@ More info can be found in the API documentation
 (https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors).`,
 			},
 			"monitored_resource_types": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Computed:    true,
 				Description: `If present, then a time series, which is identified partially by a metric type and a MonitoredResourceDescriptor, that is associated with this metric type can only be associated with one of the monitored resource types listed here. This field allows time series to be associated with the intersection of this metric type and the monitored resource types in this list.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				Set: schema.HashString,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -609,7 +610,10 @@ func flattenMonitoringMetricDescriptorDisplayName(v interface{}, d *schema.Resou
 }
 
 func flattenMonitoringMetricDescriptorMonitoredResourceTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func expandMonitoringMetricDescriptorType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
