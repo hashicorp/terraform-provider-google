@@ -64,13 +64,13 @@ The following arguments are supported:
   (Required)
   The user-assigned display name of the App.
 
+* `bundle_id` -
+  (Required)
+  The canonical bundle ID of the Apple app as it would appear in the Apple AppStore.
+
 
 - - -
 
-
-* `bundle_id` -
-  (Optional)
-  The canonical bundle ID of the Apple app as it would appear in the Apple AppStore.
 
 * `app_store_id` -
   (Optional)
