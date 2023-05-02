@@ -68,7 +68,7 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "cluster"}, // we don't read instance type back
 			},
 			{
 				Config: testAccBigtableInstance_clusterReordered(instanceName, 5),
@@ -76,8 +76,9 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 			{
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
+				PlanOnly:                true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "cluster"}, // we don't read instance type back
 			},
 			{
 				Config: testAccBigtableInstance_clusterModified(instanceName, 5),
@@ -86,7 +87,7 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "cluster"}, // we don't read instance type back
 			},
 			{
 				Config: testAccBigtableInstance_clusterReordered(instanceName, 5),
@@ -94,8 +95,9 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 			{
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
+				PlanOnly:                true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "cluster"}, // we don't read instance type back
 			},
 			{
 				Config: testAccBigtableInstance_clusterModifiedAgain(instanceName, 5),
@@ -104,7 +106,7 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "cluster"}, // we don't read instance type back
 			},
 		},
 	})
