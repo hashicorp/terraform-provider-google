@@ -30,11 +30,6 @@ To get more information about AddressGroup, see:
 * How-to Guides
     * [Use AddressGroups](https://cloud.google.com/vpc/docs/use-address-groups-firewall-policies)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_security_address_groups_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Network Security Address Groups Basic
 
 
@@ -42,17 +37,27 @@ To get more information about AddressGroup, see:
 resource "google_network_security_address_group" "default" {
   provider    = google-beta
   name        = "my-address-groups"
+  parent      = "projects/my-project-name"
   location    = "us-central1"
   type        = "IPV4"
   capacity    = "100"
   items       = ["208.80.154.224/32"]
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_security_address_groups_advanced&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
+## Example Usage - Network Security Address Groups Organization Basic
+
+
+```hcl
+resource "google_network_security_address_group" "default" {
+  provider    = google-beta
+  name        = "my-address-groups"
+  parent      = "organizations/123456789"
+  location    = "us-central1"
+  type        = "IPV4"
+  capacity    = "100"
+  items       = ["208.80.154.224/32"]
+}
+```
 ## Example Usage - Network Security Address Groups Advanced
 
 
@@ -60,6 +65,7 @@ resource "google_network_security_address_group" "default" {
 resource "google_network_security_address_group" "default" {
   provider    = google-beta
   name        = "my-address-groups"
+  parent      = "projects/my-project-name"
   location    = "us-central1"
   description = "my description"
   type        = "IPV4"
@@ -84,7 +90,12 @@ The following arguments are supported:
 
 * `name` -
   (Required)
-  Name of the AddressGroup resource. It matches pattern projects/*/locations/{location}/addressGroups/<addressGroup>.
+  Name of the AddressGroup resource.
+
+* `location` -
+  (Required)
+  The location of the gateway security policy.
+  The default value is `global`.
 
 
 - - -
@@ -103,20 +114,16 @@ The following arguments are supported:
   (Optional)
   List of items.
 
-* `location` -
+* `parent` -
   (Optional)
-  The location of the gateway security policy.
-  The default value is `global`.
-
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
+  The name of the parent this address group belongs to. Format: organizations/{organization_id} or projects/{project_id}.
 
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/addressGroups/{{name}}`
+* `id` - an identifier for the resource with format `{{parent}}/locations/{{location}}/addressGroups/{{name}}`
 
 * `create_time` -
   The timestamp when the resource was created.
@@ -134,9 +141,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
-- `create` - Default is 30 minutes.
-- `update` - Default is 30 minutes.
-- `delete` - Default is 30 minutes.
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+- `delete` - Default is 20 minutes.
 
 ## Import
 
@@ -144,11 +151,5 @@ This resource provides the following
 AddressGroup can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_network_security_address_group.default projects/{{project}}/locations/{{location}}/addressGroups/{{name}}
-$ terraform import google_network_security_address_group.default {{project}}/{{location}}/{{name}}
-$ terraform import google_network_security_address_group.default {{location}}/{{name}}
+$ terraform import google_network_security_address_group.default {{parent}}/locations/{{location}}/addressGroups/{{name}}
 ```
-
-## User Project Overrides
-
-This resource supports [User Project Overrides](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#user_project_override).

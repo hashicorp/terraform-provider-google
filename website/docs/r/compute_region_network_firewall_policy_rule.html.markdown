@@ -24,6 +24,16 @@ The Compute NetworkFirewallPolicyRule resource
 
 ## Example Usage - regional
 ```hcl
+resource "google_network_security_address_group" "basic_regional_networksecurity_address_group" {
+  name        = "policy"
+  parent      = "projects/my-project-name"
+  description = "Sample regional networksecurity_address_group"
+  location    = "us-west1"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
+}
+
 resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
   name        = "policy"
   description = "Sample regional network firewall policy"
@@ -56,6 +66,8 @@ resource "google_compute_region_network_firewall_policy_rule" "primary" {
     src_secure_tags {
       name = "tagValues/${google_tags_tag_value.basic_value.name}"
     }
+    
+    src_address_groups = [google_network_security_address_group.basic_regional_networksecurity_address_group.id]
   }
 }
 

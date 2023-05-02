@@ -67,6 +67,16 @@ func TestAccComputeRegionNetworkFirewallPolicyRule_RegionalHandWritten(t *testin
 
 func testAccComputeRegionNetworkFirewallPolicyRule_RegionalHandWritten(context map[string]interface{}) string {
 	return Nprintf(`
+resource "google_network_security_address_group" "basic_regional_networksecurity_address_group" {
+  name        = "tf-test-policy%{random_suffix}"
+  parent      = "projects/%{project_name}"
+  description = "Sample regional networksecurity_address_group"
+  location    = "%{region}"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
+}
+
 resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
   name        = "tf-test-policy%{random_suffix}"
   description = "Sample regional network firewall policy"
@@ -99,6 +109,8 @@ resource "google_compute_region_network_firewall_policy_rule" "primary" {
     src_secure_tags {
       name = "tagValues/${google_tags_tag_value.basic_value.name}"
     }
+    
+    src_address_groups = [google_network_security_address_group.basic_regional_networksecurity_address_group.id]
   }
 }
 
@@ -128,6 +140,16 @@ resource "google_tags_tag_value" "basic_value" {
 
 func testAccComputeRegionNetworkFirewallPolicyRule_RegionalHandWrittenUpdate0(context map[string]interface{}) string {
 	return Nprintf(`
+resource "google_network_security_address_group" "basic_regional_networksecurity_address_group" {
+  name        = "tf-test-policy%{random_suffix}"
+  parent      = "projects/%{project_name}"
+  description = "Sample regional networksecurity_address_group. Update"
+  location    = "%{region}"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
+}
+
 resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
   name        = "tf-test-policy%{random_suffix}"
   description = "Sample regional network firewall policy"
@@ -156,6 +178,8 @@ resource "google_compute_region_network_firewall_policy_rule" "primary" {
       ip_protocol = "tcp"
       ports       = ["123"]
     }
+    
+    dest_address_groups = [google_network_security_address_group.basic_regional_networksecurity_address_group.id]
   }
 
   target_secure_tags {
