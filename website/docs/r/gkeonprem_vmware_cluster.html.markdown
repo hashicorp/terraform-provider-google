@@ -382,13 +382,13 @@ The following arguments are supported:
 
 * `service_address_cidr_blocks` -
   (Required)
-  All services in the cluster are assigned an RFC1918 IPv4 address 
-  from these ranges. Only a single range is supported.. This field 
+  All services in the cluster are assigned an RFC1918 IPv4 address
+  from these ranges. Only a single range is supported.. This field
   cannot be changed after creation.
 
 * `pod_address_cidr_blocks` -
   (Required)
-  All pods in the cluster are assigned an RFC1918 IPv4 address from these ranges. 
+  All pods in the cluster are assigned an RFC1918 IPv4 address from these ranges.
   Only a single range is supported. This field cannot be changed after creation.
 
 * `static_ip_config` -
@@ -454,7 +454,7 @@ The following arguments are supported:
 
 * `enabled` -
   (Required)
-  enabled is a flag to mark if DHCP IP allocation is 
+  enabled is a flag to mark if DHCP IP allocation is
   used for VMware user clusters.
 
 <a name="nested_host_config"></a>The `host_config` block supports:
@@ -594,8 +594,8 @@ The following arguments are supported:
 
 * `addresses` -
   (Required)
-  The addresses that are part of this pool. Each address 
-  must be either in the CIDR form (1.2.3.0/24) or range 
+  The addresses that are part of this pool. Each address
+  must be either in the CIDR form (1.2.3.0/24) or range
   form (1.2.3.1-1.2.3.5).
 
 * `avoid_buggy_ips` -
