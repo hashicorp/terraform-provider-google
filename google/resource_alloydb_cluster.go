@@ -168,17 +168,17 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 												"minutes": {
 													Type:        schema.TypeInt,
 													Optional:    true,
-													Description: `Minutes of hour of day. Must be from 0 to 59.`,
+													Description: `Minutes of hour of day. Currently, only the value 0 is supported.`,
 												},
 												"nanos": {
 													Type:        schema.TypeInt,
 													Optional:    true,
-													Description: `Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.`,
+													Description: `Fractions of seconds in nanoseconds. Currently, only the value 0 is supported.`,
 												},
 												"seconds": {
 													Type:        schema.TypeInt,
 													Optional:    true,
-													Description: `Seconds of minutes of the time. Must normally be from 0 to 59. An API may allow the value 60 if it allows leap-seconds.`,
+													Description: `Seconds of minutes of the time. Currently, only the value 0 is supported.`,
 												},
 											},
 										},
