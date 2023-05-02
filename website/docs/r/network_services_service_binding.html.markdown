@@ -14,13 +14,13 @@
 # ----------------------------------------------------------------------------
 subcategory: "Network services"
 description: |-
-  ServiceBinding is the resource that defines a Service Directory Service to be used in a 
+  ServiceBinding is the resource that defines a Service Directory Service to be used in a
   BackendService resource.
 ---
 
 # google\_network\_services\_service\_binding
 
-ServiceBinding is the resource that defines a Service Directory Service to be used in a 
+ServiceBinding is the resource that defines a Service Directory Service to be used in a
 BackendService resource.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
@@ -74,7 +74,7 @@ The following arguments are supported:
 
 * `service` -
   (Required)
-  The full Service Directory Service name of the format 
+  The full Service Directory Service name of the format
   projects/*/locations/*/namespaces/*/services/*
 
 * `name` -

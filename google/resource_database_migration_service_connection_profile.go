@@ -99,7 +99,7 @@ func ResourceDatabaseMigrationServiceConnectionProfile() *schema.Resource {
 									"vpc_network": {
 										Type:     schema.TypeString,
 										Required: true,
-										Description: `Required. The resource link for the VPC network in which cluster resources are created and from which they are accessible via Private IP. The network must belong to the same project as the cluster. 
+										Description: `Required. The resource link for the VPC network in which cluster resources are created and from which they are accessible via Private IP. The network must belong to the same project as the cluster.
 It is specified in the form: 'projects/{project_number}/global/networks/{network_id}'. This is required to create a cluster.`,
 									},
 									"labels": {
@@ -192,7 +192,7 @@ It is specified in the form: 'projects/{project_number}/global/networks/{network
 									"auto_storage_increase": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										Description: `If you enable this setting, Cloud SQL checks your available storage every 30 seconds. If the available storage falls below a threshold size, Cloud SQL automatically adds additional storage capacity. 
+										Description: `If you enable this setting, Cloud SQL checks your available storage every 30 seconds. If the available storage falls below a threshold size, Cloud SQL automatically adds additional storage capacity.
 If the available storage repeatedly falls below the threshold size, Cloud SQL continues to add storage until it reaches the maximum of 30 TB.`,
 									},
 									"cmek_key_name": {
@@ -225,7 +225,7 @@ If the available storage repeatedly falls below the threshold size, Cloud SQL co
 									"database_version": {
 										Type:     schema.TypeString,
 										Optional: true,
-										Description: `The database engine type and version. 
+										Description: `The database engine type and version.
 Currently supported values located at https://cloud.google.com/database-migration/docs/reference/rest/v1/projects.locations.connectionProfiles#sqldatabaseversion`,
 									},
 									"ip_config": {
@@ -274,7 +274,7 @@ Currently supported values located at https://cloud.google.com/database-migratio
 												"private_network": {
 													Type:     schema.TypeString,
 													Optional: true,
-													Description: `The resource link for the VPC network from which the Cloud SQL instance is accessible for private IP. For example, projects/myProject/global/networks/default. 
+													Description: `The resource link for the VPC network from which the Cloud SQL instance is accessible for private IP. For example, projects/myProject/global/networks/default.
 This setting can be updated, but it cannot be removed after it is set.`,
 												},
 												"require_ssl": {
@@ -300,7 +300,7 @@ This setting can be updated, but it cannot be removed after it is set.`,
 									"tier": {
 										Type:     schema.TypeString,
 										Optional: true,
-										Description: `The tier (or machine type) for this instance, for example: db-n1-standard-1 (MySQL instances) or db-custom-1-3840 (PostgreSQL instances). 
+										Description: `The tier (or machine type) for this instance, for example: db-n1-standard-1 (MySQL instances) or db-custom-1-3840 (PostgreSQL instances).
 For more information, see https://cloud.google.com/sql/docs/mysql/instance-settings`,
 									},
 									"user_labels": {
@@ -374,7 +374,7 @@ For more information, see https://cloud.google.com/sql/docs/mysql/instance-setti
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							Description: `Required. Input only. The password for the user that Database Migration Service will be using to connect to the database. 
+							Description: `Required. Input only. The password for the user that Database Migration Service will be using to connect to the database.
 This field is not returned on request, and the value is encrypted when stored in Database Migration Service.`,
 							Sensitive: true,
 						},
@@ -404,7 +404,7 @@ This field is not returned on request, and the value is encrypted when stored in
 										Type:     schema.TypeString,
 										Required: true,
 										ForceNew: true,
-										Description: `Required. Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate. 
+										Description: `Required. Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
 The replica will use this certificate to verify it's connecting to the right host.`,
 										Sensitive: true,
 									},
@@ -420,7 +420,7 @@ If this field is used then the 'clientKey' field is mandatory`,
 										Type:     schema.TypeString,
 										Optional: true,
 										ForceNew: true,
-										Description: `Input only. The unencrypted PKCS#1 or PKCS#8 PEM-encoded private key associated with the Client Certificate. 
+										Description: `Input only. The unencrypted PKCS#1 or PKCS#8 PEM-encoded private key associated with the Client Certificate.
 If this field is used then the 'clientCertificate' field is mandatory.`,
 										Sensitive: true,
 									},
@@ -457,7 +457,7 @@ If this field is used then the 'clientCertificate' field is mandatory.`,
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							Description: `Required. Input only. The password for the user that Database Migration Service will be using to connect to the database. 
+							Description: `Required. Input only. The password for the user that Database Migration Service will be using to connect to the database.
 This field is not returned on request, and the value is encrypted when stored in Database Migration Service.`,
 							Sensitive: true,
 						},
@@ -487,7 +487,7 @@ This field is not returned on request, and the value is encrypted when stored in
 										Type:     schema.TypeString,
 										Required: true,
 										ForceNew: true,
-										Description: `Required. Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate. 
+										Description: `Required. Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
 The replica will use this certificate to verify it's connecting to the right host.`,
 										Sensitive: true,
 									},
@@ -504,7 +504,7 @@ If this field is used then the 'clientKey' field is mandatory`,
 										Type:     schema.TypeString,
 										Optional: true,
 										ForceNew: true,
-										Description: `Input only. The unencrypted PKCS#1 or PKCS#8 PEM-encoded private key associated with the Client Certificate. 
+										Description: `Input only. The unencrypted PKCS#1 or PKCS#8 PEM-encoded private key associated with the Client Certificate.
 If this field is used then the 'clientCertificate' field is mandatory.`,
 										Sensitive:    true,
 										RequiredWith: []string{},
