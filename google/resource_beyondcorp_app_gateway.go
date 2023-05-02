@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceBeyondcorpAppGateway() *schema.Resource {
@@ -56,7 +57,7 @@ func ResourceBeyondcorpAppGateway() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"HOST_TYPE_UNSPECIFIED", "GCP_REGIONAL_MIG", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"HOST_TYPE_UNSPECIFIED", "GCP_REGIONAL_MIG", ""}),
 				Description:  `The type of hosting used by the AppGateway. Default value: "HOST_TYPE_UNSPECIFIED" Possible values: ["HOST_TYPE_UNSPECIFIED", "GCP_REGIONAL_MIG"]`,
 				Default:      "HOST_TYPE_UNSPECIFIED",
 			},
@@ -77,7 +78,7 @@ func ResourceBeyondcorpAppGateway() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"TYPE_UNSPECIFIED", "TCP_PROXY", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"TYPE_UNSPECIFIED", "TCP_PROXY", ""}),
 				Description:  `The type of network connectivity used by the AppGateway. Default value: "TYPE_UNSPECIFIED" Possible values: ["TYPE_UNSPECIFIED", "TCP_PROXY"]`,
 				Default:      "TYPE_UNSPECIFIED",
 			},

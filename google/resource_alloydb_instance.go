@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceAlloydbInstance() *schema.Resource {
@@ -61,7 +62,7 @@ func ResourceAlloydbInstance() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"PRIMARY", "READ_POOL"}),
+				ValidateFunc: verify.ValidateEnum([]string{"PRIMARY", "READ_POOL"}),
 				Description:  `The type of the instance. If the instance type is READ_POOL, provide the associated PRIMARY instance in the 'depends_on' meta-data attribute. Possible values: ["PRIMARY", "READ_POOL"]`,
 			},
 			"annotations": {
@@ -74,7 +75,7 @@ func ResourceAlloydbInstance() *schema.Resource {
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"AVAILABILITY_TYPE_UNSPECIFIED", "ZONAL", "REGIONAL", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"AVAILABILITY_TYPE_UNSPECIFIED", "ZONAL", "REGIONAL", ""}),
 				Description:  `Availability type of an Instance. Defaults to REGIONAL for both primary and read instances. Note that primary and read instances can have different availability types. Possible values: ["AVAILABILITY_TYPE_UNSPECIFIED", "ZONAL", "REGIONAL"]`,
 			},
 			"database_flags": {

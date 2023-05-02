@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func resourceMonitoringUptimeCheckConfigHttpCheckPathDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
@@ -62,7 +63,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"STATIC_IP_CHECKERS", "VPC_CHECKERS", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"STATIC_IP_CHECKERS", "VPC_CHECKERS", ""}),
 				Description:  `The checker type to use for the check. If the monitored resource type is servicedirectory_service, checkerType must be set to VPC_CHECKERS. Possible values: ["STATIC_IP_CHECKERS", "VPC_CHECKERS"]`,
 			},
 			"content_matchers": {
@@ -91,7 +92,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 									"json_matcher": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validateEnum([]string{"EXACT_MATCH", "REGEX_MATCH", ""}),
+										ValidateFunc: verify.ValidateEnum([]string{"EXACT_MATCH", "REGEX_MATCH", ""}),
 										Description:  `Options to perform JSONPath content matching. Default value: "EXACT_MATCH" Possible values: ["EXACT_MATCH", "REGEX_MATCH"]`,
 										Default:      "EXACT_MATCH",
 									},
@@ -101,7 +102,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 						"matcher": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NOT_MATCHES_REGEX", "MATCHES_JSON_PATH", "NOT_MATCHES_JSON_PATH", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NOT_MATCHES_REGEX", "MATCHES_JSON_PATH", "NOT_MATCHES_JSON_PATH", ""}),
 							Description:  `The type of content matcher that will be applied to the server output, compared to the content string when the check is run. Default value: "CONTAINS_STRING" Possible values: ["CONTAINS_STRING", "NOT_CONTAINS_STRING", "MATCHES_REGEX", "NOT_MATCHES_REGEX", "MATCHES_JSON_PATH", "NOT_MATCHES_JSON_PATH"]`,
 							Default:      "CONTAINS_STRING",
 						},
@@ -124,7 +125,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 									"status_class": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validateEnum([]string{"STATUS_CLASS_1XX", "STATUS_CLASS_2XX", "STATUS_CLASS_3XX", "STATUS_CLASS_4XX", "STATUS_CLASS_5XX", "STATUS_CLASS_ANY", ""}),
+										ValidateFunc: verify.ValidateEnum([]string{"STATUS_CLASS_1XX", "STATUS_CLASS_2XX", "STATUS_CLASS_3XX", "STATUS_CLASS_4XX", "STATUS_CLASS_5XX", "STATUS_CLASS_ANY", ""}),
 										Description:  `A class of status codes to accept. Possible values: ["STATUS_CLASS_1XX", "STATUS_CLASS_2XX", "STATUS_CLASS_3XX", "STATUS_CLASS_4XX", "STATUS_CLASS_5XX", "STATUS_CLASS_ANY"]`,
 									},
 									"status_value": {
@@ -165,7 +166,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 						"content_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"TYPE_UNSPECIFIED", "URL_ENCODED", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"TYPE_UNSPECIFIED", "URL_ENCODED", ""}),
 							Description:  `The content type to use for the check. Possible values: ["TYPE_UNSPECIFIED", "URL_ENCODED"]`,
 						},
 						"headers": {
@@ -201,7 +202,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validateEnum([]string{"METHOD_UNSPECIFIED", "GET", "POST", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"METHOD_UNSPECIFIED", "GET", "POST", ""}),
 							Description:  `The HTTP request method to use for the check. If set to METHOD_UNSPECIFIED then requestMethod defaults to GET. Default value: "GET" Possible values: ["METHOD_UNSPECIFIED", "GET", "POST"]`,
 							Default:      "GET",
 						},
@@ -272,7 +273,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validateEnum([]string{"RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER", ""}),
 							Description:  `The resource type of the group members. Possible values: ["RESOURCE_TYPE_UNSPECIFIED", "INSTANCE", "AWS_ELB_LOAD_BALANCER"]`,
 							AtLeastOneOf: []string{"resource_group.0.resource_type", "resource_group.0.group_id"},
 						},

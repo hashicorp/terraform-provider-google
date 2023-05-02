@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"google.golang.org/api/googleapi"
 )
@@ -93,7 +94,7 @@ or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validateEnum([]string{"CREATE_IF_NEEDED", "CREATE_NEVER", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"CREATE_IF_NEEDED", "CREATE_NEVER", ""}),
 							Description: `Specifies whether the job is allowed to create new tables. The following values are supported:
 CREATE_IF_NEEDED: If the table does not exist, BigQuery creates the table.
 CREATE_NEVER: The table must already exist. If it does not, a 'notFound' error is returned in the job result.
@@ -160,7 +161,7 @@ or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validateEnum([]string{"WRITE_TRUNCATE", "WRITE_APPEND", "WRITE_EMPTY", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"WRITE_TRUNCATE", "WRITE_APPEND", "WRITE_EMPTY", ""}),
 							Description: `Specifies the action that occurs if the destination table already exists. The following values are supported:
 WRITE_TRUNCATE: If the table already exists, BigQuery overwrites the table data and uses the schema from the query result.
 WRITE_APPEND: If the table already exists, BigQuery appends the data to the table.
@@ -391,7 +392,7 @@ The default value is false.`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validateEnum([]string{"CREATE_IF_NEEDED", "CREATE_NEVER", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"CREATE_IF_NEEDED", "CREATE_NEVER", ""}),
 							Description: `Specifies whether the job is allowed to create new tables. The following values are supported:
 CREATE_IF_NEEDED: If the table does not exist, BigQuery creates the table.
 CREATE_NEVER: The table must already exist. If it does not, a 'notFound' error is returned in the job result.
@@ -575,7 +576,7 @@ A wrapper is used here because an empty string is an invalid value.`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validateEnum([]string{"WRITE_TRUNCATE", "WRITE_APPEND", "WRITE_EMPTY", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"WRITE_TRUNCATE", "WRITE_APPEND", "WRITE_EMPTY", ""}),
 							Description: `Specifies the action that occurs if the destination table already exists. The following values are supported:
 WRITE_TRUNCATE: If the table already exists, BigQuery overwrites the table data and uses the schema from the query result.
 WRITE_APPEND: If the table already exists, BigQuery appends the data to the table.
@@ -616,7 +617,7 @@ However, you must still set destinationTable when result size exceeds the allowe
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validateEnum([]string{"CREATE_IF_NEEDED", "CREATE_NEVER", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"CREATE_IF_NEEDED", "CREATE_NEVER", ""}),
 							Description: `Specifies whether the job is allowed to create new tables. The following values are supported:
 CREATE_IF_NEEDED: If the table does not exist, BigQuery creates the table.
 CREATE_NEVER: The table must already exist. If it does not, a 'notFound' error is returned in the job result.
@@ -739,7 +740,7 @@ If unspecified, this will be set to your project default.`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validateEnum([]string{"INTERACTIVE", "BATCH", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"INTERACTIVE", "BATCH", ""}),
 							Description:  `Specifies a priority for the query. Default value: "INTERACTIVE" Possible values: ["INTERACTIVE", "BATCH"]`,
 							Default:      "INTERACTIVE",
 						},
@@ -770,7 +771,7 @@ ALLOW_FIELD_RELAXATION: allow relaxing a required field in the original schema t
 										Type:         schema.TypeString,
 										Optional:     true,
 										ForceNew:     true,
-										ValidateFunc: validateEnum([]string{"LAST", "FIRST_SELECT", ""}),
+										ValidateFunc: verify.ValidateEnum([]string{"LAST", "FIRST_SELECT", ""}),
 										Description: `Determines which statement in the script represents the "key result",
 used to populate the schema and query results of the script job. Possible values: ["LAST", "FIRST_SELECT"]`,
 										AtLeastOneOf: []string{"query.0.script_options.0.statement_timeout_ms", "query.0.script_options.0.statement_byte_budget", "query.0.script_options.0.key_result_statement"},
@@ -835,7 +836,7 @@ Providing a inline code resource is equivalent to providing a URI for a file con
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validateEnum([]string{"WRITE_TRUNCATE", "WRITE_APPEND", "WRITE_EMPTY", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"WRITE_TRUNCATE", "WRITE_APPEND", "WRITE_EMPTY", ""}),
 							Description: `Specifies the action that occurs if the destination table already exists. The following values are supported:
 WRITE_TRUNCATE: If the table already exists, BigQuery overwrites the table data and uses the schema from the query result.
 WRITE_APPEND: If the table already exists, BigQuery appends the data to the table.

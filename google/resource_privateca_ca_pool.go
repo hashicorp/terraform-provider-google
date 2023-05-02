@@ -22,7 +22,9 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourcePrivatecaCaPool() *schema.Resource {
@@ -60,7 +62,7 @@ running 'gcloud privateca locations list'.`,
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"ENTERPRISE", "DEVOPS"}),
+				ValidateFunc: verify.ValidateEnum([]string{"ENTERPRISE", "DEVOPS"}),
 				Description:  `The Tier of this CaPool. Possible values: ["ENTERPRISE", "DEVOPS"]`,
 			},
 			"issuance_policy": {
@@ -107,7 +109,7 @@ Otherwise, any key may be used.`,
 												"signature_algorithm": {
 													Type:         schema.TypeString,
 													Required:     true,
-													ValidateFunc: validateEnum([]string{"ECDSA_P256", "ECDSA_P384", "EDDSA_25519"}),
+													ValidateFunc: verify.ValidateEnum([]string{"ECDSA_P256", "ECDSA_P384", "EDDSA_25519"}),
 													Description:  `The algorithm used. Possible values: ["ECDSA_P256", "ECDSA_P384", "EDDSA_25519"]`,
 												},
 											},
@@ -550,7 +552,7 @@ An object containing a list of "key": value pairs. Example: { "name": "wrench", 
 			"publishing_options": {
 				Type:             schema.TypeList,
 				Optional:         true,
-				DiffSuppressFunc: EmptyOrUnsetBlockDiffSuppress,
+				DiffSuppressFunc: tpgresource.EmptyOrUnsetBlockDiffSuppress,
 				Description:      `The PublishingOptions to follow when issuing Certificates from any CertificateAuthority in this CaPool.`,
 				MaxItems:         1,
 				Elem: &schema.Resource{

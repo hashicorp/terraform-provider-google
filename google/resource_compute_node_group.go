@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceComputeNodeGroup() *schema.Resource {
@@ -72,7 +73,7 @@ to 100 and greater than or equal to min-nodes.`,
 							Computed:     true,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validateEnum([]string{"OFF", "ON", "ONLY_SCALE_OUT"}),
+							ValidateFunc: verify.ValidateEnum([]string{"OFF", "ON", "ONLY_SCALE_OUT"}),
 							Description: `The autoscaling mode. Set to one of the following:
   - OFF: Disables the autoscaler.
   - ON: Enables scaling in and scaling out.
@@ -147,7 +148,7 @@ than or equal to max-nodes. The default value is 0.`,
 							Type:         schema.TypeString,
 							Required:     true,
 							ForceNew:     true,
-							ValidateFunc: validateEnum([]string{"ORGANIZATION", "SPECIFIC_PROJECTS", "LOCAL"}),
+							ValidateFunc: verify.ValidateEnum([]string{"ORGANIZATION", "SPECIFIC_PROJECTS", "LOCAL"}),
 							Description:  `Node group sharing type. Possible values: ["ORGANIZATION", "SPECIFIC_PROJECTS", "LOCAL"]`,
 						},
 						"project_map": {

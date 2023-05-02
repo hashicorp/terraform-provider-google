@@ -196,7 +196,7 @@ than 255 UTF-8 encoded bytes.`,
 										Description: `The components to be enabled. Possible values: ["SYSTEM_COMPONENTS", "WORKLOADS"]`,
 										Elem: &schema.Schema{
 											Type:         schema.TypeString,
-											ValidateFunc: validateEnum([]string{"SYSTEM_COMPONENTS", "WORKLOADS"}),
+											ValidateFunc: verify.ValidateEnum([]string{"SYSTEM_COMPONENTS", "WORKLOADS"}),
 										},
 									},
 								},

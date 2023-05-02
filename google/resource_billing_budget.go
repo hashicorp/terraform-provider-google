@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 // Check to see if a specified value in the config exists and suppress diffs if so. Otherwise run EmptyOrDefaultStringSuppress.
@@ -189,7 +190,7 @@ spend against the budget.`,
 						"calendar_period": {
 							Type:             schema.TypeString,
 							Optional:         true,
-							ValidateFunc:     validateEnum([]string{"MONTH", "QUARTER", "YEAR", "CALENDAR_PERIOD_UNSPECIFIED", ""}),
+							ValidateFunc:     verify.ValidateEnum([]string{"MONTH", "QUARTER", "YEAR", "CALENDAR_PERIOD_UNSPECIFIED", ""}),
 							DiffSuppressFunc: checkValAndDefaultStringSuppress("MONTH", "budget_filter.0.custom_period.0.start_date"),
 							Description: `A CalendarPeriod represents the abstract concept of a recurring time period that has a
 canonical start. Grammatically, "the start of the current CalendarPeriod".
@@ -215,7 +216,7 @@ If creditTypesTreatment is not INCLUDE_SPECIFIED_CREDITS, this field must be emp
 						"credit_types_treatment": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"INCLUDE_ALL_CREDITS", "EXCLUDE_ALL_CREDITS", "INCLUDE_SPECIFIED_CREDITS", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"INCLUDE_ALL_CREDITS", "EXCLUDE_ALL_CREDITS", "INCLUDE_SPECIFIED_CREDITS", ""}),
 							Description: `Specifies how credits should be treated when determining spend
 for threshold calculations. Default value: "INCLUDE_ALL_CREDITS" Possible values: ["INCLUDE_ALL_CREDITS", "EXCLUDE_ALL_CREDITS", "INCLUDE_SPECIFIED_CREDITS"]`,
 							Default:      "INCLUDE_ALL_CREDITS",
@@ -372,7 +373,7 @@ budget.`,
 						"spend_basis": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"CURRENT_SPEND", "FORECASTED_SPEND", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"CURRENT_SPEND", "FORECASTED_SPEND", ""}),
 							Description: `The type of basis used to determine if spend has passed
 the threshold. Default value: "CURRENT_SPEND" Possible values: ["CURRENT_SPEND", "FORECASTED_SPEND"]`,
 							Default: "CURRENT_SPEND",

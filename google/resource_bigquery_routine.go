@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"google.golang.org/api/googleapi"
 )
@@ -75,7 +76,7 @@ If language=SQL, it is the substring inside (but excluding) the parentheses.`,
 						"argument_kind": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"FIXED_TYPE", "ANY_TYPE", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"FIXED_TYPE", "ANY_TYPE", ""}),
 							Description:  `Defaults to FIXED_TYPE. Default value: "FIXED_TYPE" Possible values: ["FIXED_TYPE", "ANY_TYPE"]`,
 							Default:      "FIXED_TYPE",
 						},
@@ -95,7 +96,7 @@ the schema as returned by the API.`,
 						"mode": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"IN", "OUT", "INOUT", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"IN", "OUT", "INOUT", ""}),
 							Description:  `Specifies whether the argument is input or output. Can be set for procedures only. Possible values: ["IN", "OUT", "INOUT"]`,
 						},
 						"name": {
@@ -114,7 +115,7 @@ the schema as returned by the API.`,
 			"determinism_level": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"DETERMINISM_LEVEL_UNSPECIFIED", "DETERMINISTIC", "NOT_DETERMINISTIC", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"DETERMINISM_LEVEL_UNSPECIFIED", "DETERMINISTIC", "NOT_DETERMINISTIC", ""}),
 				Description:  `The determinism level of the JavaScript UDF if defined. Possible values: ["DETERMINISM_LEVEL_UNSPECIFIED", "DETERMINISTIC", "NOT_DETERMINISTIC"]`,
 			},
 			"imported_libraries": {
@@ -129,7 +130,7 @@ imported JAVASCRIPT libraries.`,
 			"language": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"SQL", "JAVASCRIPT", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"SQL", "JAVASCRIPT", ""}),
 				Description:  `The language of the routine. Possible values: ["SQL", "JAVASCRIPT"]`,
 			},
 			"return_table_type": {
@@ -162,7 +163,7 @@ the schema as returned by the API.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"SCALAR_FUNCTION", "PROCEDURE", "TABLE_VALUED_FUNCTION", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"SCALAR_FUNCTION", "PROCEDURE", "TABLE_VALUED_FUNCTION", ""}),
 				Description:  `The type of routine. Possible values: ["SCALAR_FUNCTION", "PROCEDURE", "TABLE_VALUED_FUNCTION"]`,
 			},
 			"creation_time": {

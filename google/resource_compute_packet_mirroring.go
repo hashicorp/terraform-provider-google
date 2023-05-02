@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceComputePacketMirroring() *schema.Resource {
@@ -115,7 +116,7 @@ set to true.`,
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validateGCEName,
+				ValidateFunc: verify.ValidateGCEName,
 				Description:  `The name of the packet mirroring rule`,
 			},
 			"network": {
@@ -163,7 +164,7 @@ destination (egress) IP in the IP header. Only IPv4 is supported.`,
 						"direction": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"INGRESS", "EGRESS", "BOTH", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"INGRESS", "EGRESS", "BOTH", ""}),
 							Description:  `Direction of traffic to mirror. Default value: "BOTH" Possible values: ["INGRESS", "EGRESS", "BOTH"]`,
 							Default:      "BOTH",
 						},

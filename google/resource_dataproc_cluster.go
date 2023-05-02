@@ -3,7 +3,6 @@ package google
 import (
 	"errors"
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"regexp"
 	"strconv"
@@ -12,6 +11,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/dataproc/v1"
 )
@@ -1004,14 +1006,14 @@ by Dataproc`,
 							AtLeastOneOf:     clusterConfigKeys,
 							MaxItems:         1,
 							Description:      `The autoscaling policy config associated with the cluster.`,
-							DiffSuppressFunc: EmptyOrUnsetBlockDiffSuppress,
+							DiffSuppressFunc: tpgresource.EmptyOrUnsetBlockDiffSuppress,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"policy_uri": {
 										Type:             schema.TypeString,
 										Required:         true,
 										Description:      `The autoscaling policy used by the cluster.`,
-										DiffSuppressFunc: LocationDiffSuppress,
+										DiffSuppressFunc: tpgresource.LocationDiffSuppress,
 									},
 								},
 							},
@@ -1063,7 +1065,7 @@ by Dataproc`,
 										Type:             schema.TypeString,
 										Optional:         true,
 										Description:      `The time when cluster will be auto-deleted. A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".`,
-										DiffSuppressFunc: TimestampDiffSuppress(time.RFC3339Nano),
+										DiffSuppressFunc: tpgresource.TimestampDiffSuppress(time.RFC3339Nano),
 										AtLeastOneOf: []string{
 											"cluster_config.0.lifecycle_config.0.idle_delete_ttl",
 											"cluster_config.0.lifecycle_config.0.auto_delete_time",

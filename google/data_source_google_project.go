@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func DataSourceGoogleProject() *schema.Resource {
@@ -13,7 +14,7 @@ func DataSourceGoogleProject() *schema.Resource {
 
 	addOptionalFieldsToSchema(dsSchema, "project_id")
 
-	dsSchema["project_id"].ValidateFunc = validateDSProjectID()
+	dsSchema["project_id"].ValidateFunc = verify.ValidateDSProjectID()
 	return &schema.Resource{
 		Read:   datasourceGoogleProjectRead,
 		Schema: dsSchema,

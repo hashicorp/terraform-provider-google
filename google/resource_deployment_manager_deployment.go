@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func customDiffDeploymentManagerDeployment(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
@@ -128,7 +129,7 @@ configuration.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"ACQUIRE", "CREATE_OR_ACQUIRE", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"ACQUIRE", "CREATE_OR_ACQUIRE", ""}),
 				Description: `Set the policy to use for creating new resources. Only used on
 create and update. Valid values are 'CREATE_OR_ACQUIRE' (default) or
 'ACQUIRE'. If set to 'ACQUIRE' and resources do not already exist,
@@ -140,7 +141,7 @@ actually affect the deployment, just how it is updated. Default value: "CREATE_O
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"ABANDON", "DELETE", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"ABANDON", "DELETE", ""}),
 				Description: `Set the policy to use for deleting new resources on update/delete.
 Valid values are 'DELETE' (default) or 'ABANDON'. If 'DELETE',
 resource is deleted after removal from Deployment Manager. If

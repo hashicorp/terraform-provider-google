@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceDataLossPreventionDeidentifyTemplate() *schema.Resource {
@@ -190,7 +191,7 @@ Masking can start from the beginning or end of the string.`,
 																					"common_characters_to_ignore": {
 																						Type:         schema.TypeString,
 																						Optional:     true,
-																						ValidateFunc: validateEnum([]string{"NUMERIC", "ALPHA_UPPER_CASE", "ALPHA_LOWER_CASE", "PUNCTUATION", "WHITESPACE", ""}),
+																						ValidateFunc: verify.ValidateEnum([]string{"NUMERIC", "ALPHA_UPPER_CASE", "ALPHA_LOWER_CASE", "PUNCTUATION", "WHITESPACE", ""}),
 																						Description:  `Common characters to not transform when masking. Useful to avoid removing punctuation. Possible values: ["NUMERIC", "ALPHA_UPPER_CASE", "ALPHA_LOWER_CASE", "PUNCTUATION", "WHITESPACE"]`,
 																					},
 																				},
@@ -363,7 +364,7 @@ Note: We recommend using CryptoDeterministicConfig for all use cases which do no
 																		"common_alphabet": {
 																			Type:         schema.TypeString,
 																			Optional:     true,
-																			ValidateFunc: validateEnum([]string{"FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED", "NUMERIC", "HEXADECIMAL", "UPPER_CASE_ALPHA_NUMERIC", "ALPHA_NUMERIC", ""}),
+																			ValidateFunc: verify.ValidateEnum([]string{"FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED", "NUMERIC", "HEXADECIMAL", "UPPER_CASE_ALPHA_NUMERIC", "ALPHA_NUMERIC", ""}),
 																			Description:  `Common alphabets. Possible values: ["FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED", "NUMERIC", "HEXADECIMAL", "UPPER_CASE_ALPHA_NUMERIC", "ALPHA_NUMERIC"]`,
 																		},
 																		"context": {
@@ -552,7 +553,7 @@ year by itself or a year and month where the day is not significant.`,
 																					"day_of_week_value": {
 																						Type:         schema.TypeString,
 																						Optional:     true,
-																						ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
+																						ValidateFunc: verify.ValidateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
 																						Description:  `Represents a day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
 																					},
 																					"float_value": {
@@ -769,7 +770,7 @@ The 'replacement_value' block must only contain one argument.`,
 																								"day_of_week_value": {
 																									Type:         schema.TypeString,
 																									Optional:     true,
-																									ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
+																									ValidateFunc: verify.ValidateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
 																									Description:  `Represents a day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
 																								},
 																								"float_value": {
@@ -866,7 +867,7 @@ The 'max' block must only contain one argument. See the 'bucketing_config' block
 																								"day_of_week_value": {
 																									Type:         schema.TypeString,
 																									Optional:     true,
-																									ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
+																									ValidateFunc: verify.ValidateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
 																									Description:  `Represents a day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
 																								},
 																								"float_value": {
@@ -963,7 +964,7 @@ The 'min' block must only contain one argument. See the 'bucketing_config' block
 																								"day_of_week_value": {
 																									Type:         schema.TypeString,
 																									Optional:     true,
-																									ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
+																									ValidateFunc: verify.ValidateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
 																									Description:  `Represents a day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
 																								},
 																								"float_value": {
@@ -1046,7 +1047,7 @@ The 'min' block must only contain one argument. See the 'bucketing_config' block
 																					"common_characters_to_ignore": {
 																						Type:         schema.TypeString,
 																						Optional:     true,
-																						ValidateFunc: validateEnum([]string{"NUMERIC", "ALPHA_UPPER_CASE", "ALPHA_LOWER_CASE", "PUNCTUATION", "WHITESPACE", ""}),
+																						ValidateFunc: verify.ValidateEnum([]string{"NUMERIC", "ALPHA_UPPER_CASE", "ALPHA_LOWER_CASE", "PUNCTUATION", "WHITESPACE", ""}),
 																						Description:  `Common characters to not transform when masking. Useful to avoid removing punctuation. Possible values: ["NUMERIC", "ALPHA_UPPER_CASE", "ALPHA_LOWER_CASE", "PUNCTUATION", "WHITESPACE"]`,
 																					},
 																				},
@@ -1307,7 +1308,7 @@ Note: We recommend using CryptoDeterministicConfig for all use cases which do no
 																		"common_alphabet": {
 																			Type:         schema.TypeString,
 																			Optional:     true,
-																			ValidateFunc: validateEnum([]string{"FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED", "NUMERIC", "HEXADECIMAL", "UPPER_CASE_ALPHA_NUMERIC", "ALPHA_NUMERIC", ""}),
+																			ValidateFunc: verify.ValidateEnum([]string{"FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED", "NUMERIC", "HEXADECIMAL", "UPPER_CASE_ALPHA_NUMERIC", "ALPHA_NUMERIC", ""}),
 																			Description:  `Common alphabets. Possible values: ["FFX_COMMON_NATIVE_ALPHABET_UNSPECIFIED", "NUMERIC", "HEXADECIMAL", "UPPER_CASE_ALPHA_NUMERIC", "ALPHA_NUMERIC"]`,
 																		},
 																		"context": {
@@ -1616,7 +1617,7 @@ The 'lower_bound' block must only contain one argument. See the 'fixed_size_buck
 																					"day_of_week_value": {
 																						Type:         schema.TypeString,
 																						Optional:     true,
-																						ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
+																						ValidateFunc: verify.ValidateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
 																						Description:  `Represents a day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
 																					},
 																					"float_value": {
@@ -1714,7 +1715,7 @@ The 'upper_bound' block must only contain one argument. See the 'fixed_size_buck
 																					"day_of_week_value": {
 																						Type:         schema.TypeString,
 																						Optional:     true,
-																						ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
+																						ValidateFunc: verify.ValidateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
 																						Description:  `Represents a day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
 																					},
 																					"float_value": {
@@ -1833,7 +1834,7 @@ The 'new_value' block must only contain one argument. For example when replacing
 																					"day_of_week_value": {
 																						Type:         schema.TypeString,
 																						Optional:     true,
-																						ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
+																						ValidateFunc: verify.ValidateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
 																						Description:  `Represents a day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
 																					},
 																					"float_value": {
@@ -1888,7 +1889,7 @@ The 'new_value' block must only contain one argument. For example when replacing
 																					"timestamp_value": {
 																						Type:         schema.TypeString,
 																						Optional:     true,
-																						ValidateFunc: validateRFC3339Date,
+																						ValidateFunc: verify.ValidateRFC3339Date,
 																						Description:  `A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 																					},
 																				},
@@ -1935,7 +1936,7 @@ The 'new_value' block must only contain one argument. For example when replacing
 																		"part_to_extract": {
 																			Type:         schema.TypeString,
 																			Optional:     true,
-																			ValidateFunc: validateEnum([]string{"YEAR", "MONTH", "DAY_OF_MONTH", "DAY_OF_WEEK", "WEEK_OF_YEAR", "HOUR_OF_DAY", ""}),
+																			ValidateFunc: verify.ValidateEnum([]string{"YEAR", "MONTH", "DAY_OF_MONTH", "DAY_OF_WEEK", "WEEK_OF_YEAR", "HOUR_OF_DAY", ""}),
 																			Description:  `The part of the time to keep. Possible values: ["YEAR", "MONTH", "DAY_OF_MONTH", "DAY_OF_WEEK", "WEEK_OF_YEAR", "HOUR_OF_DAY"]`,
 																		},
 																	},
@@ -1992,7 +1993,7 @@ Example Use Cases:
 																								"operator": {
 																									Type:         schema.TypeString,
 																									Required:     true,
-																									ValidateFunc: validateEnum([]string{"EQUAL_TO", "NOT_EQUAL_TO", "GREATER_THAN", "LESS_THAN", "GREATER_THAN_OR_EQUALS", "LESS_THAN_OR_EQUALS", "EXISTS"}),
+																									ValidateFunc: verify.ValidateEnum([]string{"EQUAL_TO", "NOT_EQUAL_TO", "GREATER_THAN", "LESS_THAN", "GREATER_THAN_OR_EQUALS", "LESS_THAN_OR_EQUALS", "EXISTS"}),
 																									Description:  `Operator used to compare the field or infoType to the value. Possible values: ["EQUAL_TO", "NOT_EQUAL_TO", "GREATER_THAN", "LESS_THAN", "GREATER_THAN_OR_EQUALS", "LESS_THAN_OR_EQUALS", "EXISTS"]`,
 																								},
 																								"value": {
@@ -2040,7 +2041,7 @@ This argument is mandatory, except for conditions using the 'EXISTS' operator.`,
 																											"day_of_week_value": {
 																												Type:         schema.TypeString,
 																												Optional:     true,
-																												ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
+																												ValidateFunc: verify.ValidateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
 																												Description:  `Represents a day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
 																											},
 																											"float_value": {
@@ -2095,7 +2096,7 @@ This argument is mandatory, except for conditions using the 'EXISTS' operator.`,
 																											"timestamp_value": {
 																												Type:         schema.TypeString,
 																												Optional:     true,
-																												ValidateFunc: validateRFC3339Date,
+																												ValidateFunc: verify.ValidateRFC3339Date,
 																												Description:  `A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 																											},
 																										},
@@ -2110,7 +2111,7 @@ This argument is mandatory, except for conditions using the 'EXISTS' operator.`,
 																		"logical_operator": {
 																			Type:         schema.TypeString,
 																			Optional:     true,
-																			ValidateFunc: validateEnum([]string{"AND", ""}),
+																			ValidateFunc: verify.ValidateEnum([]string{"AND", ""}),
 																			Description:  `The operator to apply to the result of conditions. Default and currently only supported value is AND Default value: "AND" Possible values: ["AND"]`,
 																			Default:      "AND",
 																		},
@@ -2175,7 +2176,7 @@ This argument is mandatory, except for conditions using the 'EXISTS' operator.`,
 																								"operator": {
 																									Type:         schema.TypeString,
 																									Required:     true,
-																									ValidateFunc: validateEnum([]string{"EQUAL_TO", "NOT_EQUAL_TO", "GREATER_THAN", "LESS_THAN", "GREATER_THAN_OR_EQUALS", "LESS_THAN_OR_EQUALS", "EXISTS"}),
+																									ValidateFunc: verify.ValidateEnum([]string{"EQUAL_TO", "NOT_EQUAL_TO", "GREATER_THAN", "LESS_THAN", "GREATER_THAN_OR_EQUALS", "LESS_THAN_OR_EQUALS", "EXISTS"}),
 																									Description:  `Operator used to compare the field or infoType to the value. Possible values: ["EQUAL_TO", "NOT_EQUAL_TO", "GREATER_THAN", "LESS_THAN", "GREATER_THAN_OR_EQUALS", "LESS_THAN_OR_EQUALS", "EXISTS"]`,
 																								},
 																								"value": {
@@ -2218,7 +2219,7 @@ This argument is mandatory, except for conditions using the 'EXISTS' operator.`,
 																											"day_of_week_value": {
 																												Type:         schema.TypeString,
 																												Optional:     true,
-																												ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
+																												ValidateFunc: verify.ValidateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY", ""}),
 																												Description:  `Represents a day of the week. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
 																											},
 																											"float_value": {
@@ -2283,7 +2284,7 @@ This argument is mandatory, except for conditions using the 'EXISTS' operator.`,
 																		"logical_operator": {
 																			Type:         schema.TypeString,
 																			Optional:     true,
-																			ValidateFunc: validateEnum([]string{"AND", ""}),
+																			ValidateFunc: verify.ValidateEnum([]string{"AND", ""}),
 																			Description:  `The operator to apply to the result of conditions. Default and currently only supported value is AND. Default value: "AND" Possible values: ["AND"]`,
 																			Default:      "AND",
 																		},

@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceDataLossPreventionJobTrigger() *schema.Resource {
@@ -142,7 +143,7 @@ If empty, all supported files will be transformed. Supported types may be automa
 If a file type is set in this field that isn't supported by the Deidentify action then the job will fail and will not be successfully created/started. Possible values: ["IMAGE", "TEXT_FILE", "CSV", "TSV"]`,
 													Elem: &schema.Schema{
 														Type:         schema.TypeString,
-														ValidateFunc: validateEnum([]string{"IMAGE", "TEXT_FILE", "CSV", "TSV"}),
+														ValidateFunc: verify.ValidateEnum([]string{"IMAGE", "TEXT_FILE", "CSV", "TSV"}),
 													},
 												},
 												"transformation_config": {
@@ -300,7 +301,7 @@ is 1,024 characters.`,
 															"output_schema": {
 																Type:         schema.TypeString,
 																Optional:     true,
-																ValidateFunc: validateEnum([]string{"BASIC_COLUMNS", "GCS_COLUMNS", "DATASTORE_COLUMNS", "BIG_QUERY_COLUMNS", "ALL_COLUMNS", ""}),
+																ValidateFunc: verify.ValidateEnum([]string{"BASIC_COLUMNS", "GCS_COLUMNS", "DATASTORE_COLUMNS", "BIG_QUERY_COLUMNS", "ALL_COLUMNS", ""}),
 																Description: `Schema used for writing the findings for Inspect jobs. This field is only used for
 Inspect and must be unspecified for Risk jobs. Columns are derived from the Finding
 object. If appending to an existing table, any columns from the predefined schema
@@ -396,7 +397,7 @@ rowsLimit and rowsLimitPercent can be specified. Cannot be used in conjunction w
 												"sample_method": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateEnum([]string{"TOP", "RANDOM_START", ""}),
+													ValidateFunc: verify.ValidateEnum([]string{"TOP", "RANDOM_START", ""}),
 													Description: `How to sample rows if not all rows are scanned. Meaningful only when used in conjunction with either
 rowsLimit or rowsLimitPercent. If not specified, rows are scanned in the order BigQuery reads them. Default value: "TOP" Possible values: ["TOP", "RANDOM_START"]`,
 													Default: "TOP",
@@ -488,7 +489,7 @@ format processors are applied. In addition, the binary content of the selected f
 Images are scanned only as binary if the specified region does not support image inspection and no fileTypes were specified. Possible values: ["BINARY_FILE", "TEXT_FILE", "IMAGE", "WORD", "PDF", "AVRO", "CSV", "TSV"]`,
 													Elem: &schema.Schema{
 														Type:         schema.TypeString,
-														ValidateFunc: validateEnum([]string{"BINARY_FILE", "TEXT_FILE", "IMAGE", "WORD", "PDF", "AVRO", "CSV", "TSV"}),
+														ValidateFunc: verify.ValidateEnum([]string{"BINARY_FILE", "TEXT_FILE", "IMAGE", "WORD", "PDF", "AVRO", "CSV", "TSV"}),
 													},
 												},
 												"files_limit_percent": {
@@ -500,7 +501,7 @@ Must be between 0 and 100, inclusively. Both 0 and 100 means no limit.`,
 												"sample_method": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateEnum([]string{"TOP", "RANDOM_START", ""}),
+													ValidateFunc: verify.ValidateEnum([]string{"TOP", "RANDOM_START", ""}),
 													Description: `How to sample bytes if not all bytes are scanned. Meaningful only when used in conjunction with bytesLimitPerFile.
 If not specified, scanning would start from the top. Possible values: ["TOP", "RANDOM_START"]`,
 												},
@@ -761,13 +762,13 @@ phrase and every phrase must contain at least 2 characters that are letters or d
 												"exclusion_type": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateEnum([]string{"EXCLUSION_TYPE_EXCLUDE", ""}),
+													ValidateFunc: verify.ValidateEnum([]string{"EXCLUSION_TYPE_EXCLUDE", ""}),
 													Description:  `If set to EXCLUSION_TYPE_EXCLUDE this infoType will not cause a finding to be returned. It still can be used for rules matching. Possible values: ["EXCLUSION_TYPE_EXCLUDE"]`,
 												},
 												"likelihood": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateEnum([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY", ""}),
+													ValidateFunc: verify.ValidateEnum([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY", ""}),
 													Description: `Likelihood to return for this CustomInfoType. This base value can be altered by a detection rule if the finding meets the criteria
 specified by the rule. Default value: "VERY_LIKELY" Possible values: ["VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"]`,
 													Default: "VERY_LIKELY",
@@ -926,7 +927,7 @@ at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built
 									"min_likelihood": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validateEnum([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY", ""}),
+										ValidateFunc: verify.ValidateEnum([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY", ""}),
 										Description:  `Only returns findings equal or above this threshold. See https://cloud.google.com/dlp/docs/likelihood for more info Default value: "POSSIBLE" Possible values: ["VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"]`,
 										Default:      "POSSIBLE",
 									},
@@ -953,7 +954,7 @@ other rules are executed in the order they are specified for each info type.`,
 																		"matching_type": {
 																			Type:         schema.TypeString,
 																			Required:     true,
-																			ValidateFunc: validateEnum([]string{"MATCHING_TYPE_FULL_MATCH", "MATCHING_TYPE_PARTIAL_MATCH", "MATCHING_TYPE_INVERSE_MATCH"}),
+																			ValidateFunc: verify.ValidateEnum([]string{"MATCHING_TYPE_FULL_MATCH", "MATCHING_TYPE_PARTIAL_MATCH", "MATCHING_TYPE_INVERSE_MATCH"}),
 																			Description:  `How the rule is applied. See the documentation for more information: https://cloud.google.com/dlp/docs/reference/rest/v2/InspectConfig#MatchingType Possible values: ["MATCHING_TYPE_FULL_MATCH", "MATCHING_TYPE_PARTIAL_MATCH", "MATCHING_TYPE_INVERSE_MATCH"]`,
 																		},
 																		"dictionary": {
@@ -1158,7 +1159,7 @@ the entire match is returned. No more than 3 may be included.`,
 																					"fixed_likelihood": {
 																						Type:         schema.TypeString,
 																						Optional:     true,
-																						ValidateFunc: validateEnum([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY", ""}),
+																						ValidateFunc: verify.ValidateEnum([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY", ""}),
 																						Description:  `Set the likelihood of a finding to a fixed value. Either this or relative_likelihood can be set. Possible values: ["VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"]`,
 																					},
 																					"relative_likelihood": {
@@ -1236,7 +1237,7 @@ at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built
 			"status": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"PAUSED", "HEALTHY", "CANCELLED", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"PAUSED", "HEALTHY", "CANCELLED", ""}),
 				Description:  `Whether the trigger is currently active. Default value: "HEALTHY" Possible values: ["PAUSED", "HEALTHY", "CANCELLED"]`,
 				Default:      "HEALTHY",
 			},

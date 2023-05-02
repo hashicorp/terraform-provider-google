@@ -144,7 +144,7 @@ for what fields this schema can contain.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"FILESET", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"FILESET", ""}),
 				Description: `The type of the entry. Only used for Entries with types in the EntryType enum.
 Currently, only FILESET enum value is allowed. All other entries created through Data Catalog must use userSpecifiedType. Possible values: ["FILESET"]`,
 				ExactlyOneOf: []string{"type", "user_specified_type"},

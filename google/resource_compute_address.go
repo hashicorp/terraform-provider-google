@@ -67,7 +67,7 @@ if any. Set by the API if undefined.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"INTERNAL", "EXTERNAL", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"INTERNAL", "EXTERNAL", ""}),
 				Description: `The type of address to reserve.
 Note: if you set this argument's value as 'INTERNAL' you need to leave the 'network_tier' argument unset in that resource block. Default value: "EXTERNAL" Possible values: ["INTERNAL", "EXTERNAL"]`,
 				Default: "EXTERNAL",
@@ -92,7 +92,7 @@ IPSEC_INTERCONNECT purposes.`,
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"PREMIUM", "STANDARD", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"PREMIUM", "STANDARD", ""}),
 				Description: `The networking tier used for configuring this address. If this field is not
 specified, it is assumed to be PREMIUM.
 This argument should not be used when configuring Internal addresses, because [network tier cannot be set for internal traffic; it's always Premium](https://cloud.google.com/network-tiers/docs/overview). Possible values: ["PREMIUM", "STANDARD"]`,

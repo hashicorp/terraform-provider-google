@@ -22,7 +22,9 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceBigqueryDatapolicyDataPolicy() *schema.Resource {
@@ -52,7 +54,7 @@ func ResourceBigqueryDatapolicyDataPolicy() *schema.Resource {
 			"data_policy_type": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validateEnum([]string{"COLUMN_LEVEL_SECURITY_POLICY", "DATA_MASKING_POLICY"}),
+				ValidateFunc: verify.ValidateEnum([]string{"COLUMN_LEVEL_SECURITY_POLICY", "DATA_MASKING_POLICY"}),
 				Description:  `The enrollment level of the service. Possible values: ["COLUMN_LEVEL_SECURITY_POLICY", "DATA_MASKING_POLICY"]`,
 			},
 			"location": {
@@ -64,7 +66,7 @@ func ResourceBigqueryDatapolicyDataPolicy() *schema.Resource {
 			"policy_tag": {
 				Type:             schema.TypeString,
 				Required:         true,
-				DiffSuppressFunc: ProjectNumberDiffSuppress,
+				DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
 				Description:      `Policy tag resource name, in the format of projects/{project_number}/locations/{locationId}/taxonomies/{taxonomyId}/policyTags/{policyTag_id}.`,
 			},
 			"data_masking_policy": {
@@ -77,7 +79,7 @@ func ResourceBigqueryDatapolicyDataPolicy() *schema.Resource {
 						"predefined_expression": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validateEnum([]string{"SHA256", "ALWAYS_NULL", "DEFAULT_MASKING_VALUE", "LAST_FOUR_CHARACTERS", "FIRST_FOUR_CHARACTERS", "EMAIL_MASK", "DATE_YEAR_MASK"}),
+							ValidateFunc: verify.ValidateEnum([]string{"SHA256", "ALWAYS_NULL", "DEFAULT_MASKING_VALUE", "LAST_FOUR_CHARACTERS", "FIRST_FOUR_CHARACTERS", "EMAIL_MASK", "DATE_YEAR_MASK"}),
 							Description:  `The available masking rules. Learn more here: https://cloud.google.com/bigquery/docs/column-data-masking-intro#masking_options. Possible values: ["SHA256", "ALWAYS_NULL", "DEFAULT_MASKING_VALUE", "LAST_FOUR_CHARACTERS", "FIRST_FOUR_CHARACTERS", "EMAIL_MASK", "DATE_YEAR_MASK"]`,
 						},
 					},

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudkms/v1"
@@ -30,9 +31,9 @@ func (s *KmsKeyRingId) TerraformId() string {
 func parseKmsKeyRingId(id string, config *transport_tpg.Config) (*KmsKeyRingId, error) {
 	parts := strings.Split(id, "/")
 
-	KeyRingIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
+	KeyRingIdRegex := regexp.MustCompile("^(" + verify.ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
 	KeyRingIdWithoutProjectRegex := regexp.MustCompile("^([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
-	keyRingRelativeLinkRegex := regexp.MustCompile("^projects/(" + ProjectRegex + ")/locations/([a-z0-9-]+)/keyRings/([a-zA-Z0-9_-]{1,63})$")
+	keyRingRelativeLinkRegex := regexp.MustCompile("^projects/(" + verify.ProjectRegex + ")/locations/([a-z0-9-]+)/keyRings/([a-zA-Z0-9_-]{1,63})$")
 
 	if KeyRingIdRegex.MatchString(id) {
 		return &KmsKeyRingId{
@@ -65,8 +66,8 @@ func parseKmsKeyRingId(id string, config *transport_tpg.Config) (*KmsKeyRingId, 
 }
 
 func kmsCryptoKeyRingsEquivalent(k, old, new string, d *schema.ResourceData) bool {
-	KeyRingIdWithSpecifiersRegex := regexp.MustCompile("^projects/(" + ProjectRegex + ")/locations/([a-z0-9-])+/keyRings/([a-zA-Z0-9_-]{1,63})$")
-	normalizedKeyRingIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
+	KeyRingIdWithSpecifiersRegex := regexp.MustCompile("^projects/(" + verify.ProjectRegex + ")/locations/([a-z0-9-])+/keyRings/([a-zA-Z0-9_-]{1,63})$")
+	normalizedKeyRingIdRegex := regexp.MustCompile("^(" + verify.ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})$")
 	if matches := KeyRingIdWithSpecifiersRegex.FindStringSubmatch(new); matches != nil {
 		normMatches := normalizedKeyRingIdRegex.FindStringSubmatch(old)
 		return normMatches != nil && normMatches[1] == matches[1] && normMatches[2] == matches[2] && normMatches[3] == matches[3]
@@ -146,9 +147,9 @@ func kmsCryptoKeyNextRotation(now time.Time, period string) (result string, err 
 func ParseKmsCryptoKeyId(id string, config *transport_tpg.Config) (*KmsCryptoKeyId, error) {
 	parts := strings.Split(id, "/")
 
-	cryptoKeyIdRegex := regexp.MustCompile("^(" + ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})/([a-zA-Z0-9_-]{1,63})$")
+	cryptoKeyIdRegex := regexp.MustCompile("^(" + verify.ProjectRegex + ")/([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})/([a-zA-Z0-9_-]{1,63})$")
 	cryptoKeyIdWithoutProjectRegex := regexp.MustCompile("^([a-z0-9-])+/([a-zA-Z0-9_-]{1,63})/([a-zA-Z0-9_-]{1,63})$")
-	cryptoKeyRelativeLinkRegex := regexp.MustCompile("^projects/(" + ProjectRegex + ")/locations/([a-z0-9-]+)/keyRings/([a-zA-Z0-9_-]{1,63})/cryptoKeys/([a-zA-Z0-9_-]{1,63})$")
+	cryptoKeyRelativeLinkRegex := regexp.MustCompile("^projects/(" + verify.ProjectRegex + ")/locations/([a-z0-9-]+)/keyRings/([a-zA-Z0-9_-]{1,63})/cryptoKeys/([a-zA-Z0-9_-]{1,63})$")
 
 	if cryptoKeyIdRegex.MatchString(id) {
 		return &KmsCryptoKeyId{
@@ -190,7 +191,7 @@ func ParseKmsCryptoKeyId(id string, config *transport_tpg.Config) (*KmsCryptoKey
 	return nil, fmt.Errorf("Invalid CryptoKey id format, expecting `{projectId}/{locationId}/{KeyringName}/{cryptoKeyName}` or `{locationId}/{keyRingName}/{cryptoKeyName}, got id: %s`", id)
 }
 func parseKmsCryptoKeyVersionId(id string, config *transport_tpg.Config) (*kmsCryptoKeyVersionId, error) {
-	cryptoKeyVersionRelativeLinkRegex := regexp.MustCompile("^projects/(" + ProjectRegex + ")/locations/([a-z0-9-]+)/keyRings/([a-zA-Z0-9_-]{1,63})/cryptoKeys/([a-zA-Z0-9_-]{1,63})/cryptoKeyVersions/([a-zA-Z0-9_-]{1,63})$")
+	cryptoKeyVersionRelativeLinkRegex := regexp.MustCompile("^projects/(" + verify.ProjectRegex + ")/locations/([a-z0-9-]+)/keyRings/([a-zA-Z0-9_-]{1,63})/cryptoKeys/([a-zA-Z0-9_-]{1,63})/cryptoKeyVersions/([a-zA-Z0-9_-]{1,63})$")
 
 	if parts := cryptoKeyVersionRelativeLinkRegex.FindStringSubmatch(id); parts != nil {
 		return &kmsCryptoKeyVersionId{

@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceComputeGlobalNetworkEndpointGroup() *schema.Resource {
@@ -44,7 +45,7 @@ func ResourceComputeGlobalNetworkEndpointGroup() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateGCEName,
+				ValidateFunc: verify.ValidateGCEName,
 				Description: `Name of the resource; provided by the client when the resource is
 created. The name must be 1-63 characters long, and comply with
 RFC1035. Specifically, the name must be 1-63 characters long and match
@@ -57,7 +58,7 @@ character, which cannot be a dash.`,
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"INTERNET_IP_PORT", "INTERNET_FQDN_PORT"}),
+				ValidateFunc: verify.ValidateEnum([]string{"INTERNET_IP_PORT", "INTERNET_FQDN_PORT"}),
 				Description:  `Type of network endpoints in this network endpoint group. Possible values: ["INTERNET_IP_PORT", "INTERNET_FQDN_PORT"]`,
 			},
 			"default_port": {

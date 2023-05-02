@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceStorageBucketAccessControl() *schema.Resource {
@@ -72,7 +73,7 @@ Examples:
 			"role": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"OWNER", "READER", "WRITER", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"OWNER", "READER", "WRITER", ""}),
 				Description:  `The access permission for the entity. Possible values: ["OWNER", "READER", "WRITER"]`,
 			},
 			"domain": {

@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceCloudIdsEndpoint() *schema.Resource {
@@ -65,7 +66,7 @@ func ResourceCloudIdsEndpoint() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"INFORMATIONAL", "LOW", "MEDIUM", "HIGH", "CRITICAL"}),
+				ValidateFunc: verify.ValidateEnum([]string{"INFORMATIONAL", "LOW", "MEDIUM", "HIGH", "CRITICAL"}),
 				Description:  `The minimum alert severity level that is reported by the endpoint. Possible values: ["INFORMATIONAL", "LOW", "MEDIUM", "HIGH", "CRITICAL"]`,
 			},
 			"description": {

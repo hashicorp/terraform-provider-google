@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceCloudRunV2Job() *schema.Resource {
@@ -396,7 +397,7 @@ This field is not supported in Cloud Run Job currently.`,
 										Type:         schema.TypeString,
 										Computed:     true,
 										Optional:     true,
-										ValidateFunc: validateEnum([]string{"EXECUTION_ENVIRONMENT_GEN1", "EXECUTION_ENVIRONMENT_GEN2", ""}),
+										ValidateFunc: verify.ValidateEnum([]string{"EXECUTION_ENVIRONMENT_GEN1", "EXECUTION_ENVIRONMENT_GEN2", ""}),
 										Description:  `The execution environment being used to host this Task. Possible values: ["EXECUTION_ENVIRONMENT_GEN1", "EXECUTION_ENVIRONMENT_GEN2"]`,
 									},
 									"max_retries": {
@@ -510,7 +511,7 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 												"egress": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateEnum([]string{"ALL_TRAFFIC", "PRIVATE_RANGES_ONLY", ""}),
+													ValidateFunc: verify.ValidateEnum([]string{"ALL_TRAFFIC", "PRIVATE_RANGES_ONLY", ""}),
 													Description:  `Traffic VPC egress settings. Possible values: ["ALL_TRAFFIC", "PRIVATE_RANGES_ONLY"]`,
 												},
 											},
@@ -580,7 +581,7 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"UNIMPLEMENTED", "PRELAUNCH", "EARLY_ACCESS", "ALPHA", "BETA", "GA", "DEPRECATED", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"UNIMPLEMENTED", "PRELAUNCH", "EARLY_ACCESS", "ALPHA", "BETA", "GA", "DEPRECATED", ""}),
 				Description: `The launch stage as defined by [Google Cloud Platform Launch Stages](https://cloud.google.com/products#product-launch-stages). Cloud Run supports ALPHA, BETA, and GA.
 If no value is specified, GA is assumed. Set the launch stage to a preview stage on input to allow use of preview features in that stage. On read (or output), describes whether the resource uses preview features.
 

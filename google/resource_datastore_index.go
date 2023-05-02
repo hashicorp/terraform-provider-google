@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceDatastoreIndex() *schema.Resource {
@@ -50,7 +51,7 @@ func ResourceDatastoreIndex() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"NONE", "ALL_ANCESTORS", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"NONE", "ALL_ANCESTORS", ""}),
 				Description:  `Policy for including ancestors in the index. Default value: "NONE" Possible values: ["NONE", "ALL_ANCESTORS"]`,
 				Default:      "NONE",
 			},
@@ -66,7 +67,7 @@ func ResourceDatastoreIndex() *schema.Resource {
 							Type:         schema.TypeString,
 							Required:     true,
 							ForceNew:     true,
-							ValidateFunc: validateEnum([]string{"ASCENDING", "DESCENDING"}),
+							ValidateFunc: verify.ValidateEnum([]string{"ASCENDING", "DESCENDING"}),
 							Description:  `The direction the index should optimize for sorting. Possible values: ["ASCENDING", "DESCENDING"]`,
 						},
 						"name": {

@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceDatabaseMigrationServiceConnectionProfile() *schema.Resource {
@@ -186,7 +187,7 @@ It is specified in the form: 'projects/{project_number}/global/networks/{network
 									"activation_policy": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validateEnum([]string{"ALWAYS", "NEVER", ""}),
+										ValidateFunc: verify.ValidateEnum([]string{"ALWAYS", "NEVER", ""}),
 										Description:  `The activation policy specifies when the instance is activated; it is applicable only when the instance state is 'RUNNABLE'. Possible values: ["ALWAYS", "NEVER"]`,
 									},
 									"auto_storage_increase": {
@@ -213,7 +214,7 @@ If the available storage repeatedly falls below the threshold size, Cloud SQL co
 									"data_disk_type": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validateEnum([]string{"PD_SSD", "PD_HDD", ""}),
+										ValidateFunc: verify.ValidateEnum([]string{"PD_SSD", "PD_HDD", ""}),
 										Description:  `The type of storage. Possible values: ["PD_SSD", "PD_HDD"]`,
 									},
 									"database_flags": {

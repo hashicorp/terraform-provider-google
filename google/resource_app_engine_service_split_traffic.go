@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceAppEngineServiceSplitTraffic() *schema.Resource {
@@ -64,7 +65,7 @@ func ResourceAppEngineServiceSplitTraffic() *schema.Resource {
 						"shard_by": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"UNSPECIFIED", "COOKIE", "IP", "RANDOM", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"UNSPECIFIED", "COOKIE", "IP", "RANDOM", ""}),
 							Description:  `Mechanism used to determine which version a request is sent to. The traffic selection algorithm will be stable for either type until allocations are changed. Possible values: ["UNSPECIFIED", "COOKIE", "IP", "RANDOM"]`,
 						},
 					},

@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceAccessContextManagerAuthorizedOrgsDesc() *schema.Resource {
@@ -63,7 +64,7 @@ After you create an 'AuthorizedOrgsDesc', you cannot change its 'name'.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"ASSET_TYPE_DEVICE", "ASSET_TYPE_CREDENTIAL_STRENGTH", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"ASSET_TYPE_DEVICE", "ASSET_TYPE_CREDENTIAL_STRENGTH", ""}),
 				Description: `The type of entities that need to use the authorization relationship during
 evaluation, such as a device. Valid values are "ASSET_TYPE_DEVICE" and
 "ASSET_TYPE_CREDENTIAL_STRENGTH". Possible values: ["ASSET_TYPE_DEVICE", "ASSET_TYPE_CREDENTIAL_STRENGTH"]`,
@@ -72,7 +73,7 @@ evaluation, such as a device. Valid values are "ASSET_TYPE_DEVICE" and
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"AUTHORIZATION_DIRECTION_TO", "AUTHORIZATION_DIRECTION_FROM", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"AUTHORIZATION_DIRECTION_TO", "AUTHORIZATION_DIRECTION_FROM", ""}),
 				Description: `The direction of the authorization relationship between this organization
 and the organizations listed in the "orgs" field. The valid values for this
 field include the following:
@@ -95,7 +96,7 @@ direction, organizations B and C must specify
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"AUTHORIZATION_TYPE_TRUST", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"AUTHORIZATION_TYPE_TRUST", ""}),
 				Description:  `A granular control type for authorization levels. Valid value is "AUTHORIZATION_TYPE_TRUST". Possible values: ["AUTHORIZATION_TYPE_TRUST"]`,
 			},
 			"orgs": {

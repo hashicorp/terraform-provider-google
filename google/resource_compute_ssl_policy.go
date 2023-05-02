@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func sslPolicyCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
@@ -105,7 +106,7 @@ for which ciphers are available to use. **Note**: this argument
 			"min_tls_version": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"TLS_1_0", "TLS_1_1", "TLS_1_2", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"TLS_1_0", "TLS_1_1", "TLS_1_2", ""}),
 				Description: `The minimum version of SSL protocol that can be used by the clients
 to establish a connection with the load balancer. Default value: "TLS_1_0" Possible values: ["TLS_1_0", "TLS_1_1", "TLS_1_2"]`,
 				Default: "TLS_1_0",
@@ -113,7 +114,7 @@ to establish a connection with the load balancer. Default value: "TLS_1_0" Possi
 			"profile": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"COMPATIBLE", "MODERN", "RESTRICTED", "CUSTOM", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"COMPATIBLE", "MODERN", "RESTRICTED", "CUSTOM", ""}),
 				Description: `Profile specifies the set of SSL features that can be used by the
 load balancer when negotiating SSL with clients. If using 'CUSTOM',
 the set of SSL features to enable must be specified in the

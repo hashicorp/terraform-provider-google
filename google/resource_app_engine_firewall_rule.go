@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceAppEngineFirewallRule() *schema.Resource {
@@ -46,7 +47,7 @@ func ResourceAppEngineFirewallRule() *schema.Resource {
 			"action": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validateEnum([]string{"UNSPECIFIED_ACTION", "ALLOW", "DENY"}),
+				ValidateFunc: verify.ValidateEnum([]string{"UNSPECIFIED_ACTION", "ALLOW", "DENY"}),
 				Description:  `The action to take if this rule matches. Possible values: ["UNSPECIFIED_ACTION", "ALLOW", "DENY"]`,
 			},
 			"source_range": {

@@ -22,7 +22,9 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceComputeForwardingRule() *schema.Resource {
@@ -66,7 +68,7 @@ lowercase letters and numbers and must start with a letter.`,
 				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: InternalIpDiffSuppress,
+				DiffSuppressFunc: tpgresource.InternalIpDiffSuppress,
 				Description: `IP address for which this forwarding rule accepts traffic. When a client
 sends traffic to this IP address, the forwarding rule directs the traffic
 to the referenced 'target' or 'backendService'.
@@ -113,8 +115,8 @@ address number.`,
 				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
-				ValidateFunc:     validateEnum([]string{"TCP", "UDP", "ESP", "AH", "SCTP", "ICMP", "L3_DEFAULT", ""}),
-				DiffSuppressFunc: CaseDiffSuppress,
+				ValidateFunc:     verify.ValidateEnum([]string{"TCP", "UDP", "ESP", "AH", "SCTP", "ICMP", "L3_DEFAULT", ""}),
+				DiffSuppressFunc: tpgresource.CaseDiffSuppress,
 				Description: `The IP protocol to which this rule applies.
 
 For protocol forwarding, valid
@@ -196,7 +198,7 @@ This can only be set to true for load balancers that have their
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"EXTERNAL", "EXTERNAL_MANAGED", "INTERNAL", "INTERNAL_MANAGED", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"EXTERNAL", "EXTERNAL_MANAGED", "INTERNAL", "INTERNAL_MANAGED", ""}),
 				Description: `Specifies the forwarding rule type.
 
 For more information about forwarding rules, refer to
@@ -225,7 +227,7 @@ APIs, a network must be provided.`,
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"PREMIUM", "STANDARD", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"PREMIUM", "STANDARD", ""}),
 				Description: `This signifies the networking tier used for configuring
 this load balancer and can only take the following values:
 'PREMIUM', 'STANDARD'.
@@ -243,7 +245,7 @@ networkTier of the Address. Possible values: ["PREMIUM", "STANDARD"]`,
 				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: PortRangeDiffSuppress,
+				DiffSuppressFunc: tpgresource.PortRangeDiffSuppress,
 				Description: `This field can only be used:
 
 * If 'IPProtocol' is one of TCP, UDP, or SCTP.
@@ -341,7 +343,7 @@ Currently, only supports a single Service Directory resource.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateGCEName,
+				ValidateFunc: verify.ValidateGCEName,
 				Description: `An optional prefix to the service name for this Forwarding Rule.
 If specified, will be the first label of the fully qualified service
 name.

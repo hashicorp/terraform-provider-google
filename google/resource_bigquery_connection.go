@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceBigqueryConnectionConnection() *schema.Resource {
@@ -203,7 +204,7 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 						"type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validateEnum([]string{"DATABASE_TYPE_UNSPECIFIED", "POSTGRES", "MYSQL"}),
+							ValidateFunc: verify.ValidateEnum([]string{"DATABASE_TYPE_UNSPECIFIED", "POSTGRES", "MYSQL"}),
 							Description:  `Type of the Cloud SQL database. Possible values: ["DATABASE_TYPE_UNSPECIFIED", "POSTGRES", "MYSQL"]`,
 						},
 						"service_account_id": {
