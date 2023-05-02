@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceApigeeOrganization() *schema.Resource {
@@ -112,7 +113,7 @@ Valid only when 'RuntimeType' is set to CLOUD. The value can be updated only whe
 			"retention": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"DELETION_RETENTION_UNSPECIFIED", "MINIMUM", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"DELETION_RETENTION_UNSPECIFIED", "MINIMUM", ""}),
 				Description: `Optional. This setting is applicable only for organizations that are soft-deleted (i.e., BillingType
 is not EVALUATION). It controls how long Organization data will be retained after the initial delete
 operation completes. During this period, the Organization may be restored to its last known state.
@@ -132,7 +133,7 @@ Valid only when 'RuntimeType' is CLOUD. For example: 'projects/foo/locations/us/
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"CLOUD", "HYBRID", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"CLOUD", "HYBRID", ""}),
 				Description:  `Runtime type of the Apigee organization based on the Apigee subscription purchased. Default value: "CLOUD" Possible values: ["CLOUD", "HYBRID"]`,
 				Default:      "CLOUD",
 			},

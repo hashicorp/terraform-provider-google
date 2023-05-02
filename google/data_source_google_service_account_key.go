@@ -20,7 +20,7 @@ func DataSourceGoogleServiceAccountKey() *schema.Resource {
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: verify.ValidateRegexp(ServiceAccountKeyNameRegex),
+				ValidateFunc: verify.ValidateRegexp(verify.ServiceAccountKeyNameRegex),
 			},
 			"public_key_type": {
 				Type:         schema.TypeString,
@@ -55,9 +55,9 @@ func dataSourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interfac
 
 	// Validate name since interpolated values (i.e from a key or service
 	// account resource) will not get validated at plan time.
-	r := regexp.MustCompile(ServiceAccountKeyNameRegex)
+	r := regexp.MustCompile(verify.ServiceAccountKeyNameRegex)
 	if !r.MatchString(keyName) {
-		return fmt.Errorf("invalid key name %q does not match regexp %q", keyName, ServiceAccountKeyNameRegex)
+		return fmt.Errorf("invalid key name %q does not match regexp %q", keyName, verify.ServiceAccountKeyNameRegex)
 	}
 
 	publicKeyType := d.Get("public_key_type").(string)

@@ -134,7 +134,7 @@ will be used.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"DIRECT_PEERING", "PRIVATE_SERVICE_ACCESS", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"DIRECT_PEERING", "PRIVATE_SERVICE_ACCESS", ""}),
 				Description:  `The connection mode of the Redis instance. Default value: "DIRECT_PEERING" Possible values: ["DIRECT_PEERING", "PRIVATE_SERVICE_ACCESS"]`,
 				Default:      "DIRECT_PEERING",
 			},
@@ -192,7 +192,7 @@ of weekly_window is expected to be one.`,
 									"day": {
 										Type:         schema.TypeString,
 										Required:     true,
-										ValidateFunc: validateEnum([]string{"DAY_OF_WEEK_UNSPECIFIED", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}),
+										ValidateFunc: verify.ValidateEnum([]string{"DAY_OF_WEEK_UNSPECIFIED", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}),
 										Description: `Required. The day of week that maintenance updates occur.
 
 - DAY_OF_WEEK_UNSPECIFIED: The day of the week is unspecified.
@@ -312,7 +312,7 @@ resolution and up to nine fractional digits.`,
 							Type:         schema.TypeString,
 							Computed:     true,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"DISABLED", "RDB"}),
+							ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "RDB"}),
 							Description: `Optional. Controls whether Persistence features are enabled. If not provided, the existing value will be used.
 
 - DISABLED: 	Persistence is disabled for the instance, and any existing snapshots are deleted.
@@ -321,7 +321,7 @@ resolution and up to nine fractional digits.`,
 						"rdb_snapshot_period": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"ONE_HOUR", "SIX_HOURS", "TWELVE_HOURS", "TWENTY_FOUR_HOURS", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"ONE_HOUR", "SIX_HOURS", "TWELVE_HOURS", "TWENTY_FOUR_HOURS", ""}),
 							Description: `Optional. Available snapshot periods for scheduling.
 
 - ONE_HOUR:	Snapshot every 1 hour.
@@ -355,7 +355,7 @@ Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"READ_REPLICAS_DISABLED", "READ_REPLICAS_ENABLED", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"READ_REPLICAS_DISABLED", "READ_REPLICAS_ENABLED", ""}),
 				Description: `Optional. Read replica mode. Can only be specified when trying to create the instance.
 If not set, Memorystore Redis backend will default to READ_REPLICAS_DISABLED.
 - READ_REPLICAS_DISABLED: If disabled, read endpoint will not be provided and the
@@ -420,7 +420,7 @@ range associated with the private service access connection, or "auto".`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"BASIC", "STANDARD_HA", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"BASIC", "STANDARD_HA", ""}),
 				Description: `The service tier of the instance. Must be one of these values:
 
 - BASIC: standalone instance
@@ -431,7 +431,7 @@ range associated with the private service access connection, or "auto".`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"SERVER_AUTHENTICATION", "DISABLED", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"SERVER_AUTHENTICATION", "DISABLED", ""}),
 				Description: `The TLS mode of the Redis instance, If not provided, TLS is disabled for the instance.
 
 - SERVER_AUTHENTICATION: Client to Server traffic encryption enabled with server authentication Default value: "DISABLED" Possible values: ["SERVER_AUTHENTICATION", "DISABLED"]`,

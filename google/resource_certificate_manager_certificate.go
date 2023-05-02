@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -99,7 +100,7 @@ automatically, for as long as it's authorized to do so.`,
 							Type:             schema.TypeList,
 							Optional:         true,
 							ForceNew:         true,
-							DiffSuppressFunc: ProjectNumberDiffSuppress,
+							DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
 							Description:      `Authorizations that will be used for performing domain authorization`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -916,7 +917,7 @@ automatically, for as long as it's authorized to do so.`,
 							Type:             schema.TypeList,
 							Optional:         true,
 							ForceNew:         true,
-							DiffSuppressFunc: ProjectNumberDiffSuppress,
+							DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
 							Description:      `Authorizations that will be used for performing domain authorization`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,

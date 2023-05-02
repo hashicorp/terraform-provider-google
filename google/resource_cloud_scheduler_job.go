@@ -24,7 +24,9 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 // Both oidc and oauth headers cannot be set
@@ -173,7 +175,7 @@ By default, the job is sent to the version which is the default version when the
 						"body": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateBase64String,
+							ValidateFunc: verify.ValidateBase64String,
 							Description: `HTTP request body.
 A request body is allowed only if the HTTP method is POST or PUT.
 It will result in invalid argument error to set a body on a job with an incompatible HttpMethod.
@@ -201,7 +203,7 @@ Headers can be set when the job is created.`,
 			"attempt_deadline": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				DiffSuppressFunc: EmptyOrDefaultStringSuppress("180s"),
+				DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("180s"),
 				Description: `The deadline for job attempts. If the request handler does not respond by this deadline then the request is
 cancelled and the attempt is marked as a DEADLINE_EXCEEDED failure. The failed attempt can be viewed in
 execution logs. Cloud Scheduler will retry the job according to the RetryConfig.
@@ -230,13 +232,13 @@ send a request to the targeted url`,
 						"uri": {
 							Type:             schema.TypeString,
 							Required:         true,
-							DiffSuppressFunc: LastSlashDiffSuppress,
+							DiffSuppressFunc: tpgresource.LastSlashDiffSuppress,
 							Description:      `The full URI path that the request will be sent to.`,
 						},
 						"body": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateBase64String,
+							ValidateFunc: verify.ValidateBase64String,
 							Description: `HTTP request body.
 A request body is allowed only if the HTTP method is POST, PUT, or PATCH.
 It is an error to set body on a job with an incompatible HttpMethod.
@@ -341,7 +343,7 @@ Pubsub message must contain either non-empty data, or at least one attribute.`,
 						"data": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateBase64String,
+							ValidateFunc: verify.ValidateBase64String,
 							Description: `The message payload for PubsubMessage.
 Pubsub message must contain either non-empty data, or at least one attribute.
 

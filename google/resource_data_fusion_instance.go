@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 var instanceAcceleratorOptions = []string{
@@ -75,7 +76,7 @@ func ResourceDataFusionInstance() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"BASIC", "ENTERPRISE", "DEVELOPER"}),
+				ValidateFunc: verify.ValidateEnum([]string{"BASIC", "ENTERPRISE", "DEVELOPER"}),
 				Description: `Represents the type of Data Fusion instance. Each type is configured with
 the default settings for processing and memory.
 - BASIC: Basic Data Fusion instance. In Basic type, the user will be able to create data pipelines
@@ -99,13 +100,13 @@ Users will need to either manually update their state file to include these diff
 						"accelerator_type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validateEnum([]string{"CDC", "HEALTHCARE", "CCAI_INSIGHTS"}),
+							ValidateFunc: verify.ValidateEnum([]string{"CDC", "HEALTHCARE", "CCAI_INSIGHTS"}),
 							Description:  `The type of an accelator for a CDF instance. Possible values: ["CDC", "HEALTHCARE", "CCAI_INSIGHTS"]`,
 						},
 						"state": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validateEnum([]string{"ENABLED", "DISABLED"}),
+							ValidateFunc: verify.ValidateEnum([]string{"ENABLED", "DISABLED"}),
 							Description:  `The type of an accelator for a CDF instance. Possible values: ["ENABLED", "DISABLED"]`,
 						},
 					},

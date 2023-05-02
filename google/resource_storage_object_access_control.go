@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceStorageObjectAccessControl() *schema.Resource {
@@ -69,7 +70,7 @@ func ResourceStorageObjectAccessControl() *schema.Resource {
 			"role": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validateEnum([]string{"OWNER", "READER"}),
+				ValidateFunc: verify.ValidateEnum([]string{"OWNER", "READER"}),
 				Description:  `The access permission for the entity. Possible values: ["OWNER", "READER"]`,
 			},
 			"domain": {
@@ -106,7 +107,7 @@ func ResourceStorageObjectAccessControl() *schema.Resource {
 						"team": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"editors", "owners", "viewers", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"editors", "owners", "viewers", ""}),
 							Description:  `The team. Possible values: ["editors", "owners", "viewers"]`,
 						},
 					},

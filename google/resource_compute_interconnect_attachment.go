@@ -96,7 +96,7 @@ PARTNER type this will Pre-Activate the interconnect attachment`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"BPS_50M", "BPS_100M", "BPS_200M", "BPS_300M", "BPS_400M", "BPS_500M", "BPS_1G", "BPS_2G", "BPS_5G", "BPS_10G", "BPS_20G", "BPS_50G", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"BPS_50M", "BPS_100M", "BPS_200M", "BPS_300M", "BPS_400M", "BPS_500M", "BPS_1G", "BPS_2G", "BPS_5G", "BPS_10G", "BPS_20G", "BPS_50G", ""}),
 				Description: `Provisioned bandwidth capacity for the interconnect attachment.
 For attachments of type DEDICATED, the user can set the bandwidth.
 For attachments of type PARTNER, the Google Partner that is operating the interconnect must set the bandwidth.
@@ -139,7 +139,7 @@ domain. If not specified, the value will default to AVAILABILITY_DOMAIN_ANY.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"NONE", "IPSEC", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"NONE", "IPSEC", ""}),
 				Description: `Indicates the user-supplied encryption option of this interconnect
 attachment. Can only be specified at attachment creation for PARTNER or
 DEDICATED attachments.
@@ -210,7 +210,7 @@ this interconnect attachment. Currently, only 1440 and 1500 are allowed. If not 
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"DEDICATED", "PARTNER", "PARTNER_PROVIDER", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"DEDICATED", "PARTNER", "PARTNER_PROVIDER", ""}),
 				Description: `The type of InterconnectAttachment you wish to create. Defaults to
 DEDICATED. Possible values: ["DEDICATED", "PARTNER", "PARTNER_PROVIDER"]`,
 			},

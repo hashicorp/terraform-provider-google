@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceNetworkManagementConnectivityTest() *schema.Resource {
@@ -160,7 +161,7 @@ destination is a global load balancer VIP.`,
 						"network_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"GCP_NETWORK", "NON_GCP_NETWORK", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"GCP_NETWORK", "NON_GCP_NETWORK", ""}),
 							Description:  `Type of the network where the endpoint is located. Possible values: ["GCP_NETWORK", "NON_GCP_NETWORK"]`,
 						},
 						"port": {

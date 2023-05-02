@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceStorageHmacKey() *schema.Resource {
@@ -51,7 +52,7 @@ func ResourceStorageHmacKey() *schema.Resource {
 			"state": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"ACTIVE", "INACTIVE", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"ACTIVE", "INACTIVE", ""}),
 				Description:  `The state of the key. Can be set to one of ACTIVE, INACTIVE. Default value: "ACTIVE" Possible values: ["ACTIVE", "INACTIVE"]`,
 				Default:      "ACTIVE",
 			},

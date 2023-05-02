@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -159,7 +160,7 @@ func (s spannerInstanceId) instanceConfigUri(c string) string {
 }
 
 func extractSpannerInstanceId(id string) (*spannerInstanceId, error) {
-	if !regexp.MustCompile("^" + ProjectRegex + "/[a-z0-9-]+$").Match([]byte(id)) {
+	if !regexp.MustCompile("^" + verify.ProjectRegex + "/[a-z0-9-]+$").Match([]byte(id)) {
 		return nil, fmt.Errorf("Invalid spanner id format, expecting {projectId}/{instanceId}")
 	}
 	parts := strings.Split(id, "/")

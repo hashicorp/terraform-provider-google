@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceApigeeEnvironment() *schema.Resource {
@@ -61,7 +62,7 @@ in the format 'organizations/{{org_name}}'.`,
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"API_PROXY_TYPE_UNSPECIFIED", "PROGRAMMABLE", "CONFIGURABLE", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"API_PROXY_TYPE_UNSPECIFIED", "PROGRAMMABLE", "CONFIGURABLE", ""}),
 				Description: `Optional. API Proxy type supported by the environment. The type can be set when creating
 the Environment and cannot be changed. Possible values: ["API_PROXY_TYPE_UNSPECIFIED", "PROGRAMMABLE", "CONFIGURABLE"]`,
 			},
@@ -70,7 +71,7 @@ the Environment and cannot be changed. Possible values: ["API_PROXY_TYPE_UNSPECI
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"DEPLOYMENT_TYPE_UNSPECIFIED", "PROXY", "ARCHIVE", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"DEPLOYMENT_TYPE_UNSPECIFIED", "PROXY", "ARCHIVE", ""}),
 				Description: `Optional. Deployment type supported by the environment. The deployment type can be
 set when creating the environment and cannot be changed. When you enable archive
 deployment, you will be prevented from performing a subset of actions within the

@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 const workforcePoolProviderIdRegexp = `^[a-z0-9-]{4,32}$`
@@ -210,14 +211,14 @@ However, existing tokens still grant access.`,
 									"assertion_claims_behavior": {
 										Type:         schema.TypeString,
 										Required:     true,
-										ValidateFunc: validateEnum([]string{"ONLY_ID_TOKEN_CLAIMS"}),
+										ValidateFunc: verify.ValidateEnum([]string{"ONLY_ID_TOKEN_CLAIMS"}),
 										Description: `The behavior for how OIDC Claims are included in the 'assertion' object used for attribute mapping and attribute condition.
 * ONLY_ID_TOKEN_CLAIMS: Only include ID Token Claims. Possible values: ["ONLY_ID_TOKEN_CLAIMS"]`,
 									},
 									"response_type": {
 										Type:         schema.TypeString,
 										Required:     true,
-										ValidateFunc: validateEnum([]string{"ID_TOKEN"}),
+										ValidateFunc: verify.ValidateEnum([]string{"ID_TOKEN"}),
 										Description: `The Response Type to request for in the OIDC Authorization Request for web sign-in.
 * ID_TOKEN: The 'response_type=id_token' selection uses the Implicit Flow for web sign-in. Possible values: ["ID_TOKEN"]`,
 									},

@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceFirestoreDatabase() *schema.Resource {
@@ -64,7 +65,7 @@ UUID-like /[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}/.
 			"type": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validateEnum([]string{"FIRESTORE_NATIVE", "DATASTORE_MODE"}),
+				ValidateFunc: verify.ValidateEnum([]string{"FIRESTORE_NATIVE", "DATASTORE_MODE"}),
 				Description: `The type of the database.
 See https://cloud.google.com/datastore/docs/firestore-or-datastore
 for information about how to choose. Possible values: ["FIRESTORE_NATIVE", "DATASTORE_MODE"]`,
@@ -73,14 +74,14 @@ for information about how to choose. Possible values: ["FIRESTORE_NATIVE", "DATA
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"ENABLED", "DISABLED", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"ENABLED", "DISABLED", ""}),
 				Description:  `The App Engine integration mode to use for this database. Possible values: ["ENABLED", "DISABLED"]`,
 			},
 			"concurrency_mode": {
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"OPTIMISTIC", "PESSIMISTIC", "OPTIMISTIC_WITH_ENTITY_GROUPS", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"OPTIMISTIC", "PESSIMISTIC", "OPTIMISTIC_WITH_ENTITY_GROUPS", ""}),
 				Description:  `The concurrency control mode to use for this database. Possible values: ["OPTIMISTIC", "PESSIMISTIC", "OPTIMISTIC_WITH_ENTITY_GROUPS"]`,
 			},
 			"create_time": {

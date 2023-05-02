@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 // customizeDiff func for additional checks on google_compute_router properties:
@@ -67,7 +68,7 @@ func ResourceComputeRouter() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateGCEName,
+				ValidateFunc: verify.ValidateGCEName,
 				Description: `Name of the resource. The name must be 1-63 characters long, and
 comply with RFC1035. Specifically, the name must be 1-63 characters
 long and match the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?'
@@ -92,7 +93,7 @@ except the last character, which cannot be a dash.`,
 						"asn": {
 							Type:         schema.TypeInt,
 							Required:     true,
-							ValidateFunc: validateRFC6996Asn,
+							ValidateFunc: verify.ValidateRFC6996Asn,
 							Description: `Local BGP Autonomous System Number (ASN). Must be an RFC6996
 private ASN, either 16-bit or 32-bit. The value will be fixed for
 this router resource. All VPN tunnels that link to this router
@@ -101,7 +102,7 @@ will have the same local ASN.`,
 						"advertise_mode": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"DEFAULT", "CUSTOM", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"DEFAULT", "CUSTOM", ""}),
 							Description:  `User-specified flag to indicate which mode to use for advertisement. Default value: "DEFAULT" Possible values: ["DEFAULT", "CUSTOM"]`,
 							Default:      "DEFAULT",
 						},

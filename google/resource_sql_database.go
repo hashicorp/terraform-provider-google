@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -60,7 +61,7 @@ This does not include the project ID or instance name.`,
 				Type:             schema.TypeString,
 				Computed:         true,
 				Optional:         true,
-				DiffSuppressFunc: CaseDiffSuppress,
+				DiffSuppressFunc: tpgresource.CaseDiffSuppress,
 				Description: `The charset value. See MySQL's
 [Supported Character Sets and Collations](https://dev.mysql.com/doc/refman/5.7/en/charset-charsets.html)
 and Postgres' [Character Set Support](https://www.postgresql.org/docs/9.6/static/multibyte.html)

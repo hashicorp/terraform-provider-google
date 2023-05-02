@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -53,7 +54,7 @@ func ResourceBigqueryAnalyticsHubListing() *schema.Resource {
 						"dataset": {
 							Type:             schema.TypeString,
 							Required:         true,
-							DiffSuppressFunc: ProjectNumberDiffSuppress,
+							DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
 							Description:      `Resource name of the dataset source for this listing. e.g. projects/myproject/datasets/123`,
 						},
 					},

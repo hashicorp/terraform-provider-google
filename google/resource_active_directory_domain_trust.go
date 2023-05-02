@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceActiveDirectoryDomainTrust() *schema.Resource {
@@ -67,7 +68,7 @@ https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locatio
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"INBOUND", "OUTBOUND", "BIDIRECTIONAL"}),
+				ValidateFunc: verify.ValidateEnum([]string{"INBOUND", "OUTBOUND", "BIDIRECTIONAL"}),
 				Description:  `The trust direction, which decides if the current domain is trusted, trusting, or both. Possible values: ["INBOUND", "OUTBOUND", "BIDIRECTIONAL"]`,
 			},
 			"trust_handshake_secret": {
@@ -81,7 +82,7 @@ https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locatio
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"FOREST", "EXTERNAL"}),
+				ValidateFunc: verify.ValidateEnum([]string{"FOREST", "EXTERNAL"}),
 				Description:  `The type of trust represented by the trust resource. Possible values: ["FOREST", "EXTERNAL"]`,
 			},
 			"selective_authentication": {

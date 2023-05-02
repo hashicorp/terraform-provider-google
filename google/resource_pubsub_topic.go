@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourcePubsubTopic() *schema.Resource {
@@ -123,7 +124,7 @@ if the schema has been deleted.`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validateEnum([]string{"ENCODING_UNSPECIFIED", "JSON", "BINARY", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"ENCODING_UNSPECIFIED", "JSON", "BINARY", ""}),
 							Description:  `The encoding of messages validated against schema. Default value: "ENCODING_UNSPECIFIED" Possible values: ["ENCODING_UNSPECIFIED", "JSON", "BINARY"]`,
 							Default:      "ENCODING_UNSPECIFIED",
 						},

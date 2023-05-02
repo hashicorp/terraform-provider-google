@@ -25,6 +25,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ipv6RepresentationDiffSuppress(_, old, new string, d *schema.ResourceData) bool {
@@ -69,7 +70,7 @@ func ResourceComputeRouterBgpPeer() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateRFC1035Name(2, 63),
+				ValidateFunc: verify.ValidateRFC1035Name(2, 63),
 				Description: `Name of this BGP peer. The name must be 1-63 characters long,
 and comply with RFC1035. Specifically, the name must be 1-63 characters
 long and match the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which
@@ -99,7 +100,7 @@ Only IPv4 is supported.`,
 			"advertise_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"DEFAULT", "CUSTOM", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"DEFAULT", "CUSTOM", ""}),
 				Description: `User-specified flag to indicate which mode to use for advertisement.
 Valid values of this enum field are: 'DEFAULT', 'CUSTOM' Default value: "DEFAULT" Possible values: ["DEFAULT", "CUSTOM"]`,
 				Default: "DEFAULT",
@@ -165,7 +166,7 @@ length, the routes with the lowest priority value win.`,
 						"session_initialization_mode": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validateEnum([]string{"ACTIVE", "DISABLED", "PASSIVE"}),
+							ValidateFunc: verify.ValidateEnum([]string{"ACTIVE", "DISABLED", "PASSIVE"}),
 							Description: `The BFD session initialization mode for this BGP peer.
 If set to 'ACTIVE', the Cloud Router will initiate the BFD session
 for this BGP peer. If set to 'PASSIVE', the Cloud Router will wait
@@ -229,7 +230,7 @@ Only IPv4 is supported.`,
 				Type:             schema.TypeString,
 				Computed:         true,
 				Optional:         true,
-				ValidateFunc:     validateIpAddress,
+				ValidateFunc:     verify.ValidateIpAddress,
 				DiffSuppressFunc: ipv6RepresentationDiffSuppress,
 				Description: `IPv6 address of the interface inside Google Cloud Platform.
 The address must be in the range 2600:2d00:0:2::/64 or 2600:2d00:0:3::/64.
@@ -240,7 +241,7 @@ assigns unused addresses from the 2600:2d00:0:2::/64 or 2600:2d00:0:3::/64 range
 				Type:             schema.TypeString,
 				Computed:         true,
 				Optional:         true,
-				ValidateFunc:     validateIpAddress,
+				ValidateFunc:     verify.ValidateIpAddress,
 				DiffSuppressFunc: ipv6RepresentationDiffSuppress,
 				Description: `IPv6 address of the BGP interface outside Google Cloud Platform.
 The address must be in the range 2600:2d00:0:2::/64 or 2600:2d00:0:3::/64.

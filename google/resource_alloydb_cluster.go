@@ -22,7 +22,9 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceAlloydbCluster() *schema.Resource {
@@ -58,7 +60,7 @@ func ResourceAlloydbCluster() *schema.Resource {
 			"network": {
 				Type:             schema.TypeString,
 				Required:         true,
-				DiffSuppressFunc: ProjectNumberDiffSuppress,
+				DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
 				Description: `The relative resource name of the VPC network on which the instance can be accessed. It is specified in the following form:
 
 "projects/{projectNumber}/global/networks/{network_id}".`,
@@ -190,7 +192,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 										MinItems:    1,
 										Elem: &schema.Schema{
 											Type:         schema.TypeString,
-											ValidateFunc: validateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}),
+											ValidateFunc: verify.ValidateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}),
 										},
 									},
 								},

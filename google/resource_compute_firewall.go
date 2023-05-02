@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func resourceComputeFirewallRuleHash(v interface{}) int {
@@ -164,7 +165,7 @@ func ResourceComputeFirewall() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateGCEName,
+				ValidateFunc: verify.ValidateGCEName,
 				Description: `Name of the resource. Provided by the client when the resource is
 created. The name must be 1-63 characters long, and comply with
 RFC1035. Specifically, the name must be 1-63 characters long and match
@@ -221,7 +222,7 @@ must be expressed in CIDR format. IPv4 or IPv6 ranges are supported.`,
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"INGRESS", "EGRESS", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"INGRESS", "EGRESS", ""}),
 				Description: `Direction of traffic to which this firewall applies; default is
 INGRESS. Note: For INGRESS traffic, one of 'source_ranges',
 'source_tags' or 'source_service_accounts' is required. Possible values: ["INGRESS", "EGRESS"]`,
@@ -246,7 +247,7 @@ If defined, logging is enabled, and logs will be exported to Cloud Logging.`,
 						"metadata": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validateEnum([]string{"EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA"}),
+							ValidateFunc: verify.ValidateEnum([]string{"EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA"}),
 							Description:  `This field denotes whether to include or exclude metadata for firewall logs. Possible values: ["EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA"]`,
 						},
 					},

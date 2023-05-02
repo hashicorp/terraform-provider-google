@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -46,7 +47,7 @@ func ResourceCertificateManagerCertificateMapEntry() *schema.Resource {
 			"certificates": {
 				Type:             schema.TypeList,
 				Required:         true,
-				DiffSuppressFunc: ProjectNumberDiffSuppress,
+				DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
 				Description: `A set of Certificates defines for the given hostname.
 There can be defined up to fifteen certificates in each Certificate Map Entry.
 Each certificate must match pattern projects/*/locations/*/certificates/*.`,

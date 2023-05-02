@@ -132,7 +132,7 @@ Can have up to 500 allowed values.`,
 										Type:         schema.TypeString,
 										Computed:     true,
 										Optional:     true,
-										ValidateFunc: validateEnum([]string{"DOUBLE", "STRING", "BOOL", "TIMESTAMP", ""}),
+										ValidateFunc: verify.ValidateEnum([]string{"DOUBLE", "STRING", "BOOL", "TIMESTAMP", ""}),
 										Description: `Represents primitive types - string, bool etc.
  Exactly one of 'primitive_type' or 'enum_type' must be set Possible values: ["DOUBLE", "STRING", "BOOL", "TIMESTAMP"]`,
 									},

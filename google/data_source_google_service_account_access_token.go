@@ -21,7 +21,7 @@ func DataSourceGoogleServiceAccountAccessToken() *schema.Resource {
 			"target_service_account": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: verify.ValidateRegexp("(" + strings.Join(PossibleServiceAccountNames, "|") + ")"),
+				ValidateFunc: verify.ValidateRegexp("(" + strings.Join(verify.PossibleServiceAccountNames, "|") + ")"),
 			},
 			"access_token": {
 				Type:      schema.TypeString,
@@ -44,13 +44,13 @@ func DataSourceGoogleServiceAccountAccessToken() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: verify.ValidateRegexp(ServiceAccountLinkRegex),
+					ValidateFunc: verify.ValidateRegexp(verify.ServiceAccountLinkRegex),
 				},
 			},
 			"lifetime": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateDuration(), // duration <=3600s; TODO: support validateDuration(min,max)
+				ValidateFunc: verify.ValidateDuration(), // duration <=3600s; TODO: support validateDuration(min,max)
 				Default:      "3600s",
 			},
 		},

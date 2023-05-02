@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceNetworkServicesEdgeCacheService() *schema.Resource {
@@ -390,7 +391,7 @@ This field may only be specified when signedRequestMode is set to REQUIRE_TOKENS
 																						MaxItems:    1,
 																						Elem: &schema.Schema{
 																							Type:         schema.TypeString,
-																							ValidateFunc: validateEnum([]string{"GENERATE_COOKIE", "GENERATE_TOKEN_HLS_COOKIELESS", "PROPAGATE_TOKEN_HLS_COOKIELESS"}),
+																							ValidateFunc: verify.ValidateEnum([]string{"GENERATE_COOKIE", "GENERATE_TOKEN_HLS_COOKIELESS", "PROPAGATE_TOKEN_HLS_COOKIELESS"}),
 																						},
 																					},
 																					"copied_parameters": {
@@ -552,7 +553,7 @@ Either specify includedQueryParameters or excludedQueryParameters, not both. '&'
 																			Type:         schema.TypeString,
 																			Computed:     true,
 																			Optional:     true,
-																			ValidateFunc: validateEnum([]string{"CACHE_ALL_STATIC", "USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "BYPASS_CACHE", ""}),
+																			ValidateFunc: verify.ValidateEnum([]string{"CACHE_ALL_STATIC", "USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "BYPASS_CACHE", ""}),
 																			Description: `Cache modes allow users to control the behaviour of the cache, what content it should cache automatically, whether to respect origin headers, or whether to unconditionally cache all responses.
 
 For all cache modes, Cache-Control headers will be passed to the client. Use clientTtl to override what is sent to the client. Possible values: ["CACHE_ALL_STATIC", "USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "BYPASS_CACHE"]`,
@@ -656,7 +657,7 @@ By default, signedRequestMaximumExpirationTtl is not set and the expiration time
 																			Type:         schema.TypeString,
 																			Computed:     true,
 																			Optional:     true,
-																			ValidateFunc: validateEnum([]string{"DISABLED", "REQUIRE_SIGNATURES", "REQUIRE_TOKENS", ""}),
+																			ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "REQUIRE_SIGNATURES", "REQUIRE_TOKENS", ""}),
 																			Description: `Whether to enforce signed requests. The default value is DISABLED, which means all content is public, and does not authorize access.
 
 You must also set a signedRequestKeyset to enable signed requests.
@@ -683,7 +684,7 @@ You may specify up to 3 signature algorithms to use. Possible values: ["ED25519"
 																						MaxItems: 3,
 																						Elem: &schema.Schema{
 																							Type:         schema.TypeString,
-																							ValidateFunc: validateEnum([]string{"ED25519", "HMAC_SHA_256", "HMAC_SHA1"}),
+																							ValidateFunc: verify.ValidateEnum([]string{"ED25519", "HMAC_SHA_256", "HMAC_SHA1"}),
 																						},
 																					},
 																					"token_query_parameter": {
@@ -853,7 +854,7 @@ prefixRedirect cannot be supplied together with pathRedirect. Supply one alone o
 																Type:         schema.TypeString,
 																Computed:     true,
 																Optional:     true,
-																ValidateFunc: validateEnum([]string{"MOVED_PERMANENTLY_DEFAULT", "FOUND", "SEE_OTHER", "TEMPORARY_REDIRECT", "PERMANENT_REDIRECT", ""}),
+																ValidateFunc: verify.ValidateEnum([]string{"MOVED_PERMANENTLY_DEFAULT", "FOUND", "SEE_OTHER", "TEMPORARY_REDIRECT", "PERMANENT_REDIRECT", ""}),
 																Description: `The HTTP Status code to use for this RedirectAction.
 
 The supported values are:

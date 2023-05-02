@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"google.golang.org/api/googleapi"
 )
@@ -48,7 +49,7 @@ func ResourceComputeNetwork() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateGCEName,
+				ValidateFunc: verify.ValidateGCEName,
 				Description: `Name of the resource. Provided by the client when the resource is
 created. The name must be 1-63 characters long, and comply with
 RFC1035. Specifically, the name must be 1-63 characters long and match
@@ -108,7 +109,7 @@ with varying MTUs.`,
 			"network_firewall_policy_enforcement_order": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"BEFORE_CLASSIC_FIREWALL", "AFTER_CLASSIC_FIREWALL", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"BEFORE_CLASSIC_FIREWALL", "AFTER_CLASSIC_FIREWALL", ""}),
 				Description:  `Set the order that Firewall Rules and Firewall Policies are evaluated. Default value: "AFTER_CLASSIC_FIREWALL" Possible values: ["BEFORE_CLASSIC_FIREWALL", "AFTER_CLASSIC_FIREWALL"]`,
 				Default:      "AFTER_CLASSIC_FIREWALL",
 			},
@@ -116,7 +117,7 @@ with varying MTUs.`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"REGIONAL", "GLOBAL", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"REGIONAL", "GLOBAL", ""}),
 				Description: `The network-wide routing mode to use. If set to 'REGIONAL', this
 network's cloud routers will only advertise routes with subnetworks
 of this network in the same region as the router. If set to 'GLOBAL',

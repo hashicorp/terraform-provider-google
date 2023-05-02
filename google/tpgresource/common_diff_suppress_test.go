@@ -1,6 +1,6 @@
 // Contains common diff suppress functions.
 
-package google
+package tpgresource
 
 import "testing"
 

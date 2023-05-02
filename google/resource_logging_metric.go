@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceLoggingMetric() *schema.Resource {
@@ -187,7 +188,7 @@ number of log entries matching the filter expression.`,
 						"metric_kind": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validateEnum([]string{"DELTA", "GAUGE", "CUMULATIVE"}),
+							ValidateFunc: verify.ValidateEnum([]string{"DELTA", "GAUGE", "CUMULATIVE"}),
 							Description: `Whether the metric records instantaneous values, changes to a value, etc.
 Some combinations of metricKind and valueType might not be supported.
 For counter metrics, set this to DELTA. Possible values: ["DELTA", "GAUGE", "CUMULATIVE"]`,
@@ -195,7 +196,7 @@ For counter metrics, set this to DELTA. Possible values: ["DELTA", "GAUGE", "CUM
 						"value_type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validateEnum([]string{"BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION", "MONEY"}),
+							ValidateFunc: verify.ValidateEnum([]string{"BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION", "MONEY"}),
 							Description: `Whether the measurement is an integer, a floating-point number, etc.
 Some combinations of metricKind and valueType might not be supported.
 For counter metrics, set this to INT64. Possible values: ["BOOL", "INT64", "DOUBLE", "STRING", "DISTRIBUTION", "MONEY"]`,
@@ -268,7 +269,7 @@ func loggingMetricMetricDescriptorLabelsSchema() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"BOOL", "INT64", "STRING", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"BOOL", "INT64", "STRING", ""}),
 				Description:  `The type of data that can be assigned to the label. Default value: "STRING" Possible values: ["BOOL", "INT64", "STRING"]`,
 				Default:      "STRING",
 			},

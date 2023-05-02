@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceComputeReservation() *schema.Resource {
@@ -130,7 +131,7 @@ reserves disks of type 'local-ssd'.`,
 													Type:         schema.TypeString,
 													Optional:     true,
 													ForceNew:     true,
-													ValidateFunc: validateEnum([]string{"SCSI", "NVME", ""}),
+													ValidateFunc: verify.ValidateEnum([]string{"SCSI", "NVME", ""}),
 													Description:  `The disk interface to use for attaching this disk. Default value: "SCSI" Possible values: ["SCSI", "NVME"]`,
 													Default:      "SCSI",
 												},
@@ -201,7 +202,7 @@ for information on available CPU platforms.`,
 							Type:         schema.TypeString,
 							Computed:     true,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"LOCAL", "SPECIFIC_PROJECTS", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"LOCAL", "SPECIFIC_PROJECTS", ""}),
 							Description:  `Type of sharing for this shared-reservation Possible values: ["LOCAL", "SPECIFIC_PROJECTS"]`,
 						},
 					},

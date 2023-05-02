@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/serviceusage/v1"
 )
@@ -56,7 +57,7 @@ var renamedServicesByOldAndNewServiceNames = mergeStringMaps(renamedServices, re
 const maxServiceUsageBatchSize = 20
 
 func validateProjectServiceService(val interface{}, key string) (warns []string, errs []error) {
-	bannedServicesFunc := StringNotInSlice(append(ignoredProjectServices, bannedProjectServices...), false)
+	bannedServicesFunc := verify.StringNotInSlice(append(ignoredProjectServices, bannedProjectServices...), false)
 	warns, errs = bannedServicesFunc(val, key)
 	if len(errs) > 0 {
 		return

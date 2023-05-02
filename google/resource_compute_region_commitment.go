@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceComputeRegionCommitment() *schema.Resource {
@@ -44,7 +45,7 @@ func ResourceComputeRegionCommitment() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateGCEName,
+				ValidateFunc: verify.ValidateGCEName,
 				Description: `Name of the resource. The name must be 1-63 characters long and match
 the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
 first character must be a lowercase letter, and all following
@@ -55,7 +56,7 @@ character, which cannot be a dash.`,
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"TWELVE_MONTH", "THIRTY_SIX_MONTH"}),
+				ValidateFunc: verify.ValidateEnum([]string{"TWELVE_MONTH", "THIRTY_SIX_MONTH"}),
 				Description: `The plan for this commitment, which determines duration and discount rate.
 The currently supported plans are TWELVE_MONTH (1 year), and THIRTY_SIX_MONTH (3 years). Possible values: ["TWELVE_MONTH", "THIRTY_SIX_MONTH"]`,
 			},
@@ -74,7 +75,7 @@ one or three years according to the terms of the existing commitment.`,
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"LICENSE", "MACHINE", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"LICENSE", "MACHINE", ""}),
 				Description: `The category of the commitment. Category MACHINE specifies commitments composed of
 machine resources such as VCPU or MEMORY, listed in resources. Category LICENSE
 specifies commitments composed of software licenses, listed in licenseResources.
@@ -161,7 +162,7 @@ Possible values are VCPU, MEMORY, LOCAL_SSD, and ACCELERATOR.`,
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateEnum([]string{"MEMORY_OPTIMIZED", "ACCELERATOR_OPTIMIZED", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"MEMORY_OPTIMIZED", "ACCELERATOR_OPTIMIZED", ""}),
 				Description: `The type of commitment, which affects the discount rate and the eligible resources.
 Type MEMORY_OPTIMIZED specifies a commitment that will only apply to memory optimized
 machines. Type ACCELERATOR_OPTIMIZED specifies a commitment that will only apply to

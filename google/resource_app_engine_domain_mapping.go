@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func sslSettingsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
@@ -66,7 +67,7 @@ func ResourceAppEngineDomainMapping() *schema.Resource {
 			"override_strategy": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"STRICT", "OVERRIDE", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"STRICT", "OVERRIDE", ""}),
 				Description: `Whether the domain creation should override any existing mappings for this domain.
 By default, overrides are rejected. Default value: "STRICT" Possible values: ["STRICT", "OVERRIDE"]`,
 				Default: "STRICT",
@@ -82,7 +83,7 @@ By default, overrides are rejected. Default value: "STRICT" Possible values: ["S
 						"ssl_management_type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validateEnum([]string{"AUTOMATIC", "MANUAL"}),
+							ValidateFunc: verify.ValidateEnum([]string{"AUTOMATIC", "MANUAL"}),
 							Description: `SSL management type for this domain. If 'AUTOMATIC', a managed certificate is automatically provisioned.
 If 'MANUAL', 'certificateId' must be manually specified in order to configure SSL for this domain. Possible values: ["AUTOMATIC", "MANUAL"]`,
 						},
@@ -134,7 +135,7 @@ configuration in order to serve the application via this domain mapping.`,
 						"type": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"A", "AAAA", "CNAME", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"A", "AAAA", "CNAME", ""}),
 							Description:  `Resource record type. Example: 'AAAA'. Possible values: ["A", "AAAA", "CNAME"]`,
 						},
 					},

@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceDataCatalogTaxonomy() *schema.Resource {
@@ -59,7 +60,7 @@ long when encoded in UTF-8.`,
 defaults to an empty list. Possible values: ["POLICY_TYPE_UNSPECIFIED", "FINE_GRAINED_ACCESS_CONTROL"]`,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: validateEnum([]string{"POLICY_TYPE_UNSPECIFIED", "FINE_GRAINED_ACCESS_CONTROL"}),
+					ValidateFunc: verify.ValidateEnum([]string{"POLICY_TYPE_UNSPECIFIED", "FINE_GRAINED_ACCESS_CONTROL"}),
 				},
 			},
 			"description": {

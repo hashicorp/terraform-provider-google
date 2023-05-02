@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 var domainMappingGoogleProvidedLabels = []string{
@@ -170,7 +171,7 @@ The route must exist.`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validateEnum([]string{"NONE", "AUTOMATIC", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"NONE", "AUTOMATIC", ""}),
 							Description:  `The mode of the certificate. Default value: "AUTOMATIC" Possible values: ["NONE", "AUTOMATIC"]`,
 							Default:      "AUTOMATIC",
 						},
@@ -203,7 +204,7 @@ serve the application via this domain mapping.`,
 									"type": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: validateEnum([]string{"A", "AAAA", "CNAME", ""}),
+										ValidateFunc: verify.ValidateEnum([]string{"A", "AAAA", "CNAME", ""}),
 										Description:  `Resource record type. Example: 'AAAA'. Possible values: ["A", "AAAA", "CNAME"]`,
 									},
 									"name": {

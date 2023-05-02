@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceCloudIotDevice() *schema.Resource {
@@ -77,7 +78,7 @@ func ResourceCloudIotDevice() *schema.Resource {
 									"format": {
 										Type:         schema.TypeString,
 										Required:     true,
-										ValidateFunc: validateEnum([]string{"RSA_PEM", "RSA_X509_PEM", "ES256_PEM", "ES256_X509_PEM"}),
+										ValidateFunc: verify.ValidateEnum([]string{"RSA_PEM", "RSA_X509_PEM", "ES256_PEM", "ES256_X509_PEM"}),
 										Description:  `The format of the key. Possible values: ["RSA_PEM", "RSA_X509_PEM", "ES256_PEM", "ES256_X509_PEM"]`,
 									},
 									"key": {
@@ -107,14 +108,14 @@ func ResourceCloudIotDevice() *schema.Resource {
 						"gateway_auth_method": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"ASSOCIATION_ONLY", "DEVICE_AUTH_TOKEN_ONLY", "ASSOCIATION_AND_DEVICE_AUTH_TOKEN", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"ASSOCIATION_ONLY", "DEVICE_AUTH_TOKEN_ONLY", "ASSOCIATION_AND_DEVICE_AUTH_TOKEN", ""}),
 							Description:  `Indicates whether the device is a gateway. Possible values: ["ASSOCIATION_ONLY", "DEVICE_AUTH_TOKEN_ONLY", "ASSOCIATION_AND_DEVICE_AUTH_TOKEN"]`,
 						},
 						"gateway_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validateEnum([]string{"GATEWAY", "NON_GATEWAY", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"GATEWAY", "NON_GATEWAY", ""}),
 							Description:  `Indicates whether the device is a gateway. Default value: "NON_GATEWAY" Possible values: ["GATEWAY", "NON_GATEWAY"]`,
 							Default:      "NON_GATEWAY",
 						},
@@ -134,7 +135,7 @@ func ResourceCloudIotDevice() *schema.Resource {
 			"log_level": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"NONE", "ERROR", "INFO", "DEBUG", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"NONE", "ERROR", "INFO", "DEBUG", ""}),
 				Description:  `The logging verbosity for device activity. Possible values: ["NONE", "ERROR", "INFO", "DEBUG"]`,
 			},
 			"metadata": {

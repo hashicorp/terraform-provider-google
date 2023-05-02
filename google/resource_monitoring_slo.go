@@ -78,7 +78,7 @@ to be met. 0 < goal <= 0.999`,
 			"calendar_period": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"DAY", "WEEK", "FORTNIGHT", "MONTH", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"DAY", "WEEK", "FORTNIGHT", "MONTH", ""}),
 				Description: `A calendar period, semantically "since the start of the current
 <calendarPeriod>". Possible values: ["DAY", "WEEK", "FORTNIGHT", "MONTH"]`,
 				ExactlyOneOf: []string{"rolling_period_days", "calendar_period"},

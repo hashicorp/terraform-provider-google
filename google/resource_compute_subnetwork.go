@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 // Whether the IP CIDR change shrinks the block.
@@ -74,7 +75,7 @@ func ResourceComputeSubnetwork() *schema.Resource {
 			"ip_cidr_range": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validateIpCidrRange,
+				ValidateFunc: verify.ValidateIpCidrRange,
 				Description: `The range of internal addresses that are owned by this subnetwork.
 Provide this property when you create the subnetwork. For example,
 10.0.0.0/8 or 192.168.0.0/16. Ranges must be unique and
@@ -84,7 +85,7 @@ non-overlapping within a network. Only IPv4 is supported.`,
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateGCEName,
+				ValidateFunc: verify.ValidateGCEName,
 				Description: `The name of the resource, provided by the client when initially
 creating the resource. The name must be 1-63 characters long, and
 comply with RFC1035. Specifically, the name must be 1-63 characters
@@ -112,7 +113,7 @@ creation time.`,
 			"ipv6_access_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"EXTERNAL", "INTERNAL", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"EXTERNAL", "INTERNAL", ""}),
 				Description: `The access type of IPv6 address this subnet holds. It's immutable and can only be specified during creation
 or the first time the subnet is updated into IPV4_IPV6 dual stack. If the ipv6_type is EXTERNAL then this subnet
 cannot enable direct path. Possible values: ["EXTERNAL", "INTERNAL"]`,
@@ -129,7 +130,7 @@ subnetwork is 'INTERNAL_HTTPS_LOAD_BALANCER'`,
 						"aggregation_interval": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"INTERVAL_5_SEC", "INTERVAL_30_SEC", "INTERVAL_1_MIN", "INTERVAL_5_MIN", "INTERVAL_10_MIN", "INTERVAL_15_MIN", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"INTERVAL_5_SEC", "INTERVAL_30_SEC", "INTERVAL_1_MIN", "INTERVAL_5_MIN", "INTERVAL_10_MIN", "INTERVAL_15_MIN", ""}),
 							Description: `Can only be specified if VPC flow logging for this subnetwork is enabled.
 Toggles the aggregation interval for collecting flow logs. Increasing the
 interval time will reduce the amount of generated flow logs for long
@@ -160,7 +161,7 @@ half of all collected logs are reported.`,
 						"metadata": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateEnum([]string{"EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA", "CUSTOM_METADATA", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA", "CUSTOM_METADATA", ""}),
 							Description: `Can only be specified if VPC flow logging for this subnetwork is enabled.
 Configures whether metadata fields should be added to the reported VPC
 flow logs. Default value: "INCLUDE_ALL_METADATA" Possible values: ["EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA", "CUSTOM_METADATA"]`,
@@ -215,7 +216,7 @@ The enableFlowLogs field isn't supported with the purpose field set to 'INTERNAL
 			"role": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"ACTIVE", "BACKUP", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"ACTIVE", "BACKUP", ""}),
 				Description: `The role of subnetwork.
 The value can be set to 'ACTIVE' or 'BACKUP'.
 An 'ACTIVE' subnetwork is one that is currently being used.
@@ -243,7 +244,7 @@ For more details about this behavior, see [this section](https://www.terraform.i
 						"ip_cidr_range": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validateIpCidrRange,
+							ValidateFunc: verify.ValidateIpCidrRange,
 							Description: `The range of IP addresses belonging to this subnetwork secondary
 range. Provide this property when you create the subnetwork.
 Ranges must be unique and non-overlapping with all primary and
@@ -252,7 +253,7 @@ secondary IP ranges within a network. Only IPv4 is supported.`,
 						"range_name": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validateGCEName,
+							ValidateFunc: verify.ValidateGCEName,
 							Description: `The name associated with this subnetwork secondary range, used
 when adding an alias IP range to a VM instance. The name must
 be 1-63 characters long, and comply with RFC1035. The name
@@ -265,7 +266,7 @@ must be unique within the subnetwork.`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: validateEnum([]string{"IPV4_ONLY", "IPV4_IPV6", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"IPV4_ONLY", "IPV4_IPV6", ""}),
 				Description: `The stack type for this subnet to identify whether the IPv6 feature is enabled or not.
 If not specified IPV4_ONLY will be used. Possible values: ["IPV4_ONLY", "IPV4_IPV6"]`,
 			},

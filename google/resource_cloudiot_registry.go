@@ -23,7 +23,9 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func expandCloudIotDeviceRegistryHTTPConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -251,9 +253,9 @@ func ValidateCloudIotDeviceRegistryID(v interface{}, k string) (warnings []strin
 		errors = append(errors, fmt.Errorf(
 			"%q (%q) can not start with \"goog\"", k, value))
 	}
-	if !regexp.MustCompile(CloudIoTIdRegex).MatchString(value) {
+	if !regexp.MustCompile(verify.CloudIoTIdRegex).MatchString(value) {
 		errors = append(errors, fmt.Errorf(
-			"%q (%q) doesn't match regexp %q", k, value, CloudIoTIdRegex))
+			"%q (%q) doesn't match regexp %q", k, value, verify.CloudIoTIdRegex))
 	}
 	return
 }
@@ -323,8 +325,8 @@ item.`,
 			"log_level": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				ValidateFunc:     validateEnum([]string{"NONE", "ERROR", "INFO", "DEBUG", ""}),
-				DiffSuppressFunc: EmptyOrDefaultStringSuppress("NONE"),
+				ValidateFunc:     verify.ValidateEnum([]string{"NONE", "ERROR", "INFO", "DEBUG", ""}),
+				DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("NONE"),
 				Description: `The default logging verbosity for activity from devices in this
 registry. Specifies which events should be written to logs. For
 example, if the LogLevel is ERROR, only events that terminate in

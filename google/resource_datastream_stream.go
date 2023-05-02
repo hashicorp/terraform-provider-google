@@ -26,7 +26,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func resourceDatastreamStreamCustomDiffFunc(diff TerraformResourceDiff) error {
@@ -125,7 +127,7 @@ func ResourceDatastreamStream() *schema.Resource {
 							Type:             schema.TypeString,
 							Required:         true,
 							ForceNew:         true,
-							DiffSuppressFunc: ProjectNumberDiffSuppress,
+							DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
 							Description:      `Destination connection profile resource. Format: projects/{project}/locations/{location}/connectionProfiles/{name}`,
 						},
 						"bigquery_destination_config": {
@@ -247,13 +249,13 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 												"compression": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateEnum([]string{"NO_COMPRESSION", "GZIP", ""}),
+													ValidateFunc: verify.ValidateEnum([]string{"NO_COMPRESSION", "GZIP", ""}),
 													Description:  `Compression of the loaded JSON file. Possible values: ["NO_COMPRESSION", "GZIP"]`,
 												},
 												"schema_file_format": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateEnum([]string{"NO_SCHEMA_FILE", "AVRO_SCHEMA_FILE", ""}),
+													ValidateFunc: verify.ValidateEnum([]string{"NO_SCHEMA_FILE", "AVRO_SCHEMA_FILE", ""}),
 													Description:  `The schema file format along JSON data files. Possible values: ["NO_SCHEMA_FILE", "AVRO_SCHEMA_FILE"]`,
 												},
 											},
@@ -294,7 +296,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 							Type:             schema.TypeString,
 							Required:         true,
 							ForceNew:         true,
-							DiffSuppressFunc: ProjectNumberDiffSuppress,
+							DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
 							Description:      `Source connection profile resource. Format: projects/{project}/locations/{location}/connectionProfiles/{name}`,
 						},
 						"mysql_source_config": {

@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceHealthcareHl7V2Store() *schema.Resource {
@@ -163,7 +164,7 @@ store if schematized parsing is desired.`,
 						"segment_terminator": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateBase64String,
+							ValidateFunc: verify.ValidateBase64String,
 							Description: `Byte(s) to be used as the segment terminator. If this is unset, '\r' will be used as segment terminator.
 
 A base64-encoded string.`,
@@ -173,7 +174,7 @@ A base64-encoded string.`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: validateEnum([]string{"V1", "V2", "V3", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"V1", "V2", "V3", ""}),
 							Description:  `The version of the unschematized parser to be used when a custom 'schema' is not set. Default value: "V1" Possible values: ["V1", "V2", "V3"]`,
 							Default:      "V1",
 						},

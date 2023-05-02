@@ -537,6 +537,8 @@ func frameworkDiagsToSdkDiags(fwD fwDiags.Diagnostics) *diag.Diagnostics {
 	return &diags
 }
 
+// Deprecated: For backward compatibility isEmptyValue is still working,
+// but all new code should use IsEmptyValue in the verify package instead.
 func isEmptyValue(v reflect.Value) bool {
 	return tpgresource.IsEmptyValue(v)
 }

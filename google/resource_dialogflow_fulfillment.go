@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceDialogflowFulfillment() *schema.Resource {
@@ -62,7 +63,7 @@ func ResourceDialogflowFulfillment() *schema.Resource {
 						"type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validateEnum([]string{"SMALLTALK"}),
+							ValidateFunc: verify.ValidateEnum([]string{"SMALLTALK"}),
 							Description: `The type of the feature that enabled for fulfillment.
 * SMALLTALK: Fulfillment is enabled for SmallTalk. Possible values: ["SMALLTALK"]`,
 						},
