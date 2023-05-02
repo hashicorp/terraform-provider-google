@@ -95,6 +95,16 @@ resource "google_compute_firewall_policy" "default" {
   description = "Resource created for Terraform acceptance testing"
 }
 
+resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
+  name        = "tf-test-policy%{random_suffix}"
+  parent      = "%{org_name}"
+  description = "Sample global networksecurity_address_group"
+  location    = "global"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
+}
+
 resource "google_compute_firewall_policy_rule" "default" {
   firewall_policy = google_compute_firewall_policy.default.id
   description = "Resource created for Terraform acceptance testing"
@@ -112,6 +122,7 @@ resource "google_compute_firewall_policy_rule" "default" {
     dest_fqdns = []
     dest_region_codes = []
     dest_threat_intelligences = []
+    dest_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
   }
 }
 `, context)
@@ -148,6 +159,16 @@ resource "google_compute_firewall_policy" "default" {
   description = "Resource created for Terraform acceptance testing"
 }
 
+resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
+  name        = "tf-test-policy%{random_suffix}"
+  parent      = "%{org_name}"
+  description = "Sample global networksecurity_address_group"
+  location    = "global"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
+}
+
 resource "google_compute_firewall_policy_rule" "default" {
   firewall_policy = google_compute_firewall_policy.default.id
   description = "Resource created for Terraform acceptance testing"
@@ -169,6 +190,8 @@ resource "google_compute_firewall_policy_rule" "default" {
     dest_fqdns = ["google.com"]
     dest_region_codes = ["US"]
     dest_threat_intelligences = ["iplist-known-malicious-ips"]
+    src_address_groups = []
+    dest_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
   }
   target_resources = [google_compute_network.network1.self_link, google_compute_network.network2.self_link]
   target_service_accounts = [google_service_account.service_account.email]
@@ -205,6 +228,16 @@ resource "google_compute_firewall_policy" "default" {
   parent      = google_folder.folder.id
   short_name  = "tf-test-policy-%{random_suffix}"
   description = "Resource created for Terraform acceptance testing"
+}
+
+resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
+  name        = "tf-test-policy%{random_suffix}"
+  parent      = "%{org_name}"
+  description = "Sample global networksecurity_address_group"
+  location    = "global"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
 }
 
 resource "google_compute_firewall_policy_rule" "default" {
@@ -290,6 +323,16 @@ resource "google_compute_firewall_policy" "default" {
   description = "Resource created for Terraform acceptance testing"
 }
 
+resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
+  name        = "tf-test-policy%{random_suffix}"
+  parent      = "%{org_name}"
+  description = "Sample global networksecurity_address_group"
+  location    = "global"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
+}
+
 resource "google_compute_firewall_policy_rule" "rule1" {
   firewall_policy = google_compute_firewall_policy.default.id
   description = "Resource created for Terraform acceptance testing"
@@ -307,6 +350,7 @@ resource "google_compute_firewall_policy_rule" "rule1" {
     dest_fqdns = ["google.com"]
     dest_region_codes = ["US"]
     dest_threat_intelligences = ["iplist-known-malicious-ips"]
+    dest_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
   }
 }
 
@@ -330,6 +374,7 @@ resource "google_compute_firewall_policy_rule" "rule2" {
     src_fqdns = ["google.com"]
     src_region_codes = ["US"]
     src_threat_intelligences = ["iplist-known-malicious-ips"]
+    src_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
   }
 }
 `, context)
@@ -348,6 +393,16 @@ resource "google_compute_firewall_policy" "default" {
   description = "Description Update"
 }
 
+resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
+  name        = "tf-test-policy%{random_suffix}"
+  parent      = "%{org_name}"
+  description = "Sample global networksecurity_address_group"
+  location    = "global"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
+}
+
 resource "google_compute_firewall_policy_rule" "rule1" {
   firewall_policy = google_compute_firewall_policy.default.id
   description = "Resource created for Terraform acceptance testing"
@@ -364,6 +419,7 @@ resource "google_compute_firewall_policy_rule" "rule1" {
     dest_fqdns = ["google.com"]
     dest_region_codes = ["US"]
     dest_threat_intelligences = ["iplist-known-malicious-ips"]
+    dest_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
   }
 }
 
@@ -387,6 +443,7 @@ resource "google_compute_firewall_policy_rule" "rule2" {
     src_fqdns = ["google.com"]
     src_region_codes = ["US"]
     src_threat_intelligences = ["iplist-known-malicious-ips"]
+    src_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
   }
 }
 
@@ -407,6 +464,7 @@ resource "google_compute_firewall_policy_rule" "rule3" {
     src_fqdns = ["google.com"]
     src_region_codes = ["US"]
     src_threat_intelligences = ["iplist-known-malicious-ips"]
+    src_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
   }
 }
 `, context)
@@ -423,6 +481,16 @@ resource "google_compute_firewall_policy" "default" {
   parent      = google_folder.folder.name
   short_name  = "tf-test-policy-%{random_suffix}"
   description = "Resource created for Terraform acceptance testing"
+}
+
+resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
+  name        = "tf-test-policy%{random_suffix}"
+  parent      = "%{org_name}"
+  description = "Sample global networksecurity_address_group"
+  location    = "global"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
 }
 
 resource "google_compute_firewall_policy_rule" "rule1" {

@@ -1,0 +1,4 @@
+```release-note:enhancement
+google_compute_firewall_policy_rule
+google_compute_network_firewall_policy_rule
+```

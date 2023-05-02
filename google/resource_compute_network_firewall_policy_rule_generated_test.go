@@ -66,6 +66,16 @@ func TestAccComputeNetworkFirewallPolicyRule_GlobalHandWritten(t *testing.T) {
 
 func testAccComputeNetworkFirewallPolicyRule_GlobalHandWritten(context map[string]interface{}) string {
 	return Nprintf(`
+resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
+  name        = "tf-test-policy%{random_suffix}"
+  parent      = "projects/%{project_name}"
+  description = "Sample global networksecurity_address_group"
+  location    = "global"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
+}
+
 resource "google_compute_network_firewall_policy" "basic_network_firewall_policy" {
   name        = "tf-test-policy%{random_suffix}"
   description = "Sample global network firewall policy"
@@ -96,6 +106,8 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
     layer4_configs {
       ip_protocol = "all"
     }
+    
+    src_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
   }
 }
 
@@ -124,6 +136,16 @@ resource "google_tags_tag_value" "basic_value" {
 
 func testAccComputeNetworkFirewallPolicyRule_GlobalHandWrittenUpdate0(context map[string]interface{}) string {
 	return Nprintf(`
+resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
+  name        = "tf-test-policy%{random_suffix}"
+  parent      = "projects/%{project_name}"
+  description = "Sample global networksecurity_address_group. Update"
+  location    = "global"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
+}
+
 resource "google_compute_network_firewall_policy" "basic_network_firewall_policy" {
   name        = "tf-test-policy%{random_suffix}"
   description = "Sample global network firewall policy"
@@ -150,6 +172,9 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
       ip_protocol = "tcp"
       ports       = ["123"]
     }
+    
+    dest_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
+
   }
 
   target_secure_tags {
