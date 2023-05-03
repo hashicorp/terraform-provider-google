@@ -217,7 +217,7 @@ resource "google_cloudbuild_trigger" "service-account-trigger" {
 }
 
 resource "google_service_account" "cloudbuild_service_account" {
-  account_id = "tf-test-my-service-account"
+  account_id = "tf-test-cloud-sa%{random_suffix}"
 }
 
 resource "google_project_iam_member" "act_as" {
