@@ -116,7 +116,7 @@ The following arguments are supported:
 
 * `rules` -
   (Optional)
-  List of rules to match. Note that at least one of the rules must match in order for the action specified in the 'action' field to be taken. 
+  List of rules to match. Note that at least one of the rules must match in order for the action specified in the 'action' field to be taken.
   A rule is a match if there is a matching source and destination. If left blank, the action specified in the action field will be applied on every request.
   Structure is [documented below](#nested_rules).
 
@@ -133,13 +133,13 @@ The following arguments are supported:
 
 * `sources` -
   (Optional)
-  List of attributes for the traffic source. All of the sources must match. A source is a match if both principals and ipBlocks match. 
+  List of attributes for the traffic source. All of the sources must match. A source is a match if both principals and ipBlocks match.
   If not set, the action specified in the 'action' field will be applied without any rule checks for the source.
   Structure is [documented below](#nested_sources).
 
 * `destinations` -
   (Optional)
-  List of attributes for the traffic destination. All of the destinations must match. A destination is a match if a request matches all the specified hosts, ports, methods and headers. 
+  List of attributes for the traffic destination. All of the destinations must match. A destination is a match if a request matches all the specified hosts, ports, methods and headers.
   If not set, the action specified in the 'action' field will be applied without any rule checks for the destination.
   Structure is [documented below](#nested_destinations).
 
@@ -148,12 +148,12 @@ The following arguments are supported:
 
 * `principals` -
   (Optional)
-  List of peer identities to match for authorization. At least one principal should match. Each peer can be an exact match, or a prefix match (example, "namespace/*") or a suffix match (example, "*/service-account") or a presence match "*". 
+  List of peer identities to match for authorization. At least one principal should match. Each peer can be an exact match, or a prefix match (example, "namespace/*") or a suffix match (example, "*/service-account") or a presence match "*".
   Authorization based on the principal name without certificate validation (configured by ServerTlsPolicy resource) is considered insecure.
 
 * `ip_blocks` -
   (Optional)
-  List of CIDR ranges to match based on source IP address. At least one IP block should match. Single IP (e.g., "1.2.3.4") and CIDR (e.g., "1.2.3.0/24") are supported. Authorization based on source IP alone should be avoided. 
+  List of CIDR ranges to match based on source IP address. At least one IP block should match. Single IP (e.g., "1.2.3.4") and CIDR (e.g., "1.2.3.0/24") are supported. Authorization based on source IP alone should be avoided.
   The IP addresses of any load balancers or proxies should be considered untrusted.
 
 <a name="nested_destinations"></a>The `destinations` block supports:
@@ -172,7 +172,7 @@ The following arguments are supported:
 
 * `http_header_match` -
   (Optional)
-  Match against key:value pair in http header. Provides a flexible match based on HTTP headers, for potentially advanced use cases. At least one header should match. 
+  Match against key:value pair in http header. Provides a flexible match based on HTTP headers, for potentially advanced use cases. At least one header should match.
   Avoid using header matches to make authorization decisions unless there is a strong guarantee that requests arrive through a trusted client or proxy.
   Structure is [documented below](#nested_http_header_match).
 
