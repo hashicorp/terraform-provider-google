@@ -12,14 +12,14 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Workstations"
+subcategory: "Cloud Workstations"
 description: |-
-  A managed workstation cluster.
+  A grouping of workstation configurations and the associated workstations in that region.
 ---
 
 # google\_workstations\_workstation\_cluster
 
-A managed workstation cluster.
+A grouping of workstation configurations and the associated workstations in that region.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
@@ -138,7 +138,7 @@ The following arguments are supported:
 
 * `workstation_cluster_id` -
   (Required)
-  The ID of the workstation cluster.
+  ID to use for the workstation cluster.
 
 
 - - -
@@ -184,7 +184,7 @@ The following arguments are supported:
 * `service_attachment_uri` -
   (Output)
   Service attachment URI for the workstation cluster.
-  The service attachemnt is created when private endpoint is enabled.
+  The service attachment is created when private endpoint is enabled.
   To access workstations in the cluster, configure access to the managed service using (Private Service Connect)[https://cloud.google.com/vpc/docs/configure-private-service-connect-services].
 
 ## Attributes Reference
@@ -208,7 +208,7 @@ In addition to the arguments listed above, the following computed attributes are
   May be sent on update and delete requests to ensure that the client has an up-to-date value before proceeding.
 
 * `create_time` -
-  Time the Instance was created in UTC.
+  Time when this resource was created.
 
 * `conditions` -
   Status conditions describing the current resource state.
