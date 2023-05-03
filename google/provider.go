@@ -648,6 +648,7 @@ func Provider() *schema.Provider {
 			"google_container_registry_image":                     DataSourceGoogleContainerImage(),
 			"google_container_registry_repository":                DataSourceGoogleContainerRepo(),
 			"google_dataproc_metastore_service":                   DataSourceDataprocMetastoreService(),
+			"google_datastream_static_ips":                        DataSourceGoogleDatastreamStaticIps(),
 			"google_game_services_game_server_deployment_rollout": DataSourceGameServicesGameServerDeploymentRollout(),
 			"google_iam_policy":                                   DataSourceGoogleIamPolicy(),
 			"google_iam_role":                                     DataSourceGoogleIamRole(),
