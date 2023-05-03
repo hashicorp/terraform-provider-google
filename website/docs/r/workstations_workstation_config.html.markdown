@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Workstations"
+subcategory: "Cloud Workstations"
 description: |-
   A set of configuration options describing how a workstation will be run.
 ---
@@ -74,7 +74,7 @@ resource "google_workstations_workstation_config" "default" {
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		         = "us-central1"
-  
+
   host {
     gce_instance {
       machine_type                = "e2-standard-4"
@@ -359,11 +359,11 @@ The following arguments are supported:
 
 * `workstation_config_id` -
   (Required)
-  The ID of the workstation cluster config.
+  The ID to be assigned to the workstation cluster config.
 
 * `workstation_cluster_id` -
   (Required)
-  The name of the workstation cluster.
+  The ID of the parent workstation cluster.
 
 * `location` -
   (Required)
@@ -416,7 +416,7 @@ The following arguments are supported:
 
 * `gce_instance` -
   (Optional)
-  Specifies a Compute Engine instance as the host.
+  A runtime using a Compute Engine instance.
   Structure is [documented below](#nested_gce_instance).
 
 
@@ -506,13 +506,13 @@ The following arguments are supported:
 * `reclaim_policy` -
   (Optional)
   What should happen to the disk after the workstation is deleted. Defaults to DELETE.
-  Possible values are: `RECLAIM_POLICY_UNSPECIFIED`, `DELETE`, `RETAIN`.
+  Possible values are: `DELETE`, `RETAIN`.
 
 <a name="nested_container"></a>The `container` block supports:
 
 * `image` -
   (Optional)
-  Docker image defining the container. This image must be accessible by the config"s service account.
+  Docker image defining the container. This image must be accessible by the config's service account.
 
 * `command` -
   (Optional)
@@ -562,7 +562,7 @@ In addition to the arguments listed above, the following computed attributes are
   May be sent on update and delete requests to ensure that the client has an up-to-date value before proceeding.
 
 * `create_time` -
-  Time the Instance was created in UTC.
+  Time when this resource was created.
 
 * `degraded` -
   Whether this resource is in degraded mode, in which case it may require user action to restore full functionality. Details can be found in the conditions field.
