@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -482,7 +483,7 @@ func getBigtableZone(z string, config *transport_tpg.Config) (string, error) {
 		}
 		return "", fmt.Errorf("cannot determine zone: set in cluster.0.zone, or set provider-level zone")
 	}
-	return GetResourceNameFromSelfLink(z), nil
+	return tpgresource.GetResourceNameFromSelfLink(z), nil
 }
 
 // resourceBigtableInstanceClusterReorderTypeList causes the cluster block to

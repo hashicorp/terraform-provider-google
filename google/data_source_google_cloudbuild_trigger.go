@@ -5,15 +5,16 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func DataSourceGoogleCloudBuildTrigger() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(ResourceCloudBuildTrigger().Schema)
+	dsSchema := tpgresource.DatasourceSchemaFromResourceSchema(ResourceCloudBuildTrigger().Schema)
 
-	addRequiredFieldsToSchema(dsSchema, "trigger_id", "location")
-	addOptionalFieldsToSchema(dsSchema, "project")
+	tpgresource.AddRequiredFieldsToSchema(dsSchema, "trigger_id", "location")
+	tpgresource.AddOptionalFieldsToSchema(dsSchema, "project")
 
 	return &schema.Resource{
 		Read:   dataSourceGoogleCloudBuildTriggerRead,

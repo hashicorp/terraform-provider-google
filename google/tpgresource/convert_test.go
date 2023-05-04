@@ -1,4 +1,4 @@
-package google
+package tpgresource
 
 import (
 	"reflect"

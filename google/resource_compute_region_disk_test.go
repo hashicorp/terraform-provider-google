@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -295,7 +297,7 @@ func testAccCheckComputeRegionDiskInstances(n string, disk *compute.Disk) resour
 		}
 
 		for pos, user := range disk.Users {
-			if ConvertSelfLinkToV1(rs.Primary.Attributes["users."+strconv.Itoa(pos)]) != ConvertSelfLinkToV1(user) {
+			if tpgresource.ConvertSelfLinkToV1(rs.Primary.Attributes["users."+strconv.Itoa(pos)]) != tpgresource.ConvertSelfLinkToV1(user) {
 				return fmt.Errorf("RegionDisk %s has mismatched users.\nTF State: %+v.\nGCP State: %+v",
 					n, rs.Primary.Attributes["users"], disk.Users)
 			}

@@ -24,10 +24,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"google.golang.org/api/dns/v1"
+
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
-	"google.golang.org/api/dns/v1"
 )
 
 func ResourceDNSManagedZone() *schema.Resource {
@@ -178,11 +179,11 @@ one target is given.`,
 							Set: func(v interface{}) int {
 								raw := v.(map[string]interface{})
 								if address, ok := raw["ipv4_address"]; ok {
-									hashcode(address.(string))
+									tpgresource.Hashcode(address.(string))
 								}
 								var buf bytes.Buffer
 								schema.SerializeResourceForHash(&buf, raw, dnsManagedZoneForwardingConfigTargetNameServersSchema())
-								return hashcode(buf.String())
+								return tpgresource.Hashcode(buf.String())
 							},
 						},
 					},
@@ -212,7 +213,7 @@ zone. The value of this field contains the network to peer with.`,
 									"network_url": {
 										Type:             schema.TypeString,
 										Required:         true,
-										DiffSuppressFunc: compareSelfLinkOrResourceName,
+										DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 										Description: `The id or fully qualified URL of the VPC network to forward queries to.
 This should be formatted like 'projects/{project}/global/networks/{network}' or
 'https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}'`,
@@ -246,11 +247,11 @@ blocks in an update and then apply another update adding all of them back simult
 								}
 								raw := v.(map[string]interface{})
 								if url, ok := raw["network_url"]; ok {
-									return selfLinkNameHash(url)
+									return tpgresource.SelfLinkNameHash(url)
 								}
 								var buf bytes.Buffer
 								schema.SerializeResourceForHash(&buf, raw, dnsManagedZonePrivateVisibilityConfigNetworksSchema())
-								return hashcode(buf.String())
+								return tpgresource.Hashcode(buf.String())
 							},
 						},
 						"gke_clusters": {
@@ -325,7 +326,7 @@ func dnsManagedZonePrivateVisibilityConfigNetworksSchema() *schema.Resource {
 			"network_url": {
 				Type:             schema.TypeString,
 				Required:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description: `The id or fully qualified URL of the VPC network to bind to.
 This should be formatted like 'projects/{project}/global/networks/{network}' or
 'https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}'`,
@@ -957,11 +958,11 @@ func flattenDNSManagedZonePrivateVisibilityConfigNetworks(v interface{}, d *sche
 		}
 		raw := v.(map[string]interface{})
 		if url, ok := raw["network_url"]; ok {
-			return selfLinkNameHash(url)
+			return tpgresource.SelfLinkNameHash(url)
 		}
 		var buf bytes.Buffer
 		schema.SerializeResourceForHash(&buf, raw, dnsManagedZonePrivateVisibilityConfigNetworksSchema())
-		return hashcode(buf.String())
+		return tpgresource.Hashcode(buf.String())
 	}, []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
@@ -1000,11 +1001,11 @@ func flattenDNSManagedZoneForwardingConfigTargetNameServers(v interface{}, d *sc
 	transformed := schema.NewSet(func(v interface{}) int {
 		raw := v.(map[string]interface{})
 		if address, ok := raw["ipv4_address"]; ok {
-			hashcode(address.(string))
+			tpgresource.Hashcode(address.(string))
 		}
 		var buf bytes.Buffer
 		schema.SerializeResourceForHash(&buf, raw, dnsManagedZoneForwardingConfigTargetNameServersSchema())
-		return hashcode(buf.String())
+		return tpgresource.Hashcode(buf.String())
 	}, []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
@@ -1297,7 +1298,7 @@ func expandDNSManagedZonePrivateVisibilityConfigNetworksNetworkUrl(v interface{}
 	if err != nil {
 		return "", err
 	}
-	return ConvertSelfLinkToV1(url), nil
+	return tpgresource.ConvertSelfLinkToV1(url), nil
 }
 
 func expandDNSManagedZonePrivateVisibilityConfigGkeClustersGkeClusterName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1409,7 +1410,7 @@ func expandDNSManagedZonePeeringConfigTargetNetworkNetworkUrl(v interface{}, d T
 	if err != nil {
 		return "", err
 	}
-	return ConvertSelfLinkToV1(url), nil
+	return tpgresource.ConvertSelfLinkToV1(url), nil
 }
 
 func expandDNSManagedZoneCloudLoggingConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

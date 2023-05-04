@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	acctest_tpg "github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 type ResourceDataMock struct {
@@ -41,7 +42,7 @@ func (d *ResourceDataMock) Get(key string) interface{} {
 
 func (d *ResourceDataMock) GetOk(key string) (interface{}, bool) {
 	v, ok := d.GetOkExists(key)
-	if ok && !isEmptyValue(reflect.ValueOf(v)) {
+	if ok && !tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
 		return v, true
 	} else {
 		return v, false

@@ -21,6 +21,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -65,7 +67,7 @@ last character, which cannot be a dash.`,
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `The network that this route applies to.`,
 			},
 			"description": {
@@ -79,7 +81,7 @@ when you create the resource.`,
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description: `URL to a gateway that should handle matching packets.
 Currently, you can only specify the internet gateway, using a full or
 partial valid URL:
@@ -93,7 +95,7 @@ partial valid URL:
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: CompareIpAddressOrSelfLinkOrResourceName,
+				DiffSuppressFunc: tpgresource.CompareIpAddressOrSelfLinkOrResourceName,
 				Description: `The IP address or URL to a forwarding rule of type
 loadBalancingScheme=INTERNAL that should handle matching
 packets.
@@ -401,7 +403,7 @@ func resourceComputeRouteRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("next_hop_ilb", flattenComputeRouteNextHopIlb(res["nextHopIlb"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
 
@@ -496,7 +498,7 @@ func flattenComputeRouteNetwork(v interface{}, d *schema.ResourceData, config *t
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeRoutePriority(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -531,7 +533,7 @@ func flattenComputeRouteNextHopInstance(v interface{}, d *schema.ResourceData, c
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeRouteNextHopIp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -542,7 +544,7 @@ func flattenComputeRouteNextHopVpnTunnel(v interface{}, d *schema.ResourceData, 
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeRouteNextHopNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

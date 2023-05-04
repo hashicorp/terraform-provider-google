@@ -4,13 +4,14 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func DataSourceGameServicesGameServerDeploymentRollout() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(ResourceGameServicesGameServerDeploymentRollout().Schema)
-	addRequiredFieldsToSchema(dsSchema, "deployment_id")
+	dsSchema := tpgresource.DatasourceSchemaFromResourceSchema(ResourceGameServicesGameServerDeploymentRollout().Schema)
+	tpgresource.AddRequiredFieldsToSchema(dsSchema, "deployment_id")
 
 	return &schema.Resource{
 		Read:   dataSourceGameServicesGameServerDeploymentRolloutRead,

@@ -21,6 +21,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -393,6 +395,6 @@ func resourceComputeDiskResourcePolicyAttachmentFindNestedObjectInList(d *schema
 	return -1, nil, nil
 }
 func resourceComputeDiskResourcePolicyAttachmentDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	res["name"] = GetResourceNameFromSelfLink(res["name"].(string))
+	res["name"] = tpgresource.GetResourceNameFromSelfLink(res["name"].(string))
 	return res, nil
 }

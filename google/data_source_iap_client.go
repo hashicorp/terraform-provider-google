@@ -4,13 +4,14 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func DataSourceGoogleIapClient() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(ResourceIapClient().Schema)
-	addRequiredFieldsToSchema(dsSchema, "brand", "client_id")
+	dsSchema := tpgresource.DatasourceSchemaFromResourceSchema(ResourceIapClient().Schema)
+	tpgresource.AddRequiredFieldsToSchema(dsSchema, "brand", "client_id")
 
 	return &schema.Resource{
 		Read:   dataSourceGoogleIapClientRead,

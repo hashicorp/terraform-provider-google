@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -146,7 +147,7 @@ func parseGlobalFieldValue(resourceType, fieldValue, projectSchemaField string, 
 
 	return &GlobalFieldValue{
 		Project: project,
-		Name:    GetResourceNameFromSelfLink(fieldValue),
+		Name:    tpgresource.GetResourceNameFromSelfLink(fieldValue),
 
 		resourceType: resourceType,
 	}, nil
@@ -225,7 +226,7 @@ func parseZonalFieldValue(resourceType, fieldValue, projectSchemaField, zoneSche
 	return &ZonalFieldValue{
 		Project:      project,
 		Zone:         zone.(string),
-		Name:         GetResourceNameFromSelfLink(fieldValue),
+		Name:         tpgresource.GetResourceNameFromSelfLink(fieldValue),
 		resourceType: resourceType,
 	}, nil
 }
@@ -356,7 +357,7 @@ func parseRegionalFieldValue(resourceType, fieldValue, projectSchemaField, regio
 	return &RegionalFieldValue{
 		Project:      project,
 		Region:       region,
-		Name:         GetResourceNameFromSelfLink(fieldValue),
+		Name:         tpgresource.GetResourceNameFromSelfLink(fieldValue),
 		resourceType: resourceType,
 	}, nil
 }
@@ -380,7 +381,7 @@ func getRegionFromSchema(regionSchemaField, zoneSchemaField string, d TerraformR
 	}
 
 	if v, ok := d.GetOk(regionSchemaField); ok && regionSchemaField != "" {
-		return GetResourceNameFromSelfLink(v.(string)), nil
+		return tpgresource.GetResourceNameFromSelfLink(v.(string)), nil
 	}
 	if v, ok := d.GetOk(zoneSchemaField); ok && zoneSchemaField != "" {
 		return getRegionFromZone(v.(string)), nil
@@ -437,7 +438,7 @@ func parseProjectFieldValue(resourceType, fieldValue, projectSchemaField string,
 
 	return &ProjectFieldValue{
 		Project: project,
-		Name:    GetResourceNameFromSelfLink(fieldValue),
+		Name:    tpgresource.GetResourceNameFromSelfLink(fieldValue),
 
 		resourceType: resourceType,
 	}, nil

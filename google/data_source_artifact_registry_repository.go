@@ -4,18 +4,19 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func DataSourceArtifactRegistryRepository() *schema.Resource {
 	// Generate datasource schema from resource
-	dsSchema := datasourceSchemaFromResourceSchema(ResourceArtifactRegistryRepository().Schema)
+	dsSchema := tpgresource.DatasourceSchemaFromResourceSchema(ResourceArtifactRegistryRepository().Schema)
 
 	// Set 'Required' schema elements
-	addRequiredFieldsToSchema(dsSchema, "repository_id", "location")
+	tpgresource.AddRequiredFieldsToSchema(dsSchema, "repository_id", "location")
 
 	// Set 'Optional' schema elements
-	addOptionalFieldsToSchema(dsSchema, "project")
+	tpgresource.AddOptionalFieldsToSchema(dsSchema, "project")
 
 	return &schema.Resource{
 		Read:   dataSourceArtifactRegistryRepositoryRead,

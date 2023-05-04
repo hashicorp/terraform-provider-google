@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	datastream "google.golang.org/api/datastream/v1"
@@ -38,7 +39,7 @@ func (w *DatastreamOperationWaiter) Error() error {
 
 func (w *DatastreamOperationWaiter) SetOp(op interface{}) error {
 	w.CommonOperationWaiter.SetOp(op)
-	if err := Convert(op, &w.Op); err != nil {
+	if err := tpgresource.Convert(op, &w.Op); err != nil {
 		return err
 	}
 	return nil

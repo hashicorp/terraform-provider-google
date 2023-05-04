@@ -5,10 +5,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"io"
 	"log"
 	"time"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -69,10 +71,10 @@ func (w *ComputeOperationWaiter) QueryOp() (interface{}, error) {
 		}
 	}
 	if w.Op.Zone != "" {
-		zone := GetResourceNameFromSelfLink(w.Op.Zone)
+		zone := tpgresource.GetResourceNameFromSelfLink(w.Op.Zone)
 		return w.Service.ZoneOperations.Get(w.Project, zone, w.Op.Name).Do()
 	} else if w.Op.Region != "" {
-		region := GetResourceNameFromSelfLink(w.Op.Region)
+		region := tpgresource.GetResourceNameFromSelfLink(w.Op.Region)
 		return w.Service.RegionOperations.Get(w.Project, region, w.Op.Name).Do()
 	}
 	return w.Service.GlobalOperations.Get(w.Project, w.Op.Name).Do()
@@ -96,7 +98,7 @@ func (w *ComputeOperationWaiter) TargetStates() []string {
 
 func ComputeOperationWaitTime(config *transport_tpg.Config, res interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	op := &compute.Operation{}
-	err := Convert(res, op)
+	err := tpgresource.Convert(res, op)
 	if err != nil {
 		return err
 	}

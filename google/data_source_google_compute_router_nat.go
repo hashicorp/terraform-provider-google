@@ -4,15 +4,16 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func DataSourceGoogleComputeRouterNat() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(ResourceComputeRouterNat().Schema)
+	dsSchema := tpgresource.DatasourceSchemaFromResourceSchema(ResourceComputeRouterNat().Schema)
 
-	addRequiredFieldsToSchema(dsSchema, "name", "router")
-	addOptionalFieldsToSchema(dsSchema, "project", "region")
+	tpgresource.AddRequiredFieldsToSchema(dsSchema, "name", "router")
+	tpgresource.AddOptionalFieldsToSchema(dsSchema, "project", "region")
 
 	return &schema.Resource{
 		Read:   dataSourceGoogleComputeRouterNatRead,

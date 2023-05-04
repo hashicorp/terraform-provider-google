@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -472,7 +473,7 @@ func flattenCertificateManagerCertificateMapEntryName(v interface{}, d *schema.R
 	if v == nil {
 		return v
 	}
-	return NameFromSelfLinkStateFunc(v)
+	return tpgresource.NameFromSelfLinkStateFunc(v)
 }
 
 func expandCertificateManagerCertificateMapEntryDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -503,5 +504,5 @@ func expandCertificateManagerCertificateMapEntryMatcher(v interface{}, d Terrafo
 }
 
 func expandCertificateManagerCertificateMapEntryName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return GetResourceNameFromSelfLink(v.(string)), nil
+	return tpgresource.GetResourceNameFromSelfLink(v.(string)), nil
 }

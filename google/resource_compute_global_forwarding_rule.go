@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
@@ -65,7 +66,7 @@ lowercase letters and numbers and must start with a letter.`,
 			"target": {
 				Type:             schema.TypeString,
 				Required:         true,
-				DiffSuppressFunc: compareSelfLinkRelativePaths,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 				Description: `The URL of the target resource to receive the matched traffic.  For
 regional forwarding rules, this target must be in the same region as the
 forwarding rule. For global forwarding rules, this target must be a global
@@ -581,7 +582,7 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 	if err := d.Set("base_forwarding_rule", flattenComputeGlobalForwardingRuleBaseForwardingRule(res["baseForwardingRule"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
-	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
 
@@ -844,7 +845,7 @@ func flattenComputeGlobalForwardingRuleNetwork(v interface{}, d *schema.Resource
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeGlobalForwardingRulePortRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

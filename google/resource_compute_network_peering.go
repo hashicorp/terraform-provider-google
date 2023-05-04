@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 
@@ -48,7 +49,7 @@ func ResourceComputeNetworkPeering() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				ValidateFunc:     verify.ValidateRegexp(peerNetworkLinkRegex),
-				DiffSuppressFunc: compareSelfLinkRelativePaths,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 				Description:      `The primary network of the peering.`,
 			},
 
@@ -57,7 +58,7 @@ func ResourceComputeNetworkPeering() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				ValidateFunc:     verify.ValidateRegexp(peerNetworkLinkRegex),
-				DiffSuppressFunc: compareSelfLinkRelativePaths,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 				Description:      `The peer network in the peering. The peer network may belong to a different project.`,
 			},
 
@@ -340,7 +341,7 @@ func resourceComputeNetworkPeeringImport(d *schema.ResourceData, meta interface{
 		return nil, transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Network %q", splits[1]))
 	}
 
-	if err := d.Set("network", ConvertSelfLinkToV1(net.SelfLink)); err != nil {
+	if err := d.Set("network", tpgresource.ConvertSelfLinkToV1(net.SelfLink)); err != nil {
 		return nil, fmt.Errorf("Error setting network: %s", err)
 	}
 	if err := d.Set("name", name); err != nil {

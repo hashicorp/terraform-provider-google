@@ -23,6 +23,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 
@@ -69,7 +71,7 @@ func ResourceBigQueryJob() *schema.Resource {
 										Type:             schema.TypeString,
 										Required:         true,
 										ForceNew:         true,
-										DiffSuppressFunc: compareSelfLinkRelativePaths,
+										DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 										Description: `The table. Can be specified '{{table_id}}' if 'project_id' and 'dataset_id' are also set,
 or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}' if not.`,
 									},
@@ -136,7 +138,7 @@ The BigQuery Service Account associated with your project requires access to thi
 										Type:             schema.TypeString,
 										Required:         true,
 										ForceNew:         true,
-										DiffSuppressFunc: compareSelfLinkRelativePaths,
+										DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 										Description: `The table. Can be specified '{{table_id}}' if 'project_id' and 'dataset_id' are also set,
 or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}' if not.`,
 									},
@@ -265,7 +267,7 @@ Default is ','`,
 										Type:             schema.TypeString,
 										Required:         true,
 										ForceNew:         true,
-										DiffSuppressFunc: compareSelfLinkRelativePaths,
+										DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 										Description: `The table. Can be specified '{{table_id}}' if 'project_id' and 'dataset_id' are also set,
 or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}' if not.`,
 									},
@@ -330,7 +332,7 @@ or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}
 										Type:             schema.TypeString,
 										Required:         true,
 										ForceNew:         true,
-										DiffSuppressFunc: compareSelfLinkRelativePaths,
+										DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 										Description: `The table. Can be specified '{{table_id}}' if 'project_id' and 'dataset_id' are also set,
 or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}' if not.`,
 									},
@@ -660,7 +662,7 @@ Creation, truncation and append actions occur as one atomic update upon job comp
 										Type:             schema.TypeString,
 										Required:         true,
 										ForceNew:         true,
-										DiffSuppressFunc: compareSelfLinkRelativePaths,
+										DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 										Description: `The dataset. Can be specified '{{dataset_id}}' if 'project_id' is also set,
 or of the form 'projects/{{project}}/datasets/{{dataset_id}}' if not.`,
 									},
@@ -712,7 +714,7 @@ For queries that produce anonymous (cached) results, this field will be populate
 										Type:             schema.TypeString,
 										Required:         true,
 										ForceNew:         true,
-										DiffSuppressFunc: compareSelfLinkRelativePaths,
+										DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 										Description: `The table. Can be specified '{{table_id}}' if 'project_id' and 'dataset_id' are also set,
 or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}' if not.`,
 									},

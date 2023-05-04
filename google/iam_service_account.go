@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 
@@ -98,7 +99,7 @@ func (u *ServiceAccountIamUpdater) DescribeResource() string {
 
 func resourceManagerToIamPolicy(p *cloudresourcemanager.Policy) (*iam.Policy, error) {
 	out := &iam.Policy{}
-	err := Convert(p, out)
+	err := tpgresource.Convert(p, out)
 	if err != nil {
 		return nil, errwrap.Wrapf("Cannot convert a v1 policy to a iam policy: {{err}}", err)
 	}
@@ -107,7 +108,7 @@ func resourceManagerToIamPolicy(p *cloudresourcemanager.Policy) (*iam.Policy, er
 
 func iamToResourceManagerPolicy(p *iam.Policy) (*cloudresourcemanager.Policy, error) {
 	out := &cloudresourcemanager.Policy{}
-	err := Convert(p, out)
+	err := tpgresource.Convert(p, out)
 	if err != nil {
 		return nil, errwrap.Wrapf("Cannot convert a iam policy to a v1 policy: {{err}}", err)
 	}

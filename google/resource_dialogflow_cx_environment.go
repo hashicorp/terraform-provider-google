@@ -10,6 +10,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -90,19 +92,19 @@ func resourceDialogflowCXEnvironmentCreate(d *schema.ResourceData, meta interfac
 	displayNameProp, err := expandDialogflowCXEnvironmentDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	descriptionProp, err := expandDialogflowCXEnvironmentDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	versionConfigsProp, err := expandDialogflowCXEnvironmentVersionConfigs(d.Get("version_configs"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("version_configs"); !isEmptyValue(reflect.ValueOf(versionConfigsProp)) && (ok || !reflect.DeepEqual(v, versionConfigsProp)) {
+	} else if v, ok := d.GetOkExists("version_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(versionConfigsProp)) && (ok || !reflect.DeepEqual(v, versionConfigsProp)) {
 		obj["versionConfigs"] = versionConfigsProp
 	}
 
@@ -244,19 +246,19 @@ func resourceDialogflowCXEnvironmentUpdate(d *schema.ResourceData, meta interfac
 	displayNameProp, err := expandDialogflowCXEnvironmentDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	descriptionProp, err := expandDialogflowCXEnvironmentDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	versionConfigsProp, err := expandDialogflowCXEnvironmentVersionConfigs(d.Get("version_configs"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("version_configs"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, versionConfigsProp)) {
+	} else if v, ok := d.GetOkExists("version_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, versionConfigsProp)) {
 		obj["versionConfigs"] = versionConfigsProp
 	}
 
@@ -404,7 +406,7 @@ func flattenDialogflowCXEnvironmentName(v interface{}, d *schema.ResourceData, c
 	if v == nil {
 		return v
 	}
-	return NameFromSelfLinkStateFunc(v)
+	return tpgresource.NameFromSelfLinkStateFunc(v)
 }
 
 func flattenDialogflowCXEnvironmentDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -462,7 +464,7 @@ func expandDialogflowCXEnvironmentVersionConfigs(v interface{}, d TerraformResou
 		transformedVersion, err := expandDialogflowCXEnvironmentVersionConfigsVersion(original["version"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["version"] = transformedVersion
 		}
 

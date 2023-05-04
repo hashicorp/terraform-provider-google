@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -470,7 +471,7 @@ func expandApigeeKeystoreAliasesPkcsCertsInfo(v interface{}, d TerraformResource
 	transformedCertInfo, err := expandApigeeKeystoreAliasesPkcsCertsInfoCertInfo(original["cert_info"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCertInfo); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCertInfo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["certInfo"] = transformedCertInfo
 	}
 
@@ -490,77 +491,77 @@ func expandApigeeKeystoreAliasesPkcsCertsInfoCertInfo(v interface{}, d Terraform
 		transformedVersion, err := expandApigeeKeystoreAliasesPkcsCertsInfoCertInfoVersion(original["version"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["version"] = transformedVersion
 		}
 
 		transformedSubject, err := expandApigeeKeystoreAliasesPkcsCertsInfoCertInfoSubject(original["subject"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedSubject); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedSubject); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["subject"] = transformedSubject
 		}
 
 		transformedIssuer, err := expandApigeeKeystoreAliasesPkcsCertsInfoCertInfoIssuer(original["issuer"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedIssuer); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedIssuer); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["issuer"] = transformedIssuer
 		}
 
 		transformedExpiryDate, err := expandApigeeKeystoreAliasesPkcsCertsInfoCertInfoExpiryDate(original["expiry_date"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedExpiryDate); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedExpiryDate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["expiryDate"] = transformedExpiryDate
 		}
 
 		transformedValidFrom, err := expandApigeeKeystoreAliasesPkcsCertsInfoCertInfoValidFrom(original["valid_from"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedValidFrom); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedValidFrom); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["validFrom"] = transformedValidFrom
 		}
 
 		transformedIsValid, err := expandApigeeKeystoreAliasesPkcsCertsInfoCertInfoIsValid(original["is_valid"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedIsValid); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedIsValid); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["isValid"] = transformedIsValid
 		}
 
 		transformedSubjectAlternativeNames, err := expandApigeeKeystoreAliasesPkcsCertsInfoCertInfoSubjectAlternativeNames(original["subject_alternative_names"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedSubjectAlternativeNames); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedSubjectAlternativeNames); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["subjectAlternativeNames"] = transformedSubjectAlternativeNames
 		}
 
 		transformedSigAlgName, err := expandApigeeKeystoreAliasesPkcsCertsInfoCertInfoSigAlgName(original["sig_alg_name"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedSigAlgName); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedSigAlgName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["sigAlgName"] = transformedSigAlgName
 		}
 
 		transformedPublicKey, err := expandApigeeKeystoreAliasesPkcsCertsInfoCertInfoPublicKey(original["public_key"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedPublicKey); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedPublicKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["publicKey"] = transformedPublicKey
 		}
 
 		transformedBasicConstraints, err := expandApigeeKeystoreAliasesPkcsCertsInfoCertInfoBasicConstraints(original["basic_constraints"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedBasicConstraints); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedBasicConstraints); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["basicConstraints"] = transformedBasicConstraints
 		}
 
 		transformedSerialNumber, err := expandApigeeKeystoreAliasesPkcsCertsInfoCertInfoSerialNumber(original["serial_number"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedSerialNumber); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedSerialNumber); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["serialNumber"] = transformedSerialNumber
 		}
 

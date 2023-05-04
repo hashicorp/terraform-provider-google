@@ -5,6 +5,8 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"testing"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"google.golang.org/api/compute/v1"
@@ -119,7 +121,7 @@ func testAccComputeTargetHttpsProxyHasSslCertificate(t *testing.T, cert string, 
 		certUrl := fmt.Sprintf(canonicalSslCertificateTemplate, config.Project, cert)
 
 		for _, sslCertificate := range proxy.SslCertificates {
-			if ConvertSelfLinkToV1(sslCertificate) == certUrl {
+			if tpgresource.ConvertSelfLinkToV1(sslCertificate) == certUrl {
 				return nil
 			}
 		}
@@ -133,7 +135,7 @@ func testAccComputeTargetHttpsProxyHasCertificateMap(t *testing.T, certificateMa
 		config := GoogleProviderConfig(t)
 		certificateMapUrl := fmt.Sprintf(canonicalCertificateMapTemplate, config.Project, certificateMap)
 
-		if ConvertSelfLinkToV1(proxy.CertificateMap) == certificateMapUrl {
+		if tpgresource.ConvertSelfLinkToV1(proxy.CertificateMap) == certificateMapUrl {
 			return nil
 		}
 

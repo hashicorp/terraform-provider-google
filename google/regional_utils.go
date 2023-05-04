@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -41,5 +42,5 @@ func getZone(d TerraformResourceData, config *transport_tpg.Config) (string, err
 		}
 		return "", fmt.Errorf("Cannot determine zone: set in this resource, or set provider-level zone.")
 	}
-	return GetResourceNameFromSelfLink(res.(string)), nil
+	return tpgresource.GetResourceNameFromSelfLink(res.(string)), nil
 }

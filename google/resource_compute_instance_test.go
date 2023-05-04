@@ -61,7 +61,7 @@ func testSweepComputeInstance(region string) error {
 			}
 
 			// Don't wait on operations as we may have a lot to delete
-			_, err := config.NewComputeClient(config.UserAgent).Instances.Delete(config.Project, GetResourceNameFromSelfLink(zone), instance.Name).Do()
+			_, err := config.NewComputeClient(config.UserAgent).Instances.Delete(config.Project, tpgresource.GetResourceNameFromSelfLink(zone), instance.Name).Do()
 			if err != nil {
 				log.Printf("[INFO][SWEEPER_LOG] Error deleting %s resource %s : %s", resourceName, instance.Name, err)
 			} else {
@@ -2757,7 +2757,7 @@ func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.In
 				}
 			} else {
 				if disk.DiskEncryptionKey != nil {
-					expectedKey := diskNameToEncryptionKey[GetResourceNameFromSelfLink(disk.Source)].Sha256
+					expectedKey := diskNameToEncryptionKey[tpgresource.GetResourceNameFromSelfLink(disk.Source)].Sha256
 					if disk.DiskEncryptionKey.Sha256 != expectedKey {
 						return fmt.Errorf("Disk %d has unexpected encryption key in GCP.\nExpected: %s\nActual: %s", i, expectedKey, disk.DiskEncryptionKey.Sha256)
 					}
@@ -2770,7 +2770,7 @@ func testAccCheckComputeInstanceDiskEncryptionKey(n string, instance *compute.In
 			return fmt.Errorf("Error converting value of attached_disk.#")
 		}
 		for i := 0; i < numAttachedDisks; i++ {
-			diskName := GetResourceNameFromSelfLink(rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.source", i)])
+			diskName := tpgresource.GetResourceNameFromSelfLink(rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.source", i)])
 			encryptionKey := rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.disk_encryption_key_sha256", i)]
 			if key, ok := diskNameToEncryptionKey[diskName]; ok {
 				expectedEncryptionKey := key.Sha256
@@ -2801,7 +2801,7 @@ func testAccCheckComputeInstanceDiskKmsEncryptionKey(n string, instance *compute
 				}
 			} else {
 				if disk.DiskEncryptionKey != nil {
-					expectedKey := diskNameToEncryptionKey[GetResourceNameFromSelfLink(disk.Source)].KmsKeyName
+					expectedKey := diskNameToEncryptionKey[tpgresource.GetResourceNameFromSelfLink(disk.Source)].KmsKeyName
 					// The response for crypto keys often includes the version of the key which needs to be removed
 					// format: projects/<project>/locations/<region>/keyRings/<keyring>/cryptoKeys/<key>/cryptoKeyVersions/1
 					actualKey := strings.Split(disk.DiskEncryptionKey.KmsKeyName, "/cryptoKeyVersions")[0]
@@ -2817,7 +2817,7 @@ func testAccCheckComputeInstanceDiskKmsEncryptionKey(n string, instance *compute
 			return fmt.Errorf("Error converting value of attached_disk.#")
 		}
 		for i := 0; i < numAttachedDisks; i++ {
-			diskName := GetResourceNameFromSelfLink(rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.source", i)])
+			diskName := tpgresource.GetResourceNameFromSelfLink(rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.source", i)])
 			kmsKeyName := rs.Primary.Attributes[fmt.Sprintf("attached_disk.%d.kms_key_self_link", i)]
 			if key, ok := diskNameToEncryptionKey[diskName]; ok {
 				expectedEncryptionKey := key.KmsKeyName
@@ -2989,7 +2989,7 @@ func testAccCheckComputeInstanceHasMinCpuPlatform(instance *compute.Instance, mi
 
 func testAccCheckComputeInstanceHasMachineType(instance *compute.Instance, machineType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		instanceMachineType := GetResourceNameFromSelfLink(instance.MachineType)
+		instanceMachineType := tpgresource.GetResourceNameFromSelfLink(instance.MachineType)
 		if instanceMachineType != machineType {
 			return fmt.Errorf("Wrong machine type: expected %s, got %s", machineType, instanceMachineType)
 		}

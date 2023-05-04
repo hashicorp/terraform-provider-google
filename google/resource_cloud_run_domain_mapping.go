@@ -22,6 +22,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -163,7 +165,7 @@ More info: http://kubernetes.io/docs/user-guide/identifiers#uids`,
 							Type:             schema.TypeString,
 							Required:         true,
 							ForceNew:         true,
-							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 							Description: `The name of the Cloud Run Service that this DomainMapping applies to.
 The route must exist.`,
 						},
@@ -746,7 +748,7 @@ func expandCloudRunDomainMappingSpecForceOverride(v interface{}, d TerraformReso
 }
 
 func expandCloudRunDomainMappingSpecRouteName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return GetResourceNameFromSelfLink(v.(string)), nil
+	return tpgresource.GetResourceNameFromSelfLink(v.(string)), nil
 }
 
 func expandCloudRunDomainMappingSpecCertificateMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

@@ -157,7 +157,7 @@ func ResourceComputeInstanceGroupManager() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Set:         selfLinkRelativePathHash,
+				Set:         tpgresource.SelfLinkRelativePathHash,
 				Description: `The full URL of all target pools to which new instances in the group are added. Updating the target pools attribute does not affect existing instances.`,
 			},
 
@@ -186,7 +186,7 @@ func ResourceComputeInstanceGroupManager() *schema.Resource {
 						"health_check": {
 							Type:             schema.TypeString,
 							Required:         true,
-							DiffSuppressFunc: compareSelfLinkRelativePaths,
+							DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 							Description:      `The health check resource that signals autohealing.`,
 						},
 
@@ -388,7 +388,7 @@ func compareSelfLinkRelativePathsIgnoreParams(_unused1, old, new string, _unused
 	if oldUniqueId != "" && newUniqueId != "" && oldUniqueId != newUniqueId {
 		return false
 	}
-	return compareSelfLinkRelativePaths(_unused1, oldName, newName, _unused2)
+	return tpgresource.CompareSelfLinkRelativePaths(_unused1, oldName, newName, _unused2)
 }
 
 func ConvertToUniqueIdWhenPresent(s string) string {
@@ -524,7 +524,7 @@ func flattenVersions(versions []*compute.InstanceGroupManagerVersion) []map[stri
 	for _, version := range versions {
 		versionMap := make(map[string]interface{})
 		versionMap["name"] = version.Name
-		versionMap["instance_template"] = ConvertSelfLinkToV1(version.InstanceTemplate)
+		versionMap["instance_template"] = tpgresource.ConvertSelfLinkToV1(version.InstanceTemplate)
 		versionMap["target_size"] = flattenFixedOrPercent(version.TargetSize)
 		result = append(result, versionMap)
 	}
@@ -624,7 +624,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	if err := d.Set("name", manager.Name); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
-	if err := d.Set("zone", GetResourceNameFromSelfLink(manager.Zone)); err != nil {
+	if err := d.Set("zone", tpgresource.GetResourceNameFromSelfLink(manager.Zone)); err != nil {
 		return fmt.Errorf("Error setting zone: %s", err)
 	}
 	if err := d.Set("description", manager.Description); err != nil {
@@ -639,7 +639,7 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	if err := d.Set("list_managed_instances_results", manager.ListManagedInstancesResults); err != nil {
 		return fmt.Errorf("Error setting list_managed_instances_results: %s", err)
 	}
-	if err = d.Set("target_pools", mapStringArr(manager.TargetPools, ConvertSelfLinkToV1)); err != nil {
+	if err = d.Set("target_pools", mapStringArr(manager.TargetPools, tpgresource.ConvertSelfLinkToV1)); err != nil {
 		return fmt.Errorf("Error setting target_pools in state: %s", err.Error())
 	}
 	if err = d.Set("named_port", flattenNamedPortsBeta(manager.NamedPorts)); err != nil {
@@ -651,10 +651,10 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	if err := d.Set("fingerprint", manager.Fingerprint); err != nil {
 		return fmt.Errorf("Error setting fingerprint: %s", err)
 	}
-	if err := d.Set("instance_group", ConvertSelfLinkToV1(manager.InstanceGroup)); err != nil {
+	if err := d.Set("instance_group", tpgresource.ConvertSelfLinkToV1(manager.InstanceGroup)); err != nil {
 		return fmt.Errorf("Error setting instance_group: %s", err)
 	}
-	if err := d.Set("self_link", ConvertSelfLinkToV1(manager.SelfLink)); err != nil {
+	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(manager.SelfLink)); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
 

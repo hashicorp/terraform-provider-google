@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/cloudbilling/v1"
@@ -353,7 +354,7 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 			t.Fatalf("Error bootstrapping shared test project: %s", err)
 		}
 
-		opAsMap, err := ConvertToMap(op)
+		opAsMap, err := tpgresource.ConvertToMap(op)
 		if err != nil {
 			t.Fatalf("Error bootstrapping shared test project: %s", err)
 		}
@@ -468,7 +469,7 @@ func BootstrapProject(t *testing.T, projectIDPrefix, billingAccount string, serv
 			t.Fatalf("Error creating bootstrapped test project: %s", err)
 		}
 
-		opAsMap, err := ConvertToMap(op)
+		opAsMap, err := tpgresource.ConvertToMap(op)
 		if err != nil {
 			t.Fatalf("Error converting create project operation to map: %s", err)
 		}
@@ -715,7 +716,7 @@ func setupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 	}
 
 	// Wait for the operation to complete
-	opAsMap, err := ConvertToMap(op)
+	opAsMap, err := tpgresource.ConvertToMap(op)
 	if err != nil {
 		return "", err
 	}
@@ -746,7 +747,7 @@ func setupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 	}
 
 	// Wait for the operation to complete
-	opAsMap, err = ConvertToMap(op)
+	opAsMap, err = tpgresource.ConvertToMap(op)
 	if err != nil {
 		return "", err
 	}

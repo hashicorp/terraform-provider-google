@@ -2,19 +2,21 @@ package google
 
 import (
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"net/url"
 	"strings"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func DataSourceGoogleStorageBucketObject() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(ResourceStorageBucketObject().Schema)
+	dsSchema := tpgresource.DatasourceSchemaFromResourceSchema(ResourceStorageBucketObject().Schema)
 
-	addOptionalFieldsToSchema(dsSchema, "bucket")
-	addOptionalFieldsToSchema(dsSchema, "name")
+	tpgresource.AddOptionalFieldsToSchema(dsSchema, "bucket")
+	tpgresource.AddOptionalFieldsToSchema(dsSchema, "name")
 
 	return &schema.Resource{
 		Read:   dataSourceGoogleStorageBucketObjectRead,

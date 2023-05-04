@@ -23,6 +23,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 
@@ -1613,7 +1615,7 @@ func flattenMonitoringSloSloId(v interface{}, d *schema.ResourceData, config *tr
 	if v == nil {
 		return v
 	}
-	return NameFromSelfLinkStateFunc(v)
+	return tpgresource.NameFromSelfLinkStateFunc(v)
 }
 
 func expandMonitoringSloDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

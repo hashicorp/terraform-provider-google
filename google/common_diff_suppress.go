@@ -3,9 +3,6 @@
 package google
 
 import (
-	"net"
-	"reflect"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
@@ -137,24 +134,20 @@ func DurationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 // Use this method when the field accepts either an IP address or a
 // self_link referencing a resource (such as google_compute_route's
 // next_hop_ilb)
+//
+// Deprecated: For backward compatibility CompareIpAddressOrSelfLinkOrResourceName is still working,
+// but all new code should use CompareIpAddressOrSelfLinkOrResourceName in the tpgresource package instead.
 func CompareIpAddressOrSelfLinkOrResourceName(_, old, new string, _ *schema.ResourceData) bool {
-	// if we can parse `new` as an IP address, then compare as strings
-	if net.ParseIP(new) != nil {
-		return new == old
-	}
-
-	// otherwise compare as self links
-	return compareSelfLinkOrResourceName("", old, new, nil)
+	return tpgresource.CompareIpAddressOrSelfLinkOrResourceName("", old, new, nil)
 }
 
 // Use this method when subnet is optioanl and auto_create_subnetworks = true
 // API sometimes choose a subnet so the diff needs to be ignored
+//
+// Deprecated: For backward compatibility CompareOptionalSubnet is still working,
+// but all new code should use CompareOptionalSubnet in the tpgresource package instead.
 func CompareOptionalSubnet(_, old, new string, _ *schema.ResourceData) bool {
-	if tpgresource.IsEmptyValue(reflect.ValueOf(new)) {
-		return true
-	}
-	// otherwise compare as self links
-	return compareSelfLinkOrResourceName("", old, new, nil)
+	return tpgresource.CompareOptionalSubnet("", old, new, nil)
 }
 
 // Deprecated: For backward compatibility LastSlashDiffSuppress is still working,

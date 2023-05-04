@@ -22,6 +22,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -1360,7 +1362,7 @@ func expandMonitoringUptimeCheckConfigResourceGroupResourceType(v interface{}, d
 }
 
 func expandMonitoringUptimeCheckConfigResourceGroupGroupId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return GetResourceNameFromSelfLink(v.(string)), nil
+	return tpgresource.GetResourceNameFromSelfLink(v.(string)), nil
 }
 
 func expandMonitoringUptimeCheckConfigMonitoredResource(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

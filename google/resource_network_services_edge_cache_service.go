@@ -22,6 +22,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -356,7 +358,7 @@ Response headers are only sent to the client, and do not have an effect on the c
 												"origin": {
 													Type:             schema.TypeString,
 													Optional:         true,
-													DiffSuppressFunc: compareSelfLinkOrResourceName,
+													DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 													Description: `The Origin resource that requests to this route should fetch from when a matching response is not in cache. Origins can be defined as short names ("my-origin") or fully-qualified resource URLs - e.g. "networkservices.googleapis.com/projects/my-project/global/edgecacheorigins/my-origin"
 
 Only one of origin or urlRedirect can be set.`,

@@ -7,7 +7,9 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -78,9 +80,9 @@ func testSweepApigeeKeystoresAliasesKeyCertFile(region string) error {
 		var name string
 		// Id detected in the delete URL, attempt to use id.
 		if obj["id"] != nil {
-			name = GetResourceNameFromSelfLink(obj["id"].(string))
+			name = tpgresource.GetResourceNameFromSelfLink(obj["id"].(string))
 		} else if obj["alias"] != nil {
-			name = GetResourceNameFromSelfLink(obj["alias"].(string))
+			name = tpgresource.GetResourceNameFromSelfLink(obj["alias"].(string))
 		} else {
 			log.Printf("[INFO][SWEEPER_LOG] %s resource name and id were nil", resourceName)
 			return nil

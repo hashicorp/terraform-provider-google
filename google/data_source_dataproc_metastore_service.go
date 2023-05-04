@@ -4,15 +4,16 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func DataSourceDataprocMetastoreService() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(ResourceDataprocMetastoreService().Schema)
-	addRequiredFieldsToSchema(dsSchema, "service_id")
-	addRequiredFieldsToSchema(dsSchema, "location")
-	addOptionalFieldsToSchema(dsSchema, "project")
+	dsSchema := tpgresource.DatasourceSchemaFromResourceSchema(ResourceDataprocMetastoreService().Schema)
+	tpgresource.AddRequiredFieldsToSchema(dsSchema, "service_id")
+	tpgresource.AddRequiredFieldsToSchema(dsSchema, "location")
+	tpgresource.AddOptionalFieldsToSchema(dsSchema, "project")
 
 	return &schema.Resource{
 		Read:   dataSourceDataprocMetastoreServiceRead,

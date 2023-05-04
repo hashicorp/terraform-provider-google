@@ -5,18 +5,19 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func DataSourceMonitoringNotificationChannel() *schema.Resource {
-	dsSchema := datasourceSchemaFromResourceSchema(ResourceMonitoringNotificationChannel().Schema)
+	dsSchema := tpgresource.DatasourceSchemaFromResourceSchema(ResourceMonitoringNotificationChannel().Schema)
 
 	// Set 'Optional' schema elements
-	addOptionalFieldsToSchema(dsSchema, "display_name")
-	addOptionalFieldsToSchema(dsSchema, "project")
-	addOptionalFieldsToSchema(dsSchema, "type")
-	addOptionalFieldsToSchema(dsSchema, "labels")
-	addOptionalFieldsToSchema(dsSchema, "user_labels")
+	tpgresource.AddOptionalFieldsToSchema(dsSchema, "display_name")
+	tpgresource.AddOptionalFieldsToSchema(dsSchema, "project")
+	tpgresource.AddOptionalFieldsToSchema(dsSchema, "type")
+	tpgresource.AddOptionalFieldsToSchema(dsSchema, "labels")
+	tpgresource.AddOptionalFieldsToSchema(dsSchema, "user_labels")
 
 	return &schema.Resource{
 		Read:   dataSourceMonitoringNotificationChannelRead,

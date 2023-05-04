@@ -24,6 +24,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -38,7 +40,7 @@ func resourceNameSetFromSelfLinkSet(v interface{}) *schema.Set {
 		if v == nil {
 			continue
 		}
-		ls = append(ls, GetResourceNameFromSelfLink(v.(string)))
+		ls = append(ls, tpgresource.GetResourceNameFromSelfLink(v.(string)))
 	}
 	return schema.NewSet(schema.HashString, ls)
 }
@@ -102,7 +104,7 @@ func computeRouterNatSubnetworkHash(v interface{}) int {
 		}
 	}
 
-	return schema.HashString(NameFromSelfLinkStateFunc(name)) + sourceIpRangesHash + secondaryIpRangeHash
+	return schema.HashString(tpgresource.NameFromSelfLinkStateFunc(name)) + sourceIpRangesHash + secondaryIpRangeHash
 }
 
 func computeRouterNatIPsHash(v interface{}) int {
@@ -111,7 +113,7 @@ func computeRouterNatIPsHash(v interface{}) int {
 	if len(newParts) == 1 {
 		return schema.HashString(newParts[0])
 	}
-	return schema.HashString(GetResourceNameFromSelfLink(val))
+	return schema.HashString(tpgresource.GetResourceNameFromSelfLink(val))
 }
 
 func computeRouterNatRulesHash(v interface{}) int {
@@ -979,14 +981,14 @@ func flattenNestedComputeRouterNatNatIps(v interface{}, d *schema.ResourceData, 
 	if v == nil {
 		return v
 	}
-	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
+	return convertAndMapStringArr(v.([]interface{}), tpgresource.ConvertSelfLinkToV1)
 }
 
 func flattenNestedComputeRouterNatDrainNatIps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
-	return convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)
+	return convertAndMapStringArr(v.([]interface{}), tpgresource.ConvertSelfLinkToV1)
 }
 
 func flattenNestedComputeRouterNatSourceSubnetworkIpRangesToNat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1017,7 +1019,7 @@ func flattenNestedComputeRouterNatSubnetworkName(v interface{}, d *schema.Resour
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenNestedComputeRouterNatSubnetworkSourceIpRangesToNat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1230,14 +1232,14 @@ func flattenNestedComputeRouterNatRulesActionSourceNatActiveIps(v interface{}, d
 	if v == nil {
 		return v
 	}
-	return schema.NewSet(computeRouterNatIPsHash, convertStringArrToInterface(convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)))
+	return schema.NewSet(computeRouterNatIPsHash, convertStringArrToInterface(convertAndMapStringArr(v.([]interface{}), tpgresource.ConvertSelfLinkToV1)))
 }
 
 func flattenNestedComputeRouterNatRulesActionSourceNatDrainIps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
-	return schema.NewSet(computeRouterNatIPsHash, convertStringArrToInterface(convertAndMapStringArr(v.([]interface{}), ConvertSelfLinkToV1)))
+	return schema.NewSet(computeRouterNatIPsHash, convertStringArrToInterface(convertAndMapStringArr(v.([]interface{}), tpgresource.ConvertSelfLinkToV1)))
 }
 
 func flattenNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

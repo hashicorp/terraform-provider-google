@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/cloudbilling/v1"
@@ -103,7 +104,7 @@ func dataSourceBillingAccountRead(d *schema.ResourceData, meta interface{}) erro
 	}
 	projectIds := flattenBillingProjects(resp.ProjectBillingInfo)
 
-	d.SetId(GetResourceNameFromSelfLink(billingAccount.Name))
+	d.SetId(tpgresource.GetResourceNameFromSelfLink(billingAccount.Name))
 	if err := d.Set("name", billingAccount.Name); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}

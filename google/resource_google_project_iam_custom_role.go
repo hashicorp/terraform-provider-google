@@ -148,7 +148,7 @@ func resourceGoogleProjectIamCustomRoleRead(d *schema.ResourceData, meta interfa
 		return transport_tpg.HandleNotFoundError(err, d, d.Id())
 	}
 
-	if err := d.Set("role_id", GetResourceNameFromSelfLink(role.Name)); err != nil {
+	if err := d.Set("role_id", tpgresource.GetResourceNameFromSelfLink(role.Name)); err != nil {
 		return fmt.Errorf("Error setting role_id: %s", err)
 	}
 	if err := d.Set("title", role.Title); err != nil {

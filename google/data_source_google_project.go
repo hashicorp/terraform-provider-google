@@ -4,15 +4,16 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func DataSourceGoogleProject() *schema.Resource {
 	// Generate datasource schema from resource
-	dsSchema := datasourceSchemaFromResourceSchema(ResourceGoogleProject().Schema)
+	dsSchema := tpgresource.DatasourceSchemaFromResourceSchema(ResourceGoogleProject().Schema)
 
-	addOptionalFieldsToSchema(dsSchema, "project_id")
+	tpgresource.AddOptionalFieldsToSchema(dsSchema, "project_id")
 
 	dsSchema["project_id"].ValidateFunc = verify.ValidateDSProjectID()
 	return &schema.Resource{
