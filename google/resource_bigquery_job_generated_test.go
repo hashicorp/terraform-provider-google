@@ -311,6 +311,89 @@ resource "google_bigquery_job" "job" {
 `, context)
 }
 
+func TestAccBigQueryJob_bigqueryJobLoadParquetExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryJob_bigqueryJobLoadParquetExample(context),
+			},
+			{
+				ResourceName:            "google_bigquery_job.job",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "status.0.state"},
+			},
+		},
+	})
+}
+
+func testAccBigQueryJob_bigqueryJobLoadParquetExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_storage_bucket" "test" {
+  name                        = "tf_test_job_load%{random_suffix}_bucket"
+  location                    = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "test" {
+  name   =  "tf_test_job_load%{random_suffix}_bucket_object"
+  source = "./test-fixtures/bigquerytable/test.parquet.gzip"
+  bucket = google_storage_bucket.test.name
+}
+
+resource "google_bigquery_dataset" "test" {
+  dataset_id                  = "tf_test_job_load%{random_suffix}_dataset"
+  friendly_name               = "test"
+  description                 = "This is a test description"
+  location                    = "US"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id            = "tf_test_job_load%{random_suffix}_table"
+  dataset_id          = google_bigquery_dataset.test.dataset_id
+}
+
+resource "google_bigquery_job" "job" {
+  job_id = "tf_test_job_load%{random_suffix}"
+
+  labels = {
+    "my_job" ="load"
+  }
+
+  load {
+    source_uris = [
+      "gs://${google_storage_bucket_object.test.bucket}/${google_storage_bucket_object.test.name}"
+    ]
+
+    destination_table {
+      project_id = google_bigquery_table.test.project
+      dataset_id = google_bigquery_table.test.dataset_id
+      table_id   = google_bigquery_table.test.table_id
+    }
+
+    schema_update_options = ["ALLOW_FIELD_RELAXATION", "ALLOW_FIELD_ADDITION"]
+    write_disposition     = "WRITE_APPEND"
+    source_format         = "PARQUET"
+    autodetect            = true
+
+    parquet_options {
+      enum_as_string        = true
+      enable_list_inference = true
+    }
+  }
+}
+`, context)
+}
+
 func TestAccBigQueryJob_bigqueryJobLoadTableReferenceExample(t *testing.T) {
 	t.Parallel()
 
