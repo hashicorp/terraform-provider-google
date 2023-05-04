@@ -2,8 +2,10 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -216,8 +218,8 @@ func TestAccComputeImage_imageEncryptionKey(t *testing.T) {
 	t.Parallel()
 
 	kmsKey := BootstrapKMSKeyInLocation(t, "us-central1")
-	kmsKeyName := GetResourceNameFromSelfLink(kmsKey.CryptoKey.Name)
-	kmsRingName := GetResourceNameFromSelfLink(kmsKey.KeyRing.Name)
+	kmsKeyName := tpgresource.GetResourceNameFromSelfLink(kmsKey.CryptoKey.Name)
+	kmsRingName := tpgresource.GetResourceNameFromSelfLink(kmsKey.KeyRing.Name)
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

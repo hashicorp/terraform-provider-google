@@ -21,6 +21,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -532,7 +534,7 @@ func flattenComputePacketMirroringRegion(v interface{}, d *schema.ResourceData, 
 	if v == nil {
 		return v
 	}
-	return NameFromSelfLinkStateFunc(v)
+	return tpgresource.NameFromSelfLinkStateFunc(v)
 }
 
 func flattenComputePacketMirroringNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -552,7 +554,7 @@ func flattenComputePacketMirroringNetworkUrl(v interface{}, d *schema.ResourceDa
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputePacketMirroringPriority(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -589,7 +591,7 @@ func flattenComputePacketMirroringCollectorIlbUrl(v interface{}, d *schema.Resou
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputePacketMirroringFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -660,7 +662,7 @@ func flattenComputePacketMirroringMirroredResourcesSubnetworksUrl(v interface{},
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputePacketMirroringMirroredResourcesInstances(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -685,7 +687,7 @@ func flattenComputePacketMirroringMirroredResourcesInstancesUrl(v interface{}, d
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputePacketMirroringMirroredResourcesTags(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

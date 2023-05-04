@@ -1,4 +1,4 @@
-package google
+package tpgresource
 
 import "testing"
 
@@ -60,7 +60,7 @@ func TestCompareSelfLinkOrResourceName(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		if compareSelfLinkOrResourceName("", tc.Old, tc.New, nil) != tc.Expect {
+		if CompareSelfLinkOrResourceName("", tc.Old, tc.New, nil) != tc.Expect {
 			t.Errorf("bad: %s, expected %t for old = %q and new = %q", tn, tc.Expect, tc.Old, tc.New)
 		}
 	}
@@ -105,7 +105,7 @@ func TestSelfLinkNameHash(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		if (selfLinkNameHash(tc.SelfLink) == selfLinkNameHash(tc.Name)) != tc.Expect {
+		if (SelfLinkNameHash(tc.SelfLink) == SelfLinkNameHash(tc.Name)) != tc.Expect {
 			t.Errorf("%s: expected %t for whether hashes matched for self link = %q, name = %q", tn, tc.Expect, tc.SelfLink, tc.Name)
 		}
 	}

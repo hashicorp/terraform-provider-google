@@ -22,6 +22,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -153,7 +155,7 @@ func resourceIdentityPlatformTenantCreate(d *schema.ResourceData, meta interface
 	if !ok {
 		return fmt.Errorf("Create response didn't contain critical fields. Create may not have succeeded.")
 	}
-	if err := d.Set("name", GetResourceNameFromSelfLink(name.(string))); err != nil {
+	if err := d.Set("name", tpgresource.GetResourceNameFromSelfLink(name.(string))); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
 	// Store the ID now that we have set the computed name
@@ -369,7 +371,7 @@ func flattenIdentityPlatformTenantName(v interface{}, d *schema.ResourceData, co
 	if v == nil {
 		return v
 	}
-	return NameFromSelfLinkStateFunc(v)
+	return tpgresource.NameFromSelfLinkStateFunc(v)
 }
 
 func flattenIdentityPlatformTenantDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

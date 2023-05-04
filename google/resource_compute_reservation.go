@@ -25,6 +25,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -397,7 +399,7 @@ func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("zone", flattenComputeReservationZone(res["zone"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
-	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
 
@@ -795,7 +797,7 @@ func flattenComputeReservationZone(v interface{}, d *schema.ResourceData, config
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func expandComputeReservationDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

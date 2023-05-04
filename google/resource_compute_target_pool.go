@@ -2,11 +2,13 @@ package google
 
 import (
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
@@ -68,7 +70,7 @@ func ResourceComputeTargetPool() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Schema{
 					Type:             schema.TypeString,
-					DiffSuppressFunc: compareSelfLinkOrResourceName,
+					DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				},
 				Description: `List of zero or one health check name or self_link. Only legacy google_compute_http_health_check is supported.`,
 			},
@@ -276,7 +278,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-		add, remove := calcAddRemove(fromUrls, toUrls)
+		add, remove := tpgresource.CalcAddRemove(fromUrls, toUrls)
 
 		removeReq := &compute.TargetPoolsRemoveHealthCheckRequest{
 			HealthChecks: make([]*compute.HealthCheckReference, len(remove)),
@@ -442,7 +444,7 @@ func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("name", tpool.Name); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
-	if err := d.Set("region", GetResourceNameFromSelfLink(tpool.Region)); err != nil {
+	if err := d.Set("region", tpgresource.GetResourceNameFromSelfLink(tpool.Region)); err != nil {
 		return fmt.Errorf("Error setting region: %s", err)
 	}
 	if err := d.Set("session_affinity", tpool.SessionAffinity); err != nil {

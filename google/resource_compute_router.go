@@ -22,6 +22,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -355,7 +357,7 @@ func resourceComputeRouterRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("region", flattenComputeRouterRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
-	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
 
@@ -518,7 +520,7 @@ func flattenComputeRouterNetwork(v interface{}, d *schema.ResourceData, config *
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeRouterBgp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -619,7 +621,7 @@ func flattenComputeRouterRegion(v interface{}, d *schema.ResourceData, config *t
 	if v == nil {
 		return v
 	}
-	return NameFromSelfLinkStateFunc(v)
+	return tpgresource.NameFromSelfLinkStateFunc(v)
 }
 
 func expandComputeRouterName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

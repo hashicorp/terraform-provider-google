@@ -192,6 +192,29 @@ func DurationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return oDuration == nDuration
 }
 
+// Use this method when the field accepts either an IP address or a
+// self_link referencing a resource (such as google_compute_route's
+// next_hop_ilb)
+func CompareIpAddressOrSelfLinkOrResourceName(_, old, new string, _ *schema.ResourceData) bool {
+	// if we can parse `new` as an IP address, then compare as strings
+	if net.ParseIP(new) != nil {
+		return new == old
+	}
+
+	// otherwise compare as self links
+	return CompareSelfLinkOrResourceName("", old, new, nil)
+}
+
+// Use this method when subnet is optioanl and auto_create_subnetworks = true
+// API sometimes choose a subnet so the diff needs to be ignored
+func CompareOptionalSubnet(_, old, new string, _ *schema.ResourceData) bool {
+	if IsEmptyValue(reflect.ValueOf(new)) {
+		return true
+	}
+	// otherwise compare as self links
+	return CompareSelfLinkOrResourceName("", old, new, nil)
+}
+
 // Suppress diffs in below cases
 // "https://hello-rehvs75zla-uc.a.run.app/" -> "https://hello-rehvs75zla-uc.a.run.app"
 // "https://hello-rehvs75zla-uc.a.run.app" -> "https://hello-rehvs75zla-uc.a.run.app/"

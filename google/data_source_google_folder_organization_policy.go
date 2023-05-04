@@ -4,14 +4,15 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 func DataSourceGoogleFolderOrganizationPolicy() *schema.Resource {
 	// Generate datasource schema from resource
-	dsSchema := datasourceSchemaFromResourceSchema(ResourceGoogleFolderOrganizationPolicy().Schema)
+	dsSchema := tpgresource.DatasourceSchemaFromResourceSchema(ResourceGoogleFolderOrganizationPolicy().Schema)
 
-	addRequiredFieldsToSchema(dsSchema, "folder")
-	addRequiredFieldsToSchema(dsSchema, "constraint")
+	tpgresource.AddRequiredFieldsToSchema(dsSchema, "folder")
+	tpgresource.AddRequiredFieldsToSchema(dsSchema, "constraint")
 
 	return &schema.Resource{
 		Read:   datasourceGoogleFolderOrganizationPolicyRead,

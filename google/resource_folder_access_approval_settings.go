@@ -23,6 +23,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -48,7 +50,7 @@ func accessApprovalEnrolledServicesHash(v interface{}) int {
 	}
 	buf.WriteString(fmt.Sprintf("%s-", strings.ToLower(cp))) // ToLower just in case
 	buf.WriteString(fmt.Sprintf("%s-", strings.ToLower(m["enrollment_level"].(string))))
-	return hashcode(buf.String())
+	return tpgresource.Hashcode(buf.String())
 }
 
 func ResourceAccessApprovalFolderSettings() *schema.Resource {

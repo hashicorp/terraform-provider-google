@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -96,7 +97,7 @@ func resourceDocumentAIProcessorDefaultVersionCreate(d *schema.ResourceData, met
 	}
 
 	if strings.Contains(url, "https://-") {
-		location := GetRegionFromRegionalSelfLink(url)
+		location := tpgresource.GetRegionFromRegionalSelfLink(url)
 		url = strings.TrimPrefix(url, "https://")
 		url = "https://" + location + url
 	}
@@ -137,7 +138,7 @@ func resourceDocumentAIProcessorDefaultVersionRead(d *schema.ResourceData, meta 
 	}
 
 	if strings.Contains(url, "https://-") {
-		location := GetRegionFromRegionalSelfLink(url)
+		location := tpgresource.GetRegionFromRegionalSelfLink(url)
 		url = strings.TrimPrefix(url, "https://")
 		url = "https://" + location + url
 	}

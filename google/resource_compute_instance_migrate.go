@@ -2,10 +2,12 @@ package google
 
 import (
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"strconv"
 	"strings"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -162,7 +164,7 @@ func migrateStateV1toV2(is *terraform.InstanceState) (*terraform.InstanceState, 
 
 	for service_acct_index, newScopes := range newScopesMap {
 		for _, newScope := range newScopes {
-			hash := hashcode(canonicalizeServiceScope(newScope))
+			hash := tpgresource.Hashcode(tpgresource.CanonicalizeServiceScope(newScope))
 			newKey := fmt.Sprintf("service_account.%s.scopes.%d", service_acct_index, hash)
 			is.Attributes[newKey] = newScope
 		}
@@ -238,7 +240,7 @@ func migrateStateV3toV4(is *terraform.InstanceState, meta interface{}) (*terrafo
 
 			for _, disk := range instance.Disks {
 				if disk.Boot {
-					is.Attributes["boot_disk.0.source"] = GetResourceNameFromSelfLink(disk.Source)
+					is.Attributes["boot_disk.0.source"] = tpgresource.GetResourceNameFromSelfLink(disk.Source)
 					is.Attributes["boot_disk.0.device_name"] = disk.DeviceName
 					break
 				}
@@ -463,8 +465,8 @@ func getDiskFromAutoDeleteAndImage(config *transport_tpg.Config, instance *compu
 		}
 		if disk.AutoDelete == autoDelete {
 			// Read the disk to check if its image matches
-			fullDisk := allDisks[GetResourceNameFromSelfLink(disk.Source)]
-			sourceImage, err := getRelativePath(fullDisk.SourceImage)
+			fullDisk := allDisks[tpgresource.GetResourceNameFromSelfLink(disk.Source)]
+			sourceImage, err := tpgresource.GetRelativePath(fullDisk.SourceImage)
 			if err != nil {
 				return nil, err
 			}
@@ -488,8 +490,8 @@ func getDiskFromAutoDeleteAndImage(config *transport_tpg.Config, instance *compu
 		}
 		if disk.AutoDelete == autoDelete {
 			// Read the disk to check if its image matches
-			fullDisk := allDisks[GetResourceNameFromSelfLink(disk.Source)]
-			sourceImage, err := getRelativePath(fullDisk.SourceImage)
+			fullDisk := allDisks[tpgresource.GetResourceNameFromSelfLink(disk.Source)]
+			sourceImage, err := tpgresource.GetRelativePath(fullDisk.SourceImage)
 			if err != nil {
 				return nil, err
 			}

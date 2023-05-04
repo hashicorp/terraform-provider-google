@@ -21,6 +21,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -45,7 +47,7 @@ func ResourcePubsubSchema() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `The ID to use for the schema, which will become the final component of the schema's resource name.`,
 			},
 			"definition": {
@@ -287,7 +289,7 @@ func flattenPubsubSchemaName(v interface{}, d *schema.ResourceData, config *tran
 	if v == nil {
 		return v
 	}
-	return NameFromSelfLinkStateFunc(v)
+	return tpgresource.NameFromSelfLinkStateFunc(v)
 }
 
 func expandPubsubSchemaType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -299,5 +301,5 @@ func expandPubsubSchemaDefinition(v interface{}, d TerraformResourceData, config
 }
 
 func expandPubsubSchemaName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return GetResourceNameFromSelfLink(v.(string)), nil
+	return tpgresource.GetResourceNameFromSelfLink(v.(string)), nil
 }

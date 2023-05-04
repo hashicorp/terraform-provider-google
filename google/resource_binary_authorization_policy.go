@@ -23,6 +23,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -83,7 +85,7 @@ rule.`,
 						"require_attestations_by": {
 							Type:             schema.TypeSet,
 							Optional:         true,
-							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 							Description: `The resource names of the attestors that must attest to a
 container image. If the attestor is in a different project from the
 policy, it should be specified in the format 'projects/*/attestors/*'.
@@ -96,7 +98,7 @@ specifies REQUIRE_ATTESTATION, otherwise it must be empty.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
-							Set: selfLinkNameHash,
+							Set: tpgresource.SelfLinkNameHash,
 						},
 					},
 				},
@@ -154,7 +156,7 @@ A location is either a compute zone (e.g. 'us-central1-a') or a region
 						"require_attestations_by": {
 							Type:             schema.TypeSet,
 							Optional:         true,
-							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 							Description: `The resource names of the attestors that must attest to a
 container image. If the attestor is in a different project from the
 policy, it should be specified in the format 'projects/*/attestors/*'.
@@ -167,7 +169,7 @@ specifies REQUIRE_ATTESTATION, otherwise it must be empty.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
-							Set: selfLinkNameHash,
+							Set: tpgresource.SelfLinkNameHash,
 						},
 					},
 				},
@@ -187,12 +189,12 @@ specifies REQUIRE_ATTESTATION, otherwise it must be empty.`,
 					}
 					at := copy["require_attestations_by"].(*schema.Set)
 					if at != nil {
-						t := convertAndMapStringArr(at.List(), GetResourceNameFromSelfLink)
-						copy["require_attestations_by"] = schema.NewSet(selfLinkNameHash, convertStringArrToInterface(t))
+						t := convertAndMapStringArr(at.List(), tpgresource.GetResourceNameFromSelfLink)
+						copy["require_attestations_by"] = schema.NewSet(tpgresource.SelfLinkNameHash, convertStringArrToInterface(t))
 					}
 					var buf bytes.Buffer
 					schema.SerializeResourceForHash(&buf, copy, ResourceBinaryAuthorizationPolicy().Schema["cluster_admission_rules"].Elem.(*schema.Resource))
-					return hashcode(buf.String())
+					return tpgresource.Hashcode(buf.String())
 				},
 			},
 			"description": {
@@ -530,7 +532,7 @@ func flattenBinaryAuthorizationPolicyClusterAdmissionRulesRequireAttestationsBy(
 	if v == nil {
 		return v
 	}
-	return schema.NewSet(selfLinkNameHash, v.([]interface{}))
+	return schema.NewSet(tpgresource.SelfLinkNameHash, v.([]interface{}))
 }
 
 func flattenBinaryAuthorizationPolicyClusterAdmissionRulesEnforcementMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -562,7 +564,7 @@ func flattenBinaryAuthorizationPolicyDefaultAdmissionRuleRequireAttestationsBy(v
 	if v == nil {
 		return v
 	}
-	return schema.NewSet(selfLinkNameHash, v.([]interface{}))
+	return schema.NewSet(tpgresource.SelfLinkNameHash, v.([]interface{}))
 }
 
 func flattenBinaryAuthorizationPolicyDefaultAdmissionRuleEnforcementMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

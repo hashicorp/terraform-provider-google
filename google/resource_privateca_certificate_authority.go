@@ -23,6 +23,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -691,7 +693,7 @@ with the subordinate configuration, which describes its issuers.`,
 						"certificate_authority": {
 							Type:             schema.TypeString,
 							Optional:         true,
-							DiffSuppressFunc: compareResourceNames,
+							DiffSuppressFunc: tpgresource.CompareResourceNames,
 							Description: `This can refer to a CertificateAuthority that was used to create a
 subordinate CertificateAuthority. This field is used for information
 and usability purposes only. The resource name is in the format

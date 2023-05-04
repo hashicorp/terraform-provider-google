@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -95,7 +96,7 @@ func testSweepLoggingLogView(region string) error {
 			return nil
 		}
 
-		name := GetResourceNameFromSelfLink(obj["name"].(string))
+		name := tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
 		// Skip resources that shouldn't be sweeped
 		if !acctest.IsSweepableTestResource(name) {
 			nonPrefixCount++

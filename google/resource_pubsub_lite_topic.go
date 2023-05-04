@@ -22,6 +22,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -47,7 +49,7 @@ func ResourcePubsubLiteTopic() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `Name of the topic.`,
 			},
 			"partition_config": {
@@ -100,7 +102,7 @@ func ResourcePubsubLiteTopic() *schema.Resource {
 						"throughput_reservation": {
 							Type:             schema.TypeString,
 							Optional:         true,
-							DiffSuppressFunc: compareSelfLinkOrResourceName,
+							DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 							Description:      `The Reservation to use for this topic's throughput capacity.`,
 						},
 					},
@@ -523,7 +525,7 @@ func flattenPubsubLiteTopicReservationConfigThroughputReservation(v interface{},
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func expandPubsubLiteTopicPartitionConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

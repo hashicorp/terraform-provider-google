@@ -5,13 +5,14 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func DataSourceGoogleComputeInstanceGroupManager() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(ResourceComputeInstanceGroupManager().Schema)
-	addOptionalFieldsToSchema(dsSchema, "name", "self_link", "project", "zone")
+	dsSchema := tpgresource.DatasourceSchemaFromResourceSchema(ResourceComputeInstanceGroupManager().Schema)
+	tpgresource.AddOptionalFieldsToSchema(dsSchema, "name", "self_link", "project", "zone")
 
 	return &schema.Resource{
 		Read:   dataSourceComputeInstanceGroupManagerRead,

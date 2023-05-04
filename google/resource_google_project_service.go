@@ -7,8 +7,11 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
+
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/serviceusage/v1"
 )
@@ -101,7 +104,7 @@ func ResourceGoogleProjectService() *schema.Resource {
 				Optional:         true,
 				Computed:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: compareResourceNames,
+				DiffSuppressFunc: tpgresource.CompareResourceNames,
 			},
 
 			"disable_dependent_services": {
@@ -140,7 +143,7 @@ func resourceGoogleProjectServiceCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	project = GetResourceNameFromSelfLink(project)
+	project = tpgresource.GetResourceNameFromSelfLink(project)
 
 	srv := d.Get("service").(string)
 	id := project + "/" + srv
@@ -182,7 +185,7 @@ func resourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	project = GetResourceNameFromSelfLink(project)
+	project = tpgresource.GetResourceNameFromSelfLink(project)
 
 	// Verify project for services still exists
 	projectGetCall := config.NewResourceManagerClient(userAgent).Projects.Get(project)
@@ -243,7 +246,7 @@ func resourceGoogleProjectServiceDelete(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	project = GetResourceNameFromSelfLink(project)
+	project = tpgresource.GetResourceNameFromSelfLink(project)
 
 	service := d.Get("service").(string)
 	disableDependencies := d.Get("disable_dependent_services").(bool)

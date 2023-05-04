@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -108,7 +109,7 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("name", organization.Name); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
-	if err := d.Set("org_id", GetResourceNameFromSelfLink(organization.Name)); err != nil {
+	if err := d.Set("org_id", tpgresource.GetResourceNameFromSelfLink(organization.Name)); err != nil {
 		return fmt.Errorf("Error setting org_id: %s", err)
 	}
 	if err := d.Set("domain", organization.DisplayName); err != nil {

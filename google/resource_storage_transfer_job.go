@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 
@@ -579,7 +580,7 @@ func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error setting name: %s", err)
 	}
 
-	name := GetResourceNameFromSelfLink(res.Name)
+	name := tpgresource.GetResourceNameFromSelfLink(res.Name)
 	d.SetId(fmt.Sprintf("%s/%s", project, name))
 
 	return resourceStorageTransferJobRead(d, meta)

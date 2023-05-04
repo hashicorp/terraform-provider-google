@@ -3,9 +3,11 @@ package google
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
 	eventarc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/eventarc"
@@ -25,9 +27,9 @@ func TestAccEventarcTrigger_channel(t *testing.T) {
 		"region":          region,
 		"project_name":    acctest.GetTestProjectFromEnv(),
 		"service_account": acctest.GetTestServiceAccountFromEnv(t),
-		"key_ring":        GetResourceNameFromSelfLink(key1.KeyRing.Name),
-		"key1":            GetResourceNameFromSelfLink(key1.CryptoKey.Name),
-		"key2":            GetResourceNameFromSelfLink(key2.CryptoKey.Name),
+		"key_ring":        tpgresource.GetResourceNameFromSelfLink(key1.KeyRing.Name),
+		"key1":            tpgresource.GetResourceNameFromSelfLink(key1.CryptoKey.Name),
+		"key2":            tpgresource.GetResourceNameFromSelfLink(key2.CryptoKey.Name),
 		"random_suffix":   RandString(t, 10),
 	}
 

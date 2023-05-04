@@ -547,7 +547,7 @@ func ResourceDataprocCluster() *schema.Resource {
 										AtLeastOneOf:     gceClusterConfigKeys,
 										ForceNew:         true,
 										ConflictsWith:    []string{"cluster_config.0.gce_cluster_config.0.subnetwork"},
-										DiffSuppressFunc: compareSelfLinkOrResourceName,
+										DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 										Description:      `The name or self_link of the Google Compute Engine network to the cluster will be part of. Conflicts with subnetwork. If neither is specified, this defaults to the "default" network.`,
 									},
 
@@ -557,7 +557,7 @@ func ResourceDataprocCluster() *schema.Resource {
 										AtLeastOneOf:     gceClusterConfigKeys,
 										ForceNew:         true,
 										ConflictsWith:    []string{"cluster_config.0.gce_cluster_config.0.network"},
-										DiffSuppressFunc: compareSelfLinkOrResourceName,
+										DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 										Description:      `The name or self_link of the Google Compute Engine subnetwork the cluster will be part of. Conflicts with network.`,
 									},
 
@@ -588,10 +588,10 @@ func ResourceDataprocCluster() *schema.Resource {
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 											StateFunc: func(v interface{}) string {
-												return canonicalizeServiceScope(v.(string))
+												return tpgresource.CanonicalizeServiceScope(v.(string))
 											},
 										},
-										Set: stringScopeHashcode,
+										Set: tpgresource.StringScopeHashcode,
 									},
 
 									"internal_ip_only": {
@@ -699,7 +699,7 @@ func ResourceDataprocCluster() *schema.Resource {
 													ForceNew:         true,
 													Required:         true,
 													Description:      `The URI of a sole-tenant that the cluster will be created on.`,
-													DiffSuppressFunc: compareSelfLinkOrResourceName,
+													DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 												},
 											},
 										},
@@ -1657,7 +1657,7 @@ func expandGceClusterConfig(d *schema.ResourceData, config *transport_tpg.Config
 		scopesSet := scopes.(*schema.Set)
 		scopes := make([]string, scopesSet.Len())
 		for i, scope := range scopesSet.List() {
-			scopes[i] = canonicalizeServiceScope(scope.(string))
+			scopes[i] = tpgresource.CanonicalizeServiceScope(scope.(string))
 		}
 		conf.ServiceAccountScopes = scopes
 	}
@@ -1899,7 +1899,7 @@ func expandInstanceGroupConfig(cfg map[string]interface{}) *dataproc.InstanceGro
 		icg.NumInstances = int64(v.(int))
 	}
 	if v, ok := cfg["machine_type"]; ok {
-		icg.MachineTypeUri = GetResourceNameFromSelfLink(v.(string))
+		icg.MachineTypeUri = tpgresource.GetResourceNameFromSelfLink(v.(string))
 	}
 	if v, ok := cfg["min_cpu_platform"]; ok {
 		icg.MinCpuPlatform = v.(string)
@@ -2389,7 +2389,7 @@ func flattenAccelerators(accelerators []*dataproc.AcceleratorConfig) interface{}
 	acceleratorsTypeSet := schema.NewSet(schema.HashResource(acceleratorsSchema()), []interface{}{})
 	for _, accelerator := range accelerators {
 		data := map[string]interface{}{
-			"accelerator_type":  GetResourceNameFromSelfLink(accelerator.AcceleratorTypeUri),
+			"accelerator_type":  tpgresource.GetResourceNameFromSelfLink(accelerator.AcceleratorTypeUri),
 			"accelerator_count": int(accelerator.AcceleratorCount),
 		}
 
@@ -2425,7 +2425,7 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 	gceConfig := map[string]interface{}{
 		"tags":             schema.NewSet(schema.HashString, convertStringArrToInterface(gcc.Tags)),
 		"service_account":  gcc.ServiceAccount,
-		"zone":             GetResourceNameFromSelfLink(gcc.ZoneUri),
+		"zone":             tpgresource.GetResourceNameFromSelfLink(gcc.ZoneUri),
 		"internal_ip_only": gcc.InternalIpOnly,
 		"metadata":         gcc.Metadata,
 	}
@@ -2437,7 +2437,7 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 		gceConfig["subnetwork"] = gcc.SubnetworkUri
 	}
 	if len(gcc.ServiceAccountScopes) > 0 {
-		gceConfig["service_account_scopes"] = schema.NewSet(stringScopeHashcode, convertStringArrToInterface(gcc.ServiceAccountScopes))
+		gceConfig["service_account_scopes"] = schema.NewSet(tpgresource.StringScopeHashcode, convertStringArrToInterface(gcc.ServiceAccountScopes))
 	}
 	if gcc.ShieldedInstanceConfig != nil {
 		gceConfig["shielded_instance_config"] = []map[string]interface{}{
@@ -2509,7 +2509,7 @@ func flattenInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.InstanceGr
 
 	if icg != nil {
 		data["num_instances"] = icg.NumInstances
-		data["machine_type"] = GetResourceNameFromSelfLink(icg.MachineTypeUri)
+		data["machine_type"] = tpgresource.GetResourceNameFromSelfLink(icg.MachineTypeUri)
 		data["min_cpu_platform"] = icg.MinCpuPlatform
 		data["image_uri"] = icg.ImageUri
 		data["instance_names"] = icg.InstanceNames

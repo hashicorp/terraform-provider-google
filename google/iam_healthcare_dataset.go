@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	healthcare "google.golang.org/api/healthcare/v1"
 
@@ -111,7 +112,7 @@ func (u *HealthcareDatasetIamUpdater) DescribeResource() string {
 
 func resourceManagerToHealthcarePolicy(p *cloudresourcemanager.Policy) (*healthcare.Policy, error) {
 	out := &healthcare.Policy{}
-	err := Convert(p, out)
+	err := tpgresource.Convert(p, out)
 	if err != nil {
 		return nil, errwrap.Wrapf("Cannot convert a v1 policy to a healthcare policy: {{err}}", err)
 	}
@@ -120,7 +121,7 @@ func resourceManagerToHealthcarePolicy(p *cloudresourcemanager.Policy) (*healthc
 
 func healthcareToResourceManagerPolicy(p *healthcare.Policy) (*cloudresourcemanager.Policy, error) {
 	out := &cloudresourcemanager.Policy{}
-	err := Convert(p, out)
+	err := tpgresource.Convert(p, out)
 	if err != nil {
 		return nil, errwrap.Wrapf("Cannot convert a healthcare policy to a v1 policy: {{err}}", err)
 	}

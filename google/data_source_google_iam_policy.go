@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -180,7 +181,7 @@ func dataSourceGoogleIamPolicyRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("policy_data", pstring); err != nil {
 		return fmt.Errorf("Error setting policy_data: %s", err)
 	}
-	d.SetId(strconv.Itoa(hashcode(pstring)))
+	d.SetId(strconv.Itoa(tpgresource.Hashcode(pstring)))
 
 	return nil
 }

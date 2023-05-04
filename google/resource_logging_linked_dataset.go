@@ -21,6 +21,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -44,7 +46,7 @@ func ResourceLoggingLinkedDataset() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: compareResourceNames,
+				DiffSuppressFunc: tpgresource.CompareResourceNames,
 				Description:      `The bucket to which the linked dataset is attached.`,
 			},
 			"link_id": {
@@ -71,7 +73,7 @@ func ResourceLoggingLinkedDataset() *schema.Resource {
 				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `The parent of the linked dataset.`,
 			},
 			"bigquery_dataset": {
@@ -344,9 +346,9 @@ func resourceLoggingLinkedDatasetEncoder(d *schema.ResourceData, meta interface{
 	// Set parent to the extracted value.
 	d.Set("parent", parent)
 	// Set all the other fields to their short forms before forming url and setting ID.
-	bucket = GetResourceNameFromSelfLink(bucket)
+	bucket = tpgresource.GetResourceNameFromSelfLink(bucket)
 	name := d.Get("name").(string)
-	name = GetResourceNameFromSelfLink(name)
+	name = tpgresource.GetResourceNameFromSelfLink(name)
 	d.Set("location", location)
 	d.Set("bucket", bucket)
 	d.Set("name", name)

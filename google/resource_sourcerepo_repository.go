@@ -23,6 +23,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -35,13 +37,13 @@ func resourceSourceRepoRepositoryPubSubConfigsHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
 
-	buf.WriteString(fmt.Sprintf("%s-", GetResourceNameFromSelfLink(m["topic"].(string))))
+	buf.WriteString(fmt.Sprintf("%s-", tpgresource.GetResourceNameFromSelfLink(m["topic"].(string))))
 	buf.WriteString(fmt.Sprintf("%s-", m["message_format"].(string)))
 	if v, ok := m["service_account_email"]; ok {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
 	}
 
-	return hashcode(buf.String())
+	return tpgresource.Hashcode(buf.String())
 }
 
 func ResourceSourceRepoRepository() *schema.Resource {

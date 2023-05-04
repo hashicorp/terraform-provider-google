@@ -23,6 +23,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -2944,7 +2946,7 @@ func resourceComputeUrlMapRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("default_route_action", flattenComputeUrlMapDefaultRouteAction(res["defaultRouteAction"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err := d.Set("self_link", ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
+	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
 
@@ -3132,7 +3134,7 @@ func flattenComputeUrlMapDefaultService(v interface{}, d *schema.ResourceData, c
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeUrlMapDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3319,7 +3321,7 @@ func flattenComputeUrlMapPathMatcherDefaultService(v interface{}, d *schema.Reso
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeUrlMapPathMatcherDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3446,7 +3448,7 @@ func flattenComputeUrlMapPathMatcherPathRuleService(v interface{}, d *schema.Res
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeUrlMapPathMatcherPathRulePaths(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3676,7 +3678,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyBacken
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeUrlMapPathMatcherPathRuleRouteActionRetryPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3836,7 +3838,7 @@ func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesBa
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeUrlMapPathMatcherPathRuleRouteActionWeightedBackendServicesHeaderAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4038,7 +4040,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesService(v interface{}, d *schema.R
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeUrlMapPathMatcherRouteRulesHeaderAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4581,7 +4583,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyBack
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeUrlMapPathMatcherRouteRulesRouteActionRetryPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4741,7 +4743,7 @@ func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServices
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeUrlMapPathMatcherRouteRulesRouteActionWeightedBackendServicesHeaderAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4995,7 +4997,7 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesBac
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeUrlMapPathMatcherDefaultRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -5256,7 +5258,7 @@ func flattenComputeUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicyBackend
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeUrlMapPathMatcherDefaultRouteActionCorsPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -5474,7 +5476,7 @@ func flattenComputeUrlMapTestService(v interface{}, d *schema.ResourceData, conf
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeUrlMapDefaultUrlRedirect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -5573,7 +5575,7 @@ func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesBackendService
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeUrlMapDefaultRouteActionWeightedBackendServicesWeight(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -5834,7 +5836,7 @@ func flattenComputeUrlMapDefaultRouteActionRequestMirrorPolicyBackendService(v i
 	if v == nil {
 		return v
 	}
-	return ConvertSelfLinkToV1(v.(string))
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func flattenComputeUrlMapDefaultRouteActionCorsPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

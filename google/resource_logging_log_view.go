@@ -22,6 +22,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -47,14 +49,14 @@ func ResourceLoggingLogView() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: compareResourceNames,
+				DiffSuppressFunc: tpgresource.CompareResourceNames,
 				Description:      `The bucket of the resource`,
 			},
 			"name": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: compareResourceNames,
+				DiffSuppressFunc: tpgresource.CompareResourceNames,
 				Description:      `The resource name of the view. For example: \'projects/my-project/locations/global/buckets/my-bucket/views/my-view\'`,
 			},
 			"description": {
@@ -79,7 +81,7 @@ func ResourceLoggingLogView() *schema.Resource {
 				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `The parent of the resource.`,
 			},
 			"create_time": {
@@ -358,9 +360,9 @@ func resourceLoggingLogViewEncoder(d *schema.ResourceData, meta interface{}, obj
 	// Set parent to the extracted value.
 	d.Set("parent", parent)
 	// Set all the other fields to their short forms before forming url and setting ID.
-	bucket = GetResourceNameFromSelfLink(bucket)
+	bucket = tpgresource.GetResourceNameFromSelfLink(bucket)
 	name := d.Get("name").(string)
-	name = GetResourceNameFromSelfLink(name)
+	name = tpgresource.GetResourceNameFromSelfLink(name)
 	d.Set("location", location)
 	d.Set("bucket", bucket)
 	d.Set("name", name)

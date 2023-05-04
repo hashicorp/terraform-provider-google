@@ -4,17 +4,18 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func DataSourceSpannerInstance() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(ResourceSpannerInstance().Schema)
+	dsSchema := tpgresource.DatasourceSchemaFromResourceSchema(ResourceSpannerInstance().Schema)
 
-	addRequiredFieldsToSchema(dsSchema, "name")
-	addOptionalFieldsToSchema(dsSchema, "config")       // not sure why this is configurable
-	addOptionalFieldsToSchema(dsSchema, "display_name") // not sure why this is configurable
-	addOptionalFieldsToSchema(dsSchema, "project")
+	tpgresource.AddRequiredFieldsToSchema(dsSchema, "name")
+	tpgresource.AddOptionalFieldsToSchema(dsSchema, "config")       // not sure why this is configurable
+	tpgresource.AddOptionalFieldsToSchema(dsSchema, "display_name") // not sure why this is configurable
+	tpgresource.AddOptionalFieldsToSchema(dsSchema, "project")
 
 	return &schema.Resource{
 		Read:   dataSourceSpannerInstanceRead,

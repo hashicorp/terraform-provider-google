@@ -4,11 +4,12 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func DataSourceGoogleLoggingSink() *schema.Resource {
-	dsSchema := datasourceSchemaFromResourceSchema(resourceLoggingSinkSchema())
+	dsSchema := tpgresource.DatasourceSchemaFromResourceSchema(resourceLoggingSinkSchema())
 	dsSchema["id"] = &schema.Schema{
 		Type:        schema.TypeString,
 		Required:    true,
