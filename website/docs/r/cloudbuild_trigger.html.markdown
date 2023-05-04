@@ -479,6 +479,158 @@ resource "google_cloudbuild_trigger" "ghe-trigger" {
   filename = "cloudbuild.yaml"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_allow_failure&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Allow Failure
+
+
+```hcl
+resource "google_cloudbuild_trigger" "allow-failure-trigger" {
+  location = "global"
+
+  trigger_template {
+    branch_name = "main"
+    repo_name   = "my-repo"
+  }
+
+  build {
+    step {
+      name = "ubuntu"
+      args = ["-c", "exit 1"]
+      allow_failure = true
+    }
+
+    source {
+      storage_source {
+        bucket = "mybucket"
+        object = "source_code.tar.gz"
+      }
+    }
+    tags = ["build", "newFeature"]
+    substitutions = {
+      _FOO = "bar"
+      _BAZ = "qux"
+    }
+    queue_ttl = "20s"
+    logs_bucket = "gs://mybucket/logs"
+    secret {
+      kms_key_name = "projects/myProject/locations/global/keyRings/keyring-name/cryptoKeys/key-name"
+      secret_env = {
+        PASSWORD = "ZW5jcnlwdGVkLXBhc3N3b3JkCg=="
+      }
+    }
+    available_secrets {
+      secret_manager {
+        env          = "MY_SECRET"
+        version_name = "projects/myProject/secrets/mySecret/versions/latest"
+      }
+    }
+    artifacts {
+      images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
+      objects {
+        location = "gs://bucket/path/to/somewhere/"
+        paths = ["path"]
+      }
+    }
+    options {
+      source_provenance_hash = ["MD5"]
+      requested_verify_option = "VERIFIED"
+      machine_type = "N1_HIGHCPU_8"
+      disk_size_gb = 100
+      substitution_option = "ALLOW_LOOSE"
+      dynamic_substitutions = true
+      log_streaming_option = "STREAM_OFF"
+      worker_pool = "pool"
+      logging = "LEGACY"
+      env = ["ekey = evalue"]
+      secret_env = ["secretenv = svalue"]
+      volumes {
+        name = "v1"
+        path = "v1"
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_allow_exit_codes&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Allow Exit Codes
+
+
+```hcl
+resource "google_cloudbuild_trigger" "allow-exit-codes-trigger" {
+  location = "global"
+
+  trigger_template {
+    branch_name = "main"
+    repo_name   = "my-repo"
+  }
+
+  build {
+    step {
+      name = "ubuntu"
+      args = ["-c", "exit 1"]
+      allow_exit_codes = [1,3]
+    }
+
+    source {
+      storage_source {
+        bucket = "mybucket"
+        object = "source_code.tar.gz"
+      }
+    }
+    tags = ["build", "newFeature"]
+    substitutions = {
+      _FOO = "bar"
+      _BAZ = "qux"
+    }
+    queue_ttl = "20s"
+    logs_bucket = "gs://mybucket/logs"
+    secret {
+      kms_key_name = "projects/myProject/locations/global/keyRings/keyring-name/cryptoKeys/key-name"
+      secret_env = {
+        PASSWORD = "ZW5jcnlwdGVkLXBhc3N3b3JkCg=="
+      }
+    }
+    available_secrets {
+      secret_manager {
+        env          = "MY_SECRET"
+        version_name = "projects/myProject/secrets/mySecret/versions/latest"
+      }
+    }
+    artifacts {
+      images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
+      objects {
+        location = "gs://bucket/path/to/somewhere/"
+        paths = ["path"]
+      }
+    }
+    options {
+      source_provenance_hash = ["MD5"]
+      requested_verify_option = "VERIFIED"
+      machine_type = "N1_HIGHCPU_8"
+      disk_size_gb = 100
+      substitution_option = "ALLOW_LOOSE"
+      dynamic_substitutions = true
+      log_streaming_option = "STREAM_OFF"
+      worker_pool = "pool"
+      logging = "LEGACY"
+      env = ["ekey = evalue"]
+      secret_env = ["secretenv = svalue"]
+      volumes {
+        name = "v1"
+        path = "v1"
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -1186,6 +1338,20 @@ The following arguments are supported:
   (Optional)
   A shell script to be executed in the step.
   When script is provided, the user cannot specify the entrypoint or args.
+
+* `allow_failure` -
+  (Optional)
+  Allow this build step to fail without failing the entire build.
+  If false, the entire build will fail if this step fails. Otherwise, the
+  build will succeed, but this step will still have a failure status.
+  Error information will be reported in the `failureDetail` field.
+  `allowExitCodes` takes precedence over this field.
+
+* `allow_exit_codes` -
+  (Optional)
+  Allow this build step to fail without failing the entire build if and
+  only if the exit code is one of the specified codes.
+  If `allowFailure` is also specified, this field will take precedence.
 
 
 <a name="nested_volumes"></a>The `volumes` block supports:

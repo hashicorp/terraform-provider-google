@@ -234,6 +234,27 @@ If you built an image in a previous build step, it will be stored in the
 host's Docker daemon's cache and is available to use as the name for a
 later build step.`,
 									},
+									"allow_exit_codes": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Allow this build step to fail without failing the entire build if and
+only if the exit code is one of the specified codes.
+
+If 'allowFailure' is also specified, this field will take precedence.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeInt,
+										},
+									},
+									"allow_failure": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `Allow this build step to fail without failing the entire build.
+If false, the entire build will fail if this step fails. Otherwise, the
+build will succeed, but this step will still have a failure status.
+Error information will be reported in the 'failureDetail' field.
+
+'allowExitCodes' takes precedence over this field.`,
+									},
 									"args": {
 										Type:     schema.TypeList,
 										Optional: true,
@@ -2394,18 +2415,20 @@ func flattenCloudBuildTriggerBuildStep(v interface{}, d *schema.ResourceData, co
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":       flattenCloudBuildTriggerBuildStepName(original["name"], d, config),
-			"args":       flattenCloudBuildTriggerBuildStepArgs(original["args"], d, config),
-			"env":        flattenCloudBuildTriggerBuildStepEnv(original["env"], d, config),
-			"id":         flattenCloudBuildTriggerBuildStepId(original["id"], d, config),
-			"entrypoint": flattenCloudBuildTriggerBuildStepEntrypoint(original["entrypoint"], d, config),
-			"dir":        flattenCloudBuildTriggerBuildStepDir(original["dir"], d, config),
-			"secret_env": flattenCloudBuildTriggerBuildStepSecretEnv(original["secretEnv"], d, config),
-			"timeout":    flattenCloudBuildTriggerBuildStepTimeout(original["timeout"], d, config),
-			"timing":     flattenCloudBuildTriggerBuildStepTiming(original["timing"], d, config),
-			"volumes":    flattenCloudBuildTriggerBuildStepVolumes(original["volumes"], d, config),
-			"wait_for":   flattenCloudBuildTriggerBuildStepWaitFor(original["waitFor"], d, config),
-			"script":     flattenCloudBuildTriggerBuildStepScript(original["script"], d, config),
+			"name":             flattenCloudBuildTriggerBuildStepName(original["name"], d, config),
+			"args":             flattenCloudBuildTriggerBuildStepArgs(original["args"], d, config),
+			"env":              flattenCloudBuildTriggerBuildStepEnv(original["env"], d, config),
+			"id":               flattenCloudBuildTriggerBuildStepId(original["id"], d, config),
+			"entrypoint":       flattenCloudBuildTriggerBuildStepEntrypoint(original["entrypoint"], d, config),
+			"dir":              flattenCloudBuildTriggerBuildStepDir(original["dir"], d, config),
+			"secret_env":       flattenCloudBuildTriggerBuildStepSecretEnv(original["secretEnv"], d, config),
+			"timeout":          flattenCloudBuildTriggerBuildStepTimeout(original["timeout"], d, config),
+			"timing":           flattenCloudBuildTriggerBuildStepTiming(original["timing"], d, config),
+			"volumes":          flattenCloudBuildTriggerBuildStepVolumes(original["volumes"], d, config),
+			"wait_for":         flattenCloudBuildTriggerBuildStepWaitFor(original["waitFor"], d, config),
+			"script":           flattenCloudBuildTriggerBuildStepScript(original["script"], d, config),
+			"allow_failure":    flattenCloudBuildTriggerBuildStepAllowFailure(original["allowFailure"], d, config),
+			"allow_exit_codes": flattenCloudBuildTriggerBuildStepAllowExitCodes(original["allowExitCodes"], d, config),
 		})
 	}
 	return transformed
@@ -2478,6 +2501,14 @@ func flattenCloudBuildTriggerBuildStepWaitFor(v interface{}, d *schema.ResourceD
 }
 
 func flattenCloudBuildTriggerBuildStepScript(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildStepAllowFailure(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildStepAllowExitCodes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3840,6 +3871,20 @@ func expandCloudBuildTriggerBuildStep(v interface{}, d TerraformResourceData, co
 			transformed["script"] = transformedScript
 		}
 
+		transformedAllowFailure, err := expandCloudBuildTriggerBuildStepAllowFailure(original["allow_failure"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAllowFailure); val.IsValid() && !isEmptyValue(val) {
+			transformed["allowFailure"] = transformedAllowFailure
+		}
+
+		transformedAllowExitCodes, err := expandCloudBuildTriggerBuildStepAllowExitCodes(original["allow_exit_codes"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAllowExitCodes); val.IsValid() && !isEmptyValue(val) {
+			transformed["allowExitCodes"] = transformedAllowExitCodes
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -3923,6 +3968,14 @@ func expandCloudBuildTriggerBuildStepWaitFor(v interface{}, d TerraformResourceD
 }
 
 func expandCloudBuildTriggerBuildStepScript(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildStepAllowFailure(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildStepAllowExitCodes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
