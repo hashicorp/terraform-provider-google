@@ -534,6 +534,198 @@ resource "google_cloudbuild_trigger" "bbs-pull-request-trigger" {
 `, context)
 }
 
+func TestAccCloudBuildTrigger_cloudbuildTriggerAllowFailureExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_cloudbuildTriggerAllowFailureExample(context),
+			},
+			{
+				ResourceName:            "google_cloudbuild_trigger.allow-failure-trigger",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccCloudBuildTrigger_cloudbuildTriggerAllowFailureExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_cloudbuild_trigger" "allow-failure-trigger" {
+  location = "global"
+
+  trigger_template {
+    branch_name = "main"
+    repo_name   = "my-repo"
+  }
+
+  build {
+    step {
+      name = "ubuntu"
+      args = ["-c", "exit 1"]
+      allow_failure = true
+    }
+
+    source {
+      storage_source {
+        bucket = "mybucket"
+        object = "source_code.tar.gz"
+      }
+    }
+    tags = ["build", "newFeature"]
+    substitutions = {
+      _FOO = "bar"
+      _BAZ = "qux"
+    }
+    queue_ttl = "20s"
+    logs_bucket = "gs://mybucket/logs"
+    secret {
+      kms_key_name = "projects/myProject/locations/global/keyRings/keyring-name/cryptoKeys/key-name"
+      secret_env = {
+        PASSWORD = "ZW5jcnlwdGVkLXBhc3N3b3JkCg=="
+      }
+    }
+    available_secrets {
+      secret_manager {
+        env          = "MY_SECRET"
+        version_name = "projects/myProject/secrets/mySecret/versions/latest"
+      }
+    }
+    artifacts {
+      images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
+      objects {
+        location = "gs://bucket/path/to/somewhere/"
+        paths = ["path"]
+      }
+    }
+    options {
+      source_provenance_hash = ["MD5"]
+      requested_verify_option = "VERIFIED"
+      machine_type = "N1_HIGHCPU_8"
+      disk_size_gb = 100
+      substitution_option = "ALLOW_LOOSE"
+      dynamic_substitutions = true
+      log_streaming_option = "STREAM_OFF"
+      worker_pool = "pool"
+      logging = "LEGACY"
+      env = ["ekey = evalue"]
+      secret_env = ["secretenv = svalue"]
+      volumes {
+        name = "v1"
+        path = "v1"
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccCloudBuildTrigger_cloudbuildTriggerAllowExitCodesExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_cloudbuildTriggerAllowExitCodesExample(context),
+			},
+			{
+				ResourceName:            "google_cloudbuild_trigger.allow-exit-codes-trigger",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccCloudBuildTrigger_cloudbuildTriggerAllowExitCodesExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_cloudbuild_trigger" "allow-exit-codes-trigger" {
+  location = "global"
+
+  trigger_template {
+    branch_name = "main"
+    repo_name   = "my-repo"
+  }
+
+  build {
+    step {
+      name = "ubuntu"
+      args = ["-c", "exit 1"]
+      allow_exit_codes = [1,3]
+    }
+
+    source {
+      storage_source {
+        bucket = "mybucket"
+        object = "source_code.tar.gz"
+      }
+    }
+    tags = ["build", "newFeature"]
+    substitutions = {
+      _FOO = "bar"
+      _BAZ = "qux"
+    }
+    queue_ttl = "20s"
+    logs_bucket = "gs://mybucket/logs"
+    secret {
+      kms_key_name = "projects/myProject/locations/global/keyRings/keyring-name/cryptoKeys/key-name"
+      secret_env = {
+        PASSWORD = "ZW5jcnlwdGVkLXBhc3N3b3JkCg=="
+      }
+    }
+    available_secrets {
+      secret_manager {
+        env          = "MY_SECRET"
+        version_name = "projects/myProject/secrets/mySecret/versions/latest"
+      }
+    }
+    artifacts {
+      images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
+      objects {
+        location = "gs://bucket/path/to/somewhere/"
+        paths = ["path"]
+      }
+    }
+    options {
+      source_provenance_hash = ["MD5"]
+      requested_verify_option = "VERIFIED"
+      machine_type = "N1_HIGHCPU_8"
+      disk_size_gb = 100
+      substitution_option = "ALLOW_LOOSE"
+      dynamic_substitutions = true
+      log_streaming_option = "STREAM_OFF"
+      worker_pool = "pool"
+      logging = "LEGACY"
+      env = ["ekey = evalue"]
+      secret_env = ["secretenv = svalue"]
+      volumes {
+        name = "v1"
+        path = "v1"
+      }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckCloudBuildTriggerDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
