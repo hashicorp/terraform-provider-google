@@ -236,6 +236,70 @@ resource "google_bigquery_job" "job" {
   depends_on = ["google_storage_bucket_object.object"]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_job_load_parquet&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Job Load Parquet
+
+
+```hcl
+resource "google_storage_bucket" "test" {
+  name                        = "job_load_bucket"
+  location                    = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "test" {
+  name   =  "job_load_bucket_object"
+  source = "./test-fixtures/bigquerytable/test.parquet.gzip"
+  bucket = google_storage_bucket.test.name
+}
+
+resource "google_bigquery_dataset" "test" {
+  dataset_id                  = "job_load_dataset"
+  friendly_name               = "test"
+  description                 = "This is a test description"
+  location                    = "US"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id            = "job_load_table"
+  dataset_id          = google_bigquery_dataset.test.dataset_id
+}
+
+resource "google_bigquery_job" "job" {
+  job_id = "job_load"
+
+  labels = {
+    "my_job" ="load"
+  }
+
+  load {
+    source_uris = [
+      "gs://${google_storage_bucket_object.test.bucket}/${google_storage_bucket_object.test.name}"
+    ]
+
+    destination_table {
+      project_id = google_bigquery_table.test.project
+      dataset_id = google_bigquery_table.test.dataset_id
+      table_id   = google_bigquery_table.test.table_id
+    }
+
+    schema_update_options = ["ALLOW_FIELD_RELAXATION", "ALLOW_FIELD_ADDITION"]
+    write_disposition     = "WRITE_APPEND"
+    source_format         = "PARQUET"
+    autodetect            = true
+
+    parquet_options {
+      enum_as_string        = true
+      enable_list_inference = true
+    }
+  }
+}
+```
 ## Example Usage - Bigquery Job Copy
 
 
@@ -757,6 +821,11 @@ The following arguments are supported:
   Custom encryption configuration (e.g., Cloud KMS keys)
   Structure is [documented below](#nested_destination_encryption_configuration).
 
+* `parquet_options` -
+  (Optional)
+  Parquet Options for load and make external tables.
+  Structure is [documented below](#nested_parquet_options).
+
 
 <a name="nested_destination_table"></a>The `destination_table` block supports:
 
@@ -800,6 +869,16 @@ The following arguments are supported:
 * `kms_key_version` -
   (Output)
   Describes the Cloud KMS encryption key version used to protect destination BigQuery table.
+
+<a name="nested_parquet_options"></a>The `parquet_options` block supports:
+
+* `enum_as_string` -
+  (Optional)
+  If sourceFormat is set to PARQUET, indicates whether to infer Parquet ENUM logical type as STRING instead of BYTES by default.
+
+* `enable_list_inference` -
+  (Optional)
+  If sourceFormat is set to PARQUET, indicates whether to use schema inference specifically for Parquet LIST logical type.
 
 <a name="nested_copy"></a>The `copy` block supports:
 

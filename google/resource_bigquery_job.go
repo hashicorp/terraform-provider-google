@@ -480,6 +480,30 @@ empty string is present for all data types except for STRING and BYTE. For STRIN
 an empty value.`,
 							Default: "",
 						},
+						"parquet_options": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Parquet Options for load and make external tables.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enable_list_inference": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										ForceNew:     true,
+										Description:  `If sourceFormat is set to PARQUET, indicates whether to use schema inference specifically for Parquet LIST logical type.`,
+										AtLeastOneOf: []string{"load.0.parquet_options.0.enum_as_string", "load.0.parquet_options.0.enable_list_inference"},
+									},
+									"enum_as_string": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `If sourceFormat is set to PARQUET, indicates whether to infer Parquet ENUM logical type as STRING instead of BYTES by default.`,
+									},
+								},
+							},
+						},
 						"projection_fields": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -1473,6 +1497,8 @@ func flattenBigQueryJobConfigurationLoad(v interface{}, d *schema.ResourceData, 
 		flattenBigQueryJobConfigurationLoadTimePartitioning(original["timePartitioning"], d, config)
 	transformed["destination_encryption_configuration"] =
 		flattenBigQueryJobConfigurationLoadDestinationEncryptionConfiguration(original["destinationEncryptionConfiguration"], d, config)
+	transformed["parquet_options"] =
+		flattenBigQueryJobConfigurationLoadParquetOptions(original["parquetOptions"], d, config)
 	return []interface{}{transformed}
 }
 func flattenBigQueryJobConfigurationLoadSourceUris(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1641,6 +1667,29 @@ func flattenBigQueryJobConfigurationLoadDestinationEncryptionConfiguration(v int
 	//	The key name was returned, no need to set the version
 	return []map[string]interface{}{{"kms_key_name": kmsKeyName, "kms_key_version": ""}}
 
+}
+
+func flattenBigQueryJobConfigurationLoadParquetOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enum_as_string"] =
+		flattenBigQueryJobConfigurationLoadParquetOptionsEnumAsString(original["enumAsString"], d, config)
+	transformed["enable_list_inference"] =
+		flattenBigQueryJobConfigurationLoadParquetOptionsEnableListInference(original["enableListInference"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigQueryJobConfigurationLoadParquetOptionsEnumAsString(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigQueryJobConfigurationLoadParquetOptionsEnableListInference(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenBigQueryJobConfigurationCopy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2527,6 +2576,13 @@ func expandBigQueryJobConfigurationLoad(v interface{}, d TerraformResourceData, 
 		transformed["destinationEncryptionConfiguration"] = transformedDestinationEncryptionConfiguration
 	}
 
+	transformedParquetOptions, err := expandBigQueryJobConfigurationLoadParquetOptions(original["parquet_options"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedParquetOptions); val.IsValid() && !isEmptyValue(val) {
+		transformed["parquetOptions"] = transformedParquetOptions
+	}
+
 	return transformed, nil
 }
 
@@ -2707,6 +2763,40 @@ func expandBigQueryJobConfigurationLoadDestinationEncryptionConfigurationKmsKeyN
 }
 
 func expandBigQueryJobConfigurationLoadDestinationEncryptionConfigurationKmsKeyVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigQueryJobConfigurationLoadParquetOptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnumAsString, err := expandBigQueryJobConfigurationLoadParquetOptionsEnumAsString(original["enum_as_string"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnumAsString); val.IsValid() && !isEmptyValue(val) {
+		transformed["enumAsString"] = transformedEnumAsString
+	}
+
+	transformedEnableListInference, err := expandBigQueryJobConfigurationLoadParquetOptionsEnableListInference(original["enable_list_inference"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableListInference); val.IsValid() && !isEmptyValue(val) {
+		transformed["enableListInference"] = transformedEnableListInference
+	}
+
+	return transformed, nil
+}
+
+func expandBigQueryJobConfigurationLoadParquetOptionsEnumAsString(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigQueryJobConfigurationLoadParquetOptionsEnableListInference(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
