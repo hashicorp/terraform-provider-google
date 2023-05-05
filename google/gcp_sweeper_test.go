@@ -1,4 +1,4 @@
-package acctest
+package google
 
 import (
 	"testing"
