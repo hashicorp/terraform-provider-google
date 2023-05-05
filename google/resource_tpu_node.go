@@ -55,6 +55,10 @@ func tpuNodeCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta int
 		pid = parts[1]
 	}
 
+	if pid == "" {
+		return nil
+	}
+
 	project, err := config.NewResourceManagerClient(config.UserAgent).Projects.Get(pid).Do()
 	if err != nil {
 		return fmt.Errorf("Failed to retrieve project, pid: %s, err: %s", pid, err)
