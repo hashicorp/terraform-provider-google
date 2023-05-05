@@ -1083,16 +1083,16 @@ One of 'trigger_template', 'github', 'pubsub_config' 'webhook_config' or 'source
 							Description: `The type of the repo, since it may not be explicit from the repo field (e.g from a URL).
 Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB, BITBUCKET_SERVER Possible values: ["UNKNOWN", "CLOUD_SOURCE_REPOSITORIES", "GITHUB", "BITBUCKET_SERVER"]`,
 						},
-						"uri": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `The URI of the repo (required).`,
-						},
 						"github_enterprise_config": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Description: `The full resource name of the github enterprise config.
 Format: projects/{project}/locations/{location}/githubEnterpriseConfigs/{id}. projects/{project}/githubEnterpriseConfigs/{id}.`,
+						},
+						"uri": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The URI of the repo.`,
 						},
 					},
 				},

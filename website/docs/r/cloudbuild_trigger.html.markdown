@@ -631,6 +631,61 @@ resource "google_cloudbuild_trigger" "allow-exit-codes-trigger" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_pubsub_with_repo&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Pubsub With Repo
+
+
+```hcl
+resource "google_cloudbuildv2_connection" "my-connection" {
+  provider = google-beta
+  location = "us-central1"
+  name = "my-connection"
+
+  github_config {
+    app_installation_id = 123123
+    authorizer_credential {
+      oauth_token_secret_version = "projects/my-project/secrets/github-pat-secret/versions/latest"
+    }
+  }
+}
+
+resource "google_cloudbuildv2_repository" "my-repository" {
+  provider = google-beta
+  name = "my-repo"
+  parent_connection = google_cloudbuildv2_connection.my-connection.id
+  remote_uri = "https://github.com/myuser/my-repo.git"
+}
+
+resource "google_pubsub_topic" "mytopic" {
+  provider = google-beta
+  name = "mytopic"
+}
+
+resource "google_cloudbuild_trigger" "pubsub-with-repo-trigger" {
+  provider = google-beta
+  name = "pubsub-with-repo-trigger"
+  location = "us-central1"
+
+  pubsub_config {
+    topic = google_pubsub_topic.mytopic.id
+  }
+  source_to_build {
+    repository = google_cloudbuildv2_repository.my-repository.id
+    ref = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+  git_file_source {
+    path = "cloudbuild.yaml"
+    repository = google_cloudbuildv2_repository.my-repository.id
+    revision = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -793,6 +848,11 @@ The following arguments are supported:
   The URI of the repo (optional). If unspecified, the repo from which the trigger
   invocation originated is assumed to be the repo from which to read the specified path.
 
+* `repository` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The fully qualified resource name of the Repo API repository. The fully qualified resource name of the Repo API repository.
+  If unspecified, the repo from which the trigger invocation originated is assumed to be the repo from which to read the specified path.
+
 * `repo_type` -
   (Required)
   The type of the repo, since it may not be explicit from the repo field (e.g from a URL).
@@ -865,8 +925,13 @@ The following arguments are supported:
 <a name="nested_source_to_build"></a>The `source_to_build` block supports:
 
 * `uri` -
-  (Required)
-  The URI of the repo (required).
+  (Optional)
+  The URI of the repo.
+
+* `repository` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The qualified resource name of the Repo API repository. 
+  Either uri or repository can be specified and is required.
 
 * `ref` -
   (Required)
