@@ -1,8 +1,10 @@
 package google
 
 import (
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestReplaceVars(t *testing.T) {
@@ -106,7 +108,7 @@ func TestReplaceVars(t *testing.T) {
 
 	for tn, tc := range cases {
 		t.Run(tn, func(t *testing.T) {
-			d := &ResourceDataMock{
+			d := &acctest.ResourceDataMock{
 				FieldsInSchema: tc.SchemaValues,
 			}
 

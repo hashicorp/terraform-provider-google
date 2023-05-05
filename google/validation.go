@@ -1,8 +1,6 @@
 package google
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -249,32 +247,4 @@ func validateRFC3339Date(v interface{}, k string) (warnings []string, errors []e
 // but all new code should use ValidateADDomainName in the verify package instead.
 func validateADDomainName() schema.SchemaValidateFunc {
 	return verify.ValidateADDomainName()
-}
-
-func testStringValidationCases(cases []StringValidationTestCase, validationFunc schema.SchemaValidateFunc) []error {
-	es := make([]error, 0)
-	for _, c := range cases {
-		es = append(es, testStringValidation(c, validationFunc)...)
-	}
-
-	return es
-}
-
-func testStringValidation(testCase StringValidationTestCase, validationFunc schema.SchemaValidateFunc) []error {
-	_, es := validationFunc(testCase.Value, testCase.TestName)
-	if testCase.ExpectError {
-		if len(es) > 0 {
-			return nil
-		} else {
-			return []error{fmt.Errorf("Didn't see expected error in case \"%s\" with string \"%s\"", testCase.TestName, testCase.Value)}
-		}
-	}
-
-	return es
-}
-
-type StringValidationTestCase struct {
-	TestName    string
-	Value       string
-	ExpectError bool
 }

@@ -220,8 +220,8 @@ func resourceAppEngineApplicationCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	log.Printf("[DEBUG] Creating App Engine App")
 	op, err := config.NewAppEngineClient(userAgent).Apps.Create(app).Do()
@@ -330,8 +330,8 @@ func resourceAppEngineApplicationUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	log.Printf("[DEBUG] Updating App Engine App")
 	op, err := config.NewAppEngineClient(userAgent).Apps.Patch(pid, app).UpdateMask("authDomain,databaseType,servingStatus,featureSettings.splitHealthChecks,iap").Do()

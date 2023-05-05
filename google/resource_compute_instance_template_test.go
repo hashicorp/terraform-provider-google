@@ -211,7 +211,7 @@ func TestComputeInstanceTemplate_scratchDiskSizeCustomizeDiff(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		d := &ResourceDiffMock{
+		d := &acctest.ResourceDiffMock{
 			After: map[string]interface{}{
 				"disk.#":              1,
 				"disk.0.type":         tc.Typee,

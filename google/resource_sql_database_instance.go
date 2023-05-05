@@ -1000,8 +1000,8 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	// modified at the same time. Lock the master until we're done in order
 	// to prevent that.
 	if !sqlDatabaseIsMaster(d) {
-		mutexKV.Lock(instanceMutexKey(project, instance.MasterInstanceName))
-		defer mutexKV.Unlock(instanceMutexKey(project, instance.MasterInstanceName))
+		transport_tpg.MutexStore.Lock(instanceMutexKey(project, instance.MasterInstanceName))
+		defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instance.MasterInstanceName))
 	}
 
 	if k, ok := d.GetOk("encryption_key_name"); ok {
@@ -1631,8 +1631,8 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 			Password: password,
 		}
 
-		mutexKV.Lock(instanceMutexKey(project, instance))
-		defer mutexKV.Unlock(instanceMutexKey(project, instance))
+		transport_tpg.MutexStore.Lock(instanceMutexKey(project, instance))
+		defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instance))
 		var op *sqladmin.Operation
 		updateFunc := func() error {
 			op, err = config.NewSqlAdminClient(userAgent).Users.Update(project, instance, user).Host(host).Name(name).Do()
@@ -1711,8 +1711,8 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	// Lock on the master_instance_name just in case updating any replica
 	// settings causes operations on the master.
 	if v, ok := d.GetOk("master_instance_name"); ok {
-		mutexKV.Lock(instanceMutexKey(project, v.(string)))
-		defer mutexKV.Unlock(instanceMutexKey(project, v.(string)))
+		transport_tpg.MutexStore.Lock(instanceMutexKey(project, v.(string)))
+		defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, v.(string)))
 	}
 
 	if _, ok := d.GetOk("instance_type"); ok {
@@ -1776,8 +1776,8 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 	// Lock on the master_instance_name just in case deleting a replica causes
 	// operations on the master.
 	if v, ok := d.GetOk("master_instance_name"); ok {
-		mutexKV.Lock(instanceMutexKey(project, v.(string)))
-		defer mutexKV.Unlock(instanceMutexKey(project, v.(string)))
+		transport_tpg.MutexStore.Lock(instanceMutexKey(project, v.(string)))
+		defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, v.(string)))
 	}
 
 	var op *sqladmin.Operation

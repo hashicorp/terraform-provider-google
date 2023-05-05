@@ -2,6 +2,8 @@ package google
 
 import (
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestUnitApigeeInstance_projectListDiffSuppress(t *testing.T) {
@@ -65,7 +67,7 @@ var apigeeInstanceDiffSuppressTestCases = []ApigeeInstanceDiffSuppressTestCase{
 }
 
 func (tc *ApigeeInstanceDiffSuppressTestCase) Test(t *testing.T) {
-	mockResourceDiff := &ResourceDiffMock{
+	mockResourceDiff := &acctest.ResourceDiffMock{
 		Before: tc.Before,
 		After:  tc.After,
 	}

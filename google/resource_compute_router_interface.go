@@ -132,8 +132,8 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 	ifaceName := d.Get("name").(string)
 
 	routerLock := getRouterLockName(region, routerName)
-	mutexKV.Lock(routerLock)
-	defer mutexKV.Unlock(routerLock)
+	transport_tpg.MutexStore.Lock(routerLock)
+	defer transport_tpg.MutexStore.Unlock(routerLock)
 
 	routersService := config.NewComputeClient(userAgent).Routers
 	router, err := routersService.Get(project, region, routerName).Do()
@@ -303,8 +303,8 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 	ifaceName := d.Get("name").(string)
 
 	routerLock := getRouterLockName(region, routerName)
-	mutexKV.Lock(routerLock)
-	defer mutexKV.Unlock(routerLock)
+	transport_tpg.MutexStore.Lock(routerLock)
+	defer transport_tpg.MutexStore.Unlock(routerLock)
 
 	routersService := config.NewComputeClient(userAgent).Routers
 	router, err := routersService.Get(project, region, routerName).Do()

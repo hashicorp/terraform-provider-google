@@ -1,8 +1,10 @@
 package google
 
 import (
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestParseImportId(t *testing.T) {
@@ -122,10 +124,10 @@ func TestParseImportId(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		d := &ResourceDataMock{
+		d := &acctest.ResourceDataMock{
 			FieldsInSchema: make(map[string]interface{}),
-			id:             tc.ImportId,
 		}
+		d.SetId(tc.ImportId)
 		config := tc.Config
 		if config == nil {
 			config = &transport_tpg.Config{}

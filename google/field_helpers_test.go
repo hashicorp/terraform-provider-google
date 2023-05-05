@@ -1,8 +1,10 @@
 package google
 
 import (
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestParseGlobalFieldValue(t *testing.T) {
@@ -66,7 +68,7 @@ func TestParseGlobalFieldValue(t *testing.T) {
 			fieldsInSchema[tc.ProjectSchemaField] = tc.ProjectSchemaValue
 		}
 
-		d := &ResourceDataMock{
+		d := &acctest.ResourceDataMock{
 			FieldsInSchema: fieldsInSchema,
 		}
 
@@ -168,7 +170,7 @@ func TestParseZonalFieldValue(t *testing.T) {
 			fieldsInSchema[tc.ZoneSchemaField] = tc.ZoneSchemaValue
 		}
 
-		d := &ResourceDataMock{
+		d := &acctest.ResourceDataMock{
 			FieldsInSchema: fieldsInSchema,
 		}
 
@@ -336,7 +338,7 @@ func TestParseRegionalFieldValue(t *testing.T) {
 				fieldsInSchema[tc.ZoneSchemaField] = tc.ZoneSchemaValue
 			}
 
-			d := &ResourceDataMock{
+			d := &acctest.ResourceDataMock{
 				FieldsInSchema: fieldsInSchema,
 			}
 
@@ -416,7 +418,7 @@ func TestParseProjectFieldValue(t *testing.T) {
 			fieldsInSchema[tc.ProjectSchemaField] = tc.ProjectSchemaValue
 		}
 
-		d := &ResourceDataMock{
+		d := &acctest.ResourceDataMock{
 			FieldsInSchema: fieldsInSchema,
 		}
 

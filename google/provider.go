@@ -17,7 +17,10 @@ import (
 )
 
 // Global MutexKV
-var mutexKV = NewMutexKV()
+//
+// Deprecated: For backward compatibility mutexKV is still working,
+// but all new code should use MutexStore in the transport_tpg package instead.
+var mutexKV = transport_tpg.MutexStore
 
 // Provider returns a *schema.Provider.
 func Provider() *schema.Provider {

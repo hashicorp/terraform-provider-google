@@ -467,13 +467,13 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 
 	// Acquire read-lock on cluster.
 	clusterLockKey := nodePoolInfo.clusterLockKey()
-	mutexKV.RLock(clusterLockKey)
-	defer mutexKV.RUnlock(clusterLockKey)
+	transport_tpg.MutexStore.RLock(clusterLockKey)
+	defer transport_tpg.MutexStore.RUnlock(clusterLockKey)
 
 	// Acquire write-lock on nodepool.
 	npLockKey := nodePoolInfo.nodePoolLockKey(nodePool.Name)
-	mutexKV.Lock(npLockKey)
-	defer mutexKV.Unlock(npLockKey)
+	transport_tpg.MutexStore.Lock(npLockKey)
+	defer transport_tpg.MutexStore.Unlock(npLockKey)
 
 	req := &container.CreateNodePoolRequest{
 		NodePool: nodePool,
@@ -693,13 +693,13 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 
 	// Acquire read-lock on cluster.
 	clusterLockKey := nodePoolInfo.clusterLockKey()
-	mutexKV.RLock(clusterLockKey)
-	defer mutexKV.RUnlock(clusterLockKey)
+	transport_tpg.MutexStore.RLock(clusterLockKey)
+	defer transport_tpg.MutexStore.RUnlock(clusterLockKey)
 
 	// Acquire write-lock on nodepool.
 	npLockKey := nodePoolInfo.nodePoolLockKey(name)
-	mutexKV.Lock(npLockKey)
-	defer mutexKV.Unlock(npLockKey)
+	transport_tpg.MutexStore.Lock(npLockKey)
+	defer transport_tpg.MutexStore.Unlock(npLockKey)
 
 	timeout := d.Timeout(schema.TimeoutDelete)
 	startTime := time.Now()
@@ -1143,8 +1143,8 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 
 	// Acquire read-lock on cluster.
 	clusterLockKey := nodePoolInfo.clusterLockKey()
-	mutexKV.RLock(clusterLockKey)
-	defer mutexKV.RUnlock(clusterLockKey)
+	transport_tpg.MutexStore.RLock(clusterLockKey)
+	defer transport_tpg.MutexStore.RUnlock(clusterLockKey)
 
 	// Nodepool write-lock will be acquired when update function is called.
 	npLockKey := nodePoolInfo.nodePoolLockKey(name)

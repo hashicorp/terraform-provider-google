@@ -178,8 +178,8 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings")
 	if err != nil {
@@ -318,8 +318,8 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {
@@ -383,8 +383,8 @@ func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {

@@ -3,13 +3,13 @@ package google
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"regexp"
 	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestBigQueryTableSchemaDiffSuppress(t *testing.T) {
@@ -1240,7 +1240,7 @@ func (testcase *testUnitBigQueryDataTableJSONChangeableTestCase) check(t *testin
 		t.Errorf("expected changeable result of %v but got %v for testcase %s", testcase.changeable, changeable, testcase.name)
 	}
 
-	d := &ResourceDiffMock{
+	d := &acctest.ResourceDiffMock{
 		Before: map[string]interface{}{},
 		After:  map[string]interface{}{},
 	}

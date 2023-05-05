@@ -3,10 +3,12 @@ package google
 import (
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func TestValidateIAMWorkforcePoolWorkforcePoolProviderId(t *testing.T) {
-	x := []StringValidationTestCase{
+	x := []verify.StringValidationTestCase{
 		// No errors
 		{TestName: "with numbers", Value: "foobar123"},
 		{TestName: "short", Value: "foo-"},
@@ -23,7 +25,7 @@ func TestValidateIAMWorkforcePoolWorkforcePoolProviderId(t *testing.T) {
 		{TestName: "too long", Value: strings.Repeat("f", 33), ExpectError: true},
 	}
 
-	es := testStringValidationCases(x, ValidateWorkforcePoolProviderId)
+	es := verify.TestStringValidationCases(x, ValidateWorkforcePoolProviderId)
 	if len(es) > 0 {
 		t.Errorf("Failed to validate WorkforcePoolProvider names: %v", es)
 	}

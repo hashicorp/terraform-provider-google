@@ -128,8 +128,8 @@ func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{
 	// Lock on both networks, sorted so we don't deadlock for A <--> B peering pairs.
 	peeringLockNames := sortedNetworkPeeringMutexKeys(networkFieldValue, peerNetworkFieldValue)
 	for _, kn := range peeringLockNames {
-		mutexKV.Lock(kn)
-		defer mutexKV.Unlock(kn)
+		transport_tpg.MutexStore.Lock(kn)
+		defer transport_tpg.MutexStore.Unlock(kn)
 	}
 
 	addOp, err := config.NewComputeClient(userAgent).Networks.AddPeering(networkFieldValue.Project, networkFieldValue.Name, request).Do()
@@ -223,8 +223,8 @@ func resourceComputeNetworkPeeringUpdate(d *schema.ResourceData, meta interface{
 	// Lock on both networks, sorted so we don't deadlock for A <--> B peering pairs.
 	peeringLockNames := sortedNetworkPeeringMutexKeys(networkFieldValue, peerNetworkFieldValue)
 	for _, kn := range peeringLockNames {
-		mutexKV.Lock(kn)
-		defer mutexKV.Unlock(kn)
+		transport_tpg.MutexStore.Lock(kn)
+		defer transport_tpg.MutexStore.Unlock(kn)
 	}
 
 	updateOp, err := config.NewComputeClient(userAgent).Networks.UpdatePeering(networkFieldValue.Project, networkFieldValue.Name, request).Do()
@@ -266,8 +266,8 @@ func resourceComputeNetworkPeeringDelete(d *schema.ResourceData, meta interface{
 	// Lock on both networks, sorted so we don't deadlock for A <--> B peering pairs.
 	peeringLockNames := sortedNetworkPeeringMutexKeys(networkFieldValue, peerNetworkFieldValue)
 	for _, kn := range peeringLockNames {
-		mutexKV.Lock(kn)
-		defer mutexKV.Unlock(kn)
+		transport_tpg.MutexStore.Lock(kn)
+		defer transport_tpg.MutexStore.Unlock(kn)
 	}
 
 	removeOp, err := config.NewComputeClient(userAgent).Networks.RemovePeering(networkFieldValue.Project, networkFieldValue.Name, request).Do()
