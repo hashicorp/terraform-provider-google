@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"reflect"
 	"sort"
 	"strings"
 	"time"
@@ -100,6 +101,14 @@ func ResourceComputeNetworkPeering() *schema.Resource {
 				Computed:    true,
 				Description: `Details about the current state of the peering.`,
 			},
+
+			"stack_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"IPV4_ONLY", "IPV4_IPV6"}),
+				Description:  `Which IP version(s) of traffic and routes are allowed to be imported or exported between peer networks. The default value is IPV4_ONLY. Possible values: ["IPV4_ONLY", "IPV4_IPV6"]`,
+				Default:      "IPV4_ONLY",
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -195,6 +204,9 @@ func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{})
 	}
 	if err := d.Set("state_details", peering.StateDetails); err != nil {
 		return fmt.Errorf("Error setting state_details: %s", err)
+	}
+	if err := d.Set("stack_type", flattenNetworkPeeringStackType(peering.StackType, d, config)); err != nil {
+		return fmt.Errorf("Error setting stack_type: %s", err)
 	}
 
 	return nil
@@ -304,8 +316,18 @@ func expandNetworkPeering(d *schema.ResourceData) *compute.NetworkPeering {
 		ImportCustomRoutes:             d.Get("import_custom_routes").(bool),
 		ExportSubnetRoutesWithPublicIp: d.Get("export_subnet_routes_with_public_ip").(bool),
 		ImportSubnetRoutesWithPublicIp: d.Get("import_subnet_routes_with_public_ip").(bool),
+		StackType:                      d.Get("stack_type").(string),
 		ForceSendFields:                []string{"ExportSubnetRoutesWithPublicIp", "ImportCustomRoutes", "ExportCustomRoutes"},
 	}
+}
+
+func flattenNetworkPeeringStackType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// To prevent the perma-diff caused by the absence of `stack_type` in API responses for older resource
+	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+		return "IPV4_ONLY"
+	}
+
+	return v
 }
 
 func sortedNetworkPeeringMutexKeys(networkName, peerNetworkName *GlobalFieldValue) []string {
