@@ -245,8 +245,8 @@ func resourceAccessContextManagerAccessLevelConditionCreate(d *schema.ResourceDa
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{access_level}}")
 	if err != nil {
@@ -401,8 +401,8 @@ func resourceAccessContextManagerAccessLevelConditionDelete(d *schema.ResourceDa
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{access_level}}")
 	if err != nil {

@@ -114,7 +114,7 @@ func TestDatastreamStreamCustomDiff(t *testing.T) {
 			tn = fmt.Sprintf("(new) %s => %s", tc.old, tc.new)
 		}
 		t.Run(tn, func(t *testing.T) {
-			diff := &ResourceDiffMock{
+			diff := &acctest.ResourceDiffMock{
 				Before: map[string]interface{}{
 					"desired_state": tc.old,
 				},

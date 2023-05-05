@@ -1,4 +1,4 @@
-package google
+package transport
 
 import (
 	"log"
@@ -63,4 +63,14 @@ func NewMutexKV() *MutexKV {
 	return &MutexKV{
 		store: make(map[string]*sync.RWMutex),
 	}
+}
+
+// Global MutexKV
+var MutexStore = NewMutexKV()
+
+func LockedCall(lockKey string, f func() error) error {
+	MutexStore.Lock(lockKey)
+	defer MutexStore.Unlock(lockKey)
+
+	return f()
 }

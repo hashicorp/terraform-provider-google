@@ -8,12 +8,14 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func TestValidateRecordNameTrailingDot(t *testing.T) {
-	cases := []StringValidationTestCase{
+	cases := []verify.StringValidationTestCase{
 		// No errors
 		{TestName: "trailing dot", Value: "test-record.hashicorptest.com."},
 
@@ -22,7 +24,7 @@ func TestValidateRecordNameTrailingDot(t *testing.T) {
 		{TestName: "no trailing dot", Value: "test-record.hashicorptest.com", ExpectError: true},
 	}
 
-	es := testStringValidationCases(cases, validateRecordNameTrailingDot)
+	es := verify.TestStringValidationCases(cases, validateRecordNameTrailingDot)
 	if len(es) > 0 {
 		t.Errorf("Failed to validate DNS Record name with value: %v", es)
 	}

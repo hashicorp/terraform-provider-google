@@ -2,11 +2,11 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccSpannerDatabase_basic(t *testing.T) {
@@ -459,7 +459,7 @@ func TestSpannerDatabase_resourceSpannerDBDdlCustomDiffFuncForceNew(t *testing.T
 	}
 
 	for tn, tc := range cases {
-		d := &ResourceDiffMock{
+		d := &acctest.ResourceDiffMock{
 			Before: map[string]interface{}{
 				"ddl": tc.before,
 			},

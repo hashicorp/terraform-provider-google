@@ -802,8 +802,8 @@ func resourceMonitoringSloCreate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services/{{service}}/serviceLevelObjectives?serviceLevelObjectiveId={{slo_id}}")
 	if err != nil {
@@ -980,8 +980,8 @@ func resourceMonitoringSloUpdate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
@@ -1080,8 +1080,8 @@ func resourceMonitoringSloDelete(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {

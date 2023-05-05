@@ -124,8 +124,8 @@ func resourceStorageBucketAccessControlCreate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/acl")
 	if err != nil {
@@ -233,8 +233,8 @@ func resourceStorageBucketAccessControlUpdate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/acl/{{entity}}")
 	if err != nil {
@@ -272,8 +272,8 @@ func resourceStorageBucketAccessControlDelete(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/acl/{{entity}}")
 	if err != nil {

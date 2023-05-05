@@ -113,8 +113,8 @@ func resourceSqlSslCertCreate(d *schema.ResourceData, meta interface{}) error {
 		CommonName: commonName,
 	}
 
-	mutexKV.Lock(instanceMutexKey(project, instance))
-	defer mutexKV.Unlock(instanceMutexKey(project, instance))
+	transport_tpg.MutexStore.Lock(instanceMutexKey(project, instance))
+	defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instance))
 	resp, err := config.NewSqlAdminClient(userAgent).SslCerts.Insert(project, instance, sslCertsInsertRequest).Do()
 	if err != nil {
 		return fmt.Errorf("Error, failed to insert "+
@@ -217,8 +217,8 @@ func resourceSqlSslCertDelete(d *schema.ResourceData, meta interface{}) error {
 	commonName := d.Get("common_name").(string)
 	fingerprint := d.Get("sha1_fingerprint").(string)
 
-	mutexKV.Lock(instanceMutexKey(project, instance))
-	defer mutexKV.Unlock(instanceMutexKey(project, instance))
+	transport_tpg.MutexStore.Lock(instanceMutexKey(project, instance))
+	defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instance))
 	op, err := config.NewSqlAdminClient(userAgent).SslCerts.Delete(project, instance, fingerprint).Do()
 
 	if err != nil {

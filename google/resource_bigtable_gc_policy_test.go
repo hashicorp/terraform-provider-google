@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"testing"
 	"time"
 
 	"cloud.google.com/go/bigtable"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccBigtableGCPolicy_basic(t *testing.T) {
@@ -207,7 +207,7 @@ func TestUnitBigtableGCPolicy_customizeDiff(t *testing.T) {
 }
 
 func (testcase *testUnitBigtableGCPolicyCustomizeDiffTestcase) check(t *testing.T) {
-	d := &ResourceDiffMock{
+	d := &acctest.ResourceDiffMock{
 		Before: map[string]interface{}{},
 		After:  map[string]interface{}{},
 	}

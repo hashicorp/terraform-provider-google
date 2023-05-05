@@ -1,8 +1,6 @@
 package google
 
 import (
-	"fmt"
-
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -72,15 +70,6 @@ func IsDataflowJobUpdateRetryableError(err error) (bool, string) {
 
 func IsPeeringOperationInProgress(err error) (bool, string) {
 	return transport_tpg.IsPeeringOperationInProgress(err)
-}
-
-func IsCloudFunctionsSourceCodeError(err error) (bool, string) {
-	if operr, ok := err.(*CommonOpError); ok {
-		if operr.Code == 3 && operr.Message == "Failed to retrieve function source code" {
-			return true, fmt.Sprintf("Retry on Function failing to pull code from GCS")
-		}
-	}
-	return false, ""
 }
 
 func DatastoreIndex409Contention(err error) (bool, string) {

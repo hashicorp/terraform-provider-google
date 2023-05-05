@@ -923,8 +923,8 @@ func resourceMonitoringAlertPolicyCreate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/alertPolicies")
 	if err != nil {
@@ -1120,8 +1120,8 @@ func resourceMonitoringAlertPolicyUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
@@ -1204,8 +1204,8 @@ func resourceMonitoringAlertPolicyDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {

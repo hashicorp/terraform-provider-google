@@ -129,8 +129,8 @@ func resourceStorageObjectAclCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	// If we're using a predefined acl we just use the canned api.
 	if predefinedAcl, ok := d.GetOk("predefined_acl"); ok {
@@ -214,8 +214,8 @@ func resourceStorageObjectAclUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	if _, ok := d.GetOk("predefined_acl"); d.HasChange("predefined_acl") && ok {
 		res, err := config.NewStorageClient(userAgent).Objects.Get(bucket, object).Do()
@@ -272,8 +272,8 @@ func resourceStorageObjectAclDelete(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	res, err := config.NewStorageClient(userAgent).Objects.Get(bucket, object).Do()
 	if err != nil {

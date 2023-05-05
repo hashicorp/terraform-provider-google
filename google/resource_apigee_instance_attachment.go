@@ -83,8 +83,8 @@ func resourceApigeeInstanceAttachmentCreate(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments")
 	if err != nil {
@@ -187,8 +187,8 @@ func resourceApigeeInstanceAttachmentDelete(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments/{{name}}")
 	if err != nil {

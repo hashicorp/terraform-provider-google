@@ -116,8 +116,8 @@ func resourceComputeGlobalNetworkEndpointCreate(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networkEndpointGroups/{{global_network_endpoint_group}}/attachNetworkEndpoints")
 	if err != nil {
@@ -255,8 +255,8 @@ func resourceComputeGlobalNetworkEndpointDelete(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networkEndpointGroups/{{global_network_endpoint_group}}/detachNetworkEndpoints")
 	if err != nil {

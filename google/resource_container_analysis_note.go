@@ -226,8 +226,8 @@ func resourceContainerAnalysisNoteCreate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes?noteId={{name}}")
 	if err != nil {
@@ -407,8 +407,8 @@ func resourceContainerAnalysisNoteUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes/{{name}}")
 	if err != nil {
@@ -483,8 +483,8 @@ func resourceContainerAnalysisNoteDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes/{{name}}")
 	if err != nil {

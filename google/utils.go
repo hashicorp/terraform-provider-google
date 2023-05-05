@@ -221,11 +221,10 @@ func extractFirstMapConfig(m []interface{}) map[string]interface{} {
 	return tpgresource.ExtractFirstMapConfig(m)
 }
 
+// Deprecated: For backward compatibility lockedCall is still working,
+// but all new code should use LockedCall in the tpgresource package instead.
 func lockedCall(lockKey string, f func() error) error {
-	mutexKV.Lock(lockKey)
-	defer mutexKV.Unlock(lockKey)
-
-	return f()
+	return transport_tpg.LockedCall(lockKey, f)
 }
 
 // This is a Printf sibling (Nprintf; Named Printf), which handles strings like

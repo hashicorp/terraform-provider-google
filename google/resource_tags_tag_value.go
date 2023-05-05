@@ -126,8 +126,8 @@ func resourceTagsTagValueCreate(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{TagsBasePath}}tagValues")
 	if err != nil {
@@ -253,8 +253,8 @@ func resourceTagsTagValueUpdate(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{TagsBasePath}}tagValues/{{name}}")
 	if err != nil {
@@ -311,8 +311,8 @@ func resourceTagsTagValueDelete(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{TagsBasePath}}tagValues/{{name}}")
 	if err != nil {

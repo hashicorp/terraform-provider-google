@@ -55,7 +55,7 @@ func testSweepPrivatecaCaPool(region string) error {
 	billingId := acctest.GetTestBillingAccountFromEnv(t)
 
 	// Setup variables to replace in list template
-	d := &ResourceDataMock{
+	d := &acctest.ResourceDataMock{
 		FieldsInSchema: map[string]interface{}{
 			"project":         config.Project,
 			"region":          region,

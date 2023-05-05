@@ -59,8 +59,8 @@ type (
 // Locking wrapper around read-only operation with retries.
 func iamPolicyReadWithRetry(updater ResourceIamUpdater) (*cloudresourcemanager.Policy, error) {
 	mutexKey := updater.GetMutexKey()
-	mutexKV.Lock(mutexKey)
-	defer mutexKV.Unlock(mutexKey)
+	transport_tpg.MutexStore.Lock(mutexKey)
+	defer transport_tpg.MutexStore.Unlock(mutexKey)
 
 	log.Printf("[DEBUG] Retrieving policy for %s\n", updater.DescribeResource())
 	var policy *cloudresourcemanager.Policy
@@ -78,8 +78,8 @@ func iamPolicyReadWithRetry(updater ResourceIamUpdater) (*cloudresourcemanager.P
 // Locking wrapper around read-modify-write cycle for IAM policy.
 func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModifyFunc) error {
 	mutexKey := updater.GetMutexKey()
-	mutexKV.Lock(mutexKey)
-	defer mutexKV.Unlock(mutexKey)
+	transport_tpg.MutexStore.Lock(mutexKey)
+	defer transport_tpg.MutexStore.Unlock(mutexKey)
 
 	backoff := time.Second
 	for {

@@ -259,7 +259,7 @@ func TestLoggingProjectSink_bigqueryOptionCustomizedDiff(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		d := &ResourceDiffMock{
+		d := &acctest.ResourceDiffMock{
 			After: map[string]interface{}{
 				"bigquery_options.#":     tc.After.BigqueryOptions,
 				"unique_writer_identity": tc.After.UniqueWriterIdentity,

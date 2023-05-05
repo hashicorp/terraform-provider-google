@@ -550,10 +550,10 @@ func TestDnsManagedZoneImport_parseImportId(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		d := &ResourceDataMock{
+		d := &acctest.ResourceDataMock{
 			FieldsInSchema: make(map[string]interface{}),
-			id:             tc.ImportId,
 		}
+		d.SetId(tc.ImportId)
 		config := tc.Config
 		if config == nil {
 			config = &transport_tpg.Config{}

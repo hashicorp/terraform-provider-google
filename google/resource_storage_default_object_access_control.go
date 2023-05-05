@@ -156,8 +156,8 @@ func resourceStorageDefaultObjectAccessControlCreate(d *schema.ResourceData, met
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/defaultObjectAcl")
 	if err != nil {
@@ -280,8 +280,8 @@ func resourceStorageDefaultObjectAccessControlUpdate(d *schema.ResourceData, met
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/defaultObjectAcl/{{entity}}")
 	if err != nil {
@@ -319,8 +319,8 @@ func resourceStorageDefaultObjectAccessControlDelete(d *schema.ResourceData, met
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := ReplaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/defaultObjectAcl/{{entity}}")
 	if err != nil {
