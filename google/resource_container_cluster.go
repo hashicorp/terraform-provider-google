@@ -3793,7 +3793,7 @@ func expandStandardRolloutPolicy(configured interface{}) *container.StandardRoll
 func expandManagement(configured interface{}) *container.NodeManagement {
 	l, ok := configured.([]interface{})
 	if !ok || l == nil || len(l) == 0 || l[0] == nil {
-		return &container.NodeManagement{}
+		return nil
 	}
 	config := l[0].(map[string]interface{})
 
