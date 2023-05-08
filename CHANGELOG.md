@@ -1,4 +1,5 @@
-## 4.64.0 (Unreleased)
+## 4.65.0 (Unreleased)
+## 4.64.0 (May 8, 2023)
 
 FEATURES:
 * **New Data Source:** `google_alloydb_locations` ([#14355](https://github.com/hashicorp/terraform-provider-google/pull/14355))
