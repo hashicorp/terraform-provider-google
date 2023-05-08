@@ -208,6 +208,7 @@ certificates before they expire remains the user's responsibility.`,
 							Type:       schema.TypeString,
 							Optional:   true,
 							Deprecated: "Deprecated in favor of `pem_certificate`",
+							ForceNew:   true,
 							Description: `**Deprecated** The certificate chain in PEM-encoded form.
 
 Leaf certificate comes first, followed by intermediate ones if any.`,
@@ -217,6 +218,7 @@ Leaf certificate comes first, followed by intermediate ones if any.`,
 						"pem_certificate": {
 							Type:     schema.TypeString,
 							Optional: true,
+							ForceNew: true,
 							Description: `The certificate chain in PEM-encoded form.
 
 Leaf certificate comes first, followed by intermediate ones if any.`,
@@ -225,6 +227,7 @@ Leaf certificate comes first, followed by intermediate ones if any.`,
 						"pem_private_key": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							ForceNew:     true,
 							Description:  `The private key of the leaf certificate in PEM-encoded form.`,
 							Sensitive:    true,
 							ExactlyOneOf: []string{"self_managed.0.private_key_pem", "self_managed.0.pem_private_key"},
@@ -233,6 +236,7 @@ Leaf certificate comes first, followed by intermediate ones if any.`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							Deprecated:   "Deprecated in favor of `pem_private_key`",
+							ForceNew:     true,
 							Description:  `**Deprecated** The private key of the leaf certificate in PEM-encoded form.`,
 							Sensitive:    true,
 							ExactlyOneOf: []string{"self_managed.0.private_key_pem", "self_managed.0.pem_private_key"},
