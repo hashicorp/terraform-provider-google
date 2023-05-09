@@ -1,0 +1,4 @@
+```release-note:enhancement
+`google_network_security_gateway_security_policy`
+`google_network_security_tls_inspection_policy`
+```

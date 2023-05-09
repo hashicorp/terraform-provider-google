@@ -14,42 +14,28 @@
 # ----------------------------------------------------------------------------
 subcategory: "Network security"
 description: |-
-  The GatewaySecurityPolicy resource contains a collection of GatewaySecurityPolicyRules and associated metadata.
+  The TlsInspectionPolicy resource contains references to CA pools in Certificate Authority Service and associated metadata.
 ---
 
-# google\_network\_security\_gateway\_security\_policy
+# google\_network\_security\_tls\_inspection\_policy
 
-The GatewaySecurityPolicy resource contains a collection of GatewaySecurityPolicyRules and associated metadata.
+The TlsInspectionPolicy resource contains references to CA pools in Certificate Authority Service and associated metadata.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
-To get more information about GatewaySecurityPolicy, see:
+To get more information about TlsInspectionPolicy, see:
 
-* [API documentation](https://cloud.google.com/secure-web-proxy/docs/reference/network-security/rest/v1beta1/projects.locations.gatewaySecurityPolicies)
+* [API documentation](https://cloud.google.com/secure-web-proxy/docs/reference/network-security/rest/v1beta1/projects.locations.tlsInspectionPolicies)
+* How-to Guides
+    * [Use TlsInspectionPolicy](https://cloud.google.com/secure-web-proxy/docs/tls-inspection-overview)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_security_gateway_security_policy_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_security_tls_inspection_policy_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Network Security Gateway Security Policy Basic
-
-
-```hcl
-resource "google_network_security_gateway_security_policy" "default" {
-  provider    = google-beta
-  name        = "my-gateway-security-policy"
-  location    = "us-central1"
-  description = "my description"
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_security_gateway_security_policy_tls_inspection_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Network Security Gateway Security Policy Tls Inspection Basic
+## Example Usage - Network Security Tls Inspection Policy Basic
 
 
 ```hcl
@@ -121,16 +107,8 @@ resource "google_network_security_tls_inspection_policy" "default" {
   name     = "my-tls-inspection-policy"
   location = "us-central1"
   ca_pool  = google_privateca_ca_pool.default.id
+  exclude_public_ca_set = false
   depends_on = [google_privateca_ca_pool.default, google_privateca_certificate_authority.default]
-}
-
-resource "google_network_security_gateway_security_policy" "default" {
-  provider    = google-beta
-  name        = "my-gateway-security-policy"
-  location    = "us-central1"
-  description = "my description"
-  tls_inspection_policy = google_network_security_tls_inspection_policy.default.id
-  depends_on = [google_network_security_tls_inspection_policy.default]
 }
 ```
 
@@ -139,10 +117,13 @@ resource "google_network_security_gateway_security_policy" "default" {
 The following arguments are supported:
 
 
+* `ca_pool` -
+  (Required)
+  A CA pool resource used to issue interception certificates.
+
 * `name` -
   (Required)
-  Name of the resource. Name is of the form projects/{project}/locations/{location}/gatewaySecurityPolicies/{gatewaySecurityPolicy}
-  gatewaySecurityPolicy should match the pattern:(^a-z?$).
+  Short name of the TlsInspectionPolicy resource to be created.
 
 
 - - -
@@ -150,16 +131,15 @@ The following arguments are supported:
 
 * `description` -
   (Optional)
-  A free-text description of the resource. Max length 1024 characters.
+  Free-text description of the resource.
 
-* `tls_inspection_policy` -
+* `exclude_public_ca_set` -
   (Optional)
-  Name of a TlsInspectionPolicy resource that defines how TLS inspection is performed for any rule that enables it.
+  If FALSE (the default), use our default set of public CAs in addition to any CAs specified in trustConfig. These public CAs are currently based on the Mozilla Root Program and are subject to change over time. If TRUE, do not accept our default set of public CAs. Only CAs specified in trustConfig will be accepted.
 
 * `location` -
   (Optional)
-  The location of the gateway security policy.
-  The default value is `global`.
+  The location of the tls inspection policy.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -169,20 +149,13 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/gatewaySecurityPolicies/{{name}}`
-
-* `self_link` -
-  Server-defined URL of this resource.
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/tlsInspectionPolicies/{{name}}`
 
 * `create_time` -
   The timestamp when the resource was created.
-  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
-  Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z"
 
 * `update_time` -
   The timestamp when the resource was updated.
-  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
-  Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
 
 
 ## Timeouts
@@ -197,12 +170,12 @@ This resource provides the following
 ## Import
 
 
-GatewaySecurityPolicy can be imported using any of these accepted formats:
+TlsInspectionPolicy can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_network_security_gateway_security_policy.default projects/{{project}}/locations/{{location}}/gatewaySecurityPolicies/{{name}}
-$ terraform import google_network_security_gateway_security_policy.default {{project}}/{{location}}/{{name}}
-$ terraform import google_network_security_gateway_security_policy.default {{location}}/{{name}}
+$ terraform import google_network_security_tls_inspection_policy.default projects/{{project}}/locations/{{location}}/tlsInspectionPolicies/{{name}}
+$ terraform import google_network_security_tls_inspection_policy.default {{project}}/{{location}}/{{name}}
+$ terraform import google_network_security_tls_inspection_policy.default {{location}}/{{name}}
 ```
 
 ## User Project Overrides
