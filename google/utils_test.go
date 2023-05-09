@@ -20,6 +20,25 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+var fictionalSchema = map[string]*schema.Schema{
+	"location": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"region": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"zone": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"project": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+}
+
 func TestConvertStringArr(t *testing.T) {
 	input := make([]interface{}, 3)
 	input[0] = "aaa"
@@ -151,19 +170,25 @@ func TestRfc3339TimeDiffSuppress(t *testing.T) {
 
 func TestGetProject(t *testing.T) {
 	cases := map[string]struct {
-		ResourceProject string
-		ProviderProject string
+		ResourceConfig  map[string]interface{}
+		ProviderConfig  map[string]string
 		ExpectedProject string
 		ExpectedError   bool
 	}{
 		"project is pulled from resource config instead of provider config": {
-			ResourceProject: "foo",
-			ProviderProject: "bar",
-			ExpectedProject: "foo",
+			ResourceConfig: map[string]interface{}{
+				"project": "resource-project",
+			},
+			ProviderConfig: map[string]string{
+				"project": "provider-project",
+			},
+			ExpectedProject: "resource-project",
 		},
 		"project is pulled from provider config when not set on resource": {
-			ProviderProject: "bar",
-			ExpectedProject: "bar",
+			ProviderConfig: map[string]string{
+				"project": "provider-project",
+			},
+			ExpectedProject: "provider-project",
 		},
 		"error returned when project not set on either provider or resource": {
 			ExpectedError: true,
@@ -175,19 +200,13 @@ func TestGetProject(t *testing.T) {
 
 			// Create provider config
 			var config transport_tpg.Config
-			if tc.ProviderProject != "" {
-				config.Project = tc.ProviderProject
+			if v, ok := tc.ProviderConfig["project"]; ok {
+				config.Project = v
 			}
 
 			// Create resource config
-			// Here use ResourceComputeDisk schema as example
-			emptyConfigMap := map[string]interface{}{}
-			d := schema.TestResourceDataRaw(t, ResourceComputeDisk().Schema, emptyConfigMap)
-			if tc.ResourceProject != "" {
-				if err := d.Set("project", tc.ResourceProject); err != nil {
-					t.Fatalf("Cannot set project: %s", err)
-				}
-			}
+			// Here use a fictional schema that includes a project field
+			d := setupTestResourceDataFromConfigMap(t, fictionalSchema, tc.ResourceConfig)
 
 			// Act
 			project, err := getProject(d, &config)
@@ -209,70 +228,112 @@ func TestGetProject(t *testing.T) {
 
 func TestGetLocation(t *testing.T) {
 	cases := map[string]struct {
-		ResourceConfig   map[string]string
+		ResourceConfig   map[string]interface{}
 		ProviderConfig   map[string]string
 		ExpectedLocation string
 		ExpectError      bool
 	}{
-		"returns the location value set in the resource config": {
-			ResourceConfig: map[string]string{
+		"returns the value of the location field in resource config": {
+			ResourceConfig: map[string]interface{}{
 				"location": "resource-location",
+				"region":   "resource-region", // unused
+				"zone":     "resource-zone-a", // unused
 			},
 			ExpectedLocation: "resource-location",
 		},
-		"returned location values set as self links are not shortened": {
-			ResourceConfig: map[string]string{
+		"does not shorten the location value when it is set as a self link in the resource config": {
+			ResourceConfig: map[string]interface{}{
 				"location": "https://www.googleapis.com/compute/v1/projects/my-project/locations/resource-location",
 			},
 			ExpectedLocation: "https://www.googleapis.com/compute/v1/projects/my-project/locations/resource-location", // No shortening takes place
 		},
 		"returns the region value set in the resource config when location is not in the schema": {
-			ResourceConfig: map[string]string{
+			ResourceConfig: map[string]interface{}{
 				"region": "resource-region",
+				"zone":   "resource-zone-a", // unused
 			},
 			ExpectedLocation: "resource-region",
 		},
-		"returned region values set as self links are not shortened": {
-			ResourceConfig: map[string]string{
+		"does not shorten the region value when it is set as a self link in the resource config": {
+			ResourceConfig: map[string]interface{}{
 				"region": "https://www.googleapis.com/compute/v1/projects/my-project/region/resource-region",
 			},
 			ExpectedLocation: "https://www.googleapis.com/compute/v1/projects/my-project/region/resource-region", // No shortening takes place
 		},
 		"returns the zone value set in the resource config when neither location nor region in the schema": {
-			ResourceConfig: map[string]string{
-				"zone": "resource-zone",
+			ResourceConfig: map[string]interface{}{
+				"zone": "resource-zone-a",
 			},
-			ExpectedLocation: "resource-zone",
+			ExpectedLocation: "resource-zone-a",
 		},
-		"returned zone values set as self links in the resource config ARE shortened": {
+		"shortens zone values set as self links in the resource config": {
 			// Results from getLocation using getZone internally
 			// This behaviour makes sense because APIs may return a self link as the zone value
-			ResourceConfig: map[string]string{
-				"zone": "https://www.googleapis.com/compute/v1/projects/my-project/zones/resource-zone",
+			ResourceConfig: map[string]interface{}{
+				"zone": "https://www.googleapis.com/compute/v1/projects/my-project/zones/resource-zone-a",
 			},
-			ExpectedLocation: "resource-zone",
+			ExpectedLocation: "resource-zone-a",
 		},
 		"returns the zone value from the provider config when none of location/region/zone are set in the resource config": {
 			ProviderConfig: map[string]string{
-				"zone": "provider-zone",
+				"zone": "provider-zone-a",
 			},
-			ExpectedLocation: "provider-zone",
+			ExpectedLocation: "provider-zone-a",
 		},
-		"returned zone values set as self links in the provider config are NOT shortened": {
+		"does not shorten the zone value when it is set as a self link in the provider config": {
 			// This behaviour makes sense because provider config values don't originate from APIs
 			// Users should always configure the provider with the short names of regions/zones
 			ProviderConfig: map[string]string{
-				"zone": "https://www.googleapis.com/compute/v1/projects/my-project/zones/provider-zone",
+				"zone": "https://www.googleapis.com/compute/v1/projects/my-project/zones/provider-zone-a",
 			},
-			ExpectedLocation: "https://www.googleapis.com/compute/v1/projects/my-project/zones/provider-zone",
+			ExpectedLocation: "https://www.googleapis.com/compute/v1/projects/my-project/zones/provider-zone-a",
 		},
+		// Handling of empty strings
+		"returns the region value set in the resource config when location is an empty string": {
+			ResourceConfig: map[string]interface{}{
+				"location": "",
+				"region":   "resource-region",
+			},
+			ExpectedLocation: "resource-region",
+		},
+		"returns the zone value set in the resource config when both location or region are empty strings": {
+			ResourceConfig: map[string]interface{}{
+				"location": "",
+				"region":   "",
+				"zone":     "resource-zone-a",
+			},
+			ExpectedLocation: "resource-zone-a",
+		},
+		"returns the zone value from the provider config when all of location/region/zone are set as empty strings in the resource config": {
+			ResourceConfig: map[string]interface{}{
+				"location": "",
+				"region":   "",
+				"zone":     "",
+			},
+			ProviderConfig: map[string]string{
+				"zone": "provider-zone-a",
+			},
+			ExpectedLocation: "provider-zone-a",
+		},
+		// Error states
 		"returns an error when only a region value is set in the the provider config and none of location/region/zone are set in the resource config": {
 			ProviderConfig: map[string]string{
 				"region": "provider-region",
 			},
 			ExpectError: true,
 		},
-		"an error is returned when none of location/region/zone are set on the resource, and neither region or zone is set on the provider": {
+		"returns an error when none of location/region/zone are set on the resource, and neither region or zone is set on the provider": {
+			ExpectError: true,
+		},
+		"returns an error if location/region/zone are set as empty strings in both resource and provider configs": {
+			ResourceConfig: map[string]interface{}{
+				"location": "",
+				"region":   "",
+				"zone":     "",
+			},
+			ProviderConfig: map[string]string{
+				"zone": "",
+			},
 			ExpectError: true,
 		},
 	}
@@ -294,32 +355,7 @@ func TestGetLocation(t *testing.T) {
 			// Here use a fictional schema as example because we need to have all of
 			// location, region, and zone fields present in the schema for the test,
 			// and no real resources would contain all of these
-			fictionalSchema := map[string]*schema.Schema{
-				"location": {
-					Type:     schema.TypeString,
-					Optional: true,
-				},
-				"region": {
-					Type:     schema.TypeString,
-					Optional: true,
-				},
-				"zone": {
-					Type:     schema.TypeString,
-					Optional: true,
-				},
-			}
-			emptyConfigMap := map[string]interface{}{}
-			d := schema.TestResourceDataRaw(t, fictionalSchema, emptyConfigMap)
-
-			// Load Terraform resource config data
-			if len(tc.ResourceConfig) > 0 {
-				for k, v := range tc.ResourceConfig {
-					err := d.Set(k, v)
-					if err != nil {
-						t.Fatalf("error during test setup: %v", err)
-					}
-				}
-			}
+			d := setupTestResourceDataFromConfigMap(t, fictionalSchema, tc.ResourceConfig)
 
 			// Act
 			location, err := getLocation(d, &config)
@@ -341,25 +377,60 @@ func TestGetLocation(t *testing.T) {
 
 func TestGetZone(t *testing.T) {
 	cases := map[string]struct {
-		ResourceZone  string
-		ProviderZone  string
-		ExpectedZone  string
-		ExpectedError bool
+		ResourceConfig map[string]interface{}
+		ProviderConfig map[string]string
+		ExpectedZone   string
+		ExpectedError  bool
 	}{
-		"zone is pulled from resource config instead of provider config": {
-			ResourceZone: "foo",
-			ProviderZone: "bar",
-			ExpectedZone: "foo",
+		"returns the value of the zone field in resource config": {
+			ResourceConfig: map[string]interface{}{
+				"zone": "resource-zone-a",
+			},
+			ProviderConfig: map[string]string{
+				"zone": "provider-zone-a",
+			},
+			ExpectedZone: "resource-zone-a",
 		},
-		"zone value from resource can be a self link": {
-			ResourceZone: "https://www.googleapis.com/compute/v1/projects/my-project/zones/us-central1-a",
+		"shortens zone values set as self links in the resource config": {
+			ResourceConfig: map[string]interface{}{
+				"zone": "https://www.googleapis.com/compute/v1/projects/my-project/zones/us-central1-a",
+			},
 			ExpectedZone: "us-central1-a",
 		},
-		"zone is pulled from provider config when not set on resource": {
-			ProviderZone: "bar",
-			ExpectedZone: "bar",
+		"returns the value of the zone field in provider config when zone is unset in resource config": {
+			ProviderConfig: map[string]string{
+				"zone": "provider-zone-a",
+			},
+			ExpectedZone: "provider-zone-a",
 		},
-		"error returned when zone not set on either provider or resource": {
+		// Handling of empty strings
+		"returns the value of the zone field in provider config when zone is set to an empty string in resource config": {
+			ResourceConfig: map[string]interface{}{
+				"zone": "",
+			},
+			ProviderConfig: map[string]string{
+				"zone": "provider-zone-a",
+			},
+			ExpectedZone: "provider-zone-a",
+		},
+		// Error states
+		"returns an error when a zone value can't be found": {
+			ResourceConfig: map[string]interface{}{
+				"location": "resource-location", // unused
+				"region":   "resource-region",   // unused
+			},
+			ProviderConfig: map[string]string{
+				"region": "provider-region", //unused
+			},
+			ExpectedError: true,
+		},
+		"returns an error if zone is set as an empty string in both resource and provider configs": {
+			ResourceConfig: map[string]interface{}{
+				"zone": "",
+			},
+			ProviderConfig: map[string]string{
+				"zone": "",
+			},
 			ExpectedError: true,
 		},
 	}
@@ -369,19 +440,15 @@ func TestGetZone(t *testing.T) {
 
 			// Create provider config
 			var config transport_tpg.Config
-			if tc.ProviderZone != "" {
-				config.Zone = tc.ProviderZone
+			if v, ok := tc.ProviderConfig["zone"]; ok {
+				config.Zone = v
 			}
 
 			// Create resource config
-			// Here use ResourceComputeDisk schema as example - because it has a zone field in schema
-			emptyConfigMap := map[string]interface{}{}
-			d := schema.TestResourceDataRaw(t, ResourceComputeDisk().Schema, emptyConfigMap)
-			if tc.ResourceZone != "" {
-				if err := d.Set("zone", tc.ResourceZone); err != nil {
-					t.Fatalf("Cannot set zone: %s", err)
-				}
-			}
+			// Here use a fictional schema as example because we need to have all of
+			// location, region, and zone fields present in the schema for the test,
+			// and no real resources would contain all of these
+			d := setupTestResourceDataFromConfigMap(t, fictionalSchema, tc.ResourceConfig)
 
 			// Act
 			zone, err := getZone(d, &config)
@@ -403,33 +470,89 @@ func TestGetZone(t *testing.T) {
 
 func TestGetRegion(t *testing.T) {
 	cases := map[string]struct {
-		ResourceRegion string
-		ProviderRegion string
-		ProviderZone   string
+		ResourceConfig map[string]interface{}
+		ProviderConfig map[string]string
 		ExpectedRegion string
-		ExpectedZone   string
 		ExpectedError  bool
 	}{
-		"region is pulled from resource config instead of provider config": {
-			ResourceRegion: "foo",
-			ProviderRegion: "bar",
-			ProviderZone:   "lol-a",
-			ExpectedRegion: "foo",
+		"returns the value of the region field in resource config": {
+			ResourceConfig: map[string]interface{}{
+				"region":   "resource-region",
+				"zone":     "resource-zone-a",
+				"location": "resource-location", // unused
+			},
+			ProviderConfig: map[string]string{
+				"region": "provider-region",
+				"zone":   "provider-zone-a",
+			},
+			ExpectedRegion: "resource-region",
 		},
-		"region pulled from resource config can be a self link": {
-			ResourceRegion: "https://www.googleapis.com/compute/v1/projects/my-project/regions/us-central1",
+		"shortens region values set as self links in the resource config": {
+			ResourceConfig: map[string]interface{}{
+				"region": "https://www.googleapis.com/compute/v1/projects/my-project/regions/us-central1",
+			},
 			ExpectedRegion: "us-central1",
 		},
-		"region is pulled from region on provider config when region unset in resource config": {
-			ProviderRegion: "bar",
-			ProviderZone:   "lol-a",
-			ExpectedRegion: "bar",
+		"returns a region derived from the zone field in resource config when region is unset": {
+			ResourceConfig: map[string]interface{}{
+				"zone":     "resource-zone-a",
+				"location": "resource-location", // unused
+			},
+			ExpectedRegion: "resource-zone", // is truncated
 		},
-		"region is pulled from zone on provider config when region unset in both resource and provider config": {
-			ProviderZone:   "lol-a",
-			ExpectedRegion: "lol",
+		"does not shorten region values when derived from a zone self link set in the resource config": {
+			ResourceConfig: map[string]interface{}{
+				"zone": "https://www.googleapis.com/compute/v1/projects/my-project/zones/us-central1-a",
+			},
+			ExpectedRegion: "https://www.googleapis.com/compute/v1/projects/my-project/zones/us-central1", // Value is not shortenedfrom URI to name
 		},
-		"error returned when region not set on resource and neither region or zone set on provider": {
+		"returns the value of the region field in provider config when region/zone is unset in resource config": {
+			ProviderConfig: map[string]string{
+				"region": "provider-region",
+				"zone":   "provider-zone-a", // unused
+			},
+			ExpectedRegion: "provider-region",
+		},
+		"returns a region derived from the zone field in provider config when region unset in both resource and provider config": {
+			ProviderConfig: map[string]string{
+				"zone": "provider-zone-a",
+			},
+			ExpectedRegion: "provider-zone", // is truncated
+		},
+		// Handling of empty strings
+		"returns a region derived from the zone field in resource config when region is set as an empty string": {
+			ResourceConfig: map[string]interface{}{
+				"region": "",
+				"zone":   "resource-zone-a",
+			},
+			ExpectedRegion: "resource-zone", // is truncated
+		},
+		"returns the value of the region field in provider config when region/zone set as an empty string in resource config": {
+			ResourceConfig: map[string]interface{}{
+				"region": "",
+				"zone":   "",
+			},
+			ProviderConfig: map[string]string{
+				"region": "provider-region",
+			},
+			ExpectedRegion: "provider-region",
+		},
+		// Error states
+		"returns an error when region values can't be found": {
+			ResourceConfig: map[string]interface{}{
+				"location": "resource-location",
+			},
+			ExpectedError: true,
+		},
+		"returns an error if region and zone set as empty strings in both resource and provider configs": {
+			ResourceConfig: map[string]interface{}{
+				"region": "",
+				"zone":   "",
+			},
+			ProviderConfig: map[string]string{
+				"region": "",
+				"zone":   "",
+			},
 			ExpectedError: true,
 		},
 	}
@@ -439,22 +562,18 @@ func TestGetRegion(t *testing.T) {
 
 			// Create provider config
 			var config transport_tpg.Config
-			if tc.ProviderRegion != "" {
-				config.Region = tc.ProviderRegion
+			if v, ok := tc.ProviderConfig["region"]; ok {
+				config.Region = v
 			}
-			if tc.ProviderZone != "" {
-				config.Zone = tc.ProviderZone
+			if v, ok := tc.ProviderConfig["zone"]; ok {
+				config.Zone = v
 			}
 
 			// Create resource config
-			// Here use ResourceComputeSubnetwork schema as example - because it has a region field in schema
-			emptyConfigMap := map[string]interface{}{}
-			d := schema.TestResourceDataRaw(t, ResourceComputeSubnetwork().Schema, emptyConfigMap)
-			if tc.ResourceRegion != "" {
-				if err := d.Set("region", tc.ResourceRegion); err != nil {
-					t.Fatalf("Cannot set region: %s", err)
-				}
-			}
+			// Here use a fictional schema as example because we need to have all of
+			// location, region, and zone fields present in the schema for the test,
+			// and no real resources would contain all of these
+			d := setupTestResourceDataFromConfigMap(t, fictionalSchema, tc.ResourceConfig)
 
 			// Act
 			region, err := getRegion(d, &config)

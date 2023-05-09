@@ -4,14 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"io/ioutil"
 	"regexp"
 	"testing"
 
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestProvider(t *testing.T) {
@@ -101,16 +102,14 @@ func TestProvider_validateCredentials(t *testing.T) {
 	}
 }
 
-// Used for testing the `providerConfigure` function
-func setupSDKProviderConfigTest(t *testing.T, configValues map[string]interface{},
-	envValues map[string]string) (context.Context, *schema.Provider, *schema.ResourceData) {
-
-	ctx := context.Background()
-	p := Provider()
+// Used to create populated schema.ResourceData structs in tests.
+// Pass in a schema and a config map containing the fields and values you wish to set
+// The returned schema.ResourceData can represent a configured resource, data source or provider.
+func setupTestResourceDataFromConfigMap(t *testing.T, s map[string]*schema.Schema, configValues map[string]interface{}) *schema.ResourceData {
 
 	// Create empty schema.ResourceData using the SDK Provider schema
 	emptyConfigMap := map[string]interface{}{}
-	d := schema.TestResourceDataRaw(t, p.Schema, emptyConfigMap)
+	d := schema.TestResourceDataRaw(t, s, emptyConfigMap)
 
 	// Load Terraform config data
 	if len(configValues) > 0 {
@@ -122,23 +121,28 @@ func setupSDKProviderConfigTest(t *testing.T, configValues map[string]interface{
 		}
 	}
 
-	// Unset any ENVs in the test environment here
-	// The testing package restores the original values afterwards
-	envs := acctest.ProviderConfigEnvNames()
+	return d
+}
+
+// unsetProviderConfigEnvs unsets any ENVs in the test environment that
+// configure the provider.
+// The testing package will restore the original values after the test
+func unsetTestProviderConfigEnvs(t *testing.T) {
+	envs := providerConfigEnvNames()
 	if len(envs) > 0 {
 		for _, k := range envs {
 			t.Setenv(k, "")
 		}
 	}
+}
 
-	// Set ENVs for the test case
+func setupTestEnvs(t *testing.T, envValues map[string]string) {
+	// Set ENVs
 	if len(envValues) > 0 {
 		for k, v := range envValues {
 			t.Setenv(k, v)
 		}
 	}
-
-	return ctx, p, d
 }
 
 // Returns a fake credentials JSON string with the client_email set to a test-specific value
@@ -258,7 +262,11 @@ func TestProvider_providerConfigure_credentials(t *testing.T) {
 		t.Run(tn, func(t *testing.T) {
 
 			// Arrange
-			ctx, p, d := setupSDKProviderConfigTest(t, tc.ConfigValues, tc.EnvVariables)
+			ctx := context.Background()
+			unsetTestProviderConfigEnvs(t)
+			setupTestEnvs(t, tc.EnvVariables)
+			p := Provider()
+			d := setupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
 
 			// Act
 			c, diags := providerConfigure(ctx, d, p)
@@ -350,7 +358,11 @@ func TestProvider_providerConfigure_accessToken(t *testing.T) {
 		t.Run(tn, func(t *testing.T) {
 
 			// Arrange
-			ctx, p, d := setupSDKProviderConfigTest(t, tc.ConfigValues, tc.EnvVariables)
+			ctx := context.Background()
+			unsetTestProviderConfigEnvs(t)
+			setupTestEnvs(t, tc.EnvVariables)
+			p := Provider()
+			d := setupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
 
 			// Act
 			c, diags := providerConfigure(ctx, d, p)
@@ -431,7 +443,11 @@ func TestProvider_providerConfigure_impersonateServiceAccount(t *testing.T) {
 		t.Run(tn, func(t *testing.T) {
 
 			// Arrange
-			ctx, p, d := setupSDKProviderConfigTest(t, tc.ConfigValues, tc.EnvVariables)
+			ctx := context.Background()
+			unsetTestProviderConfigEnvs(t)
+			setupTestEnvs(t, tc.EnvVariables)
+			p := Provider()
+			d := setupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
 
 			// Act
 			c, diags := providerConfigure(ctx, d, p)
@@ -501,7 +517,11 @@ func TestProvider_providerConfigure_impersonateServiceAccountDelegates(t *testin
 		t.Run(tn, func(t *testing.T) {
 
 			// Arrange
-			ctx, p, d := setupSDKProviderConfigTest(t, tc.ConfigValues, tc.EnvVariables)
+			ctx := context.Background()
+			unsetTestProviderConfigEnvs(t)
+			setupTestEnvs(t, tc.EnvVariables)
+			p := Provider()
+			d := setupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
 
 			// Act
 			c, diags := providerConfigure(ctx, d, p)
@@ -640,7 +660,11 @@ func TestProvider_providerConfigure_project(t *testing.T) {
 		t.Run(tn, func(t *testing.T) {
 
 			// Arrange
-			ctx, p, d := setupSDKProviderConfigTest(t, tc.ConfigValues, tc.EnvVariables)
+			ctx := context.Background()
+			unsetTestProviderConfigEnvs(t)
+			setupTestEnvs(t, tc.EnvVariables)
+			p := Provider()
+			d := setupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
 
 			// Act
 			c, diags := providerConfigure(ctx, d, p)
