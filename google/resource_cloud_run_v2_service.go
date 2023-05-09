@@ -68,7 +68,7 @@ func ResourceCloudRunV2Service() *schema.Resource {
 						"containers": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `Holds the single container that defines the unit of execution for this task.`,
+							Description: `Holds the containers that define the unit of execution for this Service.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"image": {

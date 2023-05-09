@@ -261,6 +261,46 @@ resource "google_secret_manager_secret_iam_member" "secret-access" {
   depends_on = [google_secret_manager_secret.secret]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudrunv2_job_emptydir&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudrunv2 Job Emptydir
+
+
+```hcl
+resource "google_cloud_run_v2_job" "default" {
+  provider = google-beta
+  name     = "cloudrun-job"
+  location = "us-central1"
+  launch_stage = "BETA"
+  template {
+    template {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+	volume_mounts {
+	  name = "empty-dir-volume"
+	  mount_path = "/mnt"
+	}
+      }
+      volumes {
+        name = "empty-dir-volume"
+	empty_dir {
+	  medium = "MEMORY"
+	  size_limit = "128Mi"
+	}
+      }
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      launch_stage,
+    ]
+  }
+}
+```
 
 ## Argument Reference
 
@@ -583,6 +623,11 @@ The following arguments are supported:
   For Cloud SQL volumes, contains the specific instances that should be mounted. Visit https://cloud.google.com/sql/docs/mysql/connect-run for more information on how to connect Cloud SQL and Cloud Run.
   Structure is [documented below](#nested_cloud_sql_instance).
 
+* `empty_dir` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Ephemeral storage used as a shared volume.
+  Structure is [documented below](#nested_empty_dir).
+
 
 <a name="nested_secret"></a>The `secret` block supports:
 
@@ -619,6 +664,18 @@ The following arguments are supported:
 * `instances` -
   (Optional)
   The Cloud SQL instance connection names, as can be found in https://console.cloud.google.com/sql/instances. Visit https://cloud.google.com/sql/docs/mysql/connect-run for more information on how to connect Cloud SQL and Cloud Run. Format: {project}:{location}:{instance}
+
+<a name="nested_empty_dir"></a>The `empty_dir` block supports:
+
+* `medium` -
+  (Optional)
+  The different types of medium supported for EmptyDir.
+  Default value is `MEMORY`.
+  Possible values are: `MEMORY`.
+
+* `size_limit` -
+  (Optional)
+  Limit on the storage usable by this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. This field's values are of the 'Quantity' k8s type: https://kubernetes.io/docs/reference/kubernetes-api/common-definitions/quantity/. The default is nil which means that the limit is undefined. More info: http://kubernetes.io/docs/user-guide/volumes#emptydir.
 
 <a name="nested_vpc_access"></a>The `vpc_access` block supports:
 
