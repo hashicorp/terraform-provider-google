@@ -150,7 +150,7 @@ func AccTestPreCheck(t *testing.T) {
 	}
 }
 
-// GetTestRegion has the same logic as the provider's getRegion, to be used in tests.
+// GetTestRegion has the same logic as the provider's GetRegion, to be used in tests.
 func GetTestRegion(is *terraform.InstanceState, config *transport_tpg.Config) (string, error) {
 	if res, ok := is.Attributes["region"]; ok {
 		return res, nil
@@ -161,7 +161,7 @@ func GetTestRegion(is *terraform.InstanceState, config *transport_tpg.Config) (s
 	return "", fmt.Errorf("%q: required field is not set", "region")
 }
 
-// GetTestProject has the same logic as the provider's getProject, to be used in tests.
+// GetTestProject has the same logic as the provider's GetProject, to be used in tests.
 func GetTestProject(is *terraform.InstanceState, config *transport_tpg.Config) (string, error) {
 	if res, ok := is.Attributes["project"]; ok {
 		return res, nil

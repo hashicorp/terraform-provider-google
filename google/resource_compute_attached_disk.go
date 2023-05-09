@@ -81,12 +81,12 @@ func ResourceComputeAttachedDisk() *schema.Resource {
 
 func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	zv, err := parseZonalFieldValue("instances", d.Get("instance").(string), "project", "zone", d, config, false)
+	zv, err := tpgresource.ParseZonalFieldValue("instances", d.Get("instance").(string), "project", "zone", d, config, false)
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 
 	// Check if the disk is a regional disk
 	if strings.Contains(disk, "regions") {
-		rv, err := ParseRegionDiskFieldValue(disk, d, config)
+		rv, err := tpgresource.ParseRegionDiskFieldValue(disk, d, config)
 		if err != nil {
 			return err
 		}
@@ -129,12 +129,12 @@ func resourceAttachedDiskCreate(d *schema.ResourceData, meta interface{}) error 
 
 func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	zv, err := parseZonalFieldValue("instances", d.Get("instance").(string), "project", "zone", d, config, false)
+	zv, err := tpgresource.ParseZonalFieldValue("instances", d.Get("instance").(string), "project", "zone", d, config, false)
 	if err != nil {
 		return err
 	}
@@ -189,12 +189,12 @@ func resourceAttachedDiskRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceAttachedDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	zv, err := parseZonalFieldValue("instances", d.Get("instance").(string), "project", "zone", d, config, false)
+	zv, err := tpgresource.ParseZonalFieldValue("instances", d.Get("instance").(string), "project", "zone", d, config, false)
 	if err != nil {
 		return err
 	}
@@ -237,7 +237,7 @@ func resourceAttachedDiskImport(d *schema.ResourceData, meta interface{}) ([]*sc
 		return nil, err
 	}
 
-	id, err := ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instances/{{instance}}/{{disk}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/instances/{{instance}}/{{disk}}")
 	if err != nil {
 		return nil, err
 	}

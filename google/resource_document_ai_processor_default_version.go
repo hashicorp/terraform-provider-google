@@ -64,7 +64,7 @@ Apply 'lifecycle.ignore_changes' to the 'version' field to suppress this diff.`,
 
 func resourceDocumentAIProcessorDefaultVersionCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -73,17 +73,17 @@ func resourceDocumentAIProcessorDefaultVersionCreate(d *schema.ResourceData, met
 	defaultProcessorVersionProp, err := expandDocumentAIProcessorDefaultVersionVersion(d.Get("version"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("version"); !isEmptyValue(reflect.ValueOf(defaultProcessorVersionProp)) && (ok || !reflect.DeepEqual(v, defaultProcessorVersionProp)) {
+	} else if v, ok := d.GetOkExists("version"); !tpgresource.IsEmptyValue(reflect.ValueOf(defaultProcessorVersionProp)) && (ok || !reflect.DeepEqual(v, defaultProcessorVersionProp)) {
 		obj["defaultProcessorVersion"] = defaultProcessorVersionProp
 	}
 	processorProp, err := expandDocumentAIProcessorDefaultVersionProcessor(d.Get("processor"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("processor"); !isEmptyValue(reflect.ValueOf(processorProp)) && (ok || !reflect.DeepEqual(v, processorProp)) {
+	} else if v, ok := d.GetOkExists("processor"); !tpgresource.IsEmptyValue(reflect.ValueOf(processorProp)) && (ok || !reflect.DeepEqual(v, processorProp)) {
 		obj["processor"] = processorProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{DocumentAIBasePath}}{{processor}}:setDefaultProcessorVersion")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DocumentAIBasePath}}{{processor}}:setDefaultProcessorVersion")
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func resourceDocumentAIProcessorDefaultVersionCreate(d *schema.ResourceData, met
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -107,7 +107,7 @@ func resourceDocumentAIProcessorDefaultVersionCreate(d *schema.ResourceData, met
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{processor}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{processor}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -120,12 +120,12 @@ func resourceDocumentAIProcessorDefaultVersionCreate(d *schema.ResourceData, met
 
 func resourceDocumentAIProcessorDefaultVersionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{DocumentAIBasePath}}{{processor}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DocumentAIBasePath}}{{processor}}")
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func resourceDocumentAIProcessorDefaultVersionRead(d *schema.ResourceData, meta 
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -172,7 +172,7 @@ func resourceDocumentAIProcessorDefaultVersionImport(d *schema.ResourceData, met
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "{{processor}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{processor}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -185,10 +185,10 @@ func flattenDocumentAIProcessorDefaultVersionVersion(v interface{}, d *schema.Re
 	return v
 }
 
-func expandDocumentAIProcessorDefaultVersionVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDocumentAIProcessorDefaultVersionVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDocumentAIProcessorDefaultVersionProcessor(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDocumentAIProcessorDefaultVersionProcessor(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

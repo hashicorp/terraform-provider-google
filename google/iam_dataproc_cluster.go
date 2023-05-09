@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/dataproc/v1"
@@ -34,17 +35,17 @@ type DataprocClusterIamUpdater struct {
 	project string
 	region  string
 	cluster string
-	d       TerraformResourceData
+	d       tpgresource.TerraformResourceData
 	Config  *transport_tpg.Config
 }
 
-func NewDataprocClusterUpdater(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
-	project, err := getProject(d, config)
+func NewDataprocClusterUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return nil, err
 	}
 
-	region, err := getRegion(d, config)
+	region, err := tpgresource.GetRegion(d, config)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +67,7 @@ func NewDataprocClusterUpdater(d TerraformResourceData, config *transport_tpg.Co
 }
 
 func DataprocClusterIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
-	fv, err := parseRegionalFieldValue("clusters", d.Id(), "project", "region", "zone", d, config, true)
+	fv, err := tpgresource.ParseRegionalFieldValue("clusters", d.Id(), "project", "region", "zone", d, config, true)
 	if err != nil {
 		return err
 	}
@@ -89,7 +90,7 @@ func DataprocClusterIdParseFunc(d *schema.ResourceData, config *transport_tpg.Co
 func (u *DataprocClusterIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	req := &dataproc.GetIamPolicyRequest{}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +114,7 @@ func (u *DataprocClusterIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}

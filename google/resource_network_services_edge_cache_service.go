@@ -1000,7 +1000,7 @@ If not set, the EdgeCacheService has no SSL policy configured, and will default 
 
 func resourceNetworkServicesEdgeCacheServiceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -1009,65 +1009,65 @@ func resourceNetworkServicesEdgeCacheServiceCreate(d *schema.ResourceData, meta 
 	descriptionProp, err := expandNetworkServicesEdgeCacheServiceDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	labelsProp, err := expandNetworkServicesEdgeCacheServiceLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	disableQuicProp, err := expandNetworkServicesEdgeCacheServiceDisableQuic(d.Get("disable_quic"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("disable_quic"); !isEmptyValue(reflect.ValueOf(disableQuicProp)) && (ok || !reflect.DeepEqual(v, disableQuicProp)) {
+	} else if v, ok := d.GetOkExists("disable_quic"); !tpgresource.IsEmptyValue(reflect.ValueOf(disableQuicProp)) && (ok || !reflect.DeepEqual(v, disableQuicProp)) {
 		obj["disableQuic"] = disableQuicProp
 	}
 	disableHttp2Prop, err := expandNetworkServicesEdgeCacheServiceDisableHttp2(d.Get("disable_http2"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("disable_http2"); !isEmptyValue(reflect.ValueOf(disableHttp2Prop)) && (ok || !reflect.DeepEqual(v, disableHttp2Prop)) {
+	} else if v, ok := d.GetOkExists("disable_http2"); !tpgresource.IsEmptyValue(reflect.ValueOf(disableHttp2Prop)) && (ok || !reflect.DeepEqual(v, disableHttp2Prop)) {
 		obj["disableHttp2"] = disableHttp2Prop
 	}
 	requireTlsProp, err := expandNetworkServicesEdgeCacheServiceRequireTls(d.Get("require_tls"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("require_tls"); !isEmptyValue(reflect.ValueOf(requireTlsProp)) && (ok || !reflect.DeepEqual(v, requireTlsProp)) {
+	} else if v, ok := d.GetOkExists("require_tls"); !tpgresource.IsEmptyValue(reflect.ValueOf(requireTlsProp)) && (ok || !reflect.DeepEqual(v, requireTlsProp)) {
 		obj["requireTls"] = requireTlsProp
 	}
 	edgeSslCertificatesProp, err := expandNetworkServicesEdgeCacheServiceEdgeSslCertificates(d.Get("edge_ssl_certificates"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("edge_ssl_certificates"); !isEmptyValue(reflect.ValueOf(edgeSslCertificatesProp)) && (ok || !reflect.DeepEqual(v, edgeSslCertificatesProp)) {
+	} else if v, ok := d.GetOkExists("edge_ssl_certificates"); !tpgresource.IsEmptyValue(reflect.ValueOf(edgeSslCertificatesProp)) && (ok || !reflect.DeepEqual(v, edgeSslCertificatesProp)) {
 		obj["edgeSslCertificates"] = edgeSslCertificatesProp
 	}
 	sslPolicyProp, err := expandNetworkServicesEdgeCacheServiceSslPolicy(d.Get("ssl_policy"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ssl_policy"); !isEmptyValue(reflect.ValueOf(sslPolicyProp)) && (ok || !reflect.DeepEqual(v, sslPolicyProp)) {
+	} else if v, ok := d.GetOkExists("ssl_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(sslPolicyProp)) && (ok || !reflect.DeepEqual(v, sslPolicyProp)) {
 		obj["sslPolicy"] = sslPolicyProp
 	}
 	routingProp, err := expandNetworkServicesEdgeCacheServiceRouting(d.Get("routing"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("routing"); !isEmptyValue(reflect.ValueOf(routingProp)) && (ok || !reflect.DeepEqual(v, routingProp)) {
+	} else if v, ok := d.GetOkExists("routing"); !tpgresource.IsEmptyValue(reflect.ValueOf(routingProp)) && (ok || !reflect.DeepEqual(v, routingProp)) {
 		obj["routing"] = routingProp
 	}
 	logConfigProp, err := expandNetworkServicesEdgeCacheServiceLogConfig(d.Get("log_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("log_config"); !isEmptyValue(reflect.ValueOf(logConfigProp)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
+	} else if v, ok := d.GetOkExists("log_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(logConfigProp)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
 		obj["logConfig"] = logConfigProp
 	}
 	edgeSecurityPolicyProp, err := expandNetworkServicesEdgeCacheServiceEdgeSecurityPolicy(d.Get("edge_security_policy"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("edge_security_policy"); !isEmptyValue(reflect.ValueOf(edgeSecurityPolicyProp)) && (ok || !reflect.DeepEqual(v, edgeSecurityPolicyProp)) {
+	} else if v, ok := d.GetOkExists("edge_security_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(edgeSecurityPolicyProp)) && (ok || !reflect.DeepEqual(v, edgeSecurityPolicyProp)) {
 		obj["edgeSecurityPolicy"] = edgeSecurityPolicyProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheServices?edgeCacheServiceId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheServices?edgeCacheServiceId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -1075,14 +1075,14 @@ func resourceNetworkServicesEdgeCacheServiceCreate(d *schema.ResourceData, meta 
 	log.Printf("[DEBUG] Creating new EdgeCacheService: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for EdgeCacheService: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -1092,7 +1092,7 @@ func resourceNetworkServicesEdgeCacheServiceCreate(d *schema.ResourceData, meta 
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/edgeCacheServices/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/global/edgeCacheServices/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1115,26 +1115,26 @@ func resourceNetworkServicesEdgeCacheServiceCreate(d *schema.ResourceData, meta 
 
 func resourceNetworkServicesEdgeCacheServiceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheServices/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheServices/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for EdgeCacheService: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -1189,14 +1189,14 @@ func resourceNetworkServicesEdgeCacheServiceRead(d *schema.ResourceData, meta in
 
 func resourceNetworkServicesEdgeCacheServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for EdgeCacheService: %s", err)
 	}
@@ -1206,65 +1206,65 @@ func resourceNetworkServicesEdgeCacheServiceUpdate(d *schema.ResourceData, meta 
 	descriptionProp, err := expandNetworkServicesEdgeCacheServiceDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	labelsProp, err := expandNetworkServicesEdgeCacheServiceLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	disableQuicProp, err := expandNetworkServicesEdgeCacheServiceDisableQuic(d.Get("disable_quic"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("disable_quic"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disableQuicProp)) {
+	} else if v, ok := d.GetOkExists("disable_quic"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disableQuicProp)) {
 		obj["disableQuic"] = disableQuicProp
 	}
 	disableHttp2Prop, err := expandNetworkServicesEdgeCacheServiceDisableHttp2(d.Get("disable_http2"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("disable_http2"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disableHttp2Prop)) {
+	} else if v, ok := d.GetOkExists("disable_http2"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disableHttp2Prop)) {
 		obj["disableHttp2"] = disableHttp2Prop
 	}
 	requireTlsProp, err := expandNetworkServicesEdgeCacheServiceRequireTls(d.Get("require_tls"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("require_tls"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, requireTlsProp)) {
+	} else if v, ok := d.GetOkExists("require_tls"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, requireTlsProp)) {
 		obj["requireTls"] = requireTlsProp
 	}
 	edgeSslCertificatesProp, err := expandNetworkServicesEdgeCacheServiceEdgeSslCertificates(d.Get("edge_ssl_certificates"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("edge_ssl_certificates"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, edgeSslCertificatesProp)) {
+	} else if v, ok := d.GetOkExists("edge_ssl_certificates"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, edgeSslCertificatesProp)) {
 		obj["edgeSslCertificates"] = edgeSslCertificatesProp
 	}
 	sslPolicyProp, err := expandNetworkServicesEdgeCacheServiceSslPolicy(d.Get("ssl_policy"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ssl_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslPolicyProp)) {
+	} else if v, ok := d.GetOkExists("ssl_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslPolicyProp)) {
 		obj["sslPolicy"] = sslPolicyProp
 	}
 	routingProp, err := expandNetworkServicesEdgeCacheServiceRouting(d.Get("routing"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("routing"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, routingProp)) {
+	} else if v, ok := d.GetOkExists("routing"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, routingProp)) {
 		obj["routing"] = routingProp
 	}
 	logConfigProp, err := expandNetworkServicesEdgeCacheServiceLogConfig(d.Get("log_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("log_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
+	} else if v, ok := d.GetOkExists("log_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
 		obj["logConfig"] = logConfigProp
 	}
 	edgeSecurityPolicyProp, err := expandNetworkServicesEdgeCacheServiceEdgeSecurityPolicy(d.Get("edge_security_policy"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("edge_security_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, edgeSecurityPolicyProp)) {
+	} else if v, ok := d.GetOkExists("edge_security_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, edgeSecurityPolicyProp)) {
 		obj["edgeSecurityPolicy"] = edgeSecurityPolicyProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheServices/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheServices/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1319,7 +1319,7 @@ func resourceNetworkServicesEdgeCacheServiceUpdate(d *schema.ResourceData, meta 
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -1344,20 +1344,20 @@ func resourceNetworkServicesEdgeCacheServiceUpdate(d *schema.ResourceData, meta 
 
 func resourceNetworkServicesEdgeCacheServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for EdgeCacheService: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheServices/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheServices/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1366,7 +1366,7 @@ func resourceNetworkServicesEdgeCacheServiceDelete(d *schema.ResourceData, meta 
 	log.Printf("[DEBUG] Deleting EdgeCacheService %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -1398,7 +1398,7 @@ func resourceNetworkServicesEdgeCacheServiceImport(d *schema.ResourceData, meta 
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/edgeCacheServices/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/global/edgeCacheServices/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -2160,11 +2160,11 @@ func flattenNetworkServicesEdgeCacheServiceEdgeSecurityPolicy(v interface{}, d *
 	return v
 }
 
-func expandNetworkServicesEdgeCacheServiceDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandNetworkServicesEdgeCacheServiceLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -2175,27 +2175,27 @@ func expandNetworkServicesEdgeCacheServiceLabels(v interface{}, d TerraformResou
 	return m, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceDisableQuic(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceDisableQuic(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceDisableHttp2(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceDisableHttp2(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRequireTls(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRequireTls(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceEdgeSslCertificates(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceEdgeSslCertificates(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceSslPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceSslPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRouting(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRouting(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2207,21 +2207,21 @@ func expandNetworkServicesEdgeCacheServiceRouting(v interface{}, d TerraformReso
 	transformedHostRule, err := expandNetworkServicesEdgeCacheServiceRoutingHostRule(original["host_rule"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedHostRule); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedHostRule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["hostRules"] = transformedHostRule
 	}
 
 	transformedPathMatcher, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcher(original["path_matcher"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPathMatcher); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPathMatcher); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["pathMatchers"] = transformedPathMatcher
 	}
 
 	return transformed, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingHostRule(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingHostRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2234,21 +2234,21 @@ func expandNetworkServicesEdgeCacheServiceRoutingHostRule(v interface{}, d Terra
 		transformedDescription, err := expandNetworkServicesEdgeCacheServiceRoutingHostRuleDescription(original["description"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["description"] = transformedDescription
 		}
 
 		transformedHosts, err := expandNetworkServicesEdgeCacheServiceRoutingHostRuleHosts(original["hosts"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedHosts); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedHosts); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["hosts"] = transformedHosts
 		}
 
 		transformedPathMatcher, err := expandNetworkServicesEdgeCacheServiceRoutingHostRulePathMatcher(original["path_matcher"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedPathMatcher); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedPathMatcher); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["pathMatcher"] = transformedPathMatcher
 		}
 
@@ -2257,19 +2257,19 @@ func expandNetworkServicesEdgeCacheServiceRoutingHostRule(v interface{}, d Terra
 	return req, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingHostRuleDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingHostRuleDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingHostRuleHosts(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingHostRuleHosts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingHostRulePathMatcher(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingHostRulePathMatcher(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcher(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcher(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2282,21 +2282,21 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcher(v interface{}, d Te
 		transformedName, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherName(original["name"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["name"] = transformedName
 		}
 
 		transformedDescription, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherDescription(original["description"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["description"] = transformedDescription
 		}
 
 		transformedRouteRule, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRule(original["route_rule"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedRouteRule); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedRouteRule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["routeRules"] = transformedRouteRule
 		}
 
@@ -2305,15 +2305,15 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcher(v interface{}, d Te
 	return req, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRule(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2326,49 +2326,49 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRule(v interfac
 		transformedPriority, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRulePriority(original["priority"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedPriority); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedPriority); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["priority"] = transformedPriority
 		}
 
 		transformedDescription, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleDescription(original["description"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["description"] = transformedDescription
 		}
 
 		transformedMatchRule, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRule(original["match_rule"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedMatchRule); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedMatchRule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["matchRules"] = transformedMatchRule
 		}
 
 		transformedHeaderAction, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderAction(original["header_action"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedHeaderAction); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedHeaderAction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["headerAction"] = transformedHeaderAction
 		}
 
 		transformedRouteAction, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteAction(original["route_action"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedRouteAction); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedRouteAction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["routeAction"] = transformedRouteAction
 		}
 
 		transformedOrigin, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleOrigin(original["origin"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedOrigin); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedOrigin); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["origin"] = transformedOrigin
 		}
 
 		transformedUrlRedirect, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirect(original["url_redirect"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedUrlRedirect); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedUrlRedirect); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["urlRedirect"] = transformedUrlRedirect
 		}
 
@@ -2377,15 +2377,15 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRule(v interfac
 	return req, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRulePriority(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRulePriority(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRule(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2398,42 +2398,42 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRule(v
 		transformedIgnoreCase, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleIgnoreCase(original["ignore_case"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedIgnoreCase); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedIgnoreCase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["ignoreCase"] = transformedIgnoreCase
 		}
 
 		transformedHeaderMatch, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatch(original["header_match"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedHeaderMatch); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedHeaderMatch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["headerMatches"] = transformedHeaderMatch
 		}
 
 		transformedQueryParameterMatch, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleQueryParameterMatch(original["query_parameter_match"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedQueryParameterMatch); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedQueryParameterMatch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["queryParameterMatches"] = transformedQueryParameterMatch
 		}
 
 		transformedPrefixMatch, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRulePrefixMatch(original["prefix_match"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedPrefixMatch); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedPrefixMatch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["prefixMatch"] = transformedPrefixMatch
 		}
 
 		transformedPathTemplateMatch, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRulePathTemplateMatch(original["path_template_match"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedPathTemplateMatch); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedPathTemplateMatch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["pathTemplateMatch"] = transformedPathTemplateMatch
 		}
 
 		transformedFullPathMatch, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleFullPathMatch(original["full_path_match"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedFullPathMatch); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedFullPathMatch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["fullPathMatch"] = transformedFullPathMatch
 		}
 
@@ -2442,11 +2442,11 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRule(v
 	return req, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleIgnoreCase(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleIgnoreCase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2459,42 +2459,42 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHe
 		transformedHeaderName, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchHeaderName(original["header_name"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedHeaderName); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedHeaderName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["headerName"] = transformedHeaderName
 		}
 
 		transformedPresentMatch, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchPresentMatch(original["present_match"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedPresentMatch); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedPresentMatch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["presentMatch"] = transformedPresentMatch
 		}
 
 		transformedExactMatch, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchExactMatch(original["exact_match"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedExactMatch); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedExactMatch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["exactMatch"] = transformedExactMatch
 		}
 
 		transformedPrefixMatch, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchPrefixMatch(original["prefix_match"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedPrefixMatch); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedPrefixMatch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["prefixMatch"] = transformedPrefixMatch
 		}
 
 		transformedSuffixMatch, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchSuffixMatch(original["suffix_match"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedSuffixMatch); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedSuffixMatch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["suffixMatch"] = transformedSuffixMatch
 		}
 
 		transformedInvertMatch, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchInvertMatch(original["invert_match"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedInvertMatch); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedInvertMatch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["invertMatch"] = transformedInvertMatch
 		}
 
@@ -2503,31 +2503,31 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHe
 	return req, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchHeaderName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchPresentMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchPresentMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchExactMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchExactMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchPrefixMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchPrefixMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchSuffixMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchSuffixMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchInvertMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchInvertMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleQueryParameterMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleQueryParameterMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2540,21 +2540,21 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleQu
 		transformedName, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleQueryParameterMatchName(original["name"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["name"] = transformedName
 		}
 
 		transformedPresentMatch, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleQueryParameterMatchPresentMatch(original["present_match"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedPresentMatch); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedPresentMatch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["presentMatch"] = transformedPresentMatch
 		}
 
 		transformedExactMatch, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleQueryParameterMatchExactMatch(original["exact_match"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedExactMatch); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedExactMatch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["exactMatch"] = transformedExactMatch
 		}
 
@@ -2563,31 +2563,31 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleQu
 	return req, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleQueryParameterMatchName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleQueryParameterMatchName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleQueryParameterMatchPresentMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleQueryParameterMatchPresentMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleQueryParameterMatchExactMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleQueryParameterMatchExactMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRulePrefixMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRulePrefixMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRulePathTemplateMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRulePathTemplateMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleFullPathMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleFullPathMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderAction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2599,35 +2599,35 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActio
 	transformedRequestHeaderToAdd, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToAdd(original["request_header_to_add"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedRequestHeaderToAdd); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedRequestHeaderToAdd); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["requestHeadersToAdd"] = transformedRequestHeaderToAdd
 	}
 
 	transformedResponseHeaderToAdd, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToAdd(original["response_header_to_add"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedResponseHeaderToAdd); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedResponseHeaderToAdd); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["responseHeadersToAdd"] = transformedResponseHeaderToAdd
 	}
 
 	transformedRequestHeaderToRemove, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToRemove(original["request_header_to_remove"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedRequestHeaderToRemove); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedRequestHeaderToRemove); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["requestHeadersToRemove"] = transformedRequestHeaderToRemove
 	}
 
 	transformedResponseHeaderToRemove, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToRemove(original["response_header_to_remove"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedResponseHeaderToRemove); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedResponseHeaderToRemove); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["responseHeadersToRemove"] = transformedResponseHeaderToRemove
 	}
 
 	return transformed, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToAdd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToAdd(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2640,21 +2640,21 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActio
 		transformedHeaderName, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToAddHeaderName(original["header_name"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedHeaderName); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedHeaderName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["headerName"] = transformedHeaderName
 		}
 
 		transformedHeaderValue, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToAddHeaderValue(original["header_value"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedHeaderValue); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedHeaderValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["headerValue"] = transformedHeaderValue
 		}
 
 		transformedReplace, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToAddReplace(original["replace"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedReplace); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedReplace); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["replace"] = transformedReplace
 		}
 
@@ -2663,19 +2663,19 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActio
 	return req, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToAddHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToAddHeaderName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToAddHeaderValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToAddHeaderValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToAddReplace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToAddReplace(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToAdd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToAdd(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2688,21 +2688,21 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActio
 		transformedHeaderName, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToAddHeaderName(original["header_name"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedHeaderName); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedHeaderName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["headerName"] = transformedHeaderName
 		}
 
 		transformedHeaderValue, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToAddHeaderValue(original["header_value"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedHeaderValue); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedHeaderValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["headerValue"] = transformedHeaderValue
 		}
 
 		transformedReplace, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToAddReplace(original["replace"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedReplace); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedReplace); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["replace"] = transformedReplace
 		}
 
@@ -2711,19 +2711,19 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActio
 	return req, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToAddHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToAddHeaderName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToAddHeaderValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToAddHeaderValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToAddReplace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToAddReplace(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToRemove(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToRemove(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2736,7 +2736,7 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActio
 		transformedHeaderName, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToRemoveHeaderName(original["header_name"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedHeaderName); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedHeaderName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["headerName"] = transformedHeaderName
 		}
 
@@ -2745,11 +2745,11 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActio
 	return req, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToRemoveHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionRequestHeaderToRemoveHeaderName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToRemove(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToRemove(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2762,7 +2762,7 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActio
 		transformedHeaderName, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToRemoveHeaderName(original["header_name"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedHeaderName); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedHeaderName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["headerName"] = transformedHeaderName
 		}
 
@@ -2771,11 +2771,11 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActio
 	return req, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToRemoveHeaderName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleHeaderActionResponseHeaderToRemoveHeaderName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteAction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2787,28 +2787,28 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteAction
 	transformedCdnPolicy, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicy(original["cdn_policy"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCdnPolicy); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCdnPolicy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["cdnPolicy"] = transformedCdnPolicy
 	}
 
 	transformedUrlRewrite, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewrite(original["url_rewrite"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedUrlRewrite); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedUrlRewrite); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["urlRewrite"] = transformedUrlRewrite
 	}
 
 	transformedCorsPolicy, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicy(original["cors_policy"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCorsPolicy); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCorsPolicy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["corsPolicy"] = transformedCorsPolicy
 	}
 
 	return transformed, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2820,107 +2820,107 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteAction
 	transformedCacheMode, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheMode(original["cache_mode"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCacheMode); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCacheMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["cacheMode"] = transformedCacheMode
 	}
 
 	transformedClientTtl, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyClientTtl(original["client_ttl"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedClientTtl); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedClientTtl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["clientTtl"] = transformedClientTtl
 	}
 
 	transformedDefaultTtl, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyDefaultTtl(original["default_ttl"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDefaultTtl); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDefaultTtl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["defaultTtl"] = transformedDefaultTtl
 	}
 
 	transformedMaxTtl, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyMaxTtl(original["max_ttl"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxTtl); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMaxTtl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["maxTtl"] = transformedMaxTtl
 	}
 
 	transformedCacheKeyPolicy, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicy(original["cache_key_policy"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCacheKeyPolicy); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCacheKeyPolicy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["cacheKeyPolicy"] = transformedCacheKeyPolicy
 	}
 
 	transformedNegativeCaching, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyNegativeCaching(original["negative_caching"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedNegativeCaching); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedNegativeCaching); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["negativeCaching"] = transformedNegativeCaching
 	}
 
 	transformedNegativeCachingPolicy, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyNegativeCachingPolicy(original["negative_caching_policy"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedNegativeCachingPolicy); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedNegativeCachingPolicy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["negativeCachingPolicy"] = transformedNegativeCachingPolicy
 	}
 
 	transformedSignedRequestMode, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedRequestMode(original["signed_request_mode"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSignedRequestMode); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSignedRequestMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["signedRequestMode"] = transformedSignedRequestMode
 	}
 
 	transformedSignedRequestKeyset, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedRequestKeyset(original["signed_request_keyset"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSignedRequestKeyset); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSignedRequestKeyset); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["signedRequestKeyset"] = transformedSignedRequestKeyset
 	}
 
 	transformedSignedTokenOptions, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptions(original["signed_token_options"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSignedTokenOptions); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSignedTokenOptions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["signedTokenOptions"] = transformedSignedTokenOptions
 	}
 
 	transformedAddSignatures, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignatures(original["add_signatures"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAddSignatures); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAddSignatures); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["addSignatures"] = transformedAddSignatures
 	}
 
 	transformedSignedRequestMaximumExpirationTtl, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedRequestMaximumExpirationTtl(original["signed_request_maximum_expiration_ttl"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSignedRequestMaximumExpirationTtl); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSignedRequestMaximumExpirationTtl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["signedRequestMaximumExpirationTtl"] = transformedSignedRequestMaximumExpirationTtl
 	}
 
 	return transformed, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyClientTtl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyClientTtl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyDefaultTtl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyDefaultTtl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyMaxTtl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyMaxTtl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2932,88 +2932,88 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteAction
 	transformedIncludeProtocol, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludeProtocol(original["include_protocol"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedIncludeProtocol); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedIncludeProtocol); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["includeProtocol"] = transformedIncludeProtocol
 	}
 
 	transformedExcludeQueryString, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyExcludeQueryString(original["exclude_query_string"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedExcludeQueryString); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedExcludeQueryString); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["excludeQueryString"] = transformedExcludeQueryString
 	}
 
 	transformedExcludeHost, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyExcludeHost(original["exclude_host"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedExcludeHost); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedExcludeHost); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["excludeHost"] = transformedExcludeHost
 	}
 
 	transformedIncludedQueryParameters, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludedQueryParameters(original["included_query_parameters"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedIncludedQueryParameters); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedIncludedQueryParameters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["includedQueryParameters"] = transformedIncludedQueryParameters
 	}
 
 	transformedExcludedQueryParameters, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyExcludedQueryParameters(original["excluded_query_parameters"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedExcludedQueryParameters); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedExcludedQueryParameters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["excludedQueryParameters"] = transformedExcludedQueryParameters
 	}
 
 	transformedIncludedHeaderNames, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludedHeaderNames(original["included_header_names"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedIncludedHeaderNames); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedIncludedHeaderNames); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["includedHeaderNames"] = transformedIncludedHeaderNames
 	}
 
 	transformedIncludedCookieNames, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludedCookieNames(original["included_cookie_names"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedIncludedCookieNames); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedIncludedCookieNames); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["includedCookieNames"] = transformedIncludedCookieNames
 	}
 
 	return transformed, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludeProtocol(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludeProtocol(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyExcludeQueryString(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyExcludeQueryString(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyExcludeHost(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyExcludeHost(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludedQueryParameters(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludedQueryParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyExcludedQueryParameters(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyExcludedQueryParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludedHeaderNames(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludedHeaderNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludedCookieNames(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyCacheKeyPolicyIncludedCookieNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyNegativeCaching(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyNegativeCaching(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyNegativeCachingPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyNegativeCachingPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -3024,15 +3024,15 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteAction
 	return m, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedRequestMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedRequestMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedRequestKeyset(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedRequestKeyset(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3044,29 +3044,29 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteAction
 	transformedTokenQueryParameter, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptionsTokenQueryParameter(original["token_query_parameter"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedTokenQueryParameter); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedTokenQueryParameter); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["tokenQueryParameter"] = transformedTokenQueryParameter
 	}
 
 	transformedAllowedSignatureAlgorithms, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptionsAllowedSignatureAlgorithms(original["allowed_signature_algorithms"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllowedSignatureAlgorithms); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAllowedSignatureAlgorithms); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["allowedSignatureAlgorithms"] = transformedAllowedSignatureAlgorithms
 	}
 
 	return transformed, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptionsTokenQueryParameter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptionsTokenQueryParameter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptionsAllowedSignatureAlgorithms(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedTokenOptionsAllowedSignatureAlgorithms(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignatures(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignatures(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3078,66 +3078,66 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteAction
 	transformedActions, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesActions(original["actions"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedActions); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedActions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["actions"] = transformedActions
 	}
 
 	transformedKeyset, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesKeyset(original["keyset"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedKeyset); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedKeyset); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["keyset"] = transformedKeyset
 	}
 
 	transformedTokenTtl, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesTokenTtl(original["token_ttl"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedTokenTtl); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedTokenTtl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["tokenTtl"] = transformedTokenTtl
 	}
 
 	transformedTokenQueryParameter, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesTokenQueryParameter(original["token_query_parameter"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedTokenQueryParameter); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedTokenQueryParameter); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["tokenQueryParameter"] = transformedTokenQueryParameter
 	}
 
 	transformedCopiedParameters, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesCopiedParameters(original["copied_parameters"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCopiedParameters); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCopiedParameters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["copiedParameters"] = transformedCopiedParameters
 	}
 
 	return transformed, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesActions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesActions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesKeyset(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesKeyset(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesTokenTtl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesTokenTtl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesTokenQueryParameter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesTokenQueryParameter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesCopiedParameters(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicyAddSignaturesCopiedParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedRequestMaximumExpirationTtl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCdnPolicySignedRequestMaximumExpirationTtl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewrite(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3149,40 +3149,40 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteAction
 	transformedPathPrefixRewrite, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewritePathPrefixRewrite(original["path_prefix_rewrite"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPathPrefixRewrite); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPathPrefixRewrite); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["pathPrefixRewrite"] = transformedPathPrefixRewrite
 	}
 
 	transformedHostRewrite, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewriteHostRewrite(original["host_rewrite"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedHostRewrite); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedHostRewrite); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["hostRewrite"] = transformedHostRewrite
 	}
 
 	transformedPathTemplateRewrite, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewritePathTemplateRewrite(original["path_template_rewrite"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPathTemplateRewrite); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPathTemplateRewrite); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["pathTemplateRewrite"] = transformedPathTemplateRewrite
 	}
 
 	return transformed, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewritePathPrefixRewrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewritePathPrefixRewrite(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewriteHostRewrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewriteHostRewrite(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewritePathTemplateRewrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewritePathTemplateRewrite(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3194,88 +3194,88 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteAction
 	transformedMaxAge, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyMaxAge(original["max_age"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxAge); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMaxAge); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["maxAge"] = transformedMaxAge
 	}
 
 	transformedAllowCredentials, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyAllowCredentials(original["allow_credentials"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllowCredentials); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAllowCredentials); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["allowCredentials"] = transformedAllowCredentials
 	}
 
 	transformedAllowOrigins, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyAllowOrigins(original["allow_origins"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllowOrigins); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAllowOrigins); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["allowOrigins"] = transformedAllowOrigins
 	}
 
 	transformedAllowMethods, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyAllowMethods(original["allow_methods"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllowMethods); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAllowMethods); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["allowMethods"] = transformedAllowMethods
 	}
 
 	transformedAllowHeaders, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyAllowHeaders(original["allow_headers"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllowHeaders); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAllowHeaders); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["allowHeaders"] = transformedAllowHeaders
 	}
 
 	transformedExposeHeaders, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyExposeHeaders(original["expose_headers"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedExposeHeaders); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedExposeHeaders); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["exposeHeaders"] = transformedExposeHeaders
 	}
 
 	transformedDisabled, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyDisabled(original["disabled"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDisabled); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDisabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["disabled"] = transformedDisabled
 	}
 
 	return transformed, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyMaxAge(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyMaxAge(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyAllowCredentials(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyAllowCredentials(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyAllowOrigins(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyAllowOrigins(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyAllowMethods(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyAllowMethods(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyAllowHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyAllowHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyExposeHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyExposeHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyDisabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionCorsPolicyDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleOrigin(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleOrigin(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirect(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3287,73 +3287,73 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirect
 	transformedHostRedirect, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectHostRedirect(original["host_redirect"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedHostRedirect); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedHostRedirect); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["hostRedirect"] = transformedHostRedirect
 	}
 
 	transformedPathRedirect, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectPathRedirect(original["path_redirect"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPathRedirect); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPathRedirect); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["pathRedirect"] = transformedPathRedirect
 	}
 
 	transformedPrefixRedirect, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectPrefixRedirect(original["prefix_redirect"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPrefixRedirect); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPrefixRedirect); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["prefixRedirect"] = transformedPrefixRedirect
 	}
 
 	transformedRedirectResponseCode, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectRedirectResponseCode(original["redirect_response_code"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedRedirectResponseCode); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedRedirectResponseCode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["redirectResponseCode"] = transformedRedirectResponseCode
 	}
 
 	transformedHttpsRedirect, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectHttpsRedirect(original["https_redirect"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedHttpsRedirect); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedHttpsRedirect); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["httpsRedirect"] = transformedHttpsRedirect
 	}
 
 	transformedStripQuery, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectStripQuery(original["strip_query"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedStripQuery); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedStripQuery); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["stripQuery"] = transformedStripQuery
 	}
 
 	return transformed, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectHostRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectHostRedirect(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectPathRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectPathRedirect(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectPrefixRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectPrefixRedirect(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectRedirectResponseCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectRedirectResponseCode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectHttpsRedirect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectHttpsRedirect(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectStripQuery(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleUrlRedirectStripQuery(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceLogConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceLogConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3365,28 +3365,28 @@ func expandNetworkServicesEdgeCacheServiceLogConfig(v interface{}, d TerraformRe
 	transformedEnable, err := expandNetworkServicesEdgeCacheServiceLogConfigEnable(original["enable"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedEnable); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedEnable); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["enable"] = transformedEnable
 	}
 
 	transformedSampleRate, err := expandNetworkServicesEdgeCacheServiceLogConfigSampleRate(original["sample_rate"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSampleRate); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSampleRate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["sampleRate"] = transformedSampleRate
 	}
 
 	return transformed, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceLogConfigEnable(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceLogConfigEnable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceLogConfigSampleRate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceLogConfigSampleRate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesEdgeCacheServiceEdgeSecurityPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesEdgeCacheServiceEdgeSecurityPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

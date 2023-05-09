@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -97,7 +98,7 @@ long when encoded in UTF-8. If not set, defaults to an empty description.`,
 
 func resourceDataCatalogTaxonomyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -106,23 +107,23 @@ func resourceDataCatalogTaxonomyCreate(d *schema.ResourceData, meta interface{})
 	displayNameProp, err := expandDataCatalogTaxonomyDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	descriptionProp, err := expandDataCatalogTaxonomyDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	activatedPolicyTypesProp, err := expandDataCatalogTaxonomyActivatedPolicyTypes(d.Get("activated_policy_types"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("activated_policy_types"); !isEmptyValue(reflect.ValueOf(activatedPolicyTypesProp)) && (ok || !reflect.DeepEqual(v, activatedPolicyTypesProp)) {
+	} else if v, ok := d.GetOkExists("activated_policy_types"); !tpgresource.IsEmptyValue(reflect.ValueOf(activatedPolicyTypesProp)) && (ok || !reflect.DeepEqual(v, activatedPolicyTypesProp)) {
 		obj["activatedPolicyTypes"] = activatedPolicyTypesProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}projects/{{project}}/locations/{{region}}/taxonomies")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DataCatalogBasePath}}projects/{{project}}/locations/{{region}}/taxonomies")
 	if err != nil {
 		return err
 	}
@@ -130,14 +131,14 @@ func resourceDataCatalogTaxonomyCreate(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Creating new Taxonomy: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Taxonomy: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -150,7 +151,7 @@ func resourceDataCatalogTaxonomyCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -163,26 +164,26 @@ func resourceDataCatalogTaxonomyCreate(d *schema.ResourceData, meta interface{})
 
 func resourceDataCatalogTaxonomyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Taxonomy: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -213,14 +214,14 @@ func resourceDataCatalogTaxonomyRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceDataCatalogTaxonomyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Taxonomy: %s", err)
 	}
@@ -230,23 +231,23 @@ func resourceDataCatalogTaxonomyUpdate(d *schema.ResourceData, meta interface{})
 	displayNameProp, err := expandDataCatalogTaxonomyDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	descriptionProp, err := expandDataCatalogTaxonomyDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	activatedPolicyTypesProp, err := expandDataCatalogTaxonomyActivatedPolicyTypes(d.Get("activated_policy_types"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("activated_policy_types"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, activatedPolicyTypesProp)) {
+	} else if v, ok := d.GetOkExists("activated_policy_types"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, activatedPolicyTypesProp)) {
 		obj["activatedPolicyTypes"] = activatedPolicyTypesProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -273,7 +274,7 @@ func resourceDataCatalogTaxonomyUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -290,20 +291,20 @@ func resourceDataCatalogTaxonomyUpdate(d *schema.ResourceData, meta interface{})
 
 func resourceDataCatalogTaxonomyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Taxonomy: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -312,7 +313,7 @@ func resourceDataCatalogTaxonomyDelete(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Deleting Taxonomy %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -361,14 +362,14 @@ func flattenDataCatalogTaxonomyActivatedPolicyTypes(v interface{}, d *schema.Res
 	return v
 }
 
-func expandDataCatalogTaxonomyDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDataCatalogTaxonomyDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogTaxonomyDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDataCatalogTaxonomyDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogTaxonomyActivatedPolicyTypes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDataCatalogTaxonomyActivatedPolicyTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

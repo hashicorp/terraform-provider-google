@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -151,7 +152,7 @@ func resourceLoggingBucketConfigImportState(parent string) schema.StateFunc {
 func resourceLoggingBucketConfigAcquireOrCreate(parentType string, iDFunc loggingBucketConfigIDFunc) func(*schema.ResourceData, interface{}) error {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*transport_tpg.Config)
-		userAgent, err := generateUserAgentString(d, config.UserAgent)
+		userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 		if err != nil {
 			return err
 		}
@@ -165,7 +166,7 @@ func resourceLoggingBucketConfigAcquireOrCreate(parentType string, iDFunc loggin
 			//logging bucket can be created only at the project level, in future api may allow for folder, org and other parent resources
 
 			log.Printf("[DEBUG] Fetching logging bucket config: %#v", id)
-			url, err := ReplaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", id))
+			url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", id))
 			if err != nil {
 				return err
 			}
@@ -187,7 +188,7 @@ func resourceLoggingBucketConfigAcquireOrCreate(parentType string, iDFunc loggin
 
 func resourceLoggingBucketConfigCreate(d *schema.ResourceData, meta interface{}, id string) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -199,7 +200,7 @@ func resourceLoggingBucketConfigCreate(d *schema.ResourceData, meta interface{},
 	obj["locked"] = d.Get("locked")
 	obj["cmekSettings"] = expandCmekSettings(d.Get("cmek_settings"))
 
-	url, err := ReplaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/locations/{{location}}/buckets?bucketId={{bucket_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/locations/{{location}}/buckets?bucketId={{bucket_id}}")
 	if err != nil {
 		return err
 	}
@@ -207,14 +208,14 @@ func resourceLoggingBucketConfigCreate(d *schema.ResourceData, meta interface{},
 	log.Printf("[DEBUG] Creating new Bucket: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -232,14 +233,14 @@ func resourceLoggingBucketConfigCreate(d *schema.ResourceData, meta interface{},
 
 func resourceLoggingBucketConfigRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Fetching logging bucket config: %#v", d.Id())
 
-	url, err := ReplaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", d.Id()))
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", d.Id()))
 	if err != nil {
 		return err
 	}
@@ -274,14 +275,14 @@ func resourceLoggingBucketConfigRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceLoggingBucketConfigUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	obj := make(map[string]interface{})
 
-	url, err := ReplaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", d.Id()))
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", d.Id()))
 	if err != nil {
 		return err
 	}
@@ -323,11 +324,11 @@ func resourceLoggingBucketConfigDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
-	url, err := ReplaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", d.Id()))
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("{{LoggingBasePath}}%s", d.Id()))
 	if err != nil {
 		return err
 	}

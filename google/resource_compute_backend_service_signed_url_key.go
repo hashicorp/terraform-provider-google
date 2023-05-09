@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -73,7 +74,7 @@ valid RFC 4648 Section 5 base64url encoded string.`,
 
 func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -82,30 +83,30 @@ func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, met
 	keyNameProp, err := expandNestedComputeBackendServiceSignedUrlKeyName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(keyNameProp)) && (ok || !reflect.DeepEqual(v, keyNameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(keyNameProp)) && (ok || !reflect.DeepEqual(v, keyNameProp)) {
 		obj["keyName"] = keyNameProp
 	}
 	keyValueProp, err := expandNestedComputeBackendServiceSignedUrlKeyKeyValue(d.Get("key_value"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("key_value"); !isEmptyValue(reflect.ValueOf(keyValueProp)) && (ok || !reflect.DeepEqual(v, keyValueProp)) {
+	} else if v, ok := d.GetOkExists("key_value"); !tpgresource.IsEmptyValue(reflect.ValueOf(keyValueProp)) && (ok || !reflect.DeepEqual(v, keyValueProp)) {
 		obj["keyValue"] = keyValueProp
 	}
 	backendServiceProp, err := expandNestedComputeBackendServiceSignedUrlKeyBackendService(d.Get("backend_service"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("backend_service"); !isEmptyValue(reflect.ValueOf(backendServiceProp)) && (ok || !reflect.DeepEqual(v, backendServiceProp)) {
+	} else if v, ok := d.GetOkExists("backend_service"); !tpgresource.IsEmptyValue(reflect.ValueOf(backendServiceProp)) && (ok || !reflect.DeepEqual(v, backendServiceProp)) {
 		obj["backendService"] = backendServiceProp
 	}
 
-	lockName, err := ReplaceVars(d, config, "signedUrlKey/{{project}}/backendServices/{{backend_service}}/")
+	lockName, err := tpgresource.ReplaceVars(d, config, "signedUrlKey/{{project}}/backendServices/{{backend_service}}/")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}/addSignedUrlKey")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}/addSignedUrlKey")
 	if err != nil {
 		return err
 	}
@@ -113,14 +114,14 @@ func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, met
 	log.Printf("[DEBUG] Creating new BackendServiceSignedUrlKey: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for BackendServiceSignedUrlKey: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -130,7 +131,7 @@ func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, met
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/global/backendServices/{{backend_service}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/global/backendServices/{{backend_service}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -153,26 +154,26 @@ func resourceComputeBackendServiceSignedUrlKeyCreate(d *schema.ResourceData, met
 
 func resourceComputeBackendServiceSignedUrlKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for BackendServiceSignedUrlKey: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -206,27 +207,27 @@ func resourceComputeBackendServiceSignedUrlKeyRead(d *schema.ResourceData, meta 
 
 func resourceComputeBackendServiceSignedUrlKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for BackendServiceSignedUrlKey: %s", err)
 	}
 	billingProject = project
 
-	lockName, err := ReplaceVars(d, config, "signedUrlKey/{{project}}/backendServices/{{backend_service}}/")
+	lockName, err := tpgresource.ReplaceVars(d, config, "signedUrlKey/{{project}}/backendServices/{{backend_service}}/")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}/deleteSignedUrlKey?keyName={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendServices/{{backend_service}}/deleteSignedUrlKey?keyName={{name}}")
 	if err != nil {
 		return err
 	}
@@ -235,7 +236,7 @@ func resourceComputeBackendServiceSignedUrlKeyDelete(d *schema.ResourceData, met
 	log.Printf("[DEBUG] Deleting BackendServiceSignedUrlKey %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -260,16 +261,16 @@ func flattenNestedComputeBackendServiceSignedUrlKeyName(v interface{}, d *schema
 	return v
 }
 
-func expandNestedComputeBackendServiceSignedUrlKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeBackendServiceSignedUrlKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeBackendServiceSignedUrlKeyKeyValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeBackendServiceSignedUrlKeyKeyValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeBackendServiceSignedUrlKeyBackendService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	f, err := parseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
+func expandNestedComputeBackendServiceSignedUrlKeyBackendService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	f, err := tpgresource.ParseGlobalFieldValue("backendServices", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
 	}
@@ -326,8 +327,8 @@ func resourceComputeBackendServiceSignedUrlKeyFindNestedObjectInList(d *schema.R
 		}
 
 		itemName := flattenNestedComputeBackendServiceSignedUrlKeyName(item["keyName"], d, meta.(*transport_tpg.Config))
-		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
-		if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
+		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemName)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
 			log.Printf("[DEBUG] Skipping item with keyName= %#v, looking for %#v)", itemName, expectedFlattenedName)
 			continue
 		}

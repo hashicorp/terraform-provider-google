@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"google.golang.org/api/googleapi"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -12,6 +11,8 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"google.golang.org/api/googleapi"
 )
 
 const testRetryTransportCodeRetry = 500

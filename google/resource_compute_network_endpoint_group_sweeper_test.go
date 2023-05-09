@@ -55,7 +55,7 @@ func testSweepComputeNetworkEndpointGroup(region string) error {
 	billingId := acctest.GetTestBillingAccountFromEnv(t)
 
 	// Setup variables to replace in list template
-	d := &acctest.ResourceDataMock{
+	d := &tpgresource.ResourceDataMock{
 		FieldsInSchema: map[string]interface{}{
 			"project":         config.Project,
 			"region":          region,
@@ -66,7 +66,7 @@ func testSweepComputeNetworkEndpointGroup(region string) error {
 	}
 
 	listTemplate := strings.Split("https://compute.googleapis.com/compute/v1/projects/{{project}}/aggregated/networkEndpointGroups", "?")[0]
-	listUrl, err := ReplaceVars(d, config, listTemplate)
+	listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 		return nil
@@ -122,7 +122,7 @@ func testSweepComputeNetworkEndpointGroup(region string) error {
 		zone := tpgresource.GetResourceNameFromSelfLink(obj["zone"].(string))
 		deleteTemplate = strings.Replace(deleteTemplate, "{{zone}}", zone, -1)
 
-		deleteUrl, err := ReplaceVars(d, config, deleteTemplate)
+		deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 			return nil

@@ -121,7 +121,7 @@ it cannot be an IP address from Google Compute Engine.`,
 
 func resourceComputeExternalVpnGatewayCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -130,35 +130,35 @@ func resourceComputeExternalVpnGatewayCreate(d *schema.ResourceData, meta interf
 	descriptionProp, err := expandComputeExternalVpnGatewayDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	labelsProp, err := expandComputeExternalVpnGatewayLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	nameProp, err := expandComputeExternalVpnGatewayName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	redundancyTypeProp, err := expandComputeExternalVpnGatewayRedundancyType(d.Get("redundancy_type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("redundancy_type"); !isEmptyValue(reflect.ValueOf(redundancyTypeProp)) && (ok || !reflect.DeepEqual(v, redundancyTypeProp)) {
+	} else if v, ok := d.GetOkExists("redundancy_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(redundancyTypeProp)) && (ok || !reflect.DeepEqual(v, redundancyTypeProp)) {
 		obj["redundancyType"] = redundancyTypeProp
 	}
 	interfacesProp, err := expandComputeExternalVpnGatewayInterface(d.Get("interface"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("interface"); !isEmptyValue(reflect.ValueOf(interfacesProp)) && (ok || !reflect.DeepEqual(v, interfacesProp)) {
+	} else if v, ok := d.GetOkExists("interface"); !tpgresource.IsEmptyValue(reflect.ValueOf(interfacesProp)) && (ok || !reflect.DeepEqual(v, interfacesProp)) {
 		obj["interfaces"] = interfacesProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/externalVpnGateways")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/externalVpnGateways")
 	if err != nil {
 		return err
 	}
@@ -166,14 +166,14 @@ func resourceComputeExternalVpnGatewayCreate(d *schema.ResourceData, meta interf
 	log.Printf("[DEBUG] Creating new ExternalVpnGateway: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for ExternalVpnGateway: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -183,7 +183,7 @@ func resourceComputeExternalVpnGatewayCreate(d *schema.ResourceData, meta interf
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/global/externalVpnGateways/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/global/externalVpnGateways/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -206,26 +206,26 @@ func resourceComputeExternalVpnGatewayCreate(d *schema.ResourceData, meta interf
 
 func resourceComputeExternalVpnGatewayRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/externalVpnGateways/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/externalVpnGateways/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for ExternalVpnGateway: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -262,20 +262,20 @@ func resourceComputeExternalVpnGatewayRead(d *schema.ResourceData, meta interfac
 
 func resourceComputeExternalVpnGatewayDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for ExternalVpnGateway: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/externalVpnGateways/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/externalVpnGateways/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -284,7 +284,7 @@ func resourceComputeExternalVpnGatewayDelete(d *schema.ResourceData, meta interf
 	log.Printf("[DEBUG] Deleting ExternalVpnGateway %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -316,7 +316,7 @@ func resourceComputeExternalVpnGatewayImport(d *schema.ResourceData, meta interf
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/global/externalVpnGateways/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/global/externalVpnGateways/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -381,11 +381,11 @@ func flattenComputeExternalVpnGatewayInterfaceIpAddress(v interface{}, d *schema
 	return v
 }
 
-func expandComputeExternalVpnGatewayDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeExternalVpnGatewayDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeExternalVpnGatewayLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandComputeExternalVpnGatewayLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -396,15 +396,15 @@ func expandComputeExternalVpnGatewayLabels(v interface{}, d TerraformResourceDat
 	return m, nil
 }
 
-func expandComputeExternalVpnGatewayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeExternalVpnGatewayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeExternalVpnGatewayRedundancyType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeExternalVpnGatewayRedundancyType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeExternalVpnGatewayInterface(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeExternalVpnGatewayInterface(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -424,7 +424,7 @@ func expandComputeExternalVpnGatewayInterface(v interface{}, d TerraformResource
 		transformedIpAddress, err := expandComputeExternalVpnGatewayInterfaceIpAddress(original["ip_address"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedIpAddress); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedIpAddress); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["ipAddress"] = transformedIpAddress
 		}
 
@@ -433,10 +433,10 @@ func expandComputeExternalVpnGatewayInterface(v interface{}, d TerraformResource
 	return req, nil
 }
 
-func expandComputeExternalVpnGatewayInterfaceId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeExternalVpnGatewayInterfaceId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeExternalVpnGatewayInterfaceIpAddress(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeExternalVpnGatewayInterfaceIpAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -168,7 +168,7 @@ unambiguously computed to derive the payload.`,
 
 func resourceContainerAnalysisOccurrenceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -177,25 +177,25 @@ func resourceContainerAnalysisOccurrenceCreate(d *schema.ResourceData, meta inte
 	resourceUriProp, err := expandContainerAnalysisOccurrenceResourceUri(d.Get("resource_uri"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("resource_uri"); !isEmptyValue(reflect.ValueOf(resourceUriProp)) && (ok || !reflect.DeepEqual(v, resourceUriProp)) {
+	} else if v, ok := d.GetOkExists("resource_uri"); !tpgresource.IsEmptyValue(reflect.ValueOf(resourceUriProp)) && (ok || !reflect.DeepEqual(v, resourceUriProp)) {
 		obj["resourceUri"] = resourceUriProp
 	}
 	noteNameProp, err := expandContainerAnalysisOccurrenceNoteName(d.Get("note_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("note_name"); !isEmptyValue(reflect.ValueOf(noteNameProp)) && (ok || !reflect.DeepEqual(v, noteNameProp)) {
+	} else if v, ok := d.GetOkExists("note_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(noteNameProp)) && (ok || !reflect.DeepEqual(v, noteNameProp)) {
 		obj["noteName"] = noteNameProp
 	}
 	remediationProp, err := expandContainerAnalysisOccurrenceRemediation(d.Get("remediation"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("remediation"); !isEmptyValue(reflect.ValueOf(remediationProp)) && (ok || !reflect.DeepEqual(v, remediationProp)) {
+	} else if v, ok := d.GetOkExists("remediation"); !tpgresource.IsEmptyValue(reflect.ValueOf(remediationProp)) && (ok || !reflect.DeepEqual(v, remediationProp)) {
 		obj["remediation"] = remediationProp
 	}
 	attestationProp, err := expandContainerAnalysisOccurrenceAttestation(d.Get("attestation"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("attestation"); !isEmptyValue(reflect.ValueOf(attestationProp)) && (ok || !reflect.DeepEqual(v, attestationProp)) {
+	} else if v, ok := d.GetOkExists("attestation"); !tpgresource.IsEmptyValue(reflect.ValueOf(attestationProp)) && (ok || !reflect.DeepEqual(v, attestationProp)) {
 		obj["attestation"] = attestationProp
 	}
 
@@ -204,14 +204,14 @@ func resourceContainerAnalysisOccurrenceCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	lockName, err := ReplaceVars(d, config, "{{note_name}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{note_name}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/occurrences")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/occurrences")
 	if err != nil {
 		return err
 	}
@@ -219,14 +219,14 @@ func resourceContainerAnalysisOccurrenceCreate(d *schema.ResourceData, meta inte
 	log.Printf("[DEBUG] Creating new Occurrence: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Occurrence: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -239,7 +239,7 @@ func resourceContainerAnalysisOccurrenceCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/occurrences/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/occurrences/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -252,26 +252,26 @@ func resourceContainerAnalysisOccurrenceCreate(d *schema.ResourceData, meta inte
 
 func resourceContainerAnalysisOccurrenceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/occurrences/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/occurrences/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Occurrence: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -326,14 +326,14 @@ func resourceContainerAnalysisOccurrenceRead(d *schema.ResourceData, meta interf
 
 func resourceContainerAnalysisOccurrenceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Occurrence: %s", err)
 	}
@@ -343,13 +343,13 @@ func resourceContainerAnalysisOccurrenceUpdate(d *schema.ResourceData, meta inte
 	remediationProp, err := expandContainerAnalysisOccurrenceRemediation(d.Get("remediation"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("remediation"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, remediationProp)) {
+	} else if v, ok := d.GetOkExists("remediation"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, remediationProp)) {
 		obj["remediation"] = remediationProp
 	}
 	attestationProp, err := expandContainerAnalysisOccurrenceAttestation(d.Get("attestation"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("attestation"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, attestationProp)) {
+	} else if v, ok := d.GetOkExists("attestation"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, attestationProp)) {
 		obj["attestation"] = attestationProp
 	}
 
@@ -358,14 +358,14 @@ func resourceContainerAnalysisOccurrenceUpdate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	lockName, err := ReplaceVars(d, config, "{{note_name}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{note_name}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/occurrences/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/occurrences/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -388,7 +388,7 @@ func resourceContainerAnalysisOccurrenceUpdate(d *schema.ResourceData, meta inte
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -405,27 +405,27 @@ func resourceContainerAnalysisOccurrenceUpdate(d *schema.ResourceData, meta inte
 
 func resourceContainerAnalysisOccurrenceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Occurrence: %s", err)
 	}
 	billingProject = project
 
-	lockName, err := ReplaceVars(d, config, "{{note_name}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{note_name}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/occurrences/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/occurrences/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -434,7 +434,7 @@ func resourceContainerAnalysisOccurrenceDelete(d *schema.ResourceData, meta inte
 	log.Printf("[DEBUG] Deleting Occurrence %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -458,7 +458,7 @@ func resourceContainerAnalysisOccurrenceImport(d *schema.ResourceData, meta inte
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/occurrences/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/occurrences/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -544,19 +544,19 @@ func flattenContainerAnalysisOccurrenceAttestationSignaturesPublicKeyId(v interf
 	return v
 }
 
-func expandContainerAnalysisOccurrenceResourceUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisOccurrenceResourceUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisOccurrenceNoteName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisOccurrenceNoteName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisOccurrenceRemediation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisOccurrenceRemediation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisOccurrenceAttestation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisOccurrenceAttestation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -568,25 +568,25 @@ func expandContainerAnalysisOccurrenceAttestation(v interface{}, d TerraformReso
 	transformedSerializedPayload, err := expandContainerAnalysisOccurrenceAttestationSerializedPayload(original["serialized_payload"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSerializedPayload); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSerializedPayload); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["serializedPayload"] = transformedSerializedPayload
 	}
 
 	transformedSignatures, err := expandContainerAnalysisOccurrenceAttestationSignatures(original["signatures"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSignatures); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSignatures); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["signatures"] = transformedSignatures
 	}
 
 	return transformed, nil
 }
 
-func expandContainerAnalysisOccurrenceAttestationSerializedPayload(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisOccurrenceAttestationSerializedPayload(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisOccurrenceAttestationSignatures(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisOccurrenceAttestationSignatures(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -600,14 +600,14 @@ func expandContainerAnalysisOccurrenceAttestationSignatures(v interface{}, d Ter
 		transformedSignature, err := expandContainerAnalysisOccurrenceAttestationSignaturesSignature(original["signature"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedSignature); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedSignature); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["signature"] = transformedSignature
 		}
 
 		transformedPublicKeyId, err := expandContainerAnalysisOccurrenceAttestationSignaturesPublicKeyId(original["public_key_id"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedPublicKeyId); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedPublicKeyId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["publicKeyId"] = transformedPublicKeyId
 		}
 
@@ -616,11 +616,11 @@ func expandContainerAnalysisOccurrenceAttestationSignatures(v interface{}, d Ter
 	return req, nil
 }
 
-func expandContainerAnalysisOccurrenceAttestationSignaturesSignature(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisOccurrenceAttestationSignaturesSignature(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisOccurrenceAttestationSignaturesPublicKeyId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisOccurrenceAttestationSignaturesPublicKeyId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -635,7 +635,7 @@ func resourceContainerAnalysisOccurrenceUpdateEncoder(d *schema.ResourceData, me
 	noteNameProp, err := expandContainerAnalysisOccurrenceNoteName(d.Get("note_name"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return nil, err
-	} else if v, ok := d.GetOkExists("note_name"); !isEmptyValue(reflect.ValueOf(noteNameProp)) && (ok || !reflect.DeepEqual(v, noteNameProp)) {
+	} else if v, ok := d.GetOkExists("note_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(noteNameProp)) && (ok || !reflect.DeepEqual(v, noteNameProp)) {
 		obj["noteName"] = noteNameProp
 	}
 

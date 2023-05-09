@@ -22,7 +22,7 @@ func DataSourceGoogleStorageBucket() *schema.Resource {
 
 func dataSourceGoogleStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}

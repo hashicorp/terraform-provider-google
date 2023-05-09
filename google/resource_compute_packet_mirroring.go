@@ -209,7 +209,7 @@ If it is not provided, the provider region is used.`,
 
 func resourceComputePacketMirroringCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -218,53 +218,53 @@ func resourceComputePacketMirroringCreate(d *schema.ResourceData, meta interface
 	nameProp, err := expandComputePacketMirroringName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	descriptionProp, err := expandComputePacketMirroringDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	regionProp, err := expandComputePacketMirroringRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(regionProp)) && (ok || !reflect.DeepEqual(v, regionProp)) {
+	} else if v, ok := d.GetOkExists("region"); !tpgresource.IsEmptyValue(reflect.ValueOf(regionProp)) && (ok || !reflect.DeepEqual(v, regionProp)) {
 		obj["region"] = regionProp
 	}
 	networkProp, err := expandComputePacketMirroringNetwork(d.Get("network"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
+	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
 	}
 	priorityProp, err := expandComputePacketMirroringPriority(d.Get("priority"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("priority"); !isEmptyValue(reflect.ValueOf(priorityProp)) && (ok || !reflect.DeepEqual(v, priorityProp)) {
+	} else if v, ok := d.GetOkExists("priority"); !tpgresource.IsEmptyValue(reflect.ValueOf(priorityProp)) && (ok || !reflect.DeepEqual(v, priorityProp)) {
 		obj["priority"] = priorityProp
 	}
 	collectorIlbProp, err := expandComputePacketMirroringCollectorIlb(d.Get("collector_ilb"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("collector_ilb"); !isEmptyValue(reflect.ValueOf(collectorIlbProp)) && (ok || !reflect.DeepEqual(v, collectorIlbProp)) {
+	} else if v, ok := d.GetOkExists("collector_ilb"); !tpgresource.IsEmptyValue(reflect.ValueOf(collectorIlbProp)) && (ok || !reflect.DeepEqual(v, collectorIlbProp)) {
 		obj["collectorIlb"] = collectorIlbProp
 	}
 	filterProp, err := expandComputePacketMirroringFilter(d.Get("filter"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("filter"); !isEmptyValue(reflect.ValueOf(filterProp)) && (ok || !reflect.DeepEqual(v, filterProp)) {
+	} else if v, ok := d.GetOkExists("filter"); !tpgresource.IsEmptyValue(reflect.ValueOf(filterProp)) && (ok || !reflect.DeepEqual(v, filterProp)) {
 		obj["filter"] = filterProp
 	}
 	mirroredResourcesProp, err := expandComputePacketMirroringMirroredResources(d.Get("mirrored_resources"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("mirrored_resources"); !isEmptyValue(reflect.ValueOf(mirroredResourcesProp)) && (ok || !reflect.DeepEqual(v, mirroredResourcesProp)) {
+	} else if v, ok := d.GetOkExists("mirrored_resources"); !tpgresource.IsEmptyValue(reflect.ValueOf(mirroredResourcesProp)) && (ok || !reflect.DeepEqual(v, mirroredResourcesProp)) {
 		obj["mirroredResources"] = mirroredResourcesProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/packetMirrorings")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/packetMirrorings")
 	if err != nil {
 		return err
 	}
@@ -272,14 +272,14 @@ func resourceComputePacketMirroringCreate(d *schema.ResourceData, meta interface
 	log.Printf("[DEBUG] Creating new PacketMirroring: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for PacketMirroring: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -289,7 +289,7 @@ func resourceComputePacketMirroringCreate(d *schema.ResourceData, meta interface
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -312,26 +312,26 @@ func resourceComputePacketMirroringCreate(d *schema.ResourceData, meta interface
 
 func resourceComputePacketMirroringRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for PacketMirroring: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -374,14 +374,14 @@ func resourceComputePacketMirroringRead(d *schema.ResourceData, meta interface{}
 
 func resourceComputePacketMirroringUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for PacketMirroring: %s", err)
 	}
@@ -391,41 +391,41 @@ func resourceComputePacketMirroringUpdate(d *schema.ResourceData, meta interface
 	nameProp, err := expandComputePacketMirroringName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	regionProp, err := expandComputePacketMirroringRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, regionProp)) {
+	} else if v, ok := d.GetOkExists("region"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, regionProp)) {
 		obj["region"] = regionProp
 	}
 	priorityProp, err := expandComputePacketMirroringPriority(d.Get("priority"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("priority"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, priorityProp)) {
+	} else if v, ok := d.GetOkExists("priority"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, priorityProp)) {
 		obj["priority"] = priorityProp
 	}
 	collectorIlbProp, err := expandComputePacketMirroringCollectorIlb(d.Get("collector_ilb"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("collector_ilb"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, collectorIlbProp)) {
+	} else if v, ok := d.GetOkExists("collector_ilb"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, collectorIlbProp)) {
 		obj["collectorIlb"] = collectorIlbProp
 	}
 	filterProp, err := expandComputePacketMirroringFilter(d.Get("filter"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("filter"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, filterProp)) {
+	} else if v, ok := d.GetOkExists("filter"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, filterProp)) {
 		obj["filter"] = filterProp
 	}
 	mirroredResourcesProp, err := expandComputePacketMirroringMirroredResources(d.Get("mirrored_resources"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("mirrored_resources"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, mirroredResourcesProp)) {
+	} else if v, ok := d.GetOkExists("mirrored_resources"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, mirroredResourcesProp)) {
 		obj["mirroredResources"] = mirroredResourcesProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -433,7 +433,7 @@ func resourceComputePacketMirroringUpdate(d *schema.ResourceData, meta interface
 	log.Printf("[DEBUG] Updating PacketMirroring %q: %#v", d.Id(), obj)
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -458,20 +458,20 @@ func resourceComputePacketMirroringUpdate(d *schema.ResourceData, meta interface
 
 func resourceComputePacketMirroringDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for PacketMirroring: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -480,7 +480,7 @@ func resourceComputePacketMirroringDelete(d *schema.ResourceData, meta interface
 	log.Printf("[DEBUG] Deleting PacketMirroring %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -513,7 +513,7 @@ func resourceComputePacketMirroringImport(d *schema.ResourceData, meta interface
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/packetMirrorings/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -694,19 +694,19 @@ func flattenComputePacketMirroringMirroredResourcesTags(v interface{}, d *schema
 	return v
 }
 
-func expandComputePacketMirroringName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputePacketMirroringName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputePacketMirroringDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputePacketMirroringDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputePacketMirroringRegion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputePacketMirroringRegion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputePacketMirroringNetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputePacketMirroringNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -718,26 +718,26 @@ func expandComputePacketMirroringNetwork(v interface{}, d TerraformResourceData,
 	transformedUrl, err := expandComputePacketMirroringNetworkUrl(original["url"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedUrl); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedUrl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["url"] = transformedUrl
 	}
 
 	return transformed, nil
 }
 
-func expandComputePacketMirroringNetworkUrl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
+func expandComputePacketMirroringNetworkUrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	f, err := tpgresource.ParseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for url: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
 
-func expandComputePacketMirroringPriority(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputePacketMirroringPriority(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputePacketMirroringCollectorIlb(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputePacketMirroringCollectorIlb(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -749,22 +749,22 @@ func expandComputePacketMirroringCollectorIlb(v interface{}, d TerraformResource
 	transformedUrl, err := expandComputePacketMirroringCollectorIlbUrl(original["url"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedUrl); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedUrl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["url"] = transformedUrl
 	}
 
 	return transformed, nil
 }
 
-func expandComputePacketMirroringCollectorIlbUrl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	f, err := parseRegionalFieldValue("forwardingRules", v.(string), "project", "region", "zone", d, config, true)
+func expandComputePacketMirroringCollectorIlbUrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	f, err := tpgresource.ParseRegionalFieldValue("forwardingRules", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for url: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
 
-func expandComputePacketMirroringFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputePacketMirroringFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -776,40 +776,40 @@ func expandComputePacketMirroringFilter(v interface{}, d TerraformResourceData, 
 	transformedIpProtocols, err := expandComputePacketMirroringFilterIpProtocols(original["ip_protocols"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedIpProtocols); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedIpProtocols); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["IPProtocols"] = transformedIpProtocols
 	}
 
 	transformedCidrRanges, err := expandComputePacketMirroringFilterCidrRanges(original["cidr_ranges"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCidrRanges); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCidrRanges); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["cidrRanges"] = transformedCidrRanges
 	}
 
 	transformedDirection, err := expandComputePacketMirroringFilterDirection(original["direction"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDirection); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDirection); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["direction"] = transformedDirection
 	}
 
 	return transformed, nil
 }
 
-func expandComputePacketMirroringFilterIpProtocols(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputePacketMirroringFilterIpProtocols(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputePacketMirroringFilterCidrRanges(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputePacketMirroringFilterCidrRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputePacketMirroringFilterDirection(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputePacketMirroringFilterDirection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputePacketMirroringMirroredResources(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputePacketMirroringMirroredResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -821,28 +821,28 @@ func expandComputePacketMirroringMirroredResources(v interface{}, d TerraformRes
 	transformedSubnetworks, err := expandComputePacketMirroringMirroredResourcesSubnetworks(original["subnetworks"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSubnetworks); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSubnetworks); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["subnetworks"] = transformedSubnetworks
 	}
 
 	transformedInstances, err := expandComputePacketMirroringMirroredResourcesInstances(original["instances"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedInstances); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedInstances); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["instances"] = transformedInstances
 	}
 
 	transformedTags, err := expandComputePacketMirroringMirroredResourcesTags(original["tags"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedTags); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedTags); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["tags"] = transformedTags
 	}
 
 	return transformed, nil
 }
 
-func expandComputePacketMirroringMirroredResourcesSubnetworks(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputePacketMirroringMirroredResourcesSubnetworks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -855,7 +855,7 @@ func expandComputePacketMirroringMirroredResourcesSubnetworks(v interface{}, d T
 		transformedUrl, err := expandComputePacketMirroringMirroredResourcesSubnetworksUrl(original["url"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedUrl); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedUrl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["url"] = transformedUrl
 		}
 
@@ -864,15 +864,15 @@ func expandComputePacketMirroringMirroredResourcesSubnetworks(v interface{}, d T
 	return req, nil
 }
 
-func expandComputePacketMirroringMirroredResourcesSubnetworksUrl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	f, err := parseRegionalFieldValue("subnetworks", v.(string), "project", "region", "zone", d, config, true)
+func expandComputePacketMirroringMirroredResourcesSubnetworksUrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	f, err := tpgresource.ParseRegionalFieldValue("subnetworks", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for url: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
 
-func expandComputePacketMirroringMirroredResourcesInstances(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputePacketMirroringMirroredResourcesInstances(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -885,7 +885,7 @@ func expandComputePacketMirroringMirroredResourcesInstances(v interface{}, d Ter
 		transformedUrl, err := expandComputePacketMirroringMirroredResourcesInstancesUrl(original["url"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedUrl); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedUrl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["url"] = transformedUrl
 		}
 
@@ -894,14 +894,14 @@ func expandComputePacketMirroringMirroredResourcesInstances(v interface{}, d Ter
 	return req, nil
 }
 
-func expandComputePacketMirroringMirroredResourcesInstancesUrl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	f, err := parseZonalFieldValue("instances", v.(string), "project", "zone", d, config, true)
+func expandComputePacketMirroringMirroredResourcesInstancesUrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	f, err := tpgresource.ParseZonalFieldValue("instances", v.(string), "project", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for url: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
 
-func expandComputePacketMirroringMirroredResourcesTags(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputePacketMirroringMirroredResourcesTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

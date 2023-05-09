@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 
@@ -32,12 +33,12 @@ var IamSpannerInstanceSchema = map[string]*schema.Schema{
 type SpannerInstanceIamUpdater struct {
 	project  string
 	instance string
-	d        TerraformResourceData
+	d        tpgresource.TerraformResourceData
 	Config   *transport_tpg.Config
 }
 
-func NewSpannerInstanceIamUpdater(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
-	project, err := getProject(d, config)
+func NewSpannerInstanceIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +69,7 @@ func SpannerInstanceIdParseFunc(d *schema.ResourceData, config *transport_tpg.Co
 }
 
 func (u *SpannerInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +105,7 @@ func (u *SpannerInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 
 	spannerPolicy.Version = IamPolicyVersion
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}

@@ -52,11 +52,11 @@ func SourceRepoRepositoryDiffSuppress(_, old, new string, _ *schema.ResourceData
 type SourceRepoRepositoryIamUpdater struct {
 	project    string
 	repository string
-	d          TerraformResourceData
+	d          tpgresource.TerraformResourceData
 	Config     *transport_tpg.Config
 }
 
-func SourceRepoRepositoryIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func SourceRepoRepositoryIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)
@@ -133,13 +133,13 @@ func (u *SourceRepoRepositoryIamUpdater) GetResourceIamPolicy() (*cloudresourcem
 		return nil, err
 	}
 
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
 	var obj map[string]interface{}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -171,12 +171,12 @@ func (u *SourceRepoRepositoryIamUpdater) SetResourceIamPolicy(policy *cloudresou
 	if err != nil {
 		return err
 	}
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -191,7 +191,7 @@ func (u *SourceRepoRepositoryIamUpdater) SetResourceIamPolicy(policy *cloudresou
 
 func (u *SourceRepoRepositoryIamUpdater) qualifyRepositoryUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{SourceRepoBasePath}}%s:%s", fmt.Sprintf("projects/%s/repos/%s", u.project, u.repository), methodIdentifier)
-	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
+	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

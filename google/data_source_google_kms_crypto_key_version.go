@@ -5,6 +5,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -62,12 +63,12 @@ func DataSourceGoogleKmsCryptoKeyVersion() *schema.Resource {
 
 func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}/cryptoKeyVersions/{{version}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}/cryptoKeyVersions/{{version}}")
 	if err != nil {
 		return err
 	}
@@ -99,7 +100,7 @@ func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error setting CryptoKeyVersion: %s", err)
 	}
 
-	url, err = ReplaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}")
+	url, err = tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}")
 	if err != nil {
 		return err
 	}
@@ -111,7 +112,7 @@ func dataSourceGoogleKmsCryptoKeyVersionRead(d *schema.ResourceData, meta interf
 	}
 
 	if res["purpose"] == "ASYMMETRIC_SIGN" || res["purpose"] == "ASYMMETRIC_DECRYPT" {
-		url, err = ReplaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}/cryptoKeyVersions/{{version}}/publicKey")
+		url, err = tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}/cryptoKeyVersions/{{version}}/publicKey")
 		if err != nil {
 			return err
 		}

@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -155,7 +156,7 @@ configuration in order to serve the application via this domain mapping.`,
 
 func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -164,24 +165,24 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 	sslSettingsProp, err := expandAppEngineDomainMappingSslSettings(d.Get("ssl_settings"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ssl_settings"); !isEmptyValue(reflect.ValueOf(sslSettingsProp)) && (ok || !reflect.DeepEqual(v, sslSettingsProp)) {
+	} else if v, ok := d.GetOkExists("ssl_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(sslSettingsProp)) && (ok || !reflect.DeepEqual(v, sslSettingsProp)) {
 		obj["sslSettings"] = sslSettingsProp
 	}
 	idProp, err := expandAppEngineDomainMappingDomainName(d.Get("domain_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("domain_name"); !isEmptyValue(reflect.ValueOf(idProp)) && (ok || !reflect.DeepEqual(v, idProp)) {
+	} else if v, ok := d.GetOkExists("domain_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(idProp)) && (ok || !reflect.DeepEqual(v, idProp)) {
 		obj["id"] = idProp
 	}
 
-	lockName, err := ReplaceVars(d, config, "apps/{{project}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings")
 	if err != nil {
 		return err
 	}
@@ -189,14 +190,14 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 	log.Printf("[DEBUG] Creating new DomainMapping: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -206,7 +207,7 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "apps/{{project}}/domainMappings/{{domain_name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -230,7 +231,7 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "apps/{{project}}/domainMappings/{{domain_name}}")
+	id, err = tpgresource.ReplaceVars(d, config, "apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -243,26 +244,26 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 
 func resourceAppEngineDomainMappingRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -293,14 +294,14 @@ func resourceAppEngineDomainMappingRead(d *schema.ResourceData, meta interface{}
 
 func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 	}
@@ -310,18 +311,18 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 	sslSettingsProp, err := expandAppEngineDomainMappingSslSettings(d.Get("ssl_settings"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("ssl_settings"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslSettingsProp)) {
+	} else if v, ok := d.GetOkExists("ssl_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslSettingsProp)) {
 		obj["sslSettings"] = sslSettingsProp
 	}
 
-	lockName, err := ReplaceVars(d, config, "apps/{{project}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {
 		return err
 	}
@@ -341,7 +342,7 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -366,27 +367,27 @@ func resourceAppEngineDomainMappingUpdate(d *schema.ResourceData, meta interface
 
 func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for DomainMapping: %s", err)
 	}
 	billingProject = project
 
-	lockName, err := ReplaceVars(d, config, "apps/{{project}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {
 		return err
 	}
@@ -395,7 +396,7 @@ func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface
 	log.Printf("[DEBUG] Deleting DomainMapping %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -427,7 +428,7 @@ func resourceAppEngineDomainMappingImport(d *schema.ResourceData, meta interface
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "apps/{{project}}/domainMappings/{{domain_name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "apps/{{project}}/domainMappings/{{domain_name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -505,7 +506,7 @@ func flattenAppEngineDomainMappingDomainName(v interface{}, d *schema.ResourceDa
 	return v
 }
 
-func expandAppEngineDomainMappingSslSettings(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAppEngineDomainMappingSslSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -517,39 +518,39 @@ func expandAppEngineDomainMappingSslSettings(v interface{}, d TerraformResourceD
 	transformedCertificateId, err := expandAppEngineDomainMappingSslSettingsCertificateId(original["certificate_id"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCertificateId); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCertificateId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["certificateId"] = transformedCertificateId
 	}
 
 	transformedSslManagementType, err := expandAppEngineDomainMappingSslSettingsSslManagementType(original["ssl_management_type"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSslManagementType); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSslManagementType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["sslManagementType"] = transformedSslManagementType
 	}
 
 	transformedPendingManagedCertificateId, err := expandAppEngineDomainMappingSslSettingsPendingManagedCertificateId(original["pending_managed_certificate_id"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPendingManagedCertificateId); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPendingManagedCertificateId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["pendingManagedCertificateId"] = transformedPendingManagedCertificateId
 	}
 
 	return transformed, nil
 }
 
-func expandAppEngineDomainMappingSslSettingsCertificateId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAppEngineDomainMappingSslSettingsCertificateId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppEngineDomainMappingSslSettingsSslManagementType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAppEngineDomainMappingSslSettingsSslManagementType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppEngineDomainMappingSslSettingsPendingManagedCertificateId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAppEngineDomainMappingSslSettingsPendingManagedCertificateId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAppEngineDomainMappingDomainName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAppEngineDomainMappingDomainName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

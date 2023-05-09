@@ -23,7 +23,7 @@ func DataSourceGoogleComputeHealthCheck() *schema.Resource {
 }
 
 func dataSourceGoogleComputeHealthCheckRead(d *schema.ResourceData, meta interface{}) error {
-	id, err := ReplaceVars(d, meta.(*transport_tpg.Config), "projects/{{project}}/global/healthChecks/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, meta.(*transport_tpg.Config), "projects/{{project}}/global/healthChecks/{{name}}")
 	if err != nil {
 		return err
 	}

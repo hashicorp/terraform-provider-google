@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -119,7 +120,7 @@ As expressed by the regular expression: ^(?!goog)[a-z]([a-z0-9-._~]*[a-z0-9])?$.
 
 func resourceStorageTransferAgentPoolCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -128,17 +129,17 @@ func resourceStorageTransferAgentPoolCreate(d *schema.ResourceData, meta interfa
 	displayNameProp, err := expandStorageTransferAgentPoolDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	bandwidthLimitProp, err := expandStorageTransferAgentPoolBandwidthLimit(d.Get("bandwidth_limit"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("bandwidth_limit"); !isEmptyValue(reflect.ValueOf(bandwidthLimitProp)) && (ok || !reflect.DeepEqual(v, bandwidthLimitProp)) {
+	} else if v, ok := d.GetOkExists("bandwidth_limit"); !tpgresource.IsEmptyValue(reflect.ValueOf(bandwidthLimitProp)) && (ok || !reflect.DeepEqual(v, bandwidthLimitProp)) {
 		obj["bandwidthLimit"] = bandwidthLimitProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools?agentPoolId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools?agentPoolId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -146,14 +147,14 @@ func resourceStorageTransferAgentPoolCreate(d *schema.ResourceData, meta interfa
 	log.Printf("[DEBUG] Creating new AgentPool: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for AgentPool: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -163,7 +164,7 @@ func resourceStorageTransferAgentPoolCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/agentPools/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/agentPools/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -180,26 +181,26 @@ func resourceStorageTransferAgentPoolCreate(d *schema.ResourceData, meta interfa
 
 func resourceStorageTransferAgentPoolRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for AgentPool: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -227,14 +228,14 @@ func resourceStorageTransferAgentPoolRead(d *schema.ResourceData, meta interface
 
 func resourceStorageTransferAgentPoolUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for AgentPool: %s", err)
 	}
@@ -244,17 +245,17 @@ func resourceStorageTransferAgentPoolUpdate(d *schema.ResourceData, meta interfa
 	displayNameProp, err := expandStorageTransferAgentPoolDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	bandwidthLimitProp, err := expandStorageTransferAgentPoolBandwidthLimit(d.Get("bandwidth_limit"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("bandwidth_limit"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bandwidthLimitProp)) {
+	} else if v, ok := d.GetOkExists("bandwidth_limit"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bandwidthLimitProp)) {
 		obj["bandwidthLimit"] = bandwidthLimitProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -280,7 +281,7 @@ func resourceStorageTransferAgentPoolUpdate(d *schema.ResourceData, meta interfa
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -297,20 +298,20 @@ func resourceStorageTransferAgentPoolUpdate(d *schema.ResourceData, meta interfa
 
 func resourceStorageTransferAgentPoolDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for AgentPool: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{StorageTransferBasePath}}projects/{{project}}/agentPools/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -319,7 +320,7 @@ func resourceStorageTransferAgentPoolDelete(d *schema.ResourceData, meta interfa
 	log.Printf("[DEBUG] Deleting AgentPool %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -343,7 +344,7 @@ func resourceStorageTransferAgentPoolImport(d *schema.ResourceData, meta interfa
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/agentPools/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/agentPools/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -381,11 +382,11 @@ func flattenStorageTransferAgentPoolBandwidthLimitLimitMbps(v interface{}, d *sc
 	return v
 }
 
-func expandStorageTransferAgentPoolDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandStorageTransferAgentPoolDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandStorageTransferAgentPoolBandwidthLimit(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandStorageTransferAgentPoolBandwidthLimit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -397,13 +398,13 @@ func expandStorageTransferAgentPoolBandwidthLimit(v interface{}, d TerraformReso
 	transformedLimitMbps, err := expandStorageTransferAgentPoolBandwidthLimitLimitMbps(original["limit_mbps"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedLimitMbps); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedLimitMbps); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["limitMbps"] = transformedLimitMbps
 	}
 
 	return transformed, nil
 }
 
-func expandStorageTransferAgentPoolBandwidthLimitLimitMbps(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandStorageTransferAgentPoolBandwidthLimitLimitMbps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

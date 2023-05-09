@@ -589,7 +589,7 @@ also rebuilt shortly after a certificate is revoked.`,
 
 func resourcePrivatecaCaPoolCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -598,29 +598,29 @@ func resourcePrivatecaCaPoolCreate(d *schema.ResourceData, meta interface{}) err
 	tierProp, err := expandPrivatecaCaPoolTier(d.Get("tier"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("tier"); !isEmptyValue(reflect.ValueOf(tierProp)) && (ok || !reflect.DeepEqual(v, tierProp)) {
+	} else if v, ok := d.GetOkExists("tier"); !tpgresource.IsEmptyValue(reflect.ValueOf(tierProp)) && (ok || !reflect.DeepEqual(v, tierProp)) {
 		obj["tier"] = tierProp
 	}
 	issuancePolicyProp, err := expandPrivatecaCaPoolIssuancePolicy(d.Get("issuance_policy"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("issuance_policy"); !isEmptyValue(reflect.ValueOf(issuancePolicyProp)) && (ok || !reflect.DeepEqual(v, issuancePolicyProp)) {
+	} else if v, ok := d.GetOkExists("issuance_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(issuancePolicyProp)) && (ok || !reflect.DeepEqual(v, issuancePolicyProp)) {
 		obj["issuancePolicy"] = issuancePolicyProp
 	}
 	publishingOptionsProp, err := expandPrivatecaCaPoolPublishingOptions(d.Get("publishing_options"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("publishing_options"); !isEmptyValue(reflect.ValueOf(publishingOptionsProp)) && (ok || !reflect.DeepEqual(v, publishingOptionsProp)) {
+	} else if v, ok := d.GetOkExists("publishing_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(publishingOptionsProp)) && (ok || !reflect.DeepEqual(v, publishingOptionsProp)) {
 		obj["publishingOptions"] = publishingOptionsProp
 	}
 	labelsProp, err := expandPrivatecaCaPoolLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools?caPoolId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools?caPoolId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -628,14 +628,14 @@ func resourcePrivatecaCaPoolCreate(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Creating new CaPool: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for CaPool: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -645,7 +645,7 @@ func resourcePrivatecaCaPoolCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -665,7 +665,7 @@ func resourcePrivatecaCaPoolCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{name}}")
+	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -678,26 +678,26 @@ func resourcePrivatecaCaPoolCreate(d *schema.ResourceData, meta interface{}) err
 
 func resourcePrivatecaCaPoolRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for CaPool: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -728,14 +728,14 @@ func resourcePrivatecaCaPoolRead(d *schema.ResourceData, meta interface{}) error
 
 func resourcePrivatecaCaPoolUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for CaPool: %s", err)
 	}
@@ -745,23 +745,23 @@ func resourcePrivatecaCaPoolUpdate(d *schema.ResourceData, meta interface{}) err
 	issuancePolicyProp, err := expandPrivatecaCaPoolIssuancePolicy(d.Get("issuance_policy"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("issuance_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, issuancePolicyProp)) {
+	} else if v, ok := d.GetOkExists("issuance_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, issuancePolicyProp)) {
 		obj["issuancePolicy"] = issuancePolicyProp
 	}
 	publishingOptionsProp, err := expandPrivatecaCaPoolPublishingOptions(d.Get("publishing_options"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("publishing_options"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, publishingOptionsProp)) {
+	} else if v, ok := d.GetOkExists("publishing_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, publishingOptionsProp)) {
 		obj["publishingOptions"] = publishingOptionsProp
 	}
 	labelsProp, err := expandPrivatecaCaPoolLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -788,7 +788,7 @@ func resourcePrivatecaCaPoolUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -813,20 +813,20 @@ func resourcePrivatecaCaPoolUpdate(d *schema.ResourceData, meta interface{}) err
 
 func resourcePrivatecaCaPoolDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for CaPool: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -835,7 +835,7 @@ func resourcePrivatecaCaPoolDelete(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Deleting CaPool %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -867,7 +867,7 @@ func resourcePrivatecaCaPoolImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1094,11 +1094,11 @@ func flattenPrivatecaCaPoolLabels(v interface{}, d *schema.ResourceData, config 
 	return v
 }
 
-func expandPrivatecaCaPoolTier(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolTier(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1110,42 +1110,42 @@ func expandPrivatecaCaPoolIssuancePolicy(v interface{}, d TerraformResourceData,
 	transformedAllowedKeyTypes, err := expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypes(original["allowed_key_types"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllowedKeyTypes); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAllowedKeyTypes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["allowedKeyTypes"] = transformedAllowedKeyTypes
 	}
 
 	transformedMaximumLifetime, err := expandPrivatecaCaPoolIssuancePolicyMaximumLifetime(original["maximum_lifetime"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMaximumLifetime); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMaximumLifetime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["maximumLifetime"] = transformedMaximumLifetime
 	}
 
 	transformedAllowedIssuanceModes, err := expandPrivatecaCaPoolIssuancePolicyAllowedIssuanceModes(original["allowed_issuance_modes"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllowedIssuanceModes); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAllowedIssuanceModes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["allowedIssuanceModes"] = transformedAllowedIssuanceModes
 	}
 
 	transformedIdentityConstraints, err := expandPrivatecaCaPoolIssuancePolicyIdentityConstraints(original["identity_constraints"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedIdentityConstraints); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedIdentityConstraints); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["identityConstraints"] = transformedIdentityConstraints
 	}
 
 	transformedBaselineValues, err := expandPrivatecaCaPoolIssuancePolicyBaselineValues(original["baseline_values"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedBaselineValues); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedBaselineValues); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["baselineValues"] = transformedBaselineValues
 	}
 
 	return transformed, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1158,14 +1158,14 @@ func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypes(v interface{}, d Terrafo
 		transformedRsa, err := expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsa(original["rsa"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedRsa); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedRsa); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["rsa"] = transformedRsa
 		}
 
 		transformedEllipticCurve, err := expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurve(original["elliptic_curve"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedEllipticCurve); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedEllipticCurve); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["ellipticCurve"] = transformedEllipticCurve
 		}
 
@@ -1174,7 +1174,7 @@ func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypes(v interface{}, d Terrafo
 	return req, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsa(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsa(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1186,29 +1186,29 @@ func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsa(v interface{}, d Terr
 	transformedMinModulusSize, err := expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsaMinModulusSize(original["min_modulus_size"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMinModulusSize); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMinModulusSize); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["minModulusSize"] = transformedMinModulusSize
 	}
 
 	transformedMaxModulusSize, err := expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsaMaxModulusSize(original["max_modulus_size"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxModulusSize); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMaxModulusSize); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["maxModulusSize"] = transformedMaxModulusSize
 	}
 
 	return transformed, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsaMinModulusSize(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsaMinModulusSize(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsaMaxModulusSize(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesRsaMaxModulusSize(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurve(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurve(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1220,22 +1220,22 @@ func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurve(v interface
 	transformedSignatureAlgorithm, err := expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurveSignatureAlgorithm(original["signature_algorithm"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSignatureAlgorithm); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSignatureAlgorithm); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["signatureAlgorithm"] = transformedSignatureAlgorithm
 	}
 
 	return transformed, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurveSignatureAlgorithm(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurveSignatureAlgorithm(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyMaximumLifetime(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyMaximumLifetime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedIssuanceModes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedIssuanceModes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1247,29 +1247,29 @@ func expandPrivatecaCaPoolIssuancePolicyAllowedIssuanceModes(v interface{}, d Te
 	transformedAllowCsrBasedIssuance, err := expandPrivatecaCaPoolIssuancePolicyAllowedIssuanceModesAllowCsrBasedIssuance(original["allow_csr_based_issuance"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllowCsrBasedIssuance); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAllowCsrBasedIssuance); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["allowCsrBasedIssuance"] = transformedAllowCsrBasedIssuance
 	}
 
 	transformedAllowConfigBasedIssuance, err := expandPrivatecaCaPoolIssuancePolicyAllowedIssuanceModesAllowConfigBasedIssuance(original["allow_config_based_issuance"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllowConfigBasedIssuance); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAllowConfigBasedIssuance); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["allowConfigBasedIssuance"] = transformedAllowConfigBasedIssuance
 	}
 
 	return transformed, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedIssuanceModesAllowCsrBasedIssuance(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedIssuanceModesAllowCsrBasedIssuance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyAllowedIssuanceModesAllowConfigBasedIssuance(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyAllowedIssuanceModesAllowConfigBasedIssuance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyIdentityConstraints(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyIdentityConstraints(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1295,22 +1295,22 @@ func expandPrivatecaCaPoolIssuancePolicyIdentityConstraints(v interface{}, d Ter
 	transformedCelExpression, err := expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpression(original["cel_expression"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCelExpression); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCelExpression); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["celExpression"] = transformedCelExpression
 	}
 
 	return transformed, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsAllowSubjectPassthrough(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsAllowSubjectPassthrough(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsAllowSubjectAltNamesPassthrough(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsAllowSubjectAltNamesPassthrough(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpression(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpression(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1322,51 +1322,51 @@ func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpression(v inter
 	transformedExpression, err := expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionExpression(original["expression"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedExpression); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedExpression); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["expression"] = transformedExpression
 	}
 
 	transformedTitle, err := expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionTitle(original["title"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedTitle); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedTitle); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["title"] = transformedTitle
 	}
 
 	transformedDescription, err := expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionDescription(original["description"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["description"] = transformedDescription
 	}
 
 	transformedLocation, err := expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionLocation(original["location"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedLocation); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedLocation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["location"] = transformedLocation
 	}
 
 	return transformed, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionExpression(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionExpression(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionTitle(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionTitle(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionLocation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolIssuancePolicyBaselineValues(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolIssuancePolicyBaselineValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return v, nil
 	}
@@ -1419,7 +1419,7 @@ func expandPrivatecaCaPoolIssuancePolicyBaselineValues(v interface{}, d Terrafor
 	return transformed, nil
 }
 
-func expandPrivatecaCaPoolPublishingOptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolPublishingOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1431,29 +1431,29 @@ func expandPrivatecaCaPoolPublishingOptions(v interface{}, d TerraformResourceDa
 	transformedPublishCaCert, err := expandPrivatecaCaPoolPublishingOptionsPublishCaCert(original["publish_ca_cert"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPublishCaCert); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPublishCaCert); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["publishCaCert"] = transformedPublishCaCert
 	}
 
 	transformedPublishCrl, err := expandPrivatecaCaPoolPublishingOptionsPublishCrl(original["publish_crl"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPublishCrl); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPublishCrl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["publishCrl"] = transformedPublishCrl
 	}
 
 	return transformed, nil
 }
 
-func expandPrivatecaCaPoolPublishingOptionsPublishCaCert(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolPublishingOptionsPublishCaCert(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolPublishingOptionsPublishCrl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCaPoolPublishingOptionsPublishCrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCaPoolLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandPrivatecaCaPoolLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

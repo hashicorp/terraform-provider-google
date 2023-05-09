@@ -22,11 +22,11 @@ var IamHealthcareDatasetSchema = map[string]*schema.Schema{
 
 type HealthcareDatasetIamUpdater struct {
 	resourceId string
-	d          TerraformResourceData
+	d          tpgresource.TerraformResourceData
 	Config     *transport_tpg.Config
 }
 
-func NewHealthcareDatasetIamUpdater(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func NewHealthcareDatasetIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	dataset := d.Get("dataset_id").(string)
 	datasetId, err := ParseHealthcareDatasetId(dataset, config)
 
@@ -55,7 +55,7 @@ func DatasetIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) er
 }
 
 func (u *HealthcareDatasetIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (u *HealthcareDatasetIamUpdater) SetResourceIamPolicy(policy *cloudresource
 		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}

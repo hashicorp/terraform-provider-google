@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -30,12 +31,12 @@ func DataSourceAccessApprovalProjectServiceAccount() *schema.Resource {
 
 func dataSourceAccessApprovalProjectServiceAccountRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project_id}}/serviceAccount")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessApprovalBasePath}}projects/{{project_id}}/serviceAccount")
 	if err != nil {
 		return err
 	}
@@ -43,7 +44,7 @@ func dataSourceAccessApprovalProjectServiceAccountRead(d *schema.ResourceData, m
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 

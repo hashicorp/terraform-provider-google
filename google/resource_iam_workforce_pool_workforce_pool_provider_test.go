@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"testing"
 )
@@ -114,7 +115,7 @@ func testAccCheckIAMWorkforcePoolWorkforcePoolProviderAccess(t *testing.T, rando
 		}
 		config := GoogleProviderConfig(t)
 
-		pool_url, err := acctest.ReplaceVarsForTest(config, pool_rs, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}")
+		pool_url, err := tpgresource.ReplaceVarsForTest(config, pool_rs, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}")
 		if err != nil {
 			return err
 		}

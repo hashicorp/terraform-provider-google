@@ -9,8 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"cloud.google.com/go/bigtable"
@@ -166,14 +166,14 @@ func ResourceBigtableInstance() *schema.Resource {
 
 func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	ctx := context.Background()
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -189,7 +189,7 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 	conf.DisplayName = displayName.(string)
 
 	if _, ok := d.GetOk("labels"); ok {
-		conf.Labels = expandLabels(d)
+		conf.Labels = tpgresource.ExpandLabels(d)
 	}
 
 	switch d.Get("instance_type").(string) {
@@ -216,7 +216,7 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error creating instance. %s", err)
 	}
 
-	id, err := ReplaceVars(d, config, "projects/{{project}}/instances/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/instances/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -227,13 +227,13 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 	ctx := context.Background()
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -249,7 +249,7 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 	instance, err := c.InstanceInfo(ctx, instanceName)
 	if err != nil {
-		if isNotFoundGrpcError(err) {
+		if tpgresource.IsNotFoundGrpcError(err) {
 			log.Printf("[WARN] Removing %s because it's gone", instanceName)
 			d.SetId("")
 			return nil
@@ -304,13 +304,13 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceBigtableInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 	ctx := context.Background()
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -332,7 +332,7 @@ func resourceBigtableInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 	conf.DisplayName = displayName.(string)
 
 	if d.HasChange("labels") {
-		conf.Labels = expandLabels(d)
+		conf.Labels = tpgresource.ExpandLabels(d)
 	}
 
 	switch d.Get("instance_type").(string) {
@@ -360,14 +360,14 @@ func resourceBigtableInstanceDestroy(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("cannot destroy instance without setting deletion_protection=false and running `terraform apply`")
 	}
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	ctx := context.Background()
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -617,7 +617,7 @@ func resourceBigtableInstanceImport(d *schema.ResourceData, meta interface{}) ([
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/instances/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/instances/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

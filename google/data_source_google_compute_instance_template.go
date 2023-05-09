@@ -46,7 +46,7 @@ func DataSourceGoogleComputeInstanceTemplate() *schema.Resource {
 func datasourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -55,7 +55,7 @@ func datasourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interfac
 		return retrieveInstance(d, meta, project, v.(string))
 	}
 	if v, ok := d.GetOk("filter"); ok {
-		userAgent, err := generateUserAgentString(d, config.UserAgent)
+		userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 		if err != nil {
 			return err
 		}

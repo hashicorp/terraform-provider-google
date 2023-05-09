@@ -83,7 +83,7 @@ Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>.`,
 
 func resourceDialogflowCXEnvironmentCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -108,7 +108,7 @@ func resourceDialogflowCXEnvironmentCreate(d *schema.ResourceData, meta interfac
 		obj["versionConfigs"] = versionConfigsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/environments")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/environments")
 	if err != nil {
 		return err
 	}
@@ -117,7 +117,7 @@ func resourceDialogflowCXEnvironmentCreate(d *schema.ResourceData, meta interfac
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -141,7 +141,7 @@ func resourceDialogflowCXEnvironmentCreate(d *schema.ResourceData, meta interfac
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{parent}}/environments/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{parent}}/environments/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -165,7 +165,7 @@ func resourceDialogflowCXEnvironmentCreate(d *schema.ResourceData, meta interfac
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "{{parent}}/environments/{{name}}")
+	id, err = tpgresource.ReplaceVars(d, config, "{{parent}}/environments/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -178,12 +178,12 @@ func resourceDialogflowCXEnvironmentCreate(d *schema.ResourceData, meta interfac
 
 func resourceDialogflowCXEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/environments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/environments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -191,7 +191,7 @@ func resourceDialogflowCXEnvironmentRead(d *schema.ResourceData, meta interface{
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -235,7 +235,7 @@ func resourceDialogflowCXEnvironmentRead(d *schema.ResourceData, meta interface{
 
 func resourceDialogflowCXEnvironmentUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -262,7 +262,7 @@ func resourceDialogflowCXEnvironmentUpdate(d *schema.ResourceData, meta interfac
 		obj["versionConfigs"] = versionConfigsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/environments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/environments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -304,7 +304,7 @@ func resourceDialogflowCXEnvironmentUpdate(d *schema.ResourceData, meta interfac
 	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -329,14 +329,14 @@ func resourceDialogflowCXEnvironmentUpdate(d *schema.ResourceData, meta interfac
 
 func resourceDialogflowCXEnvironmentDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/environments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/environments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -360,7 +360,7 @@ func resourceDialogflowCXEnvironmentDelete(d *schema.ResourceData, meta interfac
 	log.Printf("[DEBUG] Deleting Environment %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -393,7 +393,7 @@ func resourceDialogflowCXEnvironmentImport(d *schema.ResourceData, meta interfac
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "{{parent}}/environments/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{parent}}/environments/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -443,15 +443,15 @@ func flattenDialogflowCXEnvironmentUpdateTime(v interface{}, d *schema.ResourceD
 	return v
 }
 
-func expandDialogflowCXEnvironmentDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDialogflowCXEnvironmentDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXEnvironmentDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDialogflowCXEnvironmentDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXEnvironmentVersionConfigs(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDialogflowCXEnvironmentVersionConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -473,6 +473,6 @@ func expandDialogflowCXEnvironmentVersionConfigs(v interface{}, d TerraformResou
 	return req, nil
 }
 
-func expandDialogflowCXEnvironmentVersionConfigsVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDialogflowCXEnvironmentVersionConfigsVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -110,7 +111,7 @@ func getRoleEntityPair(role_entity string) (*RoleEntity, error) {
 
 func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -132,7 +133,7 @@ func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) er
 		default_acl = v.(string)
 	}
 
-	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "storage/buckets/{{bucket}}")
 	if err != nil {
 		return err
 	}
@@ -214,7 +215,7 @@ func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceStorageBucketAclRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -257,14 +258,14 @@ func resourceStorageBucketAclRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	bucket := d.Get("bucket").(string)
 
-	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "storage/buckets/{{bucket}}")
 	if err != nil {
 		return err
 	}
@@ -355,14 +356,14 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceStorageBucketAclDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	bucket := d.Get("bucket").(string)
 
-	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "storage/buckets/{{bucket}}")
 	if err != nil {
 		return err
 	}

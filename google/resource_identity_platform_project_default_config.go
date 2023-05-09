@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -169,7 +170,7 @@ email/password or email link.`,
 
 func resourceIdentityPlatformProjectDefaultConfigCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -178,11 +179,11 @@ func resourceIdentityPlatformProjectDefaultConfigCreate(d *schema.ResourceData, 
 	signInProp, err := expandIdentityPlatformProjectDefaultConfigSignIn(d.Get("sign_in"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("sign_in"); !isEmptyValue(reflect.ValueOf(signInProp)) && (ok || !reflect.DeepEqual(v, signInProp)) {
+	} else if v, ok := d.GetOkExists("sign_in"); !tpgresource.IsEmptyValue(reflect.ValueOf(signInProp)) && (ok || !reflect.DeepEqual(v, signInProp)) {
 		obj["signIn"] = signInProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
+	url, err := tpgresource.ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
 	if err != nil {
 		return err
 	}
@@ -190,14 +191,14 @@ func resourceIdentityPlatformProjectDefaultConfigCreate(d *schema.ResourceData, 
 	log.Printf("[DEBUG] Creating new ProjectDefaultConfig: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for ProjectDefaultConfig: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -210,7 +211,7 @@ func resourceIdentityPlatformProjectDefaultConfigCreate(d *schema.ResourceData, 
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{project}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{project}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -223,26 +224,26 @@ func resourceIdentityPlatformProjectDefaultConfigCreate(d *schema.ResourceData, 
 
 func resourceIdentityPlatformProjectDefaultConfigRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
+	url, err := tpgresource.ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for ProjectDefaultConfig: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -267,14 +268,14 @@ func resourceIdentityPlatformProjectDefaultConfigRead(d *schema.ResourceData, me
 
 func resourceIdentityPlatformProjectDefaultConfigUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for ProjectDefaultConfig: %s", err)
 	}
@@ -284,11 +285,11 @@ func resourceIdentityPlatformProjectDefaultConfigUpdate(d *schema.ResourceData, 
 	signInProp, err := expandIdentityPlatformProjectDefaultConfigSignIn(d.Get("sign_in"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("sign_in"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, signInProp)) {
+	} else if v, ok := d.GetOkExists("sign_in"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, signInProp)) {
 		obj["signIn"] = signInProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
+	url, err := tpgresource.ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
 	if err != nil {
 		return err
 	}
@@ -307,7 +308,7 @@ func resourceIdentityPlatformProjectDefaultConfigUpdate(d *schema.ResourceData, 
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -324,20 +325,20 @@ func resourceIdentityPlatformProjectDefaultConfigUpdate(d *schema.ResourceData, 
 
 func resourceIdentityPlatformProjectDefaultConfigDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for ProjectDefaultConfig: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
+	url, err := tpgresource.ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
 	if err != nil {
 		return err
 	}
@@ -346,7 +347,7 @@ func resourceIdentityPlatformProjectDefaultConfigDelete(d *schema.ResourceData, 
 	log.Printf("[DEBUG] Deleting ProjectDefaultConfig %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -370,7 +371,7 @@ func resourceIdentityPlatformProjectDefaultConfigImport(d *schema.ResourceData, 
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "{{project}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{project}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -538,7 +539,7 @@ func flattenIdentityPlatformProjectDefaultConfigSignInHashConfigMemoryCost(v int
 	return v // let terraform core handle it otherwise
 }
 
-func expandIdentityPlatformProjectDefaultConfigSignIn(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandIdentityPlatformProjectDefaultConfigSignIn(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -550,42 +551,42 @@ func expandIdentityPlatformProjectDefaultConfigSignIn(v interface{}, d Terraform
 	transformedEmail, err := expandIdentityPlatformProjectDefaultConfigSignInEmail(original["email"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedEmail); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["email"] = transformedEmail
 	}
 
 	transformedPhoneNumber, err := expandIdentityPlatformProjectDefaultConfigSignInPhoneNumber(original["phone_number"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPhoneNumber); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPhoneNumber); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["phoneNumber"] = transformedPhoneNumber
 	}
 
 	transformedAnonymous, err := expandIdentityPlatformProjectDefaultConfigSignInAnonymous(original["anonymous"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAnonymous); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAnonymous); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["anonymous"] = transformedAnonymous
 	}
 
 	transformedAllowDuplicateEmails, err := expandIdentityPlatformProjectDefaultConfigSignInAllowDuplicateEmails(original["allow_duplicate_emails"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllowDuplicateEmails); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAllowDuplicateEmails); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["allowDuplicateEmails"] = transformedAllowDuplicateEmails
 	}
 
 	transformedHashConfig, err := expandIdentityPlatformProjectDefaultConfigSignInHashConfig(original["hash_config"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedHashConfig); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedHashConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["hashConfig"] = transformedHashConfig
 	}
 
 	return transformed, nil
 }
 
-func expandIdentityPlatformProjectDefaultConfigSignInEmail(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandIdentityPlatformProjectDefaultConfigSignInEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -597,29 +598,29 @@ func expandIdentityPlatformProjectDefaultConfigSignInEmail(v interface{}, d Terr
 	transformedEnabled, err := expandIdentityPlatformProjectDefaultConfigSignInEmailEnabled(original["enabled"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["enabled"] = transformedEnabled
 	}
 
 	transformedPasswordRequired, err := expandIdentityPlatformProjectDefaultConfigSignInEmailPasswordRequired(original["password_required"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPasswordRequired); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPasswordRequired); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["passwordRequired"] = transformedPasswordRequired
 	}
 
 	return transformed, nil
 }
 
-func expandIdentityPlatformProjectDefaultConfigSignInEmailEnabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandIdentityPlatformProjectDefaultConfigSignInEmailEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformProjectDefaultConfigSignInEmailPasswordRequired(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandIdentityPlatformProjectDefaultConfigSignInEmailPasswordRequired(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformProjectDefaultConfigSignInPhoneNumber(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandIdentityPlatformProjectDefaultConfigSignInPhoneNumber(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -631,25 +632,25 @@ func expandIdentityPlatformProjectDefaultConfigSignInPhoneNumber(v interface{}, 
 	transformedEnabled, err := expandIdentityPlatformProjectDefaultConfigSignInPhoneNumberEnabled(original["enabled"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["enabled"] = transformedEnabled
 	}
 
 	transformedTestPhoneNumbers, err := expandIdentityPlatformProjectDefaultConfigSignInPhoneNumberTestPhoneNumbers(original["test_phone_numbers"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedTestPhoneNumbers); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedTestPhoneNumbers); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["testPhoneNumbers"] = transformedTestPhoneNumbers
 	}
 
 	return transformed, nil
 }
 
-func expandIdentityPlatformProjectDefaultConfigSignInPhoneNumberEnabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandIdentityPlatformProjectDefaultConfigSignInPhoneNumberEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformProjectDefaultConfigSignInPhoneNumberTestPhoneNumbers(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandIdentityPlatformProjectDefaultConfigSignInPhoneNumberTestPhoneNumbers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -660,7 +661,7 @@ func expandIdentityPlatformProjectDefaultConfigSignInPhoneNumberTestPhoneNumbers
 	return m, nil
 }
 
-func expandIdentityPlatformProjectDefaultConfigSignInAnonymous(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandIdentityPlatformProjectDefaultConfigSignInAnonymous(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -672,22 +673,22 @@ func expandIdentityPlatformProjectDefaultConfigSignInAnonymous(v interface{}, d 
 	transformedEnabled, err := expandIdentityPlatformProjectDefaultConfigSignInAnonymousEnabled(original["enabled"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["enabled"] = transformedEnabled
 	}
 
 	return transformed, nil
 }
 
-func expandIdentityPlatformProjectDefaultConfigSignInAnonymousEnabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandIdentityPlatformProjectDefaultConfigSignInAnonymousEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformProjectDefaultConfigSignInAllowDuplicateEmails(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandIdentityPlatformProjectDefaultConfigSignInAllowDuplicateEmails(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformProjectDefaultConfigSignInHashConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandIdentityPlatformProjectDefaultConfigSignInHashConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -699,57 +700,57 @@ func expandIdentityPlatformProjectDefaultConfigSignInHashConfig(v interface{}, d
 	transformedAlgorithm, err := expandIdentityPlatformProjectDefaultConfigSignInHashConfigAlgorithm(original["algorithm"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAlgorithm); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAlgorithm); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["algorithm"] = transformedAlgorithm
 	}
 
 	transformedSignerKey, err := expandIdentityPlatformProjectDefaultConfigSignInHashConfigSignerKey(original["signer_key"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSignerKey); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSignerKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["signerKey"] = transformedSignerKey
 	}
 
 	transformedSaltSeparator, err := expandIdentityPlatformProjectDefaultConfigSignInHashConfigSaltSeparator(original["salt_separator"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSaltSeparator); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSaltSeparator); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["saltSeparator"] = transformedSaltSeparator
 	}
 
 	transformedRounds, err := expandIdentityPlatformProjectDefaultConfigSignInHashConfigRounds(original["rounds"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedRounds); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedRounds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["rounds"] = transformedRounds
 	}
 
 	transformedMemoryCost, err := expandIdentityPlatformProjectDefaultConfigSignInHashConfigMemoryCost(original["memory_cost"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMemoryCost); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMemoryCost); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["memoryCost"] = transformedMemoryCost
 	}
 
 	return transformed, nil
 }
 
-func expandIdentityPlatformProjectDefaultConfigSignInHashConfigAlgorithm(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandIdentityPlatformProjectDefaultConfigSignInHashConfigAlgorithm(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformProjectDefaultConfigSignInHashConfigSignerKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandIdentityPlatformProjectDefaultConfigSignInHashConfigSignerKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformProjectDefaultConfigSignInHashConfigSaltSeparator(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandIdentityPlatformProjectDefaultConfigSignInHashConfigSaltSeparator(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformProjectDefaultConfigSignInHashConfigRounds(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandIdentityPlatformProjectDefaultConfigSignInHashConfigRounds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandIdentityPlatformProjectDefaultConfigSignInHashConfigMemoryCost(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandIdentityPlatformProjectDefaultConfigSignInHashConfigMemoryCost(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

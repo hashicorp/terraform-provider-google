@@ -119,7 +119,7 @@ This value may be empty in which case the appid to use for URL-encoded keys is t
 
 func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -128,41 +128,41 @@ func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) e
 	nameProp, err := expandFirestoreDatabaseName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	locationIdProp, err := expandFirestoreDatabaseLocationId(d.Get("location_id"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("location_id"); !isEmptyValue(reflect.ValueOf(locationIdProp)) && (ok || !reflect.DeepEqual(v, locationIdProp)) {
+	} else if v, ok := d.GetOkExists("location_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(locationIdProp)) && (ok || !reflect.DeepEqual(v, locationIdProp)) {
 		obj["locationId"] = locationIdProp
 	}
 	typeProp, err := expandFirestoreDatabaseType(d.Get("type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("type"); !isEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
 	}
 	concurrencyModeProp, err := expandFirestoreDatabaseConcurrencyMode(d.Get("concurrency_mode"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("concurrency_mode"); !isEmptyValue(reflect.ValueOf(concurrencyModeProp)) && (ok || !reflect.DeepEqual(v, concurrencyModeProp)) {
+	} else if v, ok := d.GetOkExists("concurrency_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(concurrencyModeProp)) && (ok || !reflect.DeepEqual(v, concurrencyModeProp)) {
 		obj["concurrencyMode"] = concurrencyModeProp
 	}
 	appEngineIntegrationModeProp, err := expandFirestoreDatabaseAppEngineIntegrationMode(d.Get("app_engine_integration_mode"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("app_engine_integration_mode"); !isEmptyValue(reflect.ValueOf(appEngineIntegrationModeProp)) && (ok || !reflect.DeepEqual(v, appEngineIntegrationModeProp)) {
+	} else if v, ok := d.GetOkExists("app_engine_integration_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(appEngineIntegrationModeProp)) && (ok || !reflect.DeepEqual(v, appEngineIntegrationModeProp)) {
 		obj["appEngineIntegrationMode"] = appEngineIntegrationModeProp
 	}
 	etagProp, err := expandFirestoreDatabaseEtag(d.Get("etag"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("etag"); !isEmptyValue(reflect.ValueOf(etagProp)) && (ok || !reflect.DeepEqual(v, etagProp)) {
+	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(etagProp)) && (ok || !reflect.DeepEqual(v, etagProp)) {
 		obj["etag"] = etagProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases?databaseId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases?databaseId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -170,14 +170,14 @@ func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Creating new Database: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Database: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -187,7 +187,7 @@ func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/databases/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/databases/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -211,7 +211,7 @@ func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "projects/{{project}}/databases/{{name}}")
+	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/databases/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -224,26 +224,26 @@ func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceFirestoreDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Database: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -286,14 +286,14 @@ func resourceFirestoreDatabaseRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceFirestoreDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Database: %s", err)
 	}
@@ -303,29 +303,29 @@ func resourceFirestoreDatabaseUpdate(d *schema.ResourceData, meta interface{}) e
 	typeProp, err := expandFirestoreDatabaseType(d.Get("type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
 	}
 	concurrencyModeProp, err := expandFirestoreDatabaseConcurrencyMode(d.Get("concurrency_mode"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("concurrency_mode"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, concurrencyModeProp)) {
+	} else if v, ok := d.GetOkExists("concurrency_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, concurrencyModeProp)) {
 		obj["concurrencyMode"] = concurrencyModeProp
 	}
 	appEngineIntegrationModeProp, err := expandFirestoreDatabaseAppEngineIntegrationMode(d.Get("app_engine_integration_mode"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("app_engine_integration_mode"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, appEngineIntegrationModeProp)) {
+	} else if v, ok := d.GetOkExists("app_engine_integration_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, appEngineIntegrationModeProp)) {
 		obj["appEngineIntegrationMode"] = appEngineIntegrationModeProp
 	}
 	etagProp, err := expandFirestoreDatabaseEtag(d.Get("etag"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("etag"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, etagProp)) {
+	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, etagProp)) {
 		obj["etag"] = etagProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -356,7 +356,7 @@ func resourceFirestoreDatabaseUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -399,7 +399,7 @@ func resourceFirestoreDatabaseImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/databases/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/databases/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -443,26 +443,26 @@ func flattenFirestoreDatabaseCreateTime(v interface{}, d *schema.ResourceData, c
 	return v
 }
 
-func expandFirestoreDatabaseName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return ReplaceVars(d, config, "projects/{{project}}/databases/{{name}}")
+func expandFirestoreDatabaseName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return tpgresource.ReplaceVars(d, config, "projects/{{project}}/databases/{{name}}")
 }
 
-func expandFirestoreDatabaseLocationId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFirestoreDatabaseLocationId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFirestoreDatabaseType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFirestoreDatabaseType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFirestoreDatabaseConcurrencyMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFirestoreDatabaseConcurrencyMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFirestoreDatabaseAppEngineIntegrationMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFirestoreDatabaseAppEngineIntegrationMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFirestoreDatabaseEtag(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFirestoreDatabaseEtag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

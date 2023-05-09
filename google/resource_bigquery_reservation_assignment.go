@@ -26,6 +26,7 @@ import (
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
 	bigqueryreservation "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/bigqueryreservation"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -121,17 +122,17 @@ func resourceBigqueryReservationAssignmentCreate(d *schema.ResourceData, meta in
 	}
 	d.SetId(id)
 	directive := CreateDirective
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 	billingProject := project
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 	client := transport_tpg.NewDCLBigqueryReservationClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
-	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := tpgresource.ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -179,17 +180,17 @@ func resourceBigqueryReservationAssignmentRead(d *schema.ResourceData, meta inte
 		Name:        dcl.StringOrNil(d.Get("name").(string)),
 	}
 
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 	billingProject := project
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 	client := transport_tpg.NewDCLBigqueryReservationClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
-	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := tpgresource.ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -243,17 +244,17 @@ func resourceBigqueryReservationAssignmentDelete(d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Deleting Assignment %q", d.Id())
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 	billingProject := project
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 	client := transport_tpg.NewDCLBigqueryReservationClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
-	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := tpgresource.ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {

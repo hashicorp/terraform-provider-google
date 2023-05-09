@@ -109,7 +109,7 @@ The score values range from 0.0 (completely uncertain) to 1.0 (completely certai
 
 func resourceDialogflowCXVersionCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -128,7 +128,7 @@ func resourceDialogflowCXVersionCreate(d *schema.ResourceData, meta interface{})
 		obj["description"] = descriptionProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/versions")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/versions")
 	if err != nil {
 		return err
 	}
@@ -137,7 +137,7 @@ func resourceDialogflowCXVersionCreate(d *schema.ResourceData, meta interface{})
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -161,7 +161,7 @@ func resourceDialogflowCXVersionCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{parent}}/versions/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{parent}}/versions/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -185,7 +185,7 @@ func resourceDialogflowCXVersionCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "{{parent}}/versions/{{name}}")
+	id, err = tpgresource.ReplaceVars(d, config, "{{parent}}/versions/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -198,12 +198,12 @@ func resourceDialogflowCXVersionCreate(d *schema.ResourceData, meta interface{})
 
 func resourceDialogflowCXVersionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/versions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/versions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -211,7 +211,7 @@ func resourceDialogflowCXVersionRead(d *schema.ResourceData, meta interface{}) e
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -258,7 +258,7 @@ func resourceDialogflowCXVersionRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceDialogflowCXVersionUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -279,7 +279,7 @@ func resourceDialogflowCXVersionUpdate(d *schema.ResourceData, meta interface{})
 		obj["description"] = descriptionProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/versions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/versions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -317,7 +317,7 @@ func resourceDialogflowCXVersionUpdate(d *schema.ResourceData, meta interface{})
 	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -342,14 +342,14 @@ func resourceDialogflowCXVersionUpdate(d *schema.ResourceData, meta interface{})
 
 func resourceDialogflowCXVersionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	url, err := ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/versions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/versions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -373,7 +373,7 @@ func resourceDialogflowCXVersionDelete(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Deleting Version %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -406,7 +406,7 @@ func resourceDialogflowCXVersionImport(d *schema.ResourceData, meta interface{})
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "{{parent}}/versions/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{parent}}/versions/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -467,10 +467,10 @@ func flattenDialogflowCXVersionState(v interface{}, d *schema.ResourceData, conf
 	return v
 }
 
-func expandDialogflowCXVersionDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDialogflowCXVersionDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowCXVersionDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDialogflowCXVersionDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

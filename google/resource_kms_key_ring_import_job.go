@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -132,7 +133,7 @@ for General Considerations and Textual Encoding of Subject Public Key Info.`,
 
 func resourceKMSKeyRingImportJobCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -141,17 +142,17 @@ func resourceKMSKeyRingImportJobCreate(d *schema.ResourceData, meta interface{})
 	importMethodProp, err := expandKMSKeyRingImportJobImportMethod(d.Get("import_method"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("import_method"); !isEmptyValue(reflect.ValueOf(importMethodProp)) && (ok || !reflect.DeepEqual(v, importMethodProp)) {
+	} else if v, ok := d.GetOkExists("import_method"); !tpgresource.IsEmptyValue(reflect.ValueOf(importMethodProp)) && (ok || !reflect.DeepEqual(v, importMethodProp)) {
 		obj["importMethod"] = importMethodProp
 	}
 	protectionLevelProp, err := expandKMSKeyRingImportJobProtectionLevel(d.Get("protection_level"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("protection_level"); !isEmptyValue(reflect.ValueOf(protectionLevelProp)) && (ok || !reflect.DeepEqual(v, protectionLevelProp)) {
+	} else if v, ok := d.GetOkExists("protection_level"); !tpgresource.IsEmptyValue(reflect.ValueOf(protectionLevelProp)) && (ok || !reflect.DeepEqual(v, protectionLevelProp)) {
 		obj["protectionLevel"] = protectionLevelProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/importJobs?importJobId={{import_job_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}{{key_ring}}/importJobs?importJobId={{import_job_id}}")
 	if err != nil {
 		return err
 	}
@@ -160,7 +161,7 @@ func resourceKMSKeyRingImportJobCreate(d *schema.ResourceData, meta interface{})
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -173,7 +174,7 @@ func resourceKMSKeyRingImportJobCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -186,12 +187,12 @@ func resourceKMSKeyRingImportJobCreate(d *schema.ResourceData, meta interface{})
 
 func resourceKMSKeyRingImportJobRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{KMSBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -199,7 +200,7 @@ func resourceKMSKeyRingImportJobRead(d *schema.ResourceData, meta interface{}) e
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -235,14 +236,14 @@ func resourceKMSKeyRingImportJobRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceKMSKeyRingImportJobDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	url, err := ReplaceVars(d, config, "{{KMSBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -251,7 +252,7 @@ func resourceKMSKeyRingImportJobDelete(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Deleting KeyRingImportJob %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -351,10 +352,10 @@ func flattenKMSKeyRingImportJobAttestationContent(v interface{}, d *schema.Resou
 	return v
 }
 
-func expandKMSKeyRingImportJobImportMethod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandKMSKeyRingImportJobImportMethod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandKMSKeyRingImportJobProtectionLevel(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandKMSKeyRingImportJobProtectionLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -49,11 +49,11 @@ type BigQueryTableIamUpdater struct {
 	project   string
 	datasetId string
 	tableId   string
-	d         TerraformResourceData
+	d         tpgresource.TerraformResourceData
 	Config    *transport_tpg.Config
 }
 
-func BigQueryTableIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func BigQueryTableIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)
@@ -139,7 +139,7 @@ func (u *BigQueryTableIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.
 		return nil, err
 	}
 
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +150,7 @@ func (u *BigQueryTableIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.
 		},
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -184,12 +184,12 @@ func (u *BigQueryTableIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 	if err != nil {
 		return err
 	}
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -204,7 +204,7 @@ func (u *BigQueryTableIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 
 func (u *BigQueryTableIamUpdater) qualifyTableUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{BigQueryBasePath}}%s:%s", fmt.Sprintf("projects/%s/datasets/%s/tables/%s", u.project, u.datasetId, u.tableId), methodIdentifier)
-	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
+	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

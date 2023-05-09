@@ -23,7 +23,7 @@ func DataSourceGoogleComputeInstanceGroupManager() *schema.Resource {
 func dataSourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	if selfLink, ok := d.GetOk("self_link"); ok {
-		parsed, err := ParseInstanceGroupFieldValue(selfLink.(string), d, config)
+		parsed, err := tpgresource.ParseInstanceGroupFieldValue(selfLink.(string), d, config)
 		if err != nil {
 			return fmt.Errorf("InstanceGroup name, zone or project could not be parsed from %s", selfLink)
 		}
@@ -38,11 +38,11 @@ func dataSourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta inte
 		}
 		d.SetId(fmt.Sprintf("projects/%s/zones/%s/instanceGroupManagers/%s", parsed.Project, parsed.Zone, parsed.Name))
 	} else if name, ok := d.GetOk("name"); ok {
-		zone, err := getZone(d, config)
+		zone, err := tpgresource.GetZone(d, config)
 		if err != nil {
 			return err
 		}
-		project, err := getProject(d, config)
+		project, err := tpgresource.GetProject(d, config)
 		if err != nil {
 			return err
 		}

@@ -1414,7 +1414,7 @@ This is in RFC3339 text format.`,
 
 func resourcePrivatecaCertificateCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -1423,35 +1423,35 @@ func resourcePrivatecaCertificateCreate(d *schema.ResourceData, meta interface{}
 	lifetimeProp, err := expandPrivatecaCertificateLifetime(d.Get("lifetime"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("lifetime"); !isEmptyValue(reflect.ValueOf(lifetimeProp)) && (ok || !reflect.DeepEqual(v, lifetimeProp)) {
+	} else if v, ok := d.GetOkExists("lifetime"); !tpgresource.IsEmptyValue(reflect.ValueOf(lifetimeProp)) && (ok || !reflect.DeepEqual(v, lifetimeProp)) {
 		obj["lifetime"] = lifetimeProp
 	}
 	certificateTemplateProp, err := expandPrivatecaCertificateCertificateTemplate(d.Get("certificate_template"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("certificate_template"); !isEmptyValue(reflect.ValueOf(certificateTemplateProp)) && (ok || !reflect.DeepEqual(v, certificateTemplateProp)) {
+	} else if v, ok := d.GetOkExists("certificate_template"); !tpgresource.IsEmptyValue(reflect.ValueOf(certificateTemplateProp)) && (ok || !reflect.DeepEqual(v, certificateTemplateProp)) {
 		obj["certificateTemplate"] = certificateTemplateProp
 	}
 	labelsProp, err := expandPrivatecaCertificateLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	pemCsrProp, err := expandPrivatecaCertificatePemCsr(d.Get("pem_csr"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("pem_csr"); !isEmptyValue(reflect.ValueOf(pemCsrProp)) && (ok || !reflect.DeepEqual(v, pemCsrProp)) {
+	} else if v, ok := d.GetOkExists("pem_csr"); !tpgresource.IsEmptyValue(reflect.ValueOf(pemCsrProp)) && (ok || !reflect.DeepEqual(v, pemCsrProp)) {
 		obj["pemCsr"] = pemCsrProp
 	}
 	configProp, err := expandPrivatecaCertificateConfig(d.Get("config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("config"); !isEmptyValue(reflect.ValueOf(configProp)) && (ok || !reflect.DeepEqual(v, configProp)) {
+	} else if v, ok := d.GetOkExists("config"); !tpgresource.IsEmptyValue(reflect.ValueOf(configProp)) && (ok || !reflect.DeepEqual(v, configProp)) {
 		obj["config"] = configProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates?certificateId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates?certificateId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -1459,14 +1459,14 @@ func resourcePrivatecaCertificateCreate(d *schema.ResourceData, meta interface{}
 	log.Printf("[DEBUG] Creating new Certificate: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Certificate: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -1483,7 +1483,7 @@ func resourcePrivatecaCertificateCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1496,26 +1496,26 @@ func resourcePrivatecaCertificateCreate(d *schema.ResourceData, meta interface{}
 
 func resourcePrivatecaCertificateRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Certificate: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -1573,14 +1573,14 @@ func resourcePrivatecaCertificateRead(d *schema.ResourceData, meta interface{}) 
 
 func resourcePrivatecaCertificateUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Certificate: %s", err)
 	}
@@ -1590,11 +1590,11 @@ func resourcePrivatecaCertificateUpdate(d *schema.ResourceData, meta interface{}
 	labelsProp, err := expandPrivatecaCertificateLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1613,7 +1613,7 @@ func resourcePrivatecaCertificateUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -1630,20 +1630,20 @@ func resourcePrivatecaCertificateUpdate(d *schema.ResourceData, meta interface{}
 
 func resourcePrivatecaCertificateDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Certificate: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}:revoke")
+	url, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}:revoke")
 	if err != nil {
 		return err
 	}
@@ -1652,7 +1652,7 @@ func resourcePrivatecaCertificateDelete(d *schema.ResourceData, meta interface{}
 	log.Printf("[DEBUG] Deleting Certificate %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -1676,7 +1676,7 @@ func resourcePrivatecaCertificateImport(d *schema.ResourceData, meta interface{}
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificates/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -2745,15 +2745,15 @@ func flattenPrivatecaCertificateConfigPublicKeyFormat(v interface{}, d *schema.R
 	return v
 }
 
-func expandPrivatecaCertificateLifetime(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateLifetime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateCertificateTemplate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateCertificateTemplate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandPrivatecaCertificateLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -2764,11 +2764,11 @@ func expandPrivatecaCertificateLabels(v interface{}, d TerraformResourceData, co
 	return m, nil
 }
 
-func expandPrivatecaCertificatePemCsr(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificatePemCsr(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2787,21 +2787,21 @@ func expandPrivatecaCertificateConfig(v interface{}, d TerraformResourceData, co
 	transformedSubjectConfig, err := expandPrivatecaCertificateConfigSubjectConfig(original["subject_config"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSubjectConfig); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSubjectConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["subjectConfig"] = transformedSubjectConfig
 	}
 
 	transformedPublicKey, err := expandPrivatecaCertificateConfigPublicKey(original["public_key"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPublicKey); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPublicKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["publicKey"] = transformedPublicKey
 	}
 
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateConfigX509Config(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigX509Config(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return v, nil
 	}
@@ -2854,7 +2854,7 @@ func expandPrivatecaCertificateConfigX509Config(v interface{}, d TerraformResour
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2866,21 +2866,21 @@ func expandPrivatecaCertificateConfigSubjectConfig(v interface{}, d TerraformRes
 	transformedSubject, err := expandPrivatecaCertificateConfigSubjectConfigSubject(original["subject"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSubject); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSubject); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["subject"] = transformedSubject
 	}
 
 	transformedSubjectAltName, err := expandPrivatecaCertificateConfigSubjectConfigSubjectAltName(original["subject_alt_name"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSubjectAltName); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSubjectAltName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["subjectAltName"] = transformedSubjectAltName
 	}
 
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubject(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubject(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2892,95 +2892,95 @@ func expandPrivatecaCertificateConfigSubjectConfigSubject(v interface{}, d Terra
 	transformedCountryCode, err := expandPrivatecaCertificateConfigSubjectConfigSubjectCountryCode(original["country_code"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCountryCode); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCountryCode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["countryCode"] = transformedCountryCode
 	}
 
 	transformedOrganization, err := expandPrivatecaCertificateConfigSubjectConfigSubjectOrganization(original["organization"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedOrganization); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedOrganization); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["organization"] = transformedOrganization
 	}
 
 	transformedOrganizationalUnit, err := expandPrivatecaCertificateConfigSubjectConfigSubjectOrganizationalUnit(original["organizational_unit"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedOrganizationalUnit); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedOrganizationalUnit); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["organizationalUnit"] = transformedOrganizationalUnit
 	}
 
 	transformedLocality, err := expandPrivatecaCertificateConfigSubjectConfigSubjectLocality(original["locality"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedLocality); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedLocality); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["locality"] = transformedLocality
 	}
 
 	transformedProvince, err := expandPrivatecaCertificateConfigSubjectConfigSubjectProvince(original["province"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedProvince); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedProvince); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["province"] = transformedProvince
 	}
 
 	transformedStreetAddress, err := expandPrivatecaCertificateConfigSubjectConfigSubjectStreetAddress(original["street_address"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedStreetAddress); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedStreetAddress); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["streetAddress"] = transformedStreetAddress
 	}
 
 	transformedPostalCode, err := expandPrivatecaCertificateConfigSubjectConfigSubjectPostalCode(original["postal_code"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPostalCode); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPostalCode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["postalCode"] = transformedPostalCode
 	}
 
 	transformedCommonName, err := expandPrivatecaCertificateConfigSubjectConfigSubjectCommonName(original["common_name"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCommonName); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCommonName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["commonName"] = transformedCommonName
 	}
 
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectCountryCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectCountryCode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectOrganization(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectOrganization(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectOrganizationalUnit(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectOrganizationalUnit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectLocality(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectLocality(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectProvince(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectProvince(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectStreetAddress(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectStreetAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectPostalCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectPostalCode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectCommonName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectCommonName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectAltName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectAltName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2992,51 +2992,51 @@ func expandPrivatecaCertificateConfigSubjectConfigSubjectAltName(v interface{}, 
 	transformedDnsNames, err := expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameDnsNames(original["dns_names"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDnsNames); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDnsNames); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["dnsNames"] = transformedDnsNames
 	}
 
 	transformedUris, err := expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameUris(original["uris"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedUris); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedUris); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["uris"] = transformedUris
 	}
 
 	transformedEmailAddresses, err := expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameEmailAddresses(original["email_addresses"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedEmailAddresses); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedEmailAddresses); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["emailAddresses"] = transformedEmailAddresses
 	}
 
 	transformedIpAddresses, err := expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameIpAddresses(original["ip_addresses"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedIpAddresses); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedIpAddresses); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["ipAddresses"] = transformedIpAddresses
 	}
 
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameDnsNames(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameDnsNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameUris(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameUris(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameEmailAddresses(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameEmailAddresses(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameIpAddresses(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameIpAddresses(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigPublicKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigPublicKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3048,24 +3048,24 @@ func expandPrivatecaCertificateConfigPublicKey(v interface{}, d TerraformResourc
 	transformedKey, err := expandPrivatecaCertificateConfigPublicKeyKey(original["key"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["key"] = transformedKey
 	}
 
 	transformedFormat, err := expandPrivatecaCertificateConfigPublicKeyFormat(original["format"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedFormat); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedFormat); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["format"] = transformedFormat
 	}
 
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateConfigPublicKeyKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigPublicKeyKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigPublicKeyFormat(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigPublicKeyFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

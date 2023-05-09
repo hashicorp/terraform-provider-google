@@ -8,6 +8,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -141,7 +143,7 @@ func testAccCheckApigeeKeystoresAliasesKeyCertFileDestroyProducer(t *testing.T) 
 
 			config := GoogleProviderConfig(t)
 
-			url, err := acctest.ReplaceVarsForTest(config, rs, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
 			if err != nil {
 				return err
 			}

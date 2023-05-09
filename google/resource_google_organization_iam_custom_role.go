@@ -78,7 +78,7 @@ func ResourceGoogleOrganizationIamCustomRole() *schema.Resource {
 
 func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta 
 
 func resourceGoogleOrganizationIamCustomRoleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -139,7 +139,7 @@ func resourceGoogleOrganizationIamCustomRoleRead(d *schema.ResourceData, meta in
 		return transport_tpg.HandleNotFoundError(err, d, d.Id())
 	}
 
-	parsedRoleName, err := ParseOrganizationCustomRoleName(role.Name)
+	parsedRoleName, err := tpgresource.ParseOrganizationCustomRoleName(role.Name)
 	if err != nil {
 		return err
 	}
@@ -174,7 +174,7 @@ func resourceGoogleOrganizationIamCustomRoleRead(d *schema.ResourceData, meta in
 
 func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -214,7 +214,7 @@ func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta 
 
 func resourceGoogleOrganizationIamCustomRoleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}

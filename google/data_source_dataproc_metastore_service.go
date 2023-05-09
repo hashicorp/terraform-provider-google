@@ -22,7 +22,7 @@ func DataSourceDataprocMetastoreService() *schema.Resource {
 }
 
 func dataSourceDataprocMetastoreServiceRead(d *schema.ResourceData, meta interface{}) error {
-	id, err := ReplaceVars(d, meta.(*transport_tpg.Config), "projects/{{project}}/locations/{{location}}/services/{{service_id}}")
+	id, err := tpgresource.ReplaceVars(d, meta.(*transport_tpg.Config), "projects/{{project}}/locations/{{location}}/services/{{service_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}

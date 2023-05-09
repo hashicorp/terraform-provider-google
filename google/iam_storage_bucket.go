@@ -40,11 +40,11 @@ func StorageBucketDiffSuppress(_, old, new string, _ *schema.ResourceData) bool 
 
 type StorageBucketIamUpdater struct {
 	bucket string
-	d      TerraformResourceData
+	d      tpgresource.TerraformResourceData
 	Config *transport_tpg.Config
 }
 
-func StorageBucketIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func StorageBucketIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	if v, ok := d.GetOk("bucket"); ok {
@@ -110,7 +110,7 @@ func (u *StorageBucketIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.
 		return nil, err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +142,7 @@ func (u *StorageBucketIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -157,7 +157,7 @@ func (u *StorageBucketIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 
 func (u *StorageBucketIamUpdater) qualifyBucketUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{StorageBasePath}}%s/%s", fmt.Sprintf("b/%s", u.bucket), methodIdentifier)
-	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
+	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

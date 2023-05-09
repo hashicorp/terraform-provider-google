@@ -2,9 +2,11 @@ package google
 
 import (
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"time"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -60,12 +62,12 @@ func ResourceComputeProjectMetadataItem() *schema.Resource {
 
 func resourceComputeProjectMetadataItemCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	projectID, err := getProject(d, config)
+	projectID, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -85,12 +87,12 @@ func resourceComputeProjectMetadataItemCreate(d *schema.ResourceData, meta inter
 
 func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	projectID, err := getProject(d, config)
+	projectID, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -124,12 +126,12 @@ func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interfa
 
 func resourceComputeProjectMetadataItemUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	projectID, err := getProject(d, config)
+	projectID, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -149,12 +151,12 @@ func resourceComputeProjectMetadataItemUpdate(d *schema.ResourceData, meta inter
 
 func resourceComputeProjectMetadataItemDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	projectID, err := getProject(d, config)
+	projectID, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}

@@ -3,8 +3,9 @@ package google
 import (
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"

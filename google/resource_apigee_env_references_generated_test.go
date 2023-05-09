@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -144,7 +145,7 @@ func testAccCheckApigeeEnvReferencesDestroyProducer(t *testing.T) func(s *terraf
 
 			config := GoogleProviderConfig(t)
 
-			url, err := acctest.ReplaceVarsForTest(config, rs, "{{ApigeeBasePath}}{{env_id}}/references/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{ApigeeBasePath}}{{env_id}}/references/{{name}}")
 			if err != nil {
 				return err
 			}

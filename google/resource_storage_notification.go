@@ -92,7 +92,7 @@ func ResourceStorageNotification() *schema.Resource {
 
 func resourceStorageNotificationCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -102,7 +102,7 @@ func resourceStorageNotificationCreate(d *schema.ResourceData, meta interface{})
 	topicName := d.Get("topic").(string)
 	computedTopicName := getComputedTopicName("", topicName)
 	if computedTopicName != topicName {
-		project, err := getProject(d, config)
+		project, err := tpgresource.GetProject(d, config)
 		if err != nil {
 			return err
 		}
@@ -110,7 +110,7 @@ func resourceStorageNotificationCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	storageNotification := &storage.Notification{
-		CustomAttributes: expandStringMap(d, "custom_attributes"),
+		CustomAttributes: tpgresource.ExpandStringMap(d, "custom_attributes"),
 		EventTypes:       convertStringSet(d.Get("event_types").(*schema.Set)),
 		ObjectNamePrefix: d.Get("object_name_prefix").(string),
 		PayloadFormat:    d.Get("payload_format").(string),
@@ -129,7 +129,7 @@ func resourceStorageNotificationCreate(d *schema.ResourceData, meta interface{})
 
 func resourceStorageNotificationRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -171,7 +171,7 @@ func resourceStorageNotificationRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceStorageNotificationDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}

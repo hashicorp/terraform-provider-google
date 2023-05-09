@@ -113,17 +113,17 @@ func ResourceComputeRouterInterface() *schema.Resource {
 
 func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	region, err := getRegion(d, config)
+	region, err := tpgresource.GetRegion(d, config)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -131,7 +131,7 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 	routerName := d.Get("router").(string)
 	ifaceName := d.Get("name").(string)
 
-	routerLock := getRouterLockName(region, routerName)
+	routerLock := tpgresource.GetRouterLockName(region, routerName)
 	transport_tpg.MutexStore.Lock(routerLock)
 	defer transport_tpg.MutexStore.Unlock(routerLock)
 
@@ -214,17 +214,17 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 
 func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	region, err := getRegion(d, config)
+	region, err := tpgresource.GetRegion(d, config)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -284,17 +284,17 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 
 func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	region, err := getRegion(d, config)
+	region, err := tpgresource.GetRegion(d, config)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -302,7 +302,7 @@ func resourceComputeRouterInterfaceDelete(d *schema.ResourceData, meta interface
 	routerName := d.Get("router").(string)
 	ifaceName := d.Get("name").(string)
 
-	routerLock := getRouterLockName(region, routerName)
+	routerLock := tpgresource.GetRouterLockName(region, routerName)
 	transport_tpg.MutexStore.Lock(routerLock)
 	defer transport_tpg.MutexStore.Unlock(routerLock)
 

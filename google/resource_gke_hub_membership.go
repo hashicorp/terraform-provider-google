@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -136,7 +137,7 @@ this can be '"//container.googleapis.com/${google_container_cluster.my-cluster.i
 
 func resourceGKEHubMembershipCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -145,23 +146,23 @@ func resourceGKEHubMembershipCreate(d *schema.ResourceData, meta interface{}) er
 	labelsProp, err := expandGKEHubMembershipLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	endpointProp, err := expandGKEHubMembershipEndpoint(d.Get("endpoint"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("endpoint"); !isEmptyValue(reflect.ValueOf(endpointProp)) && (ok || !reflect.DeepEqual(v, endpointProp)) {
+	} else if v, ok := d.GetOkExists("endpoint"); !tpgresource.IsEmptyValue(reflect.ValueOf(endpointProp)) && (ok || !reflect.DeepEqual(v, endpointProp)) {
 		obj["endpoint"] = endpointProp
 	}
 	authorityProp, err := expandGKEHubMembershipAuthority(d.Get("authority"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("authority"); !isEmptyValue(reflect.ValueOf(authorityProp)) && (ok || !reflect.DeepEqual(v, authorityProp)) {
+	} else if v, ok := d.GetOkExists("authority"); !tpgresource.IsEmptyValue(reflect.ValueOf(authorityProp)) && (ok || !reflect.DeepEqual(v, authorityProp)) {
 		obj["authority"] = authorityProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships?membershipId={{membership_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships?membershipId={{membership_id}}")
 	if err != nil {
 		return err
 	}
@@ -169,14 +170,14 @@ func resourceGKEHubMembershipCreate(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Creating new Membership: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Membership: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -186,7 +187,7 @@ func resourceGKEHubMembershipCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/memberships/{{membership_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/global/memberships/{{membership_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -210,7 +211,7 @@ func resourceGKEHubMembershipCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/global/memberships/{{membership_id}}")
+	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/global/memberships/{{membership_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -223,26 +224,26 @@ func resourceGKEHubMembershipCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceGKEHubMembershipRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Membership: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -273,14 +274,14 @@ func resourceGKEHubMembershipRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceGKEHubMembershipUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Membership: %s", err)
 	}
@@ -290,17 +291,17 @@ func resourceGKEHubMembershipUpdate(d *schema.ResourceData, meta interface{}) er
 	labelsProp, err := expandGKEHubMembershipLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	authorityProp, err := expandGKEHubMembershipAuthority(d.Get("authority"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("authority"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, authorityProp)) {
+	} else if v, ok := d.GetOkExists("authority"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, authorityProp)) {
 		obj["authority"] = authorityProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
 	if err != nil {
 		return err
 	}
@@ -323,7 +324,7 @@ func resourceGKEHubMembershipUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -348,20 +349,20 @@ func resourceGKEHubMembershipUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceGKEHubMembershipDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Membership: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
 	if err != nil {
 		return err
 	}
@@ -370,7 +371,7 @@ func resourceGKEHubMembershipDelete(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Deleting Membership %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -402,7 +403,7 @@ func resourceGKEHubMembershipImport(d *schema.ResourceData, meta interface{}) ([
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/memberships/{{membership_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/global/memberships/{{membership_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -466,7 +467,7 @@ func flattenGKEHubMembershipAuthorityIssuer(v interface{}, d *schema.ResourceDat
 	return v
 }
 
-func expandGKEHubMembershipLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandGKEHubMembershipLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -477,7 +478,7 @@ func expandGKEHubMembershipLabels(v interface{}, d TerraformResourceData, config
 	return m, nil
 }
 
-func expandGKEHubMembershipEndpoint(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGKEHubMembershipEndpoint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -489,14 +490,14 @@ func expandGKEHubMembershipEndpoint(v interface{}, d TerraformResourceData, conf
 	transformedGkeCluster, err := expandGKEHubMembershipEndpointGkeCluster(original["gke_cluster"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedGkeCluster); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedGkeCluster); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["gkeCluster"] = transformedGkeCluster
 	}
 
 	return transformed, nil
 }
 
-func expandGKEHubMembershipEndpointGkeCluster(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGKEHubMembershipEndpointGkeCluster(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -508,14 +509,14 @@ func expandGKEHubMembershipEndpointGkeCluster(v interface{}, d TerraformResource
 	transformedResourceLink, err := expandGKEHubMembershipEndpointGkeClusterResourceLink(original["resource_link"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedResourceLink); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedResourceLink); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["resourceLink"] = transformedResourceLink
 	}
 
 	return transformed, nil
 }
 
-func expandGKEHubMembershipEndpointGkeClusterResourceLink(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGKEHubMembershipEndpointGkeClusterResourceLink(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if strings.HasPrefix(v.(string), "//") {
 		return v, nil
 	} else {
@@ -524,7 +525,7 @@ func expandGKEHubMembershipEndpointGkeClusterResourceLink(v interface{}, d Terra
 	}
 }
 
-func expandGKEHubMembershipAuthority(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGKEHubMembershipAuthority(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -536,13 +537,13 @@ func expandGKEHubMembershipAuthority(v interface{}, d TerraformResourceData, con
 	transformedIssuer, err := expandGKEHubMembershipAuthorityIssuer(original["issuer"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedIssuer); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedIssuer); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["issuer"] = transformedIssuer
 	}
 
 	return transformed, nil
 }
 
-func expandGKEHubMembershipAuthorityIssuer(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGKEHubMembershipAuthorityIssuer(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

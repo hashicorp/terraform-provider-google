@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -36,14 +37,14 @@ func testSweepCertificateAuthority(region string) error {
 	}
 
 	// Setup variables to replace in list template
-	d := &acctest.ResourceDataMock{
+	d := &tpgresource.ResourceDataMock{
 		FieldsInSchema: map[string]interface{}{
 			"project":  config.Project,
 			"location": region,
 		},
 	}
 
-	caPoolsUrl, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools")
+	caPoolsUrl, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools")
 	if err != nil {
 		return err
 	}

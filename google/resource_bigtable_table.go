@@ -96,14 +96,14 @@ func ResourceBigtableTable() *schema.Resource {
 
 func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	ctx := context.Background()
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -162,7 +162,7 @@ func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error creating table. %s", err)
 	}
 
-	id, err := ReplaceVars(d, config, "projects/{{project}}/instances/{{instance_name}}/tables/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/instances/{{instance_name}}/tables/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -173,13 +173,13 @@ func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 	ctx := context.Background()
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -195,7 +195,7 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	table, err := c.TableInfo(ctx, name)
 	if err != nil {
-		if isNotFoundGrpcError(err) {
+		if tpgresource.IsNotFoundGrpcError(err) {
 			log.Printf("[WARN] Removing %s because it's gone", name)
 			d.SetId("")
 			return nil
@@ -227,13 +227,13 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceBigtableTableUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 	ctx := context.Background()
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -292,14 +292,14 @@ func resourceBigtableTableUpdate(d *schema.ResourceData, meta interface{}) error
 
 func resourceBigtableTableDestroy(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	ctx := context.Background()
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -347,7 +347,7 @@ func resourceBigtableTableImport(d *schema.ResourceData, meta interface{}) ([]*s
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/instances/{{instance_name}}/tables/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/instances/{{instance_name}}/tables/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

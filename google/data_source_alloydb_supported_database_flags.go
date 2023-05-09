@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -115,7 +116,7 @@ func DataSourceAlloydbSupportedDatabaseFlags() *schema.Resource {
 
 func dataSourceAlloydbSupportedDatabaseFlagsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -123,18 +124,18 @@ func dataSourceAlloydbSupportedDatabaseFlagsRead(d *schema.ResourceData, meta in
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Cluster: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
-	url, err := ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/supportedDatabaseFlags")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/supportedDatabaseFlags")
 	if err != nil {
 		return fmt.Errorf("Error setting api endpoint")
 	}
@@ -202,7 +203,7 @@ func dataSourceAlloydbSupportedDatabaseFlagsRead(d *schema.ResourceData, meta in
 		if res["pageToken"] == nil || res["pageToken"].(string) == "" {
 			break
 		}
-		url, err = ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/supportedDatabaseFlags?pageToken="+res["nextPageToken"].(string))
+		url, err = tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/supportedDatabaseFlags?pageToken="+res["nextPageToken"].(string))
 		if err != nil {
 			return fmt.Errorf("Error setting api endpoint")
 		}

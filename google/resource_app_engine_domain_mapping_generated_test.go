@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -75,7 +76,7 @@ func testAccCheckAppEngineDomainMappingDestroyProducer(t *testing.T) func(s *ter
 
 			config := GoogleProviderConfig(t)
 
-			url, err := acctest.ReplaceVarsForTest(config, rs, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{AppEngineBasePath}}apps/{{project}}/domainMappings/{{domain_name}}")
 			if err != nil {
 				return err
 			}

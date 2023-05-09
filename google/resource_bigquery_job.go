@@ -977,7 +977,7 @@ not necessarily mean that the job has not completed or was unsuccessful.`,
 
 func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -986,13 +986,13 @@ func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
 	configurationProp, err := expandBigQueryJobConfiguration(nil, d, config)
 	if err != nil {
 		return err
-	} else if !isEmptyValue(reflect.ValueOf(configurationProp)) {
+	} else if !tpgresource.IsEmptyValue(reflect.ValueOf(configurationProp)) {
 		obj["configuration"] = configurationProp
 	}
 	jobReferenceProp, err := expandBigQueryJobJobReference(nil, d, config)
 	if err != nil {
 		return err
-	} else if !isEmptyValue(reflect.ValueOf(jobReferenceProp)) {
+	} else if !tpgresource.IsEmptyValue(reflect.ValueOf(jobReferenceProp)) {
 		obj["jobReference"] = jobReferenceProp
 	}
 
@@ -1001,7 +1001,7 @@ func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs")
 	if err != nil {
 		return err
 	}
@@ -1009,14 +1009,14 @@ func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating new Job: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Job: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -1026,7 +1026,7 @@ func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/jobs/{{job_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/jobs/{{job_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1046,25 +1046,25 @@ func resourceBigQueryJobPollRead(d *schema.ResourceData, meta interface{}) PollR
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 
-		url, err := ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}?location={{location}}")
+		url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}?location={{location}}")
 		if err != nil {
 			return nil, err
 		}
 
 		billingProject := ""
 
-		project, err := getProject(d, config)
+		project, err := tpgresource.GetProject(d, config)
 		if err != nil {
 			return nil, fmt.Errorf("Error fetching project for Job: %s", err)
 		}
 		billingProject = project
 
 		// err == nil indicates that the billing_project value was found
-		if bp, err := getBillingProject(d, config); err == nil {
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 			billingProject = bp
 		}
 
-		userAgent, err := generateUserAgentString(d, config.UserAgent)
+		userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 		if err != nil {
 			return nil, err
 		}
@@ -1079,26 +1079,26 @@ func resourceBigQueryJobPollRead(d *schema.ResourceData, meta interface{}) PollR
 
 func resourceBigQueryJobRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}?location={{location}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}?location={{location}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Job: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -1174,7 +1174,7 @@ func resourceBigQueryJobImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/jobs/{{job_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/jobs/{{job_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -2001,69 +2001,69 @@ func flattenBigQueryJobStatusState(v interface{}, d *schema.ResourceData, config
 	return v
 }
 
-func expandBigQueryJobConfiguration(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfiguration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	transformed := make(map[string]interface{})
 	transformedJobType, err := expandBigQueryJobConfigurationJobType(d.Get("job_type"), d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedJobType); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedJobType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["jobType"] = transformedJobType
 	}
 
 	transformedJobTimeoutMs, err := expandBigQueryJobConfigurationJobTimeoutMs(d.Get("job_timeout_ms"), d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedJobTimeoutMs); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedJobTimeoutMs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["jobTimeoutMs"] = transformedJobTimeoutMs
 	}
 
 	transformedLabels, err := expandBigQueryJobConfigurationLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedLabels); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedLabels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["labels"] = transformedLabels
 	}
 
 	transformedQuery, err := expandBigQueryJobConfigurationQuery(d.Get("query"), d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedQuery); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedQuery); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["query"] = transformedQuery
 	}
 
 	transformedLoad, err := expandBigQueryJobConfigurationLoad(d.Get("load"), d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedLoad); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedLoad); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["load"] = transformedLoad
 	}
 
 	transformedCopy, err := expandBigQueryJobConfigurationCopy(d.Get("copy"), d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCopy); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCopy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["copy"] = transformedCopy
 	}
 
 	transformedExtract, err := expandBigQueryJobConfigurationExtract(d.Get("extract"), d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedExtract); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedExtract); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["extract"] = transformedExtract
 	}
 
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationJobType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationJobType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationJobTimeoutMs(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationJobTimeoutMs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandBigQueryJobConfigurationLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -2074,7 +2074,7 @@ func expandBigQueryJobConfigurationLabels(v interface{}, d TerraformResourceData
 	return m, nil
 }
 
-func expandBigQueryJobConfigurationQuery(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQuery(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2086,84 +2086,84 @@ func expandBigQueryJobConfigurationQuery(v interface{}, d TerraformResourceData,
 	transformedQuery, err := expandBigQueryJobConfigurationQueryQuery(original["query"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedQuery); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedQuery); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["query"] = transformedQuery
 	}
 
 	transformedDestinationTable, err := expandBigQueryJobConfigurationQueryDestinationTable(original["destination_table"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDestinationTable); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDestinationTable); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["destinationTable"] = transformedDestinationTable
 	}
 
 	transformedUserDefinedFunctionResources, err := expandBigQueryJobConfigurationQueryUserDefinedFunctionResources(original["user_defined_function_resources"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedUserDefinedFunctionResources); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedUserDefinedFunctionResources); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["userDefinedFunctionResources"] = transformedUserDefinedFunctionResources
 	}
 
 	transformedCreateDisposition, err := expandBigQueryJobConfigurationQueryCreateDisposition(original["create_disposition"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCreateDisposition); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCreateDisposition); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["createDisposition"] = transformedCreateDisposition
 	}
 
 	transformedWriteDisposition, err := expandBigQueryJobConfigurationQueryWriteDisposition(original["write_disposition"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedWriteDisposition); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedWriteDisposition); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["writeDisposition"] = transformedWriteDisposition
 	}
 
 	transformedDefaultDataset, err := expandBigQueryJobConfigurationQueryDefaultDataset(original["default_dataset"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDefaultDataset); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDefaultDataset); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["defaultDataset"] = transformedDefaultDataset
 	}
 
 	transformedPriority, err := expandBigQueryJobConfigurationQueryPriority(original["priority"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPriority); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPriority); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["priority"] = transformedPriority
 	}
 
 	transformedAllowLargeResults, err := expandBigQueryJobConfigurationQueryAllowLargeResults(original["allow_large_results"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllowLargeResults); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAllowLargeResults); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["allowLargeResults"] = transformedAllowLargeResults
 	}
 
 	transformedUseQueryCache, err := expandBigQueryJobConfigurationQueryUseQueryCache(original["use_query_cache"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedUseQueryCache); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedUseQueryCache); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["useQueryCache"] = transformedUseQueryCache
 	}
 
 	transformedFlattenResults, err := expandBigQueryJobConfigurationQueryFlattenResults(original["flatten_results"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedFlattenResults); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedFlattenResults); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["flattenResults"] = transformedFlattenResults
 	}
 
 	transformedMaximumBillingTier, err := expandBigQueryJobConfigurationQueryMaximumBillingTier(original["maximum_billing_tier"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMaximumBillingTier); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMaximumBillingTier); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["maximumBillingTier"] = transformedMaximumBillingTier
 	}
 
 	transformedMaximumBytesBilled, err := expandBigQueryJobConfigurationQueryMaximumBytesBilled(original["maximum_bytes_billed"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMaximumBytesBilled); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMaximumBytesBilled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["maximumBytesBilled"] = transformedMaximumBytesBilled
 	}
 
@@ -2177,39 +2177,39 @@ func expandBigQueryJobConfigurationQuery(v interface{}, d TerraformResourceData,
 	transformedParameterMode, err := expandBigQueryJobConfigurationQueryParameterMode(original["parameter_mode"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedParameterMode); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedParameterMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["parameterMode"] = transformedParameterMode
 	}
 
 	transformedSchemaUpdateOptions, err := expandBigQueryJobConfigurationQuerySchemaUpdateOptions(original["schema_update_options"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSchemaUpdateOptions); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSchemaUpdateOptions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["schemaUpdateOptions"] = transformedSchemaUpdateOptions
 	}
 
 	transformedDestinationEncryptionConfiguration, err := expandBigQueryJobConfigurationQueryDestinationEncryptionConfiguration(original["destination_encryption_configuration"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDestinationEncryptionConfiguration); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDestinationEncryptionConfiguration); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["destinationEncryptionConfiguration"] = transformedDestinationEncryptionConfiguration
 	}
 
 	transformedScriptOptions, err := expandBigQueryJobConfigurationQueryScriptOptions(original["script_options"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedScriptOptions); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedScriptOptions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["scriptOptions"] = transformedScriptOptions
 	}
 
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationQueryQuery(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryQuery(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryDestinationTable(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryDestinationTable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2219,17 +2219,17 @@ func expandBigQueryJobConfigurationQueryDestinationTable(v interface{}, d Terraf
 	transformed := make(map[string]interface{})
 
 	transformedProjectId := original["project_id"]
-	if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+	if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["projectId"] = transformedProjectId
 	}
 
 	transformedDatasetId := original["dataset_id"]
-	if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
+	if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["datasetId"] = transformedDatasetId
 	}
 
 	transformedTableId := original["table_id"]
-	if val := reflect.ValueOf(transformedTableId); val.IsValid() && !isEmptyValue(val) {
+	if val := reflect.ValueOf(transformedTableId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["tableId"] = transformedTableId
 	}
 
@@ -2242,7 +2242,7 @@ func expandBigQueryJobConfigurationQueryDestinationTable(v interface{}, d Terraf
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationQueryUserDefinedFunctionResources(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryUserDefinedFunctionResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2255,14 +2255,14 @@ func expandBigQueryJobConfigurationQueryUserDefinedFunctionResources(v interface
 		transformedResourceUri, err := expandBigQueryJobConfigurationQueryUserDefinedFunctionResourcesResourceUri(original["resource_uri"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedResourceUri); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedResourceUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["resourceUri"] = transformedResourceUri
 		}
 
 		transformedInlineCode, err := expandBigQueryJobConfigurationQueryUserDefinedFunctionResourcesInlineCode(original["inline_code"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedInlineCode); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedInlineCode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["inlineCode"] = transformedInlineCode
 		}
 
@@ -2271,23 +2271,23 @@ func expandBigQueryJobConfigurationQueryUserDefinedFunctionResources(v interface
 	return req, nil
 }
 
-func expandBigQueryJobConfigurationQueryUserDefinedFunctionResourcesResourceUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryUserDefinedFunctionResourcesResourceUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryUserDefinedFunctionResourcesInlineCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryUserDefinedFunctionResourcesInlineCode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryCreateDisposition(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryCreateDisposition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryWriteDisposition(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryWriteDisposition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryDefaultDataset(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryDefaultDataset(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2297,12 +2297,12 @@ func expandBigQueryJobConfigurationQueryDefaultDataset(v interface{}, d Terrafor
 	transformed := make(map[string]interface{})
 
 	transformedProjectId := original["project_id"]
-	if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+	if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["projectId"] = transformedProjectId
 	}
 
 	transformedDatasetId := original["dataset_id"]
-	if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
+	if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["datasetId"] = transformedDatasetId
 	}
 
@@ -2314,43 +2314,43 @@ func expandBigQueryJobConfigurationQueryDefaultDataset(v interface{}, d Terrafor
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationQueryPriority(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryPriority(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryAllowLargeResults(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryAllowLargeResults(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryUseQueryCache(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryUseQueryCache(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryFlattenResults(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryFlattenResults(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryMaximumBillingTier(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryMaximumBillingTier(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryMaximumBytesBilled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryMaximumBytesBilled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryUseLegacySql(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryUseLegacySql(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryParameterMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryParameterMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQuerySchemaUpdateOptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQuerySchemaUpdateOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryDestinationEncryptionConfiguration(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryDestinationEncryptionConfiguration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2362,29 +2362,29 @@ func expandBigQueryJobConfigurationQueryDestinationEncryptionConfiguration(v int
 	transformedKmsKeyName, err := expandBigQueryJobConfigurationQueryDestinationEncryptionConfigurationKmsKeyName(original["kms_key_name"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["kmsKeyName"] = transformedKmsKeyName
 	}
 
 	transformedKmsKeyVersion, err := expandBigQueryJobConfigurationQueryDestinationEncryptionConfigurationKmsKeyVersion(original["kms_key_version"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedKmsKeyVersion); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedKmsKeyVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["kmsKeyVersion"] = transformedKmsKeyVersion
 	}
 
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationQueryDestinationEncryptionConfigurationKmsKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryDestinationEncryptionConfigurationKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryDestinationEncryptionConfigurationKmsKeyVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryDestinationEncryptionConfigurationKmsKeyVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryScriptOptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryScriptOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2396,40 +2396,40 @@ func expandBigQueryJobConfigurationQueryScriptOptions(v interface{}, d Terraform
 	transformedStatementTimeoutMs, err := expandBigQueryJobConfigurationQueryScriptOptionsStatementTimeoutMs(original["statement_timeout_ms"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedStatementTimeoutMs); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedStatementTimeoutMs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["statementTimeoutMs"] = transformedStatementTimeoutMs
 	}
 
 	transformedStatementByteBudget, err := expandBigQueryJobConfigurationQueryScriptOptionsStatementByteBudget(original["statement_byte_budget"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedStatementByteBudget); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedStatementByteBudget); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["statementByteBudget"] = transformedStatementByteBudget
 	}
 
 	transformedKeyResultStatement, err := expandBigQueryJobConfigurationQueryScriptOptionsKeyResultStatement(original["key_result_statement"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedKeyResultStatement); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedKeyResultStatement); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["keyResultStatement"] = transformedKeyResultStatement
 	}
 
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationQueryScriptOptionsStatementTimeoutMs(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryScriptOptionsStatementTimeoutMs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryScriptOptionsStatementByteBudget(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryScriptOptionsStatementByteBudget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationQueryScriptOptionsKeyResultStatement(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationQueryScriptOptionsKeyResultStatement(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoad(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoad(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2441,158 +2441,158 @@ func expandBigQueryJobConfigurationLoad(v interface{}, d TerraformResourceData, 
 	transformedSourceUris, err := expandBigQueryJobConfigurationLoadSourceUris(original["source_uris"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSourceUris); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSourceUris); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["sourceUris"] = transformedSourceUris
 	}
 
 	transformedDestinationTable, err := expandBigQueryJobConfigurationLoadDestinationTable(original["destination_table"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDestinationTable); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDestinationTable); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["destinationTable"] = transformedDestinationTable
 	}
 
 	transformedCreateDisposition, err := expandBigQueryJobConfigurationLoadCreateDisposition(original["create_disposition"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCreateDisposition); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCreateDisposition); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["createDisposition"] = transformedCreateDisposition
 	}
 
 	transformedWriteDisposition, err := expandBigQueryJobConfigurationLoadWriteDisposition(original["write_disposition"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedWriteDisposition); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedWriteDisposition); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["writeDisposition"] = transformedWriteDisposition
 	}
 
 	transformedNullMarker, err := expandBigQueryJobConfigurationLoadNullMarker(original["null_marker"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedNullMarker); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedNullMarker); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["nullMarker"] = transformedNullMarker
 	}
 
 	transformedFieldDelimiter, err := expandBigQueryJobConfigurationLoadFieldDelimiter(original["field_delimiter"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedFieldDelimiter); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedFieldDelimiter); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["fieldDelimiter"] = transformedFieldDelimiter
 	}
 
 	transformedSkipLeadingRows, err := expandBigQueryJobConfigurationLoadSkipLeadingRows(original["skip_leading_rows"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSkipLeadingRows); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSkipLeadingRows); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["skipLeadingRows"] = transformedSkipLeadingRows
 	}
 
 	transformedEncoding, err := expandBigQueryJobConfigurationLoadEncoding(original["encoding"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedEncoding); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedEncoding); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["encoding"] = transformedEncoding
 	}
 
 	transformedQuote, err := expandBigQueryJobConfigurationLoadQuote(original["quote"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedQuote); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedQuote); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["quote"] = transformedQuote
 	}
 
 	transformedMaxBadRecords, err := expandBigQueryJobConfigurationLoadMaxBadRecords(original["max_bad_records"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxBadRecords); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMaxBadRecords); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["maxBadRecords"] = transformedMaxBadRecords
 	}
 
 	transformedAllowQuotedNewlines, err := expandBigQueryJobConfigurationLoadAllowQuotedNewlines(original["allow_quoted_newlines"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllowQuotedNewlines); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAllowQuotedNewlines); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["allowQuotedNewlines"] = transformedAllowQuotedNewlines
 	}
 
 	transformedSourceFormat, err := expandBigQueryJobConfigurationLoadSourceFormat(original["source_format"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSourceFormat); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSourceFormat); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["sourceFormat"] = transformedSourceFormat
 	}
 
 	transformedJsonExtension, err := expandBigQueryJobConfigurationLoadJsonExtension(original["json_extension"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedJsonExtension); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedJsonExtension); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["jsonExtension"] = transformedJsonExtension
 	}
 
 	transformedAllowJaggedRows, err := expandBigQueryJobConfigurationLoadAllowJaggedRows(original["allow_jagged_rows"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllowJaggedRows); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAllowJaggedRows); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["allowJaggedRows"] = transformedAllowJaggedRows
 	}
 
 	transformedIgnoreUnknownValues, err := expandBigQueryJobConfigurationLoadIgnoreUnknownValues(original["ignore_unknown_values"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedIgnoreUnknownValues); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedIgnoreUnknownValues); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["ignoreUnknownValues"] = transformedIgnoreUnknownValues
 	}
 
 	transformedProjectionFields, err := expandBigQueryJobConfigurationLoadProjectionFields(original["projection_fields"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedProjectionFields); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedProjectionFields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["projectionFields"] = transformedProjectionFields
 	}
 
 	transformedAutodetect, err := expandBigQueryJobConfigurationLoadAutodetect(original["autodetect"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAutodetect); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAutodetect); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["autodetect"] = transformedAutodetect
 	}
 
 	transformedSchemaUpdateOptions, err := expandBigQueryJobConfigurationLoadSchemaUpdateOptions(original["schema_update_options"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSchemaUpdateOptions); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSchemaUpdateOptions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["schemaUpdateOptions"] = transformedSchemaUpdateOptions
 	}
 
 	transformedTimePartitioning, err := expandBigQueryJobConfigurationLoadTimePartitioning(original["time_partitioning"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedTimePartitioning); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedTimePartitioning); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["timePartitioning"] = transformedTimePartitioning
 	}
 
 	transformedDestinationEncryptionConfiguration, err := expandBigQueryJobConfigurationLoadDestinationEncryptionConfiguration(original["destination_encryption_configuration"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDestinationEncryptionConfiguration); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDestinationEncryptionConfiguration); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["destinationEncryptionConfiguration"] = transformedDestinationEncryptionConfiguration
 	}
 
 	transformedParquetOptions, err := expandBigQueryJobConfigurationLoadParquetOptions(original["parquet_options"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedParquetOptions); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedParquetOptions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["parquetOptions"] = transformedParquetOptions
 	}
 
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationLoadSourceUris(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadSourceUris(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadDestinationTable(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadDestinationTable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2602,17 +2602,17 @@ func expandBigQueryJobConfigurationLoadDestinationTable(v interface{}, d Terrafo
 	transformed := make(map[string]interface{})
 
 	transformedProjectId := original["project_id"]
-	if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+	if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["projectId"] = transformedProjectId
 	}
 
 	transformedDatasetId := original["dataset_id"]
-	if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
+	if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["datasetId"] = transformedDatasetId
 	}
 
 	transformedTableId := original["table_id"]
-	if val := reflect.ValueOf(transformedTableId); val.IsValid() && !isEmptyValue(val) {
+	if val := reflect.ValueOf(transformedTableId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["tableId"] = transformedTableId
 	}
 
@@ -2625,71 +2625,71 @@ func expandBigQueryJobConfigurationLoadDestinationTable(v interface{}, d Terrafo
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationLoadCreateDisposition(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadCreateDisposition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadWriteDisposition(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadWriteDisposition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadNullMarker(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadNullMarker(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadFieldDelimiter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadFieldDelimiter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadSkipLeadingRows(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadSkipLeadingRows(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadEncoding(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadEncoding(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadQuote(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadQuote(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadMaxBadRecords(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadMaxBadRecords(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadAllowQuotedNewlines(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadAllowQuotedNewlines(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadSourceFormat(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadSourceFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadJsonExtension(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadJsonExtension(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadAllowJaggedRows(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadAllowJaggedRows(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadIgnoreUnknownValues(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadIgnoreUnknownValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadProjectionFields(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadProjectionFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadAutodetect(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadAutodetect(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadSchemaUpdateOptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadSchemaUpdateOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadTimePartitioning(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadTimePartitioning(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2701,40 +2701,40 @@ func expandBigQueryJobConfigurationLoadTimePartitioning(v interface{}, d Terrafo
 	transformedType, err := expandBigQueryJobConfigurationLoadTimePartitioningType(original["type"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["type"] = transformedType
 	}
 
 	transformedExpirationMs, err := expandBigQueryJobConfigurationLoadTimePartitioningExpirationMs(original["expiration_ms"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedExpirationMs); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedExpirationMs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["expirationMs"] = transformedExpirationMs
 	}
 
 	transformedField, err := expandBigQueryJobConfigurationLoadTimePartitioningField(original["field"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedField); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedField); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["field"] = transformedField
 	}
 
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationLoadTimePartitioningType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadTimePartitioningType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadTimePartitioningExpirationMs(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadTimePartitioningExpirationMs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadTimePartitioningField(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadTimePartitioningField(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadDestinationEncryptionConfiguration(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadDestinationEncryptionConfiguration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2746,29 +2746,29 @@ func expandBigQueryJobConfigurationLoadDestinationEncryptionConfiguration(v inte
 	transformedKmsKeyName, err := expandBigQueryJobConfigurationLoadDestinationEncryptionConfigurationKmsKeyName(original["kms_key_name"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["kmsKeyName"] = transformedKmsKeyName
 	}
 
 	transformedKmsKeyVersion, err := expandBigQueryJobConfigurationLoadDestinationEncryptionConfigurationKmsKeyVersion(original["kms_key_version"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedKmsKeyVersion); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedKmsKeyVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["kmsKeyVersion"] = transformedKmsKeyVersion
 	}
 
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationLoadDestinationEncryptionConfigurationKmsKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadDestinationEncryptionConfigurationKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadDestinationEncryptionConfigurationKmsKeyVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadDestinationEncryptionConfigurationKmsKeyVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadParquetOptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadParquetOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2780,29 +2780,29 @@ func expandBigQueryJobConfigurationLoadParquetOptions(v interface{}, d Terraform
 	transformedEnumAsString, err := expandBigQueryJobConfigurationLoadParquetOptionsEnumAsString(original["enum_as_string"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedEnumAsString); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedEnumAsString); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["enumAsString"] = transformedEnumAsString
 	}
 
 	transformedEnableListInference, err := expandBigQueryJobConfigurationLoadParquetOptionsEnableListInference(original["enable_list_inference"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedEnableListInference); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedEnableListInference); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["enableListInference"] = transformedEnableListInference
 	}
 
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationLoadParquetOptionsEnumAsString(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadParquetOptionsEnumAsString(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationLoadParquetOptionsEnableListInference(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationLoadParquetOptionsEnableListInference(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationCopy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationCopy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2814,42 +2814,42 @@ func expandBigQueryJobConfigurationCopy(v interface{}, d TerraformResourceData, 
 	transformedSourceTables, err := expandBigQueryJobConfigurationCopySourceTables(original["source_tables"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSourceTables); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSourceTables); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["sourceTables"] = transformedSourceTables
 	}
 
 	transformedDestinationTable, err := expandBigQueryJobConfigurationCopyDestinationTable(original["destination_table"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDestinationTable); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDestinationTable); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["destinationTable"] = transformedDestinationTable
 	}
 
 	transformedCreateDisposition, err := expandBigQueryJobConfigurationCopyCreateDisposition(original["create_disposition"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCreateDisposition); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCreateDisposition); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["createDisposition"] = transformedCreateDisposition
 	}
 
 	transformedWriteDisposition, err := expandBigQueryJobConfigurationCopyWriteDisposition(original["write_disposition"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedWriteDisposition); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedWriteDisposition); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["writeDisposition"] = transformedWriteDisposition
 	}
 
 	transformedDestinationEncryptionConfiguration, err := expandBigQueryJobConfigurationCopyDestinationEncryptionConfiguration(original["destination_encryption_configuration"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDestinationEncryptionConfiguration); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDestinationEncryptionConfiguration); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["destinationEncryptionConfiguration"] = transformedDestinationEncryptionConfiguration
 	}
 
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationCopySourceTables(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationCopySourceTables(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2860,17 +2860,17 @@ func expandBigQueryJobConfigurationCopySourceTables(v interface{}, d TerraformRe
 		transformed := make(map[string]interface{})
 
 		transformedProjectId := original["project_id"]
-		if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+		if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["projectId"] = transformedProjectId
 		}
 
 		transformedDatasetId := original["dataset_id"]
-		if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
+		if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["datasetId"] = transformedDatasetId
 		}
 
 		transformedTableId := original["table_id"]
-		if val := reflect.ValueOf(transformedTableId); val.IsValid() && !isEmptyValue(val) {
+		if val := reflect.ValueOf(transformedTableId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["tableId"] = transformedTableId
 		}
 
@@ -2886,7 +2886,7 @@ func expandBigQueryJobConfigurationCopySourceTables(v interface{}, d TerraformRe
 	return req, nil
 }
 
-func expandBigQueryJobConfigurationCopyDestinationTable(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationCopyDestinationTable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2896,17 +2896,17 @@ func expandBigQueryJobConfigurationCopyDestinationTable(v interface{}, d Terrafo
 	transformed := make(map[string]interface{})
 
 	transformedProjectId := original["project_id"]
-	if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+	if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["projectId"] = transformedProjectId
 	}
 
 	transformedDatasetId := original["dataset_id"]
-	if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
+	if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["datasetId"] = transformedDatasetId
 	}
 
 	transformedTableId := original["table_id"]
-	if val := reflect.ValueOf(transformedTableId); val.IsValid() && !isEmptyValue(val) {
+	if val := reflect.ValueOf(transformedTableId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["tableId"] = transformedTableId
 	}
 
@@ -2919,15 +2919,15 @@ func expandBigQueryJobConfigurationCopyDestinationTable(v interface{}, d Terrafo
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationCopyCreateDisposition(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationCopyCreateDisposition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationCopyWriteDisposition(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationCopyWriteDisposition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationCopyDestinationEncryptionConfiguration(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationCopyDestinationEncryptionConfiguration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2939,29 +2939,29 @@ func expandBigQueryJobConfigurationCopyDestinationEncryptionConfiguration(v inte
 	transformedKmsKeyName, err := expandBigQueryJobConfigurationCopyDestinationEncryptionConfigurationKmsKeyName(original["kms_key_name"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["kmsKeyName"] = transformedKmsKeyName
 	}
 
 	transformedKmsKeyVersion, err := expandBigQueryJobConfigurationCopyDestinationEncryptionConfigurationKmsKeyVersion(original["kms_key_version"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedKmsKeyVersion); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedKmsKeyVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["kmsKeyVersion"] = transformedKmsKeyVersion
 	}
 
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationCopyDestinationEncryptionConfigurationKmsKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationCopyDestinationEncryptionConfigurationKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationCopyDestinationEncryptionConfigurationKmsKeyVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationCopyDestinationEncryptionConfigurationKmsKeyVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtract(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtract(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -2973,87 +2973,87 @@ func expandBigQueryJobConfigurationExtract(v interface{}, d TerraformResourceDat
 	transformedDestinationUris, err := expandBigQueryJobConfigurationExtractDestinationUris(original["destination_uris"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDestinationUris); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDestinationUris); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["destinationUris"] = transformedDestinationUris
 	}
 
 	transformedPrintHeader, err := expandBigQueryJobConfigurationExtractPrintHeader(original["print_header"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPrintHeader); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPrintHeader); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["printHeader"] = transformedPrintHeader
 	}
 
 	transformedFieldDelimiter, err := expandBigQueryJobConfigurationExtractFieldDelimiter(original["field_delimiter"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedFieldDelimiter); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedFieldDelimiter); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["fieldDelimiter"] = transformedFieldDelimiter
 	}
 
 	transformedDestinationFormat, err := expandBigQueryJobConfigurationExtractDestinationFormat(original["destination_format"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDestinationFormat); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDestinationFormat); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["destinationFormat"] = transformedDestinationFormat
 	}
 
 	transformedCompression, err := expandBigQueryJobConfigurationExtractCompression(original["compression"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCompression); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCompression); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["compression"] = transformedCompression
 	}
 
 	transformedUseAvroLogicalTypes, err := expandBigQueryJobConfigurationExtractUseAvroLogicalTypes(original["use_avro_logical_types"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedUseAvroLogicalTypes); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedUseAvroLogicalTypes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["useAvroLogicalTypes"] = transformedUseAvroLogicalTypes
 	}
 
 	transformedSourceTable, err := expandBigQueryJobConfigurationExtractSourceTable(original["source_table"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSourceTable); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSourceTable); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["sourceTable"] = transformedSourceTable
 	}
 
 	transformedSourceModel, err := expandBigQueryJobConfigurationExtractSourceModel(original["source_model"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSourceModel); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSourceModel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["sourceModel"] = transformedSourceModel
 	}
 
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationExtractDestinationUris(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractDestinationUris(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtractPrintHeader(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractPrintHeader(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtractFieldDelimiter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractFieldDelimiter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtractDestinationFormat(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractDestinationFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtractCompression(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractCompression(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtractUseAvroLogicalTypes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractUseAvroLogicalTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtractSourceTable(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractSourceTable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3063,17 +3063,17 @@ func expandBigQueryJobConfigurationExtractSourceTable(v interface{}, d Terraform
 	transformed := make(map[string]interface{})
 
 	transformedProjectId := original["project_id"]
-	if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+	if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["projectId"] = transformedProjectId
 	}
 
 	transformedDatasetId := original["dataset_id"]
-	if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
+	if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["datasetId"] = transformedDatasetId
 	}
 
 	transformedTableId := original["table_id"]
-	if val := reflect.ValueOf(transformedTableId); val.IsValid() && !isEmptyValue(val) {
+	if val := reflect.ValueOf(transformedTableId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["tableId"] = transformedTableId
 	}
 
@@ -3086,7 +3086,7 @@ func expandBigQueryJobConfigurationExtractSourceTable(v interface{}, d Terraform
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationExtractSourceModel(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractSourceModel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -3098,68 +3098,68 @@ func expandBigQueryJobConfigurationExtractSourceModel(v interface{}, d Terraform
 	transformedProjectId, err := expandBigQueryJobConfigurationExtractSourceModelProjectId(original["project_id"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["projectId"] = transformedProjectId
 	}
 
 	transformedDatasetId, err := expandBigQueryJobConfigurationExtractSourceModelDatasetId(original["dataset_id"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["datasetId"] = transformedDatasetId
 	}
 
 	transformedModelId, err := expandBigQueryJobConfigurationExtractSourceModelModelId(original["model_id"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedModelId); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedModelId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["modelId"] = transformedModelId
 	}
 
 	return transformed, nil
 }
 
-func expandBigQueryJobConfigurationExtractSourceModelProjectId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractSourceModelProjectId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtractSourceModelDatasetId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractSourceModelDatasetId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobConfigurationExtractSourceModelModelId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobConfigurationExtractSourceModelModelId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobJobReference(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobJobReference(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	transformed := make(map[string]interface{})
 	transformedJobId, err := expandBigQueryJobJobReferenceJobId(d.Get("job_id"), d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedJobId); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedJobId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["jobId"] = transformedJobId
 	}
 
 	transformedLocation, err := expandBigQueryJobJobReferenceLocation(d.Get("location"), d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedLocation); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedLocation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["location"] = transformedLocation
 	}
 
 	return transformed, nil
 }
 
-func expandBigQueryJobJobReferenceJobId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobJobReferenceJobId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBigQueryJobJobReferenceLocation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBigQueryJobJobReferenceLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
 func resourceBigQueryJobEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	project, err := getProject(d, meta.(*transport_tpg.Config))
+	project, err := tpgresource.GetProject(d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return nil, err
 	}

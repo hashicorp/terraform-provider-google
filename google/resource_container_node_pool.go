@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 
@@ -431,12 +432,12 @@ func extractNodePoolInformation(d *schema.ResourceData, config *transport_tpg.Co
 	}
 	log.Printf("[DEBUG] parent cluster %s does not match regex %s", cluster, clusterIdRegex.String())
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return nil, err
 	}
 
-	location, err := getLocation(d, config)
+	location, err := tpgresource.GetLocation(d, config)
 	if err != nil {
 		return nil, err
 	}
@@ -450,7 +451,7 @@ func extractNodePoolInformation(d *schema.ResourceData, config *transport_tpg.Co
 
 func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -508,7 +509,7 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 		operation, err = clusterNodePoolsCreateCall.Do()
 
 		if err != nil {
-			if isFailedPreconditionError(err) {
+			if tpgresource.IsFailedPreconditionError(err) {
 				// We get failed precondition errors if the cluster is updating
 				// while we try to add the node pool.
 				return resource.RetryableError(err)
@@ -571,7 +572,7 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -630,7 +631,7 @@ func resourceContainerNodePoolRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -667,7 +668,7 @@ func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) e
 
 func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -713,7 +714,7 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 		operation, err = clusterNodePoolsDeleteCall.Do()
 
 		if err != nil {
-			if isFailedPreconditionError(err) {
+			if tpgresource.IsFailedPreconditionError(err) {
 				// We get failed precondition errors if the cluster is updating
 				// while we try to delete the node pool.
 				return resource.RetryableError(err)
@@ -750,7 +751,7 @@ func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (
 		return false, err
 	}
 
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return false, err
 	}
@@ -775,7 +776,7 @@ func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (
 func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -784,14 +785,14 @@ func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interfa
 		return nil, err
 	}
 
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/nodePools/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/nodePools/{{name}}")
 	if err != nil {
 		return nil, err
 	}
 
 	d.SetId(id)
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return nil, err
 	}
@@ -995,7 +996,7 @@ func flattenNodePoolUpgradeSettings(us *container.UpgradeSettings) []map[string]
 }
 
 func flattenNodePool(d *schema.ResourceData, config *transport_tpg.Config, np *container.NodePool, prefix string) (map[string]interface{}, error) {
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -1136,7 +1137,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 	config := meta.(*transport_tpg.Config)
 	name := d.Get(prefix + "name").(string)
 
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}

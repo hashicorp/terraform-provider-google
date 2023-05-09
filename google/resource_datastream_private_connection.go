@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -168,7 +169,7 @@ Format: projects/{project}/global/{networks}/{name}`,
 
 func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -177,23 +178,23 @@ func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta inte
 	labelsProp, err := expandDatastreamPrivateConnectionLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	displayNameProp, err := expandDatastreamPrivateConnectionDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	vpcPeeringConfigProp, err := expandDatastreamPrivateConnectionVpcPeeringConfig(d.Get("vpc_peering_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("vpc_peering_config"); !isEmptyValue(reflect.ValueOf(vpcPeeringConfigProp)) && (ok || !reflect.DeepEqual(v, vpcPeeringConfigProp)) {
+	} else if v, ok := d.GetOkExists("vpc_peering_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(vpcPeeringConfigProp)) && (ok || !reflect.DeepEqual(v, vpcPeeringConfigProp)) {
 		obj["vpcPeeringConfig"] = vpcPeeringConfigProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/privateConnections?privateConnectionId={{private_connection_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/privateConnections?privateConnectionId={{private_connection_id}}")
 	if err != nil {
 		return err
 	}
@@ -201,14 +202,14 @@ func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta inte
 	log.Printf("[DEBUG] Creating new PrivateConnection: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for PrivateConnection: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -218,7 +219,7 @@ func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/privateConnections/{{private_connection_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/privateConnections/{{private_connection_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -242,7 +243,7 @@ func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta inte
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/privateConnections/{{private_connection_id}}")
+	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/privateConnections/{{private_connection_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -259,26 +260,26 @@ func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta inte
 
 func resourceDatastreamPrivateConnectionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/privateConnections/{{private_connection_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/privateConnections/{{private_connection_id}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for PrivateConnection: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -315,20 +316,20 @@ func resourceDatastreamPrivateConnectionRead(d *schema.ResourceData, meta interf
 
 func resourceDatastreamPrivateConnectionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for PrivateConnection: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/privateConnections/{{private_connection_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/privateConnections/{{private_connection_id}}")
 	if err != nil {
 		return err
 	}
@@ -337,7 +338,7 @@ func resourceDatastreamPrivateConnectionDelete(d *schema.ResourceData, meta inte
 	log.Printf("[DEBUG] Deleting PrivateConnection %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -369,7 +370,7 @@ func resourceDatastreamPrivateConnectionImport(d *schema.ResourceData, meta inte
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/privateConnections/{{private_connection_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/privateConnections/{{private_connection_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -444,7 +445,7 @@ func flattenDatastreamPrivateConnectionVpcPeeringConfigSubnet(v interface{}, d *
 	return v
 }
 
-func expandDatastreamPrivateConnectionLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandDatastreamPrivateConnectionLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -455,11 +456,11 @@ func expandDatastreamPrivateConnectionLabels(v interface{}, d TerraformResourceD
 	return m, nil
 }
 
-func expandDatastreamPrivateConnectionDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamPrivateConnectionDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamPrivateConnectionVpcPeeringConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamPrivateConnectionVpcPeeringConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -471,24 +472,24 @@ func expandDatastreamPrivateConnectionVpcPeeringConfig(v interface{}, d Terrafor
 	transformedVpc, err := expandDatastreamPrivateConnectionVpcPeeringConfigVpc(original["vpc"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedVpc); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedVpc); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["vpc"] = transformedVpc
 	}
 
 	transformedSubnet, err := expandDatastreamPrivateConnectionVpcPeeringConfigSubnet(original["subnet"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSubnet); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSubnet); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["subnet"] = transformedSubnet
 	}
 
 	return transformed, nil
 }
 
-func expandDatastreamPrivateConnectionVpcPeeringConfigVpc(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamPrivateConnectionVpcPeeringConfigVpc(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamPrivateConnectionVpcPeeringConfigSubnet(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamPrivateConnectionVpcPeeringConfigSubnet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

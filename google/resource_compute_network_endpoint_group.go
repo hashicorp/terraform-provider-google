@@ -131,7 +131,7 @@ Possible values include: GCE_VM_IP, GCE_VM_IP_PORT, and NON_GCP_PRIVATE_IP_PORT.
 
 func resourceComputeNetworkEndpointGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -140,47 +140,47 @@ func resourceComputeNetworkEndpointGroupCreate(d *schema.ResourceData, meta inte
 	nameProp, err := expandComputeNetworkEndpointGroupName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	descriptionProp, err := expandComputeNetworkEndpointGroupDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	networkEndpointTypeProp, err := expandComputeNetworkEndpointGroupNetworkEndpointType(d.Get("network_endpoint_type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("network_endpoint_type"); !isEmptyValue(reflect.ValueOf(networkEndpointTypeProp)) && (ok || !reflect.DeepEqual(v, networkEndpointTypeProp)) {
+	} else if v, ok := d.GetOkExists("network_endpoint_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkEndpointTypeProp)) && (ok || !reflect.DeepEqual(v, networkEndpointTypeProp)) {
 		obj["networkEndpointType"] = networkEndpointTypeProp
 	}
 	networkProp, err := expandComputeNetworkEndpointGroupNetwork(d.Get("network"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("network"); !isEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
+	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
 	}
 	subnetworkProp, err := expandComputeNetworkEndpointGroupSubnetwork(d.Get("subnetwork"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("subnetwork"); !isEmptyValue(reflect.ValueOf(subnetworkProp)) && (ok || !reflect.DeepEqual(v, subnetworkProp)) {
+	} else if v, ok := d.GetOkExists("subnetwork"); !tpgresource.IsEmptyValue(reflect.ValueOf(subnetworkProp)) && (ok || !reflect.DeepEqual(v, subnetworkProp)) {
 		obj["subnetwork"] = subnetworkProp
 	}
 	defaultPortProp, err := expandComputeNetworkEndpointGroupDefaultPort(d.Get("default_port"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("default_port"); !isEmptyValue(reflect.ValueOf(defaultPortProp)) && (ok || !reflect.DeepEqual(v, defaultPortProp)) {
+	} else if v, ok := d.GetOkExists("default_port"); !tpgresource.IsEmptyValue(reflect.ValueOf(defaultPortProp)) && (ok || !reflect.DeepEqual(v, defaultPortProp)) {
 		obj["defaultPort"] = defaultPortProp
 	}
 	zoneProp, err := expandComputeNetworkEndpointGroupZone(d.Get("zone"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("zone"); !isEmptyValue(reflect.ValueOf(zoneProp)) && (ok || !reflect.DeepEqual(v, zoneProp)) {
+	} else if v, ok := d.GetOkExists("zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(zoneProp)) && (ok || !reflect.DeepEqual(v, zoneProp)) {
 		obj["zone"] = zoneProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups")
 	if err != nil {
 		return err
 	}
@@ -188,14 +188,14 @@ func resourceComputeNetworkEndpointGroupCreate(d *schema.ResourceData, meta inte
 	log.Printf("[DEBUG] Creating new NetworkEndpointGroup: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for NetworkEndpointGroup: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -205,7 +205,7 @@ func resourceComputeNetworkEndpointGroupCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -228,26 +228,26 @@ func resourceComputeNetworkEndpointGroupCreate(d *schema.ResourceData, meta inte
 
 func resourceComputeNetworkEndpointGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for NetworkEndpointGroup: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -293,20 +293,20 @@ func resourceComputeNetworkEndpointGroupRead(d *schema.ResourceData, meta interf
 
 func resourceComputeNetworkEndpointGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for NetworkEndpointGroup: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -315,7 +315,7 @@ func resourceComputeNetworkEndpointGroupDelete(d *schema.ResourceData, meta inte
 	log.Printf("[DEBUG] Deleting NetworkEndpointGroup %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -348,7 +348,7 @@ func resourceComputeNetworkEndpointGroupImport(d *schema.ResourceData, meta inte
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -424,40 +424,40 @@ func flattenComputeNetworkEndpointGroupZone(v interface{}, d *schema.ResourceDat
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
-func expandComputeNetworkEndpointGroupName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeNetworkEndpointGroupName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeNetworkEndpointGroupDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeNetworkEndpointGroupDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeNetworkEndpointGroupNetworkEndpointType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeNetworkEndpointGroupNetworkEndpointType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeNetworkEndpointGroupNetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	f, err := parseGlobalFieldValue("networks", v.(string), "project", d, config, true)
+func expandComputeNetworkEndpointGroupNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	f, err := tpgresource.ParseGlobalFieldValue("networks", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for network: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
 
-func expandComputeNetworkEndpointGroupSubnetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	f, err := parseRegionalFieldValue("subnetworks", v.(string), "project", "region", "zone", d, config, true)
+func expandComputeNetworkEndpointGroupSubnetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	f, err := tpgresource.ParseRegionalFieldValue("subnetworks", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for subnetwork: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
 
-func expandComputeNetworkEndpointGroupDefaultPort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeNetworkEndpointGroupDefaultPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeNetworkEndpointGroupZone(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	f, err := parseGlobalFieldValue("zones", v.(string), "project", d, config, true)
+func expandComputeNetworkEndpointGroupZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	f, err := tpgresource.ParseGlobalFieldValue("zones", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for zone: %s", err)
 	}

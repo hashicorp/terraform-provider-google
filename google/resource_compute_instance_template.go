@@ -861,7 +861,7 @@ func resourceComputeInstanceTemplateSourceImageCustomizeDiff(_ context.Context, 
 			// project must be retrieved once we know there is a diff to resolve, otherwise it will
 			// attempt to retrieve project during `plan` before all calculated fields are ready
 			// see https://github.com/hashicorp/terraform-provider-google/issues/2878
-			project, err := getProjectFromDiff(diff, config)
+			project, err := tpgresource.GetProjectFromDiff(diff, config)
 			if err != nil {
 				return err
 			}
@@ -898,7 +898,7 @@ func resourceComputeInstanceTemplateScratchDiskCustomizeDiff(_ context.Context, 
 	return resourceComputeInstanceTemplateScratchDiskCustomizeDiffFunc(diff)
 }
 
-func resourceComputeInstanceTemplateScratchDiskCustomizeDiffFunc(diff TerraformResourceDiff) error {
+func resourceComputeInstanceTemplateScratchDiskCustomizeDiffFunc(diff tpgresource.TerraformResourceDiff) error {
 	numDisks := diff.Get("disk.#").(int)
 	for i := 0; i < numDisks; i++ {
 		// misspelled on purpose, type is a special symbol
@@ -941,12 +941,12 @@ func resourceComputeInstanceTemplateBootDiskCustomizeDiff(_ context.Context, dif
 }
 
 func buildDisks(d *schema.ResourceData, config *transport_tpg.Config) ([]*compute.AttachedDisk, error) {
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return nil, err
 	}
 
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -1002,7 +1002,7 @@ func buildDisks(d *schema.ResourceData, config *transport_tpg.Config) ([]*comput
 				disk.InitializeParams.DiskType = v.(string)
 			}
 
-			disk.InitializeParams.Labels = expandStringMap(d, prefix+".labels")
+			disk.InitializeParams.Labels = tpgresource.ExpandStringMap(d, prefix+".labels")
 
 			if v, ok := d.GetOk(prefix + ".source_image"); ok {
 				imageName := v.(string)
@@ -1072,7 +1072,7 @@ func buildDisks(d *schema.ResourceData, config *transport_tpg.Config) ([]*comput
 // 'zones/us-east1-b/acceleratorTypes/nvidia-tesla-k80'.
 // Accelerator type 'zones/us-east1-b/acceleratorTypes/nvidia-tesla-k80'
 // must be a valid resource name (not an url).
-func expandInstanceTemplateGuestAccelerators(d TerraformResourceData, config *transport_tpg.Config) []*compute.AcceleratorConfig {
+func expandInstanceTemplateGuestAccelerators(d tpgresource.TerraformResourceData, config *transport_tpg.Config) []*compute.AcceleratorConfig {
 	configs, ok := d.GetOk("guest_accelerator")
 	if !ok {
 		return nil
@@ -1095,18 +1095,18 @@ func expandInstanceTemplateGuestAccelerators(d TerraformResourceData, config *tr
 	return guestAccelerators
 }
 
-func expandInstanceTemplateResourcePolicies(d TerraformResourceData, dataKey string) []string {
+func expandInstanceTemplateResourcePolicies(d tpgresource.TerraformResourceData, dataKey string) []string {
 	return convertAndMapStringArr(d.Get(dataKey).([]interface{}), tpgresource.GetResourceNameFromSelfLink)
 }
 
 func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -1156,7 +1156,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	}
 
 	if _, ok := d.GetOk("labels"); ok {
-		instanceProperties.Labels = expandLabels(d)
+		instanceProperties.Labels = tpgresource.ExpandLabels(d)
 	}
 
 	var itName string
@@ -1413,12 +1413,12 @@ func flattenDisks(disks []*compute.AttachedDisk, d *schema.ResourceData, default
 
 func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -1583,12 +1583,12 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 
 func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -1640,7 +1640,7 @@ func resourceComputeInstanceTemplateImportState(d *schema.ResourceData, meta int
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/global/instanceTemplates/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/global/instanceTemplates/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

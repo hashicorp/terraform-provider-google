@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 	appengine "google.golang.org/api/appengine/v1"
@@ -202,12 +203,12 @@ func appEngineApplicationLocationIDCustomizeDiff(_ context.Context, d *schema.Re
 
 func resourceAppEngineApplicationCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -216,7 +217,7 @@ func resourceAppEngineApplicationCreate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	lockName, err := ReplaceVars(d, config, "apps/{{project}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}
@@ -244,7 +245,7 @@ func resourceAppEngineApplicationCreate(d *schema.ResourceData, meta interface{}
 
 func resourceAppEngineApplicationRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -316,7 +317,7 @@ func resourceAppEngineApplicationRead(d *schema.ResourceData, meta interface{}) 
 
 func resourceAppEngineApplicationUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -326,7 +327,7 @@ func resourceAppEngineApplicationUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	lockName, err := ReplaceVars(d, config, "apps/{{project}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "apps/{{project}}")
 	if err != nil {
 		return err
 	}

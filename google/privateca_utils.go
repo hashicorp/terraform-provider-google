@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -21,7 +22,7 @@ import (
 
 // Expander utilities
 
-func expandPrivatecaCertificateConfigX509ConfigCaOptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigX509ConfigCaOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	// Fields non_ca, zero_max_issuer_path_length are used to distinguish between
 	// unset booleans and booleans set with a default value.
 	// Unset is_ca or unset max_issuer_path_length either allow any values for these fields when
@@ -63,7 +64,7 @@ func expandPrivatecaCertificateConfigX509ConfigCaOptions(v interface{}, d Terraf
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateConfigX509ConfigKeyUsage(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigX509ConfigKeyUsage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return v, nil
 	}
@@ -89,7 +90,7 @@ func expandPrivatecaCertificateConfigX509ConfigKeyUsage(v interface{}, d Terrafo
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateConfigX509ConfigKeyUsageBaseKeyUsage(v interface{}, d TerraformResourceData, config *transport_tpg.Config) interface{} {
+func expandPrivatecaCertificateConfigX509ConfigKeyUsageBaseKeyUsage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -118,7 +119,7 @@ func expandPrivatecaCertificateConfigX509ConfigKeyUsageBaseKeyUsage(v interface{
 	return transformed
 }
 
-func expandPrivatecaCertificateConfigX509ConfigKeyUsageExtendedKeyUsage(v interface{}, d TerraformResourceData, config *transport_tpg.Config) interface{} {
+func expandPrivatecaCertificateConfigX509ConfigKeyUsageExtendedKeyUsage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -144,7 +145,7 @@ func expandPrivatecaCertificateConfigX509ConfigKeyUsageExtendedKeyUsage(v interf
 	return transformed
 }
 
-func expandPrivatecaCertificateConfigX509ConfigKeyUsageUnknownExtendedKeyUsages(v interface{}, d TerraformResourceData, config *transport_tpg.Config) interface{} {
+func expandPrivatecaCertificateConfigX509ConfigKeyUsageUnknownExtendedKeyUsages(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -164,7 +165,7 @@ func expandPrivatecaCertificateConfigX509ConfigKeyUsageUnknownExtendedKeyUsages(
 	return transformed
 }
 
-func expandPrivatecaCertificateConfigX509ConfigPolicyIds(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigX509ConfigPolicyIds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return v, nil
 	}
@@ -184,7 +185,7 @@ func expandPrivatecaCertificateConfigX509ConfigPolicyIds(v interface{}, d Terraf
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateConfigX509ConfigAdditionalExtensions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigX509ConfigAdditionalExtensions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return v, nil
 	}
@@ -205,7 +206,7 @@ func expandPrivatecaCertificateConfigX509ConfigAdditionalExtensions(v interface{
 	return transformed, nil
 }
 
-func expandPrivatecaCertificateConfigX509ConfigAdditionalExtensionsObjectId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) interface{} {
+func expandPrivatecaCertificateConfigX509ConfigAdditionalExtensionsObjectId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -226,12 +227,12 @@ func expandPrivatecaCertificateConfigX509ConfigAdditionalExtensionsObjectId(v in
 	return transformed
 }
 
-func expandPrivatecaCertificateConfigX509ConfigAiaOcspServers(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigX509ConfigAiaOcspServers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	// List of strings, no processing necessary.
 	return v, nil
 }
 
-func expandPrivatecaCertificateConfigX509ConfigNameConstraints(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPrivatecaCertificateConfigX509ConfigNameConstraints(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
 	}

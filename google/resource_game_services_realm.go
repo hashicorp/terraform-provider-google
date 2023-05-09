@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -99,7 +100,7 @@ example, 'projects/my-project/locations/{location}/realms/my-realm'.`,
 
 func resourceGameServicesRealmCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -108,23 +109,23 @@ func resourceGameServicesRealmCreate(d *schema.ResourceData, meta interface{}) e
 	labelsProp, err := expandGameServicesRealmLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	timeZoneProp, err := expandGameServicesRealmTimeZone(d.Get("time_zone"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("time_zone"); !isEmptyValue(reflect.ValueOf(timeZoneProp)) && (ok || !reflect.DeepEqual(v, timeZoneProp)) {
+	} else if v, ok := d.GetOkExists("time_zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(timeZoneProp)) && (ok || !reflect.DeepEqual(v, timeZoneProp)) {
 		obj["timeZone"] = timeZoneProp
 	}
 	descriptionProp, err := expandGameServicesRealmDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms?realmId={{realm_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms?realmId={{realm_id}}")
 	if err != nil {
 		return err
 	}
@@ -132,14 +133,14 @@ func resourceGameServicesRealmCreate(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Creating new Realm: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Realm: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -149,7 +150,7 @@ func resourceGameServicesRealmCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/realms/{{realm_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/realms/{{realm_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -173,7 +174,7 @@ func resourceGameServicesRealmCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/realms/{{realm_id}}")
+	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/realms/{{realm_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -186,26 +187,26 @@ func resourceGameServicesRealmCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceGameServicesRealmRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Realm: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -239,14 +240,14 @@ func resourceGameServicesRealmRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceGameServicesRealmUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Realm: %s", err)
 	}
@@ -256,23 +257,23 @@ func resourceGameServicesRealmUpdate(d *schema.ResourceData, meta interface{}) e
 	labelsProp, err := expandGameServicesRealmLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	timeZoneProp, err := expandGameServicesRealmTimeZone(d.Get("time_zone"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("time_zone"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeZoneProp)) {
+	} else if v, ok := d.GetOkExists("time_zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeZoneProp)) {
 		obj["timeZone"] = timeZoneProp
 	}
 	descriptionProp, err := expandGameServicesRealmDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}")
 	if err != nil {
 		return err
 	}
@@ -299,7 +300,7 @@ func resourceGameServicesRealmUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -324,20 +325,20 @@ func resourceGameServicesRealmUpdate(d *schema.ResourceData, meta interface{}) e
 
 func resourceGameServicesRealmDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Realm: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}")
 	if err != nil {
 		return err
 	}
@@ -346,7 +347,7 @@ func resourceGameServicesRealmDelete(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Deleting Realm %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -378,7 +379,7 @@ func resourceGameServicesRealmImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/realms/{{realm_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/realms/{{realm_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -407,7 +408,7 @@ func flattenGameServicesRealmDescription(v interface{}, d *schema.ResourceData, 
 	return v
 }
 
-func expandGameServicesRealmLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandGameServicesRealmLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -418,10 +419,10 @@ func expandGameServicesRealmLabels(v interface{}, d TerraformResourceData, confi
 	return m, nil
 }
 
-func expandGameServicesRealmTimeZone(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGameServicesRealmTimeZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandGameServicesRealmDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGameServicesRealmDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

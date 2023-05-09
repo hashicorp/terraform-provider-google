@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -66,7 +67,7 @@ in the format 'organisations/{{org_name}}/instances/{{instance_name}}'.`,
 
 func resourceApigeeInstanceAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -75,18 +76,18 @@ func resourceApigeeInstanceAttachmentCreate(d *schema.ResourceData, meta interfa
 	environmentProp, err := expandApigeeInstanceAttachmentEnvironment(d.Get("environment"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("environment"); !isEmptyValue(reflect.ValueOf(environmentProp)) && (ok || !reflect.DeepEqual(v, environmentProp)) {
+	} else if v, ok := d.GetOkExists("environment"); !tpgresource.IsEmptyValue(reflect.ValueOf(environmentProp)) && (ok || !reflect.DeepEqual(v, environmentProp)) {
 		obj["environment"] = environmentProp
 	}
 
-	lockName, err := ReplaceVars(d, config, "apigeeInstanceAttachments")
+	lockName, err := tpgresource.ReplaceVars(d, config, "apigeeInstanceAttachments")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments")
 	if err != nil {
 		return err
 	}
@@ -95,7 +96,7 @@ func resourceApigeeInstanceAttachmentCreate(d *schema.ResourceData, meta interfa
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -105,7 +106,7 @@ func resourceApigeeInstanceAttachmentCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{instance_id}}/attachments/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{instance_id}}/attachments/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -129,7 +130,7 @@ func resourceApigeeInstanceAttachmentCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "{{instance_id}}/attachments/{{name}}")
+	id, err = tpgresource.ReplaceVars(d, config, "{{instance_id}}/attachments/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -142,12 +143,12 @@ func resourceApigeeInstanceAttachmentCreate(d *schema.ResourceData, meta interfa
 
 func resourceApigeeInstanceAttachmentRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -155,7 +156,7 @@ func resourceApigeeInstanceAttachmentRead(d *schema.ResourceData, meta interface
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -176,21 +177,21 @@ func resourceApigeeInstanceAttachmentRead(d *schema.ResourceData, meta interface
 
 func resourceApigeeInstanceAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	lockName, err := ReplaceVars(d, config, "apigeeInstanceAttachments")
+	lockName, err := tpgresource.ReplaceVars(d, config, "apigeeInstanceAttachments")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/attachments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -199,7 +200,7 @@ func resourceApigeeInstanceAttachmentDelete(d *schema.ResourceData, meta interfa
 	log.Printf("[DEBUG] Deleting InstanceAttachment %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -232,7 +233,7 @@ func resourceApigeeInstanceAttachmentImport(d *schema.ResourceData, meta interfa
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "{{instance_id}}/attachments/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{instance_id}}/attachments/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -249,6 +250,6 @@ func flattenApigeeInstanceAttachmentName(v interface{}, d *schema.ResourceData, 
 	return v
 }
 
-func expandApigeeInstanceAttachmentEnvironment(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeInstanceAttachmentEnvironment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

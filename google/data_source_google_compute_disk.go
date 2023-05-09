@@ -24,7 +24,7 @@ func DataSourceGoogleComputeDisk() *schema.Resource {
 func dataSourceGoogleComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 
-	id, err := ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/disks/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/disks/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}

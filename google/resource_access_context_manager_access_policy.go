@@ -89,7 +89,7 @@ Format: folders/{{folder_id}} or projects/{{project_id}}`,
 
 func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -98,23 +98,23 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 	parentProp, err := expandAccessContextManagerAccessPolicyParent(d.Get("parent"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("parent"); !isEmptyValue(reflect.ValueOf(parentProp)) && (ok || !reflect.DeepEqual(v, parentProp)) {
+	} else if v, ok := d.GetOkExists("parent"); !tpgresource.IsEmptyValue(reflect.ValueOf(parentProp)) && (ok || !reflect.DeepEqual(v, parentProp)) {
 		obj["parent"] = parentProp
 	}
 	titleProp, err := expandAccessContextManagerAccessPolicyTitle(d.Get("title"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("title"); !isEmptyValue(reflect.ValueOf(titleProp)) && (ok || !reflect.DeepEqual(v, titleProp)) {
+	} else if v, ok := d.GetOkExists("title"); !tpgresource.IsEmptyValue(reflect.ValueOf(titleProp)) && (ok || !reflect.DeepEqual(v, titleProp)) {
 		obj["title"] = titleProp
 	}
 	scopesProp, err := expandAccessContextManagerAccessPolicyScopes(d.Get("scopes"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("scopes"); !isEmptyValue(reflect.ValueOf(scopesProp)) && (ok || !reflect.DeepEqual(v, scopesProp)) {
+	} else if v, ok := d.GetOkExists("scopes"); !tpgresource.IsEmptyValue(reflect.ValueOf(scopesProp)) && (ok || !reflect.DeepEqual(v, scopesProp)) {
 		obj["scopes"] = scopesProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies")
 	if err != nil {
 		return err
 	}
@@ -123,7 +123,7 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -133,7 +133,7 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -157,7 +157,7 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "{{name}}")
+	id, err = tpgresource.ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -182,12 +182,12 @@ func resourceAccessContextManagerAccessPolicyCreate(d *schema.ResourceData, meta
 
 func resourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -195,7 +195,7 @@ func resourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta i
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -228,7 +228,7 @@ func resourceAccessContextManagerAccessPolicyRead(d *schema.ResourceData, meta i
 
 func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -239,17 +239,17 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 	titleProp, err := expandAccessContextManagerAccessPolicyTitle(d.Get("title"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("title"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, titleProp)) {
+	} else if v, ok := d.GetOkExists("title"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, titleProp)) {
 		obj["title"] = titleProp
 	}
 	scopesProp, err := expandAccessContextManagerAccessPolicyScopes(d.Get("scopes"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("scopes"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scopesProp)) {
+	} else if v, ok := d.GetOkExists("scopes"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scopesProp)) {
 		obj["scopes"] = scopesProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -272,7 +272,7 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -297,14 +297,14 @@ func resourceAccessContextManagerAccessPolicyUpdate(d *schema.ResourceData, meta
 
 func resourceAccessContextManagerAccessPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}accessPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -313,7 +313,7 @@ func resourceAccessContextManagerAccessPolicyDelete(d *schema.ResourceData, meta
 	log.Printf("[DEBUG] Deleting AccessPolicy %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -343,7 +343,7 @@ func resourceAccessContextManagerAccessPolicyImport(d *schema.ResourceData, meta
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -379,14 +379,14 @@ func flattenAccessContextManagerAccessPolicyScopes(v interface{}, d *schema.Reso
 	return v
 }
 
-func expandAccessContextManagerAccessPolicyParent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessPolicyParent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessPolicyTitle(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessPolicyTitle(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessPolicyScopes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessPolicyScopes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

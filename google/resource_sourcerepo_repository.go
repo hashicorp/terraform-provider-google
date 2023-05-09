@@ -126,7 +126,7 @@ If unspecified, it defaults to the compute engine default service account.`,
 
 func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -135,17 +135,17 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 	nameProp, err := expandSourceRepoRepositoryName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	pubsubConfigsProp, err := expandSourceRepoRepositoryPubsubConfigs(d.Get("pubsub_configs"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("pubsub_configs"); !isEmptyValue(reflect.ValueOf(pubsubConfigsProp)) && (ok || !reflect.DeepEqual(v, pubsubConfigsProp)) {
+	} else if v, ok := d.GetOkExists("pubsub_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(pubsubConfigsProp)) && (ok || !reflect.DeepEqual(v, pubsubConfigsProp)) {
 		obj["pubsubConfigs"] = pubsubConfigsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos")
+	url, err := tpgresource.ReplaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos")
 	if err != nil {
 		return err
 	}
@@ -153,14 +153,14 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 	log.Printf("[DEBUG] Creating new Repository: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Repository: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -170,13 +170,13 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/repos/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/repos/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	if v, ok := d.GetOkExists("pubsub_configs"); !isEmptyValue(reflect.ValueOf(pubsubConfigsProp)) && (ok || !reflect.DeepEqual(v, pubsubConfigsProp)) {
+	if v, ok := d.GetOkExists("pubsub_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(pubsubConfigsProp)) && (ok || !reflect.DeepEqual(v, pubsubConfigsProp)) {
 		log.Printf("[DEBUG] Calling update after create to patch in pubsub_configs")
 		// pubsub_configs cannot be added on create
 		return resourceSourceRepoRepositoryUpdate(d, meta)
@@ -189,26 +189,26 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 
 func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Repository: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -239,14 +239,14 @@ func resourceSourceRepoRepositoryRead(d *schema.ResourceData, meta interface{}) 
 
 func resourceSourceRepoRepositoryUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Repository: %s", err)
 	}
@@ -256,7 +256,7 @@ func resourceSourceRepoRepositoryUpdate(d *schema.ResourceData, meta interface{}
 	pubsubConfigsProp, err := expandSourceRepoRepositoryPubsubConfigs(d.Get("pubsub_configs"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("pubsub_configs"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, pubsubConfigsProp)) {
+	} else if v, ok := d.GetOkExists("pubsub_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, pubsubConfigsProp)) {
 		obj["pubsubConfigs"] = pubsubConfigsProp
 	}
 
@@ -265,7 +265,7 @@ func resourceSourceRepoRepositoryUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -284,7 +284,7 @@ func resourceSourceRepoRepositoryUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -301,20 +301,20 @@ func resourceSourceRepoRepositoryUpdate(d *schema.ResourceData, meta interface{}
 
 func resourceSourceRepoRepositoryDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Repository: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{SourceRepoBasePath}}projects/{{project}}/repos/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -323,7 +323,7 @@ func resourceSourceRepoRepositoryDelete(d *schema.ResourceData, meta interface{}
 	log.Printf("[DEBUG] Deleting Repository %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -346,7 +346,7 @@ func resourceSourceRepoRepositoryImport(d *schema.ResourceData, meta interface{}
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/repos/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/repos/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -410,11 +410,11 @@ func flattenSourceRepoRepositoryPubsubConfigsServiceAccountEmail(v interface{}, 
 	return v
 }
 
-func expandSourceRepoRepositoryName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return ReplaceVars(d, config, "projects/{{project}}/repos/{{name}}")
+func expandSourceRepoRepositoryName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return tpgresource.ReplaceVars(d, config, "projects/{{project}}/repos/{{name}}")
 }
 
-func expandSourceRepoRepositoryPubsubConfigs(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
+func expandSourceRepoRepositoryPubsubConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
 	if v == nil {
 		return map[string]interface{}{}, nil
 	}
@@ -426,14 +426,14 @@ func expandSourceRepoRepositoryPubsubConfigs(v interface{}, d TerraformResourceD
 		transformedMessageFormat, err := expandSourceRepoRepositoryPubsubConfigsMessageFormat(original["message_format"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedMessageFormat); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedMessageFormat); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["messageFormat"] = transformedMessageFormat
 		}
 
 		transformedServiceAccountEmail, err := expandSourceRepoRepositoryPubsubConfigsServiceAccountEmail(original["service_account_email"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["serviceAccountEmail"] = transformedServiceAccountEmail
 		}
 
@@ -446,11 +446,11 @@ func expandSourceRepoRepositoryPubsubConfigs(v interface{}, d TerraformResourceD
 	return m, nil
 }
 
-func expandSourceRepoRepositoryPubsubConfigsMessageFormat(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandSourceRepoRepositoryPubsubConfigsMessageFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSourceRepoRepositoryPubsubConfigsServiceAccountEmail(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandSourceRepoRepositoryPubsubConfigsServiceAccountEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

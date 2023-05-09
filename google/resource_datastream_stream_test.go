@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 func TestDatastreamStreamCustomDiff(t *testing.T) {
@@ -114,7 +115,7 @@ func TestDatastreamStreamCustomDiff(t *testing.T) {
 			tn = fmt.Sprintf("(new) %s => %s", tc.old, tc.new)
 		}
 		t.Run(tn, func(t *testing.T) {
-			diff := &acctest.ResourceDiffMock{
+			diff := &tpgresource.ResourceDiffMock{
 				Before: map[string]interface{}{
 					"desired_state": tc.old,
 				},

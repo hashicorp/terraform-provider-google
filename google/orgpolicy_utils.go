@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -19,7 +20,7 @@ func resourceOrgPolicyPolicyCustomImport(d *schema.ResourceData, meta interface{
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsRecursive(d, config, "{{parent}}/policies/{{name}}", false, 0)
+	id, err := tpgresource.ReplaceVarsRecursive(d, config, "{{parent}}/policies/{{name}}", false, 0)
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}

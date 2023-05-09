@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -296,7 +297,7 @@ custom access levels - https://cloud.google.com/access-context-manager/docs/cust
 
 func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -305,11 +306,11 @@ func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta
 	accessLevelsProp, err := expandAccessContextManagerAccessLevelsAccessLevels(d.Get("access_levels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("access_levels"); !isEmptyValue(reflect.ValueOf(accessLevelsProp)) && (ok || !reflect.DeepEqual(v, accessLevelsProp)) {
+	} else if v, ok := d.GetOkExists("access_levels"); !tpgresource.IsEmptyValue(reflect.ValueOf(accessLevelsProp)) && (ok || !reflect.DeepEqual(v, accessLevelsProp)) {
 		obj["accessLevels"] = accessLevelsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels:replaceAll")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels:replaceAll")
 	if err != nil {
 		return err
 	}
@@ -318,7 +319,7 @@ func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -328,7 +329,7 @@ func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{parent}}/accessLevels")
+	id, err := tpgresource.ReplaceVars(d, config, "{{parent}}/accessLevels")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -351,12 +352,12 @@ func resourceAccessContextManagerAccessLevelsCreate(d *schema.ResourceData, meta
 
 func resourceAccessContextManagerAccessLevelsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels")
 	if err != nil {
 		return err
 	}
@@ -364,7 +365,7 @@ func resourceAccessContextManagerAccessLevelsRead(d *schema.ResourceData, meta i
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -382,7 +383,7 @@ func resourceAccessContextManagerAccessLevelsRead(d *schema.ResourceData, meta i
 
 func resourceAccessContextManagerAccessLevelsUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -393,11 +394,11 @@ func resourceAccessContextManagerAccessLevelsUpdate(d *schema.ResourceData, meta
 	accessLevelsProp, err := expandAccessContextManagerAccessLevelsAccessLevels(d.Get("access_levels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("access_levels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, accessLevelsProp)) {
+	} else if v, ok := d.GetOkExists("access_levels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, accessLevelsProp)) {
 		obj["accessLevels"] = accessLevelsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels:replaceAll")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels:replaceAll")
 	if err != nil {
 		return err
 	}
@@ -405,7 +406,7 @@ func resourceAccessContextManagerAccessLevelsUpdate(d *schema.ResourceData, meta
 	log.Printf("[DEBUG] Updating AccessLevels %q: %#v", d.Id(), obj)
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -430,7 +431,7 @@ func resourceAccessContextManagerAccessLevelsUpdate(d *schema.ResourceData, meta
 
 func resourceAccessContextManagerAccessLevelsDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -438,7 +439,7 @@ func resourceAccessContextManagerAccessLevelsDelete(d *schema.ResourceData, meta
 	obj := make(map[string]interface{})
 	obj["accessLevels"] = []string{}
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels:replaceAll")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels:replaceAll")
 	if err != nil {
 		return err
 	}
@@ -528,7 +529,7 @@ func flattenAccessContextManagerAccessLevelsAccessLevelsBasic(v interface{}, d *
 	return []interface{}{transformed}
 }
 func flattenAccessContextManagerAccessLevelsAccessLevelsBasicCombiningFunction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+	if v == nil || tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
 		return "AND"
 	}
 
@@ -696,7 +697,7 @@ func flattenAccessContextManagerAccessLevelsAccessLevelsCustomExprLocation(v int
 	return v
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -710,35 +711,35 @@ func expandAccessContextManagerAccessLevelsAccessLevels(v interface{}, d Terrafo
 		transformedName, err := expandAccessContextManagerAccessLevelsAccessLevelsName(original["name"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["name"] = transformedName
 		}
 
 		transformedTitle, err := expandAccessContextManagerAccessLevelsAccessLevelsTitle(original["title"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedTitle); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedTitle); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["title"] = transformedTitle
 		}
 
 		transformedDescription, err := expandAccessContextManagerAccessLevelsAccessLevelsDescription(original["description"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["description"] = transformedDescription
 		}
 
 		transformedBasic, err := expandAccessContextManagerAccessLevelsAccessLevelsBasic(original["basic"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedBasic); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedBasic); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["basic"] = transformedBasic
 		}
 
 		transformedCustom, err := expandAccessContextManagerAccessLevelsAccessLevelsCustom(original["custom"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedCustom); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedCustom); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["custom"] = transformedCustom
 		}
 
@@ -747,19 +748,19 @@ func expandAccessContextManagerAccessLevelsAccessLevels(v interface{}, d Terrafo
 	return req, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsTitle(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsTitle(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsBasic(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsBasic(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -771,25 +772,25 @@ func expandAccessContextManagerAccessLevelsAccessLevelsBasic(v interface{}, d Te
 	transformedCombiningFunction, err := expandAccessContextManagerAccessLevelsAccessLevelsBasicCombiningFunction(original["combining_function"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCombiningFunction); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCombiningFunction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["combiningFunction"] = transformedCombiningFunction
 	}
 
 	transformedConditions, err := expandAccessContextManagerAccessLevelsAccessLevelsBasicConditions(original["conditions"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedConditions); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedConditions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["conditions"] = transformedConditions
 	}
 
 	return transformed, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsBasicCombiningFunction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsBasicCombiningFunction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -802,42 +803,42 @@ func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditions(v interfa
 		transformedIpSubnetworks, err := expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsIpSubnetworks(original["ip_subnetworks"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedIpSubnetworks); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedIpSubnetworks); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["ipSubnetworks"] = transformedIpSubnetworks
 		}
 
 		transformedRequiredAccessLevels, err := expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsRequiredAccessLevels(original["required_access_levels"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedRequiredAccessLevels); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedRequiredAccessLevels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["requiredAccessLevels"] = transformedRequiredAccessLevels
 		}
 
 		transformedMembers, err := expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsMembers(original["members"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedMembers); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedMembers); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["members"] = transformedMembers
 		}
 
 		transformedNegate, err := expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsNegate(original["negate"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedNegate); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedNegate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["negate"] = transformedNegate
 		}
 
 		transformedDevicePolicy, err := expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicy(original["device_policy"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedDevicePolicy); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedDevicePolicy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["devicePolicy"] = transformedDevicePolicy
 		}
 
 		transformedRegions, err := expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsRegions(original["regions"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedRegions); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedRegions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["regions"] = transformedRegions
 		}
 
@@ -846,23 +847,23 @@ func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditions(v interfa
 	return req, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsIpSubnetworks(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsIpSubnetworks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsRequiredAccessLevels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsRequiredAccessLevels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsMembers(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsMembers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsNegate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsNegate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -874,61 +875,61 @@ func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePoli
 	transformedRequireScreenLock, err := expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyRequireScreenLock(original["require_screen_lock"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedRequireScreenLock); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedRequireScreenLock); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["requireScreenlock"] = transformedRequireScreenLock
 	}
 
 	transformedAllowedEncryptionStatuses, err := expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyAllowedEncryptionStatuses(original["allowed_encryption_statuses"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllowedEncryptionStatuses); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAllowedEncryptionStatuses); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["allowedEncryptionStatuses"] = transformedAllowedEncryptionStatuses
 	}
 
 	transformedAllowedDeviceManagementLevels, err := expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyAllowedDeviceManagementLevels(original["allowed_device_management_levels"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAllowedDeviceManagementLevels); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAllowedDeviceManagementLevels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["allowedDeviceManagementLevels"] = transformedAllowedDeviceManagementLevels
 	}
 
 	transformedOsConstraints, err := expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyOsConstraints(original["os_constraints"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedOsConstraints); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedOsConstraints); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["osConstraints"] = transformedOsConstraints
 	}
 
 	transformedRequireAdminApproval, err := expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyRequireAdminApproval(original["require_admin_approval"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedRequireAdminApproval); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedRequireAdminApproval); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["requireAdminApproval"] = transformedRequireAdminApproval
 	}
 
 	transformedRequireCorpOwned, err := expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyRequireCorpOwned(original["require_corp_owned"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedRequireCorpOwned); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedRequireCorpOwned); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["requireCorpOwned"] = transformedRequireCorpOwned
 	}
 
 	return transformed, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyRequireScreenLock(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyRequireScreenLock(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyAllowedEncryptionStatuses(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyAllowedEncryptionStatuses(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyAllowedDeviceManagementLevels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyAllowedDeviceManagementLevels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyOsConstraints(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyOsConstraints(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -941,14 +942,14 @@ func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePoli
 		transformedMinimumVersion, err := expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyOsConstraintsMinimumVersion(original["minimum_version"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedMinimumVersion); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedMinimumVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["minimumVersion"] = transformedMinimumVersion
 		}
 
 		transformedOsType, err := expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyOsConstraintsOsType(original["os_type"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedOsType); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedOsType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["osType"] = transformedOsType
 		}
 
@@ -957,27 +958,27 @@ func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePoli
 	return req, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyOsConstraintsMinimumVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyOsConstraintsMinimumVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyOsConstraintsOsType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyOsConstraintsOsType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyRequireAdminApproval(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyRequireAdminApproval(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyRequireCorpOwned(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsDevicePolicyRequireCorpOwned(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsRegions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsBasicConditionsRegions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsCustom(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsCustom(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -989,14 +990,14 @@ func expandAccessContextManagerAccessLevelsAccessLevelsCustom(v interface{}, d T
 	transformedExpr, err := expandAccessContextManagerAccessLevelsAccessLevelsCustomExpr(original["expr"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedExpr); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedExpr); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["expr"] = transformedExpr
 	}
 
 	return transformed, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsCustomExpr(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsCustomExpr(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1008,46 +1009,46 @@ func expandAccessContextManagerAccessLevelsAccessLevelsCustomExpr(v interface{},
 	transformedExpression, err := expandAccessContextManagerAccessLevelsAccessLevelsCustomExprExpression(original["expression"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedExpression); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedExpression); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["expression"] = transformedExpression
 	}
 
 	transformedTitle, err := expandAccessContextManagerAccessLevelsAccessLevelsCustomExprTitle(original["title"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedTitle); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedTitle); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["title"] = transformedTitle
 	}
 
 	transformedDescription, err := expandAccessContextManagerAccessLevelsAccessLevelsCustomExprDescription(original["description"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["description"] = transformedDescription
 	}
 
 	transformedLocation, err := expandAccessContextManagerAccessLevelsAccessLevelsCustomExprLocation(original["location"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedLocation); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedLocation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["location"] = transformedLocation
 	}
 
 	return transformed, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsCustomExprExpression(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsCustomExprExpression(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsCustomExprTitle(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsCustomExprTitle(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsCustomExprDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsCustomExprDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAccessLevelsAccessLevelsCustomExprLocation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAccessLevelsAccessLevelsCustomExprLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

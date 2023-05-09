@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -152,7 +153,7 @@ For example,
 
 func resourceGameServicesGameServerClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -161,23 +162,23 @@ func resourceGameServicesGameServerClusterCreate(d *schema.ResourceData, meta in
 	labelsProp, err := expandGameServicesGameServerClusterLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	connectionInfoProp, err := expandGameServicesGameServerClusterConnectionInfo(d.Get("connection_info"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("connection_info"); !isEmptyValue(reflect.ValueOf(connectionInfoProp)) && (ok || !reflect.DeepEqual(v, connectionInfoProp)) {
+	} else if v, ok := d.GetOkExists("connection_info"); !tpgresource.IsEmptyValue(reflect.ValueOf(connectionInfoProp)) && (ok || !reflect.DeepEqual(v, connectionInfoProp)) {
 		obj["connectionInfo"] = connectionInfoProp
 	}
 	descriptionProp, err := expandGameServicesGameServerClusterDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters?gameServerClusterId={{cluster_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters?gameServerClusterId={{cluster_id}}")
 	if err != nil {
 		return err
 	}
@@ -185,14 +186,14 @@ func resourceGameServicesGameServerClusterCreate(d *schema.ResourceData, meta in
 	log.Printf("[DEBUG] Creating new GameServerCluster: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for GameServerCluster: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -202,7 +203,7 @@ func resourceGameServicesGameServerClusterCreate(d *schema.ResourceData, meta in
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters/{{cluster_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters/{{cluster_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -226,7 +227,7 @@ func resourceGameServicesGameServerClusterCreate(d *schema.ResourceData, meta in
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters/{{cluster_id}}")
+	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters/{{cluster_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -239,26 +240,26 @@ func resourceGameServicesGameServerClusterCreate(d *schema.ResourceData, meta in
 
 func resourceGameServicesGameServerClusterRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters/{{cluster_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters/{{cluster_id}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for GameServerCluster: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -289,14 +290,14 @@ func resourceGameServicesGameServerClusterRead(d *schema.ResourceData, meta inte
 
 func resourceGameServicesGameServerClusterUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for GameServerCluster: %s", err)
 	}
@@ -306,17 +307,17 @@ func resourceGameServicesGameServerClusterUpdate(d *schema.ResourceData, meta in
 	labelsProp, err := expandGameServicesGameServerClusterLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	descriptionProp, err := expandGameServicesGameServerClusterDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters/{{cluster_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters/{{cluster_id}}")
 	if err != nil {
 		return err
 	}
@@ -339,7 +340,7 @@ func resourceGameServicesGameServerClusterUpdate(d *schema.ResourceData, meta in
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -364,20 +365,20 @@ func resourceGameServicesGameServerClusterUpdate(d *schema.ResourceData, meta in
 
 func resourceGameServicesGameServerClusterDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for GameServerCluster: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters/{{cluster_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters/{{cluster_id}}")
 	if err != nil {
 		return err
 	}
@@ -386,7 +387,7 @@ func resourceGameServicesGameServerClusterDelete(d *schema.ResourceData, meta in
 	log.Printf("[DEBUG] Deleting GameServerCluster %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -418,7 +419,7 @@ func resourceGameServicesGameServerClusterImport(d *schema.ResourceData, meta in
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters/{{cluster_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/realms/{{realm_id}}/gameServerClusters/{{cluster_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -475,7 +476,7 @@ func flattenGameServicesGameServerClusterDescription(v interface{}, d *schema.Re
 	return v
 }
 
-func expandGameServicesGameServerClusterLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandGameServicesGameServerClusterLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -486,7 +487,7 @@ func expandGameServicesGameServerClusterLabels(v interface{}, d TerraformResourc
 	return m, nil
 }
 
-func expandGameServicesGameServerClusterConnectionInfo(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGameServicesGameServerClusterConnectionInfo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -498,21 +499,21 @@ func expandGameServicesGameServerClusterConnectionInfo(v interface{}, d Terrafor
 	transformedGkeClusterReference, err := expandGameServicesGameServerClusterConnectionInfoGkeClusterReference(original["gke_cluster_reference"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedGkeClusterReference); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedGkeClusterReference); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["gkeClusterReference"] = transformedGkeClusterReference
 	}
 
 	transformedNamespace, err := expandGameServicesGameServerClusterConnectionInfoNamespace(original["namespace"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedNamespace); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedNamespace); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["namespace"] = transformedNamespace
 	}
 
 	return transformed, nil
 }
 
-func expandGameServicesGameServerClusterConnectionInfoGkeClusterReference(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGameServicesGameServerClusterConnectionInfoGkeClusterReference(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -524,21 +525,21 @@ func expandGameServicesGameServerClusterConnectionInfoGkeClusterReference(v inte
 	transformedCluster, err := expandGameServicesGameServerClusterConnectionInfoGkeClusterReferenceCluster(original["cluster"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCluster); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCluster); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["cluster"] = transformedCluster
 	}
 
 	return transformed, nil
 }
 
-func expandGameServicesGameServerClusterConnectionInfoGkeClusterReferenceCluster(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGameServicesGameServerClusterConnectionInfoGkeClusterReferenceCluster(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandGameServicesGameServerClusterConnectionInfoNamespace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGameServicesGameServerClusterConnectionInfoNamespace(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandGameServicesGameServerClusterDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGameServicesGameServerClusterDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

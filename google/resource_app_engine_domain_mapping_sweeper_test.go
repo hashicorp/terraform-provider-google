@@ -55,7 +55,7 @@ func testSweepAppEngineDomainMapping(region string) error {
 	billingId := acctest.GetTestBillingAccountFromEnv(t)
 
 	// Setup variables to replace in list template
-	d := &acctest.ResourceDataMock{
+	d := &tpgresource.ResourceDataMock{
 		FieldsInSchema: map[string]interface{}{
 			"project":         config.Project,
 			"region":          region,
@@ -66,7 +66,7 @@ func testSweepAppEngineDomainMapping(region string) error {
 	}
 
 	listTemplate := strings.Split("https://appengine.googleapis.com/v1/apps/{{project}}/domainMappings", "?")[0]
-	listUrl, err := ReplaceVars(d, config, listTemplate)
+	listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 		return nil
@@ -104,7 +104,7 @@ func testSweepAppEngineDomainMapping(region string) error {
 		}
 
 		deleteTemplate := "https://appengine.googleapis.com/v1/apps/{{project}}/domainMappings/{{domain_name}}"
-		deleteUrl, err := ReplaceVars(d, config, deleteTemplate)
+		deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 			return nil

@@ -40,7 +40,7 @@ func DataSourceGoogleCloudIdentityGroupMemberships() *schema.Resource {
 
 func dataSourceGoogleCloudIdentityGroupMembershipsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -50,12 +50,12 @@ func dataSourceGoogleCloudIdentityGroupMembershipsRead(d *schema.ResourceData, m
 	if config.UserProjectOverride {
 		billingProject := ""
 		// err may be nil - project isn't required for this resource
-		if project, err := getProject(d, config); err == nil {
+		if project, err := tpgresource.GetProject(d, config); err == nil {
 			billingProject = project
 		}
 
 		// err == nil indicates that the billing_project value was found
-		if bp, err := getBillingProject(d, config); err == nil {
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 			billingProject = bp
 		}
 

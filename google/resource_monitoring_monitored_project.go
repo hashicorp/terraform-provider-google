@@ -26,6 +26,7 @@ import (
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
 	monitoring "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/monitoring"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -82,18 +83,18 @@ func resourceMonitoringMonitoredProjectCreate(d *schema.ResourceData, meta inter
 	}
 	d.SetId(id)
 	directive := CreateDirective
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 	billingProject := ""
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 	client := transport_tpg.NewDCLMonitoringClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutCreate))
 	client.Config.BasePath += "v1"
-	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := tpgresource.ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -122,18 +123,18 @@ func resourceMonitoringMonitoredProjectRead(d *schema.ResourceData, meta interfa
 		Name:         dcl.String(d.Get("name").(string)),
 	}
 
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 	billingProject := ""
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 	client := transport_tpg.NewDCLMonitoringClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutRead))
 	client.Config.BasePath += "v1"
-	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := tpgresource.ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
@@ -167,18 +168,18 @@ func resourceMonitoringMonitoredProjectDelete(d *schema.ResourceData, meta inter
 	}
 
 	log.Printf("[DEBUG] Deleting MonitoredProject %q", d.Id())
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 	billingProject := ""
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 	client := transport_tpg.NewDCLMonitoringClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
 	client.Config.BasePath += "v1"
-	if bp, err := ReplaceVars(d, config, client.Config.BasePath); err != nil {
+	if bp, err := tpgresource.ReplaceVars(d, config, client.Config.BasePath); err != nil {
 		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {

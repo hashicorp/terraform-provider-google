@@ -1,9 +1,10 @@
 package google
 
 import (
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"testing"
 )
 
 func TestAccAppEngineFlexibleAppVersion_update(t *testing.T) {

@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -94,7 +95,7 @@ func testAccCheckPubsubLiteSubscriptionDestroyProducer(t *testing.T) func(s *ter
 
 			config := GoogleProviderConfig(t)
 
-			url, err := acctest.ReplaceVarsForTest(config, rs, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
 			if err != nil {
 				return err
 			}

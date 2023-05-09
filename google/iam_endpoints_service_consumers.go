@@ -42,11 +42,11 @@ var ServiceManagementServiceConsumersIamSchema = map[string]*schema.Schema{
 type ServiceManagementServiceConsumersIamUpdater struct {
 	serviceName     string
 	consumerProject string
-	d               TerraformResourceData
+	d               tpgresource.TerraformResourceData
 	Config          *transport_tpg.Config
 }
 
-func ServiceManagementServiceConsumersIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func ServiceManagementServiceConsumersIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	if v, ok := d.GetOk("service_name"); ok {
@@ -117,7 +117,7 @@ func (u *ServiceManagementServiceConsumersIamUpdater) GetResourceIamPolicy() (*c
 
 	var obj map[string]interface{}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +150,7 @@ func (u *ServiceManagementServiceConsumersIamUpdater) SetResourceIamPolicy(polic
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -165,7 +165,7 @@ func (u *ServiceManagementServiceConsumersIamUpdater) SetResourceIamPolicy(polic
 
 func (u *ServiceManagementServiceConsumersIamUpdater) qualifyServiceConsumersUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{ServiceManagementBasePath}}%s:%s", fmt.Sprintf("services/%s/consumers/%s", u.serviceName, u.consumerProject), methodIdentifier)
-	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
+	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

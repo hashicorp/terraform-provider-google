@@ -27,12 +27,12 @@ func DataSourceArtifactRegistryRepository() *schema.Resource {
 func dataSourceArtifactRegistryRepositoryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	location, err := getLocation(d, config)
+	location, err := tpgresource.GetLocation(d, config)
 	if err != nil {
 		return err
 	}

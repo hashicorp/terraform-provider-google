@@ -1,9 +1,8 @@
-package google
+package tpgresource
 
 import (
 	"testing"
 
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -68,11 +67,11 @@ func TestParseGlobalFieldValue(t *testing.T) {
 			fieldsInSchema[tc.ProjectSchemaField] = tc.ProjectSchemaValue
 		}
 
-		d := &acctest.ResourceDataMock{
+		d := &ResourceDataMock{
 			FieldsInSchema: fieldsInSchema,
 		}
 
-		v, err := parseGlobalFieldValue(resourceType, tc.FieldValue, tc.ProjectSchemaField, d, tc.Config, tc.IsEmptyValid)
+		v, err := ParseGlobalFieldValue(resourceType, tc.FieldValue, tc.ProjectSchemaField, d, tc.Config, tc.IsEmptyValid)
 
 		if err != nil {
 			if !tc.ExpectedError {
@@ -170,11 +169,11 @@ func TestParseZonalFieldValue(t *testing.T) {
 			fieldsInSchema[tc.ZoneSchemaField] = tc.ZoneSchemaValue
 		}
 
-		d := &acctest.ResourceDataMock{
+		d := &ResourceDataMock{
 			FieldsInSchema: fieldsInSchema,
 		}
 
-		v, err := parseZonalFieldValue(resourceType, tc.FieldValue, tc.ProjectSchemaField, tc.ZoneSchemaField, d, tc.Config, tc.IsEmptyValid)
+		v, err := ParseZonalFieldValue(resourceType, tc.FieldValue, tc.ProjectSchemaField, tc.ZoneSchemaField, d, tc.Config, tc.IsEmptyValid)
 
 		if err != nil {
 			if !tc.ExpectedError {
@@ -217,7 +216,7 @@ func TestParseOrganizationFieldValue(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		v, err := parseOrganizationFieldValue(resourceType, tc.FieldValue, tc.IsEmptyValid)
+		v, err := ParseOrganizationFieldValue(resourceType, tc.FieldValue, tc.IsEmptyValid)
 
 		if err != nil {
 			if !tc.ExpectedError {
@@ -338,11 +337,11 @@ func TestParseRegionalFieldValue(t *testing.T) {
 				fieldsInSchema[tc.ZoneSchemaField] = tc.ZoneSchemaValue
 			}
 
-			d := &acctest.ResourceDataMock{
+			d := &ResourceDataMock{
 				FieldsInSchema: fieldsInSchema,
 			}
 
-			v, err := parseRegionalFieldValue(resourceType, tc.FieldValue, tc.ProjectSchemaField, tc.RegionSchemaField, tc.ZoneSchemaField, d, tc.Config, tc.IsEmptyValid)
+			v, err := ParseRegionalFieldValue(resourceType, tc.FieldValue, tc.ProjectSchemaField, tc.RegionSchemaField, tc.ZoneSchemaField, d, tc.Config, tc.IsEmptyValid)
 
 			if err != nil {
 				if !tc.ExpectedError {
@@ -418,11 +417,11 @@ func TestParseProjectFieldValue(t *testing.T) {
 			fieldsInSchema[tc.ProjectSchemaField] = tc.ProjectSchemaValue
 		}
 
-		d := &acctest.ResourceDataMock{
+		d := &ResourceDataMock{
 			FieldsInSchema: fieldsInSchema,
 		}
 
-		v, err := parseProjectFieldValue(resourceType, tc.FieldValue, tc.ProjectSchemaField, d, tc.Config, tc.IsEmptyValid)
+		v, err := ParseProjectFieldValue(resourceType, tc.FieldValue, tc.ProjectSchemaField, d, tc.Config, tc.IsEmptyValid)
 
 		if err != nil {
 			if !tc.ExpectedError {

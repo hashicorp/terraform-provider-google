@@ -3,14 +3,16 @@ package google
 import (
 	"bytes"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"io/ioutil"
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccDeploymentManagerDeployment_basicFile(t *testing.T) {
@@ -425,7 +427,7 @@ func testAccCheckDeploymentManagerDeploymentDestroyProducer(t *testing.T) func(s
 
 			config := GoogleProviderConfig(t)
 
-			url, err := acctest.ReplaceVarsForTest(config, rs, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{DeploymentManagerBasePath}}projects/{{project}}/global/deployments/{{name}}")
 			if err != nil {
 				return err
 			}

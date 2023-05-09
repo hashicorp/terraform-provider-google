@@ -50,11 +50,11 @@ type PrivatecaCaPoolIamUpdater struct {
 	project  string
 	location string
 	caPool   string
-	d        TerraformResourceData
+	d        tpgresource.TerraformResourceData
 	Config   *transport_tpg.Config
 }
 
-func PrivatecaCaPoolIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func PrivatecaCaPoolIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)
@@ -148,7 +148,7 @@ func (u *PrivatecaCaPoolIamUpdater) GetResourceIamPolicy() (*cloudresourcemanage
 		return nil, err
 	}
 
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +158,7 @@ func (u *PrivatecaCaPoolIamUpdater) GetResourceIamPolicy() (*cloudresourcemanage
 		return nil, err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -190,12 +190,12 @@ func (u *PrivatecaCaPoolIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 	if err != nil {
 		return err
 	}
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -210,7 +210,7 @@ func (u *PrivatecaCaPoolIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 
 func (u *PrivatecaCaPoolIamUpdater) qualifyCaPoolUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{PrivatecaBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/caPools/%s", u.project, u.location, u.caPool), methodIdentifier)
-	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
+	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

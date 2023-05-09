@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 type TestWaiter struct {
@@ -35,7 +35,7 @@ func (w *TestWaiter) QueryOp() (interface{}, error) {
 	w.runCount++
 	if w.runCount == 1 {
 		return nil, &url.Error{
-			Err: acctest.TimeoutErr,
+			Err: transport_tpg.TimeoutErr,
 		}
 	}
 	return "my return value", nil

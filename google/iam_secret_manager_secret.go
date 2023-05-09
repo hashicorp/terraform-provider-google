@@ -43,11 +43,11 @@ var SecretManagerSecretIamSchema = map[string]*schema.Schema{
 type SecretManagerSecretIamUpdater struct {
 	project  string
 	secretId string
-	d        TerraformResourceData
+	d        tpgresource.TerraformResourceData
 	Config   *transport_tpg.Config
 }
 
-func SecretManagerSecretIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func SecretManagerSecretIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)
@@ -124,13 +124,13 @@ func (u *SecretManagerSecretIamUpdater) GetResourceIamPolicy() (*cloudresourcema
 		return nil, err
 	}
 
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
 	var obj map[string]interface{}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -162,12 +162,12 @@ func (u *SecretManagerSecretIamUpdater) SetResourceIamPolicy(policy *cloudresour
 	if err != nil {
 		return err
 	}
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -182,7 +182,7 @@ func (u *SecretManagerSecretIamUpdater) SetResourceIamPolicy(policy *cloudresour
 
 func (u *SecretManagerSecretIamUpdater) qualifySecretUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{SecretManagerBasePath}}%s:%s", fmt.Sprintf("projects/%s/secrets/%s", u.project, u.secretId), methodIdentifier)
-	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
+	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

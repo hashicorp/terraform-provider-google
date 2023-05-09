@@ -264,22 +264,22 @@ func shouldStopDataflowJobDeleteQuery(state string, skipWait bool) bool {
 
 func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	region, err := getRegion(d, config)
+	region, err := tpgresource.GetRegion(d, config)
 	if err != nil {
 		return err
 	}
 
-	params := expandStringMap(d, "parameters")
+	params := tpgresource.ExpandStringMap(d, "parameters")
 
 	env, err := resourceDataflowJobSetupEnv(d, config)
 	if err != nil {
@@ -304,17 +304,17 @@ func resourceDataflowJobCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	region, err := getRegion(d, config)
+	region, err := tpgresource.GetRegion(d, config)
 	if err != nil {
 		return err
 	}
@@ -387,23 +387,23 @@ func resourceDataflowJobUpdateByReplacement(d *schema.ResourceData, meta interfa
 	}
 
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	region, err := getRegion(d, config)
+	region, err := tpgresource.GetRegion(d, config)
 	if err != nil {
 		return err
 	}
 
-	params := expandStringMap(d, "parameters")
-	tnamemapping := expandStringMap(d, "transform_name_mapping")
+	params := tpgresource.ExpandStringMap(d, "parameters")
+	tnamemapping := tpgresource.ExpandStringMap(d, "transform_name_mapping")
 
 	env, err := resourceDataflowJobSetupEnv(d, config)
 	if err != nil {
@@ -438,17 +438,17 @@ func resourceDataflowJobUpdateByReplacement(d *schema.ResourceData, meta interfa
 
 func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	region, err := getRegion(d, config)
+	region, err := tpgresource.GetRegion(d, config)
 	if err != nil {
 		return err
 	}
@@ -558,9 +558,9 @@ func resourceDataflowJobLaunchTemplate(config *transport_tpg.Config, project, re
 }
 
 func resourceDataflowJobSetupEnv(d *schema.ResourceData, config *transport_tpg.Config) (dataflow.RuntimeEnvironment, error) {
-	zone, _ := getZone(d, config)
+	zone, _ := tpgresource.GetZone(d, config)
 
-	labels := expandStringMap(d, "labels")
+	labels := tpgresource.ExpandStringMap(d, "labels")
 
 	additionalExperiments := convertStringSet(d.Get("additional_experiments").(*schema.Set))
 
@@ -629,12 +629,12 @@ func resourceDataflowJobIsVirtualUpdate(d *schema.ResourceData, resourceSchema m
 
 func waitForDataflowJobToBeUpdated(d *schema.ResourceData, config *transport_tpg.Config, replacementJobID, userAgent string, timeout time.Duration) error {
 	return resource.Retry(timeout, func() *resource.RetryError {
-		project, err := getProject(d, config)
+		project, err := tpgresource.GetProject(d, config)
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
 
-		region, err := getRegion(d, config)
+		region, err := tpgresource.GetRegion(d, config)
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}

@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/bigtableadmin/v2"
 
@@ -34,12 +35,12 @@ type BigtableTableIamUpdater struct {
 	project  string
 	instance string
 	table    string
-	d        TerraformResourceData
+	d        tpgresource.TerraformResourceData
 	Config   *transport_tpg.Config
 }
 
-func NewBigtableTableUpdater(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
-	project, err := getProject(d, config)
+func NewBigtableTableUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +66,7 @@ func BigtableTableIdParseFunc(d *schema.ResourceData, config *transport_tpg.Conf
 		return err
 	}
 
-	project, _ := getProject(d, config)
+	project, _ := tpgresource.GetProject(d, config)
 
 	for k, v := range m {
 		values[k] = v
@@ -91,7 +92,7 @@ func BigtableTableIdParseFunc(d *schema.ResourceData, config *transport_tpg.Conf
 func (u *BigtableTableIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	req := &bigtableadmin.GetIamPolicyRequest{}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +118,7 @@ func (u *BigtableTableIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 
 	req := &bigtableadmin.SetIamPolicyRequest{Policy: bigtablePolicy}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}

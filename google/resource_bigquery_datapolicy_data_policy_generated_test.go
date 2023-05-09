@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -87,7 +88,7 @@ func testAccCheckBigqueryDatapolicyDataPolicyDestroyProducer(t *testing.T) func(
 
 			config := GoogleProviderConfig(t)
 
-			url, err := acctest.ReplaceVarsForTest(config, rs, "{{BigqueryDatapolicyBasePath}}projects/{{project}}/locations/{{location}}/dataPolicies/{{data_policy_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{BigqueryDatapolicyBasePath}}projects/{{project}}/locations/{{location}}/dataPolicies/{{data_policy_id}}")
 			if err != nil {
 				return err
 			}

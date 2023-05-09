@@ -22,11 +22,11 @@ var IamFolderSchema = map[string]*schema.Schema{
 
 type FolderIamUpdater struct {
 	folderId string
-	d        TerraformResourceData
+	d        tpgresource.TerraformResourceData
 	Config   *transport_tpg.Config
 }
 
-func NewFolderIamUpdater(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func NewFolderIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	return &FolderIamUpdater{
 		folderId: canonicalFolderId(d.Get("folder").(string)),
 		d:        d,
@@ -45,7 +45,7 @@ func FolderIdParseFunc(d *schema.ResourceData, _ *transport_tpg.Config) error {
 }
 
 func (u *FolderIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (u *FolderIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Pol
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}

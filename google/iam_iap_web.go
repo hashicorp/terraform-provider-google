@@ -37,11 +37,11 @@ var IapWebIamSchema = map[string]*schema.Schema{
 
 type IapWebIamUpdater struct {
 	project string
-	d       TerraformResourceData
+	d       tpgresource.TerraformResourceData
 	Config  *transport_tpg.Config
 }
 
-func IapWebIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func IapWebIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)
@@ -110,7 +110,7 @@ func (u *IapWebIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy,
 		return nil, err
 	}
 
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ func (u *IapWebIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy,
 		},
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -153,12 +153,12 @@ func (u *IapWebIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Pol
 	if err != nil {
 		return err
 	}
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func (u *IapWebIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Pol
 
 func (u *IapWebIamUpdater) qualifyWebUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_web", u.project), methodIdentifier)
-	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
+	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

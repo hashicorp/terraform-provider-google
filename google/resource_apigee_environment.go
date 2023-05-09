@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -131,7 +132,7 @@ all instances.`,
 
 func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -140,41 +141,41 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 	nameProp, err := expandApigeeEnvironmentName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	displayNameProp, err := expandApigeeEnvironmentDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	descriptionProp, err := expandApigeeEnvironmentDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	deploymentTypeProp, err := expandApigeeEnvironmentDeploymentType(d.Get("deployment_type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("deployment_type"); !isEmptyValue(reflect.ValueOf(deploymentTypeProp)) && (ok || !reflect.DeepEqual(v, deploymentTypeProp)) {
+	} else if v, ok := d.GetOkExists("deployment_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(deploymentTypeProp)) && (ok || !reflect.DeepEqual(v, deploymentTypeProp)) {
 		obj["deploymentType"] = deploymentTypeProp
 	}
 	apiProxyTypeProp, err := expandApigeeEnvironmentApiProxyType(d.Get("api_proxy_type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("api_proxy_type"); !isEmptyValue(reflect.ValueOf(apiProxyTypeProp)) && (ok || !reflect.DeepEqual(v, apiProxyTypeProp)) {
+	} else if v, ok := d.GetOkExists("api_proxy_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(apiProxyTypeProp)) && (ok || !reflect.DeepEqual(v, apiProxyTypeProp)) {
 		obj["apiProxyType"] = apiProxyTypeProp
 	}
 	nodeConfigProp, err := expandApigeeEnvironmentNodeConfig(d.Get("node_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("node_config"); !isEmptyValue(reflect.ValueOf(nodeConfigProp)) && (ok || !reflect.DeepEqual(v, nodeConfigProp)) {
+	} else if v, ok := d.GetOkExists("node_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(nodeConfigProp)) && (ok || !reflect.DeepEqual(v, nodeConfigProp)) {
 		obj["nodeConfig"] = nodeConfigProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments")
 	if err != nil {
 		return err
 	}
@@ -183,7 +184,7 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -193,7 +194,7 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{org_id}}/environments/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{org_id}}/environments/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -217,7 +218,7 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "{{org_id}}/environments/{{name}}")
+	id, err = tpgresource.ReplaceVars(d, config, "{{org_id}}/environments/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -230,12 +231,12 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceApigeeEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -243,7 +244,7 @@ func resourceApigeeEnvironmentRead(d *schema.ResourceData, meta interface{}) err
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -276,7 +277,7 @@ func resourceApigeeEnvironmentRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -287,11 +288,11 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 	nodeConfigProp, err := expandApigeeEnvironmentNodeConfig(d.Get("node_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("node_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nodeConfigProp)) {
+	} else if v, ok := d.GetOkExists("node_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nodeConfigProp)) {
 		obj["nodeConfig"] = nodeConfigProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -310,7 +311,7 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -335,14 +336,14 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 
 func resourceApigeeEnvironmentDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -351,7 +352,7 @@ func resourceApigeeEnvironmentDelete(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Deleting Environment %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -408,7 +409,7 @@ func resourceApigeeEnvironmentImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "{{org_id}}/environments/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{org_id}}/environments/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -466,27 +467,27 @@ func flattenApigeeEnvironmentNodeConfigCurrentAggregateNodeCount(v interface{}, 
 	return v
 }
 
-func expandApigeeEnvironmentName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeEnvironmentName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvironmentDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeEnvironmentDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvironmentDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeEnvironmentDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvironmentDeploymentType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeEnvironmentDeploymentType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvironmentApiProxyType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeEnvironmentApiProxyType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvironmentNodeConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeEnvironmentNodeConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -498,35 +499,35 @@ func expandApigeeEnvironmentNodeConfig(v interface{}, d TerraformResourceData, c
 	transformedMinNodeCount, err := expandApigeeEnvironmentNodeConfigMinNodeCount(original["min_node_count"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMinNodeCount); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMinNodeCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["minNodeCount"] = transformedMinNodeCount
 	}
 
 	transformedMaxNodeCount, err := expandApigeeEnvironmentNodeConfigMaxNodeCount(original["max_node_count"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxNodeCount); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMaxNodeCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["maxNodeCount"] = transformedMaxNodeCount
 	}
 
 	transformedCurrentAggregateNodeCount, err := expandApigeeEnvironmentNodeConfigCurrentAggregateNodeCount(original["current_aggregate_node_count"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCurrentAggregateNodeCount); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCurrentAggregateNodeCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["currentAggregateNodeCount"] = transformedCurrentAggregateNodeCount
 	}
 
 	return transformed, nil
 }
 
-func expandApigeeEnvironmentNodeConfigMinNodeCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeEnvironmentNodeConfigMinNodeCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvironmentNodeConfigMaxNodeCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeEnvironmentNodeConfigMaxNodeCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvironmentNodeConfigCurrentAggregateNodeCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeEnvironmentNodeConfigCurrentAggregateNodeCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

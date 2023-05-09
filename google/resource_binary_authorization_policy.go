@@ -224,7 +224,7 @@ policy will be subject to the project admission policy. Possible values: ["ENABL
 
 func resourceBinaryAuthorizationPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -233,35 +233,35 @@ func resourceBinaryAuthorizationPolicyCreate(d *schema.ResourceData, meta interf
 	descriptionProp, err := expandBinaryAuthorizationPolicyDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	globalPolicyEvaluationModeProp, err := expandBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(d.Get("global_policy_evaluation_mode"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("global_policy_evaluation_mode"); !isEmptyValue(reflect.ValueOf(globalPolicyEvaluationModeProp)) && (ok || !reflect.DeepEqual(v, globalPolicyEvaluationModeProp)) {
+	} else if v, ok := d.GetOkExists("global_policy_evaluation_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(globalPolicyEvaluationModeProp)) && (ok || !reflect.DeepEqual(v, globalPolicyEvaluationModeProp)) {
 		obj["globalPolicyEvaluationMode"] = globalPolicyEvaluationModeProp
 	}
 	admissionWhitelistPatternsProp, err := expandBinaryAuthorizationPolicyAdmissionWhitelistPatterns(d.Get("admission_whitelist_patterns"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("admission_whitelist_patterns"); !isEmptyValue(reflect.ValueOf(admissionWhitelistPatternsProp)) && (ok || !reflect.DeepEqual(v, admissionWhitelistPatternsProp)) {
+	} else if v, ok := d.GetOkExists("admission_whitelist_patterns"); !tpgresource.IsEmptyValue(reflect.ValueOf(admissionWhitelistPatternsProp)) && (ok || !reflect.DeepEqual(v, admissionWhitelistPatternsProp)) {
 		obj["admissionWhitelistPatterns"] = admissionWhitelistPatternsProp
 	}
 	clusterAdmissionRulesProp, err := expandBinaryAuthorizationPolicyClusterAdmissionRules(d.Get("cluster_admission_rules"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("cluster_admission_rules"); !isEmptyValue(reflect.ValueOf(clusterAdmissionRulesProp)) && (ok || !reflect.DeepEqual(v, clusterAdmissionRulesProp)) {
+	} else if v, ok := d.GetOkExists("cluster_admission_rules"); !tpgresource.IsEmptyValue(reflect.ValueOf(clusterAdmissionRulesProp)) && (ok || !reflect.DeepEqual(v, clusterAdmissionRulesProp)) {
 		obj["clusterAdmissionRules"] = clusterAdmissionRulesProp
 	}
 	defaultAdmissionRuleProp, err := expandBinaryAuthorizationPolicyDefaultAdmissionRule(d.Get("default_admission_rule"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("default_admission_rule"); !isEmptyValue(reflect.ValueOf(defaultAdmissionRuleProp)) && (ok || !reflect.DeepEqual(v, defaultAdmissionRuleProp)) {
+	} else if v, ok := d.GetOkExists("default_admission_rule"); !tpgresource.IsEmptyValue(reflect.ValueOf(defaultAdmissionRuleProp)) && (ok || !reflect.DeepEqual(v, defaultAdmissionRuleProp)) {
 		obj["defaultAdmissionRule"] = defaultAdmissionRuleProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/policy")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/policy")
 	if err != nil {
 		return err
 	}
@@ -269,14 +269,14 @@ func resourceBinaryAuthorizationPolicyCreate(d *schema.ResourceData, meta interf
 	log.Printf("[DEBUG] Creating new Policy: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Policy: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -286,7 +286,7 @@ func resourceBinaryAuthorizationPolicyCreate(d *schema.ResourceData, meta interf
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -299,26 +299,26 @@ func resourceBinaryAuthorizationPolicyCreate(d *schema.ResourceData, meta interf
 
 func resourceBinaryAuthorizationPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/policy")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/policy")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Policy: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -352,14 +352,14 @@ func resourceBinaryAuthorizationPolicyRead(d *schema.ResourceData, meta interfac
 
 func resourceBinaryAuthorizationPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Policy: %s", err)
 	}
@@ -369,35 +369,35 @@ func resourceBinaryAuthorizationPolicyUpdate(d *schema.ResourceData, meta interf
 	descriptionProp, err := expandBinaryAuthorizationPolicyDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	globalPolicyEvaluationModeProp, err := expandBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(d.Get("global_policy_evaluation_mode"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("global_policy_evaluation_mode"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, globalPolicyEvaluationModeProp)) {
+	} else if v, ok := d.GetOkExists("global_policy_evaluation_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, globalPolicyEvaluationModeProp)) {
 		obj["globalPolicyEvaluationMode"] = globalPolicyEvaluationModeProp
 	}
 	admissionWhitelistPatternsProp, err := expandBinaryAuthorizationPolicyAdmissionWhitelistPatterns(d.Get("admission_whitelist_patterns"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("admission_whitelist_patterns"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, admissionWhitelistPatternsProp)) {
+	} else if v, ok := d.GetOkExists("admission_whitelist_patterns"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, admissionWhitelistPatternsProp)) {
 		obj["admissionWhitelistPatterns"] = admissionWhitelistPatternsProp
 	}
 	clusterAdmissionRulesProp, err := expandBinaryAuthorizationPolicyClusterAdmissionRules(d.Get("cluster_admission_rules"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("cluster_admission_rules"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, clusterAdmissionRulesProp)) {
+	} else if v, ok := d.GetOkExists("cluster_admission_rules"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, clusterAdmissionRulesProp)) {
 		obj["clusterAdmissionRules"] = clusterAdmissionRulesProp
 	}
 	defaultAdmissionRuleProp, err := expandBinaryAuthorizationPolicyDefaultAdmissionRule(d.Get("default_admission_rule"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("default_admission_rule"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, defaultAdmissionRuleProp)) {
+	} else if v, ok := d.GetOkExists("default_admission_rule"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, defaultAdmissionRuleProp)) {
 		obj["defaultAdmissionRule"] = defaultAdmissionRuleProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/policy")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/policy")
 	if err != nil {
 		return err
 	}
@@ -405,7 +405,7 @@ func resourceBinaryAuthorizationPolicyUpdate(d *schema.ResourceData, meta interf
 	log.Printf("[DEBUG] Updating Policy %q: %#v", d.Id(), obj)
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -422,20 +422,20 @@ func resourceBinaryAuthorizationPolicyUpdate(d *schema.ResourceData, meta interf
 
 func resourceBinaryAuthorizationPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Policy: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/policy")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BinaryAuthorizationBasePath}}projects/{{project}}/policy")
 	if err != nil {
 		return err
 	}
@@ -445,7 +445,7 @@ func resourceBinaryAuthorizationPolicyDelete(d *schema.ResourceData, meta interf
 	log.Printf("[DEBUG] Deleting Policy %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -468,7 +468,7 @@ func resourceBinaryAuthorizationPolicyImport(d *schema.ResourceData, meta interf
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -571,15 +571,15 @@ func flattenBinaryAuthorizationPolicyDefaultAdmissionRuleEnforcementMode(v inter
 	return v
 }
 
-func expandBinaryAuthorizationPolicyDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyGlobalPolicyEvaluationMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBinaryAuthorizationPolicyAdmissionWhitelistPatterns(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyAdmissionWhitelistPatterns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -592,7 +592,7 @@ func expandBinaryAuthorizationPolicyAdmissionWhitelistPatterns(v interface{}, d 
 		transformedNamePattern, err := expandBinaryAuthorizationPolicyAdmissionWhitelistPatternsNamePattern(original["name_pattern"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedNamePattern); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedNamePattern); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["namePattern"] = transformedNamePattern
 		}
 
@@ -601,11 +601,11 @@ func expandBinaryAuthorizationPolicyAdmissionWhitelistPatterns(v interface{}, d 
 	return req, nil
 }
 
-func expandBinaryAuthorizationPolicyAdmissionWhitelistPatternsNamePattern(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyAdmissionWhitelistPatternsNamePattern(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBinaryAuthorizationPolicyClusterAdmissionRules(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
+func expandBinaryAuthorizationPolicyClusterAdmissionRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
 	if v == nil {
 		return map[string]interface{}{}, nil
 	}
@@ -617,21 +617,21 @@ func expandBinaryAuthorizationPolicyClusterAdmissionRules(v interface{}, d Terra
 		transformedEvaluationMode, err := expandBinaryAuthorizationPolicyClusterAdmissionRulesEvaluationMode(original["evaluation_mode"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedEvaluationMode); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedEvaluationMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["evaluationMode"] = transformedEvaluationMode
 		}
 
 		transformedRequireAttestationsBy, err := expandBinaryAuthorizationPolicyClusterAdmissionRulesRequireAttestationsBy(original["require_attestations_by"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedRequireAttestationsBy); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedRequireAttestationsBy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["requireAttestationsBy"] = transformedRequireAttestationsBy
 		}
 
 		transformedEnforcementMode, err := expandBinaryAuthorizationPolicyClusterAdmissionRulesEnforcementMode(original["enforcement_mode"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedEnforcementMode); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedEnforcementMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["enforcementMode"] = transformedEnforcementMode
 		}
 
@@ -644,11 +644,11 @@ func expandBinaryAuthorizationPolicyClusterAdmissionRules(v interface{}, d Terra
 	return m, nil
 }
 
-func expandBinaryAuthorizationPolicyClusterAdmissionRulesEvaluationMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyClusterAdmissionRulesEvaluationMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBinaryAuthorizationPolicyClusterAdmissionRulesRequireAttestationsBy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyClusterAdmissionRulesRequireAttestationsBy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	r := regexp.MustCompile("projects/(.+)/attestors/(.+)")
 
 	// It's possible that all entries in the list will specify a project, in
@@ -658,7 +658,7 @@ func expandBinaryAuthorizationPolicyClusterAdmissionRulesRequireAttestationsBy(v
 	var err error
 	for _, s := range v.(*schema.Set).List() {
 		if !r.MatchString(s.(string)) {
-			project, err = getProject(d, config)
+			project, err = tpgresource.GetProject(d, config)
 			if err != nil {
 				return []interface{}{}, err
 			}
@@ -675,11 +675,11 @@ func expandBinaryAuthorizationPolicyClusterAdmissionRulesRequireAttestationsBy(v
 	}), nil
 }
 
-func expandBinaryAuthorizationPolicyClusterAdmissionRulesEnforcementMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyClusterAdmissionRulesEnforcementMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBinaryAuthorizationPolicyDefaultAdmissionRule(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyDefaultAdmissionRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -691,32 +691,32 @@ func expandBinaryAuthorizationPolicyDefaultAdmissionRule(v interface{}, d Terraf
 	transformedEvaluationMode, err := expandBinaryAuthorizationPolicyDefaultAdmissionRuleEvaluationMode(original["evaluation_mode"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedEvaluationMode); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedEvaluationMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["evaluationMode"] = transformedEvaluationMode
 	}
 
 	transformedRequireAttestationsBy, err := expandBinaryAuthorizationPolicyDefaultAdmissionRuleRequireAttestationsBy(original["require_attestations_by"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedRequireAttestationsBy); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedRequireAttestationsBy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["requireAttestationsBy"] = transformedRequireAttestationsBy
 	}
 
 	transformedEnforcementMode, err := expandBinaryAuthorizationPolicyDefaultAdmissionRuleEnforcementMode(original["enforcement_mode"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedEnforcementMode); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedEnforcementMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["enforcementMode"] = transformedEnforcementMode
 	}
 
 	return transformed, nil
 }
 
-func expandBinaryAuthorizationPolicyDefaultAdmissionRuleEvaluationMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyDefaultAdmissionRuleEvaluationMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandBinaryAuthorizationPolicyDefaultAdmissionRuleRequireAttestationsBy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyDefaultAdmissionRuleRequireAttestationsBy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	r := regexp.MustCompile("projects/(.+)/attestors/(.+)")
 
 	// It's possible that all entries in the list will specify a project, in
@@ -726,7 +726,7 @@ func expandBinaryAuthorizationPolicyDefaultAdmissionRuleRequireAttestationsBy(v 
 	var err error
 	for _, s := range v.(*schema.Set).List() {
 		if !r.MatchString(s.(string)) {
-			project, err = getProject(d, config)
+			project, err = tpgresource.GetProject(d, config)
 			if err != nil {
 				return []interface{}{}, err
 			}
@@ -743,6 +743,6 @@ func expandBinaryAuthorizationPolicyDefaultAdmissionRuleRequireAttestationsBy(v 
 	}), nil
 }
 
-func expandBinaryAuthorizationPolicyDefaultAdmissionRuleEnforcementMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandBinaryAuthorizationPolicyDefaultAdmissionRuleEnforcementMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

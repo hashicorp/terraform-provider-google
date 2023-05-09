@@ -23,7 +23,7 @@ func DataSourceGoogleRedisInstance() *schema.Resource {
 }
 
 func dataSourceGoogleRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	id, err := ReplaceVars(d, meta.(*transport_tpg.Config), "projects/{{project}}/locations/{{region}}/instances/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, meta.(*transport_tpg.Config), "projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}

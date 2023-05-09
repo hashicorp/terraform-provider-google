@@ -2,9 +2,11 @@ package google
 
 import (
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"time"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -51,12 +53,12 @@ func ResourceComputeProjectDefaultNetworkTier() *schema.Resource {
 
 func resourceComputeProjectDefaultNetworkTierCreateOrUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	projectID, err := getProject(d, config)
+	projectID, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -82,7 +84,7 @@ func resourceComputeProjectDefaultNetworkTierCreateOrUpdate(d *schema.ResourceDa
 
 func resourceComputeProjectDefaultNetworkTierRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}

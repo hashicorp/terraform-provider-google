@@ -104,7 +104,7 @@ func clusterSchemaNodeConfig() *schema.Schema {
 	schemaMap := nodeConfigSch.Elem.(*schema.Resource).Schema
 	for _, k := range forceNewClusterNodeConfigFields {
 		if sch, ok := schemaMap[k]; ok {
-			changeFieldSchemaToForceNew(sch)
+			tpgresource.ChangeFieldSchemaToForceNew(sch)
 		}
 	}
 	return nodeConfigSch
@@ -1730,17 +1730,17 @@ func resourceNodeConfigEmptyGuestAccelerator(_ context.Context, diff *schema.Res
 
 func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	location, err := getLocation(d, config)
+	location, err := tpgresource.GetLocation(d, config)
 	if err != nil {
 		return err
 	}
@@ -1790,7 +1790,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		MasterAuth:           expandMasterAuth(d.Get("master_auth")),
 		NotificationConfig:   expandNotificationConfig(d.Get("notification_config")),
 		ConfidentialNodes:    expandConfidentialNodes(d.Get("confidential_nodes")),
-		ResourceLabels:       expandStringMap(d, "resource_labels"),
+		ResourceLabels:       tpgresource.ExpandStringMap(d, "resource_labels"),
 		CostManagementConfig: expandCostManagementConfig(d.Get("cost_management_config")),
 	}
 
@@ -1824,14 +1824,14 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		// GKE requires a full list of node locations
 		// but when using a multi-zonal cluster our schema only asks for the
 		// additional zones, so append the cluster location if it's a zone
-		if isZone(location) {
+		if tpgresource.IsZone(location) {
 			locationsSet.Add(location)
 		}
 		cluster.Locations = convertStringSet(locationsSet)
 	}
 
 	if v, ok := d.GetOk("network"); ok {
-		network, err := ParseNetworkFieldValue(v.(string), d, config)
+		network, err := tpgresource.ParseNetworkFieldValue(v.(string), d, config)
 		if err != nil {
 			return err
 		}
@@ -1839,7 +1839,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("subnetwork"); ok {
-		subnetwork, err := parseRegionalFieldValue("subnetworks", v.(string), "project", "location", "location", d, config, true) // variant of ParseSubnetworkFieldValue
+		subnetwork, err := tpgresource.ParseRegionalFieldValue("subnetworks", v.(string), "project", "location", "location", d, config, true) // variant of ParseSubnetworkFieldValue
 		if err != nil {
 			return err
 		}
@@ -2017,17 +2017,17 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	location, err := getLocation(d, config)
+	location, err := tpgresource.GetLocation(d, config)
 	if err != nil {
 		return err
 	}
@@ -2295,17 +2295,17 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	location, err := getLocation(d, config)
+	location, err := tpgresource.GetLocation(d, config)
 	if err != nil {
 		return err
 	}
@@ -2722,7 +2722,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		// zones, then remove the ones we aren't using anymore.
 		azSet := azSetOld.Union(azSetNew)
 
-		if isZone(location) {
+		if tpgresource.IsZone(location) {
 			azSet.Add(location)
 		}
 
@@ -2738,7 +2738,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 
-		if isZone(location) {
+		if tpgresource.IsZone(location) {
 			azSetNew.Add(location)
 		}
 		if !azSet.Equal(azSetNew) {
@@ -3281,17 +3281,17 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	location, err := getLocation(d, config)
+	location, err := tpgresource.GetLocation(d, config)
 	if err != nil {
 		return err
 	}
@@ -3357,17 +3357,17 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 func cleanFailedContainerCluster(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	location, err := getLocation(d, config)
+	location, err := tpgresource.GetLocation(d, config)
 	if err != nil {
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -3564,11 +3564,11 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 	// We have to perform a full Get() as part of this, to get the fingerprint.  We can't do this
 	// at any other time, because the fingerprint update might happen between plan and apply.
 	// We can omit error checks, since to have gotten this far, a project is definitely configured.
-	project, _ := getProject(d, config)
-	location, _ := getLocation(d, config)
+	project, _ := tpgresource.GetProject(d, config)
+	location, _ := tpgresource.GetLocation(d, config)
 	clusterName := d.Get("name").(string)
 	name := containerClusterFullName(project, location, clusterName)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return nil
 	}
@@ -4890,7 +4890,7 @@ func flattenManagedPrometheusConfig(c *container.ManagedPrometheusConfig) []map[
 func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -4898,12 +4898,12 @@ func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interfac
 	if err := ParseImportId([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/clusters/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)", "(?P<location>[^/]+)/(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return nil, err
 	}
 
-	location, err := getLocation(d, config)
+	location, err := tpgresource.GetLocation(d, config)
 	if err != nil {
 		return nil, err
 	}
@@ -4931,12 +4931,12 @@ func containerClusterFullName(project, location, cluster string) string {
 }
 
 func extractNodePoolInformationFromCluster(d *schema.ResourceData, config *transport_tpg.Config, clusterName string) (*NodePoolInformation, error) {
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return nil, err
 	}
 
-	location, err := getLocation(d, config)
+	location, err := tpgresource.GetLocation(d, config)
 	if err != nil {
 		return nil, err
 	}

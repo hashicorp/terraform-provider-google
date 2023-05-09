@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -133,7 +134,7 @@ character, which cannot be a dash.`,
 
 func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -142,36 +143,36 @@ func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) err
 	descriptionProp, err := expandFilestoreBackupDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	labelsProp, err := expandFilestoreBackupLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	sourceInstanceProp, err := expandFilestoreBackupSourceInstance(d.Get("source_instance"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("source_instance"); !isEmptyValue(reflect.ValueOf(sourceInstanceProp)) && (ok || !reflect.DeepEqual(v, sourceInstanceProp)) {
+	} else if v, ok := d.GetOkExists("source_instance"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceInstanceProp)) && (ok || !reflect.DeepEqual(v, sourceInstanceProp)) {
 		obj["sourceInstance"] = sourceInstanceProp
 	}
 	sourceFileShareProp, err := expandFilestoreBackupSourceFileShare(d.Get("source_file_share"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("source_file_share"); !isEmptyValue(reflect.ValueOf(sourceFileShareProp)) && (ok || !reflect.DeepEqual(v, sourceFileShareProp)) {
+	} else if v, ok := d.GetOkExists("source_file_share"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceFileShareProp)) && (ok || !reflect.DeepEqual(v, sourceFileShareProp)) {
 		obj["sourceFileShare"] = sourceFileShareProp
 	}
 
-	lockName, err := ReplaceVars(d, config, "filestore/{{project}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "filestore/{{project}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/backups?backupId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/backups?backupId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -179,14 +180,14 @@ func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Creating new Backup: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Backup: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -196,7 +197,7 @@ func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backups/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backups/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -216,7 +217,7 @@ func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backups/{{name}}")
+	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backups/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -229,26 +230,26 @@ func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) err
 
 func resourceFilestoreBackupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/backups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/backups/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Backup: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -300,14 +301,14 @@ func resourceFilestoreBackupRead(d *schema.ResourceData, meta interface{}) error
 
 func resourceFilestoreBackupUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Backup: %s", err)
 	}
@@ -317,30 +318,30 @@ func resourceFilestoreBackupUpdate(d *schema.ResourceData, meta interface{}) err
 	descriptionProp, err := expandFilestoreBackupDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	labelsProp, err := expandFilestoreBackupLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	sourceInstanceProp, err := expandFilestoreBackupSourceInstance(d.Get("source_instance"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("source_instance"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceInstanceProp)) {
+	} else if v, ok := d.GetOkExists("source_instance"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceInstanceProp)) {
 		obj["sourceInstance"] = sourceInstanceProp
 	}
 
-	lockName, err := ReplaceVars(d, config, "filestore/{{project}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "filestore/{{project}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/backups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/backups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -367,7 +368,7 @@ func resourceFilestoreBackupUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -392,27 +393,27 @@ func resourceFilestoreBackupUpdate(d *schema.ResourceData, meta interface{}) err
 
 func resourceFilestoreBackupDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Backup: %s", err)
 	}
 	billingProject = project
 
-	lockName, err := ReplaceVars(d, config, "filestore/{{project}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "filestore/{{project}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/backups/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/backups/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -421,7 +422,7 @@ func resourceFilestoreBackupDelete(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Deleting Backup %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -453,7 +454,7 @@ func resourceFilestoreBackupImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backups/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backups/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -506,11 +507,11 @@ func flattenFilestoreBackupKmsKeyName(v interface{}, d *schema.ResourceData, con
 	return v
 }
 
-func expandFilestoreBackupDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreBackupDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreBackupLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandFilestoreBackupLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -521,10 +522,10 @@ func expandFilestoreBackupLabels(v interface{}, d TerraformResourceData, config 
 	return m, nil
 }
 
-func expandFilestoreBackupSourceInstance(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreBackupSourceInstance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreBackupSourceFileShare(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreBackupSourceFileShare(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -3,11 +3,13 @@ package google
 import (
 	"encoding/json"
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -93,18 +95,18 @@ func recurseOnSchema(s map[string]*schema.Schema, f func(*schema.Schema)) {
 
 func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 
 	// Get the zone
-	z, err := getZone(d, config)
+	z, err := tpgresource.GetZone(d, config)
 	if err != nil {
 		return err
 	}
@@ -120,7 +122,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 	}
 
 	sourceInstanceTemplate := ConvertToUniqueIdWhenPresent(d.Get("source_instance_template").(string))
-	tpl, err := ParseInstanceTemplateFieldValue(sourceInstanceTemplate, d, config)
+	tpl, err := tpgresource.ParseInstanceTemplateFieldValue(sourceInstanceTemplate, d, config)
 	if err != nil {
 		return err
 	}
@@ -142,12 +144,12 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 			return err
 		}
 	} else {
-		relativeUrl, err = ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/instanceTemplates/"+tpl.Name)
+		relativeUrl, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/instanceTemplates/"+tpl.Name)
 		if err != nil {
 			return err
 		}
 
-		url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceTemplates/"+tpl.Name)
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceTemplates/"+tpl.Name)
 		if err != nil {
 			return err
 		}
@@ -196,7 +198,7 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 			// Assume for now that all fields are exact snake_case versions of the API fields.
 			// This won't necessarily always be true, but it serves as a good approximation and
 			// can be adjusted later as we discover issues.
-			instance.ForceSendFields = append(instance.ForceSendFields, SnakeToPascalCase(f))
+			instance.ForceSendFields = append(instance.ForceSendFields, tpgresource.SnakeToPascalCase(f))
 		}
 	}
 

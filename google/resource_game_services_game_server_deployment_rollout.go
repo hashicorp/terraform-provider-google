@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -114,7 +115,7 @@ eg: 'projects/my-project/locations/global/gameServerDeployments/my-deployment/ro
 func resourceGameServicesGameServerDeploymentRolloutCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -133,26 +134,26 @@ func resourceGameServicesGameServerDeploymentRolloutCreate(d *schema.ResourceDat
 
 func resourceGameServicesGameServerDeploymentRolloutRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
+	url, err := tpgresource.ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for GameServerDeploymentRollout: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -180,14 +181,14 @@ func resourceGameServicesGameServerDeploymentRolloutRead(d *schema.ResourceData,
 
 func resourceGameServicesGameServerDeploymentRolloutUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for GameServerDeploymentRollout: %s", err)
 	}
@@ -197,17 +198,17 @@ func resourceGameServicesGameServerDeploymentRolloutUpdate(d *schema.ResourceDat
 	defaultGameServerConfigProp, err := expandGameServicesGameServerDeploymentRolloutDefaultGameServerConfig(d.Get("default_game_server_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("default_game_server_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, defaultGameServerConfigProp)) {
+	} else if v, ok := d.GetOkExists("default_game_server_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, defaultGameServerConfigProp)) {
 		obj["defaultGameServerConfig"] = defaultGameServerConfigProp
 	}
 	gameServerConfigOverridesProp, err := expandGameServicesGameServerDeploymentRolloutGameServerConfigOverrides(d.Get("game_server_config_overrides"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("game_server_config_overrides"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, gameServerConfigOverridesProp)) {
+	} else if v, ok := d.GetOkExists("game_server_config_overrides"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, gameServerConfigOverridesProp)) {
 		obj["gameServerConfigOverrides"] = gameServerConfigOverridesProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
+	url, err := tpgresource.ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
 	if err != nil {
 		return err
 	}
@@ -230,7 +231,7 @@ func resourceGameServicesGameServerDeploymentRolloutUpdate(d *schema.ResourceDat
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -255,20 +256,20 @@ func resourceGameServicesGameServerDeploymentRolloutUpdate(d *schema.ResourceDat
 
 func resourceGameServicesGameServerDeploymentRolloutDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for GameServerDeploymentRollout: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout?updateMask=defaultGameServerConfig")
+	url, err := tpgresource.ReplaceVars(d, config, "{{GameServicesBasePath}}projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout?updateMask=defaultGameServerConfig")
 	if err != nil {
 		return err
 	}
@@ -277,7 +278,7 @@ func resourceGameServicesGameServerDeploymentRolloutDelete(d *schema.ResourceDat
 	log.Printf("[DEBUG] Deleting GameServerDeploymentRollout %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -309,7 +310,7 @@ func resourceGameServicesGameServerDeploymentRolloutImport(d *schema.ResourceDat
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/global/gameServerDeployments/{{deployment_id}}/rollout")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -366,11 +367,11 @@ func flattenGameServicesGameServerDeploymentRolloutGameServerConfigOverridesConf
 	return v
 }
 
-func expandGameServicesGameServerDeploymentRolloutDefaultGameServerConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGameServicesGameServerDeploymentRolloutDefaultGameServerConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverrides(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverrides(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -383,14 +384,14 @@ func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverrides(v in
 		transformedRealmsSelector, err := expandGameServicesGameServerDeploymentRolloutGameServerConfigOverridesRealmsSelector(original["realms_selector"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedRealmsSelector); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedRealmsSelector); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["realmsSelector"] = transformedRealmsSelector
 		}
 
 		transformedConfigVersion, err := expandGameServicesGameServerDeploymentRolloutGameServerConfigOverridesConfigVersion(original["config_version"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedConfigVersion); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedConfigVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["configVersion"] = transformedConfigVersion
 		}
 
@@ -399,7 +400,7 @@ func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverrides(v in
 	return req, nil
 }
 
-func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverridesRealmsSelector(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverridesRealmsSelector(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -411,17 +412,17 @@ func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverridesRealm
 	transformedRealms, err := expandGameServicesGameServerDeploymentRolloutGameServerConfigOverridesRealmsSelectorRealms(original["realms"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedRealms); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedRealms); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["realms"] = transformedRealms
 	}
 
 	return transformed, nil
 }
 
-func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverridesRealmsSelectorRealms(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverridesRealmsSelectorRealms(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverridesConfigVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGameServicesGameServerDeploymentRolloutGameServerConfigOverridesConfigVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

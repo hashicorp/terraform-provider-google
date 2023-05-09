@@ -27,12 +27,12 @@ func DataSourceMonitoringNotificationChannel() *schema.Resource {
 
 func dataSourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/notificationChannels")
+	url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/notificationChannels")
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func dataSourceMonitoringNotificationChannelRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}

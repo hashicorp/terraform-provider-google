@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -153,7 +154,7 @@ is the unique ID assigned to the Group.`,
 
 func resourceCloudIdentityGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -162,35 +163,35 @@ func resourceCloudIdentityGroupCreate(d *schema.ResourceData, meta interface{}) 
 	groupKeyProp, err := expandCloudIdentityGroupGroupKey(d.Get("group_key"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("group_key"); !isEmptyValue(reflect.ValueOf(groupKeyProp)) && (ok || !reflect.DeepEqual(v, groupKeyProp)) {
+	} else if v, ok := d.GetOkExists("group_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(groupKeyProp)) && (ok || !reflect.DeepEqual(v, groupKeyProp)) {
 		obj["groupKey"] = groupKeyProp
 	}
 	parentProp, err := expandCloudIdentityGroupParent(d.Get("parent"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("parent"); !isEmptyValue(reflect.ValueOf(parentProp)) && (ok || !reflect.DeepEqual(v, parentProp)) {
+	} else if v, ok := d.GetOkExists("parent"); !tpgresource.IsEmptyValue(reflect.ValueOf(parentProp)) && (ok || !reflect.DeepEqual(v, parentProp)) {
 		obj["parent"] = parentProp
 	}
 	displayNameProp, err := expandCloudIdentityGroupDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	descriptionProp, err := expandCloudIdentityGroupDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	labelsProp, err := expandCloudIdentityGroupLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{CloudIdentityBasePath}}groups?initialGroupConfig={{initial_group_config}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{CloudIdentityBasePath}}groups?initialGroupConfig={{initial_group_config}}")
 	if err != nil {
 		return err
 	}
@@ -199,7 +200,7 @@ func resourceCloudIdentityGroupCreate(d *schema.ResourceData, meta interface{}) 
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -212,7 +213,7 @@ func resourceCloudIdentityGroupCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -250,7 +251,7 @@ func resourceCloudIdentityGroupPollRead(d *schema.ResourceData, meta interface{}
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 
-		url, err := ReplaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
+		url, err := tpgresource.ReplaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
 		if err != nil {
 			return nil, err
 		}
@@ -258,11 +259,11 @@ func resourceCloudIdentityGroupPollRead(d *schema.ResourceData, meta interface{}
 		billingProject := ""
 
 		// err == nil indicates that the billing_project value was found
-		if bp, err := getBillingProject(d, config); err == nil {
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 			billingProject = bp
 		}
 
-		userAgent, err := generateUserAgentString(d, config.UserAgent)
+		userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 		if err != nil {
 			return nil, err
 		}
@@ -277,12 +278,12 @@ func resourceCloudIdentityGroupPollRead(d *schema.ResourceData, meta interface{}
 
 func resourceCloudIdentityGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -290,7 +291,7 @@ func resourceCloudIdentityGroupRead(d *schema.ResourceData, meta interface{}) er
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -329,7 +330,7 @@ func resourceCloudIdentityGroupRead(d *schema.ResourceData, meta interface{}) er
 
 func resourceCloudIdentityGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -340,23 +341,23 @@ func resourceCloudIdentityGroupUpdate(d *schema.ResourceData, meta interface{}) 
 	displayNameProp, err := expandCloudIdentityGroupDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	descriptionProp, err := expandCloudIdentityGroupDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	labelsProp, err := expandCloudIdentityGroupLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -383,7 +384,7 @@ func resourceCloudIdentityGroupUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -405,14 +406,14 @@ func resourceCloudIdentityGroupUpdate(d *schema.ResourceData, meta interface{}) 
 
 func resourceCloudIdentityGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	url, err := ReplaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -421,7 +422,7 @@ func resourceCloudIdentityGroupDelete(d *schema.ResourceData, meta interface{}) 
 	log.Printf("[DEBUG] Deleting Group %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -511,7 +512,7 @@ func flattenCloudIdentityGroupLabels(v interface{}, d *schema.ResourceData, conf
 	return v
 }
 
-func expandCloudIdentityGroupGroupKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIdentityGroupGroupKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -523,41 +524,41 @@ func expandCloudIdentityGroupGroupKey(v interface{}, d TerraformResourceData, co
 	transformedId, err := expandCloudIdentityGroupGroupKeyId(original["id"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedId); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["id"] = transformedId
 	}
 
 	transformedNamespace, err := expandCloudIdentityGroupGroupKeyNamespace(original["namespace"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedNamespace); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedNamespace); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["namespace"] = transformedNamespace
 	}
 
 	return transformed, nil
 }
 
-func expandCloudIdentityGroupGroupKeyId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIdentityGroupGroupKeyId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIdentityGroupGroupKeyNamespace(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIdentityGroupGroupKeyNamespace(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIdentityGroupParent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIdentityGroupParent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIdentityGroupDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIdentityGroupDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIdentityGroupDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIdentityGroupDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIdentityGroupLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandCloudIdentityGroupLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

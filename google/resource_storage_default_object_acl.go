@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/storage/v1"
 )
@@ -38,7 +39,7 @@ func ResourceStorageDefaultObjectAcl() *schema.Resource {
 
 func resourceStorageDefaultObjectAclCreateUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -53,7 +54,7 @@ func resourceStorageDefaultObjectAclCreateUpdate(d *schema.ResourceData, meta in
 		})
 	}
 
-	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "storage/buckets/{{bucket}}")
 	if err != nil {
 		return err
 	}
@@ -84,7 +85,7 @@ func resourceStorageDefaultObjectAclCreateUpdate(d *schema.ResourceData, meta in
 
 func resourceStorageDefaultObjectAclRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -113,12 +114,12 @@ func resourceStorageDefaultObjectAclRead(d *schema.ResourceData, meta interface{
 
 func resourceStorageDefaultObjectAclDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "storage/buckets/{{bucket}}")
 	if err != nil {
 		return err
 	}

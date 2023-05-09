@@ -264,7 +264,7 @@ simultaneous updates from overwriting each other.`,
 
 func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -273,41 +273,41 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	descriptionProp, err := expandFilestoreInstanceDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	tierProp, err := expandFilestoreInstanceTier(d.Get("tier"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("tier"); !isEmptyValue(reflect.ValueOf(tierProp)) && (ok || !reflect.DeepEqual(v, tierProp)) {
+	} else if v, ok := d.GetOkExists("tier"); !tpgresource.IsEmptyValue(reflect.ValueOf(tierProp)) && (ok || !reflect.DeepEqual(v, tierProp)) {
 		obj["tier"] = tierProp
 	}
 	labelsProp, err := expandFilestoreInstanceLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	fileSharesProp, err := expandFilestoreInstanceFileShares(d.Get("file_shares"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("file_shares"); !isEmptyValue(reflect.ValueOf(fileSharesProp)) && (ok || !reflect.DeepEqual(v, fileSharesProp)) {
+	} else if v, ok := d.GetOkExists("file_shares"); !tpgresource.IsEmptyValue(reflect.ValueOf(fileSharesProp)) && (ok || !reflect.DeepEqual(v, fileSharesProp)) {
 		obj["fileShares"] = fileSharesProp
 	}
 	networksProp, err := expandFilestoreInstanceNetworks(d.Get("networks"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("networks"); !isEmptyValue(reflect.ValueOf(networksProp)) && (ok || !reflect.DeepEqual(v, networksProp)) {
+	} else if v, ok := d.GetOkExists("networks"); !tpgresource.IsEmptyValue(reflect.ValueOf(networksProp)) && (ok || !reflect.DeepEqual(v, networksProp)) {
 		obj["networks"] = networksProp
 	}
 	kmsKeyNameProp, err := expandFilestoreInstanceKmsKeyName(d.Get("kms_key_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("kms_key_name"); !isEmptyValue(reflect.ValueOf(kmsKeyNameProp)) && (ok || !reflect.DeepEqual(v, kmsKeyNameProp)) {
+	} else if v, ok := d.GetOkExists("kms_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyNameProp)) && (ok || !reflect.DeepEqual(v, kmsKeyNameProp)) {
 		obj["kmsKeyName"] = kmsKeyNameProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances?instanceId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances?instanceId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -315,19 +315,19 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Creating new Instance: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
 	if d.Get("location") == "" {
-		zone, err := getZone(d, config)
+		zone, err := tpgresource.GetZone(d, config)
 		if err != nil {
 			return err
 		}
@@ -338,7 +338,7 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	if strings.Contains(url, "locations//") {
 		// re-compute url now that location must be set
-		url, err = ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances?instanceId={{name}}")
+		url, err = tpgresource.ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances?instanceId={{name}}")
 		if err != nil {
 			return err
 		}
@@ -349,7 +349,7 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -369,7 +369,7 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
+	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -382,26 +382,26 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceFilestoreInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -444,14 +444,14 @@ func resourceFilestoreInstanceRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceFilestoreInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
@@ -461,23 +461,23 @@ func resourceFilestoreInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	descriptionProp, err := expandFilestoreInstanceDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	labelsProp, err := expandFilestoreInstanceLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	fileSharesProp, err := expandFilestoreInstanceFileShares(d.Get("file_shares"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("file_shares"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fileSharesProp)) {
+	} else if v, ok := d.GetOkExists("file_shares"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fileSharesProp)) {
 		obj["fileShares"] = fileSharesProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -504,7 +504,7 @@ func resourceFilestoreInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -529,20 +529,20 @@ func resourceFilestoreInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 
 func resourceFilestoreInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Instance: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -551,7 +551,7 @@ func resourceFilestoreInstanceDelete(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Deleting Instance %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -583,7 +583,7 @@ func resourceFilestoreInstanceImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -761,7 +761,7 @@ func flattenFilestoreInstanceNetworksIpAddresses(v interface{}, d *schema.Resour
 }
 
 func flattenFilestoreInstanceNetworksConnectMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+	if v == nil || tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
 		return "DIRECT_PEERING"
 	}
 
@@ -776,15 +776,15 @@ func flattenFilestoreInstanceKmsKeyName(v interface{}, d *schema.ResourceData, c
 	return v
 }
 
-func expandFilestoreInstanceDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreInstanceTier(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceTier(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreInstanceLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandFilestoreInstanceLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -795,7 +795,7 @@ func expandFilestoreInstanceLabels(v interface{}, d TerraformResourceData, confi
 	return m, nil
 }
 
-func expandFilestoreInstanceFileShares(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceFileShares(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -808,28 +808,28 @@ func expandFilestoreInstanceFileShares(v interface{}, d TerraformResourceData, c
 		transformedName, err := expandFilestoreInstanceFileSharesName(original["name"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["name"] = transformedName
 		}
 
 		transformedCapacityGb, err := expandFilestoreInstanceFileSharesCapacityGb(original["capacity_gb"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedCapacityGb); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedCapacityGb); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["capacityGb"] = transformedCapacityGb
 		}
 
 		transformedSourceBackup, err := expandFilestoreInstanceFileSharesSourceBackup(original["source_backup"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedSourceBackup); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedSourceBackup); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["sourceBackup"] = transformedSourceBackup
 		}
 
 		transformedNfsExportOptions, err := expandFilestoreInstanceFileSharesNfsExportOptions(original["nfs_export_options"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedNfsExportOptions); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedNfsExportOptions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["nfsExportOptions"] = transformedNfsExportOptions
 		}
 
@@ -838,19 +838,19 @@ func expandFilestoreInstanceFileShares(v interface{}, d TerraformResourceData, c
 	return req, nil
 }
 
-func expandFilestoreInstanceFileSharesName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceFileSharesName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreInstanceFileSharesCapacityGb(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceFileSharesCapacityGb(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreInstanceFileSharesSourceBackup(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceFileSharesSourceBackup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreInstanceFileSharesNfsExportOptions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceFileSharesNfsExportOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -863,35 +863,35 @@ func expandFilestoreInstanceFileSharesNfsExportOptions(v interface{}, d Terrafor
 		transformedIpRanges, err := expandFilestoreInstanceFileSharesNfsExportOptionsIpRanges(original["ip_ranges"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedIpRanges); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedIpRanges); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["ipRanges"] = transformedIpRanges
 		}
 
 		transformedAccessMode, err := expandFilestoreInstanceFileSharesNfsExportOptionsAccessMode(original["access_mode"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedAccessMode); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedAccessMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["accessMode"] = transformedAccessMode
 		}
 
 		transformedSquashMode, err := expandFilestoreInstanceFileSharesNfsExportOptionsSquashMode(original["squash_mode"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedSquashMode); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedSquashMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["squashMode"] = transformedSquashMode
 		}
 
 		transformedAnonUid, err := expandFilestoreInstanceFileSharesNfsExportOptionsAnonUid(original["anon_uid"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedAnonUid); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedAnonUid); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["anonUid"] = transformedAnonUid
 		}
 
 		transformedAnonGid, err := expandFilestoreInstanceFileSharesNfsExportOptionsAnonGid(original["anon_gid"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedAnonGid); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedAnonGid); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["anonGid"] = transformedAnonGid
 		}
 
@@ -900,27 +900,27 @@ func expandFilestoreInstanceFileSharesNfsExportOptions(v interface{}, d Terrafor
 	return req, nil
 }
 
-func expandFilestoreInstanceFileSharesNfsExportOptionsIpRanges(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceFileSharesNfsExportOptionsIpRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreInstanceFileSharesNfsExportOptionsAccessMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceFileSharesNfsExportOptionsAccessMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreInstanceFileSharesNfsExportOptionsSquashMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceFileSharesNfsExportOptionsSquashMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreInstanceFileSharesNfsExportOptionsAnonUid(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceFileSharesNfsExportOptionsAnonUid(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreInstanceFileSharesNfsExportOptionsAnonGid(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceFileSharesNfsExportOptionsAnonGid(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreInstanceNetworks(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceNetworks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -933,35 +933,35 @@ func expandFilestoreInstanceNetworks(v interface{}, d TerraformResourceData, con
 		transformedNetwork, err := expandFilestoreInstanceNetworksNetwork(original["network"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedNetwork); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedNetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["network"] = transformedNetwork
 		}
 
 		transformedModes, err := expandFilestoreInstanceNetworksModes(original["modes"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedModes); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedModes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["modes"] = transformedModes
 		}
 
 		transformedReservedIpRange, err := expandFilestoreInstanceNetworksReservedIpRange(original["reserved_ip_range"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedReservedIpRange); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedReservedIpRange); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["reservedIpRange"] = transformedReservedIpRange
 		}
 
 		transformedIpAddresses, err := expandFilestoreInstanceNetworksIpAddresses(original["ip_addresses"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedIpAddresses); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedIpAddresses); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["ipAddresses"] = transformedIpAddresses
 		}
 
 		transformedConnectMode, err := expandFilestoreInstanceNetworksConnectMode(original["connect_mode"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedConnectMode); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedConnectMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["connectMode"] = transformedConnectMode
 		}
 
@@ -970,27 +970,27 @@ func expandFilestoreInstanceNetworks(v interface{}, d TerraformResourceData, con
 	return req, nil
 }
 
-func expandFilestoreInstanceNetworksNetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceNetworksNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreInstanceNetworksModes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceNetworksModes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreInstanceNetworksReservedIpRange(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceNetworksReservedIpRange(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreInstanceNetworksIpAddresses(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceNetworksIpAddresses(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreInstanceNetworksConnectMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceNetworksConnectMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandFilestoreInstanceKmsKeyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandFilestoreInstanceKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

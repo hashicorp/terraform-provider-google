@@ -116,16 +116,16 @@ func ResourceComputeNetworkPeering() *schema.Resource {
 
 func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	networkFieldValue, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
+	networkFieldValue, err := tpgresource.ParseNetworkFieldValue(d.Get("network").(string), d, config)
 	if err != nil {
 		return err
 	}
-	peerNetworkFieldValue, err := ParseNetworkFieldValue(d.Get("peer_network").(string), d, config)
+	peerNetworkFieldValue, err := tpgresource.ParseNetworkFieldValue(d.Get("peer_network").(string), d, config)
 	if err != nil {
 		return err
 	}
@@ -158,13 +158,13 @@ func resourceComputeNetworkPeeringCreate(d *schema.ResourceData, meta interface{
 
 func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	peeringName := d.Get("name").(string)
-	networkFieldValue, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
+	networkFieldValue, err := tpgresource.ParseNetworkFieldValue(d.Get("network").(string), d, config)
 	if err != nil {
 		return err
 	}
@@ -214,16 +214,16 @@ func resourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{})
 
 func resourceComputeNetworkPeeringUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	networkFieldValue, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
+	networkFieldValue, err := tpgresource.ParseNetworkFieldValue(d.Get("network").(string), d, config)
 	if err != nil {
 		return err
 	}
-	peerNetworkFieldValue, err := ParseNetworkFieldValue(d.Get("peer_network").(string), d, config)
+	peerNetworkFieldValue, err := tpgresource.ParseNetworkFieldValue(d.Get("peer_network").(string), d, config)
 	if err != nil {
 		return err
 	}
@@ -254,18 +254,18 @@ func resourceComputeNetworkPeeringUpdate(d *schema.ResourceData, meta interface{
 
 func resourceComputeNetworkPeeringDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	// Remove the `network` to `peer_network` peering
 	name := d.Get("name").(string)
-	networkFieldValue, err := ParseNetworkFieldValue(d.Get("network").(string), d, config)
+	networkFieldValue, err := tpgresource.ParseNetworkFieldValue(d.Get("network").(string), d, config)
 	if err != nil {
 		return err
 	}
-	peerNetworkFieldValue, err := ParseNetworkFieldValue(d.Get("peer_network").(string), d, config)
+	peerNetworkFieldValue, err := tpgresource.ParseNetworkFieldValue(d.Get("peer_network").(string), d, config)
 	if err != nil {
 		return err
 	}
@@ -323,14 +323,14 @@ func expandNetworkPeering(d *schema.ResourceData) *compute.NetworkPeering {
 
 func flattenNetworkPeeringStackType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// To prevent the perma-diff caused by the absence of `stack_type` in API responses for older resource
-	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+	if v == nil || tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
 		return "IPV4_ONLY"
 	}
 
 	return v
 }
 
-func sortedNetworkPeeringMutexKeys(networkName, peerNetworkName *GlobalFieldValue) []string {
+func sortedNetworkPeeringMutexKeys(networkName, peerNetworkName *tpgresource.GlobalFieldValue) []string {
 	// Whether you delete the peering from network A to B or the one from B to A, they
 	// cannot happen at the same time.
 	networks := []string{
@@ -351,7 +351,7 @@ func resourceComputeNetworkPeeringImport(d *schema.ResourceData, meta interface{
 	network := splits[1]
 	name := splits[2]
 
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return nil, err
 	}

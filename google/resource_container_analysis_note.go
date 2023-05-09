@@ -168,7 +168,7 @@ func containeranalysisNoteRelatedUrlSchema() *schema.Resource {
 
 func resourceContainerAnalysisNoteCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -177,43 +177,43 @@ func resourceContainerAnalysisNoteCreate(d *schema.ResourceData, meta interface{
 	nameProp, err := expandContainerAnalysisNoteName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	shortDescriptionProp, err := expandContainerAnalysisNoteShortDescription(d.Get("short_description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("short_description"); !isEmptyValue(reflect.ValueOf(shortDescriptionProp)) && (ok || !reflect.DeepEqual(v, shortDescriptionProp)) {
+	} else if v, ok := d.GetOkExists("short_description"); !tpgresource.IsEmptyValue(reflect.ValueOf(shortDescriptionProp)) && (ok || !reflect.DeepEqual(v, shortDescriptionProp)) {
 		obj["shortDescription"] = shortDescriptionProp
 	}
 	longDescriptionProp, err := expandContainerAnalysisNoteLongDescription(d.Get("long_description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("long_description"); !isEmptyValue(reflect.ValueOf(longDescriptionProp)) && (ok || !reflect.DeepEqual(v, longDescriptionProp)) {
+	} else if v, ok := d.GetOkExists("long_description"); !tpgresource.IsEmptyValue(reflect.ValueOf(longDescriptionProp)) && (ok || !reflect.DeepEqual(v, longDescriptionProp)) {
 		obj["longDescription"] = longDescriptionProp
 	}
 	relatedUrlProp, err := expandContainerAnalysisNoteRelatedUrl(d.Get("related_url"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("related_url"); !isEmptyValue(reflect.ValueOf(relatedUrlProp)) && (ok || !reflect.DeepEqual(v, relatedUrlProp)) {
+	} else if v, ok := d.GetOkExists("related_url"); !tpgresource.IsEmptyValue(reflect.ValueOf(relatedUrlProp)) && (ok || !reflect.DeepEqual(v, relatedUrlProp)) {
 		obj["relatedUrl"] = relatedUrlProp
 	}
 	expirationTimeProp, err := expandContainerAnalysisNoteExpirationTime(d.Get("expiration_time"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("expiration_time"); !isEmptyValue(reflect.ValueOf(expirationTimeProp)) && (ok || !reflect.DeepEqual(v, expirationTimeProp)) {
+	} else if v, ok := d.GetOkExists("expiration_time"); !tpgresource.IsEmptyValue(reflect.ValueOf(expirationTimeProp)) && (ok || !reflect.DeepEqual(v, expirationTimeProp)) {
 		obj["expirationTime"] = expirationTimeProp
 	}
 	relatedNoteNamesProp, err := expandContainerAnalysisNoteRelatedNoteNames(d.Get("related_note_names"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("related_note_names"); !isEmptyValue(reflect.ValueOf(relatedNoteNamesProp)) && (ok || !reflect.DeepEqual(v, relatedNoteNamesProp)) {
+	} else if v, ok := d.GetOkExists("related_note_names"); !tpgresource.IsEmptyValue(reflect.ValueOf(relatedNoteNamesProp)) && (ok || !reflect.DeepEqual(v, relatedNoteNamesProp)) {
 		obj["relatedNoteNames"] = relatedNoteNamesProp
 	}
 	attestationAuthorityProp, err := expandContainerAnalysisNoteAttestationAuthority(d.Get("attestation_authority"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("attestation_authority"); !isEmptyValue(reflect.ValueOf(attestationAuthorityProp)) && (ok || !reflect.DeepEqual(v, attestationAuthorityProp)) {
+	} else if v, ok := d.GetOkExists("attestation_authority"); !tpgresource.IsEmptyValue(reflect.ValueOf(attestationAuthorityProp)) && (ok || !reflect.DeepEqual(v, attestationAuthorityProp)) {
 		obj["attestationAuthority"] = attestationAuthorityProp
 	}
 
@@ -222,14 +222,14 @@ func resourceContainerAnalysisNoteCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	lockName, err := ReplaceVars(d, config, "projects/{{project}}/notes/{{name}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/notes/{{name}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes?noteId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes?noteId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -237,14 +237,14 @@ func resourceContainerAnalysisNoteCreate(d *schema.ResourceData, meta interface{
 	log.Printf("[DEBUG] Creating new Note: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Note: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -254,7 +254,7 @@ func resourceContainerAnalysisNoteCreate(d *schema.ResourceData, meta interface{
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/notes/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/notes/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -267,26 +267,26 @@ func resourceContainerAnalysisNoteCreate(d *schema.ResourceData, meta interface{
 
 func resourceContainerAnalysisNoteRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Note: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -347,14 +347,14 @@ func resourceContainerAnalysisNoteRead(d *schema.ResourceData, meta interface{})
 
 func resourceContainerAnalysisNoteUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Note: %s", err)
 	}
@@ -364,37 +364,37 @@ func resourceContainerAnalysisNoteUpdate(d *schema.ResourceData, meta interface{
 	shortDescriptionProp, err := expandContainerAnalysisNoteShortDescription(d.Get("short_description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("short_description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, shortDescriptionProp)) {
+	} else if v, ok := d.GetOkExists("short_description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, shortDescriptionProp)) {
 		obj["shortDescription"] = shortDescriptionProp
 	}
 	longDescriptionProp, err := expandContainerAnalysisNoteLongDescription(d.Get("long_description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("long_description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, longDescriptionProp)) {
+	} else if v, ok := d.GetOkExists("long_description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, longDescriptionProp)) {
 		obj["longDescription"] = longDescriptionProp
 	}
 	relatedUrlProp, err := expandContainerAnalysisNoteRelatedUrl(d.Get("related_url"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("related_url"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, relatedUrlProp)) {
+	} else if v, ok := d.GetOkExists("related_url"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, relatedUrlProp)) {
 		obj["relatedUrl"] = relatedUrlProp
 	}
 	expirationTimeProp, err := expandContainerAnalysisNoteExpirationTime(d.Get("expiration_time"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("expiration_time"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, expirationTimeProp)) {
+	} else if v, ok := d.GetOkExists("expiration_time"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, expirationTimeProp)) {
 		obj["expirationTime"] = expirationTimeProp
 	}
 	relatedNoteNamesProp, err := expandContainerAnalysisNoteRelatedNoteNames(d.Get("related_note_names"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("related_note_names"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, relatedNoteNamesProp)) {
+	} else if v, ok := d.GetOkExists("related_note_names"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, relatedNoteNamesProp)) {
 		obj["relatedNoteNames"] = relatedNoteNamesProp
 	}
 	attestationAuthorityProp, err := expandContainerAnalysisNoteAttestationAuthority(d.Get("attestation_authority"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("attestation_authority"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, attestationAuthorityProp)) {
+	} else if v, ok := d.GetOkExists("attestation_authority"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, attestationAuthorityProp)) {
 		obj["attestationAuthority"] = attestationAuthorityProp
 	}
 
@@ -403,14 +403,14 @@ func resourceContainerAnalysisNoteUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	lockName, err := ReplaceVars(d, config, "projects/{{project}}/notes/{{name}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/notes/{{name}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -449,7 +449,7 @@ func resourceContainerAnalysisNoteUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -466,27 +466,27 @@ func resourceContainerAnalysisNoteUpdate(d *schema.ResourceData, meta interface{
 
 func resourceContainerAnalysisNoteDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Note: %s", err)
 	}
 	billingProject = project
 
-	lockName, err := ReplaceVars(d, config, "projects/{{project}}/notes/{{name}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/notes/{{name}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAnalysisBasePath}}projects/{{project}}/notes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -495,7 +495,7 @@ func resourceContainerAnalysisNoteDelete(d *schema.ResourceData, meta interface{
 	log.Printf("[DEBUG] Deleting Note %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -519,7 +519,7 @@ func resourceContainerAnalysisNoteImport(d *schema.ResourceData, meta interface{
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/notes/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/notes/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -623,19 +623,19 @@ func flattenContainerAnalysisNoteAttestationAuthorityHintHumanReadableName(v int
 	return v
 }
 
-func expandContainerAnalysisNoteName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisNoteName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisNoteShortDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisNoteShortDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisNoteLongDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisNoteLongDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisNoteRelatedUrl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisNoteRelatedUrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -649,14 +649,14 @@ func expandContainerAnalysisNoteRelatedUrl(v interface{}, d TerraformResourceDat
 		transformedUrl, err := expandContainerAnalysisNoteRelatedUrlUrl(original["url"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedUrl); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedUrl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["url"] = transformedUrl
 		}
 
 		transformedLabel, err := expandContainerAnalysisNoteRelatedUrlLabel(original["label"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedLabel); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedLabel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["label"] = transformedLabel
 		}
 
@@ -665,24 +665,24 @@ func expandContainerAnalysisNoteRelatedUrl(v interface{}, d TerraformResourceDat
 	return req, nil
 }
 
-func expandContainerAnalysisNoteRelatedUrlUrl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisNoteRelatedUrlUrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisNoteRelatedUrlLabel(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisNoteRelatedUrlLabel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisNoteExpirationTime(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisNoteExpirationTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandContainerAnalysisNoteRelatedNoteNames(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisNoteRelatedNoteNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandContainerAnalysisNoteAttestationAuthority(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisNoteAttestationAuthority(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -694,14 +694,14 @@ func expandContainerAnalysisNoteAttestationAuthority(v interface{}, d TerraformR
 	transformedHint, err := expandContainerAnalysisNoteAttestationAuthorityHint(original["hint"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedHint); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedHint); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["hint"] = transformedHint
 	}
 
 	return transformed, nil
 }
 
-func expandContainerAnalysisNoteAttestationAuthorityHint(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisNoteAttestationAuthorityHint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -713,14 +713,14 @@ func expandContainerAnalysisNoteAttestationAuthorityHint(v interface{}, d Terraf
 	transformedHumanReadableName, err := expandContainerAnalysisNoteAttestationAuthorityHintHumanReadableName(original["human_readable_name"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedHumanReadableName); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedHumanReadableName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["humanReadableName"] = transformedHumanReadableName
 	}
 
 	return transformed, nil
 }
 
-func expandContainerAnalysisNoteAttestationAuthorityHintHumanReadableName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandContainerAnalysisNoteAttestationAuthorityHintHumanReadableName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

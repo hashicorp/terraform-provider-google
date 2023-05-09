@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -151,7 +152,7 @@ the [avatarUri] field can be used.`,
 
 func resourceDialogflowAgentCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -160,71 +161,71 @@ func resourceDialogflowAgentCreate(d *schema.ResourceData, meta interface{}) err
 	displayNameProp, err := expandDialogflowAgentDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	defaultLanguageCodeProp, err := expandDialogflowAgentDefaultLanguageCode(d.Get("default_language_code"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("default_language_code"); !isEmptyValue(reflect.ValueOf(defaultLanguageCodeProp)) && (ok || !reflect.DeepEqual(v, defaultLanguageCodeProp)) {
+	} else if v, ok := d.GetOkExists("default_language_code"); !tpgresource.IsEmptyValue(reflect.ValueOf(defaultLanguageCodeProp)) && (ok || !reflect.DeepEqual(v, defaultLanguageCodeProp)) {
 		obj["defaultLanguageCode"] = defaultLanguageCodeProp
 	}
 	supportedLanguageCodesProp, err := expandDialogflowAgentSupportedLanguageCodes(d.Get("supported_language_codes"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("supported_language_codes"); !isEmptyValue(reflect.ValueOf(supportedLanguageCodesProp)) && (ok || !reflect.DeepEqual(v, supportedLanguageCodesProp)) {
+	} else if v, ok := d.GetOkExists("supported_language_codes"); !tpgresource.IsEmptyValue(reflect.ValueOf(supportedLanguageCodesProp)) && (ok || !reflect.DeepEqual(v, supportedLanguageCodesProp)) {
 		obj["supportedLanguageCodes"] = supportedLanguageCodesProp
 	}
 	timeZoneProp, err := expandDialogflowAgentTimeZone(d.Get("time_zone"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("time_zone"); !isEmptyValue(reflect.ValueOf(timeZoneProp)) && (ok || !reflect.DeepEqual(v, timeZoneProp)) {
+	} else if v, ok := d.GetOkExists("time_zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(timeZoneProp)) && (ok || !reflect.DeepEqual(v, timeZoneProp)) {
 		obj["timeZone"] = timeZoneProp
 	}
 	descriptionProp, err := expandDialogflowAgentDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	avatarUriProp, err := expandDialogflowAgentAvatarUri(d.Get("avatar_uri"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("avatar_uri"); !isEmptyValue(reflect.ValueOf(avatarUriProp)) && (ok || !reflect.DeepEqual(v, avatarUriProp)) {
+	} else if v, ok := d.GetOkExists("avatar_uri"); !tpgresource.IsEmptyValue(reflect.ValueOf(avatarUriProp)) && (ok || !reflect.DeepEqual(v, avatarUriProp)) {
 		obj["avatarUri"] = avatarUriProp
 	}
 	enableLoggingProp, err := expandDialogflowAgentEnableLogging(d.Get("enable_logging"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("enable_logging"); !isEmptyValue(reflect.ValueOf(enableLoggingProp)) && (ok || !reflect.DeepEqual(v, enableLoggingProp)) {
+	} else if v, ok := d.GetOkExists("enable_logging"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableLoggingProp)) && (ok || !reflect.DeepEqual(v, enableLoggingProp)) {
 		obj["enableLogging"] = enableLoggingProp
 	}
 	matchModeProp, err := expandDialogflowAgentMatchMode(d.Get("match_mode"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("match_mode"); !isEmptyValue(reflect.ValueOf(matchModeProp)) && (ok || !reflect.DeepEqual(v, matchModeProp)) {
+	} else if v, ok := d.GetOkExists("match_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(matchModeProp)) && (ok || !reflect.DeepEqual(v, matchModeProp)) {
 		obj["matchMode"] = matchModeProp
 	}
 	classificationThresholdProp, err := expandDialogflowAgentClassificationThreshold(d.Get("classification_threshold"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("classification_threshold"); !isEmptyValue(reflect.ValueOf(classificationThresholdProp)) && (ok || !reflect.DeepEqual(v, classificationThresholdProp)) {
+	} else if v, ok := d.GetOkExists("classification_threshold"); !tpgresource.IsEmptyValue(reflect.ValueOf(classificationThresholdProp)) && (ok || !reflect.DeepEqual(v, classificationThresholdProp)) {
 		obj["classificationThreshold"] = classificationThresholdProp
 	}
 	apiVersionProp, err := expandDialogflowAgentApiVersion(d.Get("api_version"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("api_version"); !isEmptyValue(reflect.ValueOf(apiVersionProp)) && (ok || !reflect.DeepEqual(v, apiVersionProp)) {
+	} else if v, ok := d.GetOkExists("api_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(apiVersionProp)) && (ok || !reflect.DeepEqual(v, apiVersionProp)) {
 		obj["apiVersion"] = apiVersionProp
 	}
 	tierProp, err := expandDialogflowAgentTier(d.Get("tier"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("tier"); !isEmptyValue(reflect.ValueOf(tierProp)) && (ok || !reflect.DeepEqual(v, tierProp)) {
+	} else if v, ok := d.GetOkExists("tier"); !tpgresource.IsEmptyValue(reflect.ValueOf(tierProp)) && (ok || !reflect.DeepEqual(v, tierProp)) {
 		obj["tier"] = tierProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
 	if err != nil {
 		return err
 	}
@@ -232,14 +233,14 @@ func resourceDialogflowAgentCreate(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Creating new Agent: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Agent: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -249,7 +250,7 @@ func resourceDialogflowAgentCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{project}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{project}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -262,26 +263,26 @@ func resourceDialogflowAgentCreate(d *schema.ResourceData, meta interface{}) err
 
 func resourceDialogflowAgentRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Agent: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -330,14 +331,14 @@ func resourceDialogflowAgentRead(d *schema.ResourceData, meta interface{}) error
 
 func resourceDialogflowAgentUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Agent: %s", err)
 	}
@@ -347,71 +348,71 @@ func resourceDialogflowAgentUpdate(d *schema.ResourceData, meta interface{}) err
 	displayNameProp, err := expandDialogflowAgentDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	defaultLanguageCodeProp, err := expandDialogflowAgentDefaultLanguageCode(d.Get("default_language_code"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("default_language_code"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, defaultLanguageCodeProp)) {
+	} else if v, ok := d.GetOkExists("default_language_code"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, defaultLanguageCodeProp)) {
 		obj["defaultLanguageCode"] = defaultLanguageCodeProp
 	}
 	supportedLanguageCodesProp, err := expandDialogflowAgentSupportedLanguageCodes(d.Get("supported_language_codes"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("supported_language_codes"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, supportedLanguageCodesProp)) {
+	} else if v, ok := d.GetOkExists("supported_language_codes"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, supportedLanguageCodesProp)) {
 		obj["supportedLanguageCodes"] = supportedLanguageCodesProp
 	}
 	timeZoneProp, err := expandDialogflowAgentTimeZone(d.Get("time_zone"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("time_zone"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeZoneProp)) {
+	} else if v, ok := d.GetOkExists("time_zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeZoneProp)) {
 		obj["timeZone"] = timeZoneProp
 	}
 	descriptionProp, err := expandDialogflowAgentDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	avatarUriProp, err := expandDialogflowAgentAvatarUri(d.Get("avatar_uri"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("avatar_uri"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, avatarUriProp)) {
+	} else if v, ok := d.GetOkExists("avatar_uri"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, avatarUriProp)) {
 		obj["avatarUri"] = avatarUriProp
 	}
 	enableLoggingProp, err := expandDialogflowAgentEnableLogging(d.Get("enable_logging"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("enable_logging"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableLoggingProp)) {
+	} else if v, ok := d.GetOkExists("enable_logging"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableLoggingProp)) {
 		obj["enableLogging"] = enableLoggingProp
 	}
 	matchModeProp, err := expandDialogflowAgentMatchMode(d.Get("match_mode"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("match_mode"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, matchModeProp)) {
+	} else if v, ok := d.GetOkExists("match_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, matchModeProp)) {
 		obj["matchMode"] = matchModeProp
 	}
 	classificationThresholdProp, err := expandDialogflowAgentClassificationThreshold(d.Get("classification_threshold"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("classification_threshold"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, classificationThresholdProp)) {
+	} else if v, ok := d.GetOkExists("classification_threshold"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, classificationThresholdProp)) {
 		obj["classificationThreshold"] = classificationThresholdProp
 	}
 	apiVersionProp, err := expandDialogflowAgentApiVersion(d.Get("api_version"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("api_version"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, apiVersionProp)) {
+	} else if v, ok := d.GetOkExists("api_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, apiVersionProp)) {
 		obj["apiVersion"] = apiVersionProp
 	}
 	tierProp, err := expandDialogflowAgentTier(d.Get("tier"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("tier"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tierProp)) {
+	} else if v, ok := d.GetOkExists("tier"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tierProp)) {
 		obj["tier"] = tierProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
 	if err != nil {
 		return err
 	}
@@ -419,7 +420,7 @@ func resourceDialogflowAgentUpdate(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Updating Agent %q: %#v", d.Id(), obj)
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -436,20 +437,20 @@ func resourceDialogflowAgentUpdate(d *schema.ResourceData, meta interface{}) err
 
 func resourceDialogflowAgentDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Agent: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowBasePath}}projects/{{project}}/agent")
 	if err != nil {
 		return err
 	}
@@ -458,7 +459,7 @@ func resourceDialogflowAgentDelete(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Deleting Agent %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -480,7 +481,7 @@ func resourceDialogflowAgentImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "{{project}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{project}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -529,46 +530,46 @@ func flattenDialogflowAgentApiVersion(v interface{}, d *schema.ResourceData, con
 	return v
 }
 
-func expandDialogflowAgentDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDialogflowAgentDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentDefaultLanguageCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDialogflowAgentDefaultLanguageCode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentSupportedLanguageCodes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDialogflowAgentSupportedLanguageCodes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentTimeZone(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDialogflowAgentTimeZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDialogflowAgentDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentAvatarUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDialogflowAgentAvatarUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentEnableLogging(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDialogflowAgentEnableLogging(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentMatchMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDialogflowAgentMatchMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentClassificationThreshold(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDialogflowAgentClassificationThreshold(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentApiVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDialogflowAgentApiVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDialogflowAgentTier(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDialogflowAgentTier(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -42,11 +42,11 @@ var SecurityCenterSourceIamSchema = map[string]*schema.Schema{
 type SecurityCenterSourceIamUpdater struct {
 	organization string
 	source       string
-	d            TerraformResourceData
+	d            tpgresource.TerraformResourceData
 	Config       *transport_tpg.Config
 }
 
-func SecurityCenterSourceIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func SecurityCenterSourceIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	if v, ok := d.GetOk("organization"); ok {
@@ -117,7 +117,7 @@ func (u *SecurityCenterSourceIamUpdater) GetResourceIamPolicy() (*cloudresourcem
 
 	var obj map[string]interface{}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +150,7 @@ func (u *SecurityCenterSourceIamUpdater) SetResourceIamPolicy(policy *cloudresou
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -165,7 +165,7 @@ func (u *SecurityCenterSourceIamUpdater) SetResourceIamPolicy(policy *cloudresou
 
 func (u *SecurityCenterSourceIamUpdater) qualifySourceUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{SecurityCenterBasePath}}%s:%s", fmt.Sprintf("organizations/%s/sources/%s", u.organization, u.source), methodIdentifier)
-	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
+	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

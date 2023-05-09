@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -36,17 +37,17 @@ func DataSourceGoogleContainerAzureVersions() *schema.Resource {
 
 func dataSourceGoogleContainerAzureVersionsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	location, err := getLocation(d, config)
+	location, err := tpgresource.GetLocation(d, config)
 	if err != nil {
 		return err
 	}
@@ -54,7 +55,7 @@ func dataSourceGoogleContainerAzureVersionsRead(d *schema.ResourceData, meta int
 		return fmt.Errorf("Cannot determine location: set location in this data source or at provider-level")
 	}
 
-	url, err := ReplaceVars(d, config, "{{ContainerAzureBasePath}}projects/{{project}}/locations/{{location}}/azureServerConfig")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAzureBasePath}}projects/{{project}}/locations/{{location}}/azureServerConfig")
 	if err != nil {
 		return err
 	}

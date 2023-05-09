@@ -457,12 +457,12 @@ func isPolicyLocked(_ context.Context, old, new, _ interface{}) bool {
 
 func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -477,7 +477,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	// Create a bucket, setting the labels, location and name.
 	sb := &storage.Bucket{
 		Name:             bucket,
-		Labels:           expandLabels(d),
+		Labels:           tpgresource.ExpandLabels(d),
 		Location:         location,
 		IamConfiguration: expandIamConfiguration(d),
 	}
@@ -595,7 +595,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -673,7 +673,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if d.HasChange("labels") {
-		sb.Labels = expandLabels(d)
+		sb.Labels = tpgresource.ExpandLabels(d)
 		if len(sb.Labels) == 0 {
 			sb.NullFields = append(sb.NullFields, "Labels")
 		}
@@ -745,7 +745,7 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 
 func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -772,7 +772,7 @@ func resourceStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -1516,7 +1516,7 @@ func setStorageBucket(d *schema.ResourceData, config *transport_tpg.Config, res 
 	// block, or the resource or an environment variable, we use the compute API to lookup the projectID
 	// from the projectNumber which is included in the bucket API response
 	if d.Get("project") == "" {
-		project, _ := getProject(d, config)
+		project, _ := tpgresource.GetProject(d, config)
 		if err := d.Set("project", project); err != nil {
 			return fmt.Errorf("Error setting project: %s", err)
 		}

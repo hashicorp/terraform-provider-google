@@ -164,7 +164,7 @@ object. This field is used in optimistic locking.`,
 
 func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -173,35 +173,35 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	descriptionProp, err := expandComputeSslPolicyDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	nameProp, err := expandComputeSslPolicyName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	profileProp, err := expandComputeSslPolicyProfile(d.Get("profile"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("profile"); !isEmptyValue(reflect.ValueOf(profileProp)) && (ok || !reflect.DeepEqual(v, profileProp)) {
+	} else if v, ok := d.GetOkExists("profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(profileProp)) && (ok || !reflect.DeepEqual(v, profileProp)) {
 		obj["profile"] = profileProp
 	}
 	minTlsVersionProp, err := expandComputeSslPolicyMinTlsVersion(d.Get("min_tls_version"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("min_tls_version"); !isEmptyValue(reflect.ValueOf(minTlsVersionProp)) && (ok || !reflect.DeepEqual(v, minTlsVersionProp)) {
+	} else if v, ok := d.GetOkExists("min_tls_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(minTlsVersionProp)) && (ok || !reflect.DeepEqual(v, minTlsVersionProp)) {
 		obj["minTlsVersion"] = minTlsVersionProp
 	}
 	customFeaturesProp, err := expandComputeSslPolicyCustomFeatures(d.Get("custom_features"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("custom_features"); !isEmptyValue(reflect.ValueOf(customFeaturesProp)) && (ok || !reflect.DeepEqual(v, customFeaturesProp)) {
+	} else if v, ok := d.GetOkExists("custom_features"); !tpgresource.IsEmptyValue(reflect.ValueOf(customFeaturesProp)) && (ok || !reflect.DeepEqual(v, customFeaturesProp)) {
 		obj["customFeatures"] = customFeaturesProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslPolicies")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslPolicies")
 	if err != nil {
 		return err
 	}
@@ -209,14 +209,14 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Creating new SslPolicy: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for SslPolicy: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -226,7 +226,7 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/global/sslPolicies/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/global/sslPolicies/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -249,26 +249,26 @@ func resourceComputeSslPolicyCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for SslPolicy: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -314,14 +314,14 @@ func resourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for SslPolicy: %s", err)
 	}
@@ -331,19 +331,19 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 	profileProp, err := expandComputeSslPolicyProfile(d.Get("profile"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("profile"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, profileProp)) {
+	} else if v, ok := d.GetOkExists("profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, profileProp)) {
 		obj["profile"] = profileProp
 	}
 	minTlsVersionProp, err := expandComputeSslPolicyMinTlsVersion(d.Get("min_tls_version"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("min_tls_version"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, minTlsVersionProp)) {
+	} else if v, ok := d.GetOkExists("min_tls_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, minTlsVersionProp)) {
 		obj["minTlsVersion"] = minTlsVersionProp
 	}
 	customFeaturesProp, err := expandComputeSslPolicyCustomFeatures(d.Get("custom_features"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("custom_features"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customFeaturesProp)) {
+	} else if v, ok := d.GetOkExists("custom_features"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customFeaturesProp)) {
 		obj["customFeatures"] = customFeaturesProp
 	}
 
@@ -352,7 +352,7 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -360,7 +360,7 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Updating SslPolicy %q: %#v", d.Id(), obj)
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -385,20 +385,20 @@ func resourceComputeSslPolicyUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceComputeSslPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for SslPolicy: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslPolicies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/sslPolicies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -407,7 +407,7 @@ func resourceComputeSslPolicyDelete(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Deleting SslPolicy %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -439,7 +439,7 @@ func resourceComputeSslPolicyImport(d *schema.ResourceData, meta interface{}) ([
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/global/sslPolicies/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/global/sslPolicies/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -486,23 +486,23 @@ func flattenComputeSslPolicyFingerprint(v interface{}, d *schema.ResourceData, c
 	return v
 }
 
-func expandComputeSslPolicyDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeSslPolicyDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSslPolicyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeSslPolicyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSslPolicyProfile(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeSslPolicyProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSslPolicyMinTlsVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeSslPolicyMinTlsVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeSslPolicyCustomFeatures(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeSslPolicyCustomFeatures(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }

@@ -332,7 +332,7 @@ character, which cannot be a dash.`,
 
 func resourceComputeRegionAutoscalerCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -341,35 +341,35 @@ func resourceComputeRegionAutoscalerCreate(d *schema.ResourceData, meta interfac
 	nameProp, err := expandComputeRegionAutoscalerName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	descriptionProp, err := expandComputeRegionAutoscalerDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	autoscalingPolicyProp, err := expandComputeRegionAutoscalerAutoscalingPolicy(d.Get("autoscaling_policy"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("autoscaling_policy"); !isEmptyValue(reflect.ValueOf(autoscalingPolicyProp)) && (ok || !reflect.DeepEqual(v, autoscalingPolicyProp)) {
+	} else if v, ok := d.GetOkExists("autoscaling_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(autoscalingPolicyProp)) && (ok || !reflect.DeepEqual(v, autoscalingPolicyProp)) {
 		obj["autoscalingPolicy"] = autoscalingPolicyProp
 	}
 	targetProp, err := expandComputeRegionAutoscalerTarget(d.Get("target"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("target"); !isEmptyValue(reflect.ValueOf(targetProp)) && (ok || !reflect.DeepEqual(v, targetProp)) {
+	} else if v, ok := d.GetOkExists("target"); !tpgresource.IsEmptyValue(reflect.ValueOf(targetProp)) && (ok || !reflect.DeepEqual(v, targetProp)) {
 		obj["target"] = targetProp
 	}
 	regionProp, err := expandComputeRegionAutoscalerRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(regionProp)) && (ok || !reflect.DeepEqual(v, regionProp)) {
+	} else if v, ok := d.GetOkExists("region"); !tpgresource.IsEmptyValue(reflect.ValueOf(regionProp)) && (ok || !reflect.DeepEqual(v, regionProp)) {
 		obj["region"] = regionProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/autoscalers")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/autoscalers")
 	if err != nil {
 		return err
 	}
@@ -377,14 +377,14 @@ func resourceComputeRegionAutoscalerCreate(d *schema.ResourceData, meta interfac
 	log.Printf("[DEBUG] Creating new RegionAutoscaler: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for RegionAutoscaler: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -394,7 +394,7 @@ func resourceComputeRegionAutoscalerCreate(d *schema.ResourceData, meta interfac
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/autoscalers/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/autoscalers/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -417,26 +417,26 @@ func resourceComputeRegionAutoscalerCreate(d *schema.ResourceData, meta interfac
 
 func resourceComputeRegionAutoscalerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/autoscalers/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/autoscalers/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for RegionAutoscaler: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -476,14 +476,14 @@ func resourceComputeRegionAutoscalerRead(d *schema.ResourceData, meta interface{
 
 func resourceComputeRegionAutoscalerUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for RegionAutoscaler: %s", err)
 	}
@@ -493,35 +493,35 @@ func resourceComputeRegionAutoscalerUpdate(d *schema.ResourceData, meta interfac
 	nameProp, err := expandComputeRegionAutoscalerName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	descriptionProp, err := expandComputeRegionAutoscalerDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	autoscalingPolicyProp, err := expandComputeRegionAutoscalerAutoscalingPolicy(d.Get("autoscaling_policy"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("autoscaling_policy"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, autoscalingPolicyProp)) {
+	} else if v, ok := d.GetOkExists("autoscaling_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, autoscalingPolicyProp)) {
 		obj["autoscalingPolicy"] = autoscalingPolicyProp
 	}
 	targetProp, err := expandComputeRegionAutoscalerTarget(d.Get("target"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("target"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetProp)) {
+	} else if v, ok := d.GetOkExists("target"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetProp)) {
 		obj["target"] = targetProp
 	}
 	regionProp, err := expandComputeRegionAutoscalerRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, regionProp)) {
+	} else if v, ok := d.GetOkExists("region"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, regionProp)) {
 		obj["region"] = regionProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/autoscalers?autoscaler={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/autoscalers?autoscaler={{name}}")
 	if err != nil {
 		return err
 	}
@@ -529,7 +529,7 @@ func resourceComputeRegionAutoscalerUpdate(d *schema.ResourceData, meta interfac
 	log.Printf("[DEBUG] Updating RegionAutoscaler %q: %#v", d.Id(), obj)
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -554,20 +554,20 @@ func resourceComputeRegionAutoscalerUpdate(d *schema.ResourceData, meta interfac
 
 func resourceComputeRegionAutoscalerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for RegionAutoscaler: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/autoscalers/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/autoscalers/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -576,7 +576,7 @@ func resourceComputeRegionAutoscalerDelete(d *schema.ResourceData, meta interfac
 	log.Printf("[DEBUG] Deleting RegionAutoscaler %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -609,7 +609,7 @@ func resourceComputeRegionAutoscalerImport(d *schema.ResourceData, meta interfac
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/autoscalers/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/autoscalers/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -815,7 +815,7 @@ func flattenComputeRegionAutoscalerAutoscalingPolicyCpuUtilizationTarget(v inter
 }
 
 func flattenComputeRegionAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+	if v == nil || tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
 		return "NONE"
 	}
 
@@ -952,15 +952,15 @@ func flattenComputeRegionAutoscalerRegion(v interface{}, d *schema.ResourceData,
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
-func expandComputeRegionAutoscalerName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicy(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -979,79 +979,79 @@ func expandComputeRegionAutoscalerAutoscalingPolicy(v interface{}, d TerraformRe
 	transformedMaxReplicas, err := expandComputeRegionAutoscalerAutoscalingPolicyMaxReplicas(original["max_replicas"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxReplicas); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMaxReplicas); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["maxNumReplicas"] = transformedMaxReplicas
 	}
 
 	transformedCooldownPeriod, err := expandComputeRegionAutoscalerAutoscalingPolicyCooldownPeriod(original["cooldown_period"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCooldownPeriod); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCooldownPeriod); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["coolDownPeriodSec"] = transformedCooldownPeriod
 	}
 
 	transformedMode, err := expandComputeRegionAutoscalerAutoscalingPolicyMode(original["mode"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMode); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["mode"] = transformedMode
 	}
 
 	transformedScaleInControl, err := expandComputeRegionAutoscalerAutoscalingPolicyScaleInControl(original["scale_in_control"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedScaleInControl); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedScaleInControl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["scaleInControl"] = transformedScaleInControl
 	}
 
 	transformedCpuUtilization, err := expandComputeRegionAutoscalerAutoscalingPolicyCpuUtilization(original["cpu_utilization"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCpuUtilization); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCpuUtilization); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["cpuUtilization"] = transformedCpuUtilization
 	}
 
 	transformedMetric, err := expandComputeRegionAutoscalerAutoscalingPolicyMetric(original["metric"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMetric); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMetric); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["customMetricUtilizations"] = transformedMetric
 	}
 
 	transformedLoadBalancingUtilization, err := expandComputeRegionAutoscalerAutoscalingPolicyLoadBalancingUtilization(original["load_balancing_utilization"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedLoadBalancingUtilization); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedLoadBalancingUtilization); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["loadBalancingUtilization"] = transformedLoadBalancingUtilization
 	}
 
 	transformedScalingSchedules, err := expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedules(original["scaling_schedules"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedScalingSchedules); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedScalingSchedules); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["scalingSchedules"] = transformedScalingSchedules
 	}
 
 	return transformed, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyMinReplicas(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyMinReplicas(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyMaxReplicas(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyMaxReplicas(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyCooldownPeriod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyCooldownPeriod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyMode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyScaleInControl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyScaleInControl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1063,21 +1063,21 @@ func expandComputeRegionAutoscalerAutoscalingPolicyScaleInControl(v interface{},
 	transformedMaxScaledInReplicas, err := expandComputeRegionAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicas(original["max_scaled_in_replicas"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxScaledInReplicas); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMaxScaledInReplicas); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["maxScaledInReplicas"] = transformedMaxScaledInReplicas
 	}
 
 	transformedTimeWindowSec, err := expandComputeRegionAutoscalerAutoscalingPolicyScaleInControlTimeWindowSec(original["time_window_sec"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedTimeWindowSec); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedTimeWindowSec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["timeWindowSec"] = transformedTimeWindowSec
 	}
 
 	return transformed, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicas(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicas(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1089,33 +1089,33 @@ func expandComputeRegionAutoscalerAutoscalingPolicyScaleInControlMaxScaledInRepl
 	transformedFixed, err := expandComputeRegionAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasFixed(original["fixed"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedFixed); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedFixed); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["fixed"] = transformedFixed
 	}
 
 	transformedPercent, err := expandComputeRegionAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasPercent(original["percent"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPercent); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPercent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["percent"] = transformedPercent
 	}
 
 	return transformed, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasFixed(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasFixed(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasPercent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyScaleInControlMaxScaledInReplicasPercent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyScaleInControlTimeWindowSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyScaleInControlTimeWindowSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyCpuUtilization(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyCpuUtilization(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1127,29 +1127,29 @@ func expandComputeRegionAutoscalerAutoscalingPolicyCpuUtilization(v interface{},
 	transformedTarget, err := expandComputeRegionAutoscalerAutoscalingPolicyCpuUtilizationTarget(original["target"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedTarget); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedTarget); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["utilizationTarget"] = transformedTarget
 	}
 
 	transformedPredictiveMethod, err := expandComputeRegionAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(original["predictive_method"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPredictiveMethod); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPredictiveMethod); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["predictiveMethod"] = transformedPredictiveMethod
 	}
 
 	return transformed, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyCpuUtilizationTarget(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyCpuUtilizationTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyCpuUtilizationPredictiveMethod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyMetric(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyMetric(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1162,21 +1162,21 @@ func expandComputeRegionAutoscalerAutoscalingPolicyMetric(v interface{}, d Terra
 		transformedName, err := expandComputeRegionAutoscalerAutoscalingPolicyMetricName(original["name"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["metric"] = transformedName
 		}
 
 		transformedTarget, err := expandComputeRegionAutoscalerAutoscalingPolicyMetricTarget(original["target"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedTarget); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedTarget); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["utilizationTarget"] = transformedTarget
 		}
 
 		transformedType, err := expandComputeRegionAutoscalerAutoscalingPolicyMetricType(original["type"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedType); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["utilizationTargetType"] = transformedType
 		}
 
@@ -1185,19 +1185,19 @@ func expandComputeRegionAutoscalerAutoscalingPolicyMetric(v interface{}, d Terra
 	return req, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyMetricName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyMetricName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyMetricTarget(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyMetricTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyMetricType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyMetricType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyLoadBalancingUtilization(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyLoadBalancingUtilization(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1209,18 +1209,18 @@ func expandComputeRegionAutoscalerAutoscalingPolicyLoadBalancingUtilization(v in
 	transformedTarget, err := expandComputeRegionAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(original["target"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedTarget); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedTarget); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["utilizationTarget"] = transformedTarget
 	}
 
 	return transformed, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyLoadBalancingUtilizationTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedules(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
 	if v == nil {
 		return map[string]interface{}{}, nil
 	}
@@ -1239,35 +1239,35 @@ func expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedules(v interface{
 		transformedSchedule, err := expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedulesSchedule(original["schedule"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedSchedule); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedSchedule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["schedule"] = transformedSchedule
 		}
 
 		transformedTimeZone, err := expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedulesTimeZone(original["time_zone"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedTimeZone); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedTimeZone); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["timeZone"] = transformedTimeZone
 		}
 
 		transformedDurationSec, err := expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedulesDurationSec(original["duration_sec"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedDurationSec); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedDurationSec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["durationSec"] = transformedDurationSec
 		}
 
 		transformedDisabled, err := expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedulesDisabled(original["disabled"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedDisabled); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedDisabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["disabled"] = transformedDisabled
 		}
 
 		transformedDescription, err := expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedulesDescription(original["description"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["description"] = transformedDescription
 		}
 
@@ -1280,36 +1280,36 @@ func expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedules(v interface{
 	return m, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedulesMinRequiredReplicas(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedulesMinRequiredReplicas(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedulesSchedule(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedulesSchedule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedulesTimeZone(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedulesTimeZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedulesDurationSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedulesDurationSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedulesDisabled(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedulesDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedulesDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedulesDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerTarget(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeRegionAutoscalerTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerRegion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
+func expandComputeRegionAutoscalerRegion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	f, err := tpgresource.ParseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}

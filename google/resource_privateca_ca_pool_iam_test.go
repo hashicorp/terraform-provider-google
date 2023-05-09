@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 func TestAccPrivatecaCaPoolIamMemberAllAuthenticatedUsersCasing(t *testing.T) {
@@ -35,7 +36,7 @@ func TestAccPrivatecaCaPoolIamMemberAllAuthenticatedUsersCasing(t *testing.T) {
 func testAccCheckPrivatecaCaPoolIam(t *testing.T, capool, region, project, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
-		d := &acctest.ResourceDataMock{
+		d := &tpgresource.ResourceDataMock{
 			FieldsInSchema: map[string]interface{}{
 				"ca_pool": capool,
 				"role":    role,

@@ -50,11 +50,11 @@ type DataprocMetastoreServiceIamUpdater struct {
 	project   string
 	location  string
 	serviceId string
-	d         TerraformResourceData
+	d         tpgresource.TerraformResourceData
 	Config    *transport_tpg.Config
 }
 
-func DataprocMetastoreServiceIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func DataprocMetastoreServiceIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)
@@ -148,13 +148,13 @@ func (u *DataprocMetastoreServiceIamUpdater) GetResourceIamPolicy() (*cloudresou
 		return nil, err
 	}
 
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
 	var obj map[string]interface{}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -186,12 +186,12 @@ func (u *DataprocMetastoreServiceIamUpdater) SetResourceIamPolicy(policy *cloudr
 	if err != nil {
 		return err
 	}
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -206,7 +206,7 @@ func (u *DataprocMetastoreServiceIamUpdater) SetResourceIamPolicy(policy *cloudr
 
 func (u *DataprocMetastoreServiceIamUpdater) qualifyServiceUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{DataprocMetastoreBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/services/%s", u.project, u.location, u.serviceId), methodIdentifier)
-	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
+	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}
