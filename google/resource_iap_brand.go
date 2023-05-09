@@ -166,7 +166,7 @@ func resourceIapBrandCreate(d *schema.ResourceData, meta interface{}) error {
 	return resourceIapBrandRead(d, meta)
 }
 
-func resourceIapBrandPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+func resourceIapBrandPollRead(d *schema.ResourceData, meta interface{}) transport_tpg.PollReadFunc {
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 

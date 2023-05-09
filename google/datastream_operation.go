@@ -17,7 +17,7 @@ type DatastreamOperationWaiter struct {
 	UserAgent string
 	Project   string
 	Op        datastream.Operation
-	CommonOperationWaiter
+	tpgresource.CommonOperationWaiter
 }
 
 func (w *DatastreamOperationWaiter) QueryOp() (interface{}, error) {
@@ -63,7 +63,7 @@ func DatastreamOperationWaitTimeWithResponse(config *transport_tpg.Config, op ma
 	if err != nil {
 		return err
 	}
-	if err := OperationWait(w, activity, timeout, config.PollInterval); err != nil {
+	if err := tpgresource.OperationWait(w, activity, timeout, config.PollInterval); err != nil {
 		return err
 	}
 	return json.Unmarshal([]byte(w.Op.Response), response)
@@ -79,7 +79,7 @@ func DatastreamOperationWaitTime(config *transport_tpg.Config, op map[string]int
 		// If w is nil, the op was synchronous.
 		return err
 	}
-	return OperationWait(w, activity, timeout, config.PollInterval)
+	return tpgresource.OperationWait(w, activity, timeout, config.PollInterval)
 }
 
 // DatastreamOperationError wraps datastream.Status and implements the

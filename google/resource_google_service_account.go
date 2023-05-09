@@ -135,7 +135,7 @@ func resourceGoogleServiceAccountCreate(d *schema.ResourceData, meta interface{}
 	return resourceGoogleServiceAccountRead(d, meta)
 }
 
-func resourceServiceAccountPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+func resourceServiceAccountPollRead(d *schema.ResourceData, meta interface{}) transport_tpg.PollReadFunc {
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 		userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)

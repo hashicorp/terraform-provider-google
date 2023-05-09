@@ -235,7 +235,7 @@ func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 	return resourcePubsubTopicRead(d, meta)
 }
 
-func resourcePubsubTopicPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+func resourcePubsubTopicPollRead(d *schema.ResourceData, meta interface{}) transport_tpg.PollReadFunc {
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 

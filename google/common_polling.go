@@ -1,105 +1,48 @@
 package google
 
 import (
-	"fmt"
-	"log"
-	"sync"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-type (
-	// Function handling for polling for a resource
-	PollReadFunc func() (resp map[string]interface{}, respErr error)
-
-	// Function to check the response from polling once
-	PollCheckResponseFunc func(resp map[string]interface{}, respErr error) PollResult
-
-	PollResult *resource.RetryError
-)
-
 // Helper functions to construct result of single pollRead as return result for a PollCheckResponseFunc
-func ErrorPollResult(err error) PollResult {
-	return resource.NonRetryableError(err)
+//
+// Deprecated: For backward compatibility ErrorPollResult is still working,
+// but all new code should use ErrorPollResult in the transport_tpg package instead.
+func ErrorPollResult(err error) transport_tpg.PollResult {
+	return transport_tpg.ErrorPollResult(err)
 }
 
-func PendingStatusPollResult(status string) PollResult {
-	return resource.RetryableError(fmt.Errorf("got pending status %q", status))
+// Deprecated: For backward compatibility PendingStatusPollResult is still working,
+// but all new code should use PendingStatusPollResult in the transport_tpg package instead.
+func PendingStatusPollResult(status string) transport_tpg.PollResult {
+	return transport_tpg.PendingStatusPollResult(status)
 }
 
-func SuccessPollResult() PollResult {
-	return nil
+// Deprecated: For backward compatibility SuccessPollResult is still working,
+// but all new code should use SuccessPollResult in the transport_tpg package instead.
+func SuccessPollResult() transport_tpg.PollResult {
+	return transport_tpg.SuccessPollResult()
 }
 
-func PollingWaitTime(pollF PollReadFunc, checkResponse PollCheckResponseFunc, activity string,
+// Deprecated: For backward compatibility PollingWaitTime is still working,
+// but all new code should use PollingWaitTime in the transport_tpg package instead.
+func PollingWaitTime(pollF transport_tpg.PollReadFunc, checkResponse transport_tpg.PollCheckResponseFunc, activity string,
 	timeout time.Duration, targetOccurrences int) error {
-	log.Printf("[DEBUG] %s: Polling until expected state is read", activity)
-	log.Printf("[DEBUG] Target occurrences: %d", targetOccurrences)
-	if targetOccurrences == 1 {
-		return resource.Retry(timeout, func() *resource.RetryError {
-			readResp, readErr := pollF()
-			return checkResponse(readResp, readErr)
-		})
-	}
-	return RetryWithTargetOccurrences(timeout, targetOccurrences, func() *resource.RetryError {
-		readResp, readErr := pollF()
-		return checkResponse(readResp, readErr)
-	})
+	return transport_tpg.PollingWaitTime(pollF, checkResponse, activity, timeout, targetOccurrences)
 }
 
 // RetryWithTargetOccurrences is a basic wrapper around StateChangeConf that will retry
 // a function until it returns the specified amount of target occurrences continuously.
 // Adapted from the Retry function in the go SDK.
+//
+// Deprecated: For backward compatibility RetryWithTargetOccurrences is still working,
+// but all new code should use RetryWithTargetOccurrences in the transport_tpg package instead.
 func RetryWithTargetOccurrences(timeout time.Duration, targetOccurrences int,
 	f resource.RetryFunc) error {
-	// These are used to pull the error out of the function; need a mutex to
-	// avoid a data race.
-	var resultErr error
-	var resultErrMu sync.Mutex
-
-	c := &resource.StateChangeConf{
-		Pending:                   []string{"retryableerror"},
-		Target:                    []string{"success"},
-		Timeout:                   timeout,
-		MinTimeout:                500 * time.Millisecond,
-		ContinuousTargetOccurence: targetOccurrences,
-		Refresh: func() (interface{}, string, error) {
-			rerr := f()
-
-			resultErrMu.Lock()
-			defer resultErrMu.Unlock()
-
-			if rerr == nil {
-				resultErr = nil
-				return 42, "success", nil
-			}
-
-			resultErr = rerr.Err
-
-			if rerr.Retryable {
-				return 42, "retryableerror", nil
-			}
-			return nil, "quit", rerr.Err
-		},
-	}
-
-	_, waitErr := c.WaitForState()
-
-	// Need to acquire the lock here to be able to avoid race using resultErr as
-	// the return value
-	resultErrMu.Lock()
-	defer resultErrMu.Unlock()
-
-	// resultErr may be nil because the wait timed out and resultErr was never
-	// set; this is still an error
-	if resultErr == nil {
-		return waitErr
-	}
-	// resultErr takes precedence over waitErr if both are set because it is
-	// more likely to be useful
-	return resultErr
+	return transport_tpg.RetryWithTargetOccurrences(timeout, targetOccurrences, f)
 }
 
 /**
@@ -108,48 +51,36 @@ func RetryWithTargetOccurrences(timeout time.Duration, targetOccurrences int,
 
 // PollCheckForExistence waits for a successful response, continues polling on 404,
 // and returns any other error.
-func PollCheckForExistence(_ map[string]interface{}, respErr error) PollResult {
-	if respErr != nil {
-		if transport_tpg.IsGoogleApiErrorWithCode(respErr, 404) {
-			return PendingStatusPollResult("not found")
-		}
-		return ErrorPollResult(respErr)
-	}
-	return SuccessPollResult()
+//
+// Deprecated: For backward compatibility PollCheckForExistence is still working,
+// but all new code should use PollCheckForExistence in the transport_tpg package instead.
+func PollCheckForExistence(_ map[string]interface{}, respErr error) transport_tpg.PollResult {
+	return transport_tpg.PollCheckForExistence(nil, respErr)
 }
 
 // PollCheckForExistenceWith403 waits for a successful response, continues polling on 404 or 403,
 // and returns any other error.
-func PollCheckForExistenceWith403(_ map[string]interface{}, respErr error) PollResult {
-	if respErr != nil {
-		if transport_tpg.IsGoogleApiErrorWithCode(respErr, 404) || transport_tpg.IsGoogleApiErrorWithCode(respErr, 403) {
-			return PendingStatusPollResult("not found")
-		}
-		return ErrorPollResult(respErr)
-	}
-	return SuccessPollResult()
+//
+// Deprecated: For backward compatibility PollCheckForExistenceWith403 is still working,
+// but all new code should use PollCheckForExistenceWith403 in the transport_tpg package instead.
+func PollCheckForExistenceWith403(_ map[string]interface{}, respErr error) transport_tpg.PollResult {
+	return transport_tpg.PollCheckForExistenceWith403(nil, respErr)
 }
 
 // PollCheckForAbsence waits for a 404/403 response, continues polling on a successful
 // response, and returns any other error.
-func PollCheckForAbsenceWith403(_ map[string]interface{}, respErr error) PollResult {
-	if respErr != nil {
-		if transport_tpg.IsGoogleApiErrorWithCode(respErr, 404) || transport_tpg.IsGoogleApiErrorWithCode(respErr, 403) {
-			return SuccessPollResult()
-		}
-		return ErrorPollResult(respErr)
-	}
-	return PendingStatusPollResult("found")
+//
+// Deprecated: For backward compatibility PollCheckForAbsenceWith403 is still working,
+// but all new code should use PollCheckForAbsenceWith403 in the transport_tpg package instead.
+func PollCheckForAbsenceWith403(_ map[string]interface{}, respErr error) transport_tpg.PollResult {
+	return transport_tpg.PollCheckForAbsenceWith403(nil, respErr)
 }
 
 // PollCheckForAbsence waits for a 404 response, continues polling on a successful
 // response, and returns any other error.
-func PollCheckForAbsence(_ map[string]interface{}, respErr error) PollResult {
-	if respErr != nil {
-		if transport_tpg.IsGoogleApiErrorWithCode(respErr, 404) {
-			return SuccessPollResult()
-		}
-		return ErrorPollResult(respErr)
-	}
-	return PendingStatusPollResult("found")
+//
+// Deprecated: For backward compatibility PollCheckForAbsence is still working,
+// but all new code should use PollCheckForAbsence in the transport_tpg package instead.
+func PollCheckForAbsence(_ map[string]interface{}, respErr error) transport_tpg.PollResult {
+	return transport_tpg.PollCheckForAbsence(nil, respErr)
 }

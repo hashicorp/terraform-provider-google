@@ -353,7 +353,7 @@ func resourceDataLossPreventionStoredInfoTypeCreate(d *schema.ResourceData, meta
 	return resourceDataLossPreventionStoredInfoTypeRead(d, meta)
 }
 
-func resourceDataLossPreventionStoredInfoTypePollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+func resourceDataLossPreventionStoredInfoTypePollRead(d *schema.ResourceData, meta interface{}) transport_tpg.PollReadFunc {
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 

@@ -20,7 +20,7 @@ var (
 type AppEngineOperationWaiter struct {
 	Service *appengine.APIService
 	AppId   string
-	CommonOperationWaiter
+	tpgresource.CommonOperationWaiter
 }
 
 func (w *AppEngineOperationWaiter) QueryOp() (interface{}, error) {
@@ -49,7 +49,7 @@ func AppEngineOperationWaitTimeWithResponse(config *transport_tpg.Config, res in
 	if err := w.SetOp(op); err != nil {
 		return err
 	}
-	if err := OperationWait(w, activity, timeout, config.PollInterval); err != nil {
+	if err := tpgresource.OperationWait(w, activity, timeout, config.PollInterval); err != nil {
 		return err
 	}
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
@@ -70,5 +70,5 @@ func AppEngineOperationWaitTime(config *transport_tpg.Config, res interface{}, a
 	if err := w.SetOp(op); err != nil {
 		return err
 	}
-	return OperationWait(w, activity, timeout, config.PollInterval)
+	return tpgresource.OperationWait(w, activity, timeout, config.PollInterval)
 }

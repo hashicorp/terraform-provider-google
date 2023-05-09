@@ -113,7 +113,7 @@ func ComputeOperationWaitTime(config *transport_tpg.Config, res interface{}, pro
 	if err := w.SetOp(op); err != nil {
 		return err
 	}
-	return OperationWait(w, activity, timeout, config.PollInterval)
+	return tpgresource.OperationWait(w, activity, timeout, config.PollInterval)
 }
 
 // ComputeOperationError wraps compute.OperationError and implements the

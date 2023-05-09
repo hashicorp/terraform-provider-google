@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/cloudfunctions/v1"
 )
 
 type CloudFunctionsOperationWaiter struct {
 	Service *cloudfunctions.Service
-	CommonOperationWaiter
+	tpgresource.CommonOperationWaiter
 }
 
 func (w *CloudFunctionsOperationWaiter) QueryOp() (interface{}, error) {
@@ -27,11 +28,11 @@ func cloudFunctionsOperationWait(config *transport_tpg.Config, op *cloudfunction
 	if err := w.SetOp(op); err != nil {
 		return err
 	}
-	return OperationWait(w, activity, timeout, config.PollInterval)
+	return tpgresource.OperationWait(w, activity, timeout, config.PollInterval)
 }
 
 func IsCloudFunctionsSourceCodeError(err error) (bool, string) {
-	if operr, ok := err.(*CommonOpError); ok {
+	if operr, ok := err.(*tpgresource.CommonOpError); ok {
 		if operr.Code == 3 && operr.Message == "Failed to retrieve function source code" {
 			return true, fmt.Sprintf("Retry on Function failing to pull code from GCS")
 		}

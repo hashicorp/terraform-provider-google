@@ -2,15 +2,17 @@ package google
 
 import (
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"time"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/dataproc/v1"
 )
 
 type DataprocClusterOperationWaiter struct {
 	Service *dataproc.Service
-	CommonOperationWaiter
+	tpgresource.CommonOperationWaiter
 }
 
 func (w *DataprocClusterOperationWaiter) QueryOp() (interface{}, error) {
@@ -27,5 +29,5 @@ func dataprocClusterOperationWait(config *transport_tpg.Config, op *dataproc.Ope
 	if err := w.SetOp(op); err != nil {
 		return err
 	}
-	return OperationWait(w, activity, timeout, config.PollInterval)
+	return tpgresource.OperationWait(w, activity, timeout, config.PollInterval)
 }

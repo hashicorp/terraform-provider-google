@@ -140,7 +140,7 @@ func resourcePubsubSchemaCreate(d *schema.ResourceData, meta interface{}) error 
 	return resourcePubsubSchemaRead(d, meta)
 }
 
-func resourcePubsubSchemaPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+func resourcePubsubSchemaPollRead(d *schema.ResourceData, meta interface{}) transport_tpg.PollReadFunc {
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 

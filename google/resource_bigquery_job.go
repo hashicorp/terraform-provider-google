@@ -1042,7 +1042,7 @@ func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
 	return resourceBigQueryJobRead(d, meta)
 }
 
-func resourceBigQueryJobPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+func resourceBigQueryJobPollRead(d *schema.ResourceData, meta interface{}) transport_tpg.PollReadFunc {
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 
