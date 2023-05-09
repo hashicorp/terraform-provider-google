@@ -277,6 +277,54 @@ resource "google_secret_manager_secret_iam_member" "secret-access" {
   depends_on = [google_secret_manager_secret.secret]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudrunv2_service_multicontainer&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudrunv2 Service Multicontainer
+
+
+```hcl
+resource "google_cloud_run_v2_service" "default" {
+  provider = google-beta
+  name     = "cloudrun-service"
+  location = "us-central1"
+  launch_stage = "BETA"
+  ingress = "INGRESS_TRAFFIC_ALL"
+  template {
+    containers {
+      name = "hello-1"
+      ports {
+        container_port = 8080
+      }
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      depends_on = ["hello-2"]
+      volume_mounts {
+        name = "empty-dir-volume"
+	mount_path = "/mnt"
+      }
+    }
+    containers {
+      name = "hello-2"
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+    volumes {
+      name = "empty-dir-volume"
+      empty_dir {
+        medium = "MEMORY"
+        size_limit = "256Mi"
+      }
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      launch_stage,
+    ]
+  }
+}
+```
 
 ## Argument Reference
 
@@ -328,7 +376,7 @@ The following arguments are supported:
 
 * `containers` -
   (Optional)
-  Holds the single container that defines the unit of execution for this task.
+  Holds the containers that define the unit of execution for this Service.
   Structure is [documented below](#nested_containers).
 
 * `volumes` -
@@ -427,6 +475,10 @@ The following arguments are supported:
   (Optional)
   Startup probe of application within the container. All other probes are disabled if a startup probe is provided, until it succeeds. Container will not be added to service endpoints if the probe fails. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
   Structure is [documented below](#nested_startup_probe).
+
+* `depends_on` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Containers which should be started before this container. If specified the container will wait to start until all containers with the listed names are healthy.
 
 
 <a name="nested_env"></a>The `env` block supports:
@@ -674,6 +726,11 @@ The following arguments are supported:
   For Cloud SQL volumes, contains the specific instances that should be mounted. Visit https://cloud.google.com/sql/docs/mysql/connect-run for more information on how to connect Cloud SQL and Cloud Run.
   Structure is [documented below](#nested_cloud_sql_instance).
 
+* `empty_dir` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Ephemeral storage used as a shared volume.
+  Structure is [documented below](#nested_empty_dir).
+
 
 <a name="nested_secret"></a>The `secret` block supports:
 
@@ -710,6 +767,18 @@ The following arguments are supported:
 * `instances` -
   (Optional)
   The Cloud SQL instance connection names, as can be found in https://console.cloud.google.com/sql/instances. Visit https://cloud.google.com/sql/docs/mysql/connect-run for more information on how to connect Cloud SQL and Cloud Run. Format: {project}:{location}:{instance}
+
+<a name="nested_empty_dir"></a>The `empty_dir` block supports:
+
+* `medium` -
+  (Optional)
+  The different types of medium supported for EmptyDir.
+  Default value is `MEMORY`.
+  Possible values are: `MEMORY`.
+
+* `size_limit` -
+  (Optional)
+  Limit on the storage usable by this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. This field's values are of the 'Quantity' k8s type: https://kubernetes.io/docs/reference/kubernetes-api/common-definitions/quantity/. The default is nil which means that the limit is undefined. More info: http://kubernetes.io/docs/user-guide/volumes#emptydir.
 
 - - -
 
