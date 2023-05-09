@@ -29,12 +29,12 @@ var IamBigtableInstanceSchema = map[string]*schema.Schema{
 type BigtableInstanceIamUpdater struct {
 	project  string
 	instance string
-	d        TerraformResourceData
+	d        tpgresource.TerraformResourceData
 	Config   *transport_tpg.Config
 }
 
-func NewBigtableInstanceUpdater(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
-	project, err := getProject(d, config)
+func NewBigtableInstanceUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func NewBigtableInstanceUpdater(d TerraformResourceData, config *transport_tpg.C
 }
 
 func BigtableInstanceIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
-	fv, err := parseProjectFieldValue("instances", d.Id(), "project", d, config, false)
+	fv, err := tpgresource.ParseProjectFieldValue("instances", d.Id(), "project", d, config, false)
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func BigtableInstanceIdParseFunc(d *schema.ResourceData, config *transport_tpg.C
 func (u *BigtableInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
 	req := &bigtableadmin.GetIamPolicyRequest{}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (u *BigtableInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcem
 
 	req := &bigtableadmin.SetIamPolicyRequest{Policy: bigtablePolicy}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}

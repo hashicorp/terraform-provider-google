@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,7 +16,7 @@ import (
 // CA related utilities.
 
 func enableCA(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string) error {
-	enableUrl, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:enable")
+	enableUrl, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:enable")
 	if err != nil {
 		return err
 	}
@@ -38,7 +39,7 @@ func enableCA(config *transport_tpg.Config, d *schema.ResourceData, project stri
 }
 
 func disableCA(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string) error {
-	disableUrl, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:disable")
+	disableUrl, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:disable")
 	if err != nil {
 		return err
 	}
@@ -93,7 +94,7 @@ func activateSubCAWithThirdPartyIssuer(config *transport_tpg.Config, d *schema.R
 	activateObj["subordinateConfig"].(map[string]interface{})["pemIssuerChain"] = make(map[string]interface{})
 	activateObj["subordinateConfig"].(map[string]interface{})["pemIssuerChain"].(map[string]interface{})["pemCertificates"] = pemIssuerChain
 
-	activateUrl, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:activate")
+	activateUrl, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:activate")
 	if err != nil {
 		return err
 	}
@@ -131,7 +132,7 @@ func activateSubCAWithFirstPartyIssuer(config *transport_tpg.Config, d *schema.R
 	issuer := ca.(string)
 
 	// 2. fetch CSR
-	fetchCSRUrl, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:fetch")
+	fetchCSRUrl, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:fetch")
 	if err != nil {
 		return err
 	}
@@ -178,7 +179,7 @@ func activateSubCAWithFirstPartyIssuer(config *transport_tpg.Config, d *schema.R
 		return err
 	}
 
-	PrivatecaBasePath, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}")
+	PrivatecaBasePath, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}")
 	if err != nil {
 		return err
 	}
@@ -201,7 +202,7 @@ func activateSubCAWithFirstPartyIssuer(config *transport_tpg.Config, d *schema.R
 	activateObj["subordinateConfig"] = make(map[string]interface{})
 	activateObj["subordinateConfig"].(map[string]interface{})["certificateAuthority"] = issuer
 
-	activateUrl, err := ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:activate")
+	activateUrl, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:activate")
 	if err != nil {
 		return err
 	}

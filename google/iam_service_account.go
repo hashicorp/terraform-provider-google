@@ -24,11 +24,11 @@ var IamServiceAccountSchema = map[string]*schema.Schema{
 
 type ServiceAccountIamUpdater struct {
 	serviceAccountId string
-	d                TerraformResourceData
+	d                tpgresource.TerraformResourceData
 	Config           *transport_tpg.Config
 }
 
-func NewServiceAccountIamUpdater(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func NewServiceAccountIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	return &ServiceAccountIamUpdater{
 		serviceAccountId: d.Get("service_account_id").(string),
 		d:                d,
@@ -44,7 +44,7 @@ func ServiceAccountIdParseFunc(d *schema.ResourceData, _ *transport_tpg.Config) 
 }
 
 func (u *ServiceAccountIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (u *ServiceAccountIamUpdater) SetResourceIamPolicy(policy *cloudresourceman
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}

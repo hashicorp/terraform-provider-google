@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -64,24 +65,24 @@ func DataSourceAlloydbLocations() *schema.Resource {
 
 func dataSourceAlloydbLocationsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
-	url, err := ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations")
 	if err != nil {
 		return fmt.Errorf("Error setting api endpoint")
 	}
@@ -123,7 +124,7 @@ func dataSourceAlloydbLocationsRead(d *schema.ResourceData, meta interface{}) er
 		if res["nextPageToken"] == nil || res["nextPageToken"].(string) == "" {
 			break
 		}
-		url, err = ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations?pageToken="+res["nextPageToken"].(string))
+		url, err = tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations?pageToken="+res["nextPageToken"].(string))
 		if err != nil {
 			return fmt.Errorf("Error setting api endpoint")
 		}

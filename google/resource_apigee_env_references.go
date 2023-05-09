@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -79,7 +80,7 @@ in the format 'organizations/{{org_name}}/environments/{{env_name}}'.`,
 
 func resourceApigeeEnvReferencesCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -88,29 +89,29 @@ func resourceApigeeEnvReferencesCreate(d *schema.ResourceData, meta interface{})
 	nameProp, err := expandApigeeEnvReferencesName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	descriptionProp, err := expandApigeeEnvReferencesDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	resourceTypeProp, err := expandApigeeEnvReferencesResourceType(d.Get("resource_type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("resource_type"); !isEmptyValue(reflect.ValueOf(resourceTypeProp)) && (ok || !reflect.DeepEqual(v, resourceTypeProp)) {
+	} else if v, ok := d.GetOkExists("resource_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(resourceTypeProp)) && (ok || !reflect.DeepEqual(v, resourceTypeProp)) {
 		obj["resourceType"] = resourceTypeProp
 	}
 	refersProp, err := expandApigeeEnvReferencesRefers(d.Get("refers"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("refers"); !isEmptyValue(reflect.ValueOf(refersProp)) && (ok || !reflect.DeepEqual(v, refersProp)) {
+	} else if v, ok := d.GetOkExists("refers"); !tpgresource.IsEmptyValue(reflect.ValueOf(refersProp)) && (ok || !reflect.DeepEqual(v, refersProp)) {
 		obj["refers"] = refersProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/references/")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/references/")
 	if err != nil {
 		return err
 	}
@@ -119,7 +120,7 @@ func resourceApigeeEnvReferencesCreate(d *schema.ResourceData, meta interface{})
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -129,7 +130,7 @@ func resourceApigeeEnvReferencesCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{env_id}}/references/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{env_id}}/references/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -142,12 +143,12 @@ func resourceApigeeEnvReferencesCreate(d *schema.ResourceData, meta interface{})
 
 func resourceApigeeEnvReferencesRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/references/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/references/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -155,7 +156,7 @@ func resourceApigeeEnvReferencesRead(d *schema.ResourceData, meta interface{}) e
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -182,14 +183,14 @@ func resourceApigeeEnvReferencesRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceApigeeEnvReferencesDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/references/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/references/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -198,7 +199,7 @@ func resourceApigeeEnvReferencesDelete(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Deleting EnvReferences %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -223,7 +224,7 @@ func resourceApigeeEnvReferencesImport(d *schema.ResourceData, meta interface{})
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "{{env_id}}/references/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{env_id}}/references/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -248,18 +249,18 @@ func flattenApigeeEnvReferencesRefers(v interface{}, d *schema.ResourceData, con
 	return v
 }
 
-func expandApigeeEnvReferencesName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeEnvReferencesName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvReferencesDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeEnvReferencesDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvReferencesResourceType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeEnvReferencesResourceType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeEnvReferencesRefers(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeEnvReferencesRefers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

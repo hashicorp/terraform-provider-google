@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -72,7 +73,7 @@ Format: ''projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}/crypt
 
 func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -81,17 +82,17 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 	plaintextProp, err := expandKMSSecretCiphertextPlaintext(d.Get("plaintext"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("plaintext"); !isEmptyValue(reflect.ValueOf(plaintextProp)) && (ok || !reflect.DeepEqual(v, plaintextProp)) {
+	} else if v, ok := d.GetOkExists("plaintext"); !tpgresource.IsEmptyValue(reflect.ValueOf(plaintextProp)) && (ok || !reflect.DeepEqual(v, plaintextProp)) {
 		obj["plaintext"] = plaintextProp
 	}
 	additionalAuthenticatedDataProp, err := expandKMSSecretCiphertextAdditionalAuthenticatedData(d.Get("additional_authenticated_data"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("additional_authenticated_data"); !isEmptyValue(reflect.ValueOf(additionalAuthenticatedDataProp)) && (ok || !reflect.DeepEqual(v, additionalAuthenticatedDataProp)) {
+	} else if v, ok := d.GetOkExists("additional_authenticated_data"); !tpgresource.IsEmptyValue(reflect.ValueOf(additionalAuthenticatedDataProp)) && (ok || !reflect.DeepEqual(v, additionalAuthenticatedDataProp)) {
 		obj["additionalAuthenticatedData"] = additionalAuthenticatedDataProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}:encrypt")
+	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}:encrypt")
 	if err != nil {
 		return err
 	}
@@ -104,7 +105,7 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -114,7 +115,7 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{crypto_key}}/{{ciphertext}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{crypto_key}}/{{ciphertext}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -129,7 +130,7 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error setting ciphertext: %s", err)
 	}
 
-	id, err = ReplaceVars(d, config, "{{crypto_key}}/{{ciphertext}}")
+	id, err = tpgresource.ReplaceVars(d, config, "{{crypto_key}}/{{ciphertext}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -142,12 +143,12 @@ func resourceKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{})
 
 func resourceKMSSecretCiphertextRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{KMSBasePath}}{{crypto_key}}")
 	if err != nil {
 		return err
 	}
@@ -159,7 +160,7 @@ func resourceKMSSecretCiphertextRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -192,7 +193,7 @@ func resourceKMSSecretCiphertextDelete(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
-func expandKMSSecretCiphertextPlaintext(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandKMSSecretCiphertextPlaintext(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -200,7 +201,7 @@ func expandKMSSecretCiphertextPlaintext(v interface{}, d TerraformResourceData, 
 	return base64.StdEncoding.EncodeToString([]byte(v.(string))), nil
 }
 
-func expandKMSSecretCiphertextAdditionalAuthenticatedData(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandKMSSecretCiphertextAdditionalAuthenticatedData(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
 	}

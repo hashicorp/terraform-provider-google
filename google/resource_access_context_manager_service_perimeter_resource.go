@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -63,7 +64,7 @@ Format: projects/{project_number}`,
 
 func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -72,18 +73,18 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 	resourceProp, err := expandNestedAccessContextManagerServicePerimeterResourceResource(d.Get("resource"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("resource"); !isEmptyValue(reflect.ValueOf(resourceProp)) && (ok || !reflect.DeepEqual(v, resourceProp)) {
+	} else if v, ok := d.GetOkExists("resource"); !tpgresource.IsEmptyValue(reflect.ValueOf(resourceProp)) && (ok || !reflect.DeepEqual(v, resourceProp)) {
 		obj["resource"] = resourceProp
 	}
 
-	lockName, err := ReplaceVars(d, config, "{{perimeter_name}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{perimeter_name}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
 	if err != nil {
 		return err
 	}
@@ -101,7 +102,7 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -111,7 +112,7 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{perimeter_name}}/{{resource}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{perimeter_name}}/{{resource}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -145,7 +146,7 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "{{perimeter_name}}/{{resource}}")
+	id, err = tpgresource.ReplaceVars(d, config, "{{perimeter_name}}/{{resource}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -158,12 +159,12 @@ func resourceAccessContextManagerServicePerimeterResourceCreate(d *schema.Resour
 
 func resourceAccessContextManagerServicePerimeterResourceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
 	if err != nil {
 		return err
 	}
@@ -171,7 +172,7 @@ func resourceAccessContextManagerServicePerimeterResourceRead(d *schema.Resource
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -201,21 +202,21 @@ func resourceAccessContextManagerServicePerimeterResourceRead(d *schema.Resource
 
 func resourceAccessContextManagerServicePerimeterResourceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	lockName, err := ReplaceVars(d, config, "{{perimeter_name}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{perimeter_name}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
 	if err != nil {
 		return err
 	}
@@ -233,7 +234,7 @@ func resourceAccessContextManagerServicePerimeterResourceDelete(d *schema.Resour
 	log.Printf("[DEBUG] Deleting ServicePerimeterResource %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -276,7 +277,7 @@ func flattenNestedAccessContextManagerServicePerimeterResourceResource(v interfa
 	return v
 }
 
-func expandNestedAccessContextManagerServicePerimeterResourceResource(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedAccessContextManagerServicePerimeterResourceResource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -330,8 +331,8 @@ func resourceAccessContextManagerServicePerimeterResourceFindNestedObjectInList(
 		}
 
 		itemResource := flattenNestedAccessContextManagerServicePerimeterResourceResource(item["resource"], d, meta.(*transport_tpg.Config))
-		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
-		if !(isEmptyValue(reflect.ValueOf(itemResource)) && isEmptyValue(reflect.ValueOf(expectedFlattenedResource))) && !reflect.DeepEqual(itemResource, expectedFlattenedResource) {
+		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemResource)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedFlattenedResource))) && !reflect.DeepEqual(itemResource, expectedFlattenedResource) {
 			log.Printf("[DEBUG] Skipping item with resource= %#v, looking for %#v)", itemResource, expectedFlattenedResource)
 			continue
 		}
@@ -404,12 +405,12 @@ func resourceAccessContextManagerServicePerimeterResourcePatchDeleteEncoder(d *s
 // extracting list of objects.
 func resourceAccessContextManagerServicePerimeterResourceListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
 	config := meta.(*transport_tpg.Config)
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
 	if err != nil {
 		return nil, err
 	}
 
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return nil, err
 	}

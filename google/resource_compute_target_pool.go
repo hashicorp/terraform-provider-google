@@ -16,7 +16,7 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-var instancesSelfLinkPattern = regexp.MustCompile(fmt.Sprintf(zonalLinkBasePattern, "instances"))
+var instancesSelfLinkPattern = regexp.MustCompile(fmt.Sprintf(tpgresource.ZonalLinkBasePattern, "instances"))
 
 func ResourceComputeTargetPool() *schema.Resource {
 	return &schema.Resource{
@@ -148,7 +148,7 @@ func convertHealthChecks(healthChecks []interface{}, d *schema.ResourceData, con
 		return []string{}, nil
 	}
 
-	hc, err := ParseHttpHealthCheckFieldValue(healthChecks[0].(string), d, config)
+	hc, err := tpgresource.ParseHttpHealthCheckFieldValue(healthChecks[0].(string), d, config)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +170,7 @@ func convertInstancesToUrls(d *schema.ResourceData, config *transport_tpg.Config
 			if len(splitName) != 2 {
 				return nil, fmt.Errorf("Invalid instance name, require URL or zone/name: %s", name)
 			} else {
-				url, err := ReplaceVars(d, config, fmt.Sprintf(
+				url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf(
 					"{{ComputeBasePath}}projects/%s/zones/%s/instances/%s",
 					project, splitName[0], splitName[1]))
 				if err != nil {
@@ -185,17 +185,17 @@ func convertInstancesToUrls(d *schema.ResourceData, config *transport_tpg.Config
 
 func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	region, err := getRegion(d, config)
+	region, err := tpgresource.GetRegion(d, config)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -233,7 +233,7 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// It probably maybe worked, so store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/targetPools/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/targetPools/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -248,17 +248,17 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	region, err := getRegion(d, config)
+	region, err := tpgresource.GetRegion(d, config)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -396,17 +396,17 @@ func convertInstancesFromUrls(urls []string) []string {
 
 func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	region, err := getRegion(d, config)
+	region, err := tpgresource.GetRegion(d, config)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -458,17 +458,17 @@ func resourceComputeTargetPoolRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceComputeTargetPoolDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	region, err := getRegion(d, config)
+	region, err := tpgresource.GetRegion(d, config)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -500,7 +500,7 @@ func resourceTargetPoolStateImporter(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/targetPools/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/targetPools/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

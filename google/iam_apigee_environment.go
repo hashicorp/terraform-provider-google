@@ -42,11 +42,11 @@ var ApigeeEnvironmentIamSchema = map[string]*schema.Schema{
 type ApigeeEnvironmentIamUpdater struct {
 	orgId  string
 	envId  string
-	d      TerraformResourceData
+	d      tpgresource.TerraformResourceData
 	Config *transport_tpg.Config
 }
 
-func ApigeeEnvironmentIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func ApigeeEnvironmentIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	if v, ok := d.GetOk("org_id"); ok {
@@ -117,7 +117,7 @@ func (u *ApigeeEnvironmentIamUpdater) GetResourceIamPolicy() (*cloudresourcemana
 
 	var obj map[string]interface{}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +150,7 @@ func (u *ApigeeEnvironmentIamUpdater) SetResourceIamPolicy(policy *cloudresource
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -165,7 +165,7 @@ func (u *ApigeeEnvironmentIamUpdater) SetResourceIamPolicy(policy *cloudresource
 
 func (u *ApigeeEnvironmentIamUpdater) qualifyEnvironmentUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{ApigeeBasePath}}%s:%s", fmt.Sprintf("%s/environments/%s", u.orgId, u.envId), methodIdentifier)
-	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
+	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

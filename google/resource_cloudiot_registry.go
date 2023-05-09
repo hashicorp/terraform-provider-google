@@ -29,61 +29,61 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
-func expandCloudIotDeviceRegistryHTTPConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIotDeviceRegistryHTTPConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	original := v.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
 	transformedHTTPEnabledState, err := expandCloudIotDeviceRegistryHTTPEnabledState(original["http_enabled_state"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedHTTPEnabledState); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedHTTPEnabledState); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["httpEnabledState"] = transformedHTTPEnabledState
 	}
 
 	return transformed, nil
 }
 
-func expandCloudIotDeviceRegistryHTTPEnabledState(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIotDeviceRegistryHTTPEnabledState(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIotDeviceRegistryMqttConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIotDeviceRegistryMqttConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	original := v.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
 	transformedMqttEnabledState, err := expandCloudIotDeviceRegistryMqttEnabledState(original["mqtt_enabled_state"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMqttEnabledState); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMqttEnabledState); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["mqttEnabledState"] = transformedMqttEnabledState
 	}
 
 	return transformed, nil
 }
 
-func expandCloudIotDeviceRegistryMqttEnabledState(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIotDeviceRegistryMqttEnabledState(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIotDeviceRegistryStateNotificationConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIotDeviceRegistryStateNotificationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	original := v.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
 	transformedPubsubTopicName, err := expandCloudIotDeviceRegistryStateNotificationConfigPubsubTopicName(original["pubsub_topic_name"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPubsubTopicName); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPubsubTopicName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["pubsubTopicName"] = transformedPubsubTopicName
 	}
 
 	return transformed, nil
 }
 
-func expandCloudIotDeviceRegistryStateNotificationConfigPubsubTopicName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIotDeviceRegistryStateNotificationConfigPubsubTopicName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIotDeviceRegistryCredentials(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIotDeviceRegistryCredentials(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 
@@ -97,7 +97,7 @@ func expandCloudIotDeviceRegistryCredentials(v interface{}, d TerraformResourceD
 		transformedPublicKeyCertificate, err := expandCloudIotDeviceRegistryCredentialsPublicKeyCertificate(original["public_key_certificate"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedPublicKeyCertificate); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedPublicKeyCertificate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["publicKeyCertificate"] = transformedPublicKeyCertificate
 		}
 
@@ -107,32 +107,32 @@ func expandCloudIotDeviceRegistryCredentials(v interface{}, d TerraformResourceD
 	return req, nil
 }
 
-func expandCloudIotDeviceRegistryCredentialsPublicKeyCertificate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIotDeviceRegistryCredentialsPublicKeyCertificate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	original := v.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
 	transformedFormat, err := expandCloudIotDeviceRegistryPublicKeyCertificateFormat(original["format"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedFormat); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedFormat); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["format"] = transformedFormat
 	}
 
 	transformedCertificate, err := expandCloudIotDeviceRegistryPublicKeyCertificateCertificate(original["certificate"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCertificate); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCertificate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["certificate"] = transformedCertificate
 	}
 
 	return transformed, nil
 }
 
-func expandCloudIotDeviceRegistryPublicKeyCertificateFormat(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIotDeviceRegistryPublicKeyCertificateFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIotDeviceRegistryPublicKeyCertificateCertificate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIotDeviceRegistryPublicKeyCertificateCertificate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -236,7 +236,7 @@ func flattenCloudIotDeviceRegistryStateNotificationConfig(v interface{}, d *sche
 	transformed := make(map[string]interface{})
 
 	transformedPubsubTopicName := flattenCloudIotDeviceRegistryStateNotificationConfigPubsubTopicName(original["pubsubTopicName"], d, config)
-	if val := reflect.ValueOf(transformedPubsubTopicName); val.IsValid() && !isEmptyValue(val) {
+	if val := reflect.ValueOf(transformedPubsubTopicName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		log.Printf("[DEBUG] pubsub topic name is not null: %v", d.Get("pubsub_topic_name"))
 		transformed["pubsub_topic_name"] = transformedPubsubTopicName
 	}
@@ -388,7 +388,7 @@ If it is not provided, the provider region is used.`,
 
 func resourceCloudIotDeviceRegistryCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -397,19 +397,19 @@ func resourceCloudIotDeviceRegistryCreate(d *schema.ResourceData, meta interface
 	idProp, err := expandCloudIotDeviceRegistryName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(idProp)) && (ok || !reflect.DeepEqual(v, idProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(idProp)) && (ok || !reflect.DeepEqual(v, idProp)) {
 		obj["id"] = idProp
 	}
 	eventNotificationConfigsProp, err := expandCloudIotDeviceRegistryEventNotificationConfigs(d.Get("event_notification_configs"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("event_notification_configs"); !isEmptyValue(reflect.ValueOf(eventNotificationConfigsProp)) && (ok || !reflect.DeepEqual(v, eventNotificationConfigsProp)) {
+	} else if v, ok := d.GetOkExists("event_notification_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(eventNotificationConfigsProp)) && (ok || !reflect.DeepEqual(v, eventNotificationConfigsProp)) {
 		obj["eventNotificationConfigs"] = eventNotificationConfigsProp
 	}
 	logLevelProp, err := expandCloudIotDeviceRegistryLogLevel(d.Get("log_level"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("log_level"); !isEmptyValue(reflect.ValueOf(logLevelProp)) && (ok || !reflect.DeepEqual(v, logLevelProp)) {
+	} else if v, ok := d.GetOkExists("log_level"); !tpgresource.IsEmptyValue(reflect.ValueOf(logLevelProp)) && (ok || !reflect.DeepEqual(v, logLevelProp)) {
 		obj["logLevel"] = logLevelProp
 	}
 
@@ -418,7 +418,7 @@ func resourceCloudIotDeviceRegistryCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries")
+	url, err := tpgresource.ReplaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries")
 	if err != nil {
 		return err
 	}
@@ -426,14 +426,14 @@ func resourceCloudIotDeviceRegistryCreate(d *schema.ResourceData, meta interface
 	log.Printf("[DEBUG] Creating new DeviceRegistry: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for DeviceRegistry: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -443,7 +443,7 @@ func resourceCloudIotDeviceRegistryCreate(d *schema.ResourceData, meta interface
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/registries/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/registries/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -456,26 +456,26 @@ func resourceCloudIotDeviceRegistryCreate(d *schema.ResourceData, meta interface
 
 func resourceCloudIotDeviceRegistryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for DeviceRegistry: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -500,7 +500,7 @@ func resourceCloudIotDeviceRegistryRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading DeviceRegistry: %s", err)
 	}
 
-	region, err := getRegion(d, config)
+	region, err := tpgresource.GetRegion(d, config)
 	if err != nil {
 		return err
 	}
@@ -523,14 +523,14 @@ func resourceCloudIotDeviceRegistryRead(d *schema.ResourceData, meta interface{}
 
 func resourceCloudIotDeviceRegistryUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for DeviceRegistry: %s", err)
 	}
@@ -540,13 +540,13 @@ func resourceCloudIotDeviceRegistryUpdate(d *schema.ResourceData, meta interface
 	eventNotificationConfigsProp, err := expandCloudIotDeviceRegistryEventNotificationConfigs(d.Get("event_notification_configs"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("event_notification_configs"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, eventNotificationConfigsProp)) {
+	} else if v, ok := d.GetOkExists("event_notification_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, eventNotificationConfigsProp)) {
 		obj["eventNotificationConfigs"] = eventNotificationConfigsProp
 	}
 	logLevelProp, err := expandCloudIotDeviceRegistryLogLevel(d.Get("log_level"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("log_level"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, logLevelProp)) {
+	} else if v, ok := d.GetOkExists("log_level"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, logLevelProp)) {
 		obj["logLevel"] = logLevelProp
 	}
 
@@ -555,7 +555,7 @@ func resourceCloudIotDeviceRegistryUpdate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -613,7 +613,7 @@ func resourceCloudIotDeviceRegistryUpdate(d *schema.ResourceData, meta interface
 	log.Printf("[DEBUG] Update URL %q: %v", d.Id(), url)
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -630,20 +630,20 @@ func resourceCloudIotDeviceRegistryUpdate(d *schema.ResourceData, meta interface
 
 func resourceCloudIotDeviceRegistryDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for DeviceRegistry: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{CloudIotBasePath}}projects/{{project}}/locations/{{region}}/registries/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -652,7 +652,7 @@ func resourceCloudIotDeviceRegistryDelete(d *schema.ResourceData, meta interface
 	log.Printf("[DEBUG] Deleting DeviceRegistry %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -677,7 +677,7 @@ func resourceCloudIotDeviceRegistryImport(d *schema.ResourceData, meta interface
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/registries/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/registries/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -721,11 +721,11 @@ func flattenCloudIotDeviceRegistryLogLevel(v interface{}, d *schema.ResourceData
 	return v
 }
 
-func expandCloudIotDeviceRegistryName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIotDeviceRegistryName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIotDeviceRegistryEventNotificationConfigs(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIotDeviceRegistryEventNotificationConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -738,14 +738,14 @@ func expandCloudIotDeviceRegistryEventNotificationConfigs(v interface{}, d Terra
 		transformedSubfolderMatches, err := expandCloudIotDeviceRegistryEventNotificationConfigsSubfolderMatches(original["subfolder_matches"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedSubfolderMatches); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedSubfolderMatches); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["subfolderMatches"] = transformedSubfolderMatches
 		}
 
 		transformedPubsubTopicName, err := expandCloudIotDeviceRegistryEventNotificationConfigsPubsubTopicName(original["pubsub_topic_name"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedPubsubTopicName); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedPubsubTopicName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["pubsubTopicName"] = transformedPubsubTopicName
 		}
 
@@ -754,15 +754,15 @@ func expandCloudIotDeviceRegistryEventNotificationConfigs(v interface{}, d Terra
 	return req, nil
 }
 
-func expandCloudIotDeviceRegistryEventNotificationConfigsSubfolderMatches(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIotDeviceRegistryEventNotificationConfigsSubfolderMatches(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIotDeviceRegistryEventNotificationConfigsPubsubTopicName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIotDeviceRegistryEventNotificationConfigsPubsubTopicName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCloudIotDeviceRegistryLogLevel(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandCloudIotDeviceRegistryLogLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -775,7 +775,7 @@ func resourceCloudIotDeviceRegistryEncoder(d *schema.ResourceData, meta interfac
 	stateNotificationConfigProp, err := expandCloudIotDeviceRegistryStateNotificationConfig(d.Get("state_notification_config"), d, config)
 	if err != nil {
 		return nil, err
-	} else if v, ok := d.GetOkExists("state_notification_config"); !isEmptyValue(reflect.ValueOf(stateNotificationConfigProp)) && (ok || !reflect.DeepEqual(v, stateNotificationConfigProp)) {
+	} else if v, ok := d.GetOkExists("state_notification_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(stateNotificationConfigProp)) && (ok || !reflect.DeepEqual(v, stateNotificationConfigProp)) {
 		log.Printf("[DEBUG] Encoding %q. Setting stateNotificationConfig: %#v", d.Id(), stateNotificationConfigProp)
 		obj["stateNotificationConfig"] = stateNotificationConfigProp
 	}
@@ -784,7 +784,7 @@ func resourceCloudIotDeviceRegistryEncoder(d *schema.ResourceData, meta interfac
 	httpConfigProp, err := expandCloudIotDeviceRegistryHTTPConfig(d.Get("http_config"), d, config)
 	if err != nil {
 		return nil, err
-	} else if v, ok := d.GetOkExists("http_config"); !isEmptyValue(reflect.ValueOf(httpConfigProp)) && (ok || !reflect.DeepEqual(v, httpConfigProp)) {
+	} else if v, ok := d.GetOkExists("http_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(httpConfigProp)) && (ok || !reflect.DeepEqual(v, httpConfigProp)) {
 		log.Printf("[DEBUG] Encoding %q. Setting httpConfig: %#v", d.Id(), httpConfigProp)
 		obj["httpConfig"] = httpConfigProp
 	}
@@ -793,7 +793,7 @@ func resourceCloudIotDeviceRegistryEncoder(d *schema.ResourceData, meta interfac
 	mqttConfigProp, err := expandCloudIotDeviceRegistryMqttConfig(d.Get("mqtt_config"), d, config)
 	if err != nil {
 		return nil, err
-	} else if v, ok := d.GetOkExists("mqtt_config"); !isEmptyValue(reflect.ValueOf(mqttConfigProp)) && (ok || !reflect.DeepEqual(v, mqttConfigProp)) {
+	} else if v, ok := d.GetOkExists("mqtt_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(mqttConfigProp)) && (ok || !reflect.DeepEqual(v, mqttConfigProp)) {
 		log.Printf("[DEBUG] Encoding %q. Setting mqttConfig: %#v", d.Id(), mqttConfigProp)
 		obj["mqttConfig"] = mqttConfigProp
 	}
@@ -802,7 +802,7 @@ func resourceCloudIotDeviceRegistryEncoder(d *schema.ResourceData, meta interfac
 	credentialsProp, err := expandCloudIotDeviceRegistryCredentials(d.Get("credentials"), d, config)
 	if err != nil {
 		return nil, err
-	} else if v, ok := d.GetOkExists("credentials"); !isEmptyValue(reflect.ValueOf(credentialsProp)) && (ok || !reflect.DeepEqual(v, credentialsProp)) {
+	} else if v, ok := d.GetOkExists("credentials"); !tpgresource.IsEmptyValue(reflect.ValueOf(credentialsProp)) && (ok || !reflect.DeepEqual(v, credentialsProp)) {
 		log.Printf("[DEBUG] Encoding %q. Setting credentials: %#v", d.Id(), credentialsProp)
 		obj["credentials"] = credentialsProp
 	}

@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -127,7 +128,7 @@ Example: 'organizations/123456'`,
 
 func resourceAccessContextManagerAuthorizedOrgsDescCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -136,37 +137,37 @@ func resourceAccessContextManagerAuthorizedOrgsDescCreate(d *schema.ResourceData
 	parentProp, err := expandAccessContextManagerAuthorizedOrgsDescParent(d.Get("parent"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("parent"); !isEmptyValue(reflect.ValueOf(parentProp)) && (ok || !reflect.DeepEqual(v, parentProp)) {
+	} else if v, ok := d.GetOkExists("parent"); !tpgresource.IsEmptyValue(reflect.ValueOf(parentProp)) && (ok || !reflect.DeepEqual(v, parentProp)) {
 		obj["parent"] = parentProp
 	}
 	nameProp, err := expandAccessContextManagerAuthorizedOrgsDescName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	orgsProp, err := expandAccessContextManagerAuthorizedOrgsDescOrgs(d.Get("orgs"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("orgs"); !isEmptyValue(reflect.ValueOf(orgsProp)) && (ok || !reflect.DeepEqual(v, orgsProp)) {
+	} else if v, ok := d.GetOkExists("orgs"); !tpgresource.IsEmptyValue(reflect.ValueOf(orgsProp)) && (ok || !reflect.DeepEqual(v, orgsProp)) {
 		obj["orgs"] = orgsProp
 	}
 	assetTypeProp, err := expandAccessContextManagerAuthorizedOrgsDescAssetType(d.Get("asset_type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("asset_type"); !isEmptyValue(reflect.ValueOf(assetTypeProp)) && (ok || !reflect.DeepEqual(v, assetTypeProp)) {
+	} else if v, ok := d.GetOkExists("asset_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(assetTypeProp)) && (ok || !reflect.DeepEqual(v, assetTypeProp)) {
 		obj["assetType"] = assetTypeProp
 	}
 	authorizationDirectionProp, err := expandAccessContextManagerAuthorizedOrgsDescAuthorizationDirection(d.Get("authorization_direction"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("authorization_direction"); !isEmptyValue(reflect.ValueOf(authorizationDirectionProp)) && (ok || !reflect.DeepEqual(v, authorizationDirectionProp)) {
+	} else if v, ok := d.GetOkExists("authorization_direction"); !tpgresource.IsEmptyValue(reflect.ValueOf(authorizationDirectionProp)) && (ok || !reflect.DeepEqual(v, authorizationDirectionProp)) {
 		obj["authorizationDirection"] = authorizationDirectionProp
 	}
 	authorizationTypeProp, err := expandAccessContextManagerAuthorizedOrgsDescAuthorizationType(d.Get("authorization_type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("authorization_type"); !isEmptyValue(reflect.ValueOf(authorizationTypeProp)) && (ok || !reflect.DeepEqual(v, authorizationTypeProp)) {
+	} else if v, ok := d.GetOkExists("authorization_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(authorizationTypeProp)) && (ok || !reflect.DeepEqual(v, authorizationTypeProp)) {
 		obj["authorizationType"] = authorizationTypeProp
 	}
 
@@ -175,7 +176,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescCreate(d *schema.ResourceData
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/authorizedOrgsDescs")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/authorizedOrgsDescs")
 	if err != nil {
 		return err
 	}
@@ -184,7 +185,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescCreate(d *schema.ResourceData
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -194,7 +195,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescCreate(d *schema.ResourceData
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -218,7 +219,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescCreate(d *schema.ResourceData
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "{{name}}")
+	id, err = tpgresource.ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -236,12 +237,12 @@ func resourceAccessContextManagerAuthorizedOrgsDescCreate(d *schema.ResourceData
 
 func resourceAccessContextManagerAuthorizedOrgsDescRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -249,7 +250,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescRead(d *schema.ResourceData, 
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -285,7 +286,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescRead(d *schema.ResourceData, 
 
 func resourceAccessContextManagerAuthorizedOrgsDescUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -296,7 +297,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescUpdate(d *schema.ResourceData
 	orgsProp, err := expandAccessContextManagerAuthorizedOrgsDescOrgs(d.Get("orgs"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("orgs"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, orgsProp)) {
+	} else if v, ok := d.GetOkExists("orgs"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, orgsProp)) {
 		obj["orgs"] = orgsProp
 	}
 
@@ -305,7 +306,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescUpdate(d *schema.ResourceData
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -324,7 +325,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescUpdate(d *schema.ResourceData
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -349,14 +350,14 @@ func resourceAccessContextManagerAuthorizedOrgsDescUpdate(d *schema.ResourceData
 
 func resourceAccessContextManagerAuthorizedOrgsDescDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -365,7 +366,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescDelete(d *schema.ResourceData
 	log.Printf("[DEBUG] Deleting AuthorizedOrgsDesc %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -431,27 +432,27 @@ func flattenAccessContextManagerAuthorizedOrgsDescAuthorizationType(v interface{
 	return v
 }
 
-func expandAccessContextManagerAuthorizedOrgsDescParent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAuthorizedOrgsDescParent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAuthorizedOrgsDescName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAuthorizedOrgsDescName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAuthorizedOrgsDescOrgs(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAuthorizedOrgsDescOrgs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAuthorizedOrgsDescAssetType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAuthorizedOrgsDescAssetType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAuthorizedOrgsDescAuthorizationDirection(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAuthorizedOrgsDescAuthorizationDirection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerAuthorizedOrgsDescAuthorizationType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerAuthorizedOrgsDescAuthorizationType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

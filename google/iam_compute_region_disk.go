@@ -50,11 +50,11 @@ type ComputeRegionDiskIamUpdater struct {
 	project string
 	region  string
 	name    string
-	d       TerraformResourceData
+	d       tpgresource.TerraformResourceData
 	Config  *transport_tpg.Config
 }
 
-func ComputeRegionDiskIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func ComputeRegionDiskIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)
@@ -148,13 +148,13 @@ func (u *ComputeRegionDiskIamUpdater) GetResourceIamPolicy() (*cloudresourcemana
 		return nil, err
 	}
 
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
 	var obj map[string]interface{}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -186,12 +186,12 @@ func (u *ComputeRegionDiskIamUpdater) SetResourceIamPolicy(policy *cloudresource
 	if err != nil {
 		return err
 	}
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -206,7 +206,7 @@ func (u *ComputeRegionDiskIamUpdater) SetResourceIamPolicy(policy *cloudresource
 
 func (u *ComputeRegionDiskIamUpdater) qualifyRegionDiskUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{ComputeBasePath}}%s/%s", fmt.Sprintf("projects/%s/regions/%s/disks/%s", u.project, u.region, u.name), methodIdentifier)
-	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
+	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

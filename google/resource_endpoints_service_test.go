@@ -1,10 +1,11 @@
 package google
 
 import (
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 
 	"fmt"
 

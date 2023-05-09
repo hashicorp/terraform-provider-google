@@ -42,11 +42,11 @@ var HealthcareConsentStoreIamSchema = map[string]*schema.Schema{
 type HealthcareConsentStoreIamUpdater struct {
 	dataset        string
 	consentStoreId string
-	d              TerraformResourceData
+	d              tpgresource.TerraformResourceData
 	Config         *transport_tpg.Config
 }
 
-func HealthcareConsentStoreIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func HealthcareConsentStoreIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	if v, ok := d.GetOk("dataset"); ok {
@@ -117,7 +117,7 @@ func (u *HealthcareConsentStoreIamUpdater) GetResourceIamPolicy() (*cloudresourc
 
 	var obj map[string]interface{}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +150,7 @@ func (u *HealthcareConsentStoreIamUpdater) SetResourceIamPolicy(policy *cloudres
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -165,7 +165,7 @@ func (u *HealthcareConsentStoreIamUpdater) SetResourceIamPolicy(policy *cloudres
 
 func (u *HealthcareConsentStoreIamUpdater) qualifyConsentStoreUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{HealthcareBasePath}}%s:%s", fmt.Sprintf("%s/consentStores/%s", u.dataset, u.consentStoreId), methodIdentifier)
-	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
+	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

@@ -115,7 +115,7 @@ Currently only one region per model is supported`,
 
 func resourceMLEngineModelCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -124,47 +124,47 @@ func resourceMLEngineModelCreate(d *schema.ResourceData, meta interface{}) error
 	nameProp, err := expandMLEngineModelName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	descriptionProp, err := expandMLEngineModelDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	defaultVersionProp, err := expandMLEngineModelDefaultVersion(d.Get("default_version"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("default_version"); !isEmptyValue(reflect.ValueOf(defaultVersionProp)) && (ok || !reflect.DeepEqual(v, defaultVersionProp)) {
+	} else if v, ok := d.GetOkExists("default_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(defaultVersionProp)) && (ok || !reflect.DeepEqual(v, defaultVersionProp)) {
 		obj["defaultVersion"] = defaultVersionProp
 	}
 	regionsProp, err := expandMLEngineModelRegions(d.Get("regions"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("regions"); !isEmptyValue(reflect.ValueOf(regionsProp)) && (ok || !reflect.DeepEqual(v, regionsProp)) {
+	} else if v, ok := d.GetOkExists("regions"); !tpgresource.IsEmptyValue(reflect.ValueOf(regionsProp)) && (ok || !reflect.DeepEqual(v, regionsProp)) {
 		obj["regions"] = regionsProp
 	}
 	onlinePredictionLoggingProp, err := expandMLEngineModelOnlinePredictionLogging(d.Get("online_prediction_logging"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("online_prediction_logging"); !isEmptyValue(reflect.ValueOf(onlinePredictionLoggingProp)) && (ok || !reflect.DeepEqual(v, onlinePredictionLoggingProp)) {
+	} else if v, ok := d.GetOkExists("online_prediction_logging"); !tpgresource.IsEmptyValue(reflect.ValueOf(onlinePredictionLoggingProp)) && (ok || !reflect.DeepEqual(v, onlinePredictionLoggingProp)) {
 		obj["onlinePredictionLogging"] = onlinePredictionLoggingProp
 	}
 	onlinePredictionConsoleLoggingProp, err := expandMLEngineModelOnlinePredictionConsoleLogging(d.Get("online_prediction_console_logging"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("online_prediction_console_logging"); !isEmptyValue(reflect.ValueOf(onlinePredictionConsoleLoggingProp)) && (ok || !reflect.DeepEqual(v, onlinePredictionConsoleLoggingProp)) {
+	} else if v, ok := d.GetOkExists("online_prediction_console_logging"); !tpgresource.IsEmptyValue(reflect.ValueOf(onlinePredictionConsoleLoggingProp)) && (ok || !reflect.DeepEqual(v, onlinePredictionConsoleLoggingProp)) {
 		obj["onlinePredictionConsoleLogging"] = onlinePredictionConsoleLoggingProp
 	}
 	labelsProp, err := expandMLEngineModelLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models")
+	url, err := tpgresource.ReplaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models")
 	if err != nil {
 		return err
 	}
@@ -172,14 +172,14 @@ func resourceMLEngineModelCreate(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Creating new Model: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Model: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -189,7 +189,7 @@ func resourceMLEngineModelCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/models/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/models/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -202,26 +202,26 @@ func resourceMLEngineModelCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceMLEngineModelRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Model: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -261,20 +261,20 @@ func resourceMLEngineModelRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMLEngineModelDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Model: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{MLEngineBasePath}}projects/{{project}}/models/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -283,7 +283,7 @@ func resourceMLEngineModelDelete(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Deleting Model %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -315,7 +315,7 @@ func resourceMLEngineModelImport(d *schema.ResourceData, meta interface{}) ([]*s
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/models/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/models/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -368,15 +368,15 @@ func flattenMLEngineModelLabels(v interface{}, d *schema.ResourceData, config *t
 	return v
 }
 
-func expandMLEngineModelName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMLEngineModelName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMLEngineModelDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMLEngineModelDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMLEngineModelDefaultVersion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMLEngineModelDefaultVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -388,30 +388,30 @@ func expandMLEngineModelDefaultVersion(v interface{}, d TerraformResourceData, c
 	transformedName, err := expandMLEngineModelDefaultVersionName(original["name"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["name"] = transformedName
 	}
 
 	return transformed, nil
 }
 
-func expandMLEngineModelDefaultVersionName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMLEngineModelDefaultVersionName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMLEngineModelRegions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMLEngineModelRegions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMLEngineModelOnlinePredictionLogging(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMLEngineModelOnlinePredictionLogging(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMLEngineModelOnlinePredictionConsoleLogging(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMLEngineModelOnlinePredictionConsoleLogging(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMLEngineModelLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandMLEngineModelLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

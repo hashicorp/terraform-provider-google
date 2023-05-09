@@ -61,7 +61,7 @@ func generateFrameworkUserAgentString(metaData *ProviderMetaModel, currUserAgent
 	return currUserAgent
 }
 
-// getProject reads the "project" field from the given resource and falls
+// GetProject reads the "project" field from the given resource and falls
 // back to the provider's value if not given. If the provider's value is not
 // given, an error is returned.
 func getProjectFramework(rVal, pVal types.String, diags *diag.Diagnostics) types.String {
@@ -95,22 +95,22 @@ func handleDatasourceNotFoundError(ctx context.Context, err error, state *tfsdk.
 
 // Parses a project field with the following formats:
 // - projects/{my_projects}/{resource_type}/{resource_name}
-func parseProjectFieldValueFramework(resourceType, fieldValue, projectSchemaField string, rVal, pVal types.String, isEmptyValid bool, diags *diag.Diagnostics) *ProjectFieldValue {
+func parseProjectFieldValueFramework(resourceType, fieldValue, projectSchemaField string, rVal, pVal types.String, isEmptyValid bool, diags *diag.Diagnostics) *tpgresource.ProjectFieldValue {
 	if len(fieldValue) == 0 {
 		if isEmptyValid {
-			return &ProjectFieldValue{resourceType: resourceType}
+			return &tpgresource.ProjectFieldValue{ResourceType: resourceType}
 		}
 		diags.AddError("field can not be empty", fmt.Sprintf("The project field for resource %s cannot be empty", resourceType))
 		return nil
 	}
 
-	r := regexp.MustCompile(fmt.Sprintf(projectBasePattern, resourceType))
+	r := regexp.MustCompile(fmt.Sprintf(tpgresource.ProjectBasePattern, resourceType))
 	if parts := r.FindStringSubmatch(fieldValue); parts != nil {
-		return &ProjectFieldValue{
+		return &tpgresource.ProjectFieldValue{
 			Project: parts[1],
 			Name:    parts[2],
 
-			resourceType: resourceType,
+			ResourceType: resourceType,
 		}
 	}
 
@@ -119,10 +119,10 @@ func parseProjectFieldValueFramework(resourceType, fieldValue, projectSchemaFiel
 		return nil
 	}
 
-	return &ProjectFieldValue{
+	return &tpgresource.ProjectFieldValue{
 		Project: project.ValueString(),
 		Name:    tpgresource.GetResourceNameFromSelfLink(fieldValue),
 
-		resourceType: resourceType,
+		ResourceType: resourceType,
 	}
 }

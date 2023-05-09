@@ -43,11 +43,11 @@ var DNSManagedZoneIamSchema = map[string]*schema.Schema{
 type DNSManagedZoneIamUpdater struct {
 	project     string
 	managedZone string
-	d           TerraformResourceData
+	d           tpgresource.TerraformResourceData
 	Config      *transport_tpg.Config
 }
 
-func DNSManagedZoneIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func DNSManagedZoneIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)
@@ -124,13 +124,13 @@ func (u *DNSManagedZoneIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager
 		return nil, err
 	}
 
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
 	var obj map[string]interface{}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -162,12 +162,12 @@ func (u *DNSManagedZoneIamUpdater) SetResourceIamPolicy(policy *cloudresourceman
 	if err != nil {
 		return err
 	}
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -182,7 +182,7 @@ func (u *DNSManagedZoneIamUpdater) SetResourceIamPolicy(policy *cloudresourceman
 
 func (u *DNSManagedZoneIamUpdater) qualifyManagedZoneUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{DNSBasePath}}%s:%s", fmt.Sprintf("projects/%s/managedZones/%s", u.project, u.managedZone), methodIdentifier)
-	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
+	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

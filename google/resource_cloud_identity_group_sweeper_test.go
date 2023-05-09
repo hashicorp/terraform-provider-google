@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -40,7 +41,7 @@ func testSweepCloudIdentityGroup(region string) error {
 	custId := acctest.GetTestCustIdFromEnv(t)
 
 	// Setup variables to replace in list template
-	d := &acctest.ResourceDataMock{
+	d := &tpgresource.ResourceDataMock{
 		FieldsInSchema: map[string]interface{}{
 			"project":  config.Project,
 			"region":   region,
@@ -51,7 +52,7 @@ func testSweepCloudIdentityGroup(region string) error {
 	}
 
 	listTemplate := "https://cloudidentity.googleapis.com/v1/groups?parent={{parent}}"
-	listUrl, err := ReplaceVars(d, config, listTemplate)
+	listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 		return nil
@@ -89,7 +90,7 @@ func testSweepCloudIdentityGroup(region string) error {
 		}
 
 		deleteTemplate := "https://cloudidentity.googleapis.com/v1/{{name}}"
-		deleteUrl, err := ReplaceVars(d, config, deleteTemplate)
+		deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 			return nil

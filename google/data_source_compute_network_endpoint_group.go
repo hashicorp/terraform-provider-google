@@ -28,17 +28,17 @@ func DataSourceGoogleComputeNetworkEndpointGroup() *schema.Resource {
 func dataSourceComputeNetworkEndpointGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	if name, ok := d.GetOk("name"); ok {
-		project, err := getProject(d, config)
+		project, err := tpgresource.GetProject(d, config)
 		if err != nil {
 			return err
 		}
-		zone, err := getZone(d, config)
+		zone, err := tpgresource.GetZone(d, config)
 		if err != nil {
 			return err
 		}
 		d.SetId(fmt.Sprintf("projects/%s/zones/%s/networkEndpointGroups/%s", project, zone, name.(string)))
 	} else if selfLink, ok := d.GetOk("self_link"); ok {
-		parsed, err := ParseNetworkEndpointGroupFieldValue(selfLink.(string), d, config)
+		parsed, err := tpgresource.ParseNetworkEndpointGroupFieldValue(selfLink.(string), d, config)
 		if err != nil {
 			return err
 		}

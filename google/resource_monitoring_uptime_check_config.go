@@ -330,7 +330,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 
 func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -339,72 +339,72 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 	displayNameProp, err := expandMonitoringUptimeCheckConfigDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	periodProp, err := expandMonitoringUptimeCheckConfigPeriod(d.Get("period"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("period"); !isEmptyValue(reflect.ValueOf(periodProp)) && (ok || !reflect.DeepEqual(v, periodProp)) {
+	} else if v, ok := d.GetOkExists("period"); !tpgresource.IsEmptyValue(reflect.ValueOf(periodProp)) && (ok || !reflect.DeepEqual(v, periodProp)) {
 		obj["period"] = periodProp
 	}
 	timeoutProp, err := expandMonitoringUptimeCheckConfigTimeout(d.Get("timeout"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("timeout"); !isEmptyValue(reflect.ValueOf(timeoutProp)) && (ok || !reflect.DeepEqual(v, timeoutProp)) {
+	} else if v, ok := d.GetOkExists("timeout"); !tpgresource.IsEmptyValue(reflect.ValueOf(timeoutProp)) && (ok || !reflect.DeepEqual(v, timeoutProp)) {
 		obj["timeout"] = timeoutProp
 	}
 	contentMatchersProp, err := expandMonitoringUptimeCheckConfigContentMatchers(d.Get("content_matchers"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("content_matchers"); !isEmptyValue(reflect.ValueOf(contentMatchersProp)) && (ok || !reflect.DeepEqual(v, contentMatchersProp)) {
+	} else if v, ok := d.GetOkExists("content_matchers"); !tpgresource.IsEmptyValue(reflect.ValueOf(contentMatchersProp)) && (ok || !reflect.DeepEqual(v, contentMatchersProp)) {
 		obj["contentMatchers"] = contentMatchersProp
 	}
 	selectedRegionsProp, err := expandMonitoringUptimeCheckConfigSelectedRegions(d.Get("selected_regions"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("selected_regions"); !isEmptyValue(reflect.ValueOf(selectedRegionsProp)) && (ok || !reflect.DeepEqual(v, selectedRegionsProp)) {
+	} else if v, ok := d.GetOkExists("selected_regions"); !tpgresource.IsEmptyValue(reflect.ValueOf(selectedRegionsProp)) && (ok || !reflect.DeepEqual(v, selectedRegionsProp)) {
 		obj["selectedRegions"] = selectedRegionsProp
 	}
 	checkerTypeProp, err := expandMonitoringUptimeCheckConfigCheckerType(d.Get("checker_type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("checker_type"); !isEmptyValue(reflect.ValueOf(checkerTypeProp)) && (ok || !reflect.DeepEqual(v, checkerTypeProp)) {
+	} else if v, ok := d.GetOkExists("checker_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(checkerTypeProp)) && (ok || !reflect.DeepEqual(v, checkerTypeProp)) {
 		obj["checkerType"] = checkerTypeProp
 	}
 	httpCheckProp, err := expandMonitoringUptimeCheckConfigHttpCheck(d.Get("http_check"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("http_check"); !isEmptyValue(reflect.ValueOf(httpCheckProp)) && (ok || !reflect.DeepEqual(v, httpCheckProp)) {
+	} else if v, ok := d.GetOkExists("http_check"); !tpgresource.IsEmptyValue(reflect.ValueOf(httpCheckProp)) && (ok || !reflect.DeepEqual(v, httpCheckProp)) {
 		obj["httpCheck"] = httpCheckProp
 	}
 	tcpCheckProp, err := expandMonitoringUptimeCheckConfigTcpCheck(d.Get("tcp_check"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("tcp_check"); !isEmptyValue(reflect.ValueOf(tcpCheckProp)) && (ok || !reflect.DeepEqual(v, tcpCheckProp)) {
+	} else if v, ok := d.GetOkExists("tcp_check"); !tpgresource.IsEmptyValue(reflect.ValueOf(tcpCheckProp)) && (ok || !reflect.DeepEqual(v, tcpCheckProp)) {
 		obj["tcpCheck"] = tcpCheckProp
 	}
 	resourceGroupProp, err := expandMonitoringUptimeCheckConfigResourceGroup(d.Get("resource_group"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("resource_group"); !isEmptyValue(reflect.ValueOf(resourceGroupProp)) && (ok || !reflect.DeepEqual(v, resourceGroupProp)) {
+	} else if v, ok := d.GetOkExists("resource_group"); !tpgresource.IsEmptyValue(reflect.ValueOf(resourceGroupProp)) && (ok || !reflect.DeepEqual(v, resourceGroupProp)) {
 		obj["resourceGroup"] = resourceGroupProp
 	}
 	monitoredResourceProp, err := expandMonitoringUptimeCheckConfigMonitoredResource(d.Get("monitored_resource"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("monitored_resource"); !isEmptyValue(reflect.ValueOf(monitoredResourceProp)) && (ok || !reflect.DeepEqual(v, monitoredResourceProp)) {
+	} else if v, ok := d.GetOkExists("monitored_resource"); !tpgresource.IsEmptyValue(reflect.ValueOf(monitoredResourceProp)) && (ok || !reflect.DeepEqual(v, monitoredResourceProp)) {
 		obj["monitoredResource"] = monitoredResourceProp
 	}
 
-	lockName, err := ReplaceVars(d, config, "stackdriver/groups/{{project}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "stackdriver/groups/{{project}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/uptimeCheckConfigs")
+	url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/uptimeCheckConfigs")
 	if err != nil {
 		return err
 	}
@@ -412,14 +412,14 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 	log.Printf("[DEBUG] Creating new UptimeCheckConfig: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for UptimeCheckConfig: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -432,7 +432,7 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -463,26 +463,26 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 
 func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for UptimeCheckConfig: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -537,14 +537,14 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 
 func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for UptimeCheckConfig: %s", err)
 	}
@@ -554,48 +554,48 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 	displayNameProp, err := expandMonitoringUptimeCheckConfigDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	timeoutProp, err := expandMonitoringUptimeCheckConfigTimeout(d.Get("timeout"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("timeout"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeoutProp)) {
+	} else if v, ok := d.GetOkExists("timeout"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeoutProp)) {
 		obj["timeout"] = timeoutProp
 	}
 	contentMatchersProp, err := expandMonitoringUptimeCheckConfigContentMatchers(d.Get("content_matchers"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("content_matchers"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, contentMatchersProp)) {
+	} else if v, ok := d.GetOkExists("content_matchers"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, contentMatchersProp)) {
 		obj["contentMatchers"] = contentMatchersProp
 	}
 	selectedRegionsProp, err := expandMonitoringUptimeCheckConfigSelectedRegions(d.Get("selected_regions"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("selected_regions"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, selectedRegionsProp)) {
+	} else if v, ok := d.GetOkExists("selected_regions"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, selectedRegionsProp)) {
 		obj["selectedRegions"] = selectedRegionsProp
 	}
 	httpCheckProp, err := expandMonitoringUptimeCheckConfigHttpCheck(d.Get("http_check"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("http_check"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, httpCheckProp)) {
+	} else if v, ok := d.GetOkExists("http_check"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, httpCheckProp)) {
 		obj["httpCheck"] = httpCheckProp
 	}
 	tcpCheckProp, err := expandMonitoringUptimeCheckConfigTcpCheck(d.Get("tcp_check"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("tcp_check"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tcpCheckProp)) {
+	} else if v, ok := d.GetOkExists("tcp_check"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tcpCheckProp)) {
 		obj["tcpCheck"] = tcpCheckProp
 	}
 
-	lockName, err := ReplaceVars(d, config, "stackdriver/groups/{{project}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "stackdriver/groups/{{project}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -634,7 +634,7 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -651,27 +651,27 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 
 func resourceMonitoringUptimeCheckConfigDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for UptimeCheckConfig: %s", err)
 	}
 	billingProject = project
 
-	lockName, err := ReplaceVars(d, config, "stackdriver/groups/{{project}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "stackdriver/groups/{{project}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -680,7 +680,7 @@ func resourceMonitoringUptimeCheckConfigDelete(d *schema.ResourceData, meta inte
 	log.Printf("[DEBUG] Deleting UptimeCheckConfig %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -1007,19 +1007,19 @@ func flattenMonitoringUptimeCheckConfigMonitoredResourceLabels(v interface{}, d 
 	return v
 }
 
-func expandMonitoringUptimeCheckConfigDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigPeriod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigPeriod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigTimeout(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigTimeout(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigContentMatchers(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigContentMatchers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1032,21 +1032,21 @@ func expandMonitoringUptimeCheckConfigContentMatchers(v interface{}, d Terraform
 		transformedContent, err := expandMonitoringUptimeCheckConfigContentMatchersContent(original["content"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedContent); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedContent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["content"] = transformedContent
 		}
 
 		transformedMatcher, err := expandMonitoringUptimeCheckConfigContentMatchersMatcher(original["matcher"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedMatcher); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedMatcher); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["matcher"] = transformedMatcher
 		}
 
 		transformedJsonPathMatcher, err := expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcher(original["json_path_matcher"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedJsonPathMatcher); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedJsonPathMatcher); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["jsonPathMatcher"] = transformedJsonPathMatcher
 		}
 
@@ -1055,15 +1055,15 @@ func expandMonitoringUptimeCheckConfigContentMatchers(v interface{}, d Terraform
 	return req, nil
 }
 
-func expandMonitoringUptimeCheckConfigContentMatchersContent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigContentMatchersContent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigContentMatchersMatcher(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigContentMatchersMatcher(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcher(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcher(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1075,37 +1075,37 @@ func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcher(v interface
 	transformedJsonPath, err := expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonPath(original["json_path"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedJsonPath); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedJsonPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["jsonPath"] = transformedJsonPath
 	}
 
 	transformedJsonMatcher, err := expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonMatcher(original["json_matcher"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedJsonMatcher); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedJsonMatcher); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["jsonMatcher"] = transformedJsonMatcher
 	}
 
 	return transformed, nil
 }
 
-func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonPath(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonMatcher(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigContentMatchersJsonPathMatcherJsonMatcher(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigSelectedRegions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigSelectedRegions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigCheckerType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigCheckerType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheck(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheck(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1117,92 +1117,92 @@ func expandMonitoringUptimeCheckConfigHttpCheck(v interface{}, d TerraformResour
 	transformedRequestMethod, err := expandMonitoringUptimeCheckConfigHttpCheckRequestMethod(original["request_method"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedRequestMethod); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedRequestMethod); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["requestMethod"] = transformedRequestMethod
 	}
 
 	transformedContentType, err := expandMonitoringUptimeCheckConfigHttpCheckContentType(original["content_type"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedContentType); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedContentType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["contentType"] = transformedContentType
 	}
 
 	transformedAuthInfo, err := expandMonitoringUptimeCheckConfigHttpCheckAuthInfo(original["auth_info"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAuthInfo); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAuthInfo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["authInfo"] = transformedAuthInfo
 	}
 
 	transformedPort, err := expandMonitoringUptimeCheckConfigHttpCheckPort(original["port"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["port"] = transformedPort
 	}
 
 	transformedHeaders, err := expandMonitoringUptimeCheckConfigHttpCheckHeaders(original["headers"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedHeaders); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedHeaders); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["headers"] = transformedHeaders
 	}
 
 	transformedPath, err := expandMonitoringUptimeCheckConfigHttpCheckPath(original["path"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPath); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["path"] = transformedPath
 	}
 
 	transformedUseSsl, err := expandMonitoringUptimeCheckConfigHttpCheckUseSsl(original["use_ssl"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedUseSsl); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedUseSsl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["useSsl"] = transformedUseSsl
 	}
 
 	transformedValidateSsl, err := expandMonitoringUptimeCheckConfigHttpCheckValidateSsl(original["validate_ssl"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedValidateSsl); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedValidateSsl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["validateSsl"] = transformedValidateSsl
 	}
 
 	transformedMaskHeaders, err := expandMonitoringUptimeCheckConfigHttpCheckMaskHeaders(original["mask_headers"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMaskHeaders); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMaskHeaders); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["maskHeaders"] = transformedMaskHeaders
 	}
 
 	transformedBody, err := expandMonitoringUptimeCheckConfigHttpCheckBody(original["body"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedBody); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedBody); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["body"] = transformedBody
 	}
 
 	transformedAcceptedResponseStatusCodes, err := expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodes(original["accepted_response_status_codes"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAcceptedResponseStatusCodes); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAcceptedResponseStatusCodes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["acceptedResponseStatusCodes"] = transformedAcceptedResponseStatusCodes
 	}
 
 	return transformed, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckRequestMethod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckRequestMethod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckContentType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckContentType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1214,33 +1214,33 @@ func expandMonitoringUptimeCheckConfigHttpCheckAuthInfo(v interface{}, d Terrafo
 	transformedPassword, err := expandMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(original["password"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPassword); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPassword); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["password"] = transformedPassword
 	}
 
 	transformedUsername, err := expandMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(original["username"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedUsername); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedUsername); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["username"] = transformedUsername
 	}
 
 	return transformed, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckPort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -1251,27 +1251,27 @@ func expandMonitoringUptimeCheckConfigHttpCheckHeaders(v interface{}, d Terrafor
 	return m, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckPath(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckUseSsl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckUseSsl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckValidateSsl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckValidateSsl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckMaskHeaders(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckMaskHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckBody(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckBody(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1284,14 +1284,14 @@ func expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodes(v int
 		transformedStatusValue, err := expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusValue(original["status_value"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedStatusValue); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedStatusValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["statusValue"] = transformedStatusValue
 		}
 
 		transformedStatusClass, err := expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusClass(original["status_class"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedStatusClass); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedStatusClass); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["statusClass"] = transformedStatusClass
 		}
 
@@ -1300,15 +1300,15 @@ func expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodes(v int
 	return req, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusValue(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusClass(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigHttpCheckAcceptedResponseStatusCodesStatusClass(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigTcpCheck(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigTcpCheck(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1320,18 +1320,18 @@ func expandMonitoringUptimeCheckConfigTcpCheck(v interface{}, d TerraformResourc
 	transformedPort, err := expandMonitoringUptimeCheckConfigTcpCheckPort(original["port"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["port"] = transformedPort
 	}
 
 	return transformed, nil
 }
 
-func expandMonitoringUptimeCheckConfigTcpCheckPort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigTcpCheckPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigResourceGroup(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigResourceGroup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1343,29 +1343,29 @@ func expandMonitoringUptimeCheckConfigResourceGroup(v interface{}, d TerraformRe
 	transformedResourceType, err := expandMonitoringUptimeCheckConfigResourceGroupResourceType(original["resource_type"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedResourceType); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedResourceType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["resourceType"] = transformedResourceType
 	}
 
 	transformedGroupId, err := expandMonitoringUptimeCheckConfigResourceGroupGroupId(original["group_id"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedGroupId); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedGroupId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["groupId"] = transformedGroupId
 	}
 
 	return transformed, nil
 }
 
-func expandMonitoringUptimeCheckConfigResourceGroupResourceType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigResourceGroupResourceType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigResourceGroupGroupId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigResourceGroupGroupId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return tpgresource.GetResourceNameFromSelfLink(v.(string)), nil
 }
 
-func expandMonitoringUptimeCheckConfigMonitoredResource(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigMonitoredResource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1377,25 +1377,25 @@ func expandMonitoringUptimeCheckConfigMonitoredResource(v interface{}, d Terrafo
 	transformedType, err := expandMonitoringUptimeCheckConfigMonitoredResourceType(original["type"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["type"] = transformedType
 	}
 
 	transformedLabels, err := expandMonitoringUptimeCheckConfigMonitoredResourceLabels(original["labels"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedLabels); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedLabels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["labels"] = transformedLabels
 	}
 
 	return transformed, nil
 }
 
-func expandMonitoringUptimeCheckConfigMonitoredResourceType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringUptimeCheckConfigMonitoredResourceType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringUptimeCheckConfigMonitoredResourceLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandMonitoringUptimeCheckConfigMonitoredResourceLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

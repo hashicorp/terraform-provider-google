@@ -27,7 +27,7 @@ func DataSourceGoogleComputeSslCertificate() *schema.Resource {
 func dataSourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}

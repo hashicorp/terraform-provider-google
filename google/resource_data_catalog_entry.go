@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -260,7 +261,7 @@ Note that this Entry and its child resources may not actually be stored in the l
 
 func resourceDataCatalogEntryCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -269,53 +270,53 @@ func resourceDataCatalogEntryCreate(d *schema.ResourceData, meta interface{}) er
 	linkedResourceProp, err := expandDataCatalogEntryLinkedResource(d.Get("linked_resource"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("linked_resource"); !isEmptyValue(reflect.ValueOf(linkedResourceProp)) && (ok || !reflect.DeepEqual(v, linkedResourceProp)) {
+	} else if v, ok := d.GetOkExists("linked_resource"); !tpgresource.IsEmptyValue(reflect.ValueOf(linkedResourceProp)) && (ok || !reflect.DeepEqual(v, linkedResourceProp)) {
 		obj["linkedResource"] = linkedResourceProp
 	}
 	displayNameProp, err := expandDataCatalogEntryDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	descriptionProp, err := expandDataCatalogEntryDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	schemaProp, err := expandDataCatalogEntrySchema(d.Get("schema"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("schema"); !isEmptyValue(reflect.ValueOf(schemaProp)) && (ok || !reflect.DeepEqual(v, schemaProp)) {
+	} else if v, ok := d.GetOkExists("schema"); !tpgresource.IsEmptyValue(reflect.ValueOf(schemaProp)) && (ok || !reflect.DeepEqual(v, schemaProp)) {
 		obj["schema"] = schemaProp
 	}
 	typeProp, err := expandDataCatalogEntryType(d.Get("type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("type"); !isEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
 	}
 	userSpecifiedTypeProp, err := expandDataCatalogEntryUserSpecifiedType(d.Get("user_specified_type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("user_specified_type"); !isEmptyValue(reflect.ValueOf(userSpecifiedTypeProp)) && (ok || !reflect.DeepEqual(v, userSpecifiedTypeProp)) {
+	} else if v, ok := d.GetOkExists("user_specified_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(userSpecifiedTypeProp)) && (ok || !reflect.DeepEqual(v, userSpecifiedTypeProp)) {
 		obj["userSpecifiedType"] = userSpecifiedTypeProp
 	}
 	userSpecifiedSystemProp, err := expandDataCatalogEntryUserSpecifiedSystem(d.Get("user_specified_system"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("user_specified_system"); !isEmptyValue(reflect.ValueOf(userSpecifiedSystemProp)) && (ok || !reflect.DeepEqual(v, userSpecifiedSystemProp)) {
+	} else if v, ok := d.GetOkExists("user_specified_system"); !tpgresource.IsEmptyValue(reflect.ValueOf(userSpecifiedSystemProp)) && (ok || !reflect.DeepEqual(v, userSpecifiedSystemProp)) {
 		obj["userSpecifiedSystem"] = userSpecifiedSystemProp
 	}
 	gcsFilesetSpecProp, err := expandDataCatalogEntryGcsFilesetSpec(d.Get("gcs_fileset_spec"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("gcs_fileset_spec"); !isEmptyValue(reflect.ValueOf(gcsFilesetSpecProp)) && (ok || !reflect.DeepEqual(v, gcsFilesetSpecProp)) {
+	} else if v, ok := d.GetOkExists("gcs_fileset_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(gcsFilesetSpecProp)) && (ok || !reflect.DeepEqual(v, gcsFilesetSpecProp)) {
 		obj["gcsFilesetSpec"] = gcsFilesetSpecProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{entry_group}}/entries?entryId={{entry_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DataCatalogBasePath}}{{entry_group}}/entries?entryId={{entry_id}}")
 	if err != nil {
 		return err
 	}
@@ -328,7 +329,7 @@ func resourceDataCatalogEntryCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -341,7 +342,7 @@ func resourceDataCatalogEntryCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -354,12 +355,12 @@ func resourceDataCatalogEntryCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceDataCatalogEntryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -371,7 +372,7 @@ func resourceDataCatalogEntryRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -422,7 +423,7 @@ func resourceDataCatalogEntryRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceDataCatalogEntryUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -433,47 +434,47 @@ func resourceDataCatalogEntryUpdate(d *schema.ResourceData, meta interface{}) er
 	linkedResourceProp, err := expandDataCatalogEntryLinkedResource(d.Get("linked_resource"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("linked_resource"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, linkedResourceProp)) {
+	} else if v, ok := d.GetOkExists("linked_resource"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, linkedResourceProp)) {
 		obj["linkedResource"] = linkedResourceProp
 	}
 	displayNameProp, err := expandDataCatalogEntryDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	descriptionProp, err := expandDataCatalogEntryDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	schemaProp, err := expandDataCatalogEntrySchema(d.Get("schema"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("schema"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, schemaProp)) {
+	} else if v, ok := d.GetOkExists("schema"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, schemaProp)) {
 		obj["schema"] = schemaProp
 	}
 	userSpecifiedTypeProp, err := expandDataCatalogEntryUserSpecifiedType(d.Get("user_specified_type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("user_specified_type"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, userSpecifiedTypeProp)) {
+	} else if v, ok := d.GetOkExists("user_specified_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, userSpecifiedTypeProp)) {
 		obj["userSpecifiedType"] = userSpecifiedTypeProp
 	}
 	userSpecifiedSystemProp, err := expandDataCatalogEntryUserSpecifiedSystem(d.Get("user_specified_system"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("user_specified_system"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, userSpecifiedSystemProp)) {
+	} else if v, ok := d.GetOkExists("user_specified_system"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, userSpecifiedSystemProp)) {
 		obj["userSpecifiedSystem"] = userSpecifiedSystemProp
 	}
 	gcsFilesetSpecProp, err := expandDataCatalogEntryGcsFilesetSpec(d.Get("gcs_fileset_spec"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("gcs_fileset_spec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, gcsFilesetSpecProp)) {
+	} else if v, ok := d.GetOkExists("gcs_fileset_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, gcsFilesetSpecProp)) {
 		obj["gcsFilesetSpec"] = gcsFilesetSpecProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -519,7 +520,7 @@ func resourceDataCatalogEntryUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -536,14 +537,14 @@ func resourceDataCatalogEntryUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceDataCatalogEntryDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	url, err := ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -557,7 +558,7 @@ func resourceDataCatalogEntryDelete(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Deleting Entry %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -794,19 +795,19 @@ func flattenDataCatalogEntryBigqueryDateShardedSpecShardCount(v interface{}, d *
 	return v // let terraform core handle it otherwise
 }
 
-func expandDataCatalogEntryLinkedResource(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDataCatalogEntryLinkedResource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogEntryDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDataCatalogEntryDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogEntryDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDataCatalogEntryDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogEntrySchema(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDataCatalogEntrySchema(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	b := []byte(v.(string))
 	if len(b) == 0 {
 		return nil, nil
@@ -818,19 +819,19 @@ func expandDataCatalogEntrySchema(v interface{}, d TerraformResourceData, config
 	return m, nil
 }
 
-func expandDataCatalogEntryType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDataCatalogEntryType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogEntryUserSpecifiedType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDataCatalogEntryUserSpecifiedType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogEntryUserSpecifiedSystem(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDataCatalogEntryUserSpecifiedSystem(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogEntryGcsFilesetSpec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDataCatalogEntryGcsFilesetSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -842,25 +843,25 @@ func expandDataCatalogEntryGcsFilesetSpec(v interface{}, d TerraformResourceData
 	transformedFilePatterns, err := expandDataCatalogEntryGcsFilesetSpecFilePatterns(original["file_patterns"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedFilePatterns); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedFilePatterns); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["filePatterns"] = transformedFilePatterns
 	}
 
 	transformedSampleGcsFileSpecs, err := expandDataCatalogEntryGcsFilesetSpecSampleGcsFileSpecs(original["sample_gcs_file_specs"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSampleGcsFileSpecs); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSampleGcsFileSpecs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["sampleGcsFileSpecs"] = transformedSampleGcsFileSpecs
 	}
 
 	return transformed, nil
 }
 
-func expandDataCatalogEntryGcsFilesetSpecFilePatterns(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDataCatalogEntryGcsFilesetSpecFilePatterns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogEntryGcsFilesetSpecSampleGcsFileSpecs(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDataCatalogEntryGcsFilesetSpecSampleGcsFileSpecs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -873,14 +874,14 @@ func expandDataCatalogEntryGcsFilesetSpecSampleGcsFileSpecs(v interface{}, d Ter
 		transformedFilePath, err := expandDataCatalogEntryGcsFilesetSpecSampleGcsFileSpecsFilePath(original["file_path"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedFilePath); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedFilePath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["filePath"] = transformedFilePath
 		}
 
 		transformedSizeBytes, err := expandDataCatalogEntryGcsFilesetSpecSampleGcsFileSpecsSizeBytes(original["size_bytes"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedSizeBytes); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedSizeBytes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["sizeBytes"] = transformedSizeBytes
 		}
 
@@ -889,10 +890,10 @@ func expandDataCatalogEntryGcsFilesetSpecSampleGcsFileSpecs(v interface{}, d Ter
 	return req, nil
 }
 
-func expandDataCatalogEntryGcsFilesetSpecSampleGcsFileSpecsFilePath(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDataCatalogEntryGcsFilesetSpecSampleGcsFileSpecsFilePath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDataCatalogEntryGcsFilesetSpecSampleGcsFileSpecsSizeBytes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDataCatalogEntryGcsFilesetSpecSampleGcsFileSpecsSizeBytes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

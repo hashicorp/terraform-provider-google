@@ -36,11 +36,11 @@ var TagsTagKeyIamSchema = map[string]*schema.Schema{
 
 type TagsTagKeyIamUpdater struct {
 	tagKey string
-	d      TerraformResourceData
+	d      tpgresource.TerraformResourceData
 	Config *transport_tpg.Config
 }
 
-func TagsTagKeyIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func TagsTagKeyIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	if v, ok := d.GetOk("tag_key"); ok {
@@ -102,7 +102,7 @@ func (u *TagsTagKeyIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Pol
 
 	var obj map[string]interface{}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +135,7 @@ func (u *TagsTagKeyIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -150,7 +150,7 @@ func (u *TagsTagKeyIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager
 
 func (u *TagsTagKeyIamUpdater) qualifyTagKeyUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{TagsBasePath}}%s:%s", fmt.Sprintf("tagKeys/%s", u.tagKey), methodIdentifier)
-	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
+	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

@@ -1297,12 +1297,12 @@ func acceleratorsSchema() *schema.Resource {
 
 func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -1324,7 +1324,7 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if _, ok := d.GetOk("labels"); ok {
-		cluster.Labels = expandLabels(d)
+		cluster.Labels = tpgresource.ExpandLabels(d)
 	}
 
 	// Checking here caters for the case where the user does not specify cluster_config
@@ -1632,7 +1632,7 @@ func expandGceClusterConfig(d *schema.ResourceData, config *transport_tpg.Config
 		conf.ZoneUri = v.(string)
 	}
 	if v, ok := cfg["network"]; ok {
-		nf, err := ParseNetworkFieldValue(v.(string), d, config)
+		nf, err := tpgresource.ParseNetworkFieldValue(v.(string), d, config)
 		if err != nil {
 			return nil, fmt.Errorf("cannot determine self_link for network %q: %s", v, err)
 		}
@@ -1640,7 +1640,7 @@ func expandGceClusterConfig(d *schema.ResourceData, config *transport_tpg.Config
 		conf.NetworkUri = nf.RelativeLink()
 	}
 	if v, ok := cfg["subnetwork"]; ok {
-		snf, err := ParseSubnetworkFieldValue(v.(string), d, config)
+		snf, err := tpgresource.ParseSubnetworkFieldValue(v.(string), d, config)
 		if err != nil {
 			return nil, fmt.Errorf("cannot determine self_link for subnetwork %q: %s", v, err)
 		}
@@ -1947,12 +1947,12 @@ func expandAccelerators(configured []interface{}) []*dataproc.AcceleratorConfig 
 
 func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -2054,12 +2054,12 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 
 func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -2536,12 +2536,12 @@ func extractInitTimeout(t string) (int, error) {
 
 func resourceDataprocClusterDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}

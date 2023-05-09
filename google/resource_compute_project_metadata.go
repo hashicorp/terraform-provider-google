@@ -2,9 +2,11 @@ package google
 
 import (
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"time"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -50,12 +52,12 @@ func ResourceComputeProjectMetadata() *schema.Resource {
 
 func resourceComputeProjectMetadataCreateOrUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	projectID, err := getProject(d, config)
+	projectID, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -76,15 +78,15 @@ func resourceComputeProjectMetadataCreateOrUpdate(d *schema.ResourceData, meta i
 
 func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	// At import time, we have no state to draw from. We'll wrongly pull the
-	// provider default project if we use a normal getProject, so we need to
+	// provider default project if we use a normal GetProject, so we need to
 	// rely on the `id` field being set to the project.
-	// At any other time we can use getProject, as state will have the correct
+	// At any other time we can use GetProject, as state will have the correct
 	// value; the project pulled from config / the provider / at import time.
 	//
 	// Note that if a user imports a project other than their provider project
@@ -111,12 +113,12 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 
 func resourceComputeProjectMetadataDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	projectID, err := getProject(d, config)
+	projectID, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}

@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -61,7 +62,7 @@ func ResourceAccessContextManagerIngressPolicy() *schema.Resource {
 
 func resourceAccessContextManagerIngressPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -70,11 +71,11 @@ func resourceAccessContextManagerIngressPolicyCreate(d *schema.ResourceData, met
 	resourceProp, err := expandNestedAccessContextManagerIngressPolicyResource(d.Get("resource"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("resource"); !isEmptyValue(reflect.ValueOf(resourceProp)) && (ok || !reflect.DeepEqual(v, resourceProp)) {
+	} else if v, ok := d.GetOkExists("resource"); !tpgresource.IsEmptyValue(reflect.ValueOf(resourceProp)) && (ok || !reflect.DeepEqual(v, resourceProp)) {
 		obj["resource"] = resourceProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{ingress_policy_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{ingress_policy_name}}")
 	if err != nil {
 		return err
 	}
@@ -92,7 +93,7 @@ func resourceAccessContextManagerIngressPolicyCreate(d *schema.ResourceData, met
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -102,7 +103,7 @@ func resourceAccessContextManagerIngressPolicyCreate(d *schema.ResourceData, met
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{ingress_policy_name}}/{{resource}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{ingress_policy_name}}/{{resource}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -136,7 +137,7 @@ func resourceAccessContextManagerIngressPolicyCreate(d *schema.ResourceData, met
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "{{ingress_policy_name}}/{{resource}}")
+	id, err = tpgresource.ReplaceVars(d, config, "{{ingress_policy_name}}/{{resource}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -149,12 +150,12 @@ func resourceAccessContextManagerIngressPolicyCreate(d *schema.ResourceData, met
 
 func resourceAccessContextManagerIngressPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{ingress_policy_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{ingress_policy_name}}")
 	if err != nil {
 		return err
 	}
@@ -162,7 +163,7 @@ func resourceAccessContextManagerIngressPolicyRead(d *schema.ResourceData, meta 
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -192,14 +193,14 @@ func resourceAccessContextManagerIngressPolicyRead(d *schema.ResourceData, meta 
 
 func resourceAccessContextManagerIngressPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{ingress_policy_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{ingress_policy_name}}")
 	if err != nil {
 		return err
 	}
@@ -217,7 +218,7 @@ func resourceAccessContextManagerIngressPolicyDelete(d *schema.ResourceData, met
 	log.Printf("[DEBUG] Deleting IngressPolicy %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -260,7 +261,7 @@ func flattenNestedAccessContextManagerIngressPolicyResource(v interface{}, d *sc
 	return v
 }
 
-func expandNestedAccessContextManagerIngressPolicyResource(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedAccessContextManagerIngressPolicyResource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -314,8 +315,8 @@ func resourceAccessContextManagerIngressPolicyFindNestedObjectInList(d *schema.R
 		}
 
 		itemResource := flattenNestedAccessContextManagerIngressPolicyResource(item["resource"], d, meta.(*transport_tpg.Config))
-		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
-		if !(isEmptyValue(reflect.ValueOf(itemResource)) && isEmptyValue(reflect.ValueOf(expectedFlattenedResource))) && !reflect.DeepEqual(itemResource, expectedFlattenedResource) {
+		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemResource)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedFlattenedResource))) && !reflect.DeepEqual(itemResource, expectedFlattenedResource) {
 			log.Printf("[DEBUG] Skipping item with resource= %#v, looking for %#v)", itemResource, expectedFlattenedResource)
 			continue
 		}
@@ -388,12 +389,12 @@ func resourceAccessContextManagerIngressPolicyPatchDeleteEncoder(d *schema.Resou
 // extracting list of objects.
 func resourceAccessContextManagerIngressPolicyListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
 	config := meta.(*transport_tpg.Config)
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{ingress_policy_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{ingress_policy_name}}")
 	if err != nil {
 		return nil, err
 	}
 
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return nil, err
 	}

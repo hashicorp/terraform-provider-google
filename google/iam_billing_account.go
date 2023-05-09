@@ -21,11 +21,11 @@ var IamBillingAccountSchema = map[string]*schema.Schema{
 
 type BillingAccountIamUpdater struct {
 	billingAccountId string
-	d                TerraformResourceData
+	d                tpgresource.TerraformResourceData
 	Config           *transport_tpg.Config
 }
 
-func NewBillingAccountIamUpdater(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func NewBillingAccountIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	return &BillingAccountIamUpdater{
 		billingAccountId: canonicalBillingAccountId(d.Get("billing_account_id").(string)),
 		d:                d,
@@ -41,7 +41,7 @@ func BillingAccountIdParseFunc(d *schema.ResourceData, _ *transport_tpg.Config) 
 }
 
 func (u *BillingAccountIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (u *BillingAccountIamUpdater) SetResourceIamPolicy(policy *cloudresourceman
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}

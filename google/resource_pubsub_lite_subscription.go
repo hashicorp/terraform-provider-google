@@ -100,7 +100,7 @@ func ResourcePubsubLiteSubscription() *schema.Resource {
 
 func resourcePubsubLiteSubscriptionCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -109,13 +109,13 @@ func resourcePubsubLiteSubscriptionCreate(d *schema.ResourceData, meta interface
 	topicProp, err := expandPubsubLiteSubscriptionTopic(d.Get("topic"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("topic"); !isEmptyValue(reflect.ValueOf(topicProp)) && (ok || !reflect.DeepEqual(v, topicProp)) {
+	} else if v, ok := d.GetOkExists("topic"); !tpgresource.IsEmptyValue(reflect.ValueOf(topicProp)) && (ok || !reflect.DeepEqual(v, topicProp)) {
 		obj["topic"] = topicProp
 	}
 	deliveryConfigProp, err := expandPubsubLiteSubscriptionDeliveryConfig(d.Get("delivery_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("delivery_config"); !isEmptyValue(reflect.ValueOf(deliveryConfigProp)) && (ok || !reflect.DeepEqual(v, deliveryConfigProp)) {
+	} else if v, ok := d.GetOkExists("delivery_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(deliveryConfigProp)) && (ok || !reflect.DeepEqual(v, deliveryConfigProp)) {
 		obj["deliveryConfig"] = deliveryConfigProp
 	}
 
@@ -124,7 +124,7 @@ func resourcePubsubLiteSubscriptionCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions?subscriptionId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions?subscriptionId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -132,14 +132,14 @@ func resourcePubsubLiteSubscriptionCreate(d *schema.ResourceData, meta interface
 	log.Printf("[DEBUG] Creating new Subscription: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Subscription: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -149,7 +149,7 @@ func resourcePubsubLiteSubscriptionCreate(d *schema.ResourceData, meta interface
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -162,26 +162,26 @@ func resourcePubsubLiteSubscriptionCreate(d *schema.ResourceData, meta interface
 
 func resourcePubsubLiteSubscriptionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Subscription: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -206,14 +206,14 @@ func resourcePubsubLiteSubscriptionRead(d *schema.ResourceData, meta interface{}
 
 func resourcePubsubLiteSubscriptionUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Subscription: %s", err)
 	}
@@ -223,7 +223,7 @@ func resourcePubsubLiteSubscriptionUpdate(d *schema.ResourceData, meta interface
 	deliveryConfigProp, err := expandPubsubLiteSubscriptionDeliveryConfig(d.Get("delivery_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("delivery_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deliveryConfigProp)) {
+	} else if v, ok := d.GetOkExists("delivery_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deliveryConfigProp)) {
 		obj["deliveryConfig"] = deliveryConfigProp
 	}
 
@@ -232,7 +232,7 @@ func resourcePubsubLiteSubscriptionUpdate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -251,7 +251,7 @@ func resourcePubsubLiteSubscriptionUpdate(d *schema.ResourceData, meta interface
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -268,20 +268,20 @@ func resourcePubsubLiteSubscriptionUpdate(d *schema.ResourceData, meta interface
 
 func resourcePubsubLiteSubscriptionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Subscription: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{PubsubLiteBasePath}}projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -290,7 +290,7 @@ func resourcePubsubLiteSubscriptionDelete(d *schema.ResourceData, meta interface
 	log.Printf("[DEBUG] Deleting Subscription %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -315,7 +315,7 @@ func resourcePubsubLiteSubscriptionImport(d *schema.ResourceData, meta interface
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -348,13 +348,13 @@ func flattenPubsubLiteSubscriptionDeliveryConfigDeliveryRequirement(v interface{
 	return v
 }
 
-func expandPubsubLiteSubscriptionTopic(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	project, err := getProject(d, config)
+func expandPubsubLiteSubscriptionTopic(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return "", err
 	}
 
-	zone, err := getZone(d, config)
+	zone, err := tpgresource.GetZone(d, config)
 	if err != nil {
 		return nil, err
 	}
@@ -379,7 +379,7 @@ func expandPubsubLiteSubscriptionTopic(v interface{}, d TerraformResourceData, c
 	}
 }
 
-func expandPubsubLiteSubscriptionDeliveryConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPubsubLiteSubscriptionDeliveryConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -391,21 +391,21 @@ func expandPubsubLiteSubscriptionDeliveryConfig(v interface{}, d TerraformResour
 	transformedDeliveryRequirement, err := expandPubsubLiteSubscriptionDeliveryConfigDeliveryRequirement(original["delivery_requirement"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDeliveryRequirement); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDeliveryRequirement); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["deliveryRequirement"] = transformedDeliveryRequirement
 	}
 
 	return transformed, nil
 }
 
-func expandPubsubLiteSubscriptionDeliveryConfigDeliveryRequirement(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandPubsubLiteSubscriptionDeliveryConfigDeliveryRequirement(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
 func resourcePubsubLiteSubscriptionEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	config := meta.(*transport_tpg.Config)
 
-	zone, err := getZone(d, config)
+	zone, err := tpgresource.GetZone(d, config)
 	if err != nil {
 		return nil, err
 	}
@@ -416,7 +416,7 @@ func resourcePubsubLiteSubscriptionEncoder(d *schema.ResourceData, meta interfac
 
 	// API Endpoint requires region in the URL. We infer it from the zone.
 
-	region := getRegionFromZone(zone)
+	region := tpgresource.GetRegionFromZone(zone)
 
 	if region == "" {
 		return nil, fmt.Errorf("invalid zone %q, unable to infer region from zone", zone)

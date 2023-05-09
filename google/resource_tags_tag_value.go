@@ -97,7 +97,7 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 
 func resourceTagsTagValueCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -106,30 +106,30 @@ func resourceTagsTagValueCreate(d *schema.ResourceData, meta interface{}) error 
 	parentProp, err := expandTagsTagValueParent(d.Get("parent"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("parent"); !isEmptyValue(reflect.ValueOf(parentProp)) && (ok || !reflect.DeepEqual(v, parentProp)) {
+	} else if v, ok := d.GetOkExists("parent"); !tpgresource.IsEmptyValue(reflect.ValueOf(parentProp)) && (ok || !reflect.DeepEqual(v, parentProp)) {
 		obj["parent"] = parentProp
 	}
 	shortNameProp, err := expandTagsTagValueShortName(d.Get("short_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("short_name"); !isEmptyValue(reflect.ValueOf(shortNameProp)) && (ok || !reflect.DeepEqual(v, shortNameProp)) {
+	} else if v, ok := d.GetOkExists("short_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(shortNameProp)) && (ok || !reflect.DeepEqual(v, shortNameProp)) {
 		obj["shortName"] = shortNameProp
 	}
 	descriptionProp, err := expandTagsTagValueDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 
-	lockName, err := ReplaceVars(d, config, "tagValues/{{parent}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "tagValues/{{parent}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{TagsBasePath}}tagValues")
+	url, err := tpgresource.ReplaceVars(d, config, "{{TagsBasePath}}tagValues")
 	if err != nil {
 		return err
 	}
@@ -138,7 +138,7 @@ func resourceTagsTagValueCreate(d *schema.ResourceData, meta interface{}) error 
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -148,7 +148,7 @@ func resourceTagsTagValueCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "tagValues/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "tagValues/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -172,7 +172,7 @@ func resourceTagsTagValueCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "tagValues/{{name}}")
+	id, err = tpgresource.ReplaceVars(d, config, "tagValues/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -185,12 +185,12 @@ func resourceTagsTagValueCreate(d *schema.ResourceData, meta interface{}) error 
 
 func resourceTagsTagValueRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{TagsBasePath}}tagValues/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{TagsBasePath}}tagValues/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -198,7 +198,7 @@ func resourceTagsTagValueRead(d *schema.ResourceData, meta interface{}) error {
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -234,7 +234,7 @@ func resourceTagsTagValueRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceTagsTagValueUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -245,18 +245,18 @@ func resourceTagsTagValueUpdate(d *schema.ResourceData, meta interface{}) error 
 	descriptionProp, err := expandTagsTagValueDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 
-	lockName, err := ReplaceVars(d, config, "tagValues/{{parent}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "tagValues/{{parent}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{TagsBasePath}}tagValues/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{TagsBasePath}}tagValues/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -275,7 +275,7 @@ func resourceTagsTagValueUpdate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -300,21 +300,21 @@ func resourceTagsTagValueUpdate(d *schema.ResourceData, meta interface{}) error 
 
 func resourceTagsTagValueDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	lockName, err := ReplaceVars(d, config, "tagValues/{{parent}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "tagValues/{{parent}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{TagsBasePath}}tagValues/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{TagsBasePath}}tagValues/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -323,7 +323,7 @@ func resourceTagsTagValueDelete(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Deleting TagValue %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -354,7 +354,7 @@ func resourceTagsTagValueImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "tagValues/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "tagValues/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -394,14 +394,14 @@ func flattenTagsTagValueUpdateTime(v interface{}, d *schema.ResourceData, config
 	return v
 }
 
-func expandTagsTagValueParent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandTagsTagValueParent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTagsTagValueShortName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandTagsTagValueShortName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandTagsTagValueDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandTagsTagValueDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

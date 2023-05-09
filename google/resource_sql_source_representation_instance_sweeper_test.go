@@ -55,7 +55,7 @@ func testSweepSQLSourceRepresentationInstance(region string) error {
 	billingId := acctest.GetTestBillingAccountFromEnv(t)
 
 	// Setup variables to replace in list template
-	d := &acctest.ResourceDataMock{
+	d := &tpgresource.ResourceDataMock{
 		FieldsInSchema: map[string]interface{}{
 			"project":         config.Project,
 			"region":          region,
@@ -66,7 +66,7 @@ func testSweepSQLSourceRepresentationInstance(region string) error {
 	}
 
 	listTemplate := strings.Split("https://sqladmin.googleapis.com/sql/v1beta4/projects/{{project}}/instances", "?")[0]
-	listUrl, err := ReplaceVars(d, config, listTemplate)
+	listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 		return nil
@@ -104,7 +104,7 @@ func testSweepSQLSourceRepresentationInstance(region string) error {
 		}
 
 		deleteTemplate := "https://sqladmin.googleapis.com/sql/v1beta4/projects/{{project}}/instances/{{name}}"
-		deleteUrl, err := ReplaceVars(d, config, deleteTemplate)
+		deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 			return nil

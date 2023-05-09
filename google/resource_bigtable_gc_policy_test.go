@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 func TestAccBigtableGCPolicy_basic(t *testing.T) {
@@ -207,7 +208,7 @@ func TestUnitBigtableGCPolicy_customizeDiff(t *testing.T) {
 }
 
 func (testcase *testUnitBigtableGCPolicyCustomizeDiffTestcase) check(t *testing.T) {
-	d := &acctest.ResourceDiffMock{
+	d := &tpgresource.ResourceDiffMock{
 		Before: map[string]interface{}{},
 		After:  map[string]interface{}{},
 	}

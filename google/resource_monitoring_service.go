@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -129,7 +130,7 @@ https://cloud.google.com/apis/design/resource_names.`,
 
 func resourceMonitoringGenericServiceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -138,7 +139,7 @@ func resourceMonitoringGenericServiceCreate(d *schema.ResourceData, meta interfa
 	displayNameProp, err := expandMonitoringGenericServiceDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	userLabelsProp, err := expandMonitoringGenericServiceUserLabels(d.Get("user_labels"), d, config)
@@ -150,11 +151,11 @@ func resourceMonitoringGenericServiceCreate(d *schema.ResourceData, meta interfa
 	basicServiceProp, err := expandMonitoringGenericServiceBasicService(d.Get("basic_service"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("basic_service"); !isEmptyValue(reflect.ValueOf(basicServiceProp)) && (ok || !reflect.DeepEqual(v, basicServiceProp)) {
+	} else if v, ok := d.GetOkExists("basic_service"); !tpgresource.IsEmptyValue(reflect.ValueOf(basicServiceProp)) && (ok || !reflect.DeepEqual(v, basicServiceProp)) {
 		obj["basicService"] = basicServiceProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services?serviceId={{service_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services?serviceId={{service_id}}")
 	if err != nil {
 		return err
 	}
@@ -162,14 +163,14 @@ func resourceMonitoringGenericServiceCreate(d *schema.ResourceData, meta interfa
 	log.Printf("[DEBUG] Creating new GenericService: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for GenericService: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -182,7 +183,7 @@ func resourceMonitoringGenericServiceCreate(d *schema.ResourceData, meta interfa
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/services/{{service_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/services/{{service_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -195,26 +196,26 @@ func resourceMonitoringGenericServiceCreate(d *schema.ResourceData, meta interfa
 
 func resourceMonitoringGenericServiceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services/{{service_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services/{{service_id}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for GenericService: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -248,14 +249,14 @@ func resourceMonitoringGenericServiceRead(d *schema.ResourceData, meta interface
 
 func resourceMonitoringGenericServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for GenericService: %s", err)
 	}
@@ -265,7 +266,7 @@ func resourceMonitoringGenericServiceUpdate(d *schema.ResourceData, meta interfa
 	displayNameProp, err := expandMonitoringGenericServiceDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	userLabelsProp, err := expandMonitoringGenericServiceUserLabels(d.Get("user_labels"), d, config)
@@ -275,7 +276,7 @@ func resourceMonitoringGenericServiceUpdate(d *schema.ResourceData, meta interfa
 		obj["userLabels"] = userLabelsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services/{{service_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services/{{service_id}}")
 	if err != nil {
 		return err
 	}
@@ -298,7 +299,7 @@ func resourceMonitoringGenericServiceUpdate(d *schema.ResourceData, meta interfa
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -315,20 +316,20 @@ func resourceMonitoringGenericServiceUpdate(d *schema.ResourceData, meta interfa
 
 func resourceMonitoringGenericServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for GenericService: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services/{{service_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v3/projects/{{project}}/services/{{service_id}}")
 	if err != nil {
 		return err
 	}
@@ -337,7 +338,7 @@ func resourceMonitoringGenericServiceDelete(d *schema.ResourceData, meta interfa
 	log.Printf("[DEBUG] Deleting GenericService %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -361,7 +362,7 @@ func resourceMonitoringGenericServiceImport(d *schema.ResourceData, meta interfa
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/services/{{service_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/services/{{service_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -422,11 +423,11 @@ func flattenMonitoringGenericServiceBasicServiceServiceLabels(v interface{}, d *
 	return v
 }
 
-func expandMonitoringGenericServiceDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringGenericServiceDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringGenericServiceUserLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandMonitoringGenericServiceUserLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -437,7 +438,7 @@ func expandMonitoringGenericServiceUserLabels(v interface{}, d TerraformResource
 	return m, nil
 }
 
-func expandMonitoringGenericServiceBasicService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringGenericServiceBasicService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -449,25 +450,25 @@ func expandMonitoringGenericServiceBasicService(v interface{}, d TerraformResour
 	transformedServiceType, err := expandMonitoringGenericServiceBasicServiceServiceType(original["service_type"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedServiceType); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedServiceType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["serviceType"] = transformedServiceType
 	}
 
 	transformedServiceLabels, err := expandMonitoringGenericServiceBasicServiceServiceLabels(original["service_labels"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedServiceLabels); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedServiceLabels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["serviceLabels"] = transformedServiceLabels
 	}
 
 	return transformed, nil
 }
 
-func expandMonitoringGenericServiceBasicServiceServiceType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandMonitoringGenericServiceBasicServiceServiceType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandMonitoringGenericServiceBasicServiceServiceLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandMonitoringGenericServiceBasicServiceServiceLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

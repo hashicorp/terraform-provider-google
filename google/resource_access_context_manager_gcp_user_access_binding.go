@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -78,7 +79,7 @@ func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
 
 func resourceAccessContextManagerGcpUserAccessBindingCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -87,17 +88,17 @@ func resourceAccessContextManagerGcpUserAccessBindingCreate(d *schema.ResourceDa
 	groupKeyProp, err := expandAccessContextManagerGcpUserAccessBindingGroupKey(d.Get("group_key"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("group_key"); !isEmptyValue(reflect.ValueOf(groupKeyProp)) && (ok || !reflect.DeepEqual(v, groupKeyProp)) {
+	} else if v, ok := d.GetOkExists("group_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(groupKeyProp)) && (ok || !reflect.DeepEqual(v, groupKeyProp)) {
 		obj["groupKey"] = groupKeyProp
 	}
 	accessLevelsProp, err := expandAccessContextManagerGcpUserAccessBindingAccessLevels(d.Get("access_levels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("access_levels"); !isEmptyValue(reflect.ValueOf(accessLevelsProp)) && (ok || !reflect.DeepEqual(v, accessLevelsProp)) {
+	} else if v, ok := d.GetOkExists("access_levels"); !tpgresource.IsEmptyValue(reflect.ValueOf(accessLevelsProp)) && (ok || !reflect.DeepEqual(v, accessLevelsProp)) {
 		obj["accessLevels"] = accessLevelsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}organizations/{{organization_id}}/gcpUserAccessBindings")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}organizations/{{organization_id}}/gcpUserAccessBindings")
 	if err != nil {
 		return err
 	}
@@ -106,7 +107,7 @@ func resourceAccessContextManagerGcpUserAccessBindingCreate(d *schema.ResourceDa
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -116,7 +117,7 @@ func resourceAccessContextManagerGcpUserAccessBindingCreate(d *schema.ResourceDa
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -140,7 +141,7 @@ func resourceAccessContextManagerGcpUserAccessBindingCreate(d *schema.ResourceDa
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "{{name}}")
+	id, err = tpgresource.ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -153,12 +154,12 @@ func resourceAccessContextManagerGcpUserAccessBindingCreate(d *schema.ResourceDa
 
 func resourceAccessContextManagerGcpUserAccessBindingRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -166,7 +167,7 @@ func resourceAccessContextManagerGcpUserAccessBindingRead(d *schema.ResourceData
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -190,7 +191,7 @@ func resourceAccessContextManagerGcpUserAccessBindingRead(d *schema.ResourceData
 
 func resourceAccessContextManagerGcpUserAccessBindingUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -201,11 +202,11 @@ func resourceAccessContextManagerGcpUserAccessBindingUpdate(d *schema.ResourceDa
 	accessLevelsProp, err := expandAccessContextManagerGcpUserAccessBindingAccessLevels(d.Get("access_levels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("access_levels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, accessLevelsProp)) {
+	} else if v, ok := d.GetOkExists("access_levels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, accessLevelsProp)) {
 		obj["accessLevels"] = accessLevelsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -224,7 +225,7 @@ func resourceAccessContextManagerGcpUserAccessBindingUpdate(d *schema.ResourceDa
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -249,14 +250,14 @@ func resourceAccessContextManagerGcpUserAccessBindingUpdate(d *schema.ResourceDa
 
 func resourceAccessContextManagerGcpUserAccessBindingDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	url, err := ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -265,7 +266,7 @@ func resourceAccessContextManagerGcpUserAccessBindingDelete(d *schema.ResourceDa
 	log.Printf("[DEBUG] Deleting GcpUserAccessBinding %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -315,10 +316,10 @@ func flattenAccessContextManagerGcpUserAccessBindingAccessLevels(v interface{}, 
 	return v
 }
 
-func expandAccessContextManagerGcpUserAccessBindingGroupKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerGcpUserAccessBindingGroupKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandAccessContextManagerGcpUserAccessBindingAccessLevels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandAccessContextManagerGcpUserAccessBindingAccessLevels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -343,7 +344,7 @@ If this field is used then the 'client_certificate' and the
 
 func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -352,31 +353,31 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 	labelsProp, err := expandDatastreamConnectionProfileLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	displayNameProp, err := expandDatastreamConnectionProfileDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	oracleProfileProp, err := expandDatastreamConnectionProfileOracleProfile(d.Get("oracle_profile"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("oracle_profile"); !isEmptyValue(reflect.ValueOf(oracleProfileProp)) && (ok || !reflect.DeepEqual(v, oracleProfileProp)) {
+	} else if v, ok := d.GetOkExists("oracle_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(oracleProfileProp)) && (ok || !reflect.DeepEqual(v, oracleProfileProp)) {
 		obj["oracleProfile"] = oracleProfileProp
 	}
 	gcsProfileProp, err := expandDatastreamConnectionProfileGcsProfile(d.Get("gcs_profile"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("gcs_profile"); !isEmptyValue(reflect.ValueOf(gcsProfileProp)) && (ok || !reflect.DeepEqual(v, gcsProfileProp)) {
+	} else if v, ok := d.GetOkExists("gcs_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(gcsProfileProp)) && (ok || !reflect.DeepEqual(v, gcsProfileProp)) {
 		obj["gcsProfile"] = gcsProfileProp
 	}
 	mysqlProfileProp, err := expandDatastreamConnectionProfileMysqlProfile(d.Get("mysql_profile"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("mysql_profile"); !isEmptyValue(reflect.ValueOf(mysqlProfileProp)) && (ok || !reflect.DeepEqual(v, mysqlProfileProp)) {
+	} else if v, ok := d.GetOkExists("mysql_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(mysqlProfileProp)) && (ok || !reflect.DeepEqual(v, mysqlProfileProp)) {
 		obj["mysqlProfile"] = mysqlProfileProp
 	}
 	bigqueryProfileProp, err := expandDatastreamConnectionProfileBigqueryProfile(d.Get("bigquery_profile"), d, config)
@@ -388,23 +389,23 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 	postgresqlProfileProp, err := expandDatastreamConnectionProfilePostgresqlProfile(d.Get("postgresql_profile"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("postgresql_profile"); !isEmptyValue(reflect.ValueOf(postgresqlProfileProp)) && (ok || !reflect.DeepEqual(v, postgresqlProfileProp)) {
+	} else if v, ok := d.GetOkExists("postgresql_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(postgresqlProfileProp)) && (ok || !reflect.DeepEqual(v, postgresqlProfileProp)) {
 		obj["postgresqlProfile"] = postgresqlProfileProp
 	}
 	forwardSshConnectivityProp, err := expandDatastreamConnectionProfileForwardSshConnectivity(d.Get("forward_ssh_connectivity"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("forward_ssh_connectivity"); !isEmptyValue(reflect.ValueOf(forwardSshConnectivityProp)) && (ok || !reflect.DeepEqual(v, forwardSshConnectivityProp)) {
+	} else if v, ok := d.GetOkExists("forward_ssh_connectivity"); !tpgresource.IsEmptyValue(reflect.ValueOf(forwardSshConnectivityProp)) && (ok || !reflect.DeepEqual(v, forwardSshConnectivityProp)) {
 		obj["forwardSshConnectivity"] = forwardSshConnectivityProp
 	}
 	privateConnectivityProp, err := expandDatastreamConnectionProfilePrivateConnectivity(d.Get("private_connectivity"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("private_connectivity"); !isEmptyValue(reflect.ValueOf(privateConnectivityProp)) && (ok || !reflect.DeepEqual(v, privateConnectivityProp)) {
+	} else if v, ok := d.GetOkExists("private_connectivity"); !tpgresource.IsEmptyValue(reflect.ValueOf(privateConnectivityProp)) && (ok || !reflect.DeepEqual(v, privateConnectivityProp)) {
 		obj["privateConnectivity"] = privateConnectivityProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles?connectionProfileId={{connection_profile_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles?connectionProfileId={{connection_profile_id}}")
 	if err != nil {
 		return err
 	}
@@ -412,14 +413,14 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 	log.Printf("[DEBUG] Creating new ConnectionProfile: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for ConnectionProfile: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -429,7 +430,7 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -453,7 +454,7 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
+	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -466,26 +467,26 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 
 func resourceDatastreamConnectionProfileRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for ConnectionProfile: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -534,14 +535,14 @@ func resourceDatastreamConnectionProfileRead(d *schema.ResourceData, meta interf
 
 func resourceDatastreamConnectionProfileUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for ConnectionProfile: %s", err)
 	}
@@ -551,31 +552,31 @@ func resourceDatastreamConnectionProfileUpdate(d *schema.ResourceData, meta inte
 	labelsProp, err := expandDatastreamConnectionProfileLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	displayNameProp, err := expandDatastreamConnectionProfileDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	oracleProfileProp, err := expandDatastreamConnectionProfileOracleProfile(d.Get("oracle_profile"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("oracle_profile"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, oracleProfileProp)) {
+	} else if v, ok := d.GetOkExists("oracle_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, oracleProfileProp)) {
 		obj["oracleProfile"] = oracleProfileProp
 	}
 	gcsProfileProp, err := expandDatastreamConnectionProfileGcsProfile(d.Get("gcs_profile"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("gcs_profile"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, gcsProfileProp)) {
+	} else if v, ok := d.GetOkExists("gcs_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, gcsProfileProp)) {
 		obj["gcsProfile"] = gcsProfileProp
 	}
 	mysqlProfileProp, err := expandDatastreamConnectionProfileMysqlProfile(d.Get("mysql_profile"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("mysql_profile"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, mysqlProfileProp)) {
+	} else if v, ok := d.GetOkExists("mysql_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, mysqlProfileProp)) {
 		obj["mysqlProfile"] = mysqlProfileProp
 	}
 	bigqueryProfileProp, err := expandDatastreamConnectionProfileBigqueryProfile(d.Get("bigquery_profile"), d, config)
@@ -587,23 +588,23 @@ func resourceDatastreamConnectionProfileUpdate(d *schema.ResourceData, meta inte
 	postgresqlProfileProp, err := expandDatastreamConnectionProfilePostgresqlProfile(d.Get("postgresql_profile"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("postgresql_profile"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, postgresqlProfileProp)) {
+	} else if v, ok := d.GetOkExists("postgresql_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, postgresqlProfileProp)) {
 		obj["postgresqlProfile"] = postgresqlProfileProp
 	}
 	forwardSshConnectivityProp, err := expandDatastreamConnectionProfileForwardSshConnectivity(d.Get("forward_ssh_connectivity"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("forward_ssh_connectivity"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, forwardSshConnectivityProp)) {
+	} else if v, ok := d.GetOkExists("forward_ssh_connectivity"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, forwardSshConnectivityProp)) {
 		obj["forwardSshConnectivity"] = forwardSshConnectivityProp
 	}
 	privateConnectivityProp, err := expandDatastreamConnectionProfilePrivateConnectivity(d.Get("private_connectivity"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("private_connectivity"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, privateConnectivityProp)) {
+	} else if v, ok := d.GetOkExists("private_connectivity"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, privateConnectivityProp)) {
 		obj["privateConnectivity"] = privateConnectivityProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
 	if err != nil {
 		return err
 	}
@@ -654,7 +655,7 @@ func resourceDatastreamConnectionProfileUpdate(d *schema.ResourceData, meta inte
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -679,20 +680,20 @@ func resourceDatastreamConnectionProfileUpdate(d *schema.ResourceData, meta inte
 
 func resourceDatastreamConnectionProfileDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for ConnectionProfile: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
 	if err != nil {
 		return err
 	}
@@ -701,7 +702,7 @@ func resourceDatastreamConnectionProfileDelete(d *schema.ResourceData, meta inte
 	log.Printf("[DEBUG] Deleting ConnectionProfile %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -733,7 +734,7 @@ func resourceDatastreamConnectionProfileImport(d *schema.ResourceData, meta inte
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1068,7 +1069,7 @@ func flattenDatastreamConnectionProfilePrivateConnectivityPrivateConnection(v in
 	return v
 }
 
-func expandDatastreamConnectionProfileLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandDatastreamConnectionProfileLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -1079,11 +1080,11 @@ func expandDatastreamConnectionProfileLabels(v interface{}, d TerraformResourceD
 	return m, nil
 }
 
-func expandDatastreamConnectionProfileDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileOracleProfile(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileOracleProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1095,69 +1096,69 @@ func expandDatastreamConnectionProfileOracleProfile(v interface{}, d TerraformRe
 	transformedHostname, err := expandDatastreamConnectionProfileOracleProfileHostname(original["hostname"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedHostname); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedHostname); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["hostname"] = transformedHostname
 	}
 
 	transformedPort, err := expandDatastreamConnectionProfileOracleProfilePort(original["port"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["port"] = transformedPort
 	}
 
 	transformedUsername, err := expandDatastreamConnectionProfileOracleProfileUsername(original["username"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedUsername); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedUsername); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["username"] = transformedUsername
 	}
 
 	transformedPassword, err := expandDatastreamConnectionProfileOracleProfilePassword(original["password"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPassword); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPassword); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["password"] = transformedPassword
 	}
 
 	transformedDatabaseService, err := expandDatastreamConnectionProfileOracleProfileDatabaseService(original["database_service"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDatabaseService); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDatabaseService); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["databaseService"] = transformedDatabaseService
 	}
 
 	transformedConnectionAttributes, err := expandDatastreamConnectionProfileOracleProfileConnectionAttributes(original["connection_attributes"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedConnectionAttributes); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedConnectionAttributes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["connectionAttributes"] = transformedConnectionAttributes
 	}
 
 	return transformed, nil
 }
 
-func expandDatastreamConnectionProfileOracleProfileHostname(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileOracleProfileHostname(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileOracleProfilePort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileOracleProfilePort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileOracleProfileUsername(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileOracleProfileUsername(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileOracleProfilePassword(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileOracleProfilePassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileOracleProfileDatabaseService(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileOracleProfileDatabaseService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileOracleProfileConnectionAttributes(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandDatastreamConnectionProfileOracleProfileConnectionAttributes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -1168,7 +1169,7 @@ func expandDatastreamConnectionProfileOracleProfileConnectionAttributes(v interf
 	return m, nil
 }
 
-func expandDatastreamConnectionProfileGcsProfile(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileGcsProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1180,29 +1181,29 @@ func expandDatastreamConnectionProfileGcsProfile(v interface{}, d TerraformResou
 	transformedBucket, err := expandDatastreamConnectionProfileGcsProfileBucket(original["bucket"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedBucket); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedBucket); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["bucket"] = transformedBucket
 	}
 
 	transformedRootPath, err := expandDatastreamConnectionProfileGcsProfileRootPath(original["root_path"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedRootPath); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedRootPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["rootPath"] = transformedRootPath
 	}
 
 	return transformed, nil
 }
 
-func expandDatastreamConnectionProfileGcsProfileBucket(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileGcsProfileBucket(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileGcsProfileRootPath(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileGcsProfileRootPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfile(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1214,58 +1215,58 @@ func expandDatastreamConnectionProfileMysqlProfile(v interface{}, d TerraformRes
 	transformedHostname, err := expandDatastreamConnectionProfileMysqlProfileHostname(original["hostname"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedHostname); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedHostname); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["hostname"] = transformedHostname
 	}
 
 	transformedPort, err := expandDatastreamConnectionProfileMysqlProfilePort(original["port"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["port"] = transformedPort
 	}
 
 	transformedUsername, err := expandDatastreamConnectionProfileMysqlProfileUsername(original["username"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedUsername); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedUsername); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["username"] = transformedUsername
 	}
 
 	transformedPassword, err := expandDatastreamConnectionProfileMysqlProfilePassword(original["password"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPassword); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPassword); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["password"] = transformedPassword
 	}
 
 	transformedSslConfig, err := expandDatastreamConnectionProfileMysqlProfileSslConfig(original["ssl_config"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSslConfig); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSslConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["sslConfig"] = transformedSslConfig
 	}
 
 	return transformed, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileHostname(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileHostname(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfilePort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfilePort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileUsername(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileUsername(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfilePassword(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfilePassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileSslConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileSslConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1277,73 +1278,73 @@ func expandDatastreamConnectionProfileMysqlProfileSslConfig(v interface{}, d Ter
 	transformedClientKey, err := expandDatastreamConnectionProfileMysqlProfileSslConfigClientKey(original["client_key"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedClientKey); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedClientKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["clientKey"] = transformedClientKey
 	}
 
 	transformedClientKeySet, err := expandDatastreamConnectionProfileMysqlProfileSslConfigClientKeySet(original["client_key_set"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedClientKeySet); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedClientKeySet); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["clientKeySet"] = transformedClientKeySet
 	}
 
 	transformedClientCertificate, err := expandDatastreamConnectionProfileMysqlProfileSslConfigClientCertificate(original["client_certificate"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedClientCertificate); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedClientCertificate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["clientCertificate"] = transformedClientCertificate
 	}
 
 	transformedClientCertificateSet, err := expandDatastreamConnectionProfileMysqlProfileSslConfigClientCertificateSet(original["client_certificate_set"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedClientCertificateSet); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedClientCertificateSet); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["clientCertificateSet"] = transformedClientCertificateSet
 	}
 
 	transformedCaCertificate, err := expandDatastreamConnectionProfileMysqlProfileSslConfigCaCertificate(original["ca_certificate"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCaCertificate); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCaCertificate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["caCertificate"] = transformedCaCertificate
 	}
 
 	transformedCaCertificateSet, err := expandDatastreamConnectionProfileMysqlProfileSslConfigCaCertificateSet(original["ca_certificate_set"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCaCertificateSet); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCaCertificateSet); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["caCertificateSet"] = transformedCaCertificateSet
 	}
 
 	return transformed, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileSslConfigClientKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileSslConfigClientKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileSslConfigClientKeySet(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileSslConfigClientKeySet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileSslConfigClientCertificate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileSslConfigClientCertificate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileSslConfigClientCertificateSet(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileSslConfigClientCertificateSet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileSslConfigCaCertificate(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileSslConfigCaCertificate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileMysqlProfileSslConfigCaCertificateSet(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileMysqlProfileSslConfigCaCertificateSet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileBigqueryProfile(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileBigqueryProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1358,7 +1359,7 @@ func expandDatastreamConnectionProfileBigqueryProfile(v interface{}, d Terraform
 	return transformed, nil
 }
 
-func expandDatastreamConnectionProfilePostgresqlProfile(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfilePostgresqlProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1370,62 +1371,62 @@ func expandDatastreamConnectionProfilePostgresqlProfile(v interface{}, d Terrafo
 	transformedHostname, err := expandDatastreamConnectionProfilePostgresqlProfileHostname(original["hostname"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedHostname); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedHostname); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["hostname"] = transformedHostname
 	}
 
 	transformedPort, err := expandDatastreamConnectionProfilePostgresqlProfilePort(original["port"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["port"] = transformedPort
 	}
 
 	transformedUsername, err := expandDatastreamConnectionProfilePostgresqlProfileUsername(original["username"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedUsername); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedUsername); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["username"] = transformedUsername
 	}
 
 	transformedPassword, err := expandDatastreamConnectionProfilePostgresqlProfilePassword(original["password"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPassword); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPassword); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["password"] = transformedPassword
 	}
 
 	transformedDatabase, err := expandDatastreamConnectionProfilePostgresqlProfileDatabase(original["database"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDatabase); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDatabase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["database"] = transformedDatabase
 	}
 
 	return transformed, nil
 }
 
-func expandDatastreamConnectionProfilePostgresqlProfileHostname(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfilePostgresqlProfileHostname(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfilePostgresqlProfilePort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfilePostgresqlProfilePort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfilePostgresqlProfileUsername(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfilePostgresqlProfileUsername(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfilePostgresqlProfilePassword(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfilePostgresqlProfilePassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfilePostgresqlProfileDatabase(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfilePostgresqlProfileDatabase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileForwardSshConnectivity(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileForwardSshConnectivity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1437,62 +1438,62 @@ func expandDatastreamConnectionProfileForwardSshConnectivity(v interface{}, d Te
 	transformedHostname, err := expandDatastreamConnectionProfileForwardSshConnectivityHostname(original["hostname"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedHostname); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedHostname); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["hostname"] = transformedHostname
 	}
 
 	transformedUsername, err := expandDatastreamConnectionProfileForwardSshConnectivityUsername(original["username"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedUsername); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedUsername); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["username"] = transformedUsername
 	}
 
 	transformedPort, err := expandDatastreamConnectionProfileForwardSshConnectivityPort(original["port"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["port"] = transformedPort
 	}
 
 	transformedPassword, err := expandDatastreamConnectionProfileForwardSshConnectivityPassword(original["password"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPassword); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPassword); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["password"] = transformedPassword
 	}
 
 	transformedPrivateKey, err := expandDatastreamConnectionProfileForwardSshConnectivityPrivateKey(original["private_key"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPrivateKey); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPrivateKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["privateKey"] = transformedPrivateKey
 	}
 
 	return transformed, nil
 }
 
-func expandDatastreamConnectionProfileForwardSshConnectivityHostname(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileForwardSshConnectivityHostname(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileForwardSshConnectivityUsername(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileForwardSshConnectivityUsername(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileForwardSshConnectivityPort(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileForwardSshConnectivityPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileForwardSshConnectivityPassword(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileForwardSshConnectivityPassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfileForwardSshConnectivityPrivateKey(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfileForwardSshConnectivityPrivateKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDatastreamConnectionProfilePrivateConnectivity(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfilePrivateConnectivity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1504,13 +1505,13 @@ func expandDatastreamConnectionProfilePrivateConnectivity(v interface{}, d Terra
 	transformedPrivateConnection, err := expandDatastreamConnectionProfilePrivateConnectivityPrivateConnection(original["private_connection"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedPrivateConnection); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedPrivateConnection); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["privateConnection"] = transformedPrivateConnection
 	}
 
 	return transformed, nil
 }
 
-func expandDatastreamConnectionProfilePrivateConnectivityPrivateConnection(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDatastreamConnectionProfilePrivateConnectivityPrivateConnection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

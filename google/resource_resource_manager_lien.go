@@ -97,7 +97,7 @@ e.g. ['resourcemanager.projects.delete']`,
 
 func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -106,29 +106,29 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	reasonProp, err := expandNestedResourceManagerLienReason(d.Get("reason"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("reason"); !isEmptyValue(reflect.ValueOf(reasonProp)) && (ok || !reflect.DeepEqual(v, reasonProp)) {
+	} else if v, ok := d.GetOkExists("reason"); !tpgresource.IsEmptyValue(reflect.ValueOf(reasonProp)) && (ok || !reflect.DeepEqual(v, reasonProp)) {
 		obj["reason"] = reasonProp
 	}
 	originProp, err := expandNestedResourceManagerLienOrigin(d.Get("origin"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("origin"); !isEmptyValue(reflect.ValueOf(originProp)) && (ok || !reflect.DeepEqual(v, originProp)) {
+	} else if v, ok := d.GetOkExists("origin"); !tpgresource.IsEmptyValue(reflect.ValueOf(originProp)) && (ok || !reflect.DeepEqual(v, originProp)) {
 		obj["origin"] = originProp
 	}
 	parentProp, err := expandNestedResourceManagerLienParent(d.Get("parent"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("parent"); !isEmptyValue(reflect.ValueOf(parentProp)) && (ok || !reflect.DeepEqual(v, parentProp)) {
+	} else if v, ok := d.GetOkExists("parent"); !tpgresource.IsEmptyValue(reflect.ValueOf(parentProp)) && (ok || !reflect.DeepEqual(v, parentProp)) {
 		obj["parent"] = parentProp
 	}
 	restrictionsProp, err := expandNestedResourceManagerLienRestrictions(d.Get("restrictions"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("restrictions"); !isEmptyValue(reflect.ValueOf(restrictionsProp)) && (ok || !reflect.DeepEqual(v, restrictionsProp)) {
+	} else if v, ok := d.GetOkExists("restrictions"); !tpgresource.IsEmptyValue(reflect.ValueOf(restrictionsProp)) && (ok || !reflect.DeepEqual(v, restrictionsProp)) {
 		obj["restrictions"] = restrictionsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{ResourceManagerBasePath}}liens")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ResourceManagerBasePath}}liens")
 	if err != nil {
 		return err
 	}
@@ -137,7 +137,7 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -150,7 +150,7 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -175,12 +175,12 @@ func resourceResourceManagerLienCreate(d *schema.ResourceData, meta interface{})
 
 func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{ResourceManagerBasePath}}liens?parent={{parent}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ResourceManagerBasePath}}liens?parent={{parent}}")
 	if err != nil {
 		return err
 	}
@@ -188,7 +188,7 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -245,14 +245,14 @@ func resourceResourceManagerLienRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	url, err := ReplaceVars(d, config, "{{ResourceManagerBasePath}}liens?parent={{parent}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ResourceManagerBasePath}}liens?parent={{parent}}")
 	if err != nil {
 		return err
 	}
@@ -262,14 +262,14 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 	// in theory, we should find a way to disable the default URL and not construct
 	// both, but that's a problem for another day. Today, we cheat.
 	log.Printf("[DEBUG] replacing URL %q with a custom delete URL", url)
-	url, err = ReplaceVars(d, config, "{{ResourceManagerBasePath}}liens/{{name}}")
+	url, err = tpgresource.ReplaceVars(d, config, "{{ResourceManagerBasePath}}liens/{{name}}")
 	if err != nil {
 		return err
 	}
 	log.Printf("[DEBUG] Deleting Lien %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -291,13 +291,13 @@ func resourceResourceManagerLienImport(d *schema.ResourceData, meta interface{})
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	parent, err := ReplaceVars(d, config, "projects/{{parent}}")
+	parent, err := tpgresource.ReplaceVars(d, config, "projects/{{parent}}")
 	if err != nil {
 		return nil, err
 	}
@@ -335,19 +335,19 @@ func flattenNestedResourceManagerLienRestrictions(v interface{}, d *schema.Resou
 	return v
 }
 
-func expandNestedResourceManagerLienReason(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedResourceManagerLienReason(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedResourceManagerLienOrigin(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedResourceManagerLienOrigin(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedResourceManagerLienParent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedResourceManagerLienParent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedResourceManagerLienRestrictions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedResourceManagerLienRestrictions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -395,8 +395,8 @@ func resourceResourceManagerLienFindNestedObjectInList(d *schema.ResourceData, m
 		}
 
 		itemName := flattenNestedResourceManagerLienName(item["name"], d, meta.(*transport_tpg.Config))
-		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
-		if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
+		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemName)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
 			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedFlattenedName)
 			continue
 		}
@@ -420,7 +420,7 @@ func resourceResourceManagerLienDecoder(d *schema.ResourceData, meta interface{}
 	// 3) the project IDs represented by both the new and old values are the same.
 	config := meta.(*transport_tpg.Config)
 
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return nil, err
 	}

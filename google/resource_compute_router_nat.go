@@ -467,7 +467,7 @@ This field is used for public NAT.`,
 
 func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -476,13 +476,13 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	nameProp, err := expandNestedComputeRouterNatName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	natIpAllocateOptionProp, err := expandNestedComputeRouterNatNatIpAllocateOption(d.Get("nat_ip_allocate_option"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("nat_ip_allocate_option"); !isEmptyValue(reflect.ValueOf(natIpAllocateOptionProp)) && (ok || !reflect.DeepEqual(v, natIpAllocateOptionProp)) {
+	} else if v, ok := d.GetOkExists("nat_ip_allocate_option"); !tpgresource.IsEmptyValue(reflect.ValueOf(natIpAllocateOptionProp)) && (ok || !reflect.DeepEqual(v, natIpAllocateOptionProp)) {
 		obj["natIpAllocateOption"] = natIpAllocateOptionProp
 	}
 	natIpsProp, err := expandNestedComputeRouterNatNatIps(d.Get("nat_ips"), d, config)
@@ -500,7 +500,7 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	sourceSubnetworkIpRangesToNatProp, err := expandNestedComputeRouterNatSourceSubnetworkIpRangesToNat(d.Get("source_subnetwork_ip_ranges_to_nat"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("source_subnetwork_ip_ranges_to_nat"); !isEmptyValue(reflect.ValueOf(sourceSubnetworkIpRangesToNatProp)) && (ok || !reflect.DeepEqual(v, sourceSubnetworkIpRangesToNatProp)) {
+	} else if v, ok := d.GetOkExists("source_subnetwork_ip_ranges_to_nat"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceSubnetworkIpRangesToNatProp)) && (ok || !reflect.DeepEqual(v, sourceSubnetworkIpRangesToNatProp)) {
 		obj["sourceSubnetworkIpRangesToNat"] = sourceSubnetworkIpRangesToNatProp
 	}
 	subnetworksProp, err := expandNestedComputeRouterNatSubnetwork(d.Get("subnetwork"), d, config)
@@ -512,13 +512,13 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	minPortsPerVmProp, err := expandNestedComputeRouterNatMinPortsPerVm(d.Get("min_ports_per_vm"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("min_ports_per_vm"); !isEmptyValue(reflect.ValueOf(minPortsPerVmProp)) && (ok || !reflect.DeepEqual(v, minPortsPerVmProp)) {
+	} else if v, ok := d.GetOkExists("min_ports_per_vm"); !tpgresource.IsEmptyValue(reflect.ValueOf(minPortsPerVmProp)) && (ok || !reflect.DeepEqual(v, minPortsPerVmProp)) {
 		obj["minPortsPerVm"] = minPortsPerVmProp
 	}
 	maxPortsPerVmProp, err := expandNestedComputeRouterNatMaxPortsPerVm(d.Get("max_ports_per_vm"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("max_ports_per_vm"); !isEmptyValue(reflect.ValueOf(maxPortsPerVmProp)) && (ok || !reflect.DeepEqual(v, maxPortsPerVmProp)) {
+	} else if v, ok := d.GetOkExists("max_ports_per_vm"); !tpgresource.IsEmptyValue(reflect.ValueOf(maxPortsPerVmProp)) && (ok || !reflect.DeepEqual(v, maxPortsPerVmProp)) {
 		obj["maxPortsPerVm"] = maxPortsPerVmProp
 	}
 	enableDynamicPortAllocationProp, err := expandNestedComputeRouterNatEnableDynamicPortAllocation(d.Get("enable_dynamic_port_allocation"), d, config)
@@ -530,31 +530,31 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	udpIdleTimeoutSecProp, err := expandNestedComputeRouterNatUdpIdleTimeoutSec(d.Get("udp_idle_timeout_sec"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("udp_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(udpIdleTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, udpIdleTimeoutSecProp)) {
+	} else if v, ok := d.GetOkExists("udp_idle_timeout_sec"); !tpgresource.IsEmptyValue(reflect.ValueOf(udpIdleTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, udpIdleTimeoutSecProp)) {
 		obj["udpIdleTimeoutSec"] = udpIdleTimeoutSecProp
 	}
 	icmpIdleTimeoutSecProp, err := expandNestedComputeRouterNatIcmpIdleTimeoutSec(d.Get("icmp_idle_timeout_sec"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("icmp_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(icmpIdleTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, icmpIdleTimeoutSecProp)) {
+	} else if v, ok := d.GetOkExists("icmp_idle_timeout_sec"); !tpgresource.IsEmptyValue(reflect.ValueOf(icmpIdleTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, icmpIdleTimeoutSecProp)) {
 		obj["icmpIdleTimeoutSec"] = icmpIdleTimeoutSecProp
 	}
 	tcpEstablishedIdleTimeoutSecProp, err := expandNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(d.Get("tcp_established_idle_timeout_sec"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("tcp_established_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(tcpEstablishedIdleTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, tcpEstablishedIdleTimeoutSecProp)) {
+	} else if v, ok := d.GetOkExists("tcp_established_idle_timeout_sec"); !tpgresource.IsEmptyValue(reflect.ValueOf(tcpEstablishedIdleTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, tcpEstablishedIdleTimeoutSecProp)) {
 		obj["tcpEstablishedIdleTimeoutSec"] = tcpEstablishedIdleTimeoutSecProp
 	}
 	tcpTransitoryIdleTimeoutSecProp, err := expandNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(d.Get("tcp_transitory_idle_timeout_sec"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("tcp_transitory_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(tcpTransitoryIdleTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, tcpTransitoryIdleTimeoutSecProp)) {
+	} else if v, ok := d.GetOkExists("tcp_transitory_idle_timeout_sec"); !tpgresource.IsEmptyValue(reflect.ValueOf(tcpTransitoryIdleTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, tcpTransitoryIdleTimeoutSecProp)) {
 		obj["tcpTransitoryIdleTimeoutSec"] = tcpTransitoryIdleTimeoutSecProp
 	}
 	tcpTimeWaitTimeoutSecProp, err := expandNestedComputeRouterNatTcpTimeWaitTimeoutSec(d.Get("tcp_time_wait_timeout_sec"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("tcp_time_wait_timeout_sec"); !isEmptyValue(reflect.ValueOf(tcpTimeWaitTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, tcpTimeWaitTimeoutSecProp)) {
+	} else if v, ok := d.GetOkExists("tcp_time_wait_timeout_sec"); !tpgresource.IsEmptyValue(reflect.ValueOf(tcpTimeWaitTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, tcpTimeWaitTimeoutSecProp)) {
 		obj["tcpTimeWaitTimeoutSec"] = tcpTimeWaitTimeoutSecProp
 	}
 	logConfigProp, err := expandNestedComputeRouterNatLogConfig(d.Get("log_config"), d, config)
@@ -576,14 +576,14 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 		obj["enableEndpointIndependentMapping"] = enableEndpointIndependentMappingProp
 	}
 
-	lockName, err := ReplaceVars(d, config, "router/{{region}}/{{router}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "router/{{region}}/{{router}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
 	if err != nil {
 		return err
 	}
@@ -596,14 +596,14 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for RouterNat: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -613,7 +613,7 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{project}}/{{region}}/{{router}}/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{project}}/{{region}}/{{router}}/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -636,26 +636,26 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for RouterNat: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -737,14 +737,14 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for RouterNat: %s", err)
 	}
@@ -754,7 +754,7 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 	natIpAllocateOptionProp, err := expandNestedComputeRouterNatNatIpAllocateOption(d.Get("nat_ip_allocate_option"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("nat_ip_allocate_option"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, natIpAllocateOptionProp)) {
+	} else if v, ok := d.GetOkExists("nat_ip_allocate_option"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, natIpAllocateOptionProp)) {
 		obj["natIpAllocateOption"] = natIpAllocateOptionProp
 	}
 	natIpsProp, err := expandNestedComputeRouterNatNatIps(d.Get("nat_ips"), d, config)
@@ -772,7 +772,7 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 	sourceSubnetworkIpRangesToNatProp, err := expandNestedComputeRouterNatSourceSubnetworkIpRangesToNat(d.Get("source_subnetwork_ip_ranges_to_nat"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("source_subnetwork_ip_ranges_to_nat"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceSubnetworkIpRangesToNatProp)) {
+	} else if v, ok := d.GetOkExists("source_subnetwork_ip_ranges_to_nat"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceSubnetworkIpRangesToNatProp)) {
 		obj["sourceSubnetworkIpRangesToNat"] = sourceSubnetworkIpRangesToNatProp
 	}
 	subnetworksProp, err := expandNestedComputeRouterNatSubnetwork(d.Get("subnetwork"), d, config)
@@ -784,13 +784,13 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 	minPortsPerVmProp, err := expandNestedComputeRouterNatMinPortsPerVm(d.Get("min_ports_per_vm"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("min_ports_per_vm"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, minPortsPerVmProp)) {
+	} else if v, ok := d.GetOkExists("min_ports_per_vm"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, minPortsPerVmProp)) {
 		obj["minPortsPerVm"] = minPortsPerVmProp
 	}
 	maxPortsPerVmProp, err := expandNestedComputeRouterNatMaxPortsPerVm(d.Get("max_ports_per_vm"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("max_ports_per_vm"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maxPortsPerVmProp)) {
+	} else if v, ok := d.GetOkExists("max_ports_per_vm"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maxPortsPerVmProp)) {
 		obj["maxPortsPerVm"] = maxPortsPerVmProp
 	}
 	enableDynamicPortAllocationProp, err := expandNestedComputeRouterNatEnableDynamicPortAllocation(d.Get("enable_dynamic_port_allocation"), d, config)
@@ -802,31 +802,31 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 	udpIdleTimeoutSecProp, err := expandNestedComputeRouterNatUdpIdleTimeoutSec(d.Get("udp_idle_timeout_sec"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("udp_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, udpIdleTimeoutSecProp)) {
+	} else if v, ok := d.GetOkExists("udp_idle_timeout_sec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, udpIdleTimeoutSecProp)) {
 		obj["udpIdleTimeoutSec"] = udpIdleTimeoutSecProp
 	}
 	icmpIdleTimeoutSecProp, err := expandNestedComputeRouterNatIcmpIdleTimeoutSec(d.Get("icmp_idle_timeout_sec"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("icmp_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, icmpIdleTimeoutSecProp)) {
+	} else if v, ok := d.GetOkExists("icmp_idle_timeout_sec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, icmpIdleTimeoutSecProp)) {
 		obj["icmpIdleTimeoutSec"] = icmpIdleTimeoutSecProp
 	}
 	tcpEstablishedIdleTimeoutSecProp, err := expandNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(d.Get("tcp_established_idle_timeout_sec"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("tcp_established_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tcpEstablishedIdleTimeoutSecProp)) {
+	} else if v, ok := d.GetOkExists("tcp_established_idle_timeout_sec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tcpEstablishedIdleTimeoutSecProp)) {
 		obj["tcpEstablishedIdleTimeoutSec"] = tcpEstablishedIdleTimeoutSecProp
 	}
 	tcpTransitoryIdleTimeoutSecProp, err := expandNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(d.Get("tcp_transitory_idle_timeout_sec"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("tcp_transitory_idle_timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tcpTransitoryIdleTimeoutSecProp)) {
+	} else if v, ok := d.GetOkExists("tcp_transitory_idle_timeout_sec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tcpTransitoryIdleTimeoutSecProp)) {
 		obj["tcpTransitoryIdleTimeoutSec"] = tcpTransitoryIdleTimeoutSecProp
 	}
 	tcpTimeWaitTimeoutSecProp, err := expandNestedComputeRouterNatTcpTimeWaitTimeoutSec(d.Get("tcp_time_wait_timeout_sec"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("tcp_time_wait_timeout_sec"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tcpTimeWaitTimeoutSecProp)) {
+	} else if v, ok := d.GetOkExists("tcp_time_wait_timeout_sec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tcpTimeWaitTimeoutSecProp)) {
 		obj["tcpTimeWaitTimeoutSec"] = tcpTimeWaitTimeoutSecProp
 	}
 	logConfigProp, err := expandNestedComputeRouterNatLogConfig(d.Get("log_config"), d, config)
@@ -848,14 +848,14 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 		obj["enableEndpointIndependentMapping"] = enableEndpointIndependentMappingProp
 	}
 
-	lockName, err := ReplaceVars(d, config, "router/{{region}}/{{router}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "router/{{region}}/{{router}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
 	if err != nil {
 		return err
 	}
@@ -868,7 +868,7 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -893,27 +893,27 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for RouterNat: %s", err)
 	}
 	billingProject = project
 
-	lockName, err := ReplaceVars(d, config, "router/{{region}}/{{router}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "router/{{region}}/{{router}}")
 	if err != nil {
 		return err
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
 	if err != nil {
 		return err
 	}
@@ -927,7 +927,7 @@ func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Deleting RouterNat %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -960,7 +960,7 @@ func resourceComputeRouterNatImport(d *schema.ResourceData, meta interface{}) ([
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "{{project}}/{{region}}/{{router}}/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{project}}/{{region}}/{{router}}/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1075,7 +1075,7 @@ func flattenNestedComputeRouterNatEnableDynamicPortAllocation(v interface{}, d *
 }
 
 func flattenNestedComputeRouterNatUdpIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+	if v == nil || tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
 		return 30
 	}
 	// Handles the string fixed64 format
@@ -1089,7 +1089,7 @@ func flattenNestedComputeRouterNatUdpIdleTimeoutSec(v interface{}, d *schema.Res
 }
 
 func flattenNestedComputeRouterNatIcmpIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+	if v == nil || tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
 		return 30
 	}
 	// Handles the string fixed64 format
@@ -1103,7 +1103,7 @@ func flattenNestedComputeRouterNatIcmpIdleTimeoutSec(v interface{}, d *schema.Re
 }
 
 func flattenNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+	if v == nil || tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
 		return 1200
 	}
 	// Handles the string fixed64 format
@@ -1117,7 +1117,7 @@ func flattenNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(v interface{}, d 
 }
 
 func flattenNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+	if v == nil || tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
 		return 30
 	}
 	// Handles the string fixed64 format
@@ -1131,7 +1131,7 @@ func flattenNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d *
 }
 
 func flattenNestedComputeRouterNatTcpTimeWaitTimeoutSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil || isEmptyValue(reflect.ValueOf(v)) {
+	if v == nil || tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
 		return 120
 	}
 	// Handles the string fixed64 format
@@ -1246,15 +1246,15 @@ func flattenNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}
 	return v
 }
 
-func expandNestedComputeRouterNatName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatNatIpAllocateOption(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatNatIpAllocateOption(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatNatIps(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatNatIps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -1262,7 +1262,7 @@ func expandNestedComputeRouterNatNatIps(v interface{}, d TerraformResourceData, 
 		if raw == nil {
 			return nil, fmt.Errorf("Invalid value for nat_ips: nil")
 		}
-		f, err := parseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
+		f, err := tpgresource.ParseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
 		if err != nil {
 			return nil, fmt.Errorf("Invalid value for nat_ips: %s", err)
 		}
@@ -1271,7 +1271,7 @@ func expandNestedComputeRouterNatNatIps(v interface{}, d TerraformResourceData, 
 	return req, nil
 }
 
-func expandNestedComputeRouterNatDrainNatIps(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatDrainNatIps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -1279,7 +1279,7 @@ func expandNestedComputeRouterNatDrainNatIps(v interface{}, d TerraformResourceD
 		if raw == nil {
 			return nil, fmt.Errorf("Invalid value for drain_nat_ips: nil")
 		}
-		f, err := parseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
+		f, err := tpgresource.ParseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
 		if err != nil {
 			return nil, fmt.Errorf("Invalid value for drain_nat_ips: %s", err)
 		}
@@ -1288,11 +1288,11 @@ func expandNestedComputeRouterNatDrainNatIps(v interface{}, d TerraformResourceD
 	return req, nil
 }
 
-func expandNestedComputeRouterNatSourceSubnetworkIpRangesToNat(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatSourceSubnetworkIpRangesToNat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatSubnetwork(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatSubnetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -1306,21 +1306,21 @@ func expandNestedComputeRouterNatSubnetwork(v interface{}, d TerraformResourceDa
 		transformedName, err := expandNestedComputeRouterNatSubnetworkName(original["name"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["name"] = transformedName
 		}
 
 		transformedSourceIpRangesToNat, err := expandNestedComputeRouterNatSubnetworkSourceIpRangesToNat(original["source_ip_ranges_to_nat"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedSourceIpRangesToNat); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedSourceIpRangesToNat); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["sourceIpRangesToNat"] = transformedSourceIpRangesToNat
 		}
 
 		transformedSecondaryIpRangeNames, err := expandNestedComputeRouterNatSubnetworkSecondaryIpRangeNames(original["secondary_ip_range_names"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedSecondaryIpRangeNames); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedSecondaryIpRangeNames); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["secondaryIpRangeNames"] = transformedSecondaryIpRangeNames
 		}
 
@@ -1329,57 +1329,57 @@ func expandNestedComputeRouterNatSubnetwork(v interface{}, d TerraformResourceDa
 	return req, nil
 }
 
-func expandNestedComputeRouterNatSubnetworkName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	f, err := parseRegionalFieldValue("subnetworks", v.(string), "project", "region", "zone", d, config, true)
+func expandNestedComputeRouterNatSubnetworkName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	f, err := tpgresource.ParseRegionalFieldValue("subnetworks", v.(string), "project", "region", "zone", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for name: %s", err)
 	}
 	return f.RelativeLink(), nil
 }
 
-func expandNestedComputeRouterNatSubnetworkSourceIpRangesToNat(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatSubnetworkSourceIpRangesToNat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandNestedComputeRouterNatSubnetworkSecondaryIpRangeNames(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatSubnetworkSecondaryIpRangeNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandNestedComputeRouterNatMinPortsPerVm(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatMinPortsPerVm(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatMaxPortsPerVm(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatMaxPortsPerVm(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatEnableDynamicPortAllocation(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatEnableDynamicPortAllocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatUdpIdleTimeoutSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatUdpIdleTimeoutSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatIcmpIdleTimeoutSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatIcmpIdleTimeoutSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatTcpEstablishedIdleTimeoutSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatTcpTransitoryIdleTimeoutSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatTcpTimeWaitTimeoutSec(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatTcpTimeWaitTimeoutSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatLogConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatLogConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1391,29 +1391,29 @@ func expandNestedComputeRouterNatLogConfig(v interface{}, d TerraformResourceDat
 	transformedEnable, err := expandNestedComputeRouterNatLogConfigEnable(original["enable"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedEnable); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedEnable); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["enable"] = transformedEnable
 	}
 
 	transformedFilter, err := expandNestedComputeRouterNatLogConfigFilter(original["filter"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedFilter); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedFilter); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["filter"] = transformedFilter
 	}
 
 	return transformed, nil
 }
 
-func expandNestedComputeRouterNatLogConfigEnable(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatLogConfigEnable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatLogConfigFilter(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatLogConfigFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatRules(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -1434,21 +1434,21 @@ func expandNestedComputeRouterNatRules(v interface{}, d TerraformResourceData, c
 		transformedDescription, err := expandNestedComputeRouterNatRulesDescription(original["description"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["description"] = transformedDescription
 		}
 
 		transformedMatch, err := expandNestedComputeRouterNatRulesMatch(original["match"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedMatch); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedMatch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["match"] = transformedMatch
 		}
 
 		transformedAction, err := expandNestedComputeRouterNatRulesAction(original["action"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedAction); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedAction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["action"] = transformedAction
 		}
 
@@ -1457,19 +1457,19 @@ func expandNestedComputeRouterNatRules(v interface{}, d TerraformResourceData, c
 	return req, nil
 }
 
-func expandNestedComputeRouterNatRulesRuleNumber(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatRulesRuleNumber(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatRulesDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatRulesDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatRulesMatch(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatRulesMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedComputeRouterNatRulesAction(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatRulesAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1481,21 +1481,21 @@ func expandNestedComputeRouterNatRulesAction(v interface{}, d TerraformResourceD
 	transformedSourceNatActiveIps, err := expandNestedComputeRouterNatRulesActionSourceNatActiveIps(original["source_nat_active_ips"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSourceNatActiveIps); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSourceNatActiveIps); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["sourceNatActiveIps"] = transformedSourceNatActiveIps
 	}
 
 	transformedSourceNatDrainIps, err := expandNestedComputeRouterNatRulesActionSourceNatDrainIps(original["source_nat_drain_ips"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSourceNatDrainIps); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSourceNatDrainIps); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["sourceNatDrainIps"] = transformedSourceNatDrainIps
 	}
 
 	return transformed, nil
 }
 
-func expandNestedComputeRouterNatRulesActionSourceNatActiveIps(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatRulesActionSourceNatActiveIps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -1503,7 +1503,7 @@ func expandNestedComputeRouterNatRulesActionSourceNatActiveIps(v interface{}, d 
 		if raw == nil {
 			return nil, fmt.Errorf("Invalid value for source_nat_active_ips: nil")
 		}
-		f, err := parseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
+		f, err := tpgresource.ParseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
 		if err != nil {
 			return nil, fmt.Errorf("Invalid value for source_nat_active_ips: %s", err)
 		}
@@ -1512,7 +1512,7 @@ func expandNestedComputeRouterNatRulesActionSourceNatActiveIps(v interface{}, d 
 	return req, nil
 }
 
-func expandNestedComputeRouterNatRulesActionSourceNatDrainIps(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatRulesActionSourceNatDrainIps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -1520,7 +1520,7 @@ func expandNestedComputeRouterNatRulesActionSourceNatDrainIps(v interface{}, d T
 		if raw == nil {
 			return nil, fmt.Errorf("Invalid value for source_nat_drain_ips: nil")
 		}
-		f, err := parseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
+		f, err := tpgresource.ParseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
 		if err != nil {
 			return nil, fmt.Errorf("Invalid value for source_nat_drain_ips: %s", err)
 		}
@@ -1529,7 +1529,7 @@ func expandNestedComputeRouterNatRulesActionSourceNatDrainIps(v interface{}, d T
 	return req, nil
 }
 
-func expandNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1574,8 +1574,8 @@ func resourceComputeRouterNatFindNestedObjectInList(d *schema.ResourceData, meta
 		item := itemRaw.(map[string]interface{})
 
 		itemName := flattenNestedComputeRouterNatName(item["name"], d, meta.(*transport_tpg.Config))
-		// isEmptyValue check so that if one is nil and the other is "", that's considered a match
-		if !(isEmptyValue(reflect.ValueOf(itemName)) && isEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
+		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemName)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedFlattenedName))) && !reflect.DeepEqual(itemName, expectedFlattenedName) {
 			log.Printf("[DEBUG] Skipping item with name= %#v, looking for %#v)", itemName, expectedFlattenedName)
 			continue
 		}
@@ -1672,16 +1672,16 @@ func resourceComputeRouterNatPatchDeleteEncoder(d *schema.ResourceData, meta int
 // extracting list of objects.
 func resourceComputeRouterNatListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
 	config := meta.(*transport_tpg.Config)
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers/{{router}}")
 	if err != nil {
 		return nil, err
 	}
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return nil, err
 	}
 
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return nil, err
 	}

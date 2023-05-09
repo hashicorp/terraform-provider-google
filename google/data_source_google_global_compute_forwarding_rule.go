@@ -28,7 +28,7 @@ func dataSourceGoogleComputeGlobalForwardingRuleRead(d *schema.ResourceData, met
 
 	name := d.Get("name").(string)
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}

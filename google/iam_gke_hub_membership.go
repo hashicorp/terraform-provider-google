@@ -43,11 +43,11 @@ var GKEHubMembershipIamSchema = map[string]*schema.Schema{
 type GKEHubMembershipIamUpdater struct {
 	project      string
 	membershipId string
-	d            TerraformResourceData
+	d            tpgresource.TerraformResourceData
 	Config       *transport_tpg.Config
 }
 
-func GKEHubMembershipIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func GKEHubMembershipIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)
@@ -124,13 +124,13 @@ func (u *GKEHubMembershipIamUpdater) GetResourceIamPolicy() (*cloudresourcemanag
 		return nil, err
 	}
 
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
 	var obj map[string]interface{}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -162,12 +162,12 @@ func (u *GKEHubMembershipIamUpdater) SetResourceIamPolicy(policy *cloudresourcem
 	if err != nil {
 		return err
 	}
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -182,7 +182,7 @@ func (u *GKEHubMembershipIamUpdater) SetResourceIamPolicy(policy *cloudresourcem
 
 func (u *GKEHubMembershipIamUpdater) qualifyMembershipUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{GKEHubBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/global/memberships/%s", u.project, u.membershipId), methodIdentifier)
-	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
+	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

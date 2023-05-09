@@ -27,18 +27,18 @@ func DataSourceGoogleComputeRegionNetworkEndpointGroup() *schema.Resource {
 func dataSourceComputeRegionNetworkEndpointGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	if name, ok := d.GetOk("name"); ok {
-		project, err := getProject(d, config)
+		project, err := tpgresource.GetProject(d, config)
 		if err != nil {
 			return err
 		}
-		region, err := getRegion(d, config)
+		region, err := tpgresource.GetRegion(d, config)
 		if err != nil {
 			return err
 		}
 
 		d.SetId(fmt.Sprintf("projects/%s/regions/%s/networkEndpointGroups/%s", project, region, name.(string)))
 	} else if selfLink, ok := d.GetOk("self_link"); ok {
-		parsed, err := ParseNetworkEndpointGroupRegionalFieldValue(selfLink.(string), d, config)
+		parsed, err := tpgresource.ParseNetworkEndpointGroupRegionalFieldValue(selfLink.(string), d, config)
 		if err != nil {
 			return err
 		}

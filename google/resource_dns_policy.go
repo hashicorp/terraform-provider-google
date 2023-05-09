@@ -165,7 +165,7 @@ This should be formatted like 'projects/{project}/global/networks/{network}' or
 
 func resourceDNSPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -174,13 +174,13 @@ func resourceDNSPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	alternativeNameServerConfigProp, err := expandDNSPolicyAlternativeNameServerConfig(d.Get("alternative_name_server_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("alternative_name_server_config"); !isEmptyValue(reflect.ValueOf(alternativeNameServerConfigProp)) && (ok || !reflect.DeepEqual(v, alternativeNameServerConfigProp)) {
+	} else if v, ok := d.GetOkExists("alternative_name_server_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(alternativeNameServerConfigProp)) && (ok || !reflect.DeepEqual(v, alternativeNameServerConfigProp)) {
 		obj["alternativeNameServerConfig"] = alternativeNameServerConfigProp
 	}
 	descriptionProp, err := expandDNSPolicyDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	enableInboundForwardingProp, err := expandDNSPolicyEnableInboundForwarding(d.Get("enable_inbound_forwarding"), d, config)
@@ -198,17 +198,17 @@ func resourceDNSPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	nameProp, err := expandDNSPolicyName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	networksProp, err := expandDNSPolicyNetworks(d.Get("networks"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("networks"); !isEmptyValue(reflect.ValueOf(networksProp)) && (ok || !reflect.DeepEqual(v, networksProp)) {
+	} else if v, ok := d.GetOkExists("networks"); !tpgresource.IsEmptyValue(reflect.ValueOf(networksProp)) && (ok || !reflect.DeepEqual(v, networksProp)) {
 		obj["networks"] = networksProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies")
 	if err != nil {
 		return err
 	}
@@ -216,14 +216,14 @@ func resourceDNSPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating new Policy: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Policy: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -233,7 +233,7 @@ func resourceDNSPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/policies/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/policies/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -246,26 +246,26 @@ func resourceDNSPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDNSPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Policy: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -302,14 +302,14 @@ func resourceDNSPolicyRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDNSPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Policy: %s", err)
 	}
@@ -323,13 +323,13 @@ func resourceDNSPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 		alternativeNameServerConfigProp, err := expandDNSPolicyAlternativeNameServerConfig(d.Get("alternative_name_server_config"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("alternative_name_server_config"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, alternativeNameServerConfigProp)) {
+		} else if v, ok := d.GetOkExists("alternative_name_server_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, alternativeNameServerConfigProp)) {
 			obj["alternativeNameServerConfig"] = alternativeNameServerConfigProp
 		}
 		descriptionProp, err := expandDNSPolicyDescription(d.Get("description"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 			obj["description"] = descriptionProp
 		}
 		enableInboundForwardingProp, err := expandDNSPolicyEnableInboundForwarding(d.Get("enable_inbound_forwarding"), d, config)
@@ -347,17 +347,17 @@ func resourceDNSPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 		networksProp, err := expandDNSPolicyNetworks(d.Get("networks"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("networks"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networksProp)) {
+		} else if v, ok := d.GetOkExists("networks"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networksProp)) {
 			obj["networks"] = networksProp
 		}
 
-		url, err := ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
+		url, err := tpgresource.ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
 		if err != nil {
 			return err
 		}
 
 		// err == nil indicates that the billing_project value was found
-		if bp, err := getBillingProject(d, config); err == nil {
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 			billingProject = bp
 		}
 
@@ -377,20 +377,20 @@ func resourceDNSPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDNSPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Policy: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -401,7 +401,7 @@ func resourceDNSPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 		patched := make(map[string]interface{})
 		patched["networks"] = nil
 
-		url, err := ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
+		url, err := tpgresource.ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/policies/{{name}}")
 		if err != nil {
 			return err
 		}
@@ -414,7 +414,7 @@ func resourceDNSPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Deleting Policy %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -438,7 +438,7 @@ func resourceDNSPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schem
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/policies/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/policies/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -541,7 +541,7 @@ func flattenDNSPolicyNetworksNetworkUrl(v interface{}, d *schema.ResourceData, c
 	return v
 }
 
-func expandDNSPolicyAlternativeNameServerConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDNSPolicyAlternativeNameServerConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -553,14 +553,14 @@ func expandDNSPolicyAlternativeNameServerConfig(v interface{}, d TerraformResour
 	transformedTargetNameServers, err := expandDNSPolicyAlternativeNameServerConfigTargetNameServers(original["target_name_servers"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedTargetNameServers); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedTargetNameServers); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["targetNameServers"] = transformedTargetNameServers
 	}
 
 	return transformed, nil
 }
 
-func expandDNSPolicyAlternativeNameServerConfigTargetNameServers(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDNSPolicyAlternativeNameServerConfigTargetNameServers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -574,14 +574,14 @@ func expandDNSPolicyAlternativeNameServerConfigTargetNameServers(v interface{}, 
 		transformedIpv4Address, err := expandDNSPolicyAlternativeNameServerConfigTargetNameServersIpv4Address(original["ipv4_address"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedIpv4Address); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedIpv4Address); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["ipv4Address"] = transformedIpv4Address
 		}
 
 		transformedForwardingPath, err := expandDNSPolicyAlternativeNameServerConfigTargetNameServersForwardingPath(original["forwarding_path"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedForwardingPath); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedForwardingPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["forwardingPath"] = transformedForwardingPath
 		}
 
@@ -590,31 +590,31 @@ func expandDNSPolicyAlternativeNameServerConfigTargetNameServers(v interface{}, 
 	return req, nil
 }
 
-func expandDNSPolicyAlternativeNameServerConfigTargetNameServersIpv4Address(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDNSPolicyAlternativeNameServerConfigTargetNameServersIpv4Address(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDNSPolicyAlternativeNameServerConfigTargetNameServersForwardingPath(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDNSPolicyAlternativeNameServerConfigTargetNameServersForwardingPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDNSPolicyDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDNSPolicyDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDNSPolicyEnableInboundForwarding(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDNSPolicyEnableInboundForwarding(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDNSPolicyEnableLogging(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDNSPolicyEnableLogging(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDNSPolicyName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDNSPolicyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandDNSPolicyNetworks(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDNSPolicyNetworks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
@@ -628,7 +628,7 @@ func expandDNSPolicyNetworks(v interface{}, d TerraformResourceData, config *tra
 		transformedNetworkUrl, err := expandDNSPolicyNetworksNetworkUrl(original["network_url"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedNetworkUrl); val.IsValid() && !isEmptyValue(val) {
+		} else if val := reflect.ValueOf(transformedNetworkUrl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["networkUrl"] = transformedNetworkUrl
 		}
 
@@ -637,13 +637,13 @@ func expandDNSPolicyNetworks(v interface{}, d TerraformResourceData, config *tra
 	return req, nil
 }
 
-func expandDNSPolicyNetworksNetworkUrl(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandDNSPolicyNetworksNetworkUrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil || v.(string) == "" {
 		return "", nil
 	} else if strings.HasPrefix(v.(string), "https://") {
 		return v, nil
 	}
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
 	if err != nil {
 		return "", err
 	}

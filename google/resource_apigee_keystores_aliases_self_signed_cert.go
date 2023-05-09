@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -244,7 +245,7 @@ Flag is set to Yes if the certificate is valid, No if expired, or Not yet if not
 
 func resourceApigeeKeystoresAliasesSelfSignedCertCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -253,41 +254,41 @@ func resourceApigeeKeystoresAliasesSelfSignedCertCreate(d *schema.ResourceData, 
 	aliasProp, err := expandApigeeKeystoresAliasesSelfSignedCertAlias(d.Get("alias"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("alias"); !isEmptyValue(reflect.ValueOf(aliasProp)) && (ok || !reflect.DeepEqual(v, aliasProp)) {
+	} else if v, ok := d.GetOkExists("alias"); !tpgresource.IsEmptyValue(reflect.ValueOf(aliasProp)) && (ok || !reflect.DeepEqual(v, aliasProp)) {
 		obj["alias"] = aliasProp
 	}
 	subjectAlternativeDnsNamesProp, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNames(d.Get("subject_alternative_dns_names"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("subject_alternative_dns_names"); !isEmptyValue(reflect.ValueOf(subjectAlternativeDnsNamesProp)) && (ok || !reflect.DeepEqual(v, subjectAlternativeDnsNamesProp)) {
+	} else if v, ok := d.GetOkExists("subject_alternative_dns_names"); !tpgresource.IsEmptyValue(reflect.ValueOf(subjectAlternativeDnsNamesProp)) && (ok || !reflect.DeepEqual(v, subjectAlternativeDnsNamesProp)) {
 		obj["subjectAlternativeDnsNames"] = subjectAlternativeDnsNamesProp
 	}
 	keySizeProp, err := expandApigeeKeystoresAliasesSelfSignedCertKeySize(d.Get("key_size"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("key_size"); !isEmptyValue(reflect.ValueOf(keySizeProp)) && (ok || !reflect.DeepEqual(v, keySizeProp)) {
+	} else if v, ok := d.GetOkExists("key_size"); !tpgresource.IsEmptyValue(reflect.ValueOf(keySizeProp)) && (ok || !reflect.DeepEqual(v, keySizeProp)) {
 		obj["keySize"] = keySizeProp
 	}
 	sigAlgProp, err := expandApigeeKeystoresAliasesSelfSignedCertSigAlg(d.Get("sig_alg"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("sig_alg"); !isEmptyValue(reflect.ValueOf(sigAlgProp)) && (ok || !reflect.DeepEqual(v, sigAlgProp)) {
+	} else if v, ok := d.GetOkExists("sig_alg"); !tpgresource.IsEmptyValue(reflect.ValueOf(sigAlgProp)) && (ok || !reflect.DeepEqual(v, sigAlgProp)) {
 		obj["sigAlg"] = sigAlgProp
 	}
 	subjectProp, err := expandApigeeKeystoresAliasesSelfSignedCertSubject(d.Get("subject"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("subject"); !isEmptyValue(reflect.ValueOf(subjectProp)) && (ok || !reflect.DeepEqual(v, subjectProp)) {
+	} else if v, ok := d.GetOkExists("subject"); !tpgresource.IsEmptyValue(reflect.ValueOf(subjectProp)) && (ok || !reflect.DeepEqual(v, subjectProp)) {
 		obj["subject"] = subjectProp
 	}
 	certValidityInDaysProp, err := expandApigeeKeystoresAliasesSelfSignedCertCertValidityInDays(d.Get("cert_validity_in_days"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("cert_validity_in_days"); !isEmptyValue(reflect.ValueOf(certValidityInDaysProp)) && (ok || !reflect.DeepEqual(v, certValidityInDaysProp)) {
+	} else if v, ok := d.GetOkExists("cert_validity_in_days"); !tpgresource.IsEmptyValue(reflect.ValueOf(certValidityInDaysProp)) && (ok || !reflect.DeepEqual(v, certValidityInDaysProp)) {
 		obj["certValidityInDays"] = certValidityInDaysProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases?alias={{alias}}&format=selfsignedcert")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases?alias={{alias}}&format=selfsignedcert")
 	if err != nil {
 		return err
 	}
@@ -296,7 +297,7 @@ func resourceApigeeKeystoresAliasesSelfSignedCertCreate(d *schema.ResourceData, 
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -306,7 +307,7 @@ func resourceApigeeKeystoresAliasesSelfSignedCertCreate(d *schema.ResourceData, 
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
+	id, err := tpgresource.ReplaceVars(d, config, "organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -319,12 +320,12 @@ func resourceApigeeKeystoresAliasesSelfSignedCertCreate(d *schema.ResourceData, 
 
 func resourceApigeeKeystoresAliasesSelfSignedCertRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
 	if err != nil {
 		return err
 	}
@@ -332,7 +333,7 @@ func resourceApigeeKeystoresAliasesSelfSignedCertRead(d *schema.ResourceData, me
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -359,14 +360,14 @@ func resourceApigeeKeystoresAliasesSelfSignedCertRead(d *schema.ResourceData, me
 
 func resourceApigeeKeystoresAliasesSelfSignedCertDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	url, err := ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
 	if err != nil {
 		return err
 	}
@@ -375,7 +376,7 @@ func resourceApigeeKeystoresAliasesSelfSignedCertDelete(d *schema.ResourceData, 
 	log.Printf("[DEBUG] Deleting KeystoresAliasesSelfSignedCert %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -400,7 +401,7 @@ func resourceApigeeKeystoresAliasesSelfSignedCertImport(d *schema.ResourceData, 
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
+	id, err := tpgresource.ReplaceVars(d, config, "organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -532,11 +533,11 @@ func flattenApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNamesSubjec
 	return v
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertAlias(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertAlias(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNames(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -548,26 +549,26 @@ func expandApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNames(v inte
 	transformedSubjectAlternativeName, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNamesSubjectAlternativeName(original["subject_alternative_name"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSubjectAlternativeName); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedSubjectAlternativeName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["subjectAlternativeName"] = transformedSubjectAlternativeName
 	}
 
 	return transformed, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNamesSubjectAlternativeName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectAlternativeDnsNamesSubjectAlternativeName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertKeySize(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertKeySize(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSigAlg(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSigAlg(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubject(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubject(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -579,83 +580,83 @@ func expandApigeeKeystoresAliasesSelfSignedCertSubject(v interface{}, d Terrafor
 	transformedCountryCode, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectCountryCode(original["country_code"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCountryCode); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCountryCode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["countryCode"] = transformedCountryCode
 	}
 
 	transformedState, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectState(original["state"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedState); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedState); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["state"] = transformedState
 	}
 
 	transformedLocality, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectLocality(original["locality"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedLocality); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedLocality); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["locality"] = transformedLocality
 	}
 
 	transformedOrg, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectOrg(original["org"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedOrg); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedOrg); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["org"] = transformedOrg
 	}
 
 	transformedOrgUnit, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectOrgUnit(original["org_unit"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedOrgUnit); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedOrgUnit); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["orgUnit"] = transformedOrgUnit
 	}
 
 	transformedCommonName, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectCommonName(original["common_name"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCommonName); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCommonName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["commonName"] = transformedCommonName
 	}
 
 	transformedEmail, err := expandApigeeKeystoresAliasesSelfSignedCertSubjectEmail(original["email"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedEmail); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["email"] = transformedEmail
 	}
 
 	return transformed, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectCountryCode(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectCountryCode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectState(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectState(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectLocality(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectLocality(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectOrg(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectOrg(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectOrgUnit(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectOrgUnit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectCommonName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectCommonName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertSubjectEmail(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertSubjectEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandApigeeKeystoresAliasesSelfSignedCertCertValidityInDays(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandApigeeKeystoresAliasesSelfSignedCertCertValidityInDays(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

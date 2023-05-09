@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
@@ -117,7 +118,7 @@ Similar to what would be chosen for an Active Directory set up on an internal ne
 
 func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -126,35 +127,35 @@ func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{
 	labelsProp, err := expandActiveDirectoryDomainLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	authorizedNetworksProp, err := expandActiveDirectoryDomainAuthorizedNetworks(d.Get("authorized_networks"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("authorized_networks"); !isEmptyValue(reflect.ValueOf(authorizedNetworksProp)) && (ok || !reflect.DeepEqual(v, authorizedNetworksProp)) {
+	} else if v, ok := d.GetOkExists("authorized_networks"); !tpgresource.IsEmptyValue(reflect.ValueOf(authorizedNetworksProp)) && (ok || !reflect.DeepEqual(v, authorizedNetworksProp)) {
 		obj["authorizedNetworks"] = authorizedNetworksProp
 	}
 	reservedIpRangeProp, err := expandActiveDirectoryDomainReservedIpRange(d.Get("reserved_ip_range"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("reserved_ip_range"); !isEmptyValue(reflect.ValueOf(reservedIpRangeProp)) && (ok || !reflect.DeepEqual(v, reservedIpRangeProp)) {
+	} else if v, ok := d.GetOkExists("reserved_ip_range"); !tpgresource.IsEmptyValue(reflect.ValueOf(reservedIpRangeProp)) && (ok || !reflect.DeepEqual(v, reservedIpRangeProp)) {
 		obj["reservedIpRange"] = reservedIpRangeProp
 	}
 	locationsProp, err := expandActiveDirectoryDomainLocations(d.Get("locations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("locations"); !isEmptyValue(reflect.ValueOf(locationsProp)) && (ok || !reflect.DeepEqual(v, locationsProp)) {
+	} else if v, ok := d.GetOkExists("locations"); !tpgresource.IsEmptyValue(reflect.ValueOf(locationsProp)) && (ok || !reflect.DeepEqual(v, locationsProp)) {
 		obj["locations"] = locationsProp
 	}
 	adminProp, err := expandActiveDirectoryDomainAdmin(d.Get("admin"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("admin"); !isEmptyValue(reflect.ValueOf(adminProp)) && (ok || !reflect.DeepEqual(v, adminProp)) {
+	} else if v, ok := d.GetOkExists("admin"); !tpgresource.IsEmptyValue(reflect.ValueOf(adminProp)) && (ok || !reflect.DeepEqual(v, adminProp)) {
 		obj["admin"] = adminProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{ActiveDirectoryBasePath}}projects/{{project}}/locations/global/domains?domainName={{domain_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ActiveDirectoryBasePath}}projects/{{project}}/locations/global/domains?domainName={{domain_name}}")
 	if err != nil {
 		return err
 	}
@@ -162,14 +163,14 @@ func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{
 	log.Printf("[DEBUG] Creating new Domain: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Domain: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -179,7 +180,7 @@ func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -203,7 +204,7 @@ func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "{{name}}")
+	id, err = tpgresource.ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -216,26 +217,26 @@ func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{
 
 func resourceActiveDirectoryDomainRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{ActiveDirectoryBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ActiveDirectoryBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Domain: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -275,14 +276,14 @@ func resourceActiveDirectoryDomainRead(d *schema.ResourceData, meta interface{})
 
 func resourceActiveDirectoryDomainUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Domain: %s", err)
 	}
@@ -292,23 +293,23 @@ func resourceActiveDirectoryDomainUpdate(d *schema.ResourceData, meta interface{
 	labelsProp, err := expandActiveDirectoryDomainLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	authorizedNetworksProp, err := expandActiveDirectoryDomainAuthorizedNetworks(d.Get("authorized_networks"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("authorized_networks"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, authorizedNetworksProp)) {
+	} else if v, ok := d.GetOkExists("authorized_networks"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, authorizedNetworksProp)) {
 		obj["authorizedNetworks"] = authorizedNetworksProp
 	}
 	locationsProp, err := expandActiveDirectoryDomainLocations(d.Get("locations"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("locations"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, locationsProp)) {
+	} else if v, ok := d.GetOkExists("locations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, locationsProp)) {
 		obj["locations"] = locationsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{ActiveDirectoryBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ActiveDirectoryBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -335,7 +336,7 @@ func resourceActiveDirectoryDomainUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -360,20 +361,20 @@ func resourceActiveDirectoryDomainUpdate(d *schema.ResourceData, meta interface{
 
 func resourceActiveDirectoryDomainDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Domain: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{ActiveDirectoryBasePath}}projects/{{project}}/locations/global/domains/{{domain_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ActiveDirectoryBasePath}}projects/{{project}}/locations/global/domains/{{domain_name}}")
 	if err != nil {
 		return err
 	}
@@ -382,7 +383,7 @@ func resourceActiveDirectoryDomainDelete(d *schema.ResourceData, meta interface{
 	log.Printf("[DEBUG] Deleting Domain %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -446,7 +447,7 @@ func flattenActiveDirectoryDomainFqdn(v interface{}, d *schema.ResourceData, con
 	return v
 }
 
-func expandActiveDirectoryDomainLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandActiveDirectoryDomainLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -457,19 +458,19 @@ func expandActiveDirectoryDomainLabels(v interface{}, d TerraformResourceData, c
 	return m, nil
 }
 
-func expandActiveDirectoryDomainAuthorizedNetworks(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandActiveDirectoryDomainAuthorizedNetworks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }
 
-func expandActiveDirectoryDomainReservedIpRange(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandActiveDirectoryDomainReservedIpRange(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandActiveDirectoryDomainLocations(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandActiveDirectoryDomainLocations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandActiveDirectoryDomainAdmin(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandActiveDirectoryDomainAdmin(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

@@ -267,7 +267,7 @@ then existing content of the Index will be replaced by the data from the content
 
 func resourceVertexAIIndexCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -276,35 +276,35 @@ func resourceVertexAIIndexCreate(d *schema.ResourceData, meta interface{}) error
 	displayNameProp, err := expandVertexAIIndexDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	descriptionProp, err := expandVertexAIIndexDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	metadataProp, err := expandVertexAIIndexMetadata(d.Get("metadata"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("metadata"); !isEmptyValue(reflect.ValueOf(metadataProp)) && (ok || !reflect.DeepEqual(v, metadataProp)) {
+	} else if v, ok := d.GetOkExists("metadata"); !tpgresource.IsEmptyValue(reflect.ValueOf(metadataProp)) && (ok || !reflect.DeepEqual(v, metadataProp)) {
 		obj["metadata"] = metadataProp
 	}
 	labelsProp, err := expandVertexAIIndexLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 	indexUpdateMethodProp, err := expandVertexAIIndexIndexUpdateMethod(d.Get("index_update_method"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("index_update_method"); !isEmptyValue(reflect.ValueOf(indexUpdateMethodProp)) && (ok || !reflect.DeepEqual(v, indexUpdateMethodProp)) {
+	} else if v, ok := d.GetOkExists("index_update_method"); !tpgresource.IsEmptyValue(reflect.ValueOf(indexUpdateMethodProp)) && (ok || !reflect.DeepEqual(v, indexUpdateMethodProp)) {
 		obj["indexUpdateMethod"] = indexUpdateMethodProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexes")
+	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexes")
 	if err != nil {
 		return err
 	}
@@ -312,14 +312,14 @@ func resourceVertexAIIndexCreate(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Creating new Index: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Index: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -329,7 +329,7 @@ func resourceVertexAIIndexCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/indexes/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/indexes/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -353,7 +353,7 @@ func resourceVertexAIIndexCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/indexes/{{name}}")
+	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/indexes/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -366,26 +366,26 @@ func resourceVertexAIIndexCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceVertexAIIndexRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexes/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Index: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -437,14 +437,14 @@ func resourceVertexAIIndexRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceVertexAIIndexUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Index: %s", err)
 	}
@@ -454,29 +454,29 @@ func resourceVertexAIIndexUpdate(d *schema.ResourceData, meta interface{}) error
 	displayNameProp, err := expandVertexAIIndexDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("display_name"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
+	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
 	descriptionProp, err := expandVertexAIIndexDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	metadataProp, err := expandVertexAIIndexMetadata(d.Get("metadata"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("metadata"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, metadataProp)) {
+	} else if v, ok := d.GetOkExists("metadata"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, metadataProp)) {
 		obj["metadata"] = metadataProp
 	}
 	labelsProp, err := expandVertexAIIndexLabels(d.Get("labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !isEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -529,7 +529,7 @@ func resourceVertexAIIndexUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -554,20 +554,20 @@ func resourceVertexAIIndexUpdate(d *schema.ResourceData, meta interface{}) error
 
 func resourceVertexAIIndexDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Index: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexes/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -576,7 +576,7 @@ func resourceVertexAIIndexDelete(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Deleting Index %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -609,7 +609,7 @@ func resourceVertexAIIndexImport(d *schema.ResourceData, meta interface{}) ([]*s
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/indexes/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/indexes/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -878,15 +878,15 @@ func flattenVertexAIIndexIndexUpdateMethod(v interface{}, d *schema.ResourceData
 	return v
 }
 
-func expandVertexAIIndexDisplayName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandVertexAIIndexDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandVertexAIIndexDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadata(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandVertexAIIndexMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -898,36 +898,36 @@ func expandVertexAIIndexMetadata(v interface{}, d TerraformResourceData, config 
 	transformedContentsDeltaUri, err := expandVertexAIIndexMetadataContentsDeltaUri(original["contents_delta_uri"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedContentsDeltaUri); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedContentsDeltaUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["contentsDeltaUri"] = transformedContentsDeltaUri
 	}
 
 	transformedIsCompleteOverwrite, err := expandVertexAIIndexMetadataIsCompleteOverwrite(original["is_complete_overwrite"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedIsCompleteOverwrite); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedIsCompleteOverwrite); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["isCompleteOverwrite"] = transformedIsCompleteOverwrite
 	}
 
 	transformedConfig, err := expandVertexAIIndexMetadataConfig(original["config"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedConfig); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["config"] = transformedConfig
 	}
 
 	return transformed, nil
 }
 
-func expandVertexAIIndexMetadataContentsDeltaUri(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandVertexAIIndexMetadataContentsDeltaUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadataIsCompleteOverwrite(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandVertexAIIndexMetadataIsCompleteOverwrite(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadataConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -939,58 +939,58 @@ func expandVertexAIIndexMetadataConfig(v interface{}, d TerraformResourceData, c
 	transformedDimensions, err := expandVertexAIIndexMetadataConfigDimensions(original["dimensions"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDimensions); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDimensions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["dimensions"] = transformedDimensions
 	}
 
 	transformedApproximateNeighborsCount, err := expandVertexAIIndexMetadataConfigApproximateNeighborsCount(original["approximate_neighbors_count"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedApproximateNeighborsCount); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedApproximateNeighborsCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["approximateNeighborsCount"] = transformedApproximateNeighborsCount
 	}
 
 	transformedDistanceMeasureType, err := expandVertexAIIndexMetadataConfigDistanceMeasureType(original["distance_measure_type"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedDistanceMeasureType); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedDistanceMeasureType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["distanceMeasureType"] = transformedDistanceMeasureType
 	}
 
 	transformedFeatureNormType, err := expandVertexAIIndexMetadataConfigFeatureNormType(original["feature_norm_type"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedFeatureNormType); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedFeatureNormType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["featureNormType"] = transformedFeatureNormType
 	}
 
 	transformedAlgorithmConfig, err := expandVertexAIIndexMetadataConfigAlgorithmConfig(original["algorithm_config"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAlgorithmConfig); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedAlgorithmConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["algorithmConfig"] = transformedAlgorithmConfig
 	}
 
 	return transformed, nil
 }
 
-func expandVertexAIIndexMetadataConfigDimensions(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigDimensions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadataConfigApproximateNeighborsCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigApproximateNeighborsCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadataConfigDistanceMeasureType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigDistanceMeasureType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadataConfigFeatureNormType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigFeatureNormType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadataConfigAlgorithmConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigAlgorithmConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1002,7 +1002,7 @@ func expandVertexAIIndexMetadataConfigAlgorithmConfig(v interface{}, d Terraform
 	transformedTreeAhConfig, err := expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfig(original["tree_ah_config"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedTreeAhConfig); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedTreeAhConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["treeAhConfig"] = transformedTreeAhConfig
 	}
 
@@ -1016,7 +1016,7 @@ func expandVertexAIIndexMetadataConfigAlgorithmConfig(v interface{}, d Terraform
 	return transformed, nil
 }
 
-func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -1028,29 +1028,29 @@ func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfig(v interface{},
 	transformedLeafNodeEmbeddingCount, err := expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodeEmbeddingCount(original["leaf_node_embedding_count"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedLeafNodeEmbeddingCount); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedLeafNodeEmbeddingCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["leafNodeEmbeddingCount"] = transformedLeafNodeEmbeddingCount
 	}
 
 	transformedLeafNodesToSearchPercent, err := expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodesToSearchPercent(original["leaf_nodes_to_search_percent"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedLeafNodesToSearchPercent); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedLeafNodesToSearchPercent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["leafNodesToSearchPercent"] = transformedLeafNodesToSearchPercent
 	}
 
 	return transformed, nil
 }
 
-func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodeEmbeddingCount(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodeEmbeddingCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodesToSearchPercent(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodesToSearchPercent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandVertexAIIndexMetadataConfigAlgorithmConfigBruteForceConfig(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandVertexAIIndexMetadataConfigAlgorithmConfigBruteForceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 {
 		return nil, nil
@@ -1065,7 +1065,7 @@ func expandVertexAIIndexMetadataConfigAlgorithmConfigBruteForceConfig(v interfac
 	return transformed, nil
 }
 
-func expandVertexAIIndexLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandVertexAIIndexLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -1076,6 +1076,6 @@ func expandVertexAIIndexLabels(v interface{}, d TerraformResourceData, config *t
 	return m, nil
 }
 
-func expandVertexAIIndexIndexUpdateMethod(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandVertexAIIndexIndexUpdateMethod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

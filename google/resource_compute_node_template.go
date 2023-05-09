@@ -175,7 +175,7 @@ nodes will experience outages while maintenance is applied. Possible values: ["R
 
 func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -184,53 +184,53 @@ func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{})
 	descriptionProp, err := expandComputeNodeTemplateDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("description"); !isEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
 	nameProp, err := expandComputeNodeTemplateName(d.Get("name"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("name"); !isEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
 	nodeAffinityLabelsProp, err := expandComputeNodeTemplateNodeAffinityLabels(d.Get("node_affinity_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("node_affinity_labels"); !isEmptyValue(reflect.ValueOf(nodeAffinityLabelsProp)) && (ok || !reflect.DeepEqual(v, nodeAffinityLabelsProp)) {
+	} else if v, ok := d.GetOkExists("node_affinity_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(nodeAffinityLabelsProp)) && (ok || !reflect.DeepEqual(v, nodeAffinityLabelsProp)) {
 		obj["nodeAffinityLabels"] = nodeAffinityLabelsProp
 	}
 	nodeTypeProp, err := expandComputeNodeTemplateNodeType(d.Get("node_type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("node_type"); !isEmptyValue(reflect.ValueOf(nodeTypeProp)) && (ok || !reflect.DeepEqual(v, nodeTypeProp)) {
+	} else if v, ok := d.GetOkExists("node_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(nodeTypeProp)) && (ok || !reflect.DeepEqual(v, nodeTypeProp)) {
 		obj["nodeType"] = nodeTypeProp
 	}
 	nodeTypeFlexibilityProp, err := expandComputeNodeTemplateNodeTypeFlexibility(d.Get("node_type_flexibility"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("node_type_flexibility"); !isEmptyValue(reflect.ValueOf(nodeTypeFlexibilityProp)) && (ok || !reflect.DeepEqual(v, nodeTypeFlexibilityProp)) {
+	} else if v, ok := d.GetOkExists("node_type_flexibility"); !tpgresource.IsEmptyValue(reflect.ValueOf(nodeTypeFlexibilityProp)) && (ok || !reflect.DeepEqual(v, nodeTypeFlexibilityProp)) {
 		obj["nodeTypeFlexibility"] = nodeTypeFlexibilityProp
 	}
 	serverBindingProp, err := expandComputeNodeTemplateServerBinding(d.Get("server_binding"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("server_binding"); !isEmptyValue(reflect.ValueOf(serverBindingProp)) && (ok || !reflect.DeepEqual(v, serverBindingProp)) {
+	} else if v, ok := d.GetOkExists("server_binding"); !tpgresource.IsEmptyValue(reflect.ValueOf(serverBindingProp)) && (ok || !reflect.DeepEqual(v, serverBindingProp)) {
 		obj["serverBinding"] = serverBindingProp
 	}
 	cpuOvercommitTypeProp, err := expandComputeNodeTemplateCpuOvercommitType(d.Get("cpu_overcommit_type"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("cpu_overcommit_type"); !isEmptyValue(reflect.ValueOf(cpuOvercommitTypeProp)) && (ok || !reflect.DeepEqual(v, cpuOvercommitTypeProp)) {
+	} else if v, ok := d.GetOkExists("cpu_overcommit_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(cpuOvercommitTypeProp)) && (ok || !reflect.DeepEqual(v, cpuOvercommitTypeProp)) {
 		obj["cpuOvercommitType"] = cpuOvercommitTypeProp
 	}
 	regionProp, err := expandComputeNodeTemplateRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("region"); !isEmptyValue(reflect.ValueOf(regionProp)) && (ok || !reflect.DeepEqual(v, regionProp)) {
+	} else if v, ok := d.GetOkExists("region"); !tpgresource.IsEmptyValue(reflect.ValueOf(regionProp)) && (ok || !reflect.DeepEqual(v, regionProp)) {
 		obj["region"] = regionProp
 	}
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/nodeTemplates")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/nodeTemplates")
 	if err != nil {
 		return err
 	}
@@ -238,14 +238,14 @@ func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Creating new NodeTemplate: %#v", obj)
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for NodeTemplate: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -255,7 +255,7 @@ func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	// Store the ID now
-	id, err := ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -278,26 +278,26 @@ func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{})
 
 func resourceComputeNodeTemplateRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for NodeTemplate: %s", err)
 	}
 	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -346,20 +346,20 @@ func resourceComputeNodeTemplateRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceComputeNodeTemplateDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for NodeTemplate: %s", err)
 	}
 	billingProject = project
 
-	url, err := ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -368,7 +368,7 @@ func resourceComputeNodeTemplateDelete(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Deleting NodeTemplate %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
@@ -401,7 +401,7 @@ func resourceComputeNodeTemplateImport(d *schema.ResourceData, meta interface{})
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -487,15 +487,15 @@ func flattenComputeNodeTemplateRegion(v interface{}, d *schema.ResourceData, con
 	return tpgresource.NameFromSelfLinkStateFunc(v)
 }
 
-func expandComputeNodeTemplateDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeNodeTemplateDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeNodeTemplateName(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeNodeTemplateName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeNodeTemplateNodeAffinityLabels(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandComputeNodeTemplateNodeAffinityLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -506,11 +506,11 @@ func expandComputeNodeTemplateNodeAffinityLabels(v interface{}, d TerraformResou
 	return m, nil
 }
 
-func expandComputeNodeTemplateNodeType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeNodeTemplateNodeType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeNodeTemplateNodeTypeFlexibility(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeNodeTemplateNodeTypeFlexibility(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -522,40 +522,40 @@ func expandComputeNodeTemplateNodeTypeFlexibility(v interface{}, d TerraformReso
 	transformedCpus, err := expandComputeNodeTemplateNodeTypeFlexibilityCpus(original["cpus"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedCpus); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedCpus); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["cpus"] = transformedCpus
 	}
 
 	transformedMemory, err := expandComputeNodeTemplateNodeTypeFlexibilityMemory(original["memory"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMemory); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedMemory); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["memory"] = transformedMemory
 	}
 
 	transformedLocalSsd, err := expandComputeNodeTemplateNodeTypeFlexibilityLocalSsd(original["local_ssd"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedLocalSsd); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedLocalSsd); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["localSsd"] = transformedLocalSsd
 	}
 
 	return transformed, nil
 }
 
-func expandComputeNodeTemplateNodeTypeFlexibilityCpus(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeNodeTemplateNodeTypeFlexibilityCpus(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeNodeTemplateNodeTypeFlexibilityMemory(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeNodeTemplateNodeTypeFlexibilityMemory(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeNodeTemplateNodeTypeFlexibilityLocalSsd(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeNodeTemplateNodeTypeFlexibilityLocalSsd(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeNodeTemplateServerBinding(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeNodeTemplateServerBinding(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -567,23 +567,23 @@ func expandComputeNodeTemplateServerBinding(v interface{}, d TerraformResourceDa
 	transformedType, err := expandComputeNodeTemplateServerBindingType(original["type"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !isEmptyValue(val) {
+	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["type"] = transformedType
 	}
 
 	return transformed, nil
 }
 
-func expandComputeNodeTemplateServerBindingType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeNodeTemplateServerBindingType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeNodeTemplateCpuOvercommitType(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeNodeTemplateCpuOvercommitType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeNodeTemplateRegion(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	f, err := parseGlobalFieldValue("regions", v.(string), "project", d, config, true)
+func expandComputeNodeTemplateRegion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	f, err := tpgresource.ParseGlobalFieldValue("regions", v.(string), "project", d, config, true)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid value for region: %s", err)
 	}

@@ -63,12 +63,12 @@ func DataSourceGoogleSQLCaCerts() *schema.Resource {
 
 func dataSourceGoogleSQLCaCertsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	fv, err := parseProjectFieldValue("instances", d.Get("instance").(string), "project", d, config, false)
+	fv, err := tpgresource.ParseProjectFieldValue("instances", d.Get("instance").(string), "project", d, config, false)
 	if err != nil {
 		return err
 	}

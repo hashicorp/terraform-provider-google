@@ -50,11 +50,11 @@ type CloudRunV2JobIamUpdater struct {
 	project  string
 	location string
 	name     string
-	d        TerraformResourceData
+	d        tpgresource.TerraformResourceData
 	Config   *transport_tpg.Config
 }
 
-func CloudRunV2JobIamUpdaterProducer(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func CloudRunV2JobIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)
@@ -148,13 +148,13 @@ func (u *CloudRunV2JobIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.
 		return nil, err
 	}
 
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return nil, err
 	}
 	var obj map[string]interface{}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -186,12 +186,12 @@ func (u *CloudRunV2JobIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 	if err != nil {
 		return err
 	}
-	project, err := getProject(u.d, u.Config)
+	project, err := tpgresource.GetProject(u.d, u.Config)
 	if err != nil {
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -206,7 +206,7 @@ func (u *CloudRunV2JobIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 
 func (u *CloudRunV2JobIamUpdater) qualifyJobUrl(methodIdentifier string) (string, error) {
 	urlTemplate := fmt.Sprintf("{{CloudRunV2BasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/jobs/%s", u.project, u.location, u.name), methodIdentifier)
-	url, err := ReplaceVars(u.d, u.Config, urlTemplate)
+	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
 	}

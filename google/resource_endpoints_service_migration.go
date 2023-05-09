@@ -3,8 +3,9 @@ package google
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"log"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func migrateEndpointsService(v int, is *terraform.InstanceState, meta interface{}) (*terraform.InstanceState, error) {

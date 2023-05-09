@@ -25,7 +25,7 @@ func dataSourceGoogleSourceRepoRepositoryRead(d *schema.ResourceData, meta inter
 
 	config := meta.(*transport_tpg.Config)
 
-	id, err := ReplaceVars(d, config, "projects/{{project}}/repos/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/repos/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}

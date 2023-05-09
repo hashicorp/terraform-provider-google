@@ -28,12 +28,12 @@ func dataSourceGoogleBeyondcorpAppConnectionRead(d *schema.ResourceData, meta in
 
 	name := d.Get("name").(string)
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	region, err := getRegion(d, config)
+	region, err := tpgresource.GetRegion(d, config)
 	if err != nil {
 		return err
 	}

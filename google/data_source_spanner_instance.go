@@ -26,7 +26,7 @@ func DataSourceSpannerInstance() *schema.Resource {
 func dataSourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 
-	id, err := ReplaceVars(d, config, "{{project}}/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{project}}/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
