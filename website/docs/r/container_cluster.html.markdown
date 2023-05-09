@@ -391,6 +391,10 @@ subnetwork in which the cluster's instances are launched.
     which allows the usage of filestore instance as volumes.
     It is disabled by default; set `enabled = true` to enable.
 
+* `gcs_fuse_csi_driver_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))) The status of the GCSFuse CSI driver addon,
+    which allows the usage of a gcs bucket as volumes.
+    It is disabled by default; set `enabled = true` to enable.
+
 * `cloudrun_config` - (Optional). Structure is [documented below](#nested_cloudrun_config).
 
 * `istio_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
