@@ -29,8 +29,6 @@ The following arguments are supported:
 
 * `name` - (Optional) The name of the instance. One of `name` or `self_link` must be provided.
 
-* `desired_status` - (Optional) The desired status of the instance. Can be set as either "RUNNING" or "TERMINATED".
-
 ---
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
