@@ -770,9 +770,12 @@ func ResourceComputeInstance() *schema.Resource {
 				Description:  `Desired status of the instance. Either "RUNNING" or "TERMINATED".`,
 			},
 			"current_status": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Current status of the instance.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `
+					Current status of the instance.
+					This could be one of the following values: PROVISIONING, STAGING, RUNNING, STOPPING, SUSPENDING, SUSPENDED, REPAIRING, and TERMINATED.
+					For more information about the status of the instance, see [Instance life cycle](https://cloud.google.com/compute/docs/instances/instance-life-cycle).`,
 			},
 			"tags": {
 				Type:        schema.TypeSet,
