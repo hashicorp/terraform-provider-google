@@ -260,6 +260,16 @@ is 1,024 characters.`,
 										},
 										ExactlyOneOf: []string{},
 									},
+									"publish_to_stackdriver": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Enable Stackdriver metric dlp.googleapis.com/findingCount.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ExactlyOneOf: []string{},
+									},
 									"save_findings": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -2852,6 +2862,7 @@ func flattenDataLossPreventionJobTriggerInspectJobActions(v interface{}, d *sche
 			"publish_findings_to_cloud_data_catalog": flattenDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToCloudDataCatalog(original["publishFindingsToCloudDataCatalog"], d, config),
 			"job_notification_emails":                flattenDataLossPreventionJobTriggerInspectJobActionsJobNotificationEmails(original["jobNotificationEmails"], d, config),
 			"deidentify":                             flattenDataLossPreventionJobTriggerInspectJobActionsDeidentify(original["deidentify"], d, config),
+			"publish_to_stackdriver":                 flattenDataLossPreventionJobTriggerInspectJobActionsPublishToStackdriver(original["publishToStackdriver"], d, config),
 		})
 	}
 	return transformed
@@ -3054,6 +3065,14 @@ func flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformatio
 
 func flattenDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTableTableId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobActionsPublishToStackdriver(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
 }
 
 func expandDataLossPreventionJobTriggerDescription(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -4840,6 +4859,13 @@ func expandDataLossPreventionJobTriggerInspectJobActions(v interface{}, d Terraf
 			transformed["deidentify"] = transformedDeidentify
 		}
 
+		transformedPublishToStackdriver, err := expandDataLossPreventionJobTriggerInspectJobActionsPublishToStackdriver(original["publish_to_stackdriver"], d, config)
+		if err != nil {
+			return nil, err
+		} else {
+			transformed["publishToStackdriver"] = transformedPublishToStackdriver
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -5162,6 +5188,21 @@ func expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformation
 
 func expandDataLossPreventionJobTriggerInspectJobActionsDeidentifyTransformationDetailsStorageConfigTableTableId(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobActionsPublishToStackdriver(v interface{}, d TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
 }
 
 func resourceDataLossPreventionJobTriggerEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
