@@ -14,6 +14,7 @@ import (
 var (
 	_ datasource.DataSource              = &GoogleClientConfigDataSource{}
 	_ datasource.DataSourceWithConfigure = &GoogleClientConfigDataSource{}
+	_ LocationDescriber                  = &GoogleClientConfigModel{}
 )
 
 func NewGoogleClientConfigDataSource() datasource.DataSource {
@@ -32,6 +33,17 @@ type GoogleClientConfigModel struct {
 	Region      types.String `tfsdk:"region"`
 	Zone        types.String `tfsdk:"zone"`
 	AccessToken types.String `tfsdk:"access_token"`
+}
+
+func (m *GoogleClientConfigModel) GetLocationDescription(providerConfig *frameworkProvider) LocationDescription {
+	return LocationDescription{
+		RegionSchemaField: types.StringValue("region"),
+		ZoneSchemaField:   types.StringValue("zone"),
+		ResourceRegion:    m.Region,
+		ResourceZone:      m.Zone,
+		ProviderRegion:    providerConfig.region,
+		ProviderZone:      providerConfig.zone,
+	}
 }
 
 func (d *GoogleClientConfigDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -111,10 +123,22 @@ func (d *GoogleClientConfigDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	data.Id = types.StringValue(fmt.Sprintf("projects/%s/regions/%s/zones/%s", d.providerConfig.project.String(), d.providerConfig.region.String(), d.providerConfig.zone.String()))
+	locationInfo := data.GetLocationDescription(d.providerConfig)
+	region, err := locationInfo.GetRegion()
+	if err != nil {
+		diags.AddError("Error getting region value", err.Error())
+		return
+	}
+	zone, err := locationInfo.GetZone()
+	if err != nil {
+		diags.AddError("Error getting zone value", err.Error())
+		return
+	}
+
+	data.Id = types.StringValue(fmt.Sprintf("projects/%s/regions/%s/zones/%s", d.providerConfig.project.String(), region.String(), zone.String()))
 	data.Project = d.providerConfig.project
-	data.Region = d.providerConfig.region
-	data.Zone = d.providerConfig.zone
+	data.Region = region
+	data.Zone = zone
 
 	token, err := d.providerConfig.tokenSource.Token()
 	if err != nil {
