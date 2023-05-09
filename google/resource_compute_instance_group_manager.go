@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 	"time"
 
@@ -817,6 +818,14 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 	if d.Get("wait_for_instances").(bool) {
 		err := computeIGMWaitForInstanceStatus(d, meta)
 		if err != nil {
+			notFound, reErr := regexp.MatchString(`not found`, err.Error())
+			if reErr != nil {
+				return reErr
+			}
+			if notFound {
+				// manager was not found, we can exit gracefully
+				return nil
+			}
 			return err
 		}
 	}
