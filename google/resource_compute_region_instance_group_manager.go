@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 	"time"
 
@@ -515,6 +516,12 @@ func waitForInstancesRefreshFunc(f getInstanceManagerFunc, waitForUpdates bool, 
 			log.Printf("[WARNING] Error in fetching manager while waiting for instances to come up: %s\n", err)
 			return nil, "error", err
 		}
+		if m == nil {
+			// getManager/getRegional manager call handleNotFoundError, which will return a nil error and nil object in the case
+			// that the original error was a 404. if m == nil here, we will assume that it was not found return an "instance manager not found"
+			// error so that we can parse it later on and handle it there
+			return nil, "error", fmt.Errorf("instance manager not found")
+		}
 		if m.Status.IsStable {
 			if waitForUpdates {
 				// waitForUpdates waits for versions to be reached and per instance configs to be updated (if present)
@@ -747,6 +754,14 @@ func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, met
 	if d.Get("wait_for_instances").(bool) {
 		err := computeRIGMWaitForInstanceStatus(d, meta)
 		if err != nil {
+			notFound, reErr := regexp.MatchString(`not found`, err.Error())
+			if reErr != nil {
+				return reErr
+			}
+			if notFound {
+				// manager was not found, we can exit gracefully
+				return nil
+			}
 			return err
 		}
 	}
