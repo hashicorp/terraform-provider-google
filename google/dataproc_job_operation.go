@@ -2,9 +2,11 @@ package google
 
 import (
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"net/http"
 	"time"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/dataproc/v1"
 )
@@ -74,7 +76,7 @@ func dataprocJobOperationWait(config *transport_tpg.Config, region, projectId, j
 		ProjectId: projectId,
 		JobId:     jobId,
 	}
-	return OperationWait(w, activity, timeout, config.PollInterval)
+	return tpgresource.OperationWait(w, activity, timeout, config.PollInterval)
 }
 
 type DataprocDeleteJobOperationWaiter struct {
@@ -114,5 +116,5 @@ func dataprocDeleteOperationWait(config *transport_tpg.Config, region, projectId
 			JobId:     jobId,
 		},
 	}
-	return OperationWait(w, activity, timeout, config.PollInterval)
+	return tpgresource.OperationWait(w, activity, timeout, config.PollInterval)
 }

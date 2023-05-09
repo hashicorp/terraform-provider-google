@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -26,7 +27,7 @@ type GKEHubOperationWaiter struct {
 	Config    *transport_tpg.Config
 	UserAgent string
 	Project   string
-	CommonOperationWaiter
+	tpgresource.CommonOperationWaiter
 }
 
 func (w *GKEHubOperationWaiter) QueryOp() (interface{}, error) {
@@ -57,7 +58,7 @@ func GKEHubOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[st
 	if err != nil {
 		return err
 	}
-	if err := OperationWait(w, activity, timeout, config.PollInterval); err != nil {
+	if err := tpgresource.OperationWait(w, activity, timeout, config.PollInterval); err != nil {
 		return err
 	}
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
@@ -73,5 +74,5 @@ func GKEHubOperationWaitTime(config *transport_tpg.Config, op map[string]interfa
 		// If w is nil, the op was synchronous.
 		return err
 	}
-	return OperationWait(w, activity, timeout, config.PollInterval)
+	return tpgresource.OperationWait(w, activity, timeout, config.PollInterval)
 }

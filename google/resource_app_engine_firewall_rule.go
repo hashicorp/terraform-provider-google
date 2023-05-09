@@ -164,7 +164,7 @@ func resourceAppEngineFirewallRuleCreate(d *schema.ResourceData, meta interface{
 	return resourceAppEngineFirewallRuleRead(d, meta)
 }
 
-func resourceAppEngineFirewallRulePollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+func resourceAppEngineFirewallRulePollRead(d *schema.ResourceData, meta interface{}) transport_tpg.PollReadFunc {
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 

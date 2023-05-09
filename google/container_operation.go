@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"time"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/container/v1"
 )
@@ -117,5 +119,5 @@ func ContainerOperationWait(config *transport_tpg.Config, op *container.Operatio
 		return err
 	}
 
-	return OperationWait(w, activity, timeout, config.PollInterval)
+	return tpgresource.OperationWait(w, activity, timeout, config.PollInterval)
 }

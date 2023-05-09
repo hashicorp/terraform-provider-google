@@ -295,7 +295,7 @@ func resourceMonitoringMetricDescriptorCreate(d *schema.ResourceData, meta inter
 	return resourceMonitoringMetricDescriptorRead(d, meta)
 }
 
-func resourceMonitoringMetricDescriptorPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+func resourceMonitoringMetricDescriptorPollRead(d *schema.ResourceData, meta interface{}) transport_tpg.PollReadFunc {
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 

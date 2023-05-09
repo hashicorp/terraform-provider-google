@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 const readyStatusType string = "Ready"
@@ -48,8 +49,8 @@ func getGeneration(res map[string]interface{}) (int, error) {
 	return int(gen.(float64)), nil
 }
 
-func PollCheckKnativeStatusFunc(knativeRestResponse map[string]interface{}) func(resp map[string]interface{}, respErr error) PollResult {
-	return func(resp map[string]interface{}, respErr error) PollResult {
+func PollCheckKnativeStatusFunc(knativeRestResponse map[string]interface{}) func(resp map[string]interface{}, respErr error) transport_tpg.PollResult {
+	return func(resp map[string]interface{}, respErr error) transport_tpg.PollResult {
 		if respErr != nil {
 			return ErrorPollResult(respErr)
 		}

@@ -180,7 +180,7 @@ func resourceStorageHmacKeyCreate(d *schema.ResourceData, meta interface{}) erro
 	return resourceStorageHmacKeyRead(d, meta)
 }
 
-func resourceStorageHmacKeyPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+func resourceStorageHmacKeyPollRead(d *schema.ResourceData, meta interface{}) transport_tpg.PollReadFunc {
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 

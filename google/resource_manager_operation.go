@@ -19,13 +19,14 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 type ResourceManagerOperationWaiter struct {
 	Config    *transport_tpg.Config
 	UserAgent string
-	CommonOperationWaiter
+	tpgresource.CommonOperationWaiter
 }
 
 func (w *ResourceManagerOperationWaiter) QueryOp() (interface{}, error) {
@@ -55,7 +56,7 @@ func ResourceManagerOperationWaitTimeWithResponse(config *transport_tpg.Config, 
 	if err != nil {
 		return err
 	}
-	if err := OperationWait(w, activity, timeout, config.PollInterval); err != nil {
+	if err := tpgresource.OperationWait(w, activity, timeout, config.PollInterval); err != nil {
 		return err
 	}
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
@@ -71,5 +72,5 @@ func ResourceManagerOperationWaitTime(config *transport_tpg.Config, op map[strin
 		// If w is nil, the op was synchronous.
 		return err
 	}
-	return OperationWait(w, activity, timeout, config.PollInterval)
+	return tpgresource.OperationWait(w, activity, timeout, config.PollInterval)
 }

@@ -293,7 +293,7 @@ func resourceAccessContextManagerAccessLevelConditionCreate(d *schema.ResourceDa
 	return resourceAccessContextManagerAccessLevelConditionRead(d, meta)
 }
 
-func resourceAccessContextManagerAccessLevelConditionPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+func resourceAccessContextManagerAccessLevelConditionPollRead(d *schema.ResourceData, meta interface{}) transport_tpg.PollReadFunc {
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 

@@ -18,13 +18,14 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 type IAM2OperationWaiter struct {
 	Config    *transport_tpg.Config
 	UserAgent string
-	CommonOperationWaiter
+	tpgresource.CommonOperationWaiter
 }
 
 func (w *IAM2OperationWaiter) QueryOp() (interface{}, error) {
@@ -58,5 +59,5 @@ func IAM2OperationWaitTime(config *transport_tpg.Config, op map[string]interface
 		// If w is nil, the op was synchronous.
 		return err
 	}
-	return OperationWait(w, activity, timeout, config.PollInterval)
+	return tpgresource.OperationWait(w, activity, timeout, config.PollInterval)
 }

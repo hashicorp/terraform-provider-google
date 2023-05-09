@@ -13,7 +13,7 @@ type ContainerAttachedOperationWaiter struct {
 	Config    *transport_tpg.Config
 	UserAgent string
 	Project   string
-	CommonOperationWaiter
+	tpgresource.CommonOperationWaiter
 }
 
 func (w *ContainerAttachedOperationWaiter) QueryOp() (interface{}, error) {
@@ -47,7 +47,7 @@ func ContainerAttachedOperationWaitTimeWithResponse(config *transport_tpg.Config
 	if err != nil {
 		return err
 	}
-	if err := OperationWait(w, activity, timeout, config.PollInterval); err != nil {
+	if err := tpgresource.OperationWait(w, activity, timeout, config.PollInterval); err != nil {
 		return err
 	}
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
@@ -63,5 +63,5 @@ func ContainerAttachedOperationWaitTime(config *transport_tpg.Config, op map[str
 		// If w is nil, the op was synchronous.
 		return err
 	}
-	return OperationWait(w, activity, timeout, config.PollInterval)
+	return tpgresource.OperationWait(w, activity, timeout, config.PollInterval)
 }

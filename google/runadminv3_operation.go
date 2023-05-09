@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/run/v2"
@@ -14,7 +15,7 @@ type RunAdminV2OperationWaiter struct {
 	Config    *transport_tpg.Config
 	UserAgent string
 	Project   string
-	CommonOperationWaiter
+	tpgresource.CommonOperationWaiter
 }
 
 func (w *RunAdminV2OperationWaiter) QueryOp() (interface{}, error) {
@@ -43,7 +44,7 @@ func runAdminV2OperationWaitTimeWithResponse(config *transport_tpg.Config, op *r
 	if err != nil {
 		return err
 	}
-	if err := OperationWait(w, activity, timeout, config.PollInterval); err != nil {
+	if err := tpgresource.OperationWait(w, activity, timeout, config.PollInterval); err != nil {
 		return err
 	}
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
@@ -57,5 +58,5 @@ func runAdminV2OperationWaitTime(config *transport_tpg.Config, op *run.GoogleLon
 	if err != nil {
 		return err
 	}
-	return OperationWait(w, activity, timeout, config.PollInterval)
+	return tpgresource.OperationWait(w, activity, timeout, config.PollInterval)
 }

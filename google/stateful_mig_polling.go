@@ -10,7 +10,7 @@ import (
 )
 
 // PerInstanceConfig needs both regular operation polling AND custom polling for deletion which is why this is not generated
-func resourceComputePerInstanceConfigPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+func resourceComputePerInstanceConfigPollRead(d *schema.ResourceData, meta interface{}) transport_tpg.PollReadFunc {
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 		userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -42,7 +42,7 @@ func resourceComputePerInstanceConfigPollRead(d *schema.ResourceData, meta inter
 }
 
 // RegionPerInstanceConfig needs both regular operation polling AND custom polling for deletion which is why this is not generated
-func resourceComputeRegionPerInstanceConfigPollRead(d *schema.ResourceData, meta interface{}) PollReadFunc {
+func resourceComputeRegionPerInstanceConfigPollRead(d *schema.ResourceData, meta interface{}) transport_tpg.PollReadFunc {
 	return func() (map[string]interface{}, error) {
 		config := meta.(*transport_tpg.Config)
 		userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -131,7 +131,7 @@ func findInstanceName(d *schema.ResourceData, config *transport_tpg.Config) (str
 	return "", fmt.Errorf("Failed to find managed instance with name: %s", instanceNameToFind)
 }
 
-func PollCheckInstanceConfigDeleted(resp map[string]interface{}, respErr error) PollResult {
+func PollCheckInstanceConfigDeleted(resp map[string]interface{}, respErr error) transport_tpg.PollResult {
 	if respErr != nil {
 		return ErrorPollResult(respErr)
 	}

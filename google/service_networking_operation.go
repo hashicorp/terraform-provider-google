@@ -3,6 +3,7 @@ package google
 import (
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/servicenetworking/v1"
 )
@@ -11,7 +12,7 @@ type ServiceNetworkingOperationWaiter struct {
 	Service             *servicenetworking.APIService
 	Project             string
 	UserProjectOverride bool
-	CommonOperationWaiter
+	tpgresource.CommonOperationWaiter
 }
 
 func (w *ServiceNetworkingOperationWaiter) QueryOp() (interface{}, error) {
@@ -32,5 +33,5 @@ func ServiceNetworkingOperationWaitTime(config *transport_tpg.Config, op *servic
 	if err := w.SetOp(op); err != nil {
 		return err
 	}
-	return OperationWait(w, activity, timeout, config.PollInterval)
+	return tpgresource.OperationWait(w, activity, timeout, config.PollInterval)
 }

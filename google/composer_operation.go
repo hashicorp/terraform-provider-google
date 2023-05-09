@@ -2,15 +2,17 @@ package google
 
 import (
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"time"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/composer/v1"
 )
 
 type ComposerOperationWaiter struct {
 	Service *composer.ProjectsLocationsService
-	CommonOperationWaiter
+	tpgresource.CommonOperationWaiter
 }
 
 func (w *ComposerOperationWaiter) QueryOp() (interface{}, error) {
@@ -27,5 +29,5 @@ func ComposerOperationWaitTime(config *transport_tpg.Config, op *composer.Operat
 	if err := w.SetOp(op); err != nil {
 		return err
 	}
-	return OperationWait(w, activity, timeout, config.PollInterval)
+	return tpgresource.OperationWait(w, activity, timeout, config.PollInterval)
 }

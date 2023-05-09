@@ -58,7 +58,7 @@ func DeploymentManagerOperationWaitTime(config *transport_tpg.Config, resp inter
 		return err
 	}
 
-	return OperationWait(w, activity, timeout, config.PollInterval)
+	return tpgresource.OperationWait(w, activity, timeout, config.PollInterval)
 }
 
 func (w *DeploymentManagerOperationWaiter) Error() error {
