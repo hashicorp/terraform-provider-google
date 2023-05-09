@@ -114,13 +114,15 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
 					testAccCheckComputeInstanceMetadata(&instance, "baz", "qux"),
 					testAccCheckComputeInstanceDisk(&instance, instanceName, true, true),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "current_status", "RUNNING"),
+
 					// by default, DeletionProtection is implicitly false. This should be false on any
 					// instance resource without an explicit deletion_protection = true declaration.
 					// Other tests check explicit true/false configs: TestAccComputeInstance_deletionProtectionExplicit[True | False]
 					testAccCheckComputeInstanceHasConfiguredDeletionProtection(&instance, false),
 				),
 			},
-			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo"}),
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo", "desired_status", "current_status"}),
 		},
 	})
 }
@@ -1307,7 +1309,7 @@ func TestAccComputeInstance_forceChangeMachineTypeManually(t *testing.T) {
 				),
 				ExpectNonEmptyPlan: true,
 			},
-			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo"}),
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo", "desired_status", "current_status"}),
 		},
 	})
 }
@@ -3124,6 +3126,7 @@ resource "google_compute_instance" "foobar" {
   zone           = "us-central1-a"
   can_ip_forward = false
   tags           = ["foo", "bar"]
+  desired_status  = "RUNNING"
 
   //deletion_protection = false is implicit in this config due to default value
 
