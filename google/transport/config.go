@@ -1789,7 +1789,7 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 			return *creds, nil
 		}
 
-		creds, err := googleoauth.CredentialsFromJSON(c.Context, []byte(contents), clientScopes...)
+		creds, err := transport.Creds(c.Context, option.WithCredentialsJSON([]byte(contents)), option.WithScopes(clientScopes...))
 		if err != nil {
 			return googleoauth.Credentials{}, fmt.Errorf("unable to parse credentials from '%s': %s", contents, err)
 		}
@@ -1811,14 +1811,12 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 
 	log.Printf("[INFO] Authenticating using DefaultClient...")
 	log.Printf("[INFO]   -- Scopes: %s", clientScopes)
-	defaultTS, err := googleoauth.DefaultTokenSource(context.Background(), clientScopes...)
+	creds, err := transport.Creds(context.Background(), option.WithScopes(clientScopes...))
 	if err != nil {
 		return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'.  Original error: %w", err)
 	}
 
-	return googleoauth.Credentials{
-		TokenSource: defaultTS,
-	}, err
+	return *creds, nil
 }
 
 // Remove the `/{{version}}/` from a base path if present.
