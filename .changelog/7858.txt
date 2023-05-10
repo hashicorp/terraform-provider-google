@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added ICEBERG as an enum for `external_data_configuration.source_format` field in `google_bigquery_table`
+```
