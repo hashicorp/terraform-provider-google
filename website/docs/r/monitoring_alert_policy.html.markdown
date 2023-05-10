@@ -754,12 +754,31 @@ The following arguments are supported:
   (Optional)
   If an alert policy that was active has no data for this long, any open incidents will close.
 
+* `notification_channel_strategy` -
+  (Optional)
+  Control over how the notification channels in `notification_channels`
+  are notified when this alert fires, on a per-channel basis.
+  Structure is [documented below](#nested_notification_channel_strategy).
+
 
 <a name="nested_notification_rate_limit"></a>The `notification_rate_limit` block supports:
 
 * `period` -
   (Optional)
   Not more than one notification per period.
+
+<a name="nested_notification_channel_strategy"></a>The `notification_channel_strategy` block supports:
+
+* `notification_channel_names` -
+  (Optional)
+  The notification channels that these settings apply to. Each of these
+  correspond to the name field in one of the NotificationChannel objects
+  referenced in the notification_channels field of this AlertPolicy. The format is
+  `projects/[PROJECT_ID_OR_NUMBER]/notificationChannels/[CHANNEL_ID]`
+
+* `renotify_interval` -
+  (Optional)
+  The frequency at which to send reminder notifications for open incidents.
 
 <a name="nested_documentation"></a>The `documentation` block supports:
 
