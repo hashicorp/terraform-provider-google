@@ -1,0 +1,3 @@
+```release-note:bug
+Update config.go and framework_config.go to use transport.Creds for all cases
+```
