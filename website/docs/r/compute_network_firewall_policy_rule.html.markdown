@@ -22,9 +22,11 @@ description: |-
 
 The Compute NetworkFirewallPolicyRule resource
 
-## Example Usage - global
+## Example Usage - global_net_sec_rule
 ```hcl
 resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
+  provider = google-beta
+
   name        = "policy"
   parent      = "projects/my-project-name"
   description = "Sample global networksecurity_address_group"
@@ -35,12 +37,16 @@ resource "google_network_security_address_group" "basic_global_networksecurity_a
 }
 
 resource "google_compute_network_firewall_policy" "basic_network_firewall_policy" {
+  provider = google-beta
+
   name        = "policy"
   description = "Sample global network firewall policy"
   project     = "my-project-name"
 }
 
 resource "google_compute_network_firewall_policy_rule" "primary" {
+  provider = google-beta
+
   action                  = "allow"
   description             = "This is a simple rule description"
   direction               = "INGRESS"
@@ -70,10 +76,14 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
 }
 
 resource "google_compute_network" "basic_network" {
+  provider = google-beta
+
   name = "network"
 }
 
 resource "google_tags_tag_key" "basic_key" {
+  provider = google-beta
+
   description = "For keyname resources."
   parent      = "organizations/123456789"
   purpose     = "GCE_FIREWALL"
@@ -84,6 +94,8 @@ resource "google_tags_tag_key" "basic_key" {
 }
 
 resource "google_tags_tag_value" "basic_value" {
+  provider = google-beta
+
   description = "For valuename resources."
   parent      = "tagKeys/${google_tags_tag_key.basic_key.name}"
   short_name  = "tagvalue"
