@@ -66,16 +66,6 @@ func TestAccComputeNetworkFirewallPolicyRule_GlobalHandWritten(t *testing.T) {
 
 func testAccComputeNetworkFirewallPolicyRule_GlobalHandWritten(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
-  name        = "tf-test-policy%{random_suffix}"
-  parent      = "projects/%{project_name}"
-  description = "Sample global networksecurity_address_group"
-  location    = "global"
-  items       = ["208.80.154.224/32"]
-  type        = "IPV4"
-  capacity    = 100
-}
-
 resource "google_compute_network_firewall_policy" "basic_network_firewall_policy" {
   name        = "tf-test-policy%{random_suffix}"
   description = "Sample global network firewall policy"
@@ -106,8 +96,6 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
     layer4_configs {
       ip_protocol = "all"
     }
-    
-    src_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
   }
 }
 
@@ -137,6 +125,8 @@ resource "google_tags_tag_value" "basic_value" {
 func testAccComputeNetworkFirewallPolicyRule_GlobalHandWrittenUpdate0(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
+  provider = google-beta
+
   name        = "tf-test-policy%{random_suffix}"
   parent      = "projects/%{project_name}"
   description = "Sample global networksecurity_address_group. Update"
@@ -147,12 +137,16 @@ resource "google_network_security_address_group" "basic_global_networksecurity_a
 }
 
 resource "google_compute_network_firewall_policy" "basic_network_firewall_policy" {
+  provider = google-beta
+
   name        = "tf-test-policy%{random_suffix}"
   description = "Sample global network firewall policy"
   project     = "%{project_name}"
 }
 
 resource "google_compute_network_firewall_policy_rule" "primary" {
+  provider = google-beta
+
   action          = "deny"
   description     = "This is an updated rule description"
   direction       = "EGRESS"
@@ -183,10 +177,14 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
 }
 
 resource "google_compute_network" "basic_network" {
+  provider = google-beta
+
   name = "tf-test-network%{random_suffix}"
 }
 
 resource "google_tags_tag_key" "basic_key" {
+  provider = google-beta
+
   description = "For keyname resources."
   parent      = "organizations/%{org_id}"
   purpose     = "GCE_FIREWALL"
@@ -199,6 +197,8 @@ resource "google_tags_tag_key" "basic_key" {
 
 
 resource "google_tags_tag_value" "basic_value" {
+  provider = google-beta
+
   description = "For valuename resources."
   parent      = "tagKeys/${google_tags_tag_key.basic_key.name}"
   short_name  = "tf-test-tagvalue%{random_suffix}"
