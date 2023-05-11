@@ -516,7 +516,7 @@ func resourceContainerAzureClusterCreate(d *schema.ResourceData, meta interface{
 		Name:                        dcl.String(d.Get("name").(string)),
 		Networking:                  expandContainerAzureClusterNetworking(d.Get("networking")),
 		ResourceGroupId:             dcl.String(d.Get("resource_group_id").(string)),
-		Annotations:                 checkStringMap(d.Get("annotations")),
+		Annotations:                 tpgresource.CheckStringMap(d.Get("annotations")),
 		AzureServicesAuthentication: expandContainerAzureClusterAzureServicesAuthentication(d.Get("azure_services_authentication")),
 		Client:                      dcl.String(d.Get("client").(string)),
 		Description:                 dcl.String(d.Get("description").(string)),
@@ -576,7 +576,7 @@ func resourceContainerAzureClusterRead(d *schema.ResourceData, meta interface{})
 		Name:                        dcl.String(d.Get("name").(string)),
 		Networking:                  expandContainerAzureClusterNetworking(d.Get("networking")),
 		ResourceGroupId:             dcl.String(d.Get("resource_group_id").(string)),
-		Annotations:                 checkStringMap(d.Get("annotations")),
+		Annotations:                 tpgresource.CheckStringMap(d.Get("annotations")),
 		AzureServicesAuthentication: expandContainerAzureClusterAzureServicesAuthentication(d.Get("azure_services_authentication")),
 		Client:                      dcl.String(d.Get("client").(string)),
 		Description:                 dcl.String(d.Get("description").(string)),
@@ -687,7 +687,7 @@ func resourceContainerAzureClusterUpdate(d *schema.ResourceData, meta interface{
 		Name:                        dcl.String(d.Get("name").(string)),
 		Networking:                  expandContainerAzureClusterNetworking(d.Get("networking")),
 		ResourceGroupId:             dcl.String(d.Get("resource_group_id").(string)),
-		Annotations:                 checkStringMap(d.Get("annotations")),
+		Annotations:                 tpgresource.CheckStringMap(d.Get("annotations")),
 		AzureServicesAuthentication: expandContainerAzureClusterAzureServicesAuthentication(d.Get("azure_services_authentication")),
 		Client:                      dcl.String(d.Get("client").(string)),
 		Description:                 dcl.String(d.Get("description").(string)),
@@ -742,7 +742,7 @@ func resourceContainerAzureClusterDelete(d *schema.ResourceData, meta interface{
 		Name:                        dcl.String(d.Get("name").(string)),
 		Networking:                  expandContainerAzureClusterNetworking(d.Get("networking")),
 		ResourceGroupId:             dcl.String(d.Get("resource_group_id").(string)),
-		Annotations:                 checkStringMap(d.Get("annotations")),
+		Annotations:                 tpgresource.CheckStringMap(d.Get("annotations")),
 		AzureServicesAuthentication: expandContainerAzureClusterAzureServicesAuthentication(d.Get("azure_services_authentication")),
 		Client:                      dcl.String(d.Get("client").(string)),
 		Description:                 dcl.String(d.Get("description").(string)),
@@ -777,7 +777,7 @@ func resourceContainerAzureClusterDelete(d *schema.ResourceData, meta interface{
 func resourceContainerAzureClusterImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/azureClusters/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -786,7 +786,7 @@ func resourceContainerAzureClusterImport(d *schema.ResourceData, meta interface{
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/azureClusters/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/azureClusters/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -894,7 +894,7 @@ func expandContainerAzureClusterControlPlane(o interface{}) *containerazure.Clus
 		ProxyConfig:        expandContainerAzureClusterControlPlaneProxyConfig(obj["proxy_config"]),
 		ReplicaPlacements:  expandContainerAzureClusterControlPlaneReplicaPlacementsArray(obj["replica_placements"]),
 		RootVolume:         expandContainerAzureClusterControlPlaneRootVolume(obj["root_volume"]),
-		Tags:               checkStringMap(obj["tags"]),
+		Tags:               tpgresource.CheckStringMap(obj["tags"]),
 		VmSize:             dcl.StringOrNil(obj["vm_size"].(string)),
 	}
 }

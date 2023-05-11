@@ -281,7 +281,7 @@ func resourceOSLoginSSHPublicKeyDelete(d *schema.ResourceData, meta interface{})
 
 func resourceOSLoginSSHPublicKeyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"users/(?P<user>[^/]+)/sshPublicKeys/(?P<fingerprint>[^/]+)",
 		"(?P<user>[^/]+)/(?P<fingerprint>[^/]+)",
 	}, d, config); err != nil {

@@ -302,7 +302,7 @@ func resourceSecurityCenterMuteConfigDelete(d *schema.ResourceData, meta interfa
 func resourceSecurityCenterMuteConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := tpgresource.ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 

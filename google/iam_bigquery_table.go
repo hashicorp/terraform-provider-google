@@ -72,7 +72,7 @@ func BigQueryTableIamUpdaterProducer(d tpgresource.TerraformResourceData, config
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)/tables/(?P<table_id>[^/]+)", "(?P<project>[^/]+)/(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)", "(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)", "(?P<table_id>[^/]+)"}, d, config, d.Get("table_id").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)/tables/(?P<table_id>[^/]+)", "(?P<project>[^/]+)/(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)", "(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)", "(?P<table_id>[^/]+)"}, d, config, d.Get("table_id").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func BigQueryTableIdParseFunc(d *schema.ResourceData, config *transport_tpg.Conf
 		values["project"] = project
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)/tables/(?P<table_id>[^/]+)", "(?P<project>[^/]+)/(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)", "(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)", "(?P<table_id>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)/tables/(?P<table_id>[^/]+)", "(?P<project>[^/]+)/(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)", "(?P<dataset_id>[^/]+)/(?P<table_id>[^/]+)", "(?P<table_id>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

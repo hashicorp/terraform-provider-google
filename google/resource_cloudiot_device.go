@@ -538,7 +538,7 @@ func resourceCloudIotDeviceDelete(d *schema.ResourceData, meta interface{}) erro
 
 func resourceCloudIotDeviceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"(?P<registry>.+)/devices/(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err

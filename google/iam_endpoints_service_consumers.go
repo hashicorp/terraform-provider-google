@@ -58,7 +58,7 @@ func ServiceManagementServiceConsumersIamUpdaterProducer(d tpgresource.Terraform
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"services/(?P<service_name>[^/]+)/consumers/(?P<consumer_project>[^/]+)", "(?P<service_name>[^/]+)/(?P<consumer_project>[^/]+)", "(?P<consumer_project>[^/]+)"}, d, config, d.Get("consumer_project").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"services/(?P<service_name>[^/]+)/consumers/(?P<consumer_project>[^/]+)", "(?P<service_name>[^/]+)/(?P<consumer_project>[^/]+)", "(?P<consumer_project>[^/]+)"}, d, config, d.Get("consumer_project").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func ServiceManagementServiceConsumersIamUpdaterProducer(d tpgresource.Terraform
 func ServiceManagementServiceConsumersIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
-	m, err := getImportIdQualifiers([]string{"services/(?P<service_name>[^/]+)/consumers/(?P<consumer_project>[^/]+)", "(?P<service_name>[^/]+)/(?P<consumer_project>[^/]+)", "(?P<consumer_project>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"services/(?P<service_name>[^/]+)/consumers/(?P<consumer_project>[^/]+)", "(?P<service_name>[^/]+)/(?P<consumer_project>[^/]+)", "(?P<consumer_project>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

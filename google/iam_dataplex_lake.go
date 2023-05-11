@@ -76,7 +76,7 @@ func DataplexLakeIamUpdaterProducer(d tpgresource.TerraformResourceData, config 
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/lakes/(?P<lake>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<lake>[^/]+)", "(?P<location>[^/]+)/(?P<lake>[^/]+)", "(?P<lake>[^/]+)"}, d, config, d.Get("lake").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/lakes/(?P<lake>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<lake>[^/]+)", "(?P<location>[^/]+)/(?P<lake>[^/]+)", "(?P<lake>[^/]+)"}, d, config, d.Get("lake").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func DataplexLakeIdParseFunc(d *schema.ResourceData, config *transport_tpg.Confi
 		values["location"] = location
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/lakes/(?P<lake>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<lake>[^/]+)", "(?P<location>[^/]+)/(?P<lake>[^/]+)", "(?P<lake>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/lakes/(?P<lake>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<lake>[^/]+)", "(?P<location>[^/]+)/(?P<lake>[^/]+)", "(?P<lake>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

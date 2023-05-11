@@ -208,7 +208,7 @@ func resourceComputeFirewallPolicyAssociationDelete(d *schema.ResourceData, meta
 func resourceComputeFirewallPolicyAssociationImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"locations/global/firewallPolicies/(?P<firewall_policy>[^/]+)/associations/(?P<name>[^/]+)",
 		"(?P<firewall_policy>[^/]+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {
@@ -216,7 +216,7 @@ func resourceComputeFirewallPolicyAssociationImport(d *schema.ResourceData, meta
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "locations/global/firewallPolicies/{{firewall_policy}}/associations/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "locations/global/firewallPolicies/{{firewall_policy}}/associations/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -76,7 +76,7 @@ func NotebooksRuntimeIamUpdaterProducer(d tpgresource.TerraformResourceData, con
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/runtimes/(?P<runtime_name>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<runtime_name>[^/]+)", "(?P<location>[^/]+)/(?P<runtime_name>[^/]+)", "(?P<runtime_name>[^/]+)"}, d, config, d.Get("runtime_name").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/runtimes/(?P<runtime_name>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<runtime_name>[^/]+)", "(?P<location>[^/]+)/(?P<runtime_name>[^/]+)", "(?P<runtime_name>[^/]+)"}, d, config, d.Get("runtime_name").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func NotebooksRuntimeIdParseFunc(d *schema.ResourceData, config *transport_tpg.C
 		values["location"] = location
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/runtimes/(?P<runtime_name>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<runtime_name>[^/]+)", "(?P<location>[^/]+)/(?P<runtime_name>[^/]+)", "(?P<runtime_name>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/runtimes/(?P<runtime_name>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<runtime_name>[^/]+)", "(?P<location>[^/]+)/(?P<runtime_name>[^/]+)", "(?P<runtime_name>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

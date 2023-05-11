@@ -62,7 +62,7 @@ func IapWebBackendServiceIamUpdaterProducer(d tpgresource.TerraformResourceData,
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute/services/(?P<web_backend_service>[^/]+)", "(?P<project>[^/]+)/(?P<web_backend_service>[^/]+)", "(?P<web_backend_service>[^/]+)"}, d, config, d.Get("web_backend_service").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute/services/(?P<web_backend_service>[^/]+)", "(?P<project>[^/]+)/(?P<web_backend_service>[^/]+)", "(?P<web_backend_service>[^/]+)"}, d, config, d.Get("web_backend_service").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func IapWebBackendServiceIdParseFunc(d *schema.ResourceData, config *transport_t
 		values["project"] = project
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute/services/(?P<web_backend_service>[^/]+)", "(?P<project>[^/]+)/(?P<web_backend_service>[^/]+)", "(?P<web_backend_service>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/compute/services/(?P<web_backend_service>[^/]+)", "(?P<project>[^/]+)/(?P<web_backend_service>[^/]+)", "(?P<web_backend_service>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

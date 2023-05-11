@@ -133,7 +133,7 @@ func resourceNetworkConnectivityHubCreate(d *schema.ResourceData, meta interface
 	obj := &networkconnectivity.Hub{
 		Name:        dcl.String(d.Get("name").(string)),
 		Description: dcl.String(d.Get("description").(string)),
-		Labels:      checkStringMap(d.Get("labels")),
+		Labels:      tpgresource.CheckStringMap(d.Get("labels")),
 		Project:     dcl.String(project),
 	}
 
@@ -184,7 +184,7 @@ func resourceNetworkConnectivityHubRead(d *schema.ResourceData, meta interface{}
 	obj := &networkconnectivity.Hub{
 		Name:        dcl.String(d.Get("name").(string)),
 		Description: dcl.String(d.Get("description").(string)),
-		Labels:      checkStringMap(d.Get("labels")),
+		Labels:      tpgresource.CheckStringMap(d.Get("labels")),
 		Project:     dcl.String(project),
 	}
 
@@ -250,7 +250,7 @@ func resourceNetworkConnectivityHubUpdate(d *schema.ResourceData, meta interface
 	obj := &networkconnectivity.Hub{
 		Name:        dcl.String(d.Get("name").(string)),
 		Description: dcl.String(d.Get("description").(string)),
-		Labels:      checkStringMap(d.Get("labels")),
+		Labels:      tpgresource.CheckStringMap(d.Get("labels")),
 		Project:     dcl.String(project),
 	}
 	directive := UpdateDirective
@@ -296,7 +296,7 @@ func resourceNetworkConnectivityHubDelete(d *schema.ResourceData, meta interface
 	obj := &networkconnectivity.Hub{
 		Name:        dcl.String(d.Get("name").(string)),
 		Description: dcl.String(d.Get("description").(string)),
-		Labels:      checkStringMap(d.Get("labels")),
+		Labels:      tpgresource.CheckStringMap(d.Get("labels")),
 		Project:     dcl.String(project),
 	}
 
@@ -328,7 +328,7 @@ func resourceNetworkConnectivityHubDelete(d *schema.ResourceData, meta interface
 func resourceNetworkConnectivityHubImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/global/hubs/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -337,7 +337,7 @@ func resourceNetworkConnectivityHubImport(d *schema.ResourceData, meta interface
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/global/hubs/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/locations/global/hubs/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

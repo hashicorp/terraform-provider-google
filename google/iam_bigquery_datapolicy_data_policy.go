@@ -76,7 +76,7 @@ func BigqueryDatapolicyDataPolicyIamUpdaterProducer(d tpgresource.TerraformResou
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/dataPolicies/(?P<data_policy_id>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<data_policy_id>[^/]+)", "(?P<location>[^/]+)/(?P<data_policy_id>[^/]+)", "(?P<data_policy_id>[^/]+)"}, d, config, d.Get("data_policy_id").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/dataPolicies/(?P<data_policy_id>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<data_policy_id>[^/]+)", "(?P<location>[^/]+)/(?P<data_policy_id>[^/]+)", "(?P<data_policy_id>[^/]+)"}, d, config, d.Get("data_policy_id").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func BigqueryDatapolicyDataPolicyIdParseFunc(d *schema.ResourceData, config *tra
 		values["location"] = location
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/dataPolicies/(?P<data_policy_id>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<data_policy_id>[^/]+)", "(?P<location>[^/]+)/(?P<data_policy_id>[^/]+)", "(?P<data_policy_id>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/dataPolicies/(?P<data_policy_id>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<data_policy_id>[^/]+)", "(?P<location>[^/]+)/(?P<data_policy_id>[^/]+)", "(?P<data_policy_id>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

@@ -574,7 +574,7 @@ func resourceDataCatalogTagTemplateImport(d *schema.ResourceData, meta interface
 	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := tpgresource.ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 
@@ -767,7 +767,7 @@ func expandDataCatalogTagTemplateFields(v interface{}, d tpgresource.TerraformRe
 			transformed["order"] = transformedOrder
 		}
 
-		transformedFieldId, err := expandString(original["field_id"], d, config)
+		transformedFieldId, err := tpgresource.ExpandString(original["field_id"], d, config)
 		if err != nil {
 			return nil, err
 		}

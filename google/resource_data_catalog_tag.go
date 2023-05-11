@@ -361,7 +361,7 @@ func resourceDataCatalogTagImport(d *schema.ResourceData, meta interface{}) ([]*
 	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := tpgresource.ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 
@@ -523,7 +523,7 @@ func expandNestedDataCatalogTagFields(v interface{}, d tpgresource.TerraformReso
 			transformed["enumValue"] = transformedEnumValue
 		}
 
-		transformedFieldName, err := expandString(original["field_name"], d, config)
+		transformedFieldName, err := tpgresource.ExpandString(original["field_name"], d, config)
 		if err != nil {
 			return nil, err
 		}

@@ -76,7 +76,7 @@ func CloudFunctionsCloudFunctionIamUpdaterProducer(d tpgresource.TerraformResour
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<cloud_function>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<cloud_function>[^/]+)"}, d, config, d.Get("cloud_function").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<cloud_function>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<cloud_function>[^/]+)"}, d, config, d.Get("cloud_function").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func CloudFunctionsCloudFunctionIdParseFunc(d *schema.ResourceData, config *tran
 		values["region"] = region
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<cloud_function>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<cloud_function>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<cloud_function>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<region>[^/]+)/(?P<cloud_function>[^/]+)", "(?P<cloud_function>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

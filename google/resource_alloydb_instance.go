@@ -525,7 +525,7 @@ func resourceAlloydbInstanceImport(d *schema.ResourceData, meta interface{}) ([]
 	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"(?P<cluster>.+)/instances/(?P<instance_id>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err

@@ -544,7 +544,7 @@ func resourceComputeNetworkFirewallPolicyRuleDelete(d *schema.ResourceData, meta
 func resourceComputeNetworkFirewallPolicyRuleImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/global/firewallPolicies/(?P<firewall_policy>[^/]+)/rules/(?P<priority>[^/]+)",
 		"(?P<project>[^/]+)/(?P<firewall_policy>[^/]+)/(?P<priority>[^/]+)",
 		"(?P<firewall_policy>[^/]+)/(?P<priority>[^/]+)",
@@ -553,7 +553,7 @@ func resourceComputeNetworkFirewallPolicyRuleImport(d *schema.ResourceData, meta
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/rules/{{priority}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/global/firewallPolicies/{{firewall_policy}}/rules/{{priority}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -196,7 +196,7 @@ func resourceMonitoringMonitoredProjectDelete(d *schema.ResourceData, meta inter
 func resourceMonitoringMonitoredProjectImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"locations/global/metricsScopes/(?P<metrics_scope>[^/]+)/projects/(?P<name>[^/]+)",
 		"(?P<metrics_scope>[^/]+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {
@@ -204,7 +204,7 @@ func resourceMonitoringMonitoredProjectImport(d *schema.ResourceData, meta inter
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "locations/global/metricsScopes/{{metrics_scope}}/projects/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "locations/global/metricsScopes/{{metrics_scope}}/projects/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

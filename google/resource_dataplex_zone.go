@@ -307,7 +307,7 @@ func resourceDataplexZoneCreate(d *schema.ResourceData, meta interface{}) error 
 		Type:          dataplex.ZoneTypeEnumRef(d.Get("type").(string)),
 		Description:   dcl.String(d.Get("description").(string)),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Labels:        checkStringMap(d.Get("labels")),
+		Labels:        tpgresource.CheckStringMap(d.Get("labels")),
 		Project:       dcl.String(project),
 	}
 
@@ -364,7 +364,7 @@ func resourceDataplexZoneRead(d *schema.ResourceData, meta interface{}) error {
 		Type:          dataplex.ZoneTypeEnumRef(d.Get("type").(string)),
 		Description:   dcl.String(d.Get("description").(string)),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Labels:        checkStringMap(d.Get("labels")),
+		Labels:        tpgresource.CheckStringMap(d.Get("labels")),
 		Project:       dcl.String(project),
 	}
 
@@ -454,7 +454,7 @@ func resourceDataplexZoneUpdate(d *schema.ResourceData, meta interface{}) error 
 		Type:          dataplex.ZoneTypeEnumRef(d.Get("type").(string)),
 		Description:   dcl.String(d.Get("description").(string)),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Labels:        checkStringMap(d.Get("labels")),
+		Labels:        tpgresource.CheckStringMap(d.Get("labels")),
 		Project:       dcl.String(project),
 	}
 	directive := UpdateDirective
@@ -506,7 +506,7 @@ func resourceDataplexZoneDelete(d *schema.ResourceData, meta interface{}) error 
 		Type:          dataplex.ZoneTypeEnumRef(d.Get("type").(string)),
 		Description:   dcl.String(d.Get("description").(string)),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Labels:        checkStringMap(d.Get("labels")),
+		Labels:        tpgresource.CheckStringMap(d.Get("labels")),
 		Project:       dcl.String(project),
 	}
 
@@ -538,7 +538,7 @@ func resourceDataplexZoneDelete(d *schema.ResourceData, meta interface{}) error 
 func resourceDataplexZoneImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/lakes/(?P<lake>[^/]+)/zones/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<name>[^/]+)",
@@ -547,7 +547,7 @@ func resourceDataplexZoneImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/lakes/{{lake}}/zones/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/lakes/{{lake}}/zones/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

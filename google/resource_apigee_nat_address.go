@@ -219,7 +219,7 @@ func resourceApigeeNatAddressImport(d *schema.ResourceData, meta interface{}) ([
 	config := meta.(*transport_tpg.Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"(?P<instance_id>.+)/natAddresses/(?P<name>.+)",
 		"(?P<instance_id>.+)/(?P<name>.+)",
 	}, d, config); err != nil {

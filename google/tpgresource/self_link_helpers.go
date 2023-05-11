@@ -1,12 +1,14 @@
 package tpgresource
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"regexp"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // Compare only the resource name of two self links/paths.
@@ -89,6 +91,53 @@ func NameFromSelfLinkStateFunc(v interface{}) string {
 
 func StoreResourceName(resourceLink interface{}) string {
 	return GetResourceNameFromSelfLink(resourceLink.(string))
+}
+
+type LocationType int
+
+const (
+	Zonal LocationType = iota
+	Regional
+	Global
+)
+
+func GetZonalResourcePropertiesFromSelfLinkOrSchema(d *schema.ResourceData, config *transport_tpg.Config) (string, string, string, error) {
+	return getResourcePropertiesFromSelfLinkOrSchema(d, config, Zonal)
+}
+
+func GetRegionalResourcePropertiesFromSelfLinkOrSchema(d *schema.ResourceData, config *transport_tpg.Config) (string, string, string, error) {
+	return getResourcePropertiesFromSelfLinkOrSchema(d, config, Regional)
+}
+
+func getResourcePropertiesFromSelfLinkOrSchema(d *schema.ResourceData, config *transport_tpg.Config, locationType LocationType) (string, string, string, error) {
+	if selfLink, ok := d.GetOk("self_link"); ok {
+		return GetLocationalResourcePropertiesFromSelfLinkString(selfLink.(string))
+	} else {
+		project, err := GetProject(d, config)
+		if err != nil {
+			return "", "", "", err
+		}
+
+		location := ""
+		if locationType == Regional {
+			location, err = GetRegion(d, config)
+			if err != nil {
+				return "", "", "", err
+			}
+		} else if locationType == Zonal {
+			location, err = GetZone(d, config)
+			if err != nil {
+				return "", "", "", err
+			}
+		}
+
+		n, ok := d.GetOk("name")
+		name := n.(string)
+		if !ok {
+			return "", "", "", errors.New("must provide either `self_link` or `name`")
+		}
+		return project, location, name, nil
+	}
 }
 
 // given a full locational (non-global) self link, returns the project + region/zone + name or an error

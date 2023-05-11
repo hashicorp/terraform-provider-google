@@ -423,7 +423,7 @@ func resourceDataplexAssetCreate(d *schema.ResourceData, meta interface{}) error
 		ResourceSpec:  expandDataplexAssetResourceSpec(d.Get("resource_spec")),
 		Description:   dcl.String(d.Get("description").(string)),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Labels:        checkStringMap(d.Get("labels")),
+		Labels:        tpgresource.CheckStringMap(d.Get("labels")),
 		Project:       dcl.String(project),
 	}
 
@@ -480,7 +480,7 @@ func resourceDataplexAssetRead(d *schema.ResourceData, meta interface{}) error {
 		ResourceSpec:  expandDataplexAssetResourceSpec(d.Get("resource_spec")),
 		Description:   dcl.String(d.Get("description").(string)),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Labels:        checkStringMap(d.Get("labels")),
+		Labels:        tpgresource.CheckStringMap(d.Get("labels")),
 		Project:       dcl.String(project),
 	}
 
@@ -576,7 +576,7 @@ func resourceDataplexAssetUpdate(d *schema.ResourceData, meta interface{}) error
 		ResourceSpec:  expandDataplexAssetResourceSpec(d.Get("resource_spec")),
 		Description:   dcl.String(d.Get("description").(string)),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Labels:        checkStringMap(d.Get("labels")),
+		Labels:        tpgresource.CheckStringMap(d.Get("labels")),
 		Project:       dcl.String(project),
 	}
 	directive := UpdateDirective
@@ -628,7 +628,7 @@ func resourceDataplexAssetDelete(d *schema.ResourceData, meta interface{}) error
 		ResourceSpec:  expandDataplexAssetResourceSpec(d.Get("resource_spec")),
 		Description:   dcl.String(d.Get("description").(string)),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Labels:        checkStringMap(d.Get("labels")),
+		Labels:        tpgresource.CheckStringMap(d.Get("labels")),
 		Project:       dcl.String(project),
 	}
 
@@ -660,7 +660,7 @@ func resourceDataplexAssetDelete(d *schema.ResourceData, meta interface{}) error
 func resourceDataplexAssetImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/lakes/(?P<lake>[^/]+)/zones/(?P<dataplex_zone>[^/]+)/assets/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<dataplex_zone>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<dataplex_zone>[^/]+)/(?P<name>[^/]+)",
@@ -669,7 +669,7 @@ func resourceDataplexAssetImport(d *schema.ResourceData, meta interface{}) ([]*s
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/lakes/{{lake}}/zones/{{dataplex_zone}}/assets/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/lakes/{{lake}}/zones/{{dataplex_zone}}/assets/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

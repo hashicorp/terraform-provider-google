@@ -560,7 +560,7 @@ func TestDnsManagedZoneImport_parseImportId(t *testing.T) {
 			config = &transport_tpg.Config{}
 		}
 		//
-		if err := ParseImportId(tc.IdRegexes, d, config); err == nil {
+		if err := tpgresource.ParseImportId(tc.IdRegexes, d, config); err == nil {
 			for k, expectedValue := range tc.ExpectedSchemaValues {
 				if v, ok := d.GetOk(k); ok {
 					if v != expectedValue {

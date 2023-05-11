@@ -324,7 +324,7 @@ func resourceEventarcTriggerCreate(d *schema.ResourceData, meta interface{}) err
 		MatchingCriteria: expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
 		Name:             dcl.String(d.Get("name").(string)),
 		Channel:          dcl.String(d.Get("channel").(string)),
-		Labels:           checkStringMap(d.Get("labels")),
+		Labels:           tpgresource.CheckStringMap(d.Get("labels")),
 		Project:          dcl.String(project),
 		ServiceAccount:   dcl.String(d.Get("service_account").(string)),
 		Transport:        expandEventarcTriggerTransport(d.Get("transport")),
@@ -380,7 +380,7 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 		MatchingCriteria: expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
 		Name:             dcl.String(d.Get("name").(string)),
 		Channel:          dcl.String(d.Get("channel").(string)),
-		Labels:           checkStringMap(d.Get("labels")),
+		Labels:           tpgresource.CheckStringMap(d.Get("labels")),
 		Project:          dcl.String(project),
 		ServiceAccount:   dcl.String(d.Get("service_account").(string)),
 		Transport:        expandEventarcTriggerTransport(d.Get("transport")),
@@ -466,7 +466,7 @@ func resourceEventarcTriggerUpdate(d *schema.ResourceData, meta interface{}) err
 		MatchingCriteria: expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
 		Name:             dcl.String(d.Get("name").(string)),
 		Channel:          dcl.String(d.Get("channel").(string)),
-		Labels:           checkStringMap(d.Get("labels")),
+		Labels:           tpgresource.CheckStringMap(d.Get("labels")),
 		Project:          dcl.String(project),
 		ServiceAccount:   dcl.String(d.Get("service_account").(string)),
 		Transport:        expandEventarcTriggerTransport(d.Get("transport")),
@@ -517,7 +517,7 @@ func resourceEventarcTriggerDelete(d *schema.ResourceData, meta interface{}) err
 		MatchingCriteria: expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
 		Name:             dcl.String(d.Get("name").(string)),
 		Channel:          dcl.String(d.Get("channel").(string)),
-		Labels:           checkStringMap(d.Get("labels")),
+		Labels:           tpgresource.CheckStringMap(d.Get("labels")),
 		Project:          dcl.String(project),
 		ServiceAccount:   dcl.String(d.Get("service_account").(string)),
 		Transport:        expandEventarcTriggerTransport(d.Get("transport")),
@@ -551,7 +551,7 @@ func resourceEventarcTriggerDelete(d *schema.ResourceData, meta interface{}) err
 func resourceEventarcTriggerImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/triggers/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -560,7 +560,7 @@ func resourceEventarcTriggerImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/triggers/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/triggers/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

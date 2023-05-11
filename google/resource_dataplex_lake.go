@@ -223,7 +223,7 @@ func resourceDataplexLakeCreate(d *schema.ResourceData, meta interface{}) error 
 		Name:        dcl.String(d.Get("name").(string)),
 		Description: dcl.String(d.Get("description").(string)),
 		DisplayName: dcl.String(d.Get("display_name").(string)),
-		Labels:      checkStringMap(d.Get("labels")),
+		Labels:      tpgresource.CheckStringMap(d.Get("labels")),
 		Metastore:   expandDataplexLakeMetastore(d.Get("metastore")),
 		Project:     dcl.String(project),
 	}
@@ -277,7 +277,7 @@ func resourceDataplexLakeRead(d *schema.ResourceData, meta interface{}) error {
 		Name:        dcl.String(d.Get("name").(string)),
 		Description: dcl.String(d.Get("description").(string)),
 		DisplayName: dcl.String(d.Get("display_name").(string)),
-		Labels:      checkStringMap(d.Get("labels")),
+		Labels:      tpgresource.CheckStringMap(d.Get("labels")),
 		Metastore:   expandDataplexLakeMetastore(d.Get("metastore")),
 		Project:     dcl.String(project),
 	}
@@ -361,7 +361,7 @@ func resourceDataplexLakeUpdate(d *schema.ResourceData, meta interface{}) error 
 		Name:        dcl.String(d.Get("name").(string)),
 		Description: dcl.String(d.Get("description").(string)),
 		DisplayName: dcl.String(d.Get("display_name").(string)),
-		Labels:      checkStringMap(d.Get("labels")),
+		Labels:      tpgresource.CheckStringMap(d.Get("labels")),
 		Metastore:   expandDataplexLakeMetastore(d.Get("metastore")),
 		Project:     dcl.String(project),
 	}
@@ -410,7 +410,7 @@ func resourceDataplexLakeDelete(d *schema.ResourceData, meta interface{}) error 
 		Name:        dcl.String(d.Get("name").(string)),
 		Description: dcl.String(d.Get("description").(string)),
 		DisplayName: dcl.String(d.Get("display_name").(string)),
-		Labels:      checkStringMap(d.Get("labels")),
+		Labels:      tpgresource.CheckStringMap(d.Get("labels")),
 		Metastore:   expandDataplexLakeMetastore(d.Get("metastore")),
 		Project:     dcl.String(project),
 	}
@@ -443,7 +443,7 @@ func resourceDataplexLakeDelete(d *schema.ResourceData, meta interface{}) error 
 func resourceDataplexLakeImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/lakes/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -452,7 +452,7 @@ func resourceDataplexLakeImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/lakes/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/lakes/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -281,7 +281,7 @@ func resourceEventarcGoogleChannelConfigDelete(d *schema.ResourceData, meta inte
 func resourceEventarcGoogleChannelConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/googleChannelConfig",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)",
 		"(?P<location>[^/]+)",
@@ -290,7 +290,7 @@ func resourceEventarcGoogleChannelConfigImport(d *schema.ResourceData, meta inte
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/googleChannelConfig")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/googleChannelConfig")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

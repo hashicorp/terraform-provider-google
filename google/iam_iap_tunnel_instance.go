@@ -76,7 +76,7 @@ func IapTunnelInstanceIamUpdaterProducer(d tpgresource.TerraformResourceData, co
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_tunnel/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)", "projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<instance>[^/]+)"}, d, config, d.Get("instance").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_tunnel/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)", "projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<instance>[^/]+)"}, d, config, d.Get("instance").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func IapTunnelInstanceIdParseFunc(d *schema.ResourceData, config *transport_tpg.
 		values["zone"] = zone
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_tunnel/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)", "projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<instance>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_tunnel/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)", "projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<zone>[^/]+)/(?P<instance>[^/]+)", "(?P<instance>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

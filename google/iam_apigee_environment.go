@@ -58,7 +58,7 @@ func ApigeeEnvironmentIamUpdaterProducer(d tpgresource.TerraformResourceData, co
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"(?P<org_id>.+)/environments/(?P<env_id>[^/]+)", "(?P<env_id>[^/]+)"}, d, config, d.Get("env_id").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"(?P<org_id>.+)/environments/(?P<env_id>[^/]+)", "(?P<env_id>[^/]+)"}, d, config, d.Get("env_id").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func ApigeeEnvironmentIamUpdaterProducer(d tpgresource.TerraformResourceData, co
 func ApigeeEnvironmentIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
-	m, err := getImportIdQualifiers([]string{"(?P<org_id>.+)/environments/(?P<env_id>[^/]+)", "(?P<env_id>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"(?P<org_id>.+)/environments/(?P<env_id>[^/]+)", "(?P<env_id>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

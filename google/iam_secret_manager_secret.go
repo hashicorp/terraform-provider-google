@@ -62,7 +62,7 @@ func SecretManagerSecretIamUpdaterProducer(d tpgresource.TerraformResourceData, 
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/secrets/(?P<secret_id>[^/]+)", "(?P<project>[^/]+)/(?P<secret_id>[^/]+)", "(?P<secret_id>[^/]+)"}, d, config, d.Get("secret_id").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/secrets/(?P<secret_id>[^/]+)", "(?P<project>[^/]+)/(?P<secret_id>[^/]+)", "(?P<secret_id>[^/]+)"}, d, config, d.Get("secret_id").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func SecretManagerSecretIdParseFunc(d *schema.ResourceData, config *transport_tp
 		values["project"] = project
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/secrets/(?P<secret_id>[^/]+)", "(?P<project>[^/]+)/(?P<secret_id>[^/]+)", "(?P<secret_id>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/secrets/(?P<secret_id>[^/]+)", "(?P<project>[^/]+)/(?P<secret_id>[^/]+)", "(?P<secret_id>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

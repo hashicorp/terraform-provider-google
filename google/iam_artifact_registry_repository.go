@@ -76,7 +76,7 @@ func ArtifactRegistryRepositoryIamUpdaterProducer(d tpgresource.TerraformResourc
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/repositories/(?P<repository>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<repository>[^/]+)", "(?P<location>[^/]+)/(?P<repository>[^/]+)", "(?P<repository>[^/]+)"}, d, config, d.Get("repository").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/repositories/(?P<repository>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<repository>[^/]+)", "(?P<location>[^/]+)/(?P<repository>[^/]+)", "(?P<repository>[^/]+)"}, d, config, d.Get("repository").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func ArtifactRegistryRepositoryIdParseFunc(d *schema.ResourceData, config *trans
 		values["location"] = location
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/repositories/(?P<repository>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<repository>[^/]+)", "(?P<location>[^/]+)/(?P<repository>[^/]+)", "(?P<repository>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/repositories/(?P<repository>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<repository>[^/]+)", "(?P<location>[^/]+)/(?P<repository>[^/]+)", "(?P<repository>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

@@ -422,7 +422,7 @@ func resourceContainerAwsNodePoolCreate(d *schema.ResourceData, meta interface{}
 		Name:              dcl.String(d.Get("name").(string)),
 		SubnetId:          dcl.String(d.Get("subnet_id").(string)),
 		Version:           dcl.String(d.Get("version").(string)),
-		Annotations:       checkStringMap(d.Get("annotations")),
+		Annotations:       tpgresource.CheckStringMap(d.Get("annotations")),
 		Project:           dcl.String(project),
 	}
 
@@ -479,7 +479,7 @@ func resourceContainerAwsNodePoolRead(d *schema.ResourceData, meta interface{}) 
 		Name:              dcl.String(d.Get("name").(string)),
 		SubnetId:          dcl.String(d.Get("subnet_id").(string)),
 		Version:           dcl.String(d.Get("version").(string)),
-		Annotations:       checkStringMap(d.Get("annotations")),
+		Annotations:       tpgresource.CheckStringMap(d.Get("annotations")),
 		Project:           dcl.String(project),
 	}
 
@@ -572,7 +572,7 @@ func resourceContainerAwsNodePoolUpdate(d *schema.ResourceData, meta interface{}
 		Name:              dcl.String(d.Get("name").(string)),
 		SubnetId:          dcl.String(d.Get("subnet_id").(string)),
 		Version:           dcl.String(d.Get("version").(string)),
-		Annotations:       checkStringMap(d.Get("annotations")),
+		Annotations:       tpgresource.CheckStringMap(d.Get("annotations")),
 		Project:           dcl.String(project),
 	}
 	directive := UpdateDirective
@@ -624,7 +624,7 @@ func resourceContainerAwsNodePoolDelete(d *schema.ResourceData, meta interface{}
 		Name:              dcl.String(d.Get("name").(string)),
 		SubnetId:          dcl.String(d.Get("subnet_id").(string)),
 		Version:           dcl.String(d.Get("version").(string)),
-		Annotations:       checkStringMap(d.Get("annotations")),
+		Annotations:       tpgresource.CheckStringMap(d.Get("annotations")),
 		Project:           dcl.String(project),
 	}
 
@@ -656,7 +656,7 @@ func resourceContainerAwsNodePoolDelete(d *schema.ResourceData, meta interface{}
 func resourceContainerAwsNodePoolImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/awsClusters/(?P<cluster>[^/]+)/awsNodePools/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<cluster>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<cluster>[^/]+)/(?P<name>[^/]+)",
@@ -665,7 +665,7 @@ func resourceContainerAwsNodePoolImport(d *schema.ResourceData, meta interface{}
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/awsClusters/{{cluster}}/awsNodePools/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/awsClusters/{{cluster}}/awsNodePools/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -716,12 +716,12 @@ func expandContainerAwsNodePoolConfig(o interface{}) *containeraws.NodePoolConfi
 		IamInstanceProfile:           dcl.String(obj["iam_instance_profile"].(string)),
 		AutoscalingMetricsCollection: expandContainerAwsNodePoolConfigAutoscalingMetricsCollection(obj["autoscaling_metrics_collection"]),
 		InstanceType:                 dcl.StringOrNil(obj["instance_type"].(string)),
-		Labels:                       checkStringMap(obj["labels"]),
+		Labels:                       tpgresource.CheckStringMap(obj["labels"]),
 		ProxyConfig:                  expandContainerAwsNodePoolConfigProxyConfig(obj["proxy_config"]),
 		RootVolume:                   expandContainerAwsNodePoolConfigRootVolume(obj["root_volume"]),
 		SecurityGroupIds:             expandStringArray(obj["security_group_ids"]),
 		SshConfig:                    expandContainerAwsNodePoolConfigSshConfig(obj["ssh_config"]),
-		Tags:                         checkStringMap(obj["tags"]),
+		Tags:                         tpgresource.CheckStringMap(obj["tags"]),
 		Taints:                       expandContainerAwsNodePoolConfigTaintsArray(obj["taints"]),
 	}
 }

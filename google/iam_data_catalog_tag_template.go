@@ -76,7 +76,7 @@ func DataCatalogTagTemplateIamUpdaterProducer(d tpgresource.TerraformResourceDat
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/tagTemplates/(?P<tag_template>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<tag_template>[^/]+)", "(?P<region>[^/]+)/(?P<tag_template>[^/]+)", "(?P<tag_template>[^/]+)"}, d, config, d.Get("tag_template").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/tagTemplates/(?P<tag_template>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<tag_template>[^/]+)", "(?P<region>[^/]+)/(?P<tag_template>[^/]+)", "(?P<tag_template>[^/]+)"}, d, config, d.Get("tag_template").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func DataCatalogTagTemplateIdParseFunc(d *schema.ResourceData, config *transport
 		values["region"] = region
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/tagTemplates/(?P<tag_template>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<tag_template>[^/]+)", "(?P<region>[^/]+)/(?P<tag_template>[^/]+)", "(?P<tag_template>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/tagTemplates/(?P<tag_template>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<tag_template>[^/]+)", "(?P<region>[^/]+)/(?P<tag_template>[^/]+)", "(?P<tag_template>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

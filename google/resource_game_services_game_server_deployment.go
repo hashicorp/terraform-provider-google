@@ -340,7 +340,7 @@ func resourceGameServicesGameServerDeploymentDelete(d *schema.ResourceData, meta
 
 func resourceGameServicesGameServerDeploymentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/gameServerDeployments/(?P<deployment_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<deployment_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<deployment_id>[^/]+)",

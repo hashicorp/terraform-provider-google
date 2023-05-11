@@ -12,7 +12,7 @@ import (
 // to represent the type of parent (e.g. projects/{project_id}).
 func resourceOrgPolicyPolicyCustomImport(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"^(?P<parent>[^/]+/?[^/]*)/policies/(?P<name>[^/]+)",
 		"^(?P<parent>[^/]+/?[^/]*)/(?P<name>[^/]+)",
 	}, d, config); err != nil {

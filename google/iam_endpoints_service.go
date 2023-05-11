@@ -48,7 +48,7 @@ func ServiceManagementServiceIamUpdaterProducer(d tpgresource.TerraformResourceD
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"services/(?P<service_name>[^/]+)", "(?P<service_name>[^/]+)"}, d, config, d.Get("service_name").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"services/(?P<service_name>[^/]+)", "(?P<service_name>[^/]+)"}, d, config, d.Get("service_name").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func ServiceManagementServiceIamUpdaterProducer(d tpgresource.TerraformResourceD
 func ServiceManagementServiceIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
-	m, err := getImportIdQualifiers([]string{"services/(?P<service_name>[^/]+)", "(?P<service_name>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"services/(?P<service_name>[^/]+)", "(?P<service_name>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

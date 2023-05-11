@@ -394,7 +394,7 @@ func resourceGKEHubMembershipDelete(d *schema.ResourceData, meta interface{}) er
 
 func resourceGKEHubMembershipImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/global/memberships/(?P<membership_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<membership_id>[^/]+)",
 		"(?P<membership_id>[^/]+)",

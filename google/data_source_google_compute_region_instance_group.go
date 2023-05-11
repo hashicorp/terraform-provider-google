@@ -95,7 +95,7 @@ func dataSourceComputeRegionInstanceGroupRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	project, region, name, err := GetRegionalResourcePropertiesFromSelfLinkOrSchema(d, config)
+	project, region, name, err := tpgresource.GetRegionalResourcePropertiesFromSelfLinkOrSchema(d, config)
 	if err != nil {
 		return err
 	}

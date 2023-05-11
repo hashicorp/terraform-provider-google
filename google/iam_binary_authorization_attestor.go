@@ -62,7 +62,7 @@ func BinaryAuthorizationAttestorIamUpdaterProducer(d tpgresource.TerraformResour
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/attestors/(?P<attestor>[^/]+)", "(?P<project>[^/]+)/(?P<attestor>[^/]+)", "(?P<attestor>[^/]+)"}, d, config, d.Get("attestor").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/attestors/(?P<attestor>[^/]+)", "(?P<project>[^/]+)/(?P<attestor>[^/]+)", "(?P<attestor>[^/]+)"}, d, config, d.Get("attestor").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func BinaryAuthorizationAttestorIdParseFunc(d *schema.ResourceData, config *tran
 		values["project"] = project
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/attestors/(?P<attestor>[^/]+)", "(?P<project>[^/]+)/(?P<attestor>[^/]+)", "(?P<attestor>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/attestors/(?P<attestor>[^/]+)", "(?P<project>[^/]+)/(?P<attestor>[^/]+)", "(?P<attestor>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

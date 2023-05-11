@@ -460,7 +460,7 @@ func resourceBinaryAuthorizationPolicyDelete(d *schema.ResourceData, meta interf
 
 func resourceBinaryAuthorizationPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)",
 		"(?P<project>[^/]+)",
 	}, d, config); err != nil {
@@ -635,7 +635,7 @@ func expandBinaryAuthorizationPolicyClusterAdmissionRules(v interface{}, d tpgre
 			transformed["enforcementMode"] = transformedEnforcementMode
 		}
 
-		transformedCluster, err := expandString(original["cluster"], d, config)
+		transformedCluster, err := tpgresource.ExpandString(original["cluster"], d, config)
 		if err != nil {
 			return nil, err
 		}
