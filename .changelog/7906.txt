@@ -1,0 +1,3 @@
+```release-note:bug
+container: added ability for `gateway_api_config.channel` to default from the api
+```
