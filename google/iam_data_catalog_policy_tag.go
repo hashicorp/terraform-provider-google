@@ -48,7 +48,7 @@ func DataCatalogPolicyTagIamUpdaterProducer(d tpgresource.TerraformResourceData,
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"(?P<policy_tag>.+)"}, d, config, d.Get("policy_tag").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"(?P<policy_tag>.+)"}, d, config, d.Get("policy_tag").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func DataCatalogPolicyTagIamUpdaterProducer(d tpgresource.TerraformResourceData,
 func DataCatalogPolicyTagIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
-	m, err := getImportIdQualifiers([]string{"(?P<policy_tag>.+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"(?P<policy_tag>.+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

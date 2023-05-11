@@ -337,7 +337,7 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureDelete(d *schema.ResourceData,
 
 func resourceVertexAIFeaturestoreEntitytypeFeatureImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"(?P<entitytype>.+)/features/(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err

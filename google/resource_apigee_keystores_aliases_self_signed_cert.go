@@ -393,7 +393,7 @@ func resourceApigeeKeystoresAliasesSelfSignedCertImport(d *schema.ResourceData, 
 	config := meta.(*transport_tpg.Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"organizations/(?P<org_id>[^/]+)/environments/(?P<environment>[^/]+)/keystores/(?P<keystore>[^/]+)/aliases/(?P<alias>[^/]+)",
 		"(?P<org_id>[^/]+)/(?P<environment>[^/]+)/(?P<keystore>[^/]+)/(?P<alias>[^/]+)",
 	}, d, config); err != nil {

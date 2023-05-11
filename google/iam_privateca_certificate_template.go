@@ -76,7 +76,7 @@ func PrivatecaCertificateTemplateIamUpdaterProducer(d tpgresource.TerraformResou
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/certificateTemplates/(?P<certificate_template>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<certificate_template>[^/]+)", "(?P<location>[^/]+)/(?P<certificate_template>[^/]+)"}, d, config, d.Get("certificate_template").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/certificateTemplates/(?P<certificate_template>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<certificate_template>[^/]+)", "(?P<location>[^/]+)/(?P<certificate_template>[^/]+)"}, d, config, d.Get("certificate_template").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func PrivatecaCertificateTemplateIdParseFunc(d *schema.ResourceData, config *tra
 		values["location"] = location
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/certificateTemplates/(?P<certificate_template>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<certificate_template>[^/]+)", "(?P<location>[^/]+)/(?P<certificate_template>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/certificateTemplates/(?P<certificate_template>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<certificate_template>[^/]+)", "(?P<location>[^/]+)/(?P<certificate_template>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

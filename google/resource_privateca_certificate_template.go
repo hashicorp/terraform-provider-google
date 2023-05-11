@@ -481,7 +481,7 @@ func resourcePrivatecaCertificateTemplateCreate(d *schema.ResourceData, meta int
 		Name:                  dcl.String(d.Get("name").(string)),
 		Description:           dcl.String(d.Get("description").(string)),
 		IdentityConstraints:   expandPrivatecaCertificateTemplateIdentityConstraints(d.Get("identity_constraints")),
-		Labels:                checkStringMap(d.Get("labels")),
+		Labels:                tpgresource.CheckStringMap(d.Get("labels")),
 		PassthroughExtensions: expandPrivatecaCertificateTemplatePassthroughExtensions(d.Get("passthrough_extensions")),
 		PredefinedValues:      expandPrivatecaCertificateTemplatePredefinedValues(d.Get("predefined_values")),
 		Project:               dcl.String(project),
@@ -536,7 +536,7 @@ func resourcePrivatecaCertificateTemplateRead(d *schema.ResourceData, meta inter
 		Name:                  dcl.String(d.Get("name").(string)),
 		Description:           dcl.String(d.Get("description").(string)),
 		IdentityConstraints:   expandPrivatecaCertificateTemplateIdentityConstraints(d.Get("identity_constraints")),
-		Labels:                checkStringMap(d.Get("labels")),
+		Labels:                tpgresource.CheckStringMap(d.Get("labels")),
 		PassthroughExtensions: expandPrivatecaCertificateTemplatePassthroughExtensions(d.Get("passthrough_extensions")),
 		PredefinedValues:      expandPrivatecaCertificateTemplatePredefinedValues(d.Get("predefined_values")),
 		Project:               dcl.String(project),
@@ -609,7 +609,7 @@ func resourcePrivatecaCertificateTemplateUpdate(d *schema.ResourceData, meta int
 		Name:                  dcl.String(d.Get("name").(string)),
 		Description:           dcl.String(d.Get("description").(string)),
 		IdentityConstraints:   expandPrivatecaCertificateTemplateIdentityConstraints(d.Get("identity_constraints")),
-		Labels:                checkStringMap(d.Get("labels")),
+		Labels:                tpgresource.CheckStringMap(d.Get("labels")),
 		PassthroughExtensions: expandPrivatecaCertificateTemplatePassthroughExtensions(d.Get("passthrough_extensions")),
 		PredefinedValues:      expandPrivatecaCertificateTemplatePredefinedValues(d.Get("predefined_values")),
 		Project:               dcl.String(project),
@@ -659,7 +659,7 @@ func resourcePrivatecaCertificateTemplateDelete(d *schema.ResourceData, meta int
 		Name:                  dcl.String(d.Get("name").(string)),
 		Description:           dcl.String(d.Get("description").(string)),
 		IdentityConstraints:   expandPrivatecaCertificateTemplateIdentityConstraints(d.Get("identity_constraints")),
-		Labels:                checkStringMap(d.Get("labels")),
+		Labels:                tpgresource.CheckStringMap(d.Get("labels")),
 		PassthroughExtensions: expandPrivatecaCertificateTemplatePassthroughExtensions(d.Get("passthrough_extensions")),
 		PredefinedValues:      expandPrivatecaCertificateTemplatePredefinedValues(d.Get("predefined_values")),
 		Project:               dcl.String(project),
@@ -693,7 +693,7 @@ func resourcePrivatecaCertificateTemplateDelete(d *schema.ResourceData, meta int
 func resourcePrivatecaCertificateTemplateImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/certificateTemplates/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -702,7 +702,7 @@ func resourcePrivatecaCertificateTemplateImport(d *schema.ResourceData, meta int
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/certificateTemplates/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/certificateTemplates/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

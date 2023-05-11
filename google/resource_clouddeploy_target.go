@@ -260,12 +260,12 @@ func resourceClouddeployTargetCreate(d *schema.ResourceData, meta interface{}) e
 	obj := &clouddeploy.Target{
 		Location:         dcl.String(d.Get("location").(string)),
 		Name:             dcl.String(d.Get("name").(string)),
-		Annotations:      checkStringMap(d.Get("annotations")),
+		Annotations:      tpgresource.CheckStringMap(d.Get("annotations")),
 		AnthosCluster:    expandClouddeployTargetAnthosCluster(d.Get("anthos_cluster")),
 		Description:      dcl.String(d.Get("description").(string)),
 		ExecutionConfigs: expandClouddeployTargetExecutionConfigsArray(d.Get("execution_configs")),
 		Gke:              expandClouddeployTargetGke(d.Get("gke")),
-		Labels:           checkStringMap(d.Get("labels")),
+		Labels:           tpgresource.CheckStringMap(d.Get("labels")),
 		Project:          dcl.String(project),
 		RequireApproval:  dcl.Bool(d.Get("require_approval").(bool)),
 		Run:              expandClouddeployTargetRun(d.Get("run")),
@@ -318,12 +318,12 @@ func resourceClouddeployTargetRead(d *schema.ResourceData, meta interface{}) err
 	obj := &clouddeploy.Target{
 		Location:         dcl.String(d.Get("location").(string)),
 		Name:             dcl.String(d.Get("name").(string)),
-		Annotations:      checkStringMap(d.Get("annotations")),
+		Annotations:      tpgresource.CheckStringMap(d.Get("annotations")),
 		AnthosCluster:    expandClouddeployTargetAnthosCluster(d.Get("anthos_cluster")),
 		Description:      dcl.String(d.Get("description").(string)),
 		ExecutionConfigs: expandClouddeployTargetExecutionConfigsArray(d.Get("execution_configs")),
 		Gke:              expandClouddeployTargetGke(d.Get("gke")),
-		Labels:           checkStringMap(d.Get("labels")),
+		Labels:           tpgresource.CheckStringMap(d.Get("labels")),
 		Project:          dcl.String(project),
 		RequireApproval:  dcl.Bool(d.Get("require_approval").(bool)),
 		Run:              expandClouddeployTargetRun(d.Get("run")),
@@ -412,12 +412,12 @@ func resourceClouddeployTargetUpdate(d *schema.ResourceData, meta interface{}) e
 	obj := &clouddeploy.Target{
 		Location:         dcl.String(d.Get("location").(string)),
 		Name:             dcl.String(d.Get("name").(string)),
-		Annotations:      checkStringMap(d.Get("annotations")),
+		Annotations:      tpgresource.CheckStringMap(d.Get("annotations")),
 		AnthosCluster:    expandClouddeployTargetAnthosCluster(d.Get("anthos_cluster")),
 		Description:      dcl.String(d.Get("description").(string)),
 		ExecutionConfigs: expandClouddeployTargetExecutionConfigsArray(d.Get("execution_configs")),
 		Gke:              expandClouddeployTargetGke(d.Get("gke")),
-		Labels:           checkStringMap(d.Get("labels")),
+		Labels:           tpgresource.CheckStringMap(d.Get("labels")),
 		Project:          dcl.String(project),
 		RequireApproval:  dcl.Bool(d.Get("require_approval").(bool)),
 		Run:              expandClouddeployTargetRun(d.Get("run")),
@@ -465,12 +465,12 @@ func resourceClouddeployTargetDelete(d *schema.ResourceData, meta interface{}) e
 	obj := &clouddeploy.Target{
 		Location:         dcl.String(d.Get("location").(string)),
 		Name:             dcl.String(d.Get("name").(string)),
-		Annotations:      checkStringMap(d.Get("annotations")),
+		Annotations:      tpgresource.CheckStringMap(d.Get("annotations")),
 		AnthosCluster:    expandClouddeployTargetAnthosCluster(d.Get("anthos_cluster")),
 		Description:      dcl.String(d.Get("description").(string)),
 		ExecutionConfigs: expandClouddeployTargetExecutionConfigsArray(d.Get("execution_configs")),
 		Gke:              expandClouddeployTargetGke(d.Get("gke")),
-		Labels:           checkStringMap(d.Get("labels")),
+		Labels:           tpgresource.CheckStringMap(d.Get("labels")),
 		Project:          dcl.String(project),
 		RequireApproval:  dcl.Bool(d.Get("require_approval").(bool)),
 		Run:              expandClouddeployTargetRun(d.Get("run")),
@@ -504,7 +504,7 @@ func resourceClouddeployTargetDelete(d *schema.ResourceData, meta interface{}) e
 func resourceClouddeployTargetImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/targets/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -513,7 +513,7 @@ func resourceClouddeployTargetImport(d *schema.ResourceData, meta interface{}) (
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/targets/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/targets/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

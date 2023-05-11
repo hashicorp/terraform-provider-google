@@ -259,7 +259,7 @@ func resourceTagsLocationTagBindingDelete(d *schema.ResourceData, meta interface
 
 func resourceTagsLocationTagBindingImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{"(?P<location>[^/]+)/tagBindings/(?P<parent>[^/]+)/tagValues/(?P<tag_value>[^/]+)"}, d, config); err != nil {
+	if err := tpgresource.ParseImportId([]string{"(?P<location>[^/]+)/tagBindings/(?P<parent>[^/]+)/tagValues/(?P<tag_value>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}
 

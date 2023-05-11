@@ -135,7 +135,7 @@ func resourceComputeRegionNetworkFirewallPolicyCreate(d *schema.ResourceData, me
 		Location:    dcl.String(region),
 	}
 
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}")
 	if err != nil {
 		return fmt.Errorf("error constructing id: %s", err)
 	}
@@ -341,7 +341,7 @@ func resourceComputeRegionNetworkFirewallPolicyDelete(d *schema.ResourceData, me
 func resourceComputeRegionNetworkFirewallPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/firewallPolicies/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -351,7 +351,7 @@ func resourceComputeRegionNetworkFirewallPolicyImport(d *schema.ResourceData, me
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

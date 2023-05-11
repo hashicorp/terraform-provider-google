@@ -1250,7 +1250,7 @@ func resourcePrivatecaCertificateAuthorityDelete(d *schema.ResourceData, meta in
 
 func resourcePrivatecaCertificateAuthorityImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/caPools/(?P<pool>[^/]+)/certificateAuthorities/(?P<certificate_authority_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<pool>[^/]+)/(?P<certificate_authority_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<pool>[^/]+)/(?P<certificate_authority_id>[^/]+)",

@@ -505,7 +505,7 @@ func resourceComputeNodeGroupDelete(d *schema.ResourceData, meta interface{}) er
 
 func resourceComputeNodeGroupImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/nodeGroups/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
 		"(?P<zone>[^/]+)/(?P<name>[^/]+)",
@@ -819,7 +819,7 @@ func expandComputeNodeGroupShareSettingsProjectMap(v interface{}, d tpgresource.
 			transformed["projectId"] = transformedProjectId
 		}
 
-		transformedId, err := expandString(original["id"], d, config)
+		transformedId, err := tpgresource.ExpandString(original["id"], d, config)
 		if err != nil {
 			return nil, err
 		}

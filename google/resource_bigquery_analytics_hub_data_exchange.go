@@ -377,7 +377,7 @@ func resourceBigqueryAnalyticsHubDataExchangeDelete(d *schema.ResourceData, meta
 
 func resourceBigqueryAnalyticsHubDataExchangeImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/dataExchanges/(?P<data_exchange_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<data_exchange_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<data_exchange_id>[^/]+)",

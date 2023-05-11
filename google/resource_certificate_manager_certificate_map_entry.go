@@ -419,7 +419,7 @@ func resourceCertificateManagerCertificateMapEntryDelete(d *schema.ResourceData,
 
 func resourceCertificateManagerCertificateMapEntryImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/global/certificateMaps/(?P<map>[^/]+)/certificateMapEntries/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<map>[^/]+)/(?P<name>[^/]+)",
 		"(?P<map>[^/]+)/(?P<name>[^/]+)",

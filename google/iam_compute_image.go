@@ -62,7 +62,7 @@ func ComputeImageIamUpdaterProducer(d tpgresource.TerraformResourceData, config 
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/global/images/(?P<image>[^/]+)", "(?P<project>[^/]+)/(?P<image>[^/]+)", "(?P<image>[^/]+)"}, d, config, d.Get("image").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/global/images/(?P<image>[^/]+)", "(?P<project>[^/]+)/(?P<image>[^/]+)", "(?P<image>[^/]+)"}, d, config, d.Get("image").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func ComputeImageIdParseFunc(d *schema.ResourceData, config *transport_tpg.Confi
 		values["project"] = project
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/global/images/(?P<image>[^/]+)", "(?P<project>[^/]+)/(?P<image>[^/]+)", "(?P<image>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/global/images/(?P<image>[^/]+)", "(?P<project>[^/]+)/(?P<image>[^/]+)", "(?P<image>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

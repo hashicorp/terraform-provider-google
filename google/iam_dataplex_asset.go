@@ -96,7 +96,7 @@ func DataplexAssetIamUpdaterProducer(d tpgresource.TerraformResourceData, config
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/lakes/(?P<lake>[^/]+)/zones/(?P<dataplex_zone>[^/]+)/assets/(?P<asset>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<dataplex_zone>[^/]+)/(?P<asset>[^/]+)", "(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<dataplex_zone>[^/]+)/(?P<asset>[^/]+)", "(?P<asset>[^/]+)"}, d, config, d.Get("asset").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/lakes/(?P<lake>[^/]+)/zones/(?P<dataplex_zone>[^/]+)/assets/(?P<asset>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<dataplex_zone>[^/]+)/(?P<asset>[^/]+)", "(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<dataplex_zone>[^/]+)/(?P<asset>[^/]+)", "(?P<asset>[^/]+)"}, d, config, d.Get("asset").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +147,7 @@ func DataplexAssetIdParseFunc(d *schema.ResourceData, config *transport_tpg.Conf
 		values["location"] = location
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/lakes/(?P<lake>[^/]+)/zones/(?P<dataplex_zone>[^/]+)/assets/(?P<asset>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<dataplex_zone>[^/]+)/(?P<asset>[^/]+)", "(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<dataplex_zone>[^/]+)/(?P<asset>[^/]+)", "(?P<asset>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/lakes/(?P<lake>[^/]+)/zones/(?P<dataplex_zone>[^/]+)/assets/(?P<asset>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<dataplex_zone>[^/]+)/(?P<asset>[^/]+)", "(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<dataplex_zone>[^/]+)/(?P<asset>[^/]+)", "(?P<asset>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

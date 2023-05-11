@@ -63,7 +63,7 @@ func (s *cloudFunctionId) locationId() string {
 }
 
 func parseCloudFunctionId(d *schema.ResourceData, config *transport_tpg.Config) (*cloudFunctionId, error) {
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/functions/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",

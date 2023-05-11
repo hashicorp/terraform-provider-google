@@ -62,7 +62,7 @@ func GKEHubMembershipIamUpdaterProducer(d tpgresource.TerraformResourceData, con
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/memberships/(?P<membership_id>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<membership_id>[^/]+)", "(?P<location>[^/]+)/(?P<membership_id>[^/]+)", "(?P<membership_id>[^/]+)"}, d, config, d.Get("membership_id").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/memberships/(?P<membership_id>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<membership_id>[^/]+)", "(?P<location>[^/]+)/(?P<membership_id>[^/]+)", "(?P<membership_id>[^/]+)"}, d, config, d.Get("membership_id").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func GKEHubMembershipIdParseFunc(d *schema.ResourceData, config *transport_tpg.C
 		values["project"] = project
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/memberships/(?P<membership_id>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<membership_id>[^/]+)", "(?P<location>[^/]+)/(?P<membership_id>[^/]+)", "(?P<membership_id>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/memberships/(?P<membership_id>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<membership_id>[^/]+)", "(?P<location>[^/]+)/(?P<membership_id>[^/]+)", "(?P<membership_id>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

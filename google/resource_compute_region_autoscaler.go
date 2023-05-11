@@ -599,7 +599,7 @@ func resourceComputeRegionAutoscalerDelete(d *schema.ResourceData, meta interfac
 
 func resourceComputeRegionAutoscalerImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/autoscalers/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
 		"(?P<region>[^/]+)/(?P<name>[^/]+)",
@@ -1271,7 +1271,7 @@ func expandComputeRegionAutoscalerAutoscalingPolicyScalingSchedules(v interface{
 			transformed["description"] = transformedDescription
 		}
 
-		transformedName, err := expandString(original["name"], d, config)
+		transformedName, err := tpgresource.ExpandString(original["name"], d, config)
 		if err != nil {
 			return nil, err
 		}

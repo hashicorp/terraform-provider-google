@@ -28,7 +28,7 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	project, zone, name, err := GetZonalResourcePropertiesFromSelfLinkOrSchema(d, config)
+	project, zone, name, err := tpgresource.GetZonalResourcePropertiesFromSelfLinkOrSchema(d, config)
 	if err != nil {
 		return err
 	}

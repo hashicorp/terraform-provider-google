@@ -58,7 +58,7 @@ func SecurityCenterSourceIamUpdaterProducer(d tpgresource.TerraformResourceData,
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"organizations/(?P<organization>[^/]+)/sources/(?P<source>[^/]+)", "(?P<organization>[^/]+)/(?P<source>[^/]+)", "(?P<source>[^/]+)"}, d, config, d.Get("source").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"organizations/(?P<organization>[^/]+)/sources/(?P<source>[^/]+)", "(?P<organization>[^/]+)/(?P<source>[^/]+)", "(?P<source>[^/]+)"}, d, config, d.Get("source").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func SecurityCenterSourceIamUpdaterProducer(d tpgresource.TerraformResourceData,
 func SecurityCenterSourceIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
-	m, err := getImportIdQualifiers([]string{"organizations/(?P<organization>[^/]+)/sources/(?P<source>[^/]+)", "(?P<organization>[^/]+)/(?P<source>[^/]+)", "(?P<source>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"organizations/(?P<organization>[^/]+)/sources/(?P<source>[^/]+)", "(?P<organization>[^/]+)/(?P<source>[^/]+)", "(?P<source>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

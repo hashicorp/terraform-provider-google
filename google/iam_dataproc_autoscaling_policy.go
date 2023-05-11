@@ -76,7 +76,7 @@ func DataprocAutoscalingPolicyIamUpdaterProducer(d tpgresource.TerraformResource
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/autoscalingPolicies/(?P<policy_id>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<policy_id>[^/]+)", "(?P<location>[^/]+)/(?P<policy_id>[^/]+)", "(?P<policy_id>[^/]+)"}, d, config, d.Get("policy_id").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/autoscalingPolicies/(?P<policy_id>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<policy_id>[^/]+)", "(?P<location>[^/]+)/(?P<policy_id>[^/]+)", "(?P<policy_id>[^/]+)"}, d, config, d.Get("policy_id").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func DataprocAutoscalingPolicyIdParseFunc(d *schema.ResourceData, config *transp
 		values["location"] = location
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/autoscalingPolicies/(?P<policy_id>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<policy_id>[^/]+)", "(?P<location>[^/]+)/(?P<policy_id>[^/]+)", "(?P<policy_id>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/autoscalingPolicies/(?P<policy_id>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<policy_id>[^/]+)", "(?P<location>[^/]+)/(?P<policy_id>[^/]+)", "(?P<policy_id>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

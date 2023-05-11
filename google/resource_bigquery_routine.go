@@ -521,7 +521,7 @@ func resourceBigQueryRoutineDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceBigQueryRoutineImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)/routines/(?P<routine_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<dataset_id>[^/]+)/(?P<routine_id>[^/]+)",
 		"(?P<dataset_id>[^/]+)/(?P<routine_id>[^/]+)",

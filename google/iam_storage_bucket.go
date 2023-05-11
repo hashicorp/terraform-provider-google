@@ -52,7 +52,7 @@ func StorageBucketIamUpdaterProducer(d tpgresource.TerraformResourceData, config
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"b/(?P<bucket>[^/]+)", "(?P<bucket>[^/]+)"}, d, config, d.Get("bucket").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"b/(?P<bucket>[^/]+)", "(?P<bucket>[^/]+)"}, d, config, d.Get("bucket").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func StorageBucketIamUpdaterProducer(d tpgresource.TerraformResourceData, config
 func StorageBucketIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
-	m, err := getImportIdQualifiers([]string{"b/(?P<bucket>[^/]+)", "(?P<bucket>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"b/(?P<bucket>[^/]+)", "(?P<bucket>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

@@ -1,8 +1,6 @@
 package google
 
 import (
-	"errors"
-
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -82,55 +80,16 @@ func StoreResourceName(resourceLink interface{}) string {
 	return tpgresource.StoreResourceName(resourceLink)
 }
 
-type LocationType int
-
-const (
-	Zonal LocationType = iota
-	Regional
-	Global
-)
-
 // Deprecated: For backward compatibility GetZonalResourcePropertiesFromSelfLinkOrSchema is still working,
 // but all new code should use GetZonalResourcePropertiesFromSelfLinkOrSchema in the tpgresource package instead.
 func GetZonalResourcePropertiesFromSelfLinkOrSchema(d *schema.ResourceData, config *transport_tpg.Config) (string, string, string, error) {
-	return getResourcePropertiesFromSelfLinkOrSchema(d, config, Zonal)
+	return tpgresource.GetZonalResourcePropertiesFromSelfLinkOrSchema(d, config)
 }
 
 // Deprecated: For backward compatibility GetRegionalResourcePropertiesFromSelfLinkOrSchema is still working,
 // but all new code should use GetRegionalResourcePropertiesFromSelfLinkOrSchema in the tpgresource package instead.
 func GetRegionalResourcePropertiesFromSelfLinkOrSchema(d *schema.ResourceData, config *transport_tpg.Config) (string, string, string, error) {
-	return getResourcePropertiesFromSelfLinkOrSchema(d, config, Regional)
-}
-
-func getResourcePropertiesFromSelfLinkOrSchema(d *schema.ResourceData, config *transport_tpg.Config, locationType LocationType) (string, string, string, error) {
-	if selfLink, ok := d.GetOk("self_link"); ok {
-		return GetLocationalResourcePropertiesFromSelfLinkString(selfLink.(string))
-	} else {
-		project, err := tpgresource.GetProject(d, config)
-		if err != nil {
-			return "", "", "", err
-		}
-
-		location := ""
-		if locationType == Regional {
-			location, err = tpgresource.GetRegion(d, config)
-			if err != nil {
-				return "", "", "", err
-			}
-		} else if locationType == Zonal {
-			location, err = tpgresource.GetZone(d, config)
-			if err != nil {
-				return "", "", "", err
-			}
-		}
-
-		n, ok := d.GetOk("name")
-		name := n.(string)
-		if !ok {
-			return "", "", "", errors.New("must provide either `self_link` or `name`")
-		}
-		return project, location, name, nil
-	}
+	return tpgresource.GetRegionalResourcePropertiesFromSelfLinkOrSchema(d, config)
 }
 
 // given a full locational (non-global) self link, returns the project + region/zone + name or an error

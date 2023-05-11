@@ -579,7 +579,7 @@ func resourceDataLossPreventionStoredInfoTypeImport(d *schema.ResourceData, meta
 	config := meta.(*transport_tpg.Config)
 
 	// Custom import to handle parent possibilities
-	if err := ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := tpgresource.ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 	parts := strings.Split(d.Get("name").(string), "/")

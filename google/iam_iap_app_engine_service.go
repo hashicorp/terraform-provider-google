@@ -72,7 +72,7 @@ func IapAppEngineServiceIamUpdaterProducer(d tpgresource.TerraformResourceData, 
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/appengine-(?P<appId>[^/]+)/services/(?P<service>[^/]+)", "(?P<project>[^/]+)/(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<service>[^/]+)"}, d, config, d.Get("service").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/appengine-(?P<appId>[^/]+)/services/(?P<service>[^/]+)", "(?P<project>[^/]+)/(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<service>[^/]+)"}, d, config, d.Get("service").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func IapAppEngineServiceIdParseFunc(d *schema.ResourceData, config *transport_tp
 		values["project"] = project
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/appengine-(?P<appId>[^/]+)/services/(?P<service>[^/]+)", "(?P<project>[^/]+)/(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<service>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/appengine-(?P<appId>[^/]+)/services/(?P<service>[^/]+)", "(?P<project>[^/]+)/(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<appId>[^/]+)/(?P<service>[^/]+)", "(?P<service>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

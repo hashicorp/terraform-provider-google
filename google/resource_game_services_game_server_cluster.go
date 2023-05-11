@@ -410,7 +410,7 @@ func resourceGameServicesGameServerClusterDelete(d *schema.ResourceData, meta in
 
 func resourceGameServicesGameServerClusterImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/realms/(?P<realm_id>[^/]+)/gameServerClusters/(?P<cluster_id>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<realm_id>[^/]+)/(?P<cluster_id>[^/]+)",
 		"(?P<location>[^/]+)/(?P<realm_id>[^/]+)/(?P<cluster_id>[^/]+)",

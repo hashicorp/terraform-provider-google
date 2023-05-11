@@ -297,7 +297,7 @@ func resourceAppEngineServiceSplitTrafficDelete(d *schema.ResourceData, meta int
 
 func resourceAppEngineServiceSplitTrafficImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"apps/(?P<project>[^/]+)/services/(?P<service>[^/]+)",
 		"(?P<project>[^/]+)/(?P<service>[^/]+)",
 		"(?P<service>[^/]+)",

@@ -243,7 +243,7 @@ func resourceAccessContextManagerIngressPolicyImport(d *schema.ResourceData, met
 	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	parts, err := getImportIdQualifiers([]string{"accessPolicies/(?P<accessPolicy>[^/]+)/servicePerimeters/(?P<perimeter>[^/]+)/(?P<resource>.+)"}, d, config, d.Id())
+	parts, err := tpgresource.GetImportIdQualifiers([]string{"accessPolicies/(?P<accessPolicy>[^/]+)/servicePerimeters/(?P<perimeter>[^/]+)/(?P<resource>.+)"}, d, config, d.Id())
 	if err != nil {
 		return nil, err
 	}

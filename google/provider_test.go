@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -106,22 +107,7 @@ func TestProvider_validateCredentials(t *testing.T) {
 // Pass in a schema and a config map containing the fields and values you wish to set
 // The returned schema.ResourceData can represent a configured resource, data source or provider.
 func setupTestResourceDataFromConfigMap(t *testing.T, s map[string]*schema.Schema, configValues map[string]interface{}) *schema.ResourceData {
-
-	// Create empty schema.ResourceData using the SDK Provider schema
-	emptyConfigMap := map[string]interface{}{}
-	d := schema.TestResourceDataRaw(t, s, emptyConfigMap)
-
-	// Load Terraform config data
-	if len(configValues) > 0 {
-		for k, v := range configValues {
-			err := d.Set(k, v)
-			if err != nil {
-				t.Fatalf("error during test setup: %v", err)
-			}
-		}
-	}
-
-	return d
+	return tpgresource.SetupTestResourceDataFromConfigMap(t, s, configValues)
 }
 
 // unsetProviderConfigEnvs unsets any ENVs in the test environment that
@@ -266,7 +252,7 @@ func TestProvider_providerConfigure_credentials(t *testing.T) {
 			unsetTestProviderConfigEnvs(t)
 			setupTestEnvs(t, tc.EnvVariables)
 			p := Provider()
-			d := setupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
+			d := tpgresource.SetupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
 
 			// Act
 			c, diags := providerConfigure(ctx, d, p)
@@ -362,7 +348,7 @@ func TestProvider_providerConfigure_accessToken(t *testing.T) {
 			unsetTestProviderConfigEnvs(t)
 			setupTestEnvs(t, tc.EnvVariables)
 			p := Provider()
-			d := setupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
+			d := tpgresource.SetupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
 
 			// Act
 			c, diags := providerConfigure(ctx, d, p)
@@ -447,7 +433,7 @@ func TestProvider_providerConfigure_impersonateServiceAccount(t *testing.T) {
 			unsetTestProviderConfigEnvs(t)
 			setupTestEnvs(t, tc.EnvVariables)
 			p := Provider()
-			d := setupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
+			d := tpgresource.SetupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
 
 			// Act
 			c, diags := providerConfigure(ctx, d, p)
@@ -521,7 +507,7 @@ func TestProvider_providerConfigure_impersonateServiceAccountDelegates(t *testin
 			unsetTestProviderConfigEnvs(t)
 			setupTestEnvs(t, tc.EnvVariables)
 			p := Provider()
-			d := setupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
+			d := tpgresource.SetupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
 
 			// Act
 			c, diags := providerConfigure(ctx, d, p)
@@ -664,7 +650,7 @@ func TestProvider_providerConfigure_project(t *testing.T) {
 			unsetTestProviderConfigEnvs(t)
 			setupTestEnvs(t, tc.EnvVariables)
 			p := Provider()
-			d := setupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
+			d := tpgresource.SetupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
 
 			// Act
 			c, diags := providerConfigure(ctx, d, p)

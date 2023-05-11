@@ -61,7 +61,7 @@ func NewBigtableTableUpdater(d tpgresource.TerraformResourceData, config *transp
 func BigtableTableIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/tables/(?P<table>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/tables/(?P<table>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

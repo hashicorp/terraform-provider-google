@@ -62,7 +62,7 @@ func DNSManagedZoneIamUpdaterProducer(d tpgresource.TerraformResourceData, confi
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/managedZones/(?P<managed_zone>[^/]+)", "(?P<project>[^/]+)/(?P<managed_zone>[^/]+)", "(?P<managed_zone>[^/]+)"}, d, config, d.Get("managed_zone").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/managedZones/(?P<managed_zone>[^/]+)", "(?P<project>[^/]+)/(?P<managed_zone>[^/]+)", "(?P<managed_zone>[^/]+)"}, d, config, d.Get("managed_zone").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func DNSManagedZoneIdParseFunc(d *schema.ResourceData, config *transport_tpg.Con
 		values["project"] = project
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/managedZones/(?P<managed_zone>[^/]+)", "(?P<project>[^/]+)/(?P<managed_zone>[^/]+)", "(?P<managed_zone>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/managedZones/(?P<managed_zone>[^/]+)", "(?P<project>[^/]+)/(?P<managed_zone>[^/]+)", "(?P<managed_zone>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

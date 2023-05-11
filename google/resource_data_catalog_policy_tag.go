@@ -300,7 +300,7 @@ func resourceDataCatalogPolicyTagDelete(d *schema.ResourceData, meta interface{}
 func resourceDataCatalogPolicyTagImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"(?P<taxonomy>projects/[^/]+/locations/[^/]+/taxonomies/[^/]+)/policyTags/(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}

@@ -76,7 +76,7 @@ func PrivatecaCaPoolIamUpdaterProducer(d tpgresource.TerraformResourceData, conf
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/caPools/(?P<ca_pool>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<ca_pool>[^/]+)", "(?P<location>[^/]+)/(?P<ca_pool>[^/]+)"}, d, config, d.Get("ca_pool").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/caPools/(?P<ca_pool>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<ca_pool>[^/]+)", "(?P<location>[^/]+)/(?P<ca_pool>[^/]+)"}, d, config, d.Get("ca_pool").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func PrivatecaCaPoolIdParseFunc(d *schema.ResourceData, config *transport_tpg.Co
 		values["location"] = location
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/caPools/(?P<ca_pool>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<ca_pool>[^/]+)", "(?P<location>[^/]+)/(?P<ca_pool>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/caPools/(?P<ca_pool>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<ca_pool>[^/]+)", "(?P<location>[^/]+)/(?P<ca_pool>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

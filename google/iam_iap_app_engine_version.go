@@ -82,7 +82,7 @@ func IapAppEngineVersionIamUpdaterProducer(d tpgresource.TerraformResourceData, 
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/appengine-(?P<appId>[^/]+)/services/(?P<service>[^/]+)/versions/(?P<versionId>[^/]+)", "(?P<project>[^/]+)/(?P<appId>[^/]+)/(?P<service>[^/]+)/(?P<versionId>[^/]+)", "(?P<appId>[^/]+)/(?P<service>[^/]+)/(?P<versionId>[^/]+)", "(?P<version>[^/]+)"}, d, config, d.Get("version_id").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/appengine-(?P<appId>[^/]+)/services/(?P<service>[^/]+)/versions/(?P<versionId>[^/]+)", "(?P<project>[^/]+)/(?P<appId>[^/]+)/(?P<service>[^/]+)/(?P<versionId>[^/]+)", "(?P<appId>[^/]+)/(?P<service>[^/]+)/(?P<versionId>[^/]+)", "(?P<version>[^/]+)"}, d, config, d.Get("version_id").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func IapAppEngineVersionIdParseFunc(d *schema.ResourceData, config *transport_tp
 		values["project"] = project
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/appengine-(?P<appId>[^/]+)/services/(?P<service>[^/]+)/versions/(?P<versionId>[^/]+)", "(?P<project>[^/]+)/(?P<appId>[^/]+)/(?P<service>[^/]+)/(?P<versionId>[^/]+)", "(?P<appId>[^/]+)/(?P<service>[^/]+)/(?P<versionId>[^/]+)", "(?P<version>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web/appengine-(?P<appId>[^/]+)/services/(?P<service>[^/]+)/versions/(?P<versionId>[^/]+)", "(?P<project>[^/]+)/(?P<appId>[^/]+)/(?P<service>[^/]+)/(?P<versionId>[^/]+)", "(?P<appId>[^/]+)/(?P<service>[^/]+)/(?P<versionId>[^/]+)", "(?P<version>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

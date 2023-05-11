@@ -15,10 +15,14 @@ import (
 	acctest_tpg "github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
+// Deprecated: For backward compatibility CheckDataSourceStateMatchesResourceState is still working,
+// but all new code should use CheckDataSourceStateMatchesResourceState in the acctest package instead.
 func CheckDataSourceStateMatchesResourceState(dataSourceName, resourceName string) func(*terraform.State) error {
 	return acctest_tpg.CheckDataSourceStateMatchesResourceState(dataSourceName, resourceName)
 }
 
+// Deprecated: For backward compatibility CheckDataSourceStateMatchesResourceStateWithIgnores is still working,
+// but all new code should use CheckDataSourceStateMatchesResourceStateWithIgnores in the acctest package instead.
 func CheckDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourceName string, ignoreFields map[string]struct{}) func(*terraform.State) error {
 	return acctest_tpg.CheckDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourceName, ignoreFields)
 }

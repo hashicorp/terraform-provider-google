@@ -76,7 +76,7 @@ func ComputeInstanceIamUpdaterProducer(d tpgresource.TerraformResourceData, conf
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance_name>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<instance_name>[^/]+)"}, d, config, d.Get("instance_name").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance_name>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<instance_name>[^/]+)"}, d, config, d.Get("instance_name").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func ComputeInstanceIdParseFunc(d *schema.ResourceData, config *transport_tpg.Co
 		values["zone"] = zone
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance_name>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<instance_name>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instances/(?P<instance_name>[^/]+)", "(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<zone>[^/]+)/(?P<instance_name>[^/]+)", "(?P<instance_name>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

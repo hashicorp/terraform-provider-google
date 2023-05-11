@@ -386,7 +386,7 @@ func resourceSQLDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 
 func resourceSQLDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
 		"instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)",

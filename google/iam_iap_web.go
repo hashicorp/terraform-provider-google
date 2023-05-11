@@ -53,7 +53,7 @@ func IapWebIamUpdaterProducer(d tpgresource.TerraformResourceData, config *trans
 	values["project"] = project
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web", "(?P<project>[^/]+)"}, d, config, d.Get("project").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web", "(?P<project>[^/]+)"}, d, config, d.Get("project").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func IapWebIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) err
 		values["project"] = project
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web", "(?P<project>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/iap_web", "(?P<project>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

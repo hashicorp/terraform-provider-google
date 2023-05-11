@@ -76,7 +76,7 @@ func ComputeSubnetworkIamUpdaterProducer(d tpgresource.TerraformResourceData, co
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/subnetworks/(?P<subnetwork>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<subnetwork>[^/]+)", "(?P<region>[^/]+)/(?P<subnetwork>[^/]+)", "(?P<subnetwork>[^/]+)"}, d, config, d.Get("subnetwork").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/subnetworks/(?P<subnetwork>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<subnetwork>[^/]+)", "(?P<region>[^/]+)/(?P<subnetwork>[^/]+)", "(?P<subnetwork>[^/]+)"}, d, config, d.Get("subnetwork").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func ComputeSubnetworkIdParseFunc(d *schema.ResourceData, config *transport_tpg.
 		values["region"] = region
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/subnetworks/(?P<subnetwork>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<subnetwork>[^/]+)", "(?P<region>[^/]+)/(?P<subnetwork>[^/]+)", "(?P<subnetwork>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/subnetworks/(?P<subnetwork>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<subnetwork>[^/]+)", "(?P<region>[^/]+)/(?P<subnetwork>[^/]+)", "(?P<subnetwork>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

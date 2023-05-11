@@ -4,8 +4,10 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"testing"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -153,4 +155,26 @@ func ReplaceVarsForTest(config *transport_tpg.Config, rs *terraform.ResourceStat
 	}
 
 	return re.ReplaceAllStringFunc(linkTmpl, replaceFunc), nil
+}
+
+// Used to create populated schema.ResourceData structs in tests.
+// Pass in a schema and a config map containing the fields and values you wish to set
+// The returned schema.ResourceData can represent a configured resource, data source or provider.
+func SetupTestResourceDataFromConfigMap(t *testing.T, s map[string]*schema.Schema, configValues map[string]interface{}) *schema.ResourceData {
+
+	// Create empty schema.ResourceData using the SDK Provider schema
+	emptyConfigMap := map[string]interface{}{}
+	d := schema.TestResourceDataRaw(t, s, emptyConfigMap)
+
+	// Load Terraform config data
+	if len(configValues) > 0 {
+		for k, v := range configValues {
+			err := d.Set(k, v)
+			if err != nil {
+				t.Fatalf("error during test setup: %v", err)
+			}
+		}
+	}
+
+	return d
 }

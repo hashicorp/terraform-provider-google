@@ -230,7 +230,7 @@ func resourceRecaptchaEnterpriseKeyCreate(d *schema.ResourceData, meta interface
 		DisplayName:     dcl.String(d.Get("display_name").(string)),
 		AndroidSettings: expandRecaptchaEnterpriseKeyAndroidSettings(d.Get("android_settings")),
 		IosSettings:     expandRecaptchaEnterpriseKeyIosSettings(d.Get("ios_settings")),
-		Labels:          checkStringMap(d.Get("labels")),
+		Labels:          tpgresource.CheckStringMap(d.Get("labels")),
 		Project:         dcl.String(project),
 		TestingOptions:  expandRecaptchaEnterpriseKeyTestingOptions(d.Get("testing_options")),
 		WebSettings:     expandRecaptchaEnterpriseKeyWebSettings(d.Get("web_settings")),
@@ -295,7 +295,7 @@ func resourceRecaptchaEnterpriseKeyRead(d *schema.ResourceData, meta interface{}
 		DisplayName:     dcl.String(d.Get("display_name").(string)),
 		AndroidSettings: expandRecaptchaEnterpriseKeyAndroidSettings(d.Get("android_settings")),
 		IosSettings:     expandRecaptchaEnterpriseKeyIosSettings(d.Get("ios_settings")),
-		Labels:          checkStringMap(d.Get("labels")),
+		Labels:          tpgresource.CheckStringMap(d.Get("labels")),
 		Project:         dcl.String(project),
 		TestingOptions:  expandRecaptchaEnterpriseKeyTestingOptions(d.Get("testing_options")),
 		WebSettings:     expandRecaptchaEnterpriseKeyWebSettings(d.Get("web_settings")),
@@ -365,7 +365,7 @@ func resourceRecaptchaEnterpriseKeyUpdate(d *schema.ResourceData, meta interface
 		DisplayName:     dcl.String(d.Get("display_name").(string)),
 		AndroidSettings: expandRecaptchaEnterpriseKeyAndroidSettings(d.Get("android_settings")),
 		IosSettings:     expandRecaptchaEnterpriseKeyIosSettings(d.Get("ios_settings")),
-		Labels:          checkStringMap(d.Get("labels")),
+		Labels:          tpgresource.CheckStringMap(d.Get("labels")),
 		Project:         dcl.String(project),
 		TestingOptions:  expandRecaptchaEnterpriseKeyTestingOptions(d.Get("testing_options")),
 		WebSettings:     expandRecaptchaEnterpriseKeyWebSettings(d.Get("web_settings")),
@@ -415,7 +415,7 @@ func resourceRecaptchaEnterpriseKeyDelete(d *schema.ResourceData, meta interface
 		DisplayName:     dcl.String(d.Get("display_name").(string)),
 		AndroidSettings: expandRecaptchaEnterpriseKeyAndroidSettings(d.Get("android_settings")),
 		IosSettings:     expandRecaptchaEnterpriseKeyIosSettings(d.Get("ios_settings")),
-		Labels:          checkStringMap(d.Get("labels")),
+		Labels:          tpgresource.CheckStringMap(d.Get("labels")),
 		Project:         dcl.String(project),
 		TestingOptions:  expandRecaptchaEnterpriseKeyTestingOptions(d.Get("testing_options")),
 		WebSettings:     expandRecaptchaEnterpriseKeyWebSettings(d.Get("web_settings")),
@@ -450,7 +450,7 @@ func resourceRecaptchaEnterpriseKeyDelete(d *schema.ResourceData, meta interface
 func resourceRecaptchaEnterpriseKeyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/keys/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)",
@@ -459,7 +459,7 @@ func resourceRecaptchaEnterpriseKeyImport(d *schema.ResourceData, meta interface
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/keys/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/keys/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

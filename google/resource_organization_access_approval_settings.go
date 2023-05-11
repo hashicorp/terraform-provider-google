@@ -381,7 +381,7 @@ func resourceAccessApprovalOrganizationSettingsDelete(d *schema.ResourceData, me
 
 func resourceAccessApprovalOrganizationSettingsImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"organizations/(?P<organization_id>[^/]+)/accessApprovalSettings",
 		"(?P<organization_id>[^/]+)",
 	}, d, config); err != nil {

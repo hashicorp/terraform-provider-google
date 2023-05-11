@@ -191,7 +191,7 @@ func resourceCloudbuildWorkerPoolCreate(d *schema.ResourceData, meta interface{}
 	obj := &cloudbuild.WorkerPool{
 		Location:      dcl.String(d.Get("location").(string)),
 		Name:          dcl.String(d.Get("name").(string)),
-		Annotations:   checkStringMap(d.Get("annotations")),
+		Annotations:   tpgresource.CheckStringMap(d.Get("annotations")),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
 		NetworkConfig: expandCloudbuildWorkerPoolNetworkConfig(d.Get("network_config")),
 		Project:       dcl.String(project),
@@ -245,7 +245,7 @@ func resourceCloudbuildWorkerPoolRead(d *schema.ResourceData, meta interface{}) 
 	obj := &cloudbuild.WorkerPool{
 		Location:      dcl.String(d.Get("location").(string)),
 		Name:          dcl.String(d.Get("name").(string)),
-		Annotations:   checkStringMap(d.Get("annotations")),
+		Annotations:   tpgresource.CheckStringMap(d.Get("annotations")),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
 		NetworkConfig: expandCloudbuildWorkerPoolNetworkConfig(d.Get("network_config")),
 		Project:       dcl.String(project),
@@ -323,7 +323,7 @@ func resourceCloudbuildWorkerPoolUpdate(d *schema.ResourceData, meta interface{}
 	obj := &cloudbuild.WorkerPool{
 		Location:      dcl.String(d.Get("location").(string)),
 		Name:          dcl.String(d.Get("name").(string)),
-		Annotations:   checkStringMap(d.Get("annotations")),
+		Annotations:   tpgresource.CheckStringMap(d.Get("annotations")),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
 		NetworkConfig: expandCloudbuildWorkerPoolNetworkConfig(d.Get("network_config")),
 		Project:       dcl.String(project),
@@ -372,7 +372,7 @@ func resourceCloudbuildWorkerPoolDelete(d *schema.ResourceData, meta interface{}
 	obj := &cloudbuild.WorkerPool{
 		Location:      dcl.String(d.Get("location").(string)),
 		Name:          dcl.String(d.Get("name").(string)),
-		Annotations:   checkStringMap(d.Get("annotations")),
+		Annotations:   tpgresource.CheckStringMap(d.Get("annotations")),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
 		NetworkConfig: expandCloudbuildWorkerPoolNetworkConfig(d.Get("network_config")),
 		Project:       dcl.String(project),
@@ -407,7 +407,7 @@ func resourceCloudbuildWorkerPoolDelete(d *schema.ResourceData, meta interface{}
 func resourceCloudbuildWorkerPoolImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/workerPools/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<name>[^/]+)",
@@ -416,7 +416,7 @@ func resourceCloudbuildWorkerPoolImport(d *schema.ResourceData, meta interface{}
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/workerPools/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/workerPools/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

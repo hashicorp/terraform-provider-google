@@ -616,7 +616,7 @@ func resourceSpannerDatabaseDelete(d *schema.ResourceData, meta interface{}) err
 
 func resourceSpannerDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
 		"instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<name>[^/]+)",
@@ -783,7 +783,7 @@ func resourceSpannerDatabaseUpdateEncoder(d *schema.ResourceData, meta interface
 func resourceSpannerDatabaseDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	config := meta.(*transport_tpg.Config)
 	d.SetId(res["name"].(string))
-	if err := ParseImportId([]string{"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)"}, d, config); err != nil {
+	if err := tpgresource.ParseImportId([]string{"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}
 	res["project"] = d.Get("project").(string)

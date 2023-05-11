@@ -280,7 +280,7 @@ func resourceComputeInstanceGroupNamedPortDelete(d *schema.ResourceData, meta in
 
 func resourceComputeInstanceGroupNamedPortImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/instanceGroups/(?P<group>[^/]+)/(?P<port>[^/]+)/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<group>[^/]+)/(?P<port>[^/]+)/(?P<name>[^/]+)",
 		"(?P<zone>[^/]+)/(?P<group>[^/]+)/(?P<port>[^/]+)/(?P<name>[^/]+)",

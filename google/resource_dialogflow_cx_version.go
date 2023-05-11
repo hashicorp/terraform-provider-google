@@ -398,7 +398,7 @@ func resourceDialogflowCXVersionImport(d *schema.ResourceData, meta interface{})
 	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value and parent contains slashes
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"(?P<parent>.+)/versions/(?P<name>[^/]+)",
 		"(?P<parent>.+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {

@@ -313,7 +313,7 @@ func resourceContainerAzureNodePoolCreate(d *schema.ResourceData, meta interface
 		Name:                  dcl.String(d.Get("name").(string)),
 		SubnetId:              dcl.String(d.Get("subnet_id").(string)),
 		Version:               dcl.String(d.Get("version").(string)),
-		Annotations:           checkStringMap(d.Get("annotations")),
+		Annotations:           tpgresource.CheckStringMap(d.Get("annotations")),
 		AzureAvailabilityZone: dcl.StringOrNil(d.Get("azure_availability_zone").(string)),
 		Project:               dcl.String(project),
 	}
@@ -371,7 +371,7 @@ func resourceContainerAzureNodePoolRead(d *schema.ResourceData, meta interface{}
 		Name:                  dcl.String(d.Get("name").(string)),
 		SubnetId:              dcl.String(d.Get("subnet_id").(string)),
 		Version:               dcl.String(d.Get("version").(string)),
-		Annotations:           checkStringMap(d.Get("annotations")),
+		Annotations:           tpgresource.CheckStringMap(d.Get("annotations")),
 		AzureAvailabilityZone: dcl.StringOrNil(d.Get("azure_availability_zone").(string)),
 		Project:               dcl.String(project),
 	}
@@ -468,7 +468,7 @@ func resourceContainerAzureNodePoolUpdate(d *schema.ResourceData, meta interface
 		Name:                  dcl.String(d.Get("name").(string)),
 		SubnetId:              dcl.String(d.Get("subnet_id").(string)),
 		Version:               dcl.String(d.Get("version").(string)),
-		Annotations:           checkStringMap(d.Get("annotations")),
+		Annotations:           tpgresource.CheckStringMap(d.Get("annotations")),
 		AzureAvailabilityZone: dcl.StringOrNil(d.Get("azure_availability_zone").(string)),
 		Project:               dcl.String(project),
 	}
@@ -521,7 +521,7 @@ func resourceContainerAzureNodePoolDelete(d *schema.ResourceData, meta interface
 		Name:                  dcl.String(d.Get("name").(string)),
 		SubnetId:              dcl.String(d.Get("subnet_id").(string)),
 		Version:               dcl.String(d.Get("version").(string)),
-		Annotations:           checkStringMap(d.Get("annotations")),
+		Annotations:           tpgresource.CheckStringMap(d.Get("annotations")),
 		AzureAvailabilityZone: dcl.StringOrNil(d.Get("azure_availability_zone").(string)),
 		Project:               dcl.String(project),
 	}
@@ -554,7 +554,7 @@ func resourceContainerAzureNodePoolDelete(d *schema.ResourceData, meta interface
 func resourceContainerAzureNodePoolImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/azureClusters/(?P<cluster>[^/]+)/azureNodePools/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<cluster>[^/]+)/(?P<name>[^/]+)",
 		"(?P<location>[^/]+)/(?P<cluster>[^/]+)/(?P<name>[^/]+)",
@@ -563,7 +563,7 @@ func resourceContainerAzureNodePoolImport(d *schema.ResourceData, meta interface
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/azureClusters/{{cluster}}/azureNodePools/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/azureClusters/{{cluster}}/azureNodePools/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -613,7 +613,7 @@ func expandContainerAzureNodePoolConfig(o interface{}) *containerazure.NodePoolC
 		SshConfig:   expandContainerAzureNodePoolConfigSshConfig(obj["ssh_config"]),
 		ProxyConfig: expandContainerAzureNodePoolConfigProxyConfig(obj["proxy_config"]),
 		RootVolume:  expandContainerAzureNodePoolConfigRootVolume(obj["root_volume"]),
-		Tags:        checkStringMap(obj["tags"]),
+		Tags:        tpgresource.CheckStringMap(obj["tags"]),
 		VmSize:      dcl.StringOrNil(obj["vm_size"].(string)),
 	}
 }

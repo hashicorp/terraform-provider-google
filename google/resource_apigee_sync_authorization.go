@@ -217,7 +217,7 @@ func resourceApigeeSyncAuthorizationDelete(d *schema.ResourceData, meta interfac
 
 func resourceApigeeSyncAuthorizationImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"organizations/(?P<name>[^/]+)/syncAuthorization",
 		"(?P<name>[^/]+)",
 	}, d, config); err != nil {

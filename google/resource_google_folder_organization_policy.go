@@ -46,7 +46,7 @@ func ResourceGoogleFolderOrganizationPolicy() *schema.Resource {
 func resourceFolderOrgPolicyImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"folders/(?P<folder>[^/]+)/constraints/(?P<constraint>[^/]+)",
 		"folders/(?P<folder>[^/]+)/(?P<constraint>[^/]+)",
 		"(?P<folder>[^/]+)/(?P<constraint>[^/]+)"},

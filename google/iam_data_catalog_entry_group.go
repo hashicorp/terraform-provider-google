@@ -76,7 +76,7 @@ func DataCatalogEntryGroupIamUpdaterProducer(d tpgresource.TerraformResourceData
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/entryGroups/(?P<entry_group>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<entry_group>[^/]+)", "(?P<region>[^/]+)/(?P<entry_group>[^/]+)", "(?P<entry_group>[^/]+)"}, d, config, d.Get("entry_group").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/entryGroups/(?P<entry_group>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<entry_group>[^/]+)", "(?P<region>[^/]+)/(?P<entry_group>[^/]+)", "(?P<entry_group>[^/]+)"}, d, config, d.Get("entry_group").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func DataCatalogEntryGroupIdParseFunc(d *schema.ResourceData, config *transport_
 		values["region"] = region
 	}
 
-	m, err := getImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/entryGroups/(?P<entry_group>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<entry_group>[^/]+)", "(?P<region>[^/]+)/(?P<entry_group>[^/]+)", "(?P<entry_group>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/entryGroups/(?P<entry_group>[^/]+)", "(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<entry_group>[^/]+)", "(?P<region>[^/]+)/(?P<entry_group>[^/]+)", "(?P<entry_group>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}

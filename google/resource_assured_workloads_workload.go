@@ -205,7 +205,7 @@ func resourceAssuredWorkloadsWorkloadCreate(d *schema.ResourceData, meta interfa
 		Location:                   dcl.String(d.Get("location").(string)),
 		Organization:               dcl.String(d.Get("organization").(string)),
 		KmsSettings:                expandAssuredWorkloadsWorkloadKmsSettings(d.Get("kms_settings")),
-		Labels:                     checkStringMap(d.Get("labels")),
+		Labels:                     tpgresource.CheckStringMap(d.Get("labels")),
 		ProvisionedResourcesParent: dcl.String(d.Get("provisioned_resources_parent").(string)),
 		ResourceSettings:           expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 	}
@@ -268,7 +268,7 @@ func resourceAssuredWorkloadsWorkloadRead(d *schema.ResourceData, meta interface
 		Location:                   dcl.String(d.Get("location").(string)),
 		Organization:               dcl.String(d.Get("organization").(string)),
 		KmsSettings:                expandAssuredWorkloadsWorkloadKmsSettings(d.Get("kms_settings")),
-		Labels:                     checkStringMap(d.Get("labels")),
+		Labels:                     tpgresource.CheckStringMap(d.Get("labels")),
 		ProvisionedResourcesParent: dcl.String(d.Get("provisioned_resources_parent").(string)),
 		ResourceSettings:           expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 		Name:                       dcl.StringOrNil(d.Get("name").(string)),
@@ -345,7 +345,7 @@ func resourceAssuredWorkloadsWorkloadUpdate(d *schema.ResourceData, meta interfa
 		Location:                   dcl.String(d.Get("location").(string)),
 		Organization:               dcl.String(d.Get("organization").(string)),
 		KmsSettings:                expandAssuredWorkloadsWorkloadKmsSettings(d.Get("kms_settings")),
-		Labels:                     checkStringMap(d.Get("labels")),
+		Labels:                     tpgresource.CheckStringMap(d.Get("labels")),
 		ProvisionedResourcesParent: dcl.String(d.Get("provisioned_resources_parent").(string)),
 		ResourceSettings:           expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 		Name:                       dcl.StringOrNil(d.Get("name").(string)),
@@ -358,7 +358,7 @@ func resourceAssuredWorkloadsWorkloadUpdate(d *schema.ResourceData, meta interfa
 		Location:                   dcl.String(oldValue(d.GetChange("location")).(string)),
 		Organization:               dcl.String(oldValue(d.GetChange("organization")).(string)),
 		KmsSettings:                expandAssuredWorkloadsWorkloadKmsSettings(oldValue(d.GetChange("kms_settings"))),
-		Labels:                     checkStringMap(oldValue(d.GetChange("labels"))),
+		Labels:                     tpgresource.CheckStringMap(oldValue(d.GetChange("labels"))),
 		ProvisionedResourcesParent: dcl.String(oldValue(d.GetChange("provisioned_resources_parent")).(string)),
 		ResourceSettings:           expandAssuredWorkloadsWorkloadResourceSettingsArray(oldValue(d.GetChange("resource_settings"))),
 		Name:                       dcl.StringOrNil(oldValue(d.GetChange("name")).(string)),
@@ -407,7 +407,7 @@ func resourceAssuredWorkloadsWorkloadDelete(d *schema.ResourceData, meta interfa
 		Location:                   dcl.String(d.Get("location").(string)),
 		Organization:               dcl.String(d.Get("organization").(string)),
 		KmsSettings:                expandAssuredWorkloadsWorkloadKmsSettings(d.Get("kms_settings")),
-		Labels:                     checkStringMap(d.Get("labels")),
+		Labels:                     tpgresource.CheckStringMap(d.Get("labels")),
 		ProvisionedResourcesParent: dcl.String(d.Get("provisioned_resources_parent").(string)),
 		ResourceSettings:           expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 		Name:                       dcl.StringOrNil(d.Get("name").(string)),
@@ -441,7 +441,7 @@ func resourceAssuredWorkloadsWorkloadDelete(d *schema.ResourceData, meta interfa
 func resourceAssuredWorkloadsWorkloadImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"organizations/(?P<organization>[^/]+)/locations/(?P<location>[^/]+)/workloads/(?P<name>[^/]+)",
 		"(?P<organization>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {
@@ -449,7 +449,7 @@ func resourceAssuredWorkloadsWorkloadImport(d *schema.ResourceData, meta interfa
 	}
 
 	// Replace import id for the resource id
-	id, err := replaceVarsForId(d, config, "organizations/{{organization}}/locations/{{location}}/workloads/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "organizations/{{organization}}/locations/{{location}}/workloads/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

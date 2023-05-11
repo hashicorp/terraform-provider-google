@@ -48,7 +48,7 @@ func TagsTagValueIamUpdaterProducer(d tpgresource.TerraformResourceData, config 
 	}
 
 	// We may have gotten either a long or short name, so attempt to parse long name if possible
-	m, err := getImportIdQualifiers([]string{"tagValues/(?P<tag_value>[^/]+)", "(?P<tag_value>[^/]+)"}, d, config, d.Get("tag_value").(string))
+	m, err := tpgresource.GetImportIdQualifiers([]string{"tagValues/(?P<tag_value>[^/]+)", "(?P<tag_value>[^/]+)"}, d, config, d.Get("tag_value").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func TagsTagValueIamUpdaterProducer(d tpgresource.TerraformResourceData, config 
 func TagsTagValueIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
 	values := make(map[string]string)
 
-	m, err := getImportIdQualifiers([]string{"tagValues/(?P<tag_value>[^/]+)", "(?P<tag_value>[^/]+)"}, d, config, d.Id())
+	m, err := tpgresource.GetImportIdQualifiers([]string{"tagValues/(?P<tag_value>[^/]+)", "(?P<tag_value>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return err
 	}
