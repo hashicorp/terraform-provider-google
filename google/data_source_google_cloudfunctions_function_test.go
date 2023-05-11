@@ -30,6 +30,8 @@ func TestAccDataSourceGoogleCloudFunctionsFunction_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					acctest.CheckDataSourceStateMatchesResourceState(funcDataNameHttp,
 						"google_cloudfunctions_function.function_http"),
+					resource.TestCheckResourceAttr(funcDataNameHttp,
+						"status", "ACTIVE"),
 				),
 			},
 		},
