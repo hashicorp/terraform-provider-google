@@ -461,6 +461,11 @@ func ResourceCloudFunctionsFunction() *schema.Resource {
 					},
 				},
 			},
+			"status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Describes the current stage of a deployment.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -705,6 +710,10 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 
 	if err := d.Set("secret_volumes", flattenSecretVolumes(function.SecretVolumes)); err != nil {
 		return fmt.Errorf("Error setting secret_volumes: %s", err)
+	}
+
+	if err := d.Set("status", function.Status); err != nil {
+		return fmt.Errorf("Error setting status: %s", err)
 	}
 
 	if function.HttpsTrigger != nil {
