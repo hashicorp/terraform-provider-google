@@ -930,7 +930,7 @@ The following arguments are supported:
 
 * `repository` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-  The qualified resource name of the Repo API repository. 
+  The qualified resource name of the Repo API repository.
   Either uri or repository can be specified and is required.
 
 * `ref` -
