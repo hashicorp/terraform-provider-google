@@ -254,6 +254,8 @@ The `settings` block supports:
 
 * `pricing_plan` - (Optional) Pricing plan for this instance, can only be `PER_USE`.
 
+* `time_zone` - (Optional) The time_zone to be used by the database engine (supported only for SQL Server), in SQL Server timezone format.
+
 * `user_labels` - (Optional) A set of key/value user label pairs to assign to the instance.
 
 The optional `settings.database_flags` sublist supports:
@@ -282,8 +284,6 @@ The optional `settings.sql_server_audit_config` subblock supports:
 * `upload_interval` - (Optional) How often to upload generated audit files. A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
 
 * `retention_interval` - (Optional) How long to keep generated audit files. A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
-
-* `time_zone` - (Optional) The time_zone to be used by the database engine (supported only for SQL Server), in SQL Server timezone format.
 
 The optional `settings.backup_configuration` subblock supports:
 
