@@ -1,4 +1,27 @@
 ## 4.65.0 (Unreleased)
+
+FEATURES:
+* **New Data Source:** `google_datastream_static_ips` ([#14487](https://github.com/hashicorp/terraform-provider-google/pull/14487))
+* **New Resource:** `google_compute_disk_async_replication` ([#14489](https://github.com/hashicorp/terraform-provider-google/pull/14489))
+* **New Resource:** `google_firestore_field` ([#14512](https://github.com/hashicorp/terraform-provider-google/pull/14512))
+* **New Resource:** `google_gkeonprem_bare_metal_cluster` ([#14499](https://github.com/hashicorp/terraform-provider-google/pull/14499))
+* **New Resource:** `google_gkeonprem_bare_metal_node_pool` ([#14511](https://github.com/hashicorp/terraform-provider-google/pull/14511))
+
+IMPROVEMENTS:
+* bigquery: Added general field `load.parquet_options ` to `google_bigquery_job` ([#14497](https://github.com/hashicorp/terraform-provider-google/pull/14497))
+* cloudbuild: Added `allow_failure` and `allow_exit_codes` to `build.step` in `google_cloudbuild_trigger` resource ([#14498](https://github.com/hashicorp/terraform-provider-google/pull/14498))
+* cloudbuild: added `git_file_source.repository` and `source_to_build.repository` fields to `google_cloudbuild_trigger` resource (beta) ([#14504](https://github.com/hashicorp/terraform-provider-google/pull/14504))
+* compute: Added enumeration values `SEV_SNP_CAPABLE`, `SUSPEND_RESUME_COMPATIBLE`, `TDX_CAPABLE` for the `guest_os_features` of `google_compute_image` ([#14518](https://github.com/hashicorp/terraform-provider-google/pull/14518))
+* compute: added support for `stack_type` to `google_compute_network_peering` ([#14509](https://github.com/hashicorp/terraform-provider-google/pull/14509))
+* dlp: added `publish_to_stackdriver` field to `google_data_loss_prevention_job_trigger` resource ([#14539](https://github.com/hashicorp/terraform-provider-google/pull/14539))
+* workstations: supported in-place update for `host` and `container` in `google_workstations_workstation_config` (beta) ([#14481](https://github.com/hashicorp/terraform-provider-google/pull/14481))
+
+BUG FIXES:
+* certificatemanager: fixed an issue where `self_managed.pem_certificate` and `self_managed.pem_certificate` can't be updated on `google_certificate_manager_certificate` ([#14521](https://github.com/hashicorp/terraform-provider-google/pull/14521))
+* compute: fixed crash on `terraform destroy -refresh=false` for instance group managers with `wait_for_instances = "true"` if the instance group manager was not found ([#14543](https://github.com/hashicorp/terraform-provider-google/pull/14543))
+* container: fixed node auto-provisioning not working when `auto_provisioning_defaults.management` is not provided on `google_container_cluster` ([#14519](https://github.com/hashicorp/terraform-provider-google/pull/14519))
+* provider: Updated config.go and framework_config.go to use transport.Creds for all cases ([#14550](https://github.com/hashicorp/terraform-provider-google/pull/14550))
+
 ## 4.64.0 (May 8, 2023)
 
 FEATURES:
