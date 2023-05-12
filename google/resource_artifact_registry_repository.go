@@ -373,6 +373,11 @@ func resourceArtifactRegistryRepositoryCreate(d *schema.ResourceData, meta inter
 		obj["remoteRepositoryConfig"] = remoteRepositoryConfigProp
 	}
 
+	obj, err = resourceArtifactRegistryRepositoryEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{ArtifactRegistryBasePath}}projects/{{project}}/locations/{{location}}/repositories?repository_id={{repository_id}}")
 	if err != nil {
 		return err
@@ -552,6 +557,11 @@ func resourceArtifactRegistryRepositoryUpdate(d *schema.ResourceData, meta inter
 		return err
 	} else if v, ok := d.GetOkExists("virtual_repository_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, virtualRepositoryConfigProp)) {
 		obj["virtualRepositoryConfig"] = virtualRepositoryConfigProp
+	}
+
+	obj, err = resourceArtifactRegistryRepositoryEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ArtifactRegistryBasePath}}projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}")
@@ -1188,4 +1198,18 @@ func expandArtifactRegistryRepositoryRemoteRepositoryConfigPythonRepository(v in
 
 func expandArtifactRegistryRepositoryRemoteRepositoryConfigPythonRepositoryPublicRepository(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceArtifactRegistryRepositoryEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	config := meta.(*transport_tpg.Config)
+	if _, ok := d.GetOk("location"); !ok {
+		location, err := getRegionFromSchema("region", "zone", d, config)
+		if err != nil {
+			return nil, fmt.Errorf("Cannot determine location: set in this resource, or set provider-level 'region' or 'zone'.")
+		}
+		if err := d.Set("location", location); err != nil {
+			return nil, fmt.Errorf("Error setting location: %s", err)
+		}
+	}
+	return obj, nil
 }
