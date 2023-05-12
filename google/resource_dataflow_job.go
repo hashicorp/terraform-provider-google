@@ -119,6 +119,7 @@ func ResourceDataflowJob() *schema.Resource {
 			"labels": {
 				Type:             schema.TypeMap,
 				Optional:         true,
+				Computed:         true,
 				DiffSuppressFunc: resourceDataflowJobLabelDiffSuppress,
 				Description:      `User labels to be specified for the job. Keys and values should follow the restrictions specified in the labeling restrictions page. NOTE: Google-provided Dataflow templates often provide default labels that begin with goog-dataflow-provided. Unless explicitly set in config, these labels will be ignored to prevent diffs on re-apply.`,
 			},
