@@ -842,6 +842,7 @@ If logging is enabled, logs will be exported to Stackdriver.`,
 the field must be in [0, 1]. This configures the sampling rate of requests to the load balancer
 where 1.0 means all logged requests are reported and 0.0 means no logged requests are reported.
 The default value is 1.0.`,
+							Default:      1.0,
 							AtLeastOneOf: []string{"log_config.0.enable", "log_config.0.sample_rate"},
 						},
 					},

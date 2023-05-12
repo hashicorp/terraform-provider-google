@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed permadiff on `log_config.sample_rate` of `google_compute_backend_service`
+```

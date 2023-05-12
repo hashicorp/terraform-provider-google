@@ -609,6 +609,14 @@ func TestAccComputeBackendService_withLogConfig(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				Config: testAccComputeBackendService_withLogConfig2(serviceName, checkName, true),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccComputeBackendService_withLogConfig2(serviceName, checkName, false),
 			},
 			{
