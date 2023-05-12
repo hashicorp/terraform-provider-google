@@ -160,15 +160,15 @@ Possible values are VCPU, MEMORY, LOCAL_SSD, and ACCELERATOR.`,
 				},
 			},
 			"type": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"MEMORY_OPTIMIZED", "ACCELERATOR_OPTIMIZED", ""}),
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
 				Description: `The type of commitment, which affects the discount rate and the eligible resources.
-Type MEMORY_OPTIMIZED specifies a commitment that will only apply to memory optimized
-machines. Type ACCELERATOR_OPTIMIZED specifies a commitment that will only apply to
-accelerator optimized machines. Possible values: ["MEMORY_OPTIMIZED", "ACCELERATOR_OPTIMIZED"]`,
+The type could be one of the following value: 'MEMORY_OPTIMIZED', 'ACCELERATOR_OPTIMIZED', 
+'GENERAL_PURPOSE_N1', 'GENERAL_PURPOSE_N2', 'GENERAL_PURPOSE_N2D', 'GENERAL_PURPOSE_E2',
+'GENERAL_PURPOSE_T2D', 'GENERAL_PURPOSE_C3', 'COMPUTE_OPTIMIZED_C2', 'COMPUTE_OPTIMIZED_C2D' and
+'GRAPHICS_OPTIMIZED_G2'`,
 			},
 			"commitment_id": {
 				Type:        schema.TypeInt,
