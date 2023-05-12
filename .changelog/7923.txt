@@ -1,0 +1,6 @@
+```release-note:bug
+storage: fixed inconsistent final plan when labels are added to `google_storage_bucket`
+```
+```release-note:bug
+dataflow: fixed inconsistent final plan when labels are added to `google_dataflow_job`
+```

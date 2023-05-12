@@ -84,6 +84,7 @@ func ResourceStorageBucket() *schema.Resource {
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
+				Computed: true,
 				// GCP (Dataplex) automatically adds labels
 				DiffSuppressFunc: resourceDataplexLabelDiffSuppress,
 				Elem:             &schema.Schema{Type: schema.TypeString},
