@@ -213,6 +213,68 @@ resource "google_workstations_workstation_config" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=workstation_config_source_snapshot&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Workstation Config Source Snapshot
+
+
+```hcl
+resource "google_compute_network" "default" {
+  provider                = google-beta
+  name                    = "workstation-cluster"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  provider      = google-beta
+  name          = "workstation-cluster"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.default.name
+}
+
+resource "google_compute_disk" "my_source_disk" {
+  provider = google-beta
+  name     = "workstation-config"
+  size     = 10
+  type     = "pd-ssd"
+  zone     = "us-central1-a"
+}
+
+resource "google_compute_snapshot" "my_source_snapshot" {
+  provider    = google-beta
+  name        = "workstation-config"
+  source_disk = google_compute_disk.my_source_disk.name
+  zone        = "us-central1-a"
+}
+
+resource "google_workstations_workstation_cluster" "default" {
+  provider               = google-beta
+  workstation_cluster_id = "workstation-cluster"
+  network                = google_compute_network.default.id
+  subnetwork             = google_compute_subnetwork.default.id
+  location               = "us-central1"
+}
+
+resource "google_workstations_workstation_config" "default" {
+  provider               = google-beta
+  workstation_config_id  = "workstation-config"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = google_workstations_workstation_cluster.default.location
+
+  persistent_directories {
+    mount_path = "/home"
+
+    gce_pd {
+      source_snapshot = google_compute_snapshot.my_source_snapshot.id
+      reclaim_policy  = "DELETE"
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=workstation_config_shielded_instance_config&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -507,6 +569,10 @@ The following arguments are supported:
   (Optional)
   What should happen to the disk after the workstation is deleted. Defaults to DELETE.
   Possible values are: `DELETE`, `RETAIN`.
+
+* `source_snapshot` -
+  (Optional)
+  The snapshot to use as the source for the disk. This can be the snapshot's `self_link`, `id`, or a string in the format of `projects/{project}/global/snapshots/{snapshot}`. If set, sizeGb and fsType must be empty.
 
 <a name="nested_container"></a>The `container` block supports:
 
