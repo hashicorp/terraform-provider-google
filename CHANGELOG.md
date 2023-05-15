@@ -16,7 +16,7 @@ BUG FIXES:
 * certificatemanager: fixed an issue where `self_managed.pem_certificate` and `self_managed.pem_certificate` can't be updated on `google_certificate_manager_certificate` ([#14521](https://github.com/hashicorp/terraform-provider-google/pull/14521))
 * compute: fixed crash on `terraform destroy -refresh=false` for instance group managers with `wait_for_instances = "true"` if the instance group manager was not found ([#14543](https://github.com/hashicorp/terraform-provider-google/pull/14543))
 * container: fixed node auto-provisioning not working when `auto_provisioning_defaults.management` is not provided on `google_container_cluster` ([#14519](https://github.com/hashicorp/terraform-provider-google/pull/14519))
-* provider: Updated config.go and framework_config.go to use transport.Creds for all cases ([#14550](https://github.com/hashicorp/terraform-provider-google/pull/14550))
+* provider: fixed an issue where mtls transports were not used consistently ([#14550](https://github.com/hashicorp/terraform-provider-google/pull/14550))
 
 ## 4.64.0 (May 8, 2023)
 
