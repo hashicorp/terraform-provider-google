@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: added `advanced_machine_features` field in `google_sql_database_instance`
+```
