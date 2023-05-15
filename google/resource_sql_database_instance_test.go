@@ -1405,6 +1405,48 @@ func TestAccSqlDatabaseInstance_SqlServerAuditOptionalBucket(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_Smt(t *testing.T) {
+	t.Parallel()
+
+	databaseName := "tf-test-" + RandString(t, 10)
+	rootPassword := RandString(t, 15)
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_Smt(databaseName, rootPassword, 1),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"root_password", "deletion_protection"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_Smt(databaseName, rootPassword, 2),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"root_password", "deletion_protection"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_NullSmt(databaseName, rootPassword),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"root_password", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_Timezone(t *testing.T) {
 	t.Parallel()
 
@@ -2004,6 +2046,47 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, databaseName, rootPassword, retentionInterval, uploadInterval)
+}
+
+func testGoogleSqlDatabaseInstance_NullSmt(databaseName, rootPassword string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "%s"
+  region           = "us-central1"
+  database_version = "SQLSERVER_2017_STANDARD"
+  root_password    = "%s"
+  deletion_protection = false
+  settings {
+    tier = "db-custom-8-53248"
+    ip_configuration {
+      ipv4_enabled       = "true"
+    }
+    advanced_machine_features {
+    }
+  }
+}
+`, databaseName, rootPassword)
+}
+
+func testGoogleSqlDatabaseInstance_Smt(databaseName, rootPassword string, threadsPerCore int) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "%s"
+  region           = "us-central1"
+  database_version = "SQLSERVER_2017_STANDARD"
+  root_password    = "%s"
+  deletion_protection = false
+  settings {
+    tier = "db-custom-8-53248"
+    ip_configuration {
+      ipv4_enabled       = "true"
+    }
+    advanced_machine_features {
+      threads_per_core = "%d"
+    }
+  }
+}
+`, databaseName, rootPassword, threadsPerCore)
 }
 
 func testGoogleSqlDatabaseInstance_Timezone(databaseName, rootPassword, timezone string) string {

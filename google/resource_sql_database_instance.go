@@ -153,6 +153,20 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 							Required:    true,
 							Description: `The machine type to use. See tiers for more details and supported versions. Postgres supports only shared-core machine types, and custom machine types such as db-custom-2-13312. See the Custom Machine Type Documentation to learn about specifying custom machine types.`,
 						},
+						"advanced_machine_features": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"threads_per_core": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `The number of threads per physical core. Can be 1 or 2.`,
+									},
+								},
+							},
+						},
 						"activation_policy": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -1150,6 +1164,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		// Version is unset in Create but is set during update
 		SettingsVersion:           int64(_settings["version"].(int)),
 		Tier:                      _settings["tier"].(string),
+		AdvancedMachineFeatures:   expandSqlServerAdvancedMachineFeatures(_settings["advanced_machine_features"].([]interface{})),
 		ForceSendFields:           []string{"StorageAutoResize"},
 		ActivationPolicy:          _settings["activation_policy"].(string),
 		ActiveDirectoryConfig:     expandActiveDirectoryConfig(_settings["active_directory_config"].([]interface{})),
@@ -1366,6 +1381,18 @@ func expandDenyMaintenancePeriod(configured []interface{}) []*sqladmin.DenyMaint
 	}
 	return denyMaintenancePeriod
 
+}
+
+func expandSqlServerAdvancedMachineFeatures(configured interface{}) *sqladmin.AdvancedMachineFeatures {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+
+	config := l[0].(map[string]interface{})
+	return &sqladmin.AdvancedMachineFeatures{
+		ThreadsPerCore: int64(config["threads_per_core"].(int)),
+	}
 }
 
 func expandSqlServerAuditConfig(configured interface{}) *sqladmin.SqlServerAuditConfig {
@@ -1885,6 +1912,10 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 		data["password_validation_policy"] = flattenPasswordValidationPolicy(settings.PasswordValidationPolicy)
 	}
 
+	if settings.AdvancedMachineFeatures != nil {
+		data["advanced_machine_features"] = flattenSqlServerAdvancedMachineFeatures(settings.AdvancedMachineFeatures)
+	}
+
 	return []map[string]interface{}{data}
 }
 
@@ -1939,6 +1970,17 @@ func flattenDenyMaintenancePeriod(denyMaintenancePeriod []*sqladmin.DenyMaintena
 	}
 
 	return flags
+}
+
+func flattenSqlServerAdvancedMachineFeatures(advancedMachineFeatures *sqladmin.AdvancedMachineFeatures) []map[string]interface{} {
+	if advancedMachineFeatures == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"threads_per_core": advancedMachineFeatures.ThreadsPerCore,
+		},
+	}
 }
 
 func flattenSqlServerAuditConfig(sqlServerAuditConfig *sqladmin.SqlServerAuditConfig) []map[string]interface{} {
