@@ -1,0 +1,3 @@
+```release-note:bug
+provider: fixed an issue where `google_client_config` datasource return `null` for `access_token`
+```
