@@ -214,6 +214,18 @@ In order to create an image, you must provide the full or partial URL of one of 
 * The rawDisk.source URL
 * The sourceDisk URL`,
 			},
+			"storage_locations": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `Cloud Storage bucket storage location of the image 
+(regional or multi-regional). 
+Reference link: https://cloud.google.com/compute/docs/reference/rest/v1/images`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"archive_size_bytes": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -273,6 +285,12 @@ func resourceComputeImageCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	storageLocationsProp, err := expandComputeImageStorageLocations(d.Get("storage_locations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("storage_locations"); !tpgresource.IsEmptyValue(reflect.ValueOf(storageLocationsProp)) && (ok || !reflect.DeepEqual(v, storageLocationsProp)) {
+		obj["storageLocations"] = storageLocationsProp
 	}
 	diskSizeGbProp, err := expandComputeImageDiskSizeGb(d.Get("disk_size_gb"), d, config)
 	if err != nil {
@@ -434,6 +452,9 @@ func resourceComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
 	if err := d.Set("description", flattenComputeImageDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Image: %s", err)
+	}
+	if err := d.Set("storage_locations", flattenComputeImageStorageLocations(res["storageLocations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Image: %s", err)
 	}
 	if err := d.Set("disk_size_gb", flattenComputeImageDiskSizeGb(res["diskSizeGb"], d, config)); err != nil {
@@ -629,6 +650,10 @@ func flattenComputeImageDescription(v interface{}, d *schema.ResourceData, confi
 	return v
 }
 
+func flattenComputeImageStorageLocations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeImageDiskSizeGb(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
@@ -740,6 +765,10 @@ func flattenComputeImageSourceSnapshot(v interface{}, d *schema.ResourceData, co
 }
 
 func expandComputeImageDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeImageStorageLocations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
