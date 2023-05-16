@@ -1,4 +1,9 @@
-## 4.65.0 (Unreleased)
+## 4.65.1 (Unreleased)
+
+BUG FIXES:
+* provider: fixed an issue where `google_client_config` datasource return `null` for `access_token`
+
+## 4.65.0 (May 15, 2023)
 
 FEATURES:
 * **New Data Source:** `google_datastream_static_ips` ([#14487](https://github.com/hashicorp/terraform-provider-google/pull/14487))
