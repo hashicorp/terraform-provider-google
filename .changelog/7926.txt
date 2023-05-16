@@ -1,0 +1,3 @@
+```release-note:enhancement
+monitoring: added `forecast_options` field to `google_monitoring_alert_policy` resource
+```

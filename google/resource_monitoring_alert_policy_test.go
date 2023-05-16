@@ -15,11 +15,12 @@ import (
 
 func TestAccMonitoringAlertPolicy(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
-		"basic":  testAccMonitoringAlertPolicy_basic,
-		"full":   testAccMonitoringAlertPolicy_full,
-		"update": testAccMonitoringAlertPolicy_update,
-		"mql":    testAccMonitoringAlertPolicy_mql,
-		"log":    testAccMonitoringAlertPolicy_log,
+		"basic":    testAccMonitoringAlertPolicy_basic,
+		"full":     testAccMonitoringAlertPolicy_full,
+		"update":   testAccMonitoringAlertPolicy_update,
+		"mql":      testAccMonitoringAlertPolicy_mql,
+		"log":      testAccMonitoringAlertPolicy_log,
+		"forecast": testAccMonitoringAlertPolicy_forecast,
 	}
 
 	for name, tc := range testCases {
@@ -181,6 +182,29 @@ func testAccCheckAlertPolicyDestroyProducer(t *testing.T) func(s *terraform.Stat
 	}
 }
 
+func testAccMonitoringAlertPolicy_forecast(t *testing.T) {
+
+	alertName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	conditionName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	filter := `metric.type=\"compute.googleapis.com/instance/disk/write_bytes_count\" AND resource.type=\"gce_instance\"`
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlertPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringAlertPolicy_forecastCfg(alertName, conditionName, "ALIGN_RATE", filter),
+			},
+			{
+				ResourceName:      "google_monitoring_alert_policy.forecast",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner, filter string) string {
 	return fmt.Sprintf(`
 resource "google_monitoring_alert_policy" "basic" {
@@ -334,4 +358,33 @@ resource "google_monitoring_alert_policy" "log" {
   }
 }
 `, alertName, conditionName)
+}
+
+func testAccMonitoringAlertPolicy_forecastCfg(alertName, conditionName, aligner, filter string) string {
+	return fmt.Sprintf(`
+resource "google_monitoring_alert_policy" "forecast" {
+  display_name = "%s"
+  enabled      = true
+  combiner     = "OR"
+
+  conditions {
+    display_name = "%s"
+
+    condition_threshold {
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "%s"
+      }
+
+      duration        = "60s"
+      forecast_options {
+        forecast_horizon = "3600s"
+      }
+      comparison      = "COMPARISON_GT"
+      filter          = "%s"
+      threshold_value = "0.5"
+    }
+  }
+}
+`, alertName, conditionName, aligner, filter)
 }
