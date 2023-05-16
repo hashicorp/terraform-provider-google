@@ -443,6 +443,11 @@ func awsS3DataSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: `S3 Bucket name.`,
 			},
+			"path": {
+				Optional:    true,
+				Type:        schema.TypeString,
+				Description: `S3 Bucket path in bucket to transfer.`,
+			},
 			"aws_access_key": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -944,12 +949,14 @@ func expandAwsS3Data(awsS3Datas []interface{}) *storagetransfer.AwsS3Data {
 		BucketName:   awsS3Data["bucket_name"].(string),
 		AwsAccessKey: expandAwsAccessKeys(awsS3Data["aws_access_key"].([]interface{})),
 		RoleArn:      awsS3Data["role_arn"].(string),
+		Path:         awsS3Data["path"].(string),
 	}
 }
 
 func flattenAwsS3Data(awsS3Data *storagetransfer.AwsS3Data, d *schema.ResourceData) []map[string]interface{} {
 	data := map[string]interface{}{
 		"bucket_name": awsS3Data.BucketName,
+		"path":        awsS3Data.Path,
 		"role_arn":    awsS3Data.RoleArn,
 	}
 	if awsS3Data.AwsAccessKey != nil {
