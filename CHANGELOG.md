@@ -1,4 +1,9 @@
-## 4.65.1 (Unreleased)
+## 4.65.2 (Unreleased)
+
+BUG FIXES:
+* provider: fixed an issue where `google_client_config` datasource return `null` for all attributes when region or zone is unset in provider config
+
+## 4.65.1 (May 15, 2023)
 
 BUG FIXES:
 * provider: fixed an issue where `google_client_config` datasource return `null` for `access_token`
