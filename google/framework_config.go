@@ -1359,7 +1359,7 @@ func GetCredentials(ctx context.Context, data ProviderModel, initialCredentialsO
 			return *creds
 		}
 
-		creds, err := transport.Creds(ctx, option.WithCredentialsJSON([]byte(contents)), option.WithScopes(clientScopes...))
+		creds, err := googleoauth.CredentialsFromJSON(ctx, []byte(contents), clientScopes...)
 		if err != nil {
 			diags.AddError("unable to parse credentials", err.Error())
 			return googleoauth.Credentials{}
@@ -1383,12 +1383,14 @@ func GetCredentials(ctx context.Context, data ProviderModel, initialCredentialsO
 
 	tflog.Info(ctx, "Authenticating using DefaultClient...")
 	tflog.Info(ctx, fmt.Sprintf("  -- Scopes: %s", clientScopes))
-	creds, err := transport.Creds(context.Background(), option.WithScopes(clientScopes...))
+	defaultTS, err := googleoauth.DefaultTokenSource(context.Background(), clientScopes...)
 	if err != nil {
 		diags.AddError(fmt.Sprintf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  "+
 			"No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'"), err.Error())
 		return googleoauth.Credentials{}
 	}
 
-	return *creds
+	return googleoauth.Credentials{
+		TokenSource: defaultTS,
+	}
 }
