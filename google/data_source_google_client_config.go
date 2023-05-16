@@ -124,16 +124,8 @@ func (d *GoogleClientConfigDataSource) Read(ctx context.Context, req datasource.
 	}
 
 	locationInfo := data.GetLocationDescription(d.providerConfig)
-	region, err := locationInfo.GetRegion()
-	if err != nil {
-		diags.AddError("Error getting region value", err.Error())
-		return
-	}
-	zone, err := locationInfo.GetZone()
-	if err != nil {
-		diags.AddError("Error getting zone value", err.Error())
-		return
-	}
+	region, _ := locationInfo.GetRegion()
+	zone, _ := locationInfo.GetZone()
 
 	data.Id = types.StringValue(fmt.Sprintf("projects/%s/regions/%s/zones/%s", d.providerConfig.project.String(), region.String(), zone.String()))
 	data.Project = d.providerConfig.project
