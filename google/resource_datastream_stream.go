@@ -479,6 +479,14 @@ https://dev.mysql.com/doc/refman/8.0/en/data-types.html`,
 											},
 										},
 									},
+									"max_concurrent_backfill_tasks": {
+										Type:         schema.TypeInt,
+										Computed:     true,
+										Optional:     true,
+										ValidateFunc: validation.IntAtLeast(0),
+										Description: `Maximum number of concurrent backfill tasks. The number should be non negative.
+If not set (or set to 0), the system's default value will be used.`,
+									},
 									"max_concurrent_cdc_tasks": {
 										Type:         schema.TypeInt,
 										Computed:     true,
@@ -1741,6 +1749,8 @@ func flattenDatastreamStreamSourceConfigMysqlSourceConfig(v interface{}, d *sche
 		flattenDatastreamStreamSourceConfigMysqlSourceConfigExcludeObjects(original["excludeObjects"], d, config)
 	transformed["max_concurrent_cdc_tasks"] =
 		flattenDatastreamStreamSourceConfigMysqlSourceConfigMaxConcurrentCdcTasks(original["maxConcurrentCdcTasks"], d, config)
+	transformed["max_concurrent_backfill_tasks"] =
+		flattenDatastreamStreamSourceConfigMysqlSourceConfigMaxConcurrentBackfillTasks(original["maxConcurrentBackfillTasks"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDatastreamStreamSourceConfigMysqlSourceConfigIncludeObjects(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2018,6 +2028,23 @@ func flattenDatastreamStreamSourceConfigMysqlSourceConfigExcludeObjectsMysqlData
 }
 
 func flattenDatastreamStreamSourceConfigMysqlSourceConfigMaxConcurrentCdcTasks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatastreamStreamSourceConfigMysqlSourceConfigMaxConcurrentBackfillTasks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := StringToFixed64(strVal); err == nil {
@@ -3609,6 +3636,13 @@ func expandDatastreamStreamSourceConfigMysqlSourceConfig(v interface{}, d tpgres
 		transformed["maxConcurrentCdcTasks"] = transformedMaxConcurrentCdcTasks
 	}
 
+	transformedMaxConcurrentBackfillTasks, err := expandDatastreamStreamSourceConfigMysqlSourceConfigMaxConcurrentBackfillTasks(original["max_concurrent_backfill_tasks"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["maxConcurrentBackfillTasks"] = transformedMaxConcurrentBackfillTasks
+	}
+
 	return transformed, nil
 }
 
@@ -3967,6 +4001,10 @@ func expandDatastreamStreamSourceConfigMysqlSourceConfigExcludeObjectsMysqlDatab
 }
 
 func expandDatastreamStreamSourceConfigMysqlSourceConfigMaxConcurrentCdcTasks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatastreamStreamSourceConfigMysqlSourceConfigMaxConcurrentBackfillTasks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
