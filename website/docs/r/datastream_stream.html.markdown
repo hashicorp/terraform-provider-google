@@ -721,6 +721,11 @@ The following arguments are supported:
   Maximum number of concurrent CDC tasks. The number should be non negative.
   If not set (or set to 0), the system's default value will be used.
 
+* `max_concurrent_backfill_tasks` -
+  (Optional)
+  Maximum number of concurrent backfill tasks. The number should be non negative.
+  If not set (or set to 0), the system's default value will be used.
+
 
 <a name="nested_include_objects"></a>The `include_objects` block supports:
 

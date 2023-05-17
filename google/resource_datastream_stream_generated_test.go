@@ -172,7 +172,9 @@ resource "google_datastream_stream" "default" {
     display_name = "my stream"
     source_config {
         source_connection_profile = google_datastream_connection_profile.source_connection_profile.id
-        mysql_source_config {}
+        mysql_source_config {
+          max_concurrent_backfill_tasks = 15
+        }
     }
     destination_config {
         destination_connection_profile = google_datastream_connection_profile.destination_connection_profile.id
