@@ -115,7 +115,13 @@ func (u *StorageBucketIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.
 		return nil, err
 	}
 
-	policy, err := transport_tpg.SendRequest(u.Config, "GET", "", url, userAgent, obj)
+	policy, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    u.Config,
+		Method:    "GET",
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+	})
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -147,7 +153,14 @@ func (u *StorageBucketIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 		return err
 	}
 
-	_, err = transport_tpg.SendRequestWithTimeout(u.Config, "PUT", "", url, userAgent, obj, u.d.Timeout(schema.TimeoutCreate))
+	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    u.Config,
+		Method:    "PUT",
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   u.d.Timeout(schema.TimeoutCreate),
+	})
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

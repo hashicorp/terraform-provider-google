@@ -35,7 +35,12 @@ func (w *IAMWorkforcePoolOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.IAMWorkforcePoolBasePath, w.CommonOperationWaiter.Op.Name)
 
-	return transport_tpg.SendRequest(w.Config, "GET", "", url, w.UserAgent, nil)
+	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    w.Config,
+		Method:    "GET",
+		RawURL:    url,
+		UserAgent: w.UserAgent,
+	})
 }
 
 func createIAMWorkforcePoolWaiter(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string) (*IAMWorkforcePoolOperationWaiter, error) {

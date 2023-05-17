@@ -23,7 +23,13 @@ func enableCA(config *transport_tpg.Config, d *schema.ResourceData, project stri
 
 	log.Printf("[DEBUG] Enabling CertificateAuthority")
 
-	res, err := transport_tpg.SendRequest(config, "POST", billingProject, enableUrl, userAgent, nil)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    enableUrl,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return fmt.Errorf("Error enabling CertificateAuthority: %s", err)
 	}
@@ -46,7 +52,13 @@ func disableCA(config *transport_tpg.Config, d *schema.ResourceData, project str
 
 	log.Printf("[DEBUG] Disabling CA")
 
-	dRes, err := transport_tpg.SendRequest(config, "POST", billingProject, disableUrl, userAgent, nil)
+	dRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    disableUrl,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return fmt.Errorf("Error disabling CA: %s", err)
 	}
@@ -100,7 +112,14 @@ func activateSubCAWithThirdPartyIssuer(config *transport_tpg.Config, d *schema.R
 	}
 
 	log.Printf("[DEBUG] Activating CertificateAuthority: %#v", activateObj)
-	res, err := transport_tpg.SendRequest(config, "POST", billingProject, activateUrl, userAgent, activateObj)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    activateUrl,
+		UserAgent: userAgent,
+		Body:      activateObj,
+	})
 	if err != nil {
 		return fmt.Errorf("Error enabling CertificateAuthority: %s", err)
 	}
@@ -136,7 +155,13 @@ func activateSubCAWithFirstPartyIssuer(config *transport_tpg.Config, d *schema.R
 	if err != nil {
 		return err
 	}
-	res, err := transport_tpg.SendRequest(config, "GET", billingProject, fetchCSRUrl, userAgent, nil)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   billingProject,
+		RawURL:    fetchCSRUrl,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return fmt.Errorf("failed to fetch CSR: %v", err)
 	}
@@ -190,7 +215,15 @@ func activateSubCAWithFirstPartyIssuer(config *transport_tpg.Config, d *schema.R
 	}
 
 	log.Printf("[DEBUG] Signing CA Certificate: %#v", obj)
-	res, err = transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, signUrl, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    signUrl,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutCreate),
+	})
 	if err != nil {
 		return fmt.Errorf("Error creating Certificate: %s", err)
 	}
@@ -208,7 +241,14 @@ func activateSubCAWithFirstPartyIssuer(config *transport_tpg.Config, d *schema.R
 	}
 
 	log.Printf("[DEBUG] Activating CertificateAuthority: %#v", activateObj)
-	res, err = transport_tpg.SendRequest(config, "POST", billingProject, activateUrl, userAgent, activateObj)
+	res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    activateUrl,
+		UserAgent: userAgent,
+		Body:      activateObj,
+	})
 	if err != nil {
 		return fmt.Errorf("Error enabling CertificateAuthority: %s", err)
 	}

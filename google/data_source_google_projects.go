@@ -82,7 +82,12 @@ func datasourceGoogleProjectsRead(d *schema.ResourceData, meta interface{}) erro
 			return err
 		}
 
-		res, err := transport_tpg.SendRequest(config, "GET", "", url, userAgent, nil)
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
 		if err != nil {
 			return fmt.Errorf("Error retrieving projects: %s", err)
 		}

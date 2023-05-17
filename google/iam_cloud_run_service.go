@@ -159,7 +159,15 @@ func (u *CloudRunServiceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanage
 		return nil, err
 	}
 
-	policy, err := transport_tpg.SendRequest(u.Config, "GET", project, url, userAgent, obj, transport_tpg.IsCloudRunCreationConflict)
+	policy, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:               u.Config,
+		Method:               "GET",
+		Project:              project,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsCloudRunCreationConflict},
+	})
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -196,7 +204,16 @@ func (u *CloudRunServiceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		return err
 	}
 
-	_, err = transport_tpg.SendRequestWithTimeout(u.Config, "POST", project, url, userAgent, obj, u.d.Timeout(schema.TimeoutCreate), transport_tpg.IsCloudRunCreationConflict)
+	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:               u.Config,
+		Method:               "POST",
+		Project:              project,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		Timeout:              u.d.Timeout(schema.TimeoutCreate),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsCloudRunCreationConflict},
+	})
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
