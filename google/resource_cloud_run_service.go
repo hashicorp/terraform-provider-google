@@ -40,12 +40,16 @@ func revisionNameCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v i
 	return nil
 }
 
-var cloudRunGoogleProvidedAnnotations = regexp.MustCompile(`serving\.knative\.dev/(?:(?:creator)|(?:lastModifier))$|run\.googleapis\.com/(?:(?:ingress-status))$|cloud\.googleapis\.com/(?:(?:location))`)
+var cloudRunGoogleProvidedAnnotations = regexp.MustCompile(`serving\.knative\.dev/(?:(?:creator)|(?:lastModifier))$|run\.googleapis\.com/(?:(?:ingress-status)|(?:operation-id))$|cloud\.googleapis\.com/(?:(?:location))`)
 
 func cloudrunAnnotationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	// Suppress diffs for the annotations provided by Google
 	if cloudRunGoogleProvidedAnnotations.MatchString(k) && new == "" {
 		return true
+	}
+
+	if strings.HasSuffix(k, "run.googleapis.com/ingress") {
+		return old == "all" && new == ""
 	}
 
 	// Let diff be determined by annotations (above)
