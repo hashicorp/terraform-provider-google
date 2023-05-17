@@ -49,7 +49,13 @@ func testSweepCertificateAuthority(region string) error {
 		return err
 	}
 
-	res, err := transport_tpg.SendRequest(config, "GET", config.Project, caPoolsUrl, config.UserAgent, nil)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    caPoolsUrl,
+		UserAgent: config.UserAgent,
+	})
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", caPoolsUrl, err)
 		return nil
@@ -73,7 +79,13 @@ func testSweepCertificateAuthority(region string) error {
 
 		caListUrl := config.PrivatecaBasePath + poolName + "/certificateAuthorities"
 
-		res, err := transport_tpg.SendRequest(config, "GET", config.Project, caListUrl, config.UserAgent, nil)
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    caListUrl,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", caPoolsUrl, err)
 			return nil
@@ -104,7 +116,13 @@ func testSweepCertificateAuthority(region string) error {
 
 			if obj["state"] == "ENABLED" {
 				disableUrl := fmt.Sprintf("%s%s:disable", config.PrivatecaBasePath, caName)
-				_, err = transport_tpg.SendRequest(config, "POST", config.Project, disableUrl, config.UserAgent, nil)
+				_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+					Config:    config,
+					Method:    "POST",
+					Project:   config.Project,
+					RawURL:    disableUrl,
+					UserAgent: config.UserAgent,
+				})
 				if err != nil {
 					log.Printf("[INFO][SWEEPER_LOG] Error disabling for url %s : %s", disableUrl, err)
 				} else {
@@ -113,7 +131,13 @@ func testSweepCertificateAuthority(region string) error {
 			}
 
 			deleteUrl := config.PrivatecaBasePath + caName
-			_, err = transport_tpg.SendRequest(config, "DELETE", config.Project, deleteUrl, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "DELETE",
+				Project:   config.Project,
+				RawURL:    deleteUrl,
+				UserAgent: config.UserAgent,
+			})
 			if err != nil {
 				log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
 			} else {

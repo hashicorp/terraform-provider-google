@@ -122,7 +122,13 @@ func (u *SecurityCenterSourceIamUpdater) GetResourceIamPolicy() (*cloudresourcem
 		return nil, err
 	}
 
-	policy, err := transport_tpg.SendRequest(u.Config, "POST", "", url, userAgent, obj)
+	policy, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    u.Config,
+		Method:    "POST",
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+	})
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
@@ -155,7 +161,14 @@ func (u *SecurityCenterSourceIamUpdater) SetResourceIamPolicy(policy *cloudresou
 		return err
 	}
 
-	_, err = transport_tpg.SendRequestWithTimeout(u.Config, "POST", "", url, userAgent, obj, u.d.Timeout(schema.TimeoutCreate))
+	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    u.Config,
+		Method:    "POST",
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   u.d.Timeout(schema.TimeoutCreate),
+	})
 	if err != nil {
 		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}

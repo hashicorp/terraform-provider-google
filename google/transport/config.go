@@ -1941,7 +1941,13 @@ func GetCurrentUserEmail(config *Config, userAgent string) (string, error) {
 
 	// See https://github.com/golang/oauth2/issues/306 for a recommendation to do this from a Go maintainer
 	// URL retrieved from https://accounts.google.com/.well-known/openid-configuration
-	res, err := SendRequest(config, "GET", "NO_BILLING_PROJECT_OVERRIDE", "https://openidconnect.googleapis.com/v1/userinfo", userAgent, nil)
+	res, err := SendRequest(SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   "NO_BILLING_PROJECT_OVERRIDE",
+		RawURL:    "https://openidconnect.googleapis.com/v1/userinfo",
+		UserAgent: userAgent,
+	})
 
 	if err != nil {
 		return "", fmt.Errorf("error retrieving userinfo for your provider credentials. have you enabled the 'https://www.googleapis.com/auth/userinfo.email' scope? error: %s", err)

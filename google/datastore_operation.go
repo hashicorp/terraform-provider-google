@@ -37,7 +37,14 @@ func (w *DatastoreOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.DatastoreBasePath, w.CommonOperationWaiter.Op.Name)
 
-	return transport_tpg.SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil, transport_tpg.DatastoreIndex409Contention)
+	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:               w.Config,
+		Method:               "GET",
+		Project:              w.Project,
+		RawURL:               url,
+		UserAgent:            w.UserAgent,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.DatastoreIndex409Contention},
+	})
 }
 
 func createDatastoreWaiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*DatastoreOperationWaiter, error) {

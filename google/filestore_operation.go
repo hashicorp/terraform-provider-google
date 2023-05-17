@@ -37,7 +37,14 @@ func (w *FilestoreOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.FilestoreBasePath, w.CommonOperationWaiter.Op.Name)
 
-	return transport_tpg.SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil, transport_tpg.IsNotFilestoreQuotaError)
+	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:               w.Config,
+		Method:               "GET",
+		Project:              w.Project,
+		RawURL:               url,
+		UserAgent:            w.UserAgent,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsNotFilestoreQuotaError},
+	})
 }
 
 func createFilestoreWaiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*FilestoreOperationWaiter, error) {

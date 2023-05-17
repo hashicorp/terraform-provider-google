@@ -87,7 +87,13 @@ func dataSourceGoogleIamTestablePermissionsRead(d *schema.ResourceData, meta int
 	for {
 		url := "https://iam.googleapis.com/v1/permissions:queryTestablePermissions"
 		body["fullResourceName"] = d.Get("full_resource_name").(string)
-		res, err := transport_tpg.SendRequest(config, "POST", "", url, userAgent, body)
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      body,
+		})
 		if err != nil {
 			return fmt.Errorf("Error retrieving permissions: %s", err)
 		}

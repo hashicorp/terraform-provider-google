@@ -171,7 +171,12 @@ func resourceLoggingBucketConfigAcquireOrCreate(parentType string, iDFunc loggin
 				return err
 			}
 
-			res, _ := transport_tpg.SendRequest(config, "GET", "", url, userAgent, nil)
+			res, _ := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				RawURL:    url,
+				UserAgent: userAgent,
+			})
 			if res == nil {
 				log.Printf("[DEGUG] Loggin Bucket not exist %s", id)
 				// we need to pass the id in here because we don't want to set it in state
@@ -219,7 +224,15 @@ func resourceLoggingBucketConfigCreate(d *schema.ResourceData, meta interface{},
 		billingProject = bp
 	}
 
-	res, err := transport_tpg.SendRequestWithTimeout(config, "POST", billingProject, url, userAgent, obj, d.Timeout(schema.TimeoutCreate))
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutCreate),
+	})
 	if err != nil {
 		return fmt.Errorf("Error creating Bucket: %s", err)
 	}
@@ -245,7 +258,12 @@ func resourceLoggingBucketConfigRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	res, err := transport_tpg.SendRequest(config, "GET", "", url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		log.Printf("[WARN] Unable to acquire logging bucket config at %s", d.Id())
 
@@ -305,7 +323,14 @@ func resourceLoggingBucketConfigUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	_, err = transport_tpg.SendRequestWithTimeout(config, "PATCH", "", url, userAgent, obj, d.Timeout(schema.TimeoutUpdate))
+	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "PATCH",
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+	})
 	if err != nil {
 		return fmt.Errorf("Error updating Logging Bucket Config %q: %s", d.Id(), err)
 	}
@@ -332,7 +357,13 @@ func resourceLoggingBucketConfigDelete(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	if _, err := transport_tpg.SendRequestWithTimeout(config, "DELETE", "", url, userAgent, nil, d.Timeout(schema.TimeoutUpdate)); err != nil {
+	if _, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "DELETE",
+		RawURL:    url,
+		UserAgent: userAgent,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+	}); err != nil {
 		return fmt.Errorf("Error deleting Logging Bucket Config %q: %s", d.Id(), err)
 	}
 	return nil

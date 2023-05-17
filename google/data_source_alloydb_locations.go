@@ -86,7 +86,13 @@ func dataSourceAlloydbLocationsRead(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return fmt.Errorf("Error setting api endpoint")
 	}
-	res, err := transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Locations %q", d.Id()))
 	}
@@ -128,7 +134,13 @@ func dataSourceAlloydbLocationsRead(d *schema.ResourceData, meta interface{}) er
 		if err != nil {
 			return fmt.Errorf("Error setting api endpoint")
 		}
-		res, err = transport_tpg.SendRequest(config, "GET", billingProject, url, userAgent, nil)
+		res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
 		if err != nil {
 			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Locations %q", d.Id()))
 		}

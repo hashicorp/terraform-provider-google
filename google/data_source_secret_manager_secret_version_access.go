@@ -82,7 +82,13 @@ func dataSourceSecretManagerSecretVersionAccessRead(d *schema.ResourceData, meta
 	}
 
 	url = fmt.Sprintf("%s:access", url)
-	resp, err := transport_tpg.SendRequest(config, "GET", project, url, userAgent, nil)
+	resp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return fmt.Errorf("Error retrieving available secret manager secret version access: %s", err.Error())
 	}

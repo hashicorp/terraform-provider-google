@@ -323,7 +323,13 @@ func ServiceAccountFQN(serviceAccount string, d TerraformResourceData, config *t
 }
 
 func PaginatedListRequest(project, baseUrl, userAgent string, config *transport_tpg.Config, flattener func(map[string]interface{}) []interface{}) ([]interface{}, error) {
-	res, err := transport_tpg.SendRequest(config, "GET", project, baseUrl, userAgent, nil)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    baseUrl,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -335,7 +341,13 @@ func PaginatedListRequest(project, baseUrl, userAgent string, config *transport_
 			break
 		}
 		url := fmt.Sprintf("%s?pageToken=%s", baseUrl, pageToken.(string))
-		res, err = transport_tpg.SendRequest(config, "GET", project, url, userAgent, nil)
+		res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
 		if err != nil {
 			return nil, err
 		}

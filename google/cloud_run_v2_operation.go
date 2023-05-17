@@ -37,7 +37,13 @@ func (w *CloudRunV2OperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := fmt.Sprintf("%s%s", w.Config.CloudRunV2BasePath, w.CommonOperationWaiter.Op.Name)
 
-	return transport_tpg.SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
+	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    w.Config,
+		Method:    "GET",
+		Project:   w.Project,
+		RawURL:    url,
+		UserAgent: w.UserAgent,
+	})
 }
 
 func createCloudRunV2Waiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*CloudRunV2OperationWaiter, error) {

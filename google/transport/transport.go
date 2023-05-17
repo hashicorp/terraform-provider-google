@@ -16,53 +16,60 @@ import (
 
 var DefaultRequestTimeout = 5 * time.Minute
 
-func SendRequest(config *Config, method, project, rawurl, userAgent string, body map[string]interface{}, errorRetryPredicates ...RetryErrorPredicateFunc) (map[string]interface{}, error) {
-	return SendRequestWithTimeout(config, method, project, rawurl, userAgent, body, DefaultRequestTimeout, errorRetryPredicates...)
+type SendRequestOptions struct {
+	Config               *Config
+	Method               string
+	Project              string
+	RawURL               string
+	UserAgent            string
+	Body                 map[string]any
+	Timeout              time.Duration
+	ErrorRetryPredicates []RetryErrorPredicateFunc
 }
 
-func SendRequestWithTimeout(config *Config, method, project, rawurl, userAgent string, body map[string]interface{}, timeout time.Duration, errorRetryPredicates ...RetryErrorPredicateFunc) (map[string]interface{}, error) {
+func SendRequest(opt SendRequestOptions) (map[string]interface{}, error) {
 	reqHeaders := make(http.Header)
-	reqHeaders.Set("User-Agent", userAgent)
+	reqHeaders.Set("User-Agent", opt.UserAgent)
 	reqHeaders.Set("Content-Type", "application/json")
 
-	if config.UserProjectOverride && project != "" {
-		// When project is "NO_BILLING_PROJECT_OVERRIDE" in the function GetCurrentUserEmail,
+	if opt.Config.UserProjectOverride && opt.Project != "" {
+		// When opt.Project is "NO_BILLING_PROJECT_OVERRIDE" in the function GetCurrentUserEmail,
 		// set the header X-Goog-User-Project to be empty string.
-		if project == "NO_BILLING_PROJECT_OVERRIDE" {
+		if opt.Project == "NO_BILLING_PROJECT_OVERRIDE" {
 			reqHeaders.Set("X-Goog-User-Project", "")
 		} else {
 			// Pass the project into this fn instead of parsing it from the URL because
 			// both project names and URLs can have colons in them.
-			reqHeaders.Set("X-Goog-User-Project", project)
+			reqHeaders.Set("X-Goog-User-Project", opt.Project)
 		}
 	}
 
-	if timeout == 0 {
-		timeout = time.Duration(1) * time.Hour
+	if opt.Timeout == 0 {
+		opt.Timeout = DefaultRequestTimeout
 	}
 
 	var res *http.Response
 	err := RetryTimeDuration(
 		func() error {
 			var buf bytes.Buffer
-			if body != nil {
-				err := json.NewEncoder(&buf).Encode(body)
+			if opt.Body != nil {
+				err := json.NewEncoder(&buf).Encode(opt.Body)
 				if err != nil {
 					return err
 				}
 			}
 
-			u, err := AddQueryParams(rawurl, map[string]string{"alt": "json"})
+			u, err := AddQueryParams(opt.RawURL, map[string]string{"alt": "json"})
 			if err != nil {
 				return err
 			}
-			req, err := http.NewRequest(method, u, &buf)
+			req, err := http.NewRequest(opt.Method, u, &buf)
 			if err != nil {
 				return err
 			}
 
 			req.Header = reqHeaders
-			res, err = config.Client.Do(req)
+			res, err = opt.Config.Client.Do(req)
 			if err != nil {
 				return err
 			}
@@ -74,8 +81,8 @@ func SendRequestWithTimeout(config *Config, method, project, rawurl, userAgent s
 
 			return nil
 		},
-		timeout,
-		errorRetryPredicates...,
+		opt.Timeout,
+		opt.ErrorRetryPredicates...,
 	)
 	if err != nil {
 		return nil, err

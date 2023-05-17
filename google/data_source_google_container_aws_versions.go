@@ -59,7 +59,13 @@ func dataSourceGoogleContainerAwsVersionsRead(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	res, err := transport_tpg.SendRequest(config, "GET", project, url, userAgent, nil)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return err
 	}

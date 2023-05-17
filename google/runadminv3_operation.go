@@ -24,7 +24,13 @@ func (w *RunAdminV2OperationWaiter) QueryOp() (interface{}, error) {
 	}
 	url := fmt.Sprintf("%s%s", w.Config.CloudRunV2BasePath, w.CommonOperationWaiter.Op.Name)
 
-	return transport_tpg.SendRequest(w.Config, "GET", w.Project, url, w.UserAgent, nil)
+	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    w.Config,
+		Method:    "GET",
+		Project:   w.Project,
+		RawURL:    url,
+		UserAgent: w.UserAgent,
+	})
 }
 
 func createRunAdminV2Waiter(config *transport_tpg.Config, op *run.GoogleLongrunningOperation, project, activity, userAgent string) (*RunAdminV2OperationWaiter, error) {

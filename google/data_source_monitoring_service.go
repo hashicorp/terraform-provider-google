@@ -60,7 +60,14 @@ func dataSourceMonitoringServiceTypeReadFromList(listFilter string, typeStateSet
 			return err
 		}
 
-		resp, err := transport_tpg.SendRequest(config, "GET", project, url, userAgent, nil, transport_tpg.IsMonitoringConcurrentEditError)
+		resp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:               config,
+			Method:               "GET",
+			Project:              project,
+			RawURL:               url,
+			UserAgent:            userAgent,
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsMonitoringConcurrentEditError},
+		})
 		if err != nil {
 			return fmt.Errorf("unable to list Monitoring Service for data source: %v", err)
 		}

@@ -77,7 +77,12 @@ func testAccCheckAccessContextManagerAccessLevelDestroyProducer(t *testing.T) fu
 				return err
 			}
 
-			_, err = transport_tpg.SendRequest(config, "GET", "", url, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("AccessLevel still exists at %s", url)
 			}
