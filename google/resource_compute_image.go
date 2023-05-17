@@ -219,8 +219,8 @@ In order to create an image, you must provide the full or partial URL of one of 
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
-				Description: `Cloud Storage bucket storage location of the image 
-(regional or multi-regional). 
+				Description: `Cloud Storage bucket storage location of the image
+(regional or multi-regional).
 Reference link: https://cloud.google.com/compute/docs/reference/rest/v1/images`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
