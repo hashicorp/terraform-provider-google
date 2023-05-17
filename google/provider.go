@@ -711,6 +711,7 @@ func Provider() *schema.Provider {
 			"google_tpu_tensorflow_versions":                      DataSourceTpuTensorflowVersions(),
 			"google_vpc_access_connector":                         DataSourceVPCAccessConnector(),
 			"google_redis_instance":                               DataSourceGoogleRedisInstance(),
+			"google_vertex_ai_index":                              dataSourceVertexAIIndex(),
 			// ####### END datasources ###########
 		},
 		ResourcesMap: ResourceMap(),
