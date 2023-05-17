@@ -82,7 +82,7 @@ serving traffic. Set to `DELETE` to delete the AndroidApp. Defaults to `DELETE`.
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `{{name}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/androidApps/{{app_id}}`
 
 * `name` -
   The fully qualified resource name of the AndroidApp, for example:
@@ -112,10 +112,11 @@ This resource provides the following
 AndroidApp can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_firebase_android_app.default projects/{{project}}/androidApps/{{appId}}
-$ terraform import google_firebase_android_app.default {{project}}/{{appId}}
-$ terraform import google_firebase_android_app.default androidApps/{{appId}}
-$ terraform import google_firebase_android_app.default {{appId}}
+$ terraform import google_firebase_android_app.default {{project}} projects/{{project}}/androidApps/{{app_id}}
+$ terraform import google_firebase_android_app.default projects/{{project}}/androidApps/{{app_id}}
+$ terraform import google_firebase_android_app.default {{project}}/{{project}}/{{app_id}}
+$ terraform import google_firebase_android_app.default androidApps/{{app_id}}
+$ terraform import google_firebase_android_app.default {{app_id}}
 ```
 
 ## User Project Overrides

@@ -113,7 +113,7 @@ serving traffic. Set to `DELETE` to delete the WebApp. Default to `ABANDON`
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `{{name}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/webApps/{{app_id}}`
 
 * `name` -
   The fully qualified resource name of the App, for example:
@@ -142,9 +142,11 @@ This resource provides the following
 WebApp can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_firebase_web_app.default {{project}}/{{name}}
-$ terraform import google_firebase_web_app.default {{project}} {{name}}
-$ terraform import google_firebase_web_app.default {{name}}
+$ terraform import google_firebase_web_app.default {{project}} projects/{{project}}/webApps/{{app_id}}
+$ terraform import google_firebase_web_app.default projects/{{project}}/webApps/{{app_id}}
+$ terraform import google_firebase_web_app.default {{project}}/{{project}}/{{app_id}}
+$ terraform import google_firebase_web_app.default webApps/{{app_id}}
+$ terraform import google_firebase_web_app.default {{app_id}}
 ```
 
 ## User Project Overrides
