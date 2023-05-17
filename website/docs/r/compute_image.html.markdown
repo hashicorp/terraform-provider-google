@@ -130,8 +130,8 @@ The following arguments are supported:
 
 * `storage_locations` -
   (Optional)
-  Cloud Storage bucket storage location of the image 
-  (regional or multi-regional). 
+  Cloud Storage bucket storage location of the image
+  (regional or multi-regional).
   Reference link: https://cloud.google.com/compute/docs/reference/rest/v1/images
 
 * `disk_size_gb` -
