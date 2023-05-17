@@ -123,6 +123,7 @@ func ResourceSqlUser() *schema.Resource {
 			"password_policy": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -206,7 +207,6 @@ func expandPasswordPolicy(cfg interface{}) *sqladmin.UserPasswordValidationPolic
 	raw := cfg.([]interface{})[0].(map[string]interface{})
 
 	upvp := &sqladmin.UserPasswordValidationPolicy{}
-
 	if v, ok := raw["allowed_failed_attempts"]; ok {
 		upvp.AllowedFailedAttempts = int64(v.(int))
 	}
@@ -316,36 +316,15 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	host := d.Get("host").(string)
 
-	var users *sqladmin.UsersListResponse
+	var user *sqladmin.User
 	err = nil
 	err = transport_tpg.RetryTime(func() error {
-		users, err = config.NewSqlAdminClient(userAgent).Users.List(project, instance).Do()
+		user, err = config.NewSqlAdminClient(userAgent).Users.Get(project, instance, name).Host(host).Do()
 		return err
 	}, 5)
 	if err != nil {
 		// move away from transport_tpg.HandleNotFoundError() as we need to handle both 404 and 403
 		return handleUserNotFoundError(err, d, fmt.Sprintf("SQL User %q in instance %q", name, instance))
-	}
-
-	var user *sqladmin.User
-	databaseInstance, err := config.NewSqlAdminClient(userAgent).Instances.Get(project, instance).Do()
-	if err != nil {
-		return err
-	}
-
-	for _, currentUser := range users.Items {
-		if !strings.Contains(databaseInstance.DatabaseVersion, "POSTGRES") {
-			name = strings.Split(name, "@")[0]
-		}
-
-		if currentUser.Name == name {
-			// Host can only be empty for postgres instances,
-			// so don't compare the host if the API host is empty.
-			if host == "" || currentUser.Host == host {
-				user = currentUser
-				break
-			}
-		}
 	}
 
 	if user == nil {
