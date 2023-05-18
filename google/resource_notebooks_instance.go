@@ -220,7 +220,6 @@ An object containing a list of "key": value pairs. Example: { "name": "wrench", 
 			"metadata": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Description: `Custom metadata to apply to this instance.
 An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
@@ -820,7 +819,59 @@ func resourceNotebooksInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 			obj["labels"] = labelsProp
 		}
 
+		obj, err = resourceNotebooksInstanceUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
 		url, err := tpgresource.ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}:setLabels")
+		if err != nil {
+			return err
+		}
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
+		}
+
+		err = NotebooksOperationWaitTime(
+			config, res, project, "Updating Instance", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("metadata") {
+		obj := make(map[string]interface{})
+
+		metadataProp, err := expandNotebooksInstanceMetadata(d.Get("metadata"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("metadata"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, metadataProp)) {
+			obj["metadata"] = metadataProp
+		}
+
+		obj, err = resourceNotebooksInstanceUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}:updateMetadataItems")
 		if err != nil {
 			return err
 		}
@@ -1407,4 +1458,14 @@ func expandNotebooksInstanceContainerImageRepository(v interface{}, d tpgresourc
 
 func expandNotebooksInstanceContainerImageTag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceNotebooksInstanceUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// Update requests use "items" as the api name instead of "metadata"
+	// https://cloud.google.com/vertex-ai/docs/workbench/reference/rest/v1/projects.locations.instances/updateMetadataItems
+	if metadata, ok := obj["metadata"]; ok {
+		obj["items"] = metadata
+		delete(obj, "metadata")
+	}
+	return obj, nil
 }
