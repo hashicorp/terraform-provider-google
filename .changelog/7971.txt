@@ -1,0 +1,6 @@
+```release-note:enhancement
+cloudrun: Added field `template.spec.containers.name` to `google_cloud_run_service`
+```
+```release-note:enhancement
+cloudrun: Added beta field `template.spec.columes.empty_dir` to `google_cloud_run_service`
+```
