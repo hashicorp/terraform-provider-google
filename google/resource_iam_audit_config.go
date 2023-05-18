@@ -45,22 +45,29 @@ var iamAuditConfigSchema = map[string]*schema.Schema{
 	},
 }
 
-func ResourceIamAuditConfig(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
-	return ResourceIamAuditConfigWithBatching(parentSpecificSchema, newUpdaterFunc, resourceIdParser, IamBatchingDisabled)
-}
+func ResourceIamAuditConfig(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, options ...func(*IamSettings)) *schema.Resource {
+	settings := NewIamSettings(options...)
 
-func ResourceIamAuditConfigWithBatching(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, enableBatching bool) *schema.Resource {
 	return &schema.Resource{
-		Create: resourceIamAuditConfigCreateUpdate(newUpdaterFunc, enableBatching),
+		Create: resourceIamAuditConfigCreateUpdate(newUpdaterFunc, settings.EnableBatching),
 		Read:   resourceIamAuditConfigRead(newUpdaterFunc),
-		Update: resourceIamAuditConfigCreateUpdate(newUpdaterFunc, enableBatching),
-		Delete: resourceIamAuditConfigDelete(newUpdaterFunc, enableBatching),
+		Update: resourceIamAuditConfigCreateUpdate(newUpdaterFunc, settings.EnableBatching),
+		Delete: resourceIamAuditConfigDelete(newUpdaterFunc, settings.EnableBatching),
 		Schema: mergeSchemas(iamAuditConfigSchema, parentSpecificSchema),
 		Importer: &schema.ResourceImporter{
 			State: iamAuditConfigImport(resourceIdParser),
 		},
 		UseJSONNumber: true,
 	}
+}
+
+// Deprecated: For backward compatibility ResourceIamAuditConfigWithBatching is still working,
+// but all new code should use ResourceIamAuditConfig in the google package instead.
+func ResourceIamAuditConfigWithBatching(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, enableBatching bool, options ...func(*IamSettings)) *schema.Resource {
+	if enableBatching {
+		options = append(options, IamWithBatching)
+	}
+	return ResourceIamAuditConfig(parentSpecificSchema, newUpdaterFunc, resourceIdParser, options...)
 }
 
 func resourceIamAuditConfigRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.ReadFunc {

@@ -170,19 +170,12 @@ func iamMemberImport(newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser 
 }
 
 func ResourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, options ...func(*IamSettings)) *schema.Resource {
-	return ResourceIamMemberWithBatching(parentSpecificSchema, newUpdaterFunc, resourceIdParser, IamBatchingDisabled, options...)
-}
-
-func ResourceIamMemberWithBatching(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, enableBatching bool, options ...func(*IamSettings)) *schema.Resource {
-	settings := &IamSettings{}
-	for _, o := range options {
-		o(settings)
-	}
+	settings := NewIamSettings(options...)
 
 	return &schema.Resource{
-		Create: resourceIamMemberCreate(newUpdaterFunc, enableBatching),
+		Create: resourceIamMemberCreate(newUpdaterFunc, settings.EnableBatching),
 		Read:   resourceIamMemberRead(newUpdaterFunc),
-		Delete: resourceIamMemberDelete(newUpdaterFunc, enableBatching),
+		Delete: resourceIamMemberDelete(newUpdaterFunc, settings.EnableBatching),
 
 		// if non-empty, this will be used to send a deprecation message when the
 		// resource is used.
@@ -194,6 +187,15 @@ func ResourceIamMemberWithBatching(parentSpecificSchema map[string]*schema.Schem
 		},
 		UseJSONNumber: true,
 	}
+}
+
+// Deprecated: For backward compatibility ResourceIamMemberWithBatching is still working,
+// but all new code should use ResourceIamMember in the google package instead.
+func ResourceIamMemberWithBatching(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, enableBatching bool, options ...func(*IamSettings)) *schema.Resource {
+	if enableBatching {
+		options = append(options, IamWithBatching)
+	}
+	return ResourceIamMember(parentSpecificSchema, newUpdaterFunc, resourceIdParser, options...)
 }
 
 func getResourceIamMember(d *schema.ResourceData) *cloudresourcemanager.Binding {
