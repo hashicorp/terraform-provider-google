@@ -64,21 +64,13 @@ var iamBindingSchema = map[string]*schema.Schema{
 }
 
 func ResourceIamBinding(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, options ...func(*IamSettings)) *schema.Resource {
-	return ResourceIamBindingWithBatching(parentSpecificSchema, newUpdaterFunc, resourceIdParser, IamBatchingDisabled, options...)
-}
-
-// Resource that batches requests to the same IAM policy across multiple IAM fine-grained resources
-func ResourceIamBindingWithBatching(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, enableBatching bool, options ...func(*IamSettings)) *schema.Resource {
-	settings := &IamSettings{}
-	for _, o := range options {
-		o(settings)
-	}
+	settings := NewIamSettings(options...)
 
 	return &schema.Resource{
-		Create: resourceIamBindingCreateUpdate(newUpdaterFunc, enableBatching),
+		Create: resourceIamBindingCreateUpdate(newUpdaterFunc, settings.EnableBatching),
 		Read:   resourceIamBindingRead(newUpdaterFunc),
-		Update: resourceIamBindingCreateUpdate(newUpdaterFunc, enableBatching),
-		Delete: resourceIamBindingDelete(newUpdaterFunc, enableBatching),
+		Update: resourceIamBindingCreateUpdate(newUpdaterFunc, settings.EnableBatching),
+		Delete: resourceIamBindingDelete(newUpdaterFunc, settings.EnableBatching),
 
 		// if non-empty, this will be used to send a deprecation message when the
 		// resource is used.
@@ -90,6 +82,17 @@ func ResourceIamBindingWithBatching(parentSpecificSchema map[string]*schema.Sche
 		},
 		UseJSONNumber: true,
 	}
+}
+
+// Resource that batches requests to the same IAM policy across multiple IAM fine-grained resources
+//
+// Deprecated: For backward compatibility ResourceIamBindingWithBatching is still working,
+// but all new code should use ResourceIamBinding in the google package instead.
+func ResourceIamBindingWithBatching(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, enableBatching bool, options ...func(*IamSettings)) *schema.Resource {
+	if enableBatching {
+		options = append(options, IamWithBatching)
+	}
+	return ResourceIamBinding(parentSpecificSchema, newUpdaterFunc, resourceIdParser, options...)
 }
 
 func resourceIamBindingCreateUpdate(newUpdaterFunc newResourceIamUpdaterFunc, enableBatching bool) func(*schema.ResourceData, interface{}) error {

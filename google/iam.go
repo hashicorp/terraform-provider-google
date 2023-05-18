@@ -458,6 +458,15 @@ func compareAuditConfigs(a, b []*cloudresourcemanager.AuditConfig) bool {
 
 type IamSettings struct {
 	DeprecationMessage string
+	EnableBatching     bool
+}
+
+func NewIamSettings(options ...func(*IamSettings)) *IamSettings {
+	settings := &IamSettings{}
+	for _, o := range options {
+		o(settings)
+	}
+	return settings
 }
 
 func IamWithDeprecationMessage(message string) func(s *IamSettings) {
@@ -468,6 +477,10 @@ func IamWithDeprecationMessage(message string) func(s *IamSettings) {
 
 func IamWithGAResourceDeprecation() func(s *IamSettings) {
 	return IamWithDeprecationMessage("This resource has been deprecated in the google (GA) provider, and will only be available in the google-beta provider in a future release.")
+}
+
+func IamWithBatching(s *IamSettings) {
+	s.EnableBatching = true
 }
 
 // Util to deref and print auditConfigs

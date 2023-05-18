@@ -40,10 +40,7 @@ func iamPolicyImport(resourceIdParser resourceIdParserFunc) schema.StateFunc {
 }
 
 func ResourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIdParser resourceIdParserFunc, options ...func(*IamSettings)) *schema.Resource {
-	settings := &IamSettings{}
-	for _, o := range options {
-		o(settings)
-	}
+	settings := NewIamSettings(options...)
 
 	return &schema.Resource{
 		Create: ResourceIamPolicyCreate(newUpdaterFunc),
