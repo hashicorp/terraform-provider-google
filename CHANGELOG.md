@@ -1,5 +1,33 @@
 ## 4.66.0 (Unreleased)
 
+UNKNOWN CHANGELOG TYPE:
+*  ([#14563](https://github.com/hashicorp/terraform-provider-google/pull/14563))
+* Upgrade to Go 1.19.9 ([#14561](https://github.com/hashicorp/terraform-provider-google/pull/14561))
+
+FEATURES:
+* **New Resource:** `google_network_security_server_tls_policy` ([#14557](https://github.com/hashicorp/terraform-provider-google/pull/14557))
+
+IMPROVEMENTS:
+* Added support for storageLocation in Image resource ([#14619](https://github.com/hashicorp/terraform-provider-google/pull/14619))
+* bigquery: added ICEBERG as an enum for `external_data_configuration.source_format` field in `google_bigquery_table` ([#14562](https://github.com/hashicorp/terraform-provider-google/pull/14562))
+* cloudfunctions: added `status` attribute to the `google_cloudfunctions_function` resource and data source ([#14574](https://github.com/hashicorp/terraform-provider-google/pull/14574))
+* compute: added support for additional machine types in `google_compute_region_commitment` ([#14593](https://github.com/hashicorp/terraform-provider-google/pull/14593))
+* monitoring: added `forecast_options` field to `google_monitoring_alert_policy` resource ([#14616](https://github.com/hashicorp/terraform-provider-google/pull/14616))
+* sql: added `advanced_machine_features` field in `google_sql_database_instance` ([#14604](https://github.com/hashicorp/terraform-provider-google/pull/14604))
+* storagetransfer: added field `path` to `transfer_spec.aws_s3_data_source` in `google_storage_transfer_job` ([#14610](https://github.com/hashicorp/terraform-provider-google/pull/14610))
+* workstations: Add support for `source_snapshot` in `google_workstations_workstation_config` (beta) ([#14595](https://github.com/hashicorp/terraform-provider-google/pull/14595))
+
+BUG FIXES:
+* Update config.go and framework_config.go to use transport.Creds for all cases ([#14550](https://github.com/hashicorp/terraform-provider-google/pull/14550))
+* artifactregistry: fixed new repositories ignoring the provider region if location is unset. ([#14596](https://github.com/hashicorp/terraform-provider-google/pull/14596))
+* compute: fixed permadiff on `log_config.sample_rate` of `google_compute_backend_service` ([#14590](https://github.com/hashicorp/terraform-provider-google/pull/14590))
+* container: added ability for `gateway_api_config.channel` to default from the api ([#14576](https://github.com/hashicorp/terraform-provider-google/pull/14576))
+* dataflow: fixed inconsistent final plan when labels are added to `google_dataflow_job` ([#14594](https://github.com/hashicorp/terraform-provider-google/pull/14594))
+* provider: fixed an issue where `google_client_config` datasource return `null` for `access_token` ([#14608](https://github.com/hashicorp/terraform-provider-google/pull/14608))
+* provider: fixed an issue where `google_client_config` datasource return `null` for all attributes when region or zone is unset in provider config ([#14618](https://github.com/hashicorp/terraform-provider-google/pull/14618))
+* provider: fixed an issue where mtls transports were not used consistently ([#14621](https://github.com/hashicorp/terraform-provider-google/pull/14621))
+* storage: fixed inconsistent final plan when labels are added to `google_storage_bucket` ([#14594](https://github.com/hashicorp/terraform-provider-google/pull/14594))
+
 ## 4.65.2 (May 16, 2023)
 
 BUG FIXES:
