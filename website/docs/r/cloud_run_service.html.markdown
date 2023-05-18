@@ -172,6 +172,72 @@ resource "google_cloud_run_service" "default" {
   }
 }
 ```
+## Example Usage - Cloud Run Service Multicontainer
+
+
+```hcl
+resource "google_cloud_run_service" "default" {
+  name     = "cloudrun-srv"
+  location = "us-central1"
+  provider = google-beta
+
+  metadata {
+    annotations = {
+      "run.googleapis.com/launch-stage" = "BETA"
+    }
+  }
+  template {
+    metadata {
+      annotations = {
+        "run.googleapis.com/container-dependencies" = jsonencode({hello-1 = ["hello-2"]})
+      }
+    }
+    spec {
+      containers {
+	name = "hello-1"
+	ports {
+	  container_port = 8080
+	}
+	image = "us-docker.pkg.dev/cloudrun/container/hello"
+	volume_mounts {
+	  name = "shared-volume"
+	  mount_path = "/mnt/shared"
+	}
+      }
+      containers {
+	name = "hello-2"
+	image = "us-docker.pkg.dev/cloudrun/container/hello"
+	env {
+	  name = "PORT"
+	  value = "8081"
+	}
+	startup_probe {
+	  http_get {
+	    port = 8081
+	  }
+	}
+	volume_mounts {
+	  name = "shared-volume"
+	  mount_path = "/mnt/shared"
+	}
+      }
+      volumes {
+	name = "shared-volume"
+	empty_dir {
+	  medium = "Memory"
+	  size_limit = "128Mi"
+	}
+      }
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      metadata[0].annotations["run.googleapis.com/launch-stage"],
+    ]
+  }
+}
+```
 
 ## Argument Reference
 
@@ -321,9 +387,7 @@ The following arguments are supported:
 
 * `containers` -
   (Required)
-  Container defines the unit of execution for this Revision.
-  In the context of a Revision, we disallow a number of the fields of
-  this Container, including: name, ports, and volumeMounts.
+  Containers defines the unit of execution for this Revision.
   Structure is [documented below](#nested_containers).
 
 * `container_concurrency` -
@@ -360,6 +424,10 @@ The following arguments are supported:
 
 
 <a name="nested_containers"></a>The `containers` block supports:
+
+* `name` -
+  (Optional)
+  Name of the container
 
 * `working_dir` -
   (Optional, Deprecated)
@@ -727,11 +795,16 @@ The following arguments are supported:
   Volume's name.
 
 * `secret` -
-  (Required)
+  (Optional)
   The secret's value will be presented as the content of a file whose
   name is defined in the item path. If no items are defined, the name of
   the file is the secret_name.
   Structure is [documented below](#nested_secret).
+
+* `empty_dir` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Ephemeral storage which can be backed by real disks (HD, SSD), network storage or memory (i.e. tmpfs). For now only in memory (tmpfs) is supported. It is ephemeral in the sense that when the sandbox is taken down, the data is destroyed with it (it does not persist across sandbox runs).
+  Structure is [documented below](#nested_empty_dir).
 
 
 <a name="nested_secret"></a>The `secret` block supports:
@@ -785,6 +858,16 @@ The following arguments are supported:
   not specified, the volume defaultMode will be used. This might be in
   conflict with other options that affect the file mode, like fsGroup, and
   the result can be other mode bits set.
+
+<a name="nested_empty_dir"></a>The `empty_dir` block supports:
+
+* `medium` -
+  (Optional)
+  The medium on which the data is stored. The default is "" which means to use the node's default medium. Must be an empty string (default) or Memory.
+
+* `size_limit` -
+  (Optional)
+  Limit on the storage usable by this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. This field's values are of the 'Quantity' k8s type: https://kubernetes.io/docs/reference/kubernetes-api/common-definitions/quantity/. The default is nil which means that the limit is undefined. More info: http://kubernetes.io/docs/user-guide/volumes#emptydir.
 
 - - -
 

@@ -157,12 +157,10 @@ responsible for materializing the container image from source.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"containers": {
-										Type:     schema.TypeList,
-										Computed: true,
-										Optional: true,
-										Description: `Container defines the unit of execution for this Revision.
-In the context of a Revision, we disallow a number of the fields of
-this Container, including: name, ports, and volumeMounts.`,
+										Type:        schema.TypeList,
+										Computed:    true,
+										Optional:    true,
+										Description: `Containers defines the unit of execution for this Revision.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"image": {
@@ -384,6 +382,12 @@ Must be smaller than period_seconds.`,
 															},
 														},
 													},
+												},
+												"name": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Optional:    true,
+													Description: `Name of the container`,
 												},
 												"ports": {
 													Type:        schema.TypeList,
@@ -643,7 +647,7 @@ will use the project's default service account.`,
 												},
 												"secret": {
 													Type:     schema.TypeList,
-													Required: true,
+													Optional: true,
 													Description: `The secret's value will be presented as the content of a file whose
 name is defined in the item path. If no items are defined, the name of
 the file is the secret_name.`,
@@ -1649,6 +1653,7 @@ func flattenCloudRunServiceSpecTemplateSpecContainers(v interface{}, d *schema.R
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
+			"name":           flattenCloudRunServiceSpecTemplateSpecContainersName(original["name"], d, config),
 			"working_dir":    flattenCloudRunServiceSpecTemplateSpecContainersWorkingDir(original["workingDir"], d, config),
 			"args":           flattenCloudRunServiceSpecTemplateSpecContainersArgs(original["args"], d, config),
 			"env_from":       flattenCloudRunServiceSpecTemplateSpecContainersEnvFrom(original["envFrom"], d, config),
@@ -1664,6 +1669,10 @@ func flattenCloudRunServiceSpecTemplateSpecContainers(v interface{}, d *schema.R
 	}
 	return transformed
 }
+func flattenCloudRunServiceSpecTemplateSpecContainersName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCloudRunServiceSpecTemplateSpecContainersWorkingDir(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -2940,6 +2949,13 @@ func expandCloudRunServiceSpecTemplateSpecContainers(v interface{}, d tpgresourc
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
+		transformedName, err := expandCloudRunServiceSpecTemplateSpecContainersName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
 		transformedWorkingDir, err := expandCloudRunServiceSpecTemplateSpecContainersWorkingDir(original["working_dir"], d, config)
 		if err != nil {
 			return nil, err
@@ -3020,6 +3036,10 @@ func expandCloudRunServiceSpecTemplateSpecContainers(v interface{}, d tpgresourc
 		req = append(req, transformed)
 	}
 	return req, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersWorkingDir(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
