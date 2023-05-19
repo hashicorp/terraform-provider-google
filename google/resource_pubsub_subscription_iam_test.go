@@ -90,9 +90,12 @@ func TestAccPubsubSubscriptionIamPolicy(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSubscriptionIamPolicy_basic(subscription, topic, account, "roles/pubsub.subscriber"),
-				Check: testAccCheckPubsubSubscriptionIam(t, subscription, "roles/pubsub.subscriber", []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, acctest.GetTestProjectFromEnv()),
-				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckPubsubSubscriptionIam(t, subscription, "roles/pubsub.subscriber", []string{
+						fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, acctest.GetTestProjectFromEnv()),
+					}),
+					resource.TestCheckResourceAttrSet("data.google_pubsub_subscription_iam_policy.foo", "policy_data"),
+				),
 			},
 			{
 				Config: testAccPubsubSubscriptionIamPolicy_basic(subscription, topic, account, "roles/pubsub.viewer"),
@@ -243,6 +246,10 @@ data "google_iam_policy" "foo" {
 resource "google_pubsub_subscription_iam_policy" "foo" {
   subscription = google_pubsub_subscription.subscription.id
   policy_data  = data.google_iam_policy.foo.policy_data
+}
+
+data "google_pubsub_subscription_iam_policy" "foo" {
+  subscription = google_pubsub_subscription.subscription.id
 }
 `, topic, subscription, account, role)
 }

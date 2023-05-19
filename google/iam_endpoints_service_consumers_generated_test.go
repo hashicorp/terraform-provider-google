@@ -104,6 +104,7 @@ func TestAccServiceManagementServiceConsumersIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceManagementServiceConsumersIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_endpoints_service_consumers_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_endpoints_service_consumers_iam_policy.foo",
@@ -178,6 +179,14 @@ resource "google_endpoints_service_consumers_iam_policy" "foo" {
   service_name = google_endpoints_service.endpoints_service.service_name
   consumer_project = "%{consumer_project}"
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_endpoints_service_consumers_iam_policy" "foo" {
+  service_name = google_endpoints_service.endpoints_service.service_name
+  consumer_project = "%{consumer_project}"
+  depends_on = [
+    google_endpoints_service_consumers_iam_policy.foo
+  ]
 }
 `, context)
 }

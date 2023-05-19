@@ -193,6 +193,7 @@ func TestAccServiceAccountIamPolicy(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountIamPolicy_basic(account),
+				Check:  resource.TestCheckResourceAttrSet("data.google_service_account_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_service_account_iam_policy.foo",
@@ -393,6 +394,10 @@ data "google_iam_policy" "foo" {
 resource "google_service_account_iam_policy" "foo" {
   service_account_id = google_service_account.test_account.name
   policy_data        = data.google_iam_policy.foo.policy_data
+}
+
+data "google_service_account_iam_policy" "foo" {
+  service_account_id = google_service_account.test_account.name
 }
 `, account)
 }

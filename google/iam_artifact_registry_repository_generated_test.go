@@ -98,6 +98,7 @@ func TestAccArtifactRegistryRepositoryIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccArtifactRegistryRepositoryIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_artifact_registry_repository_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_artifact_registry_repository_iam_policy.foo",
@@ -158,6 +159,15 @@ resource "google_artifact_registry_repository_iam_policy" "foo" {
   location = google_artifact_registry_repository.my-repo.location
   repository = google_artifact_registry_repository.my-repo.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_artifact_registry_repository_iam_policy" "foo" {
+  project = google_artifact_registry_repository.my-repo.project
+  location = google_artifact_registry_repository.my-repo.location
+  repository = google_artifact_registry_repository.my-repo.name
+  depends_on = [
+    google_artifact_registry_repository_iam_policy.foo
+  ]
 }
 `, context)
 }

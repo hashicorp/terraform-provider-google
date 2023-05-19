@@ -98,6 +98,7 @@ func TestAccNotebooksInstanceIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNotebooksInstanceIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_notebooks_instance_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_notebooks_instance_iam_policy.foo",
@@ -164,6 +165,15 @@ resource "google_notebooks_instance_iam_policy" "foo" {
   location = google_notebooks_instance.instance.location
   instance_name = google_notebooks_instance.instance.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_notebooks_instance_iam_policy" "foo" {
+  project = google_notebooks_instance.instance.project
+  location = google_notebooks_instance.instance.location
+  instance_name = google_notebooks_instance.instance.name
+  depends_on = [
+    google_notebooks_instance_iam_policy.foo
+  ]
 }
 `, context)
 }

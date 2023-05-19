@@ -104,6 +104,7 @@ func TestAccApigeeEnvironmentIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeEnvironmentIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_apigee_environment_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_apigee_environment_iam_policy.foo",
@@ -274,6 +275,14 @@ resource "google_apigee_environment_iam_policy" "foo" {
   org_id = google_apigee_environment.apigee_environment.org_id
   env_id = google_apigee_environment.apigee_environment.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_apigee_environment_iam_policy" "foo" {
+  org_id = google_apigee_environment.apigee_environment.org_id
+  env_id = google_apigee_environment.apigee_environment.name
+  depends_on = [
+    google_apigee_environment_iam_policy.foo
+  ]
 }
 `, context)
 }

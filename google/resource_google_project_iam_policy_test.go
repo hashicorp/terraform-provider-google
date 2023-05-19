@@ -34,6 +34,7 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 			// merges policies, so we validate the expected state.
 			{
 				Config: testAccProjectAssociatePolicyBasic(pid, org, member),
+				Check:  resource.TestCheckResourceAttrSet("data.google_project_iam_policy.acceptance", "policy_data"),
 			},
 			{
 				ResourceName: "google_project_iam_policy.acceptance",
@@ -264,6 +265,10 @@ resource "google_project" "acceptance" {
 resource "google_project_iam_policy" "acceptance" {
   project     = google_project.acceptance.id
   policy_data = data.google_iam_policy.admin.policy_data
+}
+
+data "google_project_iam_policy" "acceptance" {
+  project     = google_project.acceptance.id
 }
 
 data "google_iam_policy" "admin" {

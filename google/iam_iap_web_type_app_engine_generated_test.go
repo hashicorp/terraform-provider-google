@@ -135,6 +135,7 @@ func TestAccIapWebTypeAppEngineIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapWebTypeAppEngineIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_iap_web_type_app_engine_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_iap_web_type_app_engine_iam_policy.foo",
@@ -454,6 +455,14 @@ resource "google_iap_web_type_app_engine_iam_policy" "foo" {
   project = google_app_engine_application.app.project
   app_id = google_app_engine_application.app.app_id
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_iap_web_type_app_engine_iam_policy" "foo" {
+  project = google_app_engine_application.app.project
+  app_id = google_app_engine_application.app.app_id
+  depends_on = [
+    google_iap_web_type_app_engine_iam_policy.foo
+  ]
 }
 `, context)
 }

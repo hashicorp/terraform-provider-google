@@ -98,6 +98,7 @@ func TestAccDataprocAutoscalingPolicyIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocAutoscalingPolicyIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_dataproc_autoscaling_policy_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_dataproc_autoscaling_policy_iam_policy.foo",
@@ -180,6 +181,15 @@ resource "google_dataproc_autoscaling_policy_iam_policy" "foo" {
   location = google_dataproc_autoscaling_policy.basic.location
   policy_id = google_dataproc_autoscaling_policy.basic.policy_id
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_dataproc_autoscaling_policy_iam_policy" "foo" {
+  project = google_dataproc_autoscaling_policy.basic.project
+  location = google_dataproc_autoscaling_policy.basic.location
+  policy_id = google_dataproc_autoscaling_policy.basic.policy_id
+  depends_on = [
+    google_dataproc_autoscaling_policy_iam_policy.foo
+  ]
 }
 `, context)
 }

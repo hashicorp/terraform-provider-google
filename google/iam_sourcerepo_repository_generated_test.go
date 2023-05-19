@@ -98,6 +98,7 @@ func TestAccSourceRepoRepositoryIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSourceRepoRepositoryIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_sourcerepo_repository_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_sourcerepo_repository_iam_policy.foo",
@@ -150,6 +151,14 @@ resource "google_sourcerepo_repository_iam_policy" "foo" {
   project = google_sourcerepo_repository.my-repo.project
   repository = google_sourcerepo_repository.my-repo.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_sourcerepo_repository_iam_policy" "foo" {
+  project = google_sourcerepo_repository.my-repo.project
+  repository = google_sourcerepo_repository.my-repo.name
+  depends_on = [
+    google_sourcerepo_repository_iam_policy.foo
+  ]
 }
 `, context)
 }

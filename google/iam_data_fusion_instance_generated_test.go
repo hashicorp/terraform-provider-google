@@ -101,6 +101,7 @@ func TestAccDataFusionInstanceIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataFusionInstanceIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_data_fusion_instance_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_data_fusion_instance_iam_policy.foo",
@@ -161,6 +162,15 @@ resource "google_data_fusion_instance_iam_policy" "foo" {
   region = google_data_fusion_instance.basic_instance.region
   name = google_data_fusion_instance.basic_instance.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_data_fusion_instance_iam_policy" "foo" {
+  project = google_data_fusion_instance.basic_instance.project
+  region = google_data_fusion_instance.basic_instance.region
+  name = google_data_fusion_instance.basic_instance.name
+  depends_on = [
+    google_data_fusion_instance_iam_policy.foo
+  ]
 }
 `, context)
 }

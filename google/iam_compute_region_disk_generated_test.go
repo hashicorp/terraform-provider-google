@@ -98,6 +98,7 @@ func TestAccComputeRegionDiskIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionDiskIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_compute_region_disk_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_compute_region_disk_iam_policy.foo",
@@ -192,6 +193,15 @@ resource "google_compute_region_disk_iam_policy" "foo" {
   region = google_compute_region_disk.regiondisk.region
   name = google_compute_region_disk.regiondisk.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_compute_region_disk_iam_policy" "foo" {
+  project = google_compute_region_disk.regiondisk.project
+  region = google_compute_region_disk.regiondisk.region
+  name = google_compute_region_disk.regiondisk.name
+  depends_on = [
+    google_compute_region_disk_iam_policy.foo
+  ]
 }
 `, context)
 }

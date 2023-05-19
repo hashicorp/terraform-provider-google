@@ -98,6 +98,7 @@ func TestAccBigqueryAnalyticsHubListingIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigqueryAnalyticsHubListingIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_bigquery_analytics_hub_listing_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_listing_iam_policy.foo",
@@ -198,6 +199,16 @@ resource "google_bigquery_analytics_hub_listing_iam_policy" "foo" {
   data_exchange_id = google_bigquery_analytics_hub_listing.listing.data_exchange_id
   listing_id = google_bigquery_analytics_hub_listing.listing.listing_id
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_bigquery_analytics_hub_listing_iam_policy" "foo" {
+  project = google_bigquery_analytics_hub_listing.listing.project
+  location = google_bigquery_analytics_hub_listing.listing.location
+  data_exchange_id = google_bigquery_analytics_hub_listing.listing.data_exchange_id
+  listing_id = google_bigquery_analytics_hub_listing.listing.listing_id
+  depends_on = [
+    google_bigquery_analytics_hub_listing_iam_policy.foo
+  ]
 }
 `, context)
 }

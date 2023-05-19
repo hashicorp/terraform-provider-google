@@ -113,6 +113,7 @@ func TestAccBigtableInstanceIamPolicy(t *testing.T) {
 			{
 				// Test IAM Binding creation
 				Config: testAccBigtableInstanceIamPolicy(instance, cluster, account, role),
+				Check:  resource.TestCheckResourceAttrSet("data.google_bigtable_instance_iam_policy.policy", "policy_data"),
 			},
 			{
 				ResourceName:      "google_bigtable_instance_iam_policy.policy",
@@ -201,6 +202,10 @@ data "google_iam_policy" "policy" {
 resource "google_bigtable_instance_iam_policy" "policy" {
   instance    = google_bigtable_instance.instance.name
   policy_data = data.google_iam_policy.policy.policy_data
+}
+
+data "google_bigtable_instance_iam_policy" "policy" {
+  instance    = google_bigtable_instance.instance.name
 }
 `, instance, cluster, account, role)
 }

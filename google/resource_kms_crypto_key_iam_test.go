@@ -122,9 +122,12 @@ func TestAccKmsCryptoKeyIamPolicy(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccKmsCryptoKeyIamPolicy_basic(projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId),
-				Check: testAccCheckGoogleCryptoKmsKeyIam(t, "foo", roleId, []string{
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
-				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleCryptoKmsKeyIam(t, "foo", roleId, []string{
+						fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
+					}),
+					resource.TestCheckResourceAttrSet("data.google_kms_crypto_key_iam_policy.foo", "policy_data"),
+				),
 			},
 			{
 				ResourceName:      "google_kms_crypto_key_iam_policy.foo",
@@ -434,6 +437,10 @@ data "google_iam_policy" "foo" {
 resource "google_kms_crypto_key_iam_policy" "foo" {
   crypto_key_id = google_kms_crypto_key.crypto_key.id
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_kms_crypto_key_iam_policy" "foo" {
+  crypto_key_id = google_kms_crypto_key.crypto_key.id
 }
 `, projectId, orgId, billingAccount, account, keyRingName, cryptoKeyName, roleId)
 }

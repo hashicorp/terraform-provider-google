@@ -114,6 +114,7 @@ func TestAccBigQueryTableIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryTableIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_bigquery_table_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_bigquery_table_iam_policy.foo",
@@ -458,6 +459,15 @@ resource "google_bigquery_table_iam_policy" "foo" {
   dataset_id = google_bigquery_table.test.dataset_id
   table_id = google_bigquery_table.test.table_id
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_bigquery_table_iam_policy" "foo" {
+  project = google_bigquery_table.test.project
+  dataset_id = google_bigquery_table.test.dataset_id
+  table_id = google_bigquery_table.test.table_id
+  depends_on = [
+    google_bigquery_table_iam_policy.foo
+  ]
 }
 `, context)
 }

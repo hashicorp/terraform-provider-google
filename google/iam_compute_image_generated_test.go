@@ -114,6 +114,7 @@ func TestAccComputeImageIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeImageIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_compute_image_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_compute_image_iam_policy.foo",
@@ -362,6 +363,14 @@ resource "google_compute_image_iam_policy" "foo" {
   project = google_compute_image.example.project
   image = google_compute_image.example.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_compute_image_iam_policy" "foo" {
+  project = google_compute_image.example.project
+  image = google_compute_image.example.name
+  depends_on = [
+    google_compute_image_iam_policy.foo
+  ]
 }
 `, context)
 }
