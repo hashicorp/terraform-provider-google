@@ -8,7 +8,7 @@ FEATURES:
 * **New Resource:** `google_network_security_server_tls_policy` ([#14557](https://github.com/hashicorp/terraform-provider-google/pull/14557))
 
 IMPROVEMENTS:
-* Added support for storageLocation in Image resource ([#14619](https://github.com/hashicorp/terraform-provider-google/pull/14619))
+* compute: added `storage_location` field in `google_compute_image` resource ([#14619](https://github.com/hashicorp/terraform-provider-google/pull/14619))
 * bigquery: added ICEBERG as an enum for `external_data_configuration.source_format` field in `google_bigquery_table` ([#14562](https://github.com/hashicorp/terraform-provider-google/pull/14562))
 * cloudfunctions: added `status` attribute to the `google_cloudfunctions_function` resource and data source ([#14574](https://github.com/hashicorp/terraform-provider-google/pull/14574))
 * compute: added support for additional machine types in `google_compute_region_commitment` ([#14593](https://github.com/hashicorp/terraform-provider-google/pull/14593))
