@@ -103,6 +103,7 @@ resource "google_privateca_ca_pool" "default" {
   publishing_options {
     publish_ca_cert = false
     publish_crl = true
+    encoding_format = "PEM"
   }
   labels = {
     foo = "bar"
