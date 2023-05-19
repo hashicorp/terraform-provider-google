@@ -280,7 +280,7 @@ resource "google_database_migration_service_connection_profile" "alloydbprofile"
     foo = "bar" 
   }
   alloydb {
-    cluster_id = "dbmsalloycluster%{random_suffix}"
+    cluster_id = "tf-test-dbmsalloycluster%{random_suffix}"
     settings {
       initial_user {
         user = "alloyuser%{random_suffix}"
