@@ -573,6 +573,14 @@ in all issued Certificates. If this is false, CRLs will not be published and the
 be written in issued certificates. CRLs will expire 7 days from their creation. However, we will rebuild daily. CRLs are
 also rebuilt shortly after a certificate is revoked.`,
 						},
+						"encoding_format": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"PEM", "DER", ""}),
+							Description: `Specifies the encoding format of each CertificateAuthority's CA
+certificate and CRLs. If this is omitted, CA certificates and CRLs
+will be published in PEM. Possible values: ["PEM", "DER"]`,
+						},
 					},
 				},
 			},
@@ -1110,6 +1118,8 @@ func flattenPrivatecaCaPoolPublishingOptions(v interface{}, d *schema.ResourceDa
 		flattenPrivatecaCaPoolPublishingOptionsPublishCaCert(original["publishCaCert"], d, config)
 	transformed["publish_crl"] =
 		flattenPrivatecaCaPoolPublishingOptionsPublishCrl(original["publishCrl"], d, config)
+	transformed["encoding_format"] =
+		flattenPrivatecaCaPoolPublishingOptionsEncodingFormat(original["encodingFormat"], d, config)
 	return []interface{}{transformed}
 }
 func flattenPrivatecaCaPoolPublishingOptionsPublishCaCert(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1117,6 +1127,10 @@ func flattenPrivatecaCaPoolPublishingOptionsPublishCaCert(v interface{}, d *sche
 }
 
 func flattenPrivatecaCaPoolPublishingOptionsPublishCrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCaPoolPublishingOptionsEncodingFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1472,6 +1486,13 @@ func expandPrivatecaCaPoolPublishingOptions(v interface{}, d tpgresource.Terrafo
 		transformed["publishCrl"] = transformedPublishCrl
 	}
 
+	transformedEncodingFormat, err := expandPrivatecaCaPoolPublishingOptionsEncodingFormat(original["encoding_format"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEncodingFormat); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["encodingFormat"] = transformedEncodingFormat
+	}
+
 	return transformed, nil
 }
 
@@ -1480,6 +1501,10 @@ func expandPrivatecaCaPoolPublishingOptionsPublishCaCert(v interface{}, d tpgres
 }
 
 func expandPrivatecaCaPoolPublishingOptionsPublishCrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPrivatecaCaPoolPublishingOptionsEncodingFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
