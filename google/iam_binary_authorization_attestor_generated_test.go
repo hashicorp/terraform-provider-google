@@ -98,6 +98,7 @@ func TestAccBinaryAuthorizationAttestorIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBinaryAuthorizationAttestorIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_binary_authorization_attestor_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_binary_authorization_attestor_iam_policy.foo",
@@ -214,6 +215,14 @@ resource "google_binary_authorization_attestor_iam_policy" "foo" {
   project = google_binary_authorization_attestor.attestor.project
   attestor = google_binary_authorization_attestor.attestor.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_binary_authorization_attestor_iam_policy" "foo" {
+  project = google_binary_authorization_attestor.attestor.project
+  attestor = google_binary_authorization_attestor.attestor.name
+  depends_on = [
+    google_binary_authorization_attestor_iam_policy.foo
+  ]
 }
 `, context)
 }

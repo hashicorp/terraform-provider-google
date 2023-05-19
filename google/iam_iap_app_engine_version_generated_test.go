@@ -114,6 +114,7 @@ func TestAccIapAppEngineVersionIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineVersionIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_iap_app_engine_version_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_policy.foo",
@@ -408,6 +409,16 @@ resource "google_iap_app_engine_version_iam_policy" "foo" {
   service = "${google_app_engine_standard_app_version.version.service}"
   version_id = "${google_app_engine_standard_app_version.version.version_id}"
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_iap_app_engine_version_iam_policy" "foo" {
+  project = "${google_app_engine_standard_app_version.version.project}"
+  app_id = "${google_app_engine_standard_app_version.version.project}"
+  service = "${google_app_engine_standard_app_version.version.service}"
+  version_id = "${google_app_engine_standard_app_version.version.version_id}"
+  depends_on = [
+    google_iap_app_engine_version_iam_policy.foo
+  ]
 }
 `, context)
 }

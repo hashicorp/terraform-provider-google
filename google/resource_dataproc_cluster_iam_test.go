@@ -105,6 +105,7 @@ func TestAccDataprocClusterIamPolicy(t *testing.T) {
 			{
 				// Test IAM Binding creation
 				Config: testAccDataprocClusterIamPolicy(cluster, account, role),
+				Check:  resource.TestCheckResourceAttrSet("data.google_dataproc_cluster_iam_policy.policy", "policy_data"),
 			},
 			{
 				ResourceName:      "google_dataproc_cluster_iam_policy.policy",
@@ -197,6 +198,12 @@ resource "google_dataproc_cluster_iam_policy" "policy" {
   region      = "us-central1"
   policy_data = data.google_iam_policy.policy.policy_data
 }
+
+data "google_dataproc_cluster_iam_policy" "policy" {
+  cluster     = google_dataproc_cluster.cluster.name
+  region      = "us-central1"
+}
+
 `, cluster, account, role)
 }
 

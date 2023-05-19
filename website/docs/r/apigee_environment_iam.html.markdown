@@ -24,6 +24,10 @@ Three different resources help you manage your IAM policy for Apigee Environment
 * `google_apigee_environment_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the environment are preserved.
 * `google_apigee_environment_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the environment are preserved.
 
+A data source can be used to retrieve policy data in advent you do not need creation
+
+* `google_apigee_environment_iam_policy`: Retrieves the IAM policy for the environment
+
 ~> **Note:** `google_apigee_environment_iam_policy` **cannot** be used in conjunction with `google_apigee_environment_iam_binding` and `google_apigee_environment_iam_member` or they will fight over what your policy should be.
 
 ~> **Note:** `google_apigee_environment_iam_binding` resources **can be** used in conjunction with `google_apigee_environment_iam_member` resources **only if** they do not grant privilege to the same role.
@@ -73,6 +77,7 @@ resource "google_apigee_environment_iam_member" "member" {
   member = "user:jane@example.com"
 }
 ```
+
 
 ## Argument Reference
 

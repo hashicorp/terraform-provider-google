@@ -33,6 +33,13 @@ func TestProvider_noDuplicatesInResourceMap(t *testing.T) {
 	}
 }
 
+func TestProvider_noDuplicatesInDatasourceMap(t *testing.T) {
+	_, err := DatasourceMapWithErrors()
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestProvider_validateCredentials(t *testing.T) {
 	cases := map[string]struct {
 		ConfigValue      func(t *testing.T) interface{}

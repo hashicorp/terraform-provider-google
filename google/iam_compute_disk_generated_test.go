@@ -98,6 +98,7 @@ func TestAccComputeDiskIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeDiskIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_compute_disk_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_compute_disk_iam_policy.foo",
@@ -166,6 +167,15 @@ resource "google_compute_disk_iam_policy" "foo" {
   zone = google_compute_disk.default.zone
   name = google_compute_disk.default.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_compute_disk_iam_policy" "foo" {
+  project = google_compute_disk.default.project
+  zone = google_compute_disk.default.zone
+  name = google_compute_disk.default.name
+  depends_on = [
+    google_compute_disk_iam_policy.foo
+  ]
 }
 `, context)
 }

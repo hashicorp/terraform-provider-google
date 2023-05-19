@@ -98,6 +98,7 @@ func TestAccCloudRunV2JobIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudRunV2JobIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_cloud_run_v2_job_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_cloud_run_v2_job_iam_policy.foo",
@@ -182,6 +183,15 @@ resource "google_cloud_run_v2_job_iam_policy" "foo" {
   location = google_cloud_run_v2_job.default.location
   name = google_cloud_run_v2_job.default.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_cloud_run_v2_job_iam_policy" "foo" {
+  project = google_cloud_run_v2_job.default.project
+  location = google_cloud_run_v2_job.default.location
+  name = google_cloud_run_v2_job.default.name
+  depends_on = [
+    google_cloud_run_v2_job_iam_policy.foo
+  ]
 }
 `, context)
 }

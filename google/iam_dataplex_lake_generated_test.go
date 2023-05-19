@@ -101,6 +101,7 @@ func TestAccDataplexLakeIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataplexLakeIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_dataplex_lake_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_dataplex_lake_iam_policy.foo",
@@ -173,6 +174,15 @@ resource "google_dataplex_lake_iam_policy" "foo" {
   location = google_dataplex_lake.example.location
   lake = google_dataplex_lake.example.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_dataplex_lake_iam_policy" "foo" {
+  project = google_dataplex_lake.example.project
+  location = google_dataplex_lake.example.location
+  lake = google_dataplex_lake.example.name
+  depends_on = [
+    google_dataplex_lake_iam_policy.foo
+  ]
 }
 `, context)
 }

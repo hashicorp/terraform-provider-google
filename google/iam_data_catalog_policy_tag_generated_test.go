@@ -79,6 +79,7 @@ func TestAccDataCatalogPolicyTagIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogPolicyTagIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_data_catalog_policy_tag_iam_policy.foo", "policy_data"),
 			},
 			{
 				Config: testAccDataCatalogPolicyTagIamPolicy_emptyBinding(context),
@@ -133,6 +134,13 @@ data "google_iam_policy" "foo" {
 resource "google_data_catalog_policy_tag_iam_policy" "foo" {
   policy_tag = google_data_catalog_policy_tag.basic_policy_tag.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_data_catalog_policy_tag_iam_policy" "foo" {
+  policy_tag = google_data_catalog_policy_tag.basic_policy_tag.name
+  depends_on = [
+    google_data_catalog_policy_tag_iam_policy.foo
+  ]
 }
 `, context)
 }

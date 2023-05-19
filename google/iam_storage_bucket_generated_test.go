@@ -120,6 +120,7 @@ func TestAccStorageBucketIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_storage_bucket_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_storage_bucket_iam_policy.foo",
@@ -374,6 +375,13 @@ data "google_iam_policy" "foo" {
 resource "google_storage_bucket_iam_policy" "foo" {
   bucket = google_storage_bucket.default.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_storage_bucket_iam_policy" "foo" {
+  bucket = google_storage_bucket.default.name
+  depends_on = [
+    google_storage_bucket_iam_policy.foo
+  ]
 }
 `, context)
 }

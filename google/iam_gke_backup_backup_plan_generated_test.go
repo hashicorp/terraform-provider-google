@@ -101,6 +101,7 @@ func TestAccGKEBackupBackupPlanIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGKEBackupBackupPlanIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_gke_backup_backup_plan_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_policy.foo",
@@ -197,6 +198,15 @@ resource "google_gke_backup_backup_plan_iam_policy" "foo" {
   location = google_gke_backup_backup_plan.basic.location
   name = google_gke_backup_backup_plan.basic.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_gke_backup_backup_plan_iam_policy" "foo" {
+  project = google_gke_backup_backup_plan.basic.project
+  location = google_gke_backup_backup_plan.basic.location
+  name = google_gke_backup_backup_plan.basic.name
+  depends_on = [
+    google_gke_backup_backup_plan_iam_policy.foo
+  ]
 }
 `, context)
 }

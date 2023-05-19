@@ -98,6 +98,7 @@ func TestAccDNSManagedZoneIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDNSManagedZoneIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_dns_managed_zone_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_dns_managed_zone_iam_policy.foo",
@@ -252,6 +253,14 @@ resource "google_dns_managed_zone_iam_policy" "foo" {
   project = google_dns_managed_zone.default.project
   managed_zone = google_dns_managed_zone.default.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_dns_managed_zone_iam_policy" "foo" {
+  project = google_dns_managed_zone.default.project
+  managed_zone = google_dns_managed_zone.default.name
+  depends_on = [
+    google_dns_managed_zone_iam_policy.foo
+  ]
 }
 `, context)
 }

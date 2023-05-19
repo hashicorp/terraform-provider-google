@@ -93,6 +93,7 @@ func TestAccSpannerInstanceIamPolicy(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSpannerInstanceIamPolicy_basic(account, instance, role),
+				Check:  resource.TestCheckResourceAttrSet("data.google_spanner_instance_iam_policy.foo", "policy_data"),
 			},
 			// Test a few import formats
 			{
@@ -215,6 +216,11 @@ resource "google_spanner_instance_iam_policy" "foo" {
   project     = google_spanner_instance.instance.project
   instance    = google_spanner_instance.instance.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_spanner_instance_iam_policy" "foo" {
+  project     = google_spanner_instance.instance.project
+  instance    = google_spanner_instance.instance.name
 }
 `, account, instance, instance, roleId)
 }

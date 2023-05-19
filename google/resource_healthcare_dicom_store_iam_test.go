@@ -117,8 +117,11 @@ func TestAccHealthcareDicomStoreIamPolicy(t *testing.T) {
 			{
 				// Test Iam Policy creation (no update for policy, no need to test)
 				Config: testAccHealthcareDicomStoreIamPolicy_basic(account, datasetName, dicomStoreName, roleId),
-				Check: testAccCheckGoogleHealthcareDicomStoreIamPolicyExists(t, "foo", roleId,
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleHealthcareDicomStoreIamPolicyExists(t, "foo", roleId,
+						fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
+					),
+					resource.TestCheckResourceAttrSet("data.google_healthcare_dicom_store_iam_policy.foo", "policy_data"),
 				),
 			},
 			{
@@ -350,6 +353,10 @@ data "google_iam_policy" "foo" {
 resource "google_healthcare_dicom_store_iam_policy" "foo" {
   dicom_store_id = google_healthcare_dicom_store.dicom_store.id
   policy_data    = data.google_iam_policy.foo.policy_data
+}
+
+data "google_healthcare_dicom_store_iam_policy" "foo" {
+  dicom_store_id = google_healthcare_dicom_store.dicom_store.id
 }
 `, account, datasetName, dicomStoreName, roleId)
 }
