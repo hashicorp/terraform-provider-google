@@ -1291,6 +1291,31 @@ func TestAccComputeInstance_private_image_family(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_networkPerformanceConfig(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var diskName = fmt.Sprintf("tf-testd-%s", RandString(t, 10))
+	var imageName = fmt.Sprintf("tf-testf-%s", RandString(t, 10))
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_networkPerformanceConfig(imageName, diskName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasNetworkPerformanceConfig(&instance, "DEFAULT"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_forceChangeMachineTypeManually(t *testing.T) {
 	t.Parallel()
 
@@ -2936,6 +2961,19 @@ func testAccCheckComputeInstanceHasNetworkIP(instance *compute.Instance, network
 			if i.NetworkIP != networkIP {
 				return fmt.Errorf("Wrong network_ip found: expected %v, got %v", networkIP, i.NetworkIP)
 			}
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasNetworkPerformanceConfig(instance *compute.Instance, bandwidthTier string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.NetworkPerformanceConfig == nil {
+			return fmt.Errorf("Expected instance to have network performance config, but it was nil")
+		}
+		if instance.NetworkPerformanceConfig.TotalEgressBandwidthTier != bandwidthTier {
+			return fmt.Errorf("Incorrect network_performance_config.total_egress_bandwidth_tier found: expected %v, got %v", bandwidthTier, instance.NetworkPerformanceConfig.TotalEgressBandwidthTier)
 		}
 
 		return nil
@@ -5070,6 +5108,58 @@ resource "google_compute_instance" "foobar" {
   }
 }
 `, disk, family, family, instance)
+}
+
+func testAccComputeInstance_networkPerformanceConfig(disk string, image string, instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+  name  = "%s"
+  zone  = "us-central1-a"
+  image = data.google_compute_image.my_image.self_link
+}
+
+resource "google_compute_image" "foobar" {
+  name              = "%s"
+  source_disk       = google_compute_disk.foobar.self_link
+  guest_os_features {
+    type = "GVNIC"
+  }
+  guest_os_features {
+    type = "VIRTIO_SCSI_MULTIQUEUE"
+  }
+	guest_os_features {
+    type = "UEFI_COMPATIBLE"
+   }
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "n2-standard-2"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = google_compute_image.foobar.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP
+    }
+  }
+
+  network_performance_config {
+    total_egress_bandwidth_tier = "DEFAULT"
+  }
+}
+`, disk, image, instance)
 }
 
 func testAccComputeInstance_multiNic(instance, network, subnetwork string) string {
