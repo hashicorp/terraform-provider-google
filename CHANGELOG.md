@@ -1,7 +1,7 @@
 ## 4.66.0 (Unreleased)
 
 NOTE:
-* Upgrade to Go 1.19.9 ([#14561](https://github.com/hashicorp/terraform-provider-google/pull/14561))
+* Upgraded to Go 1.19.9 ([#14561](https://github.com/hashicorp/terraform-provider-google/pull/14561))
 
 FEATURES:
 * **New Resource:** `google_network_security_server_tls_policy` ([#14557](https://github.com/hashicorp/terraform-provider-google/pull/14557))
