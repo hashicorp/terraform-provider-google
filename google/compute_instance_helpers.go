@@ -571,3 +571,34 @@ func flattenReservationAffinity(affinity *compute.ReservationAffinity) []map[str
 
 	return []map[string]interface{}{flattened}
 }
+
+func expandNetworkPerformanceConfig(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (*compute.NetworkPerformanceConfig, error) {
+	configs, ok := d.GetOk("network_performance_config")
+	if !ok {
+		return nil, nil
+	}
+
+	npcSlice := configs.([]interface{})
+	if len(npcSlice) > 1 {
+		return nil, fmt.Errorf("cannot specify multiple network_performance_configs")
+	}
+
+	if len(npcSlice) == 0 || npcSlice[0] == nil {
+		return nil, nil
+	}
+	npc := npcSlice[0].(map[string]interface{})
+	return &compute.NetworkPerformanceConfig{
+		TotalEgressBandwidthTier: npc["total_egress_bandwidth_tier"].(string),
+	}, nil
+}
+
+func flattenNetworkPerformanceConfig(c *compute.NetworkPerformanceConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"total_egress_bandwidth_tier": c.TotalEgressBandwidthTier,
+		},
+	}
+}
