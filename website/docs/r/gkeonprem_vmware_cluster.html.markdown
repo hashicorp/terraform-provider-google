@@ -447,7 +447,7 @@ The following arguments are supported:
   IP could be an IP address (like 1.2.3.4) or a CIDR (like 1.2.3.0/24).
 
 * `hostname` -
-  (Required)
+  (Optional)
   Hostname of the machine. VM's name will be used if this field is empty.
 
 <a name="nested_dhcp_ip_config"></a>The `dhcp_ip_config` block supports:
