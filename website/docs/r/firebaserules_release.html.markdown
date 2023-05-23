@@ -55,6 +55,7 @@ resource "google_firebaserules_ruleset" "firestore" {
 Creates a Firebase Rules Release for a Storage bucket
 ```hcl
 resource "google_firebaserules_release" "primary" {
+  provider     = google-beta
   name         = "firebase.storage/${google_storage_bucket.bucket.name}"
   ruleset_name = "projects/my-project-name/rulesets/${google_firebaserules_ruleset.storage.name}"
   project      = "my-project-name"
@@ -68,20 +69,23 @@ resource "google_firebaserules_release" "primary" {
 
 # Provision a non-default Cloud Storage bucket.
 resource "google_storage_bucket" "bucket" {
-  project = "my-project-name"
-  name    = "bucket"
+  provider = google-beta
+  project  = "my-project-name"
+  name     = "bucket"
   location = "us-west1"
 }
 
 # Make the Storage bucket accessible for Firebase SDKs, authentication, and Firebase Security Rules.
 resource "google_firebase_storage_bucket" "bucket" {
+  provider  = google-beta
   project   = "my-project-name"
   bucket_id = google_storage_bucket.bucket.name
 }
 
 # Create a ruleset of Firebase Security Rules from a local file.
 resource "google_firebaserules_ruleset" "storage" {
-  project = "my-project-name"
+  provider = google-beta
+  project  = "my-project-name"
   source {
     files {
       name    = "storage.rules"
