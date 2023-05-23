@@ -2091,7 +2091,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error setting location: %s", err)
 	}
 
-	locations := schema.NewSet(schema.HashString, convertStringArrToInterface(cluster.Locations))
+	locations := schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(cluster.Locations))
 	locations.Remove(cluster.Zone) // Remove the original zone since we only store additional zones
 	if err := d.Set("node_locations", locations); err != nil {
 		return fmt.Errorf("Error setting node_locations: %s", err)
@@ -3715,7 +3715,7 @@ func expandAutoProvisioningDefaults(configured interface{}, d *schema.ResourceDa
 	config := l[0].(map[string]interface{})
 
 	npd := &container.AutoprovisioningNodePoolDefaults{
-		OauthScopes:     convertStringArr(config["oauth_scopes"].([]interface{})),
+		OauthScopes:     tpgresource.ConvertStringArr(config["oauth_scopes"].([]interface{})),
 		ServiceAccount:  config["service_account"].(string),
 		DiskSizeGb:      int64(config["disk_size"].(int)),
 		DiskType:        config["disk_type"].(string),
@@ -3862,7 +3862,7 @@ func expandNotificationConfig(configured interface{}) *container.NotificationCon
 				filter := vv.([]interface{})[0].(map[string]interface{})
 				eventType := filter["event_type"].([]interface{})
 				nc.Pubsub.Filter = &container.Filter{
-					EventType: convertStringArr(eventType),
+					EventType: tpgresource.ConvertStringArr(eventType),
 				}
 			}
 
@@ -4175,7 +4175,7 @@ func expandContainerClusterLoggingConfig(configured interface{}) *container.Logg
 	var components []string
 	if l[0] != nil {
 		config := l[0].(map[string]interface{})
-		components = convertStringArr(config["enable_components"].([]interface{}))
+		components = tpgresource.ConvertStringArr(config["enable_components"].([]interface{}))
 	}
 
 	return &container.LoggingConfig{
@@ -4196,7 +4196,7 @@ func expandMonitoringConfig(configured interface{}) *container.MonitoringConfig 
 	if v, ok := config["enable_components"]; ok {
 		enable_components := v.([]interface{})
 		mc.ComponentConfig = &container.MonitoringComponentConfig{
-			EnableComponents: convertStringArr(enable_components),
+			EnableComponents: tpgresource.ConvertStringArr(enable_components),
 		}
 	}
 	if v, ok := config["managed_prometheus"]; ok && len(v.([]interface{})) > 0 {
@@ -4973,16 +4973,16 @@ func containerClusterAddedScopesSuppress(k, old, new string, d *schema.ResourceD
 	}
 
 	// combine what the default scopes are with what was passed
-	m := golangSetFromStringSlice(append(addedScopes, convertStringArr(n.([]interface{}))...))
-	combined := stringSliceFromGolangSet(m)
+	m := golangSetFromStringSlice(append(addedScopes, tpgresource.ConvertStringArr(n.([]interface{}))...))
+	combined := tpgresource.StringSliceFromGolangSet(m)
 
 	// compare if the combined new scopes and default scopes differ from the old scopes
-	if len(combined) != len(convertStringArr(o.([]interface{}))) {
+	if len(combined) != len(tpgresource.ConvertStringArr(o.([]interface{}))) {
 		return false
 	}
 
 	for _, i := range combined {
-		if stringInSlice(convertStringArr(o.([]interface{})), i) {
+		if stringInSlice(tpgresource.ConvertStringArr(o.([]interface{})), i) {
 			continue
 		}
 

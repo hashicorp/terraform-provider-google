@@ -5,6 +5,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -35,7 +37,7 @@ var LoggingExclusionBaseSchema = map[string]*schema.Schema{
 	},
 }
 
-func ResourceLoggingExclusion(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceLoggingExclusionUpdaterFunc, resourceIdParser resourceIdParserFunc) *schema.Resource {
+func ResourceLoggingExclusion(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceLoggingExclusionUpdaterFunc, resourceIdParser tpgiamresource.ResourceIdParserFunc) *schema.Resource {
 	return &schema.Resource{
 		Create: resourceLoggingExclusionCreate(newUpdaterFunc),
 		Read:   resourceLoggingExclusionRead(newUpdaterFunc),
@@ -46,7 +48,7 @@ func ResourceLoggingExclusion(parentSpecificSchema map[string]*schema.Schema, ne
 			State: resourceLoggingExclusionImportState(resourceIdParser),
 		},
 
-		Schema:        mergeSchemas(LoggingExclusionBaseSchema, parentSpecificSchema),
+		Schema:        tpgresource.MergeSchemas(LoggingExclusionBaseSchema, parentSpecificSchema),
 		UseJSONNumber: true,
 	}
 }
@@ -154,7 +156,7 @@ func resourceLoggingExclusionDelete(newUpdaterFunc newResourceLoggingExclusionUp
 	}
 }
 
-func resourceLoggingExclusionImportState(resourceIdParser resourceIdParserFunc) schema.StateFunc {
+func resourceLoggingExclusionImportState(resourceIdParser tpgiamresource.ResourceIdParserFunc) schema.StateFunc {
 	return func(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 		config := meta.(*transport_tpg.Config)
 		err := resourceIdParser(d, config)

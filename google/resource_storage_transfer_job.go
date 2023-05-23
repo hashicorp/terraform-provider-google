@@ -1056,8 +1056,8 @@ func expandObjectConditions(conditions []interface{}) *storagetransfer.ObjectCon
 
 	condition := conditions[0].(map[string]interface{})
 	return &storagetransfer.ObjectConditions{
-		ExcludePrefixes:                     convertStringArr(condition["exclude_prefixes"].([]interface{})),
-		IncludePrefixes:                     convertStringArr(condition["include_prefixes"].([]interface{})),
+		ExcludePrefixes:                     tpgresource.ConvertStringArr(condition["exclude_prefixes"].([]interface{})),
+		IncludePrefixes:                     tpgresource.ConvertStringArr(condition["include_prefixes"].([]interface{})),
 		MaxTimeElapsedSinceLastModification: condition["max_time_elapsed_since_last_modification"].(string),
 		MinTimeElapsedSinceLastModification: condition["min_time_elapsed_since_last_modification"].(string),
 		LastModifiedSince:                   condition["last_modified_since"].(string),
@@ -1176,7 +1176,7 @@ func expandTransferJobNotificationConfig(notificationConfigs []interface{}) *sto
 	}
 
 	if notificationConfig["event_types"] != nil {
-		apiData.EventTypes = convertStringArr(notificationConfig["event_types"].(*schema.Set).List())
+		apiData.EventTypes = tpgresource.ConvertStringArr(notificationConfig["event_types"].(*schema.Set).List())
 	}
 
 	log.Printf("[DEBUG] apiData: %v\n\n", apiData)
@@ -1194,7 +1194,7 @@ func flattenTransferJobNotificationConfig(notificationConfig *storagetransfer.No
 	}
 
 	if notificationConfig.EventTypes != nil {
-		data["event_types"] = convertStringArrToInterface(notificationConfig.EventTypes)
+		data["event_types"] = tpgresource.ConvertStringArrToInterface(notificationConfig.EventTypes)
 	}
 
 	return []map[string]interface{}{data}

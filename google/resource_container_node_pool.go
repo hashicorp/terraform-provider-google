@@ -48,7 +48,7 @@ func ResourceContainerNodePool() *schema.Resource {
 
 		UseJSONNumber: true,
 
-		Schema: mergeSchemas(
+		Schema: tpgresource.MergeSchemas(
 			schemaNodePool,
 			map[string]*schema.Schema{
 				"project": {
@@ -1033,7 +1033,7 @@ func flattenNodePool(d *schema.ResourceData, config *transport_tpg.Config, np *c
 		"name":                        np.Name,
 		"name_prefix":                 d.Get(prefix + "name_prefix"),
 		"initial_node_count":          np.InitialNodeCount,
-		"node_locations":              schema.NewSet(schema.HashString, convertStringArrToInterface(np.Locations)),
+		"node_locations":              schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(np.Locations)),
 		"node_count":                  nodeCount,
 		"node_config":                 flattenNodeConfig(np.Config),
 		"instance_group_urls":         igmUrls,

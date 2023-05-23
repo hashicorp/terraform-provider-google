@@ -1262,14 +1262,14 @@ func flattenNestedComputeRouterNatRulesActionSourceNatActiveIps(v interface{}, d
 	if v == nil {
 		return v
 	}
-	return schema.NewSet(computeRouterNatIPsHash, convertStringArrToInterface(convertAndMapStringArr(v.([]interface{}), tpgresource.ConvertSelfLinkToV1)))
+	return schema.NewSet(computeRouterNatIPsHash, tpgresource.ConvertStringArrToInterface(convertAndMapStringArr(v.([]interface{}), tpgresource.ConvertSelfLinkToV1)))
 }
 
 func flattenNestedComputeRouterNatRulesActionSourceNatDrainIps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
-	return schema.NewSet(computeRouterNatIPsHash, convertStringArrToInterface(convertAndMapStringArr(v.([]interface{}), tpgresource.ConvertSelfLinkToV1)))
+	return schema.NewSet(computeRouterNatIPsHash, tpgresource.ConvertStringArrToInterface(convertAndMapStringArr(v.([]interface{}), tpgresource.ConvertSelfLinkToV1)))
 }
 
 func flattenNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -26,7 +27,7 @@ type FolderIamUpdater struct {
 	Config   *transport_tpg.Config
 }
 
-func NewFolderIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func NewFolderIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (tpgiamresource.ResourceIamUpdater, error) {
 	return &FolderIamUpdater{
 		folderId: canonicalFolderId(d.Get("folder").(string)),
 		d:        d,
@@ -120,7 +121,7 @@ func getFolderIamPolicyByFolderName(folderName, userAgent string, config *transp
 	p, err := config.NewResourceManagerV3Client(userAgent).Folders.GetIamPolicy(folderName,
 		&resourceManagerV3.GetIamPolicyRequest{
 			Options: &resourceManagerV3.GetPolicyOptions{
-				RequestedPolicyVersion: IamPolicyVersion,
+				RequestedPolicyVersion: tpgiamresource.IamPolicyVersion,
 			},
 		}).Do()
 	if err != nil {

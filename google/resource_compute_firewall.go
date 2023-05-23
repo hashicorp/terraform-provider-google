@@ -41,7 +41,7 @@ func resourceComputeFirewallRuleHash(v interface{}) int {
 	// We need to make sure to sort the strings below so that we always
 	// generate the same hash code no matter what is in the set.
 	if v, ok := m["ports"]; ok && v != nil {
-		s := convertStringArr(v.([]interface{}))
+		s := tpgresource.ConvertStringArr(v.([]interface{}))
 		sort.Strings(s)
 
 		for _, v := range s {

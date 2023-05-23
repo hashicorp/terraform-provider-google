@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
@@ -37,7 +38,7 @@ type SpannerInstanceIamUpdater struct {
 	Config   *transport_tpg.Config
 }
 
-func NewSpannerInstanceIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func NewSpannerInstanceIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (tpgiamresource.ResourceIamUpdater, error) {
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return nil, err
@@ -78,7 +79,7 @@ func (u *SpannerInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanage
 		Project:  u.project,
 		Instance: u.instance,
 	}.instanceUri(), &spanner.GetIamPolicyRequest{
-		Options: &spanner.GetPolicyOptions{RequestedPolicyVersion: IamPolicyVersion},
+		Options: &spanner.GetPolicyOptions{RequestedPolicyVersion: tpgiamresource.IamPolicyVersion},
 	}).Do()
 
 	if err != nil {
@@ -91,7 +92,7 @@ func (u *SpannerInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanage
 		return nil, errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
-	cloudResourcePolicy.Version = IamPolicyVersion
+	cloudResourcePolicy.Version = tpgiamresource.IamPolicyVersion
 
 	return cloudResourcePolicy, nil
 }
@@ -103,7 +104,7 @@ func (u *SpannerInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
 	}
 
-	spannerPolicy.Version = IamPolicyVersion
+	spannerPolicy.Version = tpgiamresource.IamPolicyVersion
 
 	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {

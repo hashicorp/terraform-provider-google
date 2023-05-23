@@ -28,7 +28,7 @@ func ResourceGoogleProjectOrganizationPolicy() *schema.Resource {
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
-		Schema: mergeSchemas(
+		Schema: tpgresource.MergeSchemas(
 			schemaOrganizationPolicy,
 			map[string]*schema.Schema{
 				"project": {

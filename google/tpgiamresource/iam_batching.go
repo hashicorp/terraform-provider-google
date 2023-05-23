@@ -1,4 +1,4 @@
-package google
+package tpgiamresource
 
 import (
 	"fmt"
@@ -10,9 +10,6 @@ import (
 
 const (
 	batchKeyTmplModifyIamPolicy = "%s modifyIamPolicy"
-
-	IamBatchingEnabled  = true
-	IamBatchingDisabled = false
 )
 
 func BatchRequestModifyIamPolicy(updater ResourceIamUpdater, modify iamPolicyModifyFunc, config *transport_tpg.Config, reqDesc string) error {

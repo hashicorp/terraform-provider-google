@@ -103,7 +103,7 @@ func ResourceLoggingBucketConfig(parentType string, parentSpecificSchema map[str
 		Importer: &schema.ResourceImporter{
 			State: resourceLoggingBucketConfigImportState(parentType),
 		},
-		Schema:        mergeSchemas(loggingBucketConfigSchema, parentSpecificSchema),
+		Schema:        tpgresource.MergeSchemas(loggingBucketConfigSchema, parentSpecificSchema),
 		UseJSONNumber: true,
 	}
 }

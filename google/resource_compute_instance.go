@@ -1057,7 +1057,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		AdvancedMachineFeatures:    expandAdvancedMachineFeatures(d),
 		ShieldedInstanceConfig:     expandShieldedVmConfigs(d),
 		DisplayDevice:              expandDisplayDevice(d),
-		ResourcePolicies:           convertStringArr(d.Get("resource_policies").([]interface{})),
+		ResourcePolicies:           tpgresource.ConvertStringArr(d.Get("resource_policies").([]interface{})),
 		ReservationAffinity:        reservationAffinity,
 	}, nil
 }
@@ -1240,7 +1240,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		if err := d.Set("tags_fingerprint", instance.Tags.Fingerprint); err != nil {
 			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
 		}
-		if err := d.Set("tags", convertStringArrToInterface(instance.Tags.Items)); err != nil {
+		if err := d.Set("tags", tpgresource.ConvertStringArrToInterface(instance.Tags.Items)); err != nil {
 			return fmt.Errorf("Error setting tags: %s", err)
 		}
 	}
@@ -1545,7 +1545,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			}
 		}
 
-		resourcePolicies := convertStringArr(d.Get("resource_policies").([]interface{}))
+		resourcePolicies := tpgresource.ConvertStringArr(d.Get("resource_policies").([]interface{}))
 		if len(resourcePolicies) > 0 {
 			req := compute.InstancesAddResourcePoliciesRequest{ResourcePolicies: resourcePolicies}
 

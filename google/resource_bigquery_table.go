@@ -1066,7 +1066,7 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 
 	if v, ok := d.GetOk("clustering"); ok {
 		table.Clustering = &bigquery.Clustering{
-			Fields:          convertStringArr(v.([]interface{})),
+			Fields:          tpgresource.ConvertStringArr(v.([]interface{})),
 			ForceSendFields: []string{"Fields"},
 		}
 	}

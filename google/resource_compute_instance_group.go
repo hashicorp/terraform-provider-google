@@ -193,7 +193,7 @@ func resourceComputeInstanceGroupCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	if v, ok := d.GetOk("instances"); ok {
-		tmpUrls := convertStringArr(v.(*schema.Set).List())
+		tmpUrls := tpgresource.ConvertStringArr(v.(*schema.Set).List())
 
 		var instanceUrls []string
 		for _, v := range tmpUrls {
@@ -330,8 +330,8 @@ func resourceComputeInstanceGroupUpdate(d *schema.ResourceData, meta interface{}
 		// to-do check for no instances
 		from_, to_ := d.GetChange("instances")
 
-		from := convertStringArr(from_.(*schema.Set).List())
-		to := convertStringArr(to_.(*schema.Set).List())
+		from := tpgresource.ConvertStringArr(from_.(*schema.Set).List())
+		to := tpgresource.ConvertStringArr(to_.(*schema.Set).List())
 
 		if !validInstanceURLs(from) {
 			return fmt.Errorf("Error invalid instance URLs: %v", from)

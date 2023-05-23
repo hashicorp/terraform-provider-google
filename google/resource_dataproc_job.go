@@ -538,19 +538,19 @@ func expandPySparkJob(config map[string]interface{}) *dataproc.PySparkJob {
 		job.MainPythonFileUri = v.(string)
 	}
 	if v, ok := config["args"]; ok {
-		job.Args = convertStringArr(v.([]interface{}))
+		job.Args = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["python_file_uris"]; ok {
-		job.PythonFileUris = convertStringArr(v.([]interface{}))
+		job.PythonFileUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["jar_file_uris"]; ok {
-		job.JarFileUris = convertStringArr(v.([]interface{}))
+		job.JarFileUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["file_uris"]; ok {
-		job.FileUris = convertStringArr(v.([]interface{}))
+		job.FileUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["archive_uris"]; ok {
-		job.ArchiveUris = convertStringArr(v.([]interface{}))
+		job.ArchiveUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["properties"]; ok {
 		job.Properties = convertStringMap(v.(map[string]interface{}))
@@ -673,16 +673,16 @@ func expandSparkJob(config map[string]interface{}) *dataproc.SparkJob {
 	}
 
 	if v, ok := config["args"]; ok {
-		job.Args = convertStringArr(v.([]interface{}))
+		job.Args = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["jar_file_uris"]; ok {
-		job.JarFileUris = convertStringArr(v.([]interface{}))
+		job.JarFileUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["file_uris"]; ok {
-		job.FileUris = convertStringArr(v.([]interface{}))
+		job.FileUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["archive_uris"]; ok {
-		job.ArchiveUris = convertStringArr(v.([]interface{}))
+		job.ArchiveUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["properties"]; ok {
 		job.Properties = convertStringMap(v.(map[string]interface{}))
@@ -794,16 +794,16 @@ func expandHadoopJob(config map[string]interface{}) *dataproc.HadoopJob {
 	}
 
 	if v, ok := config["args"]; ok {
-		job.Args = convertStringArr(v.([]interface{}))
+		job.Args = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["jar_file_uris"]; ok {
-		job.JarFileUris = convertStringArr(v.([]interface{}))
+		job.JarFileUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["file_uris"]; ok {
-		job.FileUris = convertStringArr(v.([]interface{}))
+		job.FileUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["archive_uris"]; ok {
-		job.ArchiveUris = convertStringArr(v.([]interface{}))
+		job.ArchiveUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["properties"]; ok {
 		job.Properties = convertStringMap(v.(map[string]interface{}))
@@ -904,7 +904,7 @@ func expandHiveJob(config map[string]interface{}) *dataproc.HiveJob {
 	}
 	if v, ok := config["query_list"]; ok {
 		job.QueryList = &dataproc.QueryList{
-			Queries: convertStringArr(v.([]interface{})),
+			Queries: tpgresource.ConvertStringArr(v.([]interface{})),
 		}
 	}
 	if v, ok := config["continue_on_failure"]; ok {
@@ -914,7 +914,7 @@ func expandHiveJob(config map[string]interface{}) *dataproc.HiveJob {
 		job.ScriptVariables = convertStringMap(v.(map[string]interface{}))
 	}
 	if v, ok := config["jar_file_uris"]; ok {
-		job.JarFileUris = convertStringArr(v.([]interface{}))
+		job.JarFileUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["properties"]; ok {
 		job.Properties = convertStringMap(v.(map[string]interface{}))
@@ -1012,7 +1012,7 @@ func expandPigJob(config map[string]interface{}) *dataproc.PigJob {
 	}
 	if v, ok := config["query_list"]; ok {
 		job.QueryList = &dataproc.QueryList{
-			Queries: convertStringArr(v.([]interface{})),
+			Queries: tpgresource.ConvertStringArr(v.([]interface{})),
 		}
 	}
 	if v, ok := config["continue_on_failure"]; ok {
@@ -1022,7 +1022,7 @@ func expandPigJob(config map[string]interface{}) *dataproc.PigJob {
 		job.ScriptVariables = convertStringMap(v.(map[string]interface{}))
 	}
 	if v, ok := config["jar_file_uris"]; ok {
-		job.JarFileUris = convertStringArr(v.([]interface{}))
+		job.JarFileUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["properties"]; ok {
 		job.Properties = convertStringMap(v.(map[string]interface{}))
@@ -1113,14 +1113,14 @@ func expandSparkSqlJob(config map[string]interface{}) *dataproc.SparkSqlJob {
 	}
 	if v, ok := config["query_list"]; ok {
 		job.QueryList = &dataproc.QueryList{
-			Queries: convertStringArr(v.([]interface{})),
+			Queries: tpgresource.ConvertStringArr(v.([]interface{})),
 		}
 	}
 	if v, ok := config["script_variables"]; ok {
 		job.ScriptVariables = convertStringMap(v.(map[string]interface{}))
 	}
 	if v, ok := config["jar_file_uris"]; ok {
-		job.JarFileUris = convertStringArr(v.([]interface{}))
+		job.JarFileUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["properties"]; ok {
 		job.Properties = convertStringMap(v.(map[string]interface{}))
@@ -1211,7 +1211,7 @@ func flattenPrestoJob(job *dataproc.PrestoJob) []map[string]interface{} {
 func expandPrestoJob(config map[string]interface{}) *dataproc.PrestoJob {
 	job := &dataproc.PrestoJob{}
 	if v, ok := config["client_tags"]; ok {
-		job.ClientTags = convertStringArr(v.([]interface{}))
+		job.ClientTags = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["continue_on_failure"]; ok {
 		job.ContinueOnFailure = v.(bool)
@@ -1221,7 +1221,7 @@ func expandPrestoJob(config map[string]interface{}) *dataproc.PrestoJob {
 	}
 	if v, ok := config["query_list"]; ok {
 		job.QueryList = &dataproc.QueryList{
-			Queries: convertStringArr(v.([]interface{})),
+			Queries: tpgresource.ConvertStringArr(v.([]interface{})),
 		}
 	}
 	if v, ok := config["properties"]; ok {

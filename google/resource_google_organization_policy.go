@@ -162,7 +162,7 @@ func ResourceGoogleOrganizationPolicy() *schema.Resource {
 			Delete: schema.DefaultTimeout(4 * time.Minute),
 		},
 
-		Schema: mergeSchemas(
+		Schema: tpgresource.MergeSchemas(
 			schemaOrganizationPolicy,
 			map[string]*schema.Schema{
 				"org_id": {
@@ -405,11 +405,11 @@ func flattenListOrganizationPolicy(policy *cloudresourcemanager.ListPolicy) []ma
 		}}
 	case len(policy.AllowedValues) > 0:
 		listPolicy["allow"] = []interface{}{map[string]interface{}{
-			"values": schema.NewSet(schema.HashString, convertStringArrToInterface(policy.AllowedValues)),
+			"values": schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(policy.AllowedValues)),
 		}}
 	case len(policy.DeniedValues) > 0:
 		listPolicy["deny"] = []interface{}{map[string]interface{}{
-			"values": schema.NewSet(schema.HashString, convertStringArrToInterface(policy.DeniedValues)),
+			"values": schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(policy.DeniedValues)),
 		}}
 	}
 
@@ -439,7 +439,7 @@ func expandListOrganizationPolicy(configured []interface{}) (*cloudresourcemanag
 		if all {
 			allValues = "ALLOW"
 		} else {
-			allowedValues = convertStringArr(values.List())
+			allowedValues = tpgresource.ConvertStringArr(values.List())
 		}
 	}
 
@@ -451,7 +451,7 @@ func expandListOrganizationPolicy(configured []interface{}) (*cloudresourcemanag
 		if all {
 			allValues = "DENY"
 		} else {
-			deniedValues = convertStringArr(values.List())
+			deniedValues = tpgresource.ConvertStringArr(values.List())
 		}
 	}
 

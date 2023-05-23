@@ -3,9 +3,11 @@ package google
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"regexp"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -226,13 +228,13 @@ func testAccCheckGoogleProjectIamPolicyExists(projectRes, policyRes, pid string)
 		}
 
 		// The bindings in both policies should be identical
-		if !compareBindings(projectPolicy.Bindings, policyPolicy.Bindings) {
-			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", debugPrintBindings(projectPolicy.Bindings), debugPrintBindings(policyPolicy.Bindings))
+		if !tpgiamresource.CompareBindings(projectPolicy.Bindings, policyPolicy.Bindings) {
+			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", tpgiamresource.DebugPrintBindings(projectPolicy.Bindings), tpgiamresource.DebugPrintBindings(policyPolicy.Bindings))
 		}
 
 		// The audit configs in both policies should be identical
-		if !compareAuditConfigs(projectPolicy.AuditConfigs, policyPolicy.AuditConfigs) {
-			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", debugPrintAuditConfigs(projectPolicy.AuditConfigs), debugPrintAuditConfigs(policyPolicy.AuditConfigs))
+		if !tpgiamresource.CompareAuditConfigs(projectPolicy.AuditConfigs, policyPolicy.AuditConfigs) {
+			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", tpgiamresource.DebugPrintAuditConfigs(projectPolicy.AuditConfigs), tpgiamresource.DebugPrintAuditConfigs(policyPolicy.AuditConfigs))
 		}
 		return nil
 	}

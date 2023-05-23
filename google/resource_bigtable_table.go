@@ -133,7 +133,7 @@ func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error
 
 	// Set the split keys if given.
 	if v, ok := d.GetOk("split_keys"); ok {
-		tblConf.SplitKeys = convertStringArr(v.([]interface{}))
+		tblConf.SplitKeys = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 
 	// Set the column families if given.

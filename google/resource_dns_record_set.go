@@ -25,8 +25,8 @@ func rrdatasDnsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 		return false
 	}
 
-	oList := convertStringArr(o.([]interface{}))
-	nList := convertStringArr(n.([]interface{}))
+	oList := tpgresource.ConvertStringArr(o.([]interface{}))
+	nList := tpgresource.ConvertStringArr(n.([]interface{}))
 
 	parseFunc := func(record string) string {
 		switch d.Get("type") {
@@ -615,7 +615,7 @@ func resourceDnsRecordSetImportState(d *schema.ResourceData, meta interface{}) (
 }
 
 func expandDnsRecordSetRrdata(configured []interface{}) []string {
-	return convertStringArr(configured)
+	return tpgresource.ConvertStringArr(configured)
 }
 
 func expandDnsRecordSetRoutingPolicy(configured []interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (*dns.RRSetRoutingPolicy, error) {
@@ -685,7 +685,7 @@ func expandDnsRecordSetRoutingPolicyWrrItem(configured interface{}, d tpgresourc
 		return nil, err
 	}
 	return &dns.RRSetRoutingPolicyWrrPolicyWrrPolicyItem{
-		Rrdatas:              convertStringArr(data["rrdatas"].([]interface{})),
+		Rrdatas:              tpgresource.ConvertStringArr(data["rrdatas"].([]interface{})),
 		Weight:               data["weight"].(float64),
 		HealthCheckedTargets: healthCheckedTargets,
 	}, nil
@@ -710,7 +710,7 @@ func expandDnsRecordSetRoutingPolicyGeoItem(configured interface{}, d tpgresourc
 		return nil, err
 	}
 	return &dns.RRSetRoutingPolicyGeoPolicyGeoPolicyItem{
-		Rrdatas:              convertStringArr(data["rrdatas"].([]interface{})),
+		Rrdatas:              tpgresource.ConvertStringArr(data["rrdatas"].([]interface{})),
 		Location:             data["location"].(string),
 		HealthCheckedTargets: healthCheckedTargets,
 	}, nil

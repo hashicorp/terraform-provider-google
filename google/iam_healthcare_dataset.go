@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	healthcare "google.golang.org/api/healthcare/v1"
@@ -26,7 +27,7 @@ type HealthcareDatasetIamUpdater struct {
 	Config     *transport_tpg.Config
 }
 
-func NewHealthcareDatasetIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func NewHealthcareDatasetIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (tpgiamresource.ResourceIamUpdater, error) {
 	dataset := d.Get("dataset_id").(string)
 	datasetId, err := ParseHealthcareDatasetId(dataset, config)
 
