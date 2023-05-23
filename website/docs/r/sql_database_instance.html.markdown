@@ -367,7 +367,7 @@ The optional `settings.insights_config` subblock for instances declares Query In
 
 * `query_insights_enabled` - True if Query Insights feature is enabled.
 
-* `query_string_length` - Maximum query length stored in bytes. Between 256 and 4500. Default to 1024.
+* `query_string_length` - Maximum query length stored in bytes. Between 256 and 4500. Default to 1024. Higher query lengths are more useful for analytical queries, but they also require more memory. Changing the query length requires you to restart the instance. You can still add tags to queries that exceed the length limit.
 
 * `record_application_tags` - True if Query Insights will record application tags from query when enabled.
 
