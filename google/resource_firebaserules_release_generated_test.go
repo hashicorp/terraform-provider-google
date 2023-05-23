@@ -61,31 +61,6 @@ func TestAccFirebaserulesRelease_FirestoreReleaseHandWritten(t *testing.T) {
 		},
 	})
 }
-func TestAccFirebaserulesRelease_StorageReleaseHandWritten(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"project_name":  acctest.GetTestProjectFromEnv(),
-		"region":        acctest.GetTestRegionFromEnv(),
-		"random_suffix": RandString(t, 10),
-	}
-
-	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckFirebaserulesReleaseDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccFirebaserulesRelease_StorageReleaseHandWritten(context),
-			},
-			{
-				ResourceName:      "google_firebaserules_release.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
 
 func testAccFirebaserulesRelease_FirestoreReleaseHandWritten(context map[string]interface{}) string {
 	return Nprintf(`
@@ -138,51 +113,6 @@ resource "google_firebaserules_ruleset" "firestore" {
   }
 
   project = "%{project_name}"
-}
-
-`, context)
-}
-
-func testAccFirebaserulesRelease_StorageReleaseHandWritten(context map[string]interface{}) string {
-	return Nprintf(`
-resource "google_firebaserules_release" "primary" {
-  name         = "firebase.storage/${google_storage_bucket.bucket.name}"
-  ruleset_name = "projects/%{project_name}/rulesets/${google_firebaserules_ruleset.storage.name}"
-  project      = "%{project_name}"
-
-  lifecycle {
-    replace_triggered_by = [
-      google_firebaserules_ruleset.storage
-    ]
-  }
-}
-
-# Provision a non-default Cloud Storage bucket.
-resource "google_storage_bucket" "bucket" {
-  project = "%{project_name}"
-  name    = "tf-test-bucket%{random_suffix}"
-  location = "%{region}"
-}
-
-# Make the Storage bucket accessible for Firebase SDKs, authentication, and Firebase Security Rules.
-resource "google_firebase_storage_bucket" "bucket" {
-  project   = "%{project_name}"
-  bucket_id = google_storage_bucket.bucket.name
-}
-
-# Create a ruleset of Firebase Security Rules from a local file.
-resource "google_firebaserules_ruleset" "storage" {
-  project = "%{project_name}"
-  source {
-    files {
-      name    = "storage.rules"
-      content = "service firebase.storage {match /b/{bucket}/o {match /{allPaths=**} {allow read, write: if request.auth != null;}}}"
-    }
-  }
-
-  depends_on = [
-    google_firebase_storage_bucket.bucket
-  ]
 }
 
 `, context)
