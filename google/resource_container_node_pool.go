@@ -1658,13 +1658,14 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 
 				if v, ok := blueGreenSettingsConfig["standard_rollout_policy"]; ok && len(v.([]interface{})) > 0 {
 					standardRolloutPolicy := &container.StandardRolloutPolicy{}
-					standardRolloutPolicyConfig := v.([]interface{})[0].(map[string]interface{})
-					standardRolloutPolicy.BatchSoakDuration = standardRolloutPolicyConfig["batch_soak_duration"].(string)
-					if v, ok := standardRolloutPolicyConfig["batch_node_count"]; ok {
-						standardRolloutPolicy.BatchNodeCount = int64(v.(int))
-					}
-					if v, ok := standardRolloutPolicyConfig["batch_percentage"]; ok {
-						standardRolloutPolicy.BatchPercentage = v.(float64)
+					if standardRolloutPolicyConfig, ok := v.([]interface{})[0].(map[string]interface{}); ok {
+						standardRolloutPolicy.BatchSoakDuration = standardRolloutPolicyConfig["batch_soak_duration"].(string)
+						if v, ok := standardRolloutPolicyConfig["batch_node_count"]; ok {
+							standardRolloutPolicy.BatchNodeCount = int64(v.(int))
+						}
+						if v, ok := standardRolloutPolicyConfig["batch_percentage"]; ok {
+							standardRolloutPolicy.BatchPercentage = v.(float64)
+						}
 					}
 					blueGreenSettings.StandardRolloutPolicy = standardRolloutPolicy
 				}
