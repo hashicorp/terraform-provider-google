@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	healthcare "google.golang.org/api/healthcare/v1"
@@ -26,7 +27,7 @@ type HealthcareHl7V2StoreIamUpdater struct {
 	Config     *transport_tpg.Config
 }
 
-func NewHealthcareHl7V2StoreIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func NewHealthcareHl7V2StoreIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (tpgiamresource.ResourceIamUpdater, error) {
 	hl7V2Store := d.Get("hl7_v2_store_id").(string)
 	hl7V2StoreId, err := ParseHealthcareHl7V2StoreId(hl7V2Store, config)
 

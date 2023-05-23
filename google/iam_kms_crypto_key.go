@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/cloudkms/v1"
@@ -25,7 +26,7 @@ type KmsCryptoKeyIamUpdater struct {
 	Config     *transport_tpg.Config
 }
 
-func NewKmsCryptoKeyIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func NewKmsCryptoKeyIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (tpgiamresource.ResourceIamUpdater, error) {
 	cryptoKey := d.Get("crypto_key_id").(string)
 	cryptoKeyId, err := ParseKmsCryptoKeyId(cryptoKey, config)
 
@@ -58,7 +59,7 @@ func (u *KmsCryptoKeyIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.P
 		return nil, err
 	}
 
-	p, err := u.Config.NewKmsClient(userAgent).Projects.Locations.KeyRings.CryptoKeys.GetIamPolicy(u.resourceId).OptionsRequestedPolicyVersion(IamPolicyVersion).Do()
+	p, err := u.Config.NewKmsClient(userAgent).Projects.Locations.KeyRings.CryptoKeys.GetIamPolicy(u.resourceId).OptionsRequestedPolicyVersion(tpgiamresource.IamPolicyVersion).Do()
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)

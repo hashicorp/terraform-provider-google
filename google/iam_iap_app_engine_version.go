@@ -21,6 +21,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -59,7 +60,7 @@ type IapAppEngineVersionIamUpdater struct {
 	Config    *transport_tpg.Config
 }
 
-func IapAppEngineVersionIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func IapAppEngineVersionIamUpdaterProducer(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (tpgiamresource.ResourceIamUpdater, error) {
 	values := make(map[string]string)
 
 	project, _ := getProject(d, config)
@@ -161,7 +162,7 @@ func (u *IapAppEngineVersionIamUpdater) GetResourceIamPolicy() (*cloudresourcema
 	var obj map[string]interface{}
 	obj = map[string]interface{}{
 		"options": map[string]interface{}{
-			"requestedPolicyVersion": IamPolicyVersion,
+			"requestedPolicyVersion": tpgiamresource.IamPolicyVersion,
 		},
 	}
 

@@ -25,7 +25,7 @@ func dataSourceMonitoringServiceType(
 	tpgresource.AddOptionalFieldsToSchema(dsSchema, "project")
 
 	// Add schema specific to the service type
-	dsSchema = mergeSchemas(typeSchema, dsSchema)
+	dsSchema = tpgresource.MergeSchemas(typeSchema, dsSchema)
 
 	return &schema.Resource{
 		Read:   dataSourceMonitoringServiceTypeReadFromList(listFilter, typeStateSetter),

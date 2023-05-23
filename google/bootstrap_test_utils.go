@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -841,19 +842,19 @@ func setupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 		Role:    "roles/iam.serviceAccountCreator",
 	}
 
-	bindings := MergeBindings([]*cloudresourcemanager.Binding{proj1SATokenCreator, proj1SACreator})
+	bindings := tpgiamresource.MergeBindings([]*cloudresourcemanager.Binding{proj1SATokenCreator, proj1SACreator})
 
 	p, err := rmService.Projects.GetIamPolicy(pid,
 		&cloudresourcemanager.GetIamPolicyRequest{
 			Options: &cloudresourcemanager.GetPolicyOptions{
-				RequestedPolicyVersion: IamPolicyVersion,
+				RequestedPolicyVersion: tpgiamresource.IamPolicyVersion,
 			},
 		}).Do()
 	if err != nil {
 		return "", err
 	}
 
-	p.Bindings = MergeBindings(append(p.Bindings, bindings...))
+	p.Bindings = tpgiamresource.MergeBindings(append(p.Bindings, bindings...))
 	_, err = config.NewResourceManagerClient(config.UserAgent).Projects.SetIamPolicy(pid,
 		&cloudresourcemanager.SetIamPolicyRequest{
 			Policy:     p,
@@ -883,7 +884,7 @@ func setupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 		Role:    fmt.Sprintf("roles/%s.admin", service),
 	}
 
-	bindings = MergeBindings([]*cloudresourcemanager.Binding{proj2ServiceUsageBinding, proj2ServiceAdminBinding})
+	bindings = tpgiamresource.MergeBindings([]*cloudresourcemanager.Binding{proj2ServiceUsageBinding, proj2ServiceAdminBinding})
 
 	// For KMS test only
 	if service == "cloudkms" {
@@ -892,20 +893,20 @@ func setupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 			Role:    "roles/cloudkms.cryptoKeyEncrypter",
 		}
 
-		bindings = MergeBindings(append(bindings, proj2CryptoKeyBinding))
+		bindings = tpgiamresource.MergeBindings(append(bindings, proj2CryptoKeyBinding))
 	}
 
 	p, err = rmService.Projects.GetIamPolicy(p2,
 		&cloudresourcemanager.GetIamPolicyRequest{
 			Options: &cloudresourcemanager.GetPolicyOptions{
-				RequestedPolicyVersion: IamPolicyVersion,
+				RequestedPolicyVersion: tpgiamresource.IamPolicyVersion,
 			},
 		}).Do()
 	if err != nil {
 		return "", err
 	}
 
-	p.Bindings = MergeBindings(append(p.Bindings, bindings...))
+	p.Bindings = tpgiamresource.MergeBindings(append(p.Bindings, bindings...))
 	_, err = config.NewResourceManagerClient(config.UserAgent).Projects.SetIamPolicy(p2,
 		&cloudresourcemanager.SetIamPolicyRequest{
 			Policy:     p,

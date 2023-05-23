@@ -772,7 +772,7 @@ func expandSecurityPolicyMatchConfig(configured []interface{}) *compute.Security
 
 	data := configured[0].(map[string]interface{})
 	return &compute.SecurityPolicyRuleMatcherConfig{
-		SrcIpRanges: convertStringArr(data["src_ip_ranges"].(*schema.Set).List()),
+		SrcIpRanges: tpgresource.ConvertStringArr(data["src_ip_ranges"].(*schema.Set).List()),
 	}
 }
 
@@ -829,7 +829,7 @@ func flattenMatchConfig(conf *compute.SecurityPolicyRuleMatcherConfig) []map[str
 	}
 
 	data := map[string]interface{}{
-		"src_ip_ranges": schema.NewSet(schema.HashString, convertStringArrToInterface(conf.SrcIpRanges)),
+		"src_ip_ranges": schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(conf.SrcIpRanges)),
 	}
 
 	return []map[string]interface{}{data}
@@ -886,7 +886,7 @@ func expandSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(configured []inte
 
 	data := configured[0].(map[string]interface{})
 	return &compute.SecurityPolicyAdvancedOptionsConfigJsonCustomConfig{
-		ContentTypes: convertStringArr(data["content_types"].(*schema.Set).List()),
+		ContentTypes: tpgresource.ConvertStringArr(data["content_types"].(*schema.Set).List()),
 	}
 }
 
@@ -896,7 +896,7 @@ func flattenSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(conf *compute.Se
 	}
 
 	data := map[string]interface{}{
-		"content_types": schema.NewSet(schema.HashString, convertStringArrToInterface(conf.ContentTypes)),
+		"content_types": schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(conf.ContentTypes)),
 	}
 
 	return []map[string]interface{}{data}

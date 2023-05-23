@@ -754,7 +754,7 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 		type detachArgs struct{ project, zone, instance, deviceName string }
 		var detachCalls []detachArgs
 
-		for _, instance := range convertStringArr(v) {
+		for _, instance := range tpgresource.ConvertStringArr(v) {
 			self := d.Get("self_link").(string)
 			instanceProject, instanceZone, instanceName, err := tpgresource.GetLocationalResourcePropertiesFromSelfLinkString(instance)
 			if err != nil {

@@ -2423,7 +2423,7 @@ func flattenInitializationActions(nia []*dataproc.NodeInitializationAction) ([]m
 func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterConfig) []map[string]interface{} {
 
 	gceConfig := map[string]interface{}{
-		"tags":             schema.NewSet(schema.HashString, convertStringArrToInterface(gcc.Tags)),
+		"tags":             schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(gcc.Tags)),
 		"service_account":  gcc.ServiceAccount,
 		"zone":             tpgresource.GetResourceNameFromSelfLink(gcc.ZoneUri),
 		"internal_ip_only": gcc.InternalIpOnly,
@@ -2437,7 +2437,7 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 		gceConfig["subnetwork"] = gcc.SubnetworkUri
 	}
 	if len(gcc.ServiceAccountScopes) > 0 {
-		gceConfig["service_account_scopes"] = schema.NewSet(tpgresource.StringScopeHashcode, convertStringArrToInterface(gcc.ServiceAccountScopes))
+		gceConfig["service_account_scopes"] = schema.NewSet(tpgresource.StringScopeHashcode, tpgresource.ConvertStringArrToInterface(gcc.ServiceAccountScopes))
 	}
 	if gcc.ShieldedInstanceConfig != nil {
 		gceConfig["shielded_instance_config"] = []map[string]interface{}{

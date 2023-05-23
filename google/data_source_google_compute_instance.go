@@ -86,7 +86,7 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 		if err := d.Set("tags_fingerprint", instance.Tags.Fingerprint); err != nil {
 			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
 		}
-		if err := d.Set("tags", convertStringArrToInterface(instance.Tags.Items)); err != nil {
+		if err := d.Set("tags", tpgresource.ConvertStringArrToInterface(instance.Tags.Items)); err != nil {
 			return fmt.Errorf("Error setting tags: %s", err)
 		}
 	}

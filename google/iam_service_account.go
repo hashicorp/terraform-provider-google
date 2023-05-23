@@ -3,6 +3,7 @@ package google
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
@@ -28,7 +29,7 @@ type ServiceAccountIamUpdater struct {
 	Config           *transport_tpg.Config
 }
 
-func NewServiceAccountIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func NewServiceAccountIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (tpgiamresource.ResourceIamUpdater, error) {
 	return &ServiceAccountIamUpdater{
 		serviceAccountId: d.Get("service_account_id").(string),
 		d:                d,
@@ -49,7 +50,7 @@ func (u *ServiceAccountIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager
 		return nil, err
 	}
 
-	p, err := u.Config.NewIamClient(userAgent).Projects.ServiceAccounts.GetIamPolicy(u.serviceAccountId).OptionsRequestedPolicyVersion(IamPolicyVersion).Do()
+	p, err := u.Config.NewIamClient(userAgent).Projects.ServiceAccounts.GetIamPolicy(u.serviceAccountId).OptionsRequestedPolicyVersion(tpgiamresource.IamPolicyVersion).Do()
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)

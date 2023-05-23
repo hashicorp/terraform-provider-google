@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -49,10 +50,10 @@ func BootstrapAllPSARoles(t *testing.T, prefix string, agentNames, roles []strin
 		})
 	}
 
-	mergedBindings := MergeBindings(append(policy.Bindings, newBindings...))
+	mergedBindings := tpgiamresource.MergeBindings(append(policy.Bindings, newBindings...))
 
-	if !compareBindings(policy.Bindings, mergedBindings) {
-		addedBindings := missingBindings(policy.Bindings, mergedBindings)
+	if !tpgiamresource.CompareBindings(policy.Bindings, mergedBindings) {
+		addedBindings := tpgiamresource.MissingBindings(policy.Bindings, mergedBindings)
 		for _, missingBinding := range addedBindings {
 			log.Printf("[DEBUG] Adding binding: %+v", missingBinding)
 		}
@@ -92,61 +93,10 @@ func BootstrapPSARole(t *testing.T, prefix, agentName, role string) bool {
 	return BootstrapPSARoles(t, prefix, agentName, []string{role})
 }
 
-// Returns a map representing iam bindings that are in the first map but not the second.
-func missingBindingsMap(aMap, bMap map[iamBindingKey]map[string]struct{}) map[iamBindingKey]map[string]struct{} {
-	results := make(map[iamBindingKey]map[string]struct{})
-	for key, aMembers := range aMap {
-		if bMembers, ok := bMap[key]; ok {
-			// The key is in both maps.
-			resultMembers := make(map[string]struct{})
-
-			for aMember := range aMembers {
-				if _, ok := bMembers[aMember]; !ok {
-					// The member is in a but not in b.
-					resultMembers[aMember] = struct{}{}
-				}
-			}
-			for bMember := range bMembers {
-				if _, ok := aMembers[bMember]; !ok {
-					// The member is in b but not in a.
-					resultMembers[bMember] = struct{}{}
-				}
-			}
-
-			if len(resultMembers) > 0 {
-				results[key] = resultMembers
-			}
-		} else {
-			// The key is in map a but not map b.
-			results[key] = aMembers
-		}
-	}
-
-	for key, bMembers := range bMap {
-		if _, ok := aMap[key]; !ok {
-			// The key is in map b but not map a.
-			results[key] = bMembers
-		}
-	}
-
-	return results
-}
-
 // Returns the bindings that are in the first set of bindings but not the second.
+//
+// Deprecated: For backward compatibility missingBindings is still working,
+// but all new code should use MissingBindings in the tpgiamresource package instead.
 func missingBindings(a, b []*cloudresourcemanager.Binding) []*cloudresourcemanager.Binding {
-	aMap := createIamBindingsMap(a)
-	bMap := createIamBindingsMap(b)
-
-	var results []*cloudresourcemanager.Binding
-	for key, membersSet := range missingBindingsMap(aMap, bMap) {
-		members := make([]string, 0, len(membersSet))
-		for member := range membersSet {
-			members = append(members, member)
-		}
-		results = append(results, &cloudresourcemanager.Binding{
-			Role:    key.Role,
-			Members: members,
-		})
-	}
-	return results
+	return tpgiamresource.MissingBindings(a, b)
 }

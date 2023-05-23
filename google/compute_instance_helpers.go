@@ -111,7 +111,7 @@ func expandScheduling(v interface{}) (*compute.Scheduling, error) {
 			transformed := &compute.SchedulingNodeAffinity{
 				Key:      nodeAff["key"].(string),
 				Operator: nodeAff["operator"].(string),
-				Values:   convertStringArr(nodeAff["values"].(*schema.Set).List()),
+				Values:   tpgresource.ConvertStringArr(nodeAff["values"].(*schema.Set).List()),
 			}
 			scheduling.NodeAffinities = append(scheduling.NodeAffinities, transformed)
 		}
@@ -149,7 +149,7 @@ func flattenScheduling(resp *compute.Scheduling) []map[string]interface{} {
 		nodeAffinities.Add(map[string]interface{}{
 			"key":      na.Key,
 			"operator": na.Operator,
-			"values":   schema.NewSet(schema.HashString, convertStringArrToInterface(na.Values)),
+			"values":   schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(na.Values)),
 		})
 	}
 	schedulingMap["node_affinities"] = nodeAffinities
@@ -304,7 +304,7 @@ func flattenServiceAccounts(serviceAccounts []*compute.ServiceAccount) []map[str
 	for i, serviceAccount := range serviceAccounts {
 		result[i] = map[string]interface{}{
 			"email":  serviceAccount.Email,
-			"scopes": schema.NewSet(tpgresource.StringScopeHashcode, convertStringArrToInterface(serviceAccount.Scopes)),
+			"scopes": schema.NewSet(tpgresource.StringScopeHashcode, tpgresource.ConvertStringArrToInterface(serviceAccount.Scopes)),
 		}
 	}
 	return result

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -182,7 +183,7 @@ func testAccCheckGoogleOrganizationIamBindingExists(t *testing.T, bindingResourc
 			"organizations/"+bindingRs.Primary.Attributes["org_id"],
 			&cloudresourcemanager.GetIamPolicyRequest{
 				Options: &cloudresourcemanager.GetPolicyOptions{
-					RequestedPolicyVersion: IamPolicyVersion,
+					RequestedPolicyVersion: tpgiamresource.IamPolicyVersion,
 				},
 			},
 		).Do()
@@ -219,7 +220,7 @@ func testAccCheckGoogleOrganizationIamMemberExists(t *testing.T, n, role, member
 			"organizations/"+rs.Primary.Attributes["org_id"],
 			&cloudresourcemanager.GetIamPolicyRequest{
 				Options: &cloudresourcemanager.GetPolicyOptions{
-					RequestedPolicyVersion: IamPolicyVersion,
+					RequestedPolicyVersion: tpgiamresource.IamPolicyVersion,
 				},
 			},
 		).Do()

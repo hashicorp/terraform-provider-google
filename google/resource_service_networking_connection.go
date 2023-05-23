@@ -83,7 +83,7 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 
 	connection := &servicenetworking.Connection{
 		Network:               serviceNetworkingNetworkName,
-		ReservedPeeringRanges: convertStringArr(d.Get("reserved_peering_ranges").([]interface{})),
+		ReservedPeeringRanges: tpgresource.ConvertStringArr(d.Get("reserved_peering_ranges").([]interface{})),
 	}
 
 	networkFieldValue, err := tpgresource.ParseNetworkFieldValue(network, d, config)
@@ -226,7 +226,7 @@ func resourceServiceNetworkingConnectionUpdate(d *schema.ResourceData, meta inte
 
 		connection := &servicenetworking.Connection{
 			Network:               serviceNetworkingNetworkName,
-			ReservedPeeringRanges: convertStringArr(d.Get("reserved_peering_ranges").([]interface{})),
+			ReservedPeeringRanges: tpgresource.ConvertStringArr(d.Get("reserved_peering_ranges").([]interface{})),
 		}
 
 		networkFieldValue, err := tpgresource.ParseNetworkFieldValue(network, d, config)

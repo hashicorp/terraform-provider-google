@@ -908,9 +908,9 @@ func expandCors(configured []interface{}) []*storage.BucketCors {
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
 		corsRule := storage.BucketCors{
-			Origin:         convertStringArr(data["origin"].([]interface{})),
-			Method:         convertStringArr(data["method"].([]interface{})),
-			ResponseHeader: convertStringArr(data["response_header"].([]interface{})),
+			Origin:         tpgresource.ConvertStringArr(data["origin"].([]interface{})),
+			Method:         tpgresource.ConvertStringArr(data["method"].([]interface{})),
+			ResponseHeader: tpgresource.ConvertStringArr(data["response_header"].([]interface{})),
 			MaxAgeSeconds:  int64(data["max_age_seconds"].(int)),
 		}
 
@@ -1150,14 +1150,14 @@ func flattenBucketLifecycleRuleAction(action *storage.BucketLifecycleRuleAction)
 func flattenBucketLifecycleRuleCondition(condition *storage.BucketLifecycleRuleCondition) map[string]interface{} {
 	ruleCondition := map[string]interface{}{
 		"created_before":             condition.CreatedBefore,
-		"matches_storage_class":      convertStringArrToInterface(condition.MatchesStorageClass),
+		"matches_storage_class":      tpgresource.ConvertStringArrToInterface(condition.MatchesStorageClass),
 		"num_newer_versions":         int(condition.NumNewerVersions),
 		"custom_time_before":         condition.CustomTimeBefore,
 		"days_since_custom_time":     int(condition.DaysSinceCustomTime),
 		"days_since_noncurrent_time": int(condition.DaysSinceNoncurrentTime),
 		"noncurrent_time_before":     condition.NoncurrentTimeBefore,
-		"matches_prefix":             convertStringArrToInterface(condition.MatchesPrefix),
-		"matches_suffix":             convertStringArrToInterface(condition.MatchesSuffix),
+		"matches_prefix":             tpgresource.ConvertStringArrToInterface(condition.MatchesPrefix),
+		"matches_suffix":             tpgresource.ConvertStringArrToInterface(condition.MatchesSuffix),
 	}
 	if condition.Age != nil {
 		ruleCondition["age"] = int(*condition.Age)

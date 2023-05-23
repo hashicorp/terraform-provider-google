@@ -198,7 +198,7 @@ func expandAuditConfig(set *schema.Set) []*cloudresourcemanager.AuditConfig {
 			logConfig := y.(map[string]interface{})
 			auditLogConfigs = append(auditLogConfigs, &cloudresourcemanager.AuditLogConfig{
 				LogType:         logConfig["log_type"].(string),
-				ExemptedMembers: convertStringArr(logConfig["exempted_members"].(*schema.Set).List()),
+				ExemptedMembers: tpgresource.ConvertStringArr(logConfig["exempted_members"].(*schema.Set).List()),
 			})
 		}
 		auditConfigs = append(auditConfigs, &cloudresourcemanager.AuditConfig{

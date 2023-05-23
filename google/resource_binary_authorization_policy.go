@@ -190,7 +190,7 @@ specifies REQUIRE_ATTESTATION, otherwise it must be empty.`,
 					at := copy["require_attestations_by"].(*schema.Set)
 					if at != nil {
 						t := convertAndMapStringArr(at.List(), tpgresource.GetResourceNameFromSelfLink)
-						copy["require_attestations_by"] = schema.NewSet(tpgresource.SelfLinkNameHash, convertStringArrToInterface(t))
+						copy["require_attestations_by"] = schema.NewSet(tpgresource.SelfLinkNameHash, tpgresource.ConvertStringArrToInterface(t))
 					}
 					var buf bytes.Buffer
 					schema.SerializeResourceForHash(&buf, copy, ResourceBinaryAuthorizationPolicy().Schema["cluster_admission_rules"].Elem.(*schema.Resource))
