@@ -75,6 +75,9 @@ resource "google_workstations_workstation_config" "default" {
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		         = "us-central1"
 
+  idle_timeout = "600s"
+  running_timeout = "21600s"
+
   host {
     gce_instance {
       machine_type                = "e2-standard-4"
@@ -446,6 +449,16 @@ The following arguments are supported:
 * `annotations` -
   (Optional)
   Client-specified annotations. This is distinct from labels.
+
+* `idle_timeout` -
+  (Optional)
+  How long to wait before automatically stopping an instance that hasn't recently received any user traffic. A value of 0 indicates that this instance should never time out from idleness. Defaults to 20 minutes.
+  A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
+
+* `running_timeout` -
+  (Optional)
+  How long to wait before automatically stopping a workstation after it was started. A value of 0 indicates that workstations using this configuration should never time out from running duration. Must be greater than 0 and less than 24 hours if `encryption_key` is set. Defaults to 12 hours.
+  A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
 
 * `host` -
   (Optional)
