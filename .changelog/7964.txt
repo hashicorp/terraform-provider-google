@@ -1,0 +1,3 @@
+```release-note:enhancement
+workstations: Add support for `idle_timeout` and `running_timeout` in `google_workstations_workstation_config` (beta)
+```
