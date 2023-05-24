@@ -760,6 +760,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_region_disk_iam_policy":                  tpgiamresource.DataSourceIamPolicy(ComputeRegionDiskIamSchema, ComputeRegionDiskIamUpdaterProducer),
 			"google_compute_snapshot_iam_policy":                     tpgiamresource.DataSourceIamPolicy(ComputeSnapshotIamSchema, ComputeSnapshotIamUpdaterProducer),
 			"google_compute_subnetwork_iam_policy":                   tpgiamresource.DataSourceIamPolicy(ComputeSubnetworkIamSchema, ComputeSubnetworkIamUpdaterProducer),
+			"google_container_analysis_note_iam_policy":              tpgiamresource.DataSourceIamPolicy(ContainerAnalysisNoteIamSchema, ContainerAnalysisNoteIamUpdaterProducer),
 			"google_data_catalog_entry_group_iam_policy":             tpgiamresource.DataSourceIamPolicy(DataCatalogEntryGroupIamSchema, DataCatalogEntryGroupIamUpdaterProducer),
 			"google_data_catalog_policy_tag_iam_policy":              tpgiamresource.DataSourceIamPolicy(DataCatalogPolicyTagIamSchema, DataCatalogPolicyTagIamUpdaterProducer),
 			"google_data_catalog_tag_template_iam_policy":            tpgiamresource.DataSourceIamPolicy(DataCatalogTagTemplateIamSchema, DataCatalogTagTemplateIamUpdaterProducer),
@@ -823,8 +824,8 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 }
 
 // Generated resources: 284
-// Generated IAM resources: 186
-// Total generated resources: 470
+// Generated IAM resources: 189
+// Total generated resources: 473
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1045,6 +1046,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_vpn_gateway":                                   ResourceComputeVpnGateway(),
 			"google_compute_vpn_tunnel":                                    ResourceComputeVpnTunnel(),
 			"google_container_analysis_note":                               ResourceContainerAnalysisNote(),
+			"google_container_analysis_note_iam_binding":                   tpgiamresource.ResourceIamBinding(ContainerAnalysisNoteIamSchema, ContainerAnalysisNoteIamUpdaterProducer, ContainerAnalysisNoteIdParseFunc),
+			"google_container_analysis_note_iam_member":                    tpgiamresource.ResourceIamMember(ContainerAnalysisNoteIamSchema, ContainerAnalysisNoteIamUpdaterProducer, ContainerAnalysisNoteIdParseFunc),
+			"google_container_analysis_note_iam_policy":                    tpgiamresource.ResourceIamPolicy(ContainerAnalysisNoteIamSchema, ContainerAnalysisNoteIamUpdaterProducer, ContainerAnalysisNoteIdParseFunc),
 			"google_container_analysis_occurrence":                         ResourceContainerAnalysisOccurrence(),
 			"google_container_attached_cluster":                            ResourceContainerAttachedCluster(),
 			"google_database_migration_service_connection_profile":         ResourceDatabaseMigrationServiceConnectionProfile(),
