@@ -1,7 +1,7 @@
 ## 4.67.0 (Unreleased)
 FEATURES:
 * **New Data Source:** `google_**_iam_policy` ([#14662](https://github.com/hashicorp/terraform-provider-google/pull/14662))
-* **New Data Source:** google_vertex_ai_index ([#14640](https://github.com/hashicorp/terraform-provider-google/pull/14640))
+* **New Data Source:** `google_vertex_ai_index` ([#14640](https://github.com/hashicorp/terraform-provider-google/pull/14640))
 
 IMPROVEMENTS:
 * cloudrun: Added beta field `template.spec.columes.empty_dir` to `google_cloud_run_service` ([#14647](https://github.com/hashicorp/terraform-provider-google/pull/14647))
