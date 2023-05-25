@@ -14,6 +14,7 @@ func ResourceApigeeSharedFlowDeployment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceApigeeSharedflowDeploymentCreate,
 		Read:   resourceApigeeSharedflowDeploymentRead,
+		Update: resourceApigeeSharedflowDeploymentUpdate,
 		Delete: resourceApigeeSharedflowDeploymentDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -42,7 +43,6 @@ func ResourceApigeeSharedFlowDeployment() *schema.Resource {
 			"revision": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Revision of the Sharedflow to be deployed.`,
 			},
 			"service_account": {
@@ -140,6 +140,50 @@ func resourceApigeeSharedflowDeploymentRead(d *schema.ResourceData, meta interfa
 	log.Printf("[DEBUG] ApigeeSharedflowDeployment deployStartTime %s", res["deployStartTime"])
 
 	return nil
+}
+
+func resourceApigeeSharedflowDeploymentUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{environment}}/sharedflows/{{sharedflow_id}}/revisions/{{revision}}/deployments?override=true&serviceAccount={{service_account}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating new SharedflowDeployment at %s", url)
+	billingProject := ""
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+	})
+	if err != nil {
+		return fmt.Errorf("Error updating SharedflowDeployment: %s", err)
+	}
+
+	// Store the ID now
+	id, err := tpgresource.ReplaceVars(d, config, "organizations/{{org_id}}/environments/{{environment}}/sharedflows/{{sharedflow_id}}/revisions/{{revision}}/deployments")
+	if err != nil {
+		return fmt.Errorf("Error constructing id: %s", err)
+	}
+	d.SetId(id)
+
+	log.Printf("[DEBUG] Finished updating SharedflowDeployment %q: %#v", d.Id(), res)
+
+	return resourceApigeeSharedflowDeploymentRead(d, meta)
 }
 
 func resourceApigeeSharedflowDeploymentDelete(d *schema.ResourceData, meta interface{}) error {
