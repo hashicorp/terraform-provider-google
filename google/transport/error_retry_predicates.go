@@ -234,6 +234,20 @@ func ServiceUsageServiceBeingActivated(err error) (bool, string) {
 	return false, ""
 }
 
+// See https://github.com/hashicorp/terraform-provider-google/issues/14691 for
+// details on the error message this handles
+// This is a post-operation error so it uses tpgresource.CommonOpError instead of googleapi.Error
+func ServiceUsageInternalError160009(err error) (bool, string) {
+	// a cyclical dependency between transport/tpgresource blocks using tpgresource.CommonOpError
+	// so just work off the error string. Ideally, we'd use that type instead.
+	s := err.Error()
+	if strings.Contains(s, "encountered internal error") && strings.Contains(s, "160009") && strings.Contains(s, "with failed services") {
+		return true, "retrying internal error 160009."
+	}
+
+	return false, ""
+}
+
 // Retry if Bigquery operation returns a 403 with a specific message for
 // concurrent operations (which are implemented in terms of 'edit quota').
 func IsBigqueryIAMQuotaError(err error) (bool, string) {
