@@ -1122,6 +1122,17 @@ The following arguments are supported:
   If not specified, no identifying fields will be returned for findings.
   Structure is [documented below](#nested_identifying_fields).
 
+* `included_fields` -
+  (Optional)
+  Limit scanning only to these fields.
+  Structure is [documented below](#nested_included_fields).
+
+* `excluded_fields` -
+  (Optional)
+  References to fields excluded from scanning.
+  This allows you to skip inspection of entire columns which you know have no findings.
+  Structure is [documented below](#nested_excluded_fields).
+
 
 <a name="nested_table_reference"></a>The `table_reference` block supports:
 
@@ -1142,6 +1153,18 @@ The following arguments are supported:
 * `name` -
   (Required)
   Name of a BigQuery field to be returned with the findings.
+
+<a name="nested_included_fields"></a>The `included_fields` block supports:
+
+* `name` -
+  (Required)
+  Name describing the field to which scanning is limited.
+
+<a name="nested_excluded_fields"></a>The `excluded_fields` block supports:
+
+* `name` -
+  (Required)
+  Name describing the field excluded from scanning.
 
 <a name="nested_hybrid_options"></a>The `hybrid_options` block supports:
 

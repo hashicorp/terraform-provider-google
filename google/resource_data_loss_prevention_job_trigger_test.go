@@ -319,6 +319,76 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerInspectCustomInfoTypes(t *
 	})
 }
 
+func TestAccDataLossPreventionJobTrigger_dlpJobTriggerUpdateExample3(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       acctest.GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerIncludedFields(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.included_fields",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent"},
+			},
+			{
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerIncludedFieldsUpdate(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.included_fields_update",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent"},
+			},
+		},
+	})
+}
+
+func TestAccDataLossPreventionJobTrigger_dlpJobTriggerUpdateExample4(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       acctest.GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerExcludedFields(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.excluded_fields",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent"},
+			},
+			{
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerExcludedFieldsUpdate(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.excluded_fields_update",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent"},
+			},
+		},
+	})
+}
+
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerBasic(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "basic" {
@@ -400,6 +470,94 @@ resource "google_data_loss_prevention_job_trigger" "identifying_fields" {
 `, context)
 }
 
+func testAccDataLossPreventionJobTrigger_dlpJobTriggerIncludedFields(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "included_fields" {
+	parent = "projects/%{project}"
+	description = "Starting description"
+	display_name = "display"
+
+	triggers {
+		schedule {
+			recurrence_period_duration = "86400s"
+		}
+	}
+
+	inspect_job {
+		inspect_template_name = "fake"
+		actions {
+			save_findings {
+				output_config {
+					table {
+						project_id = "project"
+						dataset_id = "dataset123"
+					}
+				}
+			}
+		}
+		storage_config {
+			big_query_options {
+				table_reference {
+					project_id = "project"
+					dataset_id = "dataset"
+					table_id = "table_to_scan"
+				}
+				rows_limit = 1000
+				sample_method = "RANDOM_START"
+				included_fields {
+					name = "field"
+				}
+			}
+		}
+	}
+}
+`, context)
+}
+
+func testAccDataLossPreventionJobTrigger_dlpJobTriggerExcludedFields(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "excluded_fields" {
+	parent = "projects/%{project}"
+	description = "Starting description"
+	display_name = "display"
+
+	triggers {
+		schedule {
+			recurrence_period_duration = "86400s"
+		}
+	}
+
+	inspect_job {
+		inspect_template_name = "fake"
+		actions {
+			save_findings {
+				output_config {
+					table {
+						project_id = "project"
+						dataset_id = "dataset123"
+					}
+				}
+			}
+		}
+		storage_config {
+			big_query_options {
+				table_reference {
+					project_id = "project"
+					dataset_id = "dataset"
+					table_id = "table_to_scan"
+				}
+				rows_limit = 1000
+				sample_method = "RANDOM_START"
+				excluded_fields {
+					name = "field"
+				}
+			}
+		}
+	}
+}
+`, context)
+}
+
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerUpdate(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "basic" {
@@ -472,6 +630,94 @@ resource "google_data_loss_prevention_job_trigger" "identifying_fields_update" {
 				rows_limit = 1000
 				sample_method = "RANDOM_START"
 				identifying_fields {
+					name = "different"
+				}
+			}
+		}
+	}
+}
+`, context)
+}
+
+func testAccDataLossPreventionJobTrigger_dlpJobTriggerIncludedFieldsUpdate(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "included_fields_update" {
+	parent = "projects/%{project}"
+	description = "An updated description"
+	display_name = "Different"
+
+	triggers {
+		schedule {
+			recurrence_period_duration = "86400s"
+		}
+	}
+
+	inspect_job {
+		inspect_template_name = "fake"
+		actions {
+			save_findings {
+				output_config {
+					table {
+						project_id = "project"
+						dataset_id = "dataset123"
+					}
+				}
+			}
+		}
+		storage_config {
+			big_query_options {
+				table_reference {
+					project_id = "project"
+					dataset_id = "dataset"
+					table_id = "table_to_scan"
+				}
+				rows_limit = 1000
+				sample_method = "RANDOM_START"
+				included_fields {
+					name = "different"
+				}
+			}
+		}
+	}
+}
+`, context)
+}
+
+func testAccDataLossPreventionJobTrigger_dlpJobTriggerExcludedFieldsUpdate(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "excluded_fields_update" {
+	parent = "projects/%{project}"
+	description = "An updated description"
+	display_name = "Different"
+
+	triggers {
+		schedule {
+			recurrence_period_duration = "86400s"
+		}
+	}
+
+	inspect_job {
+		inspect_template_name = "fake"
+		actions {
+			save_findings {
+				output_config {
+					table {
+						project_id = "project"
+						dataset_id = "dataset123"
+					}
+				}
+			}
+		}
+		storage_config {
+			big_query_options {
+				table_reference {
+					project_id = "project"
+					dataset_id = "dataset"
+					table_id = "table_to_scan"
+				}
+				rows_limit = 1000
+				sample_method = "RANDOM_START"
+				excluded_fields {
 					name = "different"
 				}
 			}

@@ -380,6 +380,21 @@ Only for use with external storage. Possible values: ["BASIC_COLUMNS", "GCS_COLU
 														},
 													},
 												},
+												"excluded_fields": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `References to fields excluded from scanning.
+This allows you to skip inspection of entire columns which you know have no findings.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"name": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Name describing the field excluded from scanning.`,
+															},
+														},
+													},
+												},
 												"identifying_fields": {
 													Type:     schema.TypeList,
 													Optional: true,
@@ -391,6 +406,20 @@ If not specified, no identifying fields will be returned for findings.`,
 																Type:        schema.TypeString,
 																Required:    true,
 																Description: `Name of a BigQuery field to be returned with the findings.`,
+															},
+														},
+													},
+												},
+												"included_fields": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Limit scanning only to these fields.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"name": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Name describing the field to which scanning is limited.`,
 															},
 														},
 													},
@@ -2722,6 +2751,10 @@ func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptions(v
 		flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsSampleMethod(original["sampleMethod"], d, config)
 	transformed["identifying_fields"] =
 		flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIdentifyingFields(original["identifyingFields"], d, config)
+	transformed["included_fields"] =
+		flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIncludedFields(original["includedFields"], d, config)
+	transformed["excluded_fields"] =
+		flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsExcludedFields(original["excludedFields"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsTableReference(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2810,6 +2843,50 @@ func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsId
 	return transformed
 }
 func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIdentifyingFieldsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIncludedFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name": flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIncludedFieldsName(original["name"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIncludedFieldsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsExcludedFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name": flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsExcludedFieldsName(original["name"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsExcludedFieldsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -4645,6 +4722,20 @@ func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptions(v 
 		transformed["identifyingFields"] = transformedIdentifyingFields
 	}
 
+	transformedIncludedFields, err := expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIncludedFields(original["included_fields"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIncludedFields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["includedFields"] = transformedIncludedFields
+	}
+
+	transformedExcludedFields, err := expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsExcludedFields(original["excluded_fields"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExcludedFields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["excludedFields"] = transformedExcludedFields
+	}
+
 	return transformed, nil
 }
 
@@ -4728,6 +4819,58 @@ func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIde
 }
 
 func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIdentifyingFieldsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIncludedFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIncludedFieldsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsIncludedFieldsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsExcludedFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsExcludedFieldsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobStorageConfigBigQueryOptionsExcludedFieldsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
