@@ -1,0 +1,3 @@
+```release-note:bug
+apigee: fixed bug where updating `config_bundle` in `google_apigee_sharedflow` that's attached to `google_apigee_sharedflow_deployment` causes an error.
+```
