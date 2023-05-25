@@ -11,7 +11,7 @@ IMPROVEMENTS:
 * datastream: added `mysql_source_config.max_concurrent_backfill_tasks` field to `google_datastream_stream` resource ([#14639](https://github.com/hashicorp/terraform-provider-google/pull/14639))
 * firebase: added additional import formats for app resources, removed the need to supply duplicate projects in some cases ([#14638](https://github.com/hashicorp/terraform-provider-google/pull/14638))
 * notebooks: added update-in-place support for `google_notebooks_instance.metadata` field ([#14650](https://github.com/hashicorp/terraform-provider-google/pull/14650))
-* privateca: added support for encoding_format on CaPool ([#14663](https://github.com/hashicorp/terraform-provider-google/pull/14663))
+* privateca: added support for `encoding_format` to `google_privateca_ca_pool` ([#14663](https://github.com/hashicorp/terraform-provider-google/pull/14663))
 
 BUG FIXES:
 * apigee: increased `google_apigee_organization` timeout defaults to 45m from 20m ([#14643](https://github.com/hashicorp/terraform-provider-google/pull/14643))
