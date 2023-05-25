@@ -1,0 +1,3 @@
+```release-note:bug
+alloydb: increased timeouts for `google_alloydb_instance` from 20m to 40m
+```
