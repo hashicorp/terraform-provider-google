@@ -18,7 +18,6 @@ BUG FIXES:
 * cloudrun: fixed an issues where the system annotation "run.googleapis.com/operation-id" and "run.googleapis.com/ingress" may cause permadiffs for `metadata.annotation` in `google_cloud_run_service` ([#14642](https://github.com/hashicorp/terraform-provider-google/pull/14642))
 * container: fixed a crash when all zero values are specified `google_container_node_pool.upgrade_settings.blue_green_settings.standard_rollout_policy` subfields ([#14693](https://github.com/hashicorp/terraform-provider-google/pull/14693))
 * gkeonprem: updated `hostname` field of ip_block from required to optional from resource `google_gkeonprem_vmware_cluster` ([#14690](https://github.com/hashicorp/terraform-provider-google/pull/14690))
-* provider: fixed an issue where mtls transports were not used consistently ([#14621](https://github.com/hashicorp/terraform-provider-google/pull/14621))
 ## 4.66.0 (May 22, 2023)
 NOTE:
 * Upgraded to Go 1.19.9 ([#14561](https://github.com/hashicorp/terraform-provider-google/pull/14561))
