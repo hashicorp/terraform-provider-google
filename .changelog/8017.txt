@@ -1,0 +1,6 @@
+```release-note:bug
+serviceusage: added retries to handle internal error: type: "googleapis.com" subject: "160009" when activating services
+```
+```release-note:bug
+cloudresourcemanager: added retries to handle internal error: type: "googleapis.com" subject: "160009" when activating "compute.googleapis.com" to destroy the default network when `auto_create_network` is `false`
+```

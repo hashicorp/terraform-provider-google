@@ -629,39 +629,77 @@ func EnableServiceUsageProjectServices(services []string, project, billingProjec
 
 func doEnableServicesRequest(services []string, project, billingProject, userAgent string, config *transport_tpg.Config, timeout time.Duration) error {
 	var op *serviceusage.Operation
-	var call ServicesCall
-	err := transport_tpg.RetryTimeDuration(func() error {
-		var rerr error
-		if len(services) == 1 {
-			// BatchEnable returns an error for a single item, so just enable
-			// using service endpoint.
-			name := fmt.Sprintf("projects/%s/services/%s", project, services[0])
-			req := &serviceusage.EnableServiceRequest{}
-			call = config.NewServiceUsageClient(userAgent).Services.Enable(name, req)
-		} else {
-			// Batch enable for multiple services.
-			name := fmt.Sprintf("projects/%s", project)
-			req := &serviceusage.BatchEnableServicesRequest{ServiceIds: services}
-			call = config.NewServiceUsageClient(userAgent).Services.BatchEnable(name, req)
+
+	// errors can come up at multiple points, so there are a few levels of
+	// retrying here.
+	// logicalErr / waitErr: overall error on the logical operation (enabling services)
+	// but possibly also errors when retrieving the LRO (these are rare)
+	// err / reqErr: precondition errors when sending the request received instead of an LRO
+	logicalErr := transport_tpg.RetryTimeDuration(func() error {
+		err := transport_tpg.RetryTimeDuration(func() error {
+			var reqErr error
+			var call ServicesCall
+			if len(services) == 1 {
+				// BatchEnable returns an error for a single item, so enable with single endpoint
+				name := fmt.Sprintf("projects/%s/services/%s", project, services[0])
+				req := &serviceusage.EnableServiceRequest{}
+				call = config.NewServiceUsageClient(userAgent).Services.Enable(name, req)
+			} else {
+				// Batch enable for multiple services.
+				name := fmt.Sprintf("projects/%s", project)
+				req := &serviceusage.BatchEnableServicesRequest{ServiceIds: services}
+				call = config.NewServiceUsageClient(userAgent).Services.BatchEnable(name, req)
+			}
+
+			if config.UserProjectOverride && billingProject != "" {
+				call.Header().Add("X-Goog-User-Project", billingProject)
+			}
+
+			op, reqErr = call.Do()
+			return handleServiceUsageRetryablePreconditionError(reqErr)
+		},
+			timeout,
+			transport_tpg.ServiceUsageServiceBeingActivated,
+		)
+		if err != nil {
+			return errwrap.Wrapf("failed on request preconditions: {{err}}", err)
 		}
-		if config.UserProjectOverride && billingProject != "" {
-			call.Header().Add("X-Goog-User-Project", billingProject)
+
+		waitErr := serviceUsageOperationWait(config, op, billingProject, fmt.Sprintf("Enable Project %q Services: %+v", project, services), userAgent, timeout)
+		if waitErr != nil {
+			return waitErr
 		}
-		op, rerr = call.Do()
-		return handleServiceUsageRetryableError(rerr)
+
+		return nil
 	},
 		timeout,
-		transport_tpg.ServiceUsageServiceBeingActivated,
+		transport_tpg.ServiceUsageInternalError160009,
 	)
-	if err != nil {
-		return errwrap.Wrapf("failed to send enable services request: {{err}}", err)
+
+	if logicalErr != nil {
+		return errwrap.Wrapf("failed to enable services: {{err}}", logicalErr)
 	}
-	// Poll for the API to return
-	waitErr := serviceUsageOperationWait(config, op, billingProject, fmt.Sprintf("Enable Project %q Services: %+v", project, services), userAgent, timeout)
-	if waitErr != nil {
-		return waitErr
-	}
+
 	return nil
+}
+
+// Handle errors that are retryable at call time for serviceusage
+// Specifically, errors in https://cloud.google.com/service-usage/docs/reference/rest/v1/services/batchEnable#response-body
+// Errors in operations are handled separately.
+// NOTE(rileykarson): This should probably be turned into a retry predicate
+func handleServiceUsageRetryablePreconditionError(err error) error {
+	if err == nil {
+		return nil
+	}
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if (gerr.Code == 400 || gerr.Code == 412) && gerr.Message == "Precondition check failed." {
+			return &googleapi.Error{
+				Code:    503,
+				Message: "api returned \"precondition failed\" while enabling service",
+			}
+		}
+	}
+	return err
 }
 
 // Retrieve a project's services from the API
