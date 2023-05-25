@@ -5,7 +5,7 @@ FEATURES:
 
 IMPROVEMENTS:
 * cloudrun: Added beta field `template.spec.columes.empty_dir` to `google_cloud_run_service` ([#14647](https://github.com/hashicorp/terraform-provider-google/pull/14647))
-* cloudrun: Added field `template.spec.containers.name` to `google_cloud_run_service` ([#14647](https://github.com/hashicorp/terraform-provider-google/pull/14647))
+* cloudrun: added field `template.spec.containers.name` to `google_cloud_run_service` ([#14647](https://github.com/hashicorp/terraform-provider-google/pull/14647))
 * compute: - promoted field `network_performance_config` to ga ([#14678](https://github.com/hashicorp/terraform-provider-google/pull/14678))
 * compute: added `guest_os_features` and `licenses` fields to `google_compute_disk` and `google_compute_region_disk` ([#14660](https://github.com/hashicorp/terraform-provider-google/pull/14660))
 * datastream: added `mysql_source_config.max_concurrent_backfill_tasks` field to `google_datastream_stream` resource ([#14639](https://github.com/hashicorp/terraform-provider-google/pull/14639))
