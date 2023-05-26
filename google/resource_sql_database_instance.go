@@ -1067,25 +1067,27 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	// Users in a replica instance are inherited from the master instance and should be left alone.
 	// This deletion is done immediately after the instance is created, in order to minimize the
 	// risk of it being left on the instance, which would present a security concern.
-	if sqlDatabaseIsMaster(d) && strings.Contains(strings.ToUpper(databaseVersion), "MYSQL") {
-		var user *sqladmin.User
+	if sqlDatabaseIsMaster(d) {
+		var users *sqladmin.UsersListResponse
 		err = transport_tpg.RetryTimeDuration(func() error {
-			user, err = config.NewSqlAdminClient(userAgent).Users.Get(project, instance.Name, "root").Host("%").Do()
+			users, err = config.NewSqlAdminClient(userAgent).Users.List(project, instance.Name).Do()
 			return err
 		}, d.Timeout(schema.TimeoutRead), transport_tpg.IsSqlOperationInProgressError)
 		if err != nil {
-			return fmt.Errorf("Error, attempting to fetch root user associated with instance %s: %s", instance.Name, err)
+			return fmt.Errorf("Error, attempting to list users associated with instance %s: %s", instance.Name, err)
 		}
-		if user != nil {
-			err = transport_tpg.Retry(func() error {
-				op, err = config.NewSqlAdminClient(userAgent).Users.Delete(project, instance.Name).Host(user.Host).Name(user.Name).Do()
-				if err == nil {
-					err = SqlAdminOperationWaitTime(config, op, project, "Delete default root User", userAgent, d.Timeout(schema.TimeoutCreate))
+		for _, u := range users.Items {
+			if u.Name == "root" && u.Host == "%" {
+				err = transport_tpg.Retry(func() error {
+					op, err = config.NewSqlAdminClient(userAgent).Users.Delete(project, instance.Name).Host(u.Host).Name(u.Name).Do()
+					if err == nil {
+						err = SqlAdminOperationWaitTime(config, op, project, "Delete default root User", userAgent, d.Timeout(schema.TimeoutCreate))
+					}
+					return err
+				})
+				if err != nil {
+					return fmt.Errorf("Error, failed to delete default 'root'@'*' user, but the database was created successfully: %s", err)
 				}
-				return err
-			})
-			if err != nil {
-				return fmt.Errorf("Error, failed to delete default 'root'@'*' user, but the database was created successfully: %s", err)
 			}
 		}
 	}
