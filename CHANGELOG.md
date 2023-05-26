@@ -5,17 +5,17 @@ FEATURES:
 
 IMPROVEMENTS:
 * cloudrun: added field `template.spec.containers.name` to `google_cloud_run_service` ([#14647](https://github.com/hashicorp/terraform-provider-google/pull/14647))
-* compute: - promoted field `network_performance_config` in `google_compute_instance` and `google_compute_instance_template` to ga ([#14678](https://github.com/hashicorp/terraform-provider-google/pull/14678))
-* compute: added `guest_os_features` and `licenses` fields to `google_compute_disk` and `google_compute_region_disk` ([#14660](https://github.com/hashicorp/terraform-provider-google/pull/14660))
-* datastream: added `mysql_source_config.max_concurrent_backfill_tasks` field to `google_datastream_stream` resource ([#14639](https://github.com/hashicorp/terraform-provider-google/pull/14639))
-* firebase: added additional import formats for app resources, removed the need to supply duplicate projects in some cases ([#14638](https://github.com/hashicorp/terraform-provider-google/pull/14638))
-* notebooks: added update-in-place support for `google_notebooks_instance.metadata` field ([#14650](https://github.com/hashicorp/terraform-provider-google/pull/14650))
+* compute: - added field `network_performance_config` to `google_compute_instance` and `google_compute_instance_template` ([#14678](https://github.com/hashicorp/terraform-provider-google/pull/14678))
+* compute: added fields `guest_os_features` and `licenses` to `google_compute_disk` and `google_compute_region_disk` ([#14660](https://github.com/hashicorp/terraform-provider-google/pull/14660))
+* datastream: added field `mysql_source_config.max_concurrent_backfill_tasks` to `google_datastream_stream` resource ([#14639](https://github.com/hashicorp/terraform-provider-google/pull/14639))
+* firebase: added additional import formats for `google_firebase_webapp` ([#14638](https://github.com/hashicorp/terraform-provider-google/pull/14638))
+* notebooks: added update support for `google_notebooks_instance.metadata` field ([#14650](https://github.com/hashicorp/terraform-provider-google/pull/14650))
 * privateca: added support for `encoding_format` to `google_privateca_ca_pool` ([#14663](https://github.com/hashicorp/terraform-provider-google/pull/14663))
 
 BUG FIXES:
 * apigee: increased `google_apigee_organization` timeout defaults to 45m from 20m ([#14643](https://github.com/hashicorp/terraform-provider-google/pull/14643))
-* cloudrun: fixed an issues where the system annotation "run.googleapis.com/operation-id" and "run.googleapis.com/ingress" may cause permadiffs for `metadata.annotation` in `google_cloud_run_service` ([#14642](https://github.com/hashicorp/terraform-provider-google/pull/14642))
-* container: fixed a crash when all zero values are specified `google_container_node_pool.upgrade_settings.blue_green_settings.standard_rollout_policy` subfields ([#14693](https://github.com/hashicorp/terraform-provider-google/pull/14693))
+* cloudrun: fixed a permadiffs for `metadata.annotation` in `google_cloud_run_service` ([#14642](https://github.com/hashicorp/terraform-provider-google/pull/14642))
+* container: fixed a crash scenario in `google_container_node_pool` ([#14693](https://github.com/hashicorp/terraform-provider-google/pull/14693))
 * gkeonprem: updated `hostname` field of ip_block from required to optional from resource `google_gkeonprem_vmware_cluster` ([#14690](https://github.com/hashicorp/terraform-provider-google/pull/14690))
 * serviceusage: added retries to handle internal error: type: "googleapis.com" subject: "160009" when activating services ([#14727](https://github.com/hashicorp/terraform-provider-google/pull/14727))
 * cloudresourcemanager: added retries to handle internal error: type: "googleapis.com" subject: "160009" ([#14727](https://github.com/hashicorp/terraform-provider-google/pull/14727))
