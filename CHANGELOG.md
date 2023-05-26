@@ -4,7 +4,6 @@ FEATURES:
 * **New Data Source:** `google_vertex_ai_index` ([#14640](https://github.com/hashicorp/terraform-provider-google/pull/14640))
 
 IMPROVEMENTS:
-* cloudrun: Added beta field `template.spec.columes.empty_dir` to `google_cloud_run_service` ([#14647](https://github.com/hashicorp/terraform-provider-google/pull/14647))
 * cloudrun: added field `template.spec.containers.name` to `google_cloud_run_service` ([#14647](https://github.com/hashicorp/terraform-provider-google/pull/14647))
 * compute: - promoted field `network_performance_config` in `google_compute_instance` and `google_compute_instance_template` to ga ([#14678](https://github.com/hashicorp/terraform-provider-google/pull/14678))
 * compute: added `guest_os_features` and `licenses` fields to `google_compute_disk` and `google_compute_region_disk` ([#14660](https://github.com/hashicorp/terraform-provider-google/pull/14660))
@@ -18,6 +17,9 @@ BUG FIXES:
 * cloudrun: fixed an issues where the system annotation "run.googleapis.com/operation-id" and "run.googleapis.com/ingress" may cause permadiffs for `metadata.annotation` in `google_cloud_run_service` ([#14642](https://github.com/hashicorp/terraform-provider-google/pull/14642))
 * container: fixed a crash when all zero values are specified `google_container_node_pool.upgrade_settings.blue_green_settings.standard_rollout_policy` subfields ([#14693](https://github.com/hashicorp/terraform-provider-google/pull/14693))
 * gkeonprem: updated `hostname` field of ip_block from required to optional from resource `google_gkeonprem_vmware_cluster` ([#14690](https://github.com/hashicorp/terraform-provider-google/pull/14690))
+* serviceusage: added retries to handle internal error: type: "googleapis.com" subject: "160009" when activating services ([#14727](https://github.com/hashicorp/terraform-provider-google/pull/14727))
+* cloudresourcemanager: added retries to handle internal error: type: "googleapis.com" subject: "160009" ([#14727](https://github.com/hashicorp/terraform-provider-google/pull/14727))
+
 ## 4.66.0 (May 22, 2023)
 NOTE:
 * Upgraded to Go 1.19.9 ([#14561](https://github.com/hashicorp/terraform-provider-google/pull/14561))
