@@ -1,0 +1,3 @@
+```release-note:bug
+dataproc: fixed crash when reading `google_dataproc_cluster.virtual_cluster_config`
+```
