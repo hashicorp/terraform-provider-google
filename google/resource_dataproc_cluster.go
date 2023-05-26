@@ -2087,32 +2087,33 @@ func resourceDataprocClusterRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	var cfg []map[string]interface{}
-
-	if cluster.Config != nil {
-		cfg, err = flattenClusterConfig(d, cluster.Config)
-
-		if err != nil {
-			return err
-		}
-
-		err = d.Set("cluster_config", cfg)
-	} else {
-		cfg, err = flattenVirtualClusterConfig(d, cluster.VirtualClusterConfig)
-
-		if err != nil {
-			return err
-		}
-
-		err = d.Set("virtual_cluster_config", cfg)
-	}
+	cfg, err = flattenClusterConfig(d, cluster.Config)
 
 	if err != nil {
 		return err
 	}
+
+	err = d.Set("cluster_config", cfg)
+	virtualCfg, err := flattenVirtualClusterConfig(d, cluster.VirtualClusterConfig)
+
+	if err != nil {
+		return err
+	}
+
+	err = d.Set("virtual_cluster_config", virtualCfg)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func flattenVirtualClusterConfig(d *schema.ResourceData, cfg *dataproc.VirtualClusterConfig) ([]map[string]interface{}, error) {
+	if cfg == nil {
+		return []map[string]interface{}{}, nil
+	}
+
 	data := map[string]interface{}{
 		"staging_bucket":            d.Get("virtual_cluster_config.0.staging_bucket"),
 		"auxiliary_services_config": flattenAuxiliaryServicesConfig(d, cfg.AuxiliaryServicesConfig),
@@ -2229,6 +2230,9 @@ func flattenKubernetesSoftwareConfig(d *schema.ResourceData, cfg *dataproc.Kuber
 }
 
 func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) ([]map[string]interface{}, error) {
+	if cfg == nil {
+		return []map[string]interface{}{}, nil
+	}
 
 	data := map[string]interface{}{
 		"staging_bucket": d.Get("cluster_config.0.staging_bucket").(string),
@@ -2421,6 +2425,9 @@ func flattenInitializationActions(nia []*dataproc.NodeInitializationAction) ([]m
 }
 
 func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterConfig) []map[string]interface{} {
+	if gcc == nil {
+		return []map[string]interface{}{}
+	}
 
 	gceConfig := map[string]interface{}{
 		"tags":             schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(gcc.Tags)),
