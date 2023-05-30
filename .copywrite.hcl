@@ -14,6 +14,7 @@ project {
     ".release/**",
     ".changelog/**",
     "examples/**",
+    "scripts/**",
     "META.d/*.yml",
     ".golangci.yml",
     ".goreleaser.yml",
