@@ -210,6 +210,8 @@ resource "google_workstations_workstation_config" "default" {
     mount_path = "/home"
     gce_pd {
       size_gb        = 200
+      fs_type        = "ext4"
+      disk_type      = "pd-standard"
       reclaim_policy = "DELETE"
     }
   }
@@ -560,7 +562,7 @@ The following arguments are supported:
 
 * `gce_pd` -
   (Optional)
-  PersistentDirectory backed by a Compute Engine regional persistent disk.
+  A directory to persist across workstation sessions, backed by a Compute Engine regional persistent disk. Can only be updated if not empty during creation.
   Structure is [documented below](#nested_gce_pd).
 
 
@@ -568,24 +570,25 @@ The following arguments are supported:
 
 * `fs_type` -
   (Optional)
-  Type of file system that the disk should be formatted with. The workstation image must support this file system type. Must be empty if sourceSnapshot is set.
+  Type of file system that the disk should be formatted with. The workstation image must support this file system type. Must be empty if `sourceSnapshot` is set. Defaults to `ext4`.
 
 * `disk_type` -
   (Optional)
-  Type of the disk to use.
+  The type of the persistent disk for the home directory. Defaults to `pd-standard`.
 
 * `size_gb` -
   (Optional)
-  Size of the disk in GB. Must be empty if sourceSnapshot is set.
+  The GB capacity of a persistent home directory for each workstation created with this configuration. Must be empty if `sourceSnapshot` is set.
+  Valid values are `10`, `50`, `100`, `200`, `500`, or `1000`. Defaults to `200`. If less than `200` GB, the `diskType` must be `pd-balanced` or `pd-ssd`.
 
 * `reclaim_policy` -
   (Optional)
-  What should happen to the disk after the workstation is deleted. Defaults to DELETE.
+  Whether the persistent disk should be deleted when the workstation is deleted. Valid values are `DELETE` and `RETAIN`. Defaults to `DELETE`.
   Possible values are: `DELETE`, `RETAIN`.
 
 * `source_snapshot` -
   (Optional)
-  The snapshot to use as the source for the disk. This can be the snapshot's `self_link`, `id`, or a string in the format of `projects/{project}/global/snapshots/{snapshot}`. If set, sizeGb and fsType must be empty.
+  Name of the snapshot to use as the source for the disk. This can be the snapshot's `self_link`, `id`, or a string in the format of `projects/{project}/global/snapshots/{snapshot}`. If set, `sizeGb` and `fsType` must be empty. Can only be updated if it has an existing value.
 
 <a name="nested_container"></a>The `container` block supports:
 
