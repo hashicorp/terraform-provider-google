@@ -163,6 +163,12 @@ regions.
 Otherwise only allows access from clients in the same region as the
 internal load balancer.`,
 			},
+			"allow_psc_global_access": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `This is used in PSC consumer ForwardingRule to control whether the PSC endpoint can be accessed from another region.`,
+			},
 			"backend_service": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -578,6 +584,12 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("source_ip_ranges"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceIpRangesProp)) && (ok || !reflect.DeepEqual(v, sourceIpRangesProp)) {
 		obj["sourceIpRanges"] = sourceIpRangesProp
 	}
+	allowPscGlobalAccessProp, err := expandComputeForwardingRuleAllowPscGlobalAccess(d.Get("allow_psc_global_access"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("allow_psc_global_access"); ok || !reflect.DeepEqual(v, allowPscGlobalAccessProp) {
+		obj["allowPscGlobalAccess"] = allowPscGlobalAccessProp
+	}
 	regionProp, err := expandComputeForwardingRuleRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
@@ -795,6 +807,9 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("base_forwarding_rule", flattenComputeForwardingRuleBaseForwardingRule(res["baseForwardingRule"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err := d.Set("allow_psc_global_access", flattenComputeForwardingRuleAllowPscGlobalAccess(res["allowPscGlobalAccess"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("region", flattenComputeForwardingRuleRegion(res["region"], d, config)); err != nil {
@@ -1171,6 +1186,10 @@ func flattenComputeForwardingRuleBaseForwardingRule(v interface{}, d *schema.Res
 	return v
 }
 
+func flattenComputeForwardingRuleAllowPscGlobalAccess(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeForwardingRuleRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1361,6 +1380,10 @@ func expandComputeForwardingRuleServiceLabel(v interface{}, d tpgresource.Terraf
 }
 
 func expandComputeForwardingRuleSourceIpRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeForwardingRuleAllowPscGlobalAccess(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
