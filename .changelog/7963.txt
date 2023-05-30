@@ -1,0 +1,6 @@
+```release-note:enhancement
+Update comment to include log bucket sinks and project sinks
+```
+```release-note:none
+
+```
