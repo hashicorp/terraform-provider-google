@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 // A http.RoundTripper that retries common errors, with convenience constructors.
 //
 // NOTE: This meant for TEMPORARY, TRANSIENT ERRORS.
