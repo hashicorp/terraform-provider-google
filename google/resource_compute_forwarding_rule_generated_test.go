@@ -202,6 +202,130 @@ resource "google_compute_subnetwork" "default" {
 `, context)
 }
 
+func TestAccComputeForwardingRule_forwardingRuleVpcPscExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeForwardingRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeForwardingRule_forwardingRuleVpcPscExample(context),
+			},
+			{
+				ResourceName:            "google_compute_forwarding_rule.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backend_service", "network", "subnetwork", "region", "port_range", "target", "ip_address"},
+			},
+		},
+	})
+}
+
+func testAccComputeForwardingRule_forwardingRuleVpcPscExample(context map[string]interface{}) string {
+	return Nprintf(`
+// Forwarding rule for VPC private service connect
+resource "google_compute_forwarding_rule" "default" {
+  name                    = "tf-test-psc-endpoint%{random_suffix}"
+  region                  = "us-central1"
+  load_balancing_scheme   = ""
+  target                  = google_compute_service_attachment.producer_service_attachment.id
+  network                 = google_compute_network.consumer_net.name
+  ip_address              = google_compute_address.consumer_address.id
+  allow_psc_global_access = true
+}
+
+// Consumer service endpoint
+
+resource "google_compute_network" "consumer_net" {
+  name                    = "tf-test-consumer-net%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "consumer_subnet" {
+  name          = "tf-test-consumer-net%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.consumer_net.id
+}
+
+resource "google_compute_address" "consumer_address" {
+  name         = "tf-test-website-ip%{random_suffix}-1"
+  region       = "us-central1"
+  subnetwork   = google_compute_subnetwork.consumer_subnet.id
+  address_type = "INTERNAL"
+}
+
+
+// Producer service attachment
+
+resource "google_compute_network" "producer_net" {
+  name                    = "tf-test-producer-net%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "producer_subnet" {
+  name          = "tf-test-producer-net%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.producer_net.id
+}
+
+resource "google_compute_subnetwork" "psc_producer_subnet" {
+  name          = "tf-test-producer-psc-net%{random_suffix}"
+  ip_cidr_range = "10.1.0.0/16"
+  region        = "us-central1"
+
+  purpose       = "PRIVATE_SERVICE_CONNECT"
+  network       = google_compute_network.producer_net.id
+}
+
+resource "google_compute_service_attachment" "producer_service_attachment" {
+  name        = "tf-test-producer-service%{random_suffix}"
+  region      = "us-central1"
+  description = "A service attachment configured with Terraform"
+
+  enable_proxy_protocol = true
+  connection_preference = "ACCEPT_AUTOMATIC"
+  nat_subnets           = [google_compute_subnetwork.psc_producer_subnet.name]
+  target_service        = google_compute_forwarding_rule.producer_target_service.id
+}
+
+resource "google_compute_forwarding_rule" "producer_target_service" {
+  name     = "tf-test-producer-forwarding-rule%{random_suffix}"
+  region   = "us-central1"
+
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.producer_service_backend.id
+  all_ports             = true
+  network               = google_compute_network.producer_net.name
+  subnetwork            = google_compute_subnetwork.producer_subnet.name
+}
+
+resource "google_compute_region_backend_service" "producer_service_backend" {
+  name     = "tf-test-producer-service-backend%{random_suffix}"
+  region   = "us-central1"
+
+  health_checks = [google_compute_health_check.producer_service_health_check.id]
+}
+
+resource "google_compute_health_check" "producer_service_health_check" {
+  name     = "tf-test-producer-service-health-check%{random_suffix}"
+
+  check_interval_sec = 1
+  timeout_sec        = 1
+  tcp_health_check {
+    port = "80"
+  }
+}
+`, context)
+}
+
 func TestAccComputeForwardingRule_forwardingRuleRegionalSteeringExample(t *testing.T) {
 	t.Parallel()
 
