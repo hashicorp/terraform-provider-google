@@ -1,0 +1,3 @@
+```release-note:enhancement
+workstations: Support update of PD fields `reclaim_policy` and `source_snapshot` on `google_workstations_workstation_config` (beta)
+```
