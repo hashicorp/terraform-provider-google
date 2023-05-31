@@ -461,3 +461,17 @@ func IsBigTableRetryableError(err error) (bool, string) {
 
 	return false, ""
 }
+
+// Gateway of type 'SECURE_WEB_GATEWAY' automatically creates a router but does not delete it.
+// This router might be re-used by other gateways located in the same network.
+// When multiple gateways are being deleted at the same time, multiple attempts to delete the
+// same router will be triggered and the api throws an error saying the "The resource <router> is not ready".
+func IsSwgAutogenRouterRetryable(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 400 && strings.Contains(strings.ToLower(gerr.Body), "not ready") {
+			return true, "Waiting swg autogen router to be ready"
+		}
+	}
+
+	return false, ""
+}

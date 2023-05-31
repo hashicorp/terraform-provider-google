@@ -150,3 +150,25 @@ func TestBigtableError_okIsNotRetryable(t *testing.T) {
 		t.Errorf("Error incorrectly detected as retryable")
 	}
 }
+
+func TestIsSwgAutogenRouterRetryableError_otherError(t *testing.T) {
+	err := googleapi.Error{
+		Code: 400,
+		Body: "another error.",
+	}
+	isRetryable, _ := IsSwgAutogenRouterRetryable(&err)
+	if isRetryable {
+		t.Errorf("Error incorrectly detected as retryable")
+	}
+}
+
+func TestIsSwgAutogenRouterRetryableError_notReady(t *testing.T) {
+	err := googleapi.Error{
+		Code: 400,
+		Body: "The resource 'projects/project123/regions/us-central1/routers/swg-autogen-router-123456789' is not ready",
+	}
+	isRetryable, _ := IsSwgAutogenRouterRetryable(&err)
+	if !isRetryable {
+		t.Errorf("Error not detected as retryable")
+	}
+}

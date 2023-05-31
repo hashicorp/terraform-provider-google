@@ -159,3 +159,7 @@ func IamServiceAccountNotFound(err error) (bool, string) {
 func IsApigeeRetryableError(err error) (bool, string) {
 	return transport_tpg.IsApigeeRetryableError(err)
 }
+
+func IsSwgAutogenRouterRetryable(err error) (bool, string) {
+	return transport_tpg.IsSwgAutogenRouterRetryable(err)
+}

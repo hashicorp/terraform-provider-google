@@ -69,6 +69,180 @@ resource "google_network_services_gateway" "default" {
   scope       = "default-scope-advance"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_services_gateway_secure_web_proxy&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Services Gateway Secure Web Proxy
+
+
+```hcl
+resource "google_certificate_manager_certificate" "default" {
+  provider    = google-beta
+  name        = "my-certificate"
+  location    = "us-central1"
+  self_managed {
+    pem_certificate = file("test-fixtures/certificatemanager/cert.pem")
+    pem_private_key = file("test-fixtures/certificatemanager/private-key.pem")
+  }
+}
+
+resource "google_compute_network" "default" {
+  provider                = google-beta
+  name                    = "my-network"
+  routing_mode            = "REGIONAL"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  provider      = google-beta
+  name          = "my-subnetwork-name"
+  purpose       = "PRIVATE"
+  ip_cidr_range = "10.128.0.0/20"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+  role          = "ACTIVE"
+}
+
+resource "google_compute_subnetwork" "proxyonlysubnet" {
+  provider      = google-beta
+  name          = "my-proxy-only-subnetwork"
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  ip_cidr_range = "192.168.0.0/23"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+  role          = "ACTIVE"
+}
+
+resource "google_network_security_gateway_security_policy" "default" {
+  provider    = google-beta
+  name        = "my-policy-name"
+  location    = "us-central1"
+}
+
+resource "google_network_security_gateway_security_policy_rule" "default" {
+  provider                = google-beta
+  name                    = "my-policyrule-name"
+  location                = "us-central1"
+  gateway_security_policy = google_network_security_gateway_security_policy.default.name
+  enabled                 = true  
+  priority                = 1
+  session_matcher         = "host() == 'example.com'"
+  basic_profile           = "ALLOW"
+}
+
+resource "google_network_services_gateway" "default" {
+  provider                             = google-beta
+  name                                 = "my-gateway1"
+  location                             = "us-central1"
+  addresses                            = ["10.128.0.99"]
+  type                                 = "SECURE_WEB_GATEWAY"
+  ports                                = [443]
+  scope                                = "my-default-scope1"
+  certificate_urls                     = [google_certificate_manager_certificate.default.id]
+  gateway_security_policy              = google_network_security_gateway_security_policy.default.id
+  network                              = google_compute_network.default.id
+  subnetwork                           = google_compute_subnetwork.default.id
+  delete_swg_autogen_router_on_destroy = true
+  depends_on                           = [google_compute_subnetwork.proxyonlysubnet]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_services_gateway_multiple_swp_same_network&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Services Gateway Multiple Swp Same Network
+
+
+```hcl
+resource "google_certificate_manager_certificate" "default" {
+  provider    = google-beta
+  name        = "my-certificate"
+  location    = "us-south1"
+  self_managed {
+    pem_certificate = file("test-fixtures/certificatemanager/cert.pem")
+    pem_private_key = file("test-fixtures/certificatemanager/private-key.pem")
+  }
+}
+
+resource "google_compute_network" "default" {
+  provider                = google-beta
+  name                    = "my-network"
+  routing_mode            = "REGIONAL"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  provider      = google-beta
+  name          = "my-subnetwork-name"
+  purpose       = "PRIVATE"
+  ip_cidr_range = "10.128.0.0/20"
+  region        = "us-south1"
+  network       = google_compute_network.default.id
+  role          = "ACTIVE"
+}
+
+resource "google_compute_subnetwork" "proxyonlysubnet" {
+  provider      = google-beta
+  name          = "my-proxy-only-subnetwork"
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  ip_cidr_range = "192.168.0.0/23"
+  region        = "us-south1"
+  network       = google_compute_network.default.id
+  role          = "ACTIVE"
+}
+
+resource "google_network_security_gateway_security_policy" "default" {
+  provider    = google-beta
+  name        = "my-policy-name"
+  location    = "us-south1"
+}
+
+resource "google_network_security_gateway_security_policy_rule" "default" {
+  provider                = google-beta
+  name                    = "my-policyrule-name"
+  location                = "us-south1"
+  gateway_security_policy = google_network_security_gateway_security_policy.default.name
+  enabled                 = true  
+  priority                = 1
+  session_matcher         = "host() == 'example.com'"
+  basic_profile           = "ALLOW"
+}
+
+resource "google_network_services_gateway" "default" {
+  provider                             = google-beta
+  name                                 = "my-gateway1"
+  location                             = "us-south1"
+  addresses                            = ["10.128.0.99"]
+  type                                 = "SECURE_WEB_GATEWAY"
+  ports                                = [443]
+  scope                                = "my-default-scope1"
+  certificate_urls                     = [google_certificate_manager_certificate.default.id]
+  gateway_security_policy              = google_network_security_gateway_security_policy.default.id
+  network                              = google_compute_network.default.id
+  subnetwork                           = google_compute_subnetwork.default.id
+  delete_swg_autogen_router_on_destroy = true
+  depends_on                           = [google_compute_subnetwork.proxyonlysubnet]
+}
+
+resource "google_network_services_gateway" "gateway2" {
+  provider                             = google-beta
+  name                                 = "my-gateway2"
+  location                             = "us-south1"
+  addresses                            = ["10.128.0.98"]
+  type                                 = "SECURE_WEB_GATEWAY"
+  ports                                = [443]
+  scope                                = "my-default-scope2"
+  certificate_urls                     = [google_certificate_manager_certificate.default.id]
+  gateway_security_policy              = google_network_security_gateway_security_policy.default.id
+  network                              = google_compute_network.default.id
+  subnetwork                           = google_compute_subnetwork.default.id
+  delete_swg_autogen_router_on_destroy = true
+  depends_on                           = [google_compute_subnetwork.proxyonlysubnet]
+}
+```
 
 ## Argument Reference
 
@@ -114,6 +288,35 @@ The following arguments are supported:
   A fully-qualified ServerTLSPolicy URL reference. Specifies how TLS traffic is terminated.
   If empty, TLS termination is disabled.
 
+* `addresses` -
+  (Optional)
+  Zero or one IPv4-address on which the Gateway will receive the traffic. When no address is provided,
+  an IP from the subnetwork is allocated This field only applies to gateways of type 'SECURE_WEB_GATEWAY'.
+  Gateways of type 'OPEN_MESH' listen on 0.0.0.0.
+
+* `subnetwork` -
+  (Optional)
+  The relative resource name identifying the subnetwork in which this SWG is allocated.
+  For example: `projects/*/regions/us-central1/subnetworks/network-1`.
+  Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY.
+
+* `network` -
+  (Optional)
+  The relative resource name identifying the VPC network that is using this configuration. 
+  For example: `projects/*/global/networks/network-1`. 
+  Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY'.
+
+* `gateway_security_policy` -
+  (Optional)
+  A fully-qualified GatewaySecurityPolicy URL reference. Defines how a server should apply security policy to inbound (VM to Proxy) initiated connections. 
+  For example: `projects/*/locations/*/gatewaySecurityPolicies/swg-policy`.
+  This policy is specific to gateways of type 'SECURE_WEB_GATEWAY'.
+
+* `certificate_urls` -
+  (Optional)
+  A fully-qualified Certificates URL reference. The proxy presents a Certificate (selected based on SNI) when establishing a TLS connection.
+  This feature only applies to gateways of type 'SECURE_WEB_GATEWAY'.
+
 * `location` -
   (Optional)
   The location of the gateway.
@@ -121,6 +324,9 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `delete_swg_autogen_router_on_destroy` - (Optional) When deleting a gateway of type 'SECURE_WEB_GATEWAY', this boolean option will also delete auto generated router by the gateway creation. 
+If there is no other gateway of type 'SECURE_WEB_GATEWAY' remaining for that region and network it will be deleted.
 
 
 ## Attributes Reference
