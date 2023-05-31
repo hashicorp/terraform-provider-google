@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab #v3.5.2
-      - uses: hashicorp/action-remove-labels@abbd2b081f82911075bb66c5af1faa468a073be0 #v2.0.0
+      - uses: SarahFrench/action-remove-labels@a3db3593612711177ece459096c40a27a793173f #v2.0.0
         with:
           github_token: "${{ secrets.GITHUB_TOKEN }}"
           labels: waiting-response
