@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/cloudrunv2"
 )
 
 func TestAccCloudRunV2Service_cloudrunv2ServiceFullUpdate(t *testing.T) {
@@ -347,7 +348,7 @@ func testAccCheckCloudRunV2ServiceDestroyByNameProducer(t *testing.T, serviceNam
 			t.Errorf("Error while deleting the Cloud Run service: %s", err)
 			return
 		}
-		err = runAdminV2OperationWaitTime(config, op, config.Project, "Waiting for Cloud Run service to be deleted", config.UserAgent, 5*time.Minute)
+		err = cloudrunv2.RunAdminV2OperationWaitTime(config, op, config.Project, "Waiting for Cloud Run service to be deleted", config.UserAgent, 5*time.Minute)
 		if err != nil {
 			t.Errorf("Error while waiting for Cloud Run service delete operation to complete: %s", err.Error())
 		}

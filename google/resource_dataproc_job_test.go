@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	tpgdataproc "github.com/hashicorp/terraform-provider-google/google/services/dataproc"
 	"google.golang.org/api/dataproc/v1"
 	"google.golang.org/api/googleapi"
 )
@@ -352,7 +353,7 @@ func testAccCheckDataprocJobCompletesSuccessfully(t *testing.T, n string, job *d
 		}
 
 		jobCompleteTimeoutMins := 5 * time.Minute
-		waitErr := dataprocJobOperationWait(config, region, project, job.Reference.JobId,
+		waitErr := tpgdataproc.DataprocJobOperationWait(config, region, project, job.Reference.JobId,
 			"Awaiting Dataproc job completion", config.UserAgent, jobCompleteTimeoutMins)
 		if waitErr != nil {
 			return waitErr
