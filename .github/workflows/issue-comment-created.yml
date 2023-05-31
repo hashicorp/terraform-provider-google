@@ -11,7 +11,7 @@ jobs:
   remove_waiting_response:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@9ac08808f993958e9de277fe43a64532a609130e #v6.0.0
+      - uses: actions/github-script@v6
         env:
           REMOVE_LABEL: "waiting-response"
         with:
