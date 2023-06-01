@@ -38,7 +38,7 @@ To get more information about BitbucketServerConfig, see:
 
 ```hcl
 resource "google_cloudbuild_bitbucket_server_config" "bbs-config" {
-    config_id = "mybbsconfig"
+    config_id = "bbs-config"
     location = "us-central1"
     host_uri = "https://bbs.com"
     secrets {
@@ -55,7 +55,7 @@ resource "google_cloudbuild_bitbucket_server_config" "bbs-config" {
 
 ```hcl
 resource "google_cloudbuild_bitbucket_server_config" "bbs-config-with-repos" {
-    config_id = "mybbsconfig"
+    config_id = "bbs-config"
     location = "us-central1"
     host_uri = "https://bbs.com"
     secrets {
@@ -113,7 +113,7 @@ resource "google_service_networking_connection" "default" {
 }
 
 resource "google_cloudbuild_bitbucket_server_config" "bbs-config-with-peered-network" {
-    config_id = "mybbsconfig"
+    config_id = "bbs-config"
     location = "us-central1"
     host_uri = "https://bbs.com"
     secrets {
