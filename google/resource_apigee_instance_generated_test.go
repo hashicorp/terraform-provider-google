@@ -496,7 +496,7 @@ resource "google_apigee_instance" "apigee_instance" {
   name                 = "tf-test%{random_suffix}"
   location             = "us-central1"
   org_id               = google_apigee_organization.apigee_org.id
-  consumer_accept_list = [123456, google_project.project.number]
+  consumer_accept_list = [google_project.project.number]
 }
 `, context)
 }
