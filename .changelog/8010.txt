@@ -1,0 +1,4 @@
+```release-note:new-resource
+`google_dataplex_datascan_*`
+
+```
