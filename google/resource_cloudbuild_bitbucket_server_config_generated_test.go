@@ -58,7 +58,7 @@ func TestAccCloudBuildBitbucketServerConfig_cloudbuildBitbucketServerConfigExamp
 func testAccCloudBuildBitbucketServerConfig_cloudbuildBitbucketServerConfigExample(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_cloudbuild_bitbucket_server_config" "bbs-config" {
-    config_id = "mybbsconfig"
+    config_id = "tf-test-bbs-config%{random_suffix}"
     location = "us-central1"
     host_uri = "https://bbs.com"
     secrets {
@@ -128,7 +128,7 @@ resource "google_service_networking_connection" "default" {
 }
 
 resource "google_cloudbuild_bitbucket_server_config" "bbs-config-with-peered-network" {
-    config_id = "mybbsconfig"
+    config_id = "tf-test-bbs-config%{random_suffix}"
     location = "us-central1"
     host_uri = "https://bbs.com"
     secrets {
