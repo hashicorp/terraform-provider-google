@@ -264,6 +264,15 @@ Its syntax (https://github.com/google/re2/wiki/Syntax) can be found under the go
 				},
 				ExactlyOneOf: []string{"dictionary", "regex", "large_custom_dictionary"},
 			},
+			"stored_info_type_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The storedInfoType ID can contain uppercase and lowercase letters, numbers, and hyphens;
+that is, it must match the regular expression: [a-zA-Z\d-_]+. The maximum length is 100
+characters. Can be empty to allow the system to generate one.`,
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -512,7 +521,7 @@ func resourceDataLossPreventionStoredInfoTypeUpdate(d *schema.ResourceData, meta
 		obj["largeCustomDictionary"] = largeCustomDictionaryProp
 	}
 
-	obj, err = resourceDataLossPreventionStoredInfoTypeEncoder(d, meta, obj)
+	obj, err = resourceDataLossPreventionStoredInfoTypeUpdateEncoder(d, meta, obj)
 	if err != nil {
 		return err
 	}
@@ -1138,6 +1147,16 @@ func expandDataLossPreventionStoredInfoTypeLargeCustomDictionaryBigQueryFieldFie
 func resourceDataLossPreventionStoredInfoTypeEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	newObj := make(map[string]interface{})
 	newObj["config"] = obj
+	storedInfoTypeIdProp, ok := d.GetOk("stored_info_type_id")
+	if ok && storedInfoTypeIdProp != nil {
+		newObj["storedInfoTypeId"] = storedInfoTypeIdProp
+	}
+	return newObj, nil
+}
+
+func resourceDataLossPreventionStoredInfoTypeUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	newObj := make(map[string]interface{})
+	newObj["config"] = obj
 	return newObj, nil
 }
 
@@ -1159,6 +1178,11 @@ func resourceDataLossPreventionStoredInfoTypeDecoder(d *schema.ResourceData, met
 	config := configRaw.(map[string]interface{})
 	// Name comes back on the top level, so set here
 	config["name"] = name
+
+	configMeta := meta.(*transport_tpg.Config)
+	if err := d.Set("stored_info_type_id", flattenDataLossPreventionStoredInfoTypeName(res["name"], d, configMeta)); err != nil {
+		return nil, fmt.Errorf("Error reading StoredInfoType: %s", err)
+	}
 
 	return config, nil
 }

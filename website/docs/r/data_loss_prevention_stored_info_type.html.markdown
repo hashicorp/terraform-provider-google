@@ -90,6 +90,22 @@ resource "google_storage_bucket_object" "object" {
   source = "./test-fixtures/dlp/words.txt"
 }
 ```
+## Example Usage - Dlp Stored Info Type With Id
+
+
+```hcl
+resource "google_data_loss_prevention_stored_info_type" "with_stored_info_type_id" {
+  parent = "projects/my-project-name"
+  description = "Description"
+  display_name = "Displayname"
+  stored_info_type_id = "id-"
+
+  regex {
+    pattern = "patient"
+    group_indexes = [2]
+  }
+}
+```
 
 ## Argument Reference
 
@@ -115,6 +131,12 @@ The following arguments are supported:
 * `display_name` -
   (Optional)
   User set display name of the info type.
+
+* `stored_info_type_id` -
+  (Optional)
+  The storedInfoType ID can contain uppercase and lowercase letters, numbers, and hyphens;
+  that is, it must match the regular expression: [a-zA-Z\d-_]+. The maximum length is 100
+  characters. Can be empty to allow the system to generate one.
 
 * `regex` -
   (Optional)
