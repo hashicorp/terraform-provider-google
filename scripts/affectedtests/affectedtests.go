@@ -1,5 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
 // affectedtests determines, for a given GitHub PR, which acceptance tests it affects.
 //
 // Example usage: git diff HEAD~ > tmp.diff && go run affectedtests.go -diff tmp.diff
