@@ -27,6 +27,18 @@ For more information see the [official documentation](https://cloud.google.com/v
 ## Example Usage
 
 ```hcl
+resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
+  provider = google-beta
+
+  name        = "policy"
+  parent      = "organizations/12345"
+  description = "Sample global networksecurity_address_group"
+  location    = "global"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
+}
+
 resource "google_compute_firewall_policy" "default" {
   parent      = "organizations/12345"
   short_name  = "my-policy"
@@ -47,6 +59,10 @@ resource "google_compute_firewall_policy_rule" "default" {
       ports = [80, 8080]
     }
     dest_ip_ranges = ["11.100.0.1/32"]
+    dest_fqdns = ["google.com"]
+    dest_region_codes = ["US"]
+    dest_threat_intelligences = ["iplist-public-clouds"]
+    dest_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
   }
 }
 ```
@@ -78,18 +94,50 @@ The following arguments are supported:
 
 
 <a name="nested_match"></a>The `match` block supports:
+
+* `dest_address_groups` - 
+  (Optional) 
+  Address groups which should be matched against the traffic destination. Maximum number of destination address groups is 10. Destination address groups is only supported in Egress rules.
+
+* `dest_fqdns` - 
+  (Optional)
+  Domain names that will be used to match against the resolved domain name of destination of traffic. Can only be specified if DIRECTION is egress.
     
 * `dest_ip_ranges` -
   (Optional)
-  CIDR IP address range. Maximum number of destination CIDR IP ranges allowed is 256.
+  CIDR IP address range. Maximum number of destination CIDR IP ranges allowed is 5000.
+   
+* `dest_region_codes` - 
+  (Optional) 
+  The Unicode country codes whose IP addresses will be used to match against the source of traffic. Can only be specified if DIRECTION is egress.
+
+* `dest_threat_intelligences` - 
+  (Optional) 
+  Name of the Google Cloud Threat Intelligence list.
     
 * `layer4_configs` -
   (Required)
   Pairs of IP protocols and ports that the rule should match. Structure is [documented below](#nested_layer4_configs).
     
-* `src_ip_ranges` -
+* `src_address_groups` - 
+  (Optional) 
+  Address groups which should be matched against the traffic source. Maximum number of source address groups is 10. Source address groups is only supported in Ingress rules.
+
+* `src_fqdns` - 
   (Optional)
-  CIDR IP address range. Maximum number of source CIDR IP ranges allowed is 256.
+  Domain names that will be used to match against the resolved domain name of source of traffic. Can only be specified if DIRECTION is ingress.
+
+* `src_ip_ranges` - 
+  (Optional) 
+  CIDR IP address range. Maximum number of source CIDR IP ranges allowed is 5000.
+
+* `src_region_codes` - 
+  (Optional) 
+  The Unicode country codes whose IP addresses will be used to match against the source of traffic. Can only be specified if DIRECTION is ingress.
+
+* `src_threat_intelligences` - 
+  (Optional)
+  Name of the Google Cloud Threat Intelligence list.
     
 <a name="nested_layer4_configs"></a>The `layer4_configs` block supports:
     
