@@ -391,6 +391,50 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerUpdateExample4(t *testing.
 	})
 }
 
+func TestAccDataLossPreventionJobTrigger_dlpJobTriggerActionsOptionalExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       acctest.GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerActionsOptionalBasic(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent"},
+			},
+			{
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerBasic(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent"},
+			},
+			{
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerActionsOptionalBasic(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent"},
+			},
+		},
+	})
+}
+
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerBasic(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "basic" {
@@ -2195,6 +2239,33 @@ resource "google_data_loss_prevention_job_trigger" "inspect" {
 						name = "LAST_NAME"
 						version = "0.1"
 					}
+				}
+			}
+		}
+	}
+}
+`, context)
+}
+
+func testAccDataLossPreventionJobTrigger_dlpJobTriggerActionsOptionalBasic(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "basic" {
+	parent = "projects/%{project}"
+	description = "Starting description"
+	display_name = "display"
+
+	triggers {
+		schedule {
+			recurrence_period_duration = "86400s"
+		}
+	}
+
+	inspect_job {
+		inspect_template_name = "fake"
+		storage_config {
+			cloud_storage_options {
+				file_set {
+					url = "gs://mybucket/directory/"
 				}
 			}
 		}

@@ -112,230 +112,6 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"actions": {
-							Type:        schema.TypeList,
-							Required:    true,
-							Description: `A task to execute on the completion of a job.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"deidentify": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: `Create a de-identified copy of the requested table or files.`,
-										MaxItems:    1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"cloud_storage_output": {
-													Type:     schema.TypeString,
-													Required: true,
-													Description: `User settable Cloud Storage bucket and folders to store de-identified files.
-
-This field must be set for cloud storage deidentification.
-
-The output Cloud Storage bucket must be different from the input bucket.
-
-De-identified files will overwrite files in the output path.
-
-Form of: gs://bucket/folder/ or gs://bucket`,
-												},
-												"file_types_to_transform": {
-													Type:     schema.TypeList,
-													Optional: true,
-													Description: `List of user-specified file type groups to transform. If specified, only the files with these filetypes will be transformed.
-
-If empty, all supported files will be transformed. Supported types may be automatically added over time.
-
-If a file type is set in this field that isn't supported by the Deidentify action then the job will fail and will not be successfully created/started. Possible values: ["IMAGE", "TEXT_FILE", "CSV", "TSV"]`,
-													Elem: &schema.Schema{
-														Type:         schema.TypeString,
-														ValidateFunc: verify.ValidateEnum([]string{"IMAGE", "TEXT_FILE", "CSV", "TSV"}),
-													},
-												},
-												"transformation_config": {
-													Type:        schema.TypeList,
-													Optional:    true,
-													Description: `User specified deidentify templates and configs for structured, unstructured, and image files.`,
-													MaxItems:    1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"deidentify_template": {
-																Type:        schema.TypeString,
-																Optional:    true,
-																Description: `If this template is specified, it will serve as the default de-identify template.`,
-															},
-															"image_redact_template": {
-																Type:        schema.TypeString,
-																Optional:    true,
-																Description: `If this template is specified, it will serve as the de-identify template for images.`,
-															},
-															"structured_deidentify_template": {
-																Type:        schema.TypeString,
-																Optional:    true,
-																Description: `If this template is specified, it will serve as the de-identify template for structured content such as delimited files and tables.`,
-															},
-														},
-													},
-												},
-												"transformation_details_storage_config": {
-													Type:        schema.TypeList,
-													Optional:    true,
-													Description: `Config for storing transformation details.`,
-													MaxItems:    1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"table": {
-																Type:        schema.TypeList,
-																Required:    true,
-																Description: `The BigQuery table in which to store the output.`,
-																MaxItems:    1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"dataset_id": {
-																			Type:        schema.TypeString,
-																			Required:    true,
-																			Description: `The ID of the dataset containing this table.`,
-																		},
-																		"project_id": {
-																			Type:        schema.TypeString,
-																			Required:    true,
-																			Description: `The ID of the project containing this table.`,
-																		},
-																		"table_id": {
-																			Type:     schema.TypeString,
-																			Optional: true,
-																			Description: `The ID of the table. The ID must contain only letters (a-z,
-A-Z), numbers (0-9), or underscores (_). The maximum length
-is 1,024 characters.`,
-																		},
-																	},
-																},
-															},
-														},
-													},
-												},
-											},
-										},
-										ExactlyOneOf: []string{},
-									},
-									"job_notification_emails": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: `Sends an email when the job completes. The email goes to IAM project owners and technical Essential Contacts.`,
-										MaxItems:    1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{},
-										},
-										ExactlyOneOf: []string{},
-									},
-									"pub_sub": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: `Publish a message into a given Pub/Sub topic when the job completes.`,
-										MaxItems:    1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"topic": {
-													Type:        schema.TypeString,
-													Required:    true,
-													Description: `Cloud Pub/Sub topic to send notifications to.`,
-												},
-											},
-										},
-										ExactlyOneOf: []string{},
-									},
-									"publish_findings_to_cloud_data_catalog": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: `Publish findings of a DlpJob to Data Catalog.`,
-										MaxItems:    1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{},
-										},
-										ExactlyOneOf: []string{},
-									},
-									"publish_summary_to_cscc": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: `Publish the result summary of a DlpJob to the Cloud Security Command Center.`,
-										MaxItems:    1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{},
-										},
-										ExactlyOneOf: []string{},
-									},
-									"publish_to_stackdriver": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: `Enable Stackdriver metric dlp.googleapis.com/findingCount.`,
-										MaxItems:    1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{},
-										},
-										ExactlyOneOf: []string{},
-									},
-									"save_findings": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: `If set, the detailed findings will be persisted to the specified OutputStorageConfig. Only a single instance of this action can be specified. Compatible with: Inspect, Risk`,
-										MaxItems:    1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"output_config": {
-													Type:        schema.TypeList,
-													Required:    true,
-													Description: `Information on where to store output`,
-													MaxItems:    1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"table": {
-																Type:        schema.TypeList,
-																Required:    true,
-																Description: `Information on the location of the target BigQuery Table.`,
-																MaxItems:    1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"dataset_id": {
-																			Type:        schema.TypeString,
-																			Required:    true,
-																			Description: `Dataset ID of the table.`,
-																		},
-																		"project_id": {
-																			Type:        schema.TypeString,
-																			Required:    true,
-																			Description: `The Google Cloud Platform project ID of the project containing the table.`,
-																		},
-																		"table_id": {
-																			Type:     schema.TypeString,
-																			Optional: true,
-																			Description: `Name of the table. If is not set a new one will be generated for you with the following format:
-'dlp_googleapis_yyyy_mm_dd_[dlp_job_id]'. Pacific timezone will be used for generating the date details.`,
-																		},
-																	},
-																},
-															},
-															"output_schema": {
-																Type:         schema.TypeString,
-																Optional:     true,
-																ValidateFunc: verify.ValidateEnum([]string{"BASIC_COLUMNS", "GCS_COLUMNS", "DATASTORE_COLUMNS", "BIG_QUERY_COLUMNS", "ALL_COLUMNS", ""}),
-																Description: `Schema used for writing the findings for Inspect jobs. This field is only used for
-Inspect and must be unspecified for Risk jobs. Columns are derived from the Finding
-object. If appending to an existing table, any columns from the predefined schema
-that are missing will be added. No columns in the existing table will be deleted.
-
-If unspecified, then all available columns will be used for a new table or an (existing)
-table with no schema, and no changes will be made to an existing table that has a schema.
-Only for use with external storage. Possible values: ["BASIC_COLUMNS", "GCS_COLUMNS", "DATASTORE_COLUMNS", "BIG_QUERY_COLUMNS", "ALL_COLUMNS"]`,
-															},
-														},
-													},
-												},
-											},
-										},
-										ExactlyOneOf: []string{},
-									},
-								},
-							},
-						},
 						"inspect_template_name": {
 							Type:        schema.TypeString,
 							Required:    true,
@@ -718,6 +494,230 @@ be based on the time of the execution of the last run of the JobTrigger.`,
 												},
 											},
 										},
+									},
+								},
+							},
+						},
+						"actions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `A task to execute on the completion of a job.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"deidentify": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Create a de-identified copy of the requested table or files.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"cloud_storage_output": {
+													Type:     schema.TypeString,
+													Required: true,
+													Description: `User settable Cloud Storage bucket and folders to store de-identified files.
+
+This field must be set for cloud storage deidentification.
+
+The output Cloud Storage bucket must be different from the input bucket.
+
+De-identified files will overwrite files in the output path.
+
+Form of: gs://bucket/folder/ or gs://bucket`,
+												},
+												"file_types_to_transform": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `List of user-specified file type groups to transform. If specified, only the files with these filetypes will be transformed.
+
+If empty, all supported files will be transformed. Supported types may be automatically added over time.
+
+If a file type is set in this field that isn't supported by the Deidentify action then the job will fail and will not be successfully created/started. Possible values: ["IMAGE", "TEXT_FILE", "CSV", "TSV"]`,
+													Elem: &schema.Schema{
+														Type:         schema.TypeString,
+														ValidateFunc: verify.ValidateEnum([]string{"IMAGE", "TEXT_FILE", "CSV", "TSV"}),
+													},
+												},
+												"transformation_config": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `User specified deidentify templates and configs for structured, unstructured, and image files.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"deidentify_template": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `If this template is specified, it will serve as the default de-identify template.`,
+															},
+															"image_redact_template": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `If this template is specified, it will serve as the de-identify template for images.`,
+															},
+															"structured_deidentify_template": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `If this template is specified, it will serve as the de-identify template for structured content such as delimited files and tables.`,
+															},
+														},
+													},
+												},
+												"transformation_details_storage_config": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Config for storing transformation details.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"table": {
+																Type:        schema.TypeList,
+																Required:    true,
+																Description: `The BigQuery table in which to store the output.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"dataset_id": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `The ID of the dataset containing this table.`,
+																		},
+																		"project_id": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `The ID of the project containing this table.`,
+																		},
+																		"table_id": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The ID of the table. The ID must contain only letters (a-z,
+A-Z), numbers (0-9), or underscores (_). The maximum length
+is 1,024 characters.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+										ExactlyOneOf: []string{},
+									},
+									"job_notification_emails": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Sends an email when the job completes. The email goes to IAM project owners and technical Essential Contacts.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ExactlyOneOf: []string{},
+									},
+									"pub_sub": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Publish a message into a given Pub/Sub topic when the job completes.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"topic": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `Cloud Pub/Sub topic to send notifications to.`,
+												},
+											},
+										},
+										ExactlyOneOf: []string{},
+									},
+									"publish_findings_to_cloud_data_catalog": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Publish findings of a DlpJob to Data Catalog.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ExactlyOneOf: []string{},
+									},
+									"publish_summary_to_cscc": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Publish the result summary of a DlpJob to the Cloud Security Command Center.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ExactlyOneOf: []string{},
+									},
+									"publish_to_stackdriver": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Enable Stackdriver metric dlp.googleapis.com/findingCount.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ExactlyOneOf: []string{},
+									},
+									"save_findings": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `If set, the detailed findings will be persisted to the specified OutputStorageConfig. Only a single instance of this action can be specified. Compatible with: Inspect, Risk`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"output_config": {
+													Type:        schema.TypeList,
+													Required:    true,
+													Description: `Information on where to store output`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"table": {
+																Type:        schema.TypeList,
+																Required:    true,
+																Description: `Information on the location of the target BigQuery Table.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"dataset_id": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Dataset ID of the table.`,
+																		},
+																		"project_id": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `The Google Cloud Platform project ID of the project containing the table.`,
+																		},
+																		"table_id": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `Name of the table. If is not set a new one will be generated for you with the following format:
+'dlp_googleapis_yyyy_mm_dd_[dlp_job_id]'. Pacific timezone will be used for generating the date details.`,
+																		},
+																	},
+																},
+															},
+															"output_schema": {
+																Type:         schema.TypeString,
+																Optional:     true,
+																ValidateFunc: verify.ValidateEnum([]string{"BASIC_COLUMNS", "GCS_COLUMNS", "DATASTORE_COLUMNS", "BIG_QUERY_COLUMNS", "ALL_COLUMNS", ""}),
+																Description: `Schema used for writing the findings for Inspect jobs. This field is only used for
+Inspect and must be unspecified for Risk jobs. Columns are derived from the Finding
+object. If appending to an existing table, any columns from the predefined schema
+that are missing will be added. No columns in the existing table will be deleted.
+
+If unspecified, then all available columns will be used for a new table or an (existing)
+table with no schema, and no changes will be made to an existing table that has a schema.
+Only for use with external storage. Possible values: ["BASIC_COLUMNS", "GCS_COLUMNS", "DATASTORE_COLUMNS", "BIG_QUERY_COLUMNS", "ALL_COLUMNS"]`,
+															},
+														},
+													},
+												},
+											},
+										},
+										ExactlyOneOf: []string{},
 									},
 								},
 							},
