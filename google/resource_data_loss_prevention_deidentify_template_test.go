@@ -1017,13 +1017,13 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_imageTran
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"organization":  GetTestOrgFromEnv(t),
+		"organization":  acctest.GetTestOrgFromEnv(t),
 		"random_suffix": RandString(t, 10),
 		"kms_key_name":  BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -1106,6 +1106,827 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
         }
       }
       # Update allInfoTypes and allText by removing the block
+    }
+  }
+}
+`, context)
+}
+
+func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"organization":  acctest.GetTestOrgFromEnv(t),
+		"random_suffix": RandString(t, 10),
+		"kms_key_name":  BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformationsStart(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformationsUpdate(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformationsStart(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "config" {
+  parent = "organizations/%{organization}"
+  description = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "PHONE_NUMBER"
+        }
+        info_types {
+          name = "DATE_SHIFT_EXAMPLE"
+        }
+
+        primitive_transformation {
+          date_shift_config {
+            upper_bound_days = 30
+            lower_bound_days = -30
+            context {
+              name = "DATE_SHIFT_EXAMPLE"
+            }
+            crypto_key {
+              transient {
+                name = "beep"
+              }
+            }
+          }
+        }
+      }
+
+      transformations {
+        info_types {
+          name = "EMAIL_ADDRESS"
+        }
+        info_types {
+          name = "FIXED_BUCKETING_EXAMPLE"
+        }
+
+        primitive_transformation {
+          fixed_size_bucketing_config {
+            lower_bound {
+              integer_value = 0
+            }
+            upper_bound {
+              integer_value = 100
+            }
+            bucket_size = 10
+          }
+        }
+      }
+
+      transformations {
+        info_types {
+          name = "BUCKETING_EXAMPLE"
+        }
+
+        primitive_transformation {
+          bucketing_config {
+            buckets {
+              min {
+                string_value = "00:00:00"
+              }
+              max {
+                string_value = "11:59:59"
+              }
+              replacement_value {
+                string_value = "AM"
+              }
+            }
+            buckets {
+              min {
+                string_value = "12:00:00"
+              }
+              max {
+                string_value = "23:59:59"
+              }
+              replacement_value {
+                string_value = "PM"
+              }
+            }
+          }
+        }
+      }
+
+      transformations {
+        info_types {
+          name = "TIME_PART_EXAMPLE"
+        }
+
+        primitive_transformation {
+          time_part_config {
+            part_to_extract = "YEAR"
+          }
+        }
+      }
+
+      transformations {
+        info_types {
+          name = "REDACT_EXAMPLE"
+        }
+
+        primitive_transformation {
+          redact_config {}
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformationsUpdate(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "config" {
+  parent = "organizations/%{organization}"
+  description = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "DATE_SHIFT_EXAMPLE"
+        }
+
+        primitive_transformation {
+          date_shift_config {
+            # update values
+            upper_bound_days = 60
+            lower_bound_days = -60
+            context {
+              name = "DATE_SHIFT_EXAMPLE"
+            }
+            crypto_key {
+              transient {
+                # update value
+                name = "beepy-beep-updated"
+              }
+            }
+          }
+        }
+      }
+
+      transformations {
+        info_types {
+          name = "EMAIL_ADDRESS"
+        }
+        info_types {
+          name = "FIXED_BUCKETING_EXAMPLE"
+        }
+
+        primitive_transformation {
+          # update values
+          fixed_size_bucketing_config {
+            lower_bound {
+              integer_value = 0
+            }
+            upper_bound {
+              integer_value = 200
+            }
+            bucket_size = 20
+          }
+        }
+      }
+
+      transformations {
+        info_types {
+          name = "BUCKETING_EXAMPLE"
+        }
+
+        primitive_transformation {
+          bucketing_config {
+            buckets {
+              min {
+                string_value = "00:00:00"
+              }
+              max {
+                string_value = "11:59:59"
+              }
+              replacement_value {
+                string_value = "AM"
+              }
+            }
+            # Add new bucket
+            buckets {
+              min {
+                string_value = "12:00:00"
+              }
+              max {
+                string_value = "13:59:59"
+              }
+              replacement_value {
+                string_value = "Lunchtime"
+              }
+            }
+            buckets {
+              min {
+                string_value = "14:00:00"
+              }
+              max {
+                string_value = "23:59:59"
+              }
+              replacement_value {
+                string_value = "PM"
+              }
+            }
+          }
+        }
+      }
+
+      transformations {
+        info_types {
+          name = "TIME_PART_EXAMPLE"
+        }
+
+        primitive_transformation {
+          time_part_config {
+            part_to_extract = "MONTH"
+          }
+        }
+      }
+
+      # update to remove transformations block using redact_config
+    }
+  }
+}
+`, context)
+}
+
+func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_bucketingConfig(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"organization":  acctest.GetTestOrgFromEnv(t),
+		"random_suffix": RandString(t, 10),
+		"kms_key_name":  BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_bucketingConfig_integerValue(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_bucketingConfig_floatValue(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_bucketingConfig_timestampValue(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_bucketingConfig_timeValue(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_bucketingConfig_dateValue(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_bucketingConfig_dayOfWeekValue(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_bucketingConfig_integerValue(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "config" {
+  parent = "organizations/%{organization}"
+  description = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "BUCKETING_EXAMPLE"
+        }
+
+        primitive_transformation {
+          bucketing_config {
+            buckets {
+              min {
+                integer_value = 921
+              }
+              max {
+                integer_value = 3010
+              }
+              replacement_value {
+                integer_value = 1212
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_bucketingConfig_floatValue(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "config" {
+  parent = "organizations/%{organization}"
+  description = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "BUCKETING_EXAMPLE"
+        }
+
+        primitive_transformation {
+          bucketing_config {
+            buckets {
+              min {
+                float_value = 10.50
+              }
+              max {
+                float_value = 310.75
+              }
+              replacement_value {
+                float_value = 5.37
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_bucketingConfig_timestampValue(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "config" {
+  parent = "organizations/%{organization}"
+  description = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "BUCKETING_EXAMPLE"
+        }
+
+        primitive_transformation {
+          bucketing_config {
+            buckets {
+              min {
+                timestamp_value = "2014-10-02T15:01:23Z"
+              }
+              max {
+                timestamp_value = "2015-06-29T18:46:39Z"
+              }
+              replacement_value {
+                timestamp_value = "2014-12-24T09:19:50Z"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_bucketingConfig_timeValue(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "config" {
+  parent = "organizations/%{organization}"
+  description = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "BUCKETING_EXAMPLE"
+        }
+
+        primitive_transformation {
+          bucketing_config {
+            buckets {
+              min {
+                time_value {
+                  hours   = 09
+                  minutes = 30
+                  seconds = 45
+                  nanos   = 123412
+                }
+              }
+              max {
+                time_value {
+                  hours   = 15
+                  minutes = 45
+                  seconds = 00
+                  nanos   = 523278
+                }
+              }
+              replacement_value {
+                time_value {
+                  hours   = 23
+                  minutes = 59
+                  seconds = 59
+                  nanos   = 999999
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_bucketingConfig_dateValue(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "config" {
+  parent = "organizations/%{organization}"
+  description = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "BUCKETING_EXAMPLE"
+        }
+
+        primitive_transformation {
+          bucketing_config {
+            buckets {
+              min {
+                date_value {
+                  year = 1969
+                  month = 11
+                  day = 23
+                }
+              }
+              max {
+                date_value {
+                  year = 2010
+                  month = 12
+                  day = 31
+                }
+              }
+              replacement_value {
+                date_value {
+                  year = 2011
+                  month = 05
+                  day = 19
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_bucketingConfig_dayOfWeekValue(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "config" {
+  parent = "organizations/%{organization}"
+  description = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "BUCKETING_EXAMPLE"
+        }
+
+        primitive_transformation {
+          bucketing_config {
+            buckets {
+              min {
+                day_of_week_value = "FRIDAY"
+              }
+              max {
+                day_of_week_value = "SUNDAY"
+              }
+              replacement_value {
+                day_of_week_value = "MONDAY"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_fixedSizeBucketingConfig(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"organization":  acctest.GetTestOrgFromEnv(t),
+		"random_suffix": RandString(t, 10),
+		"kms_key_name":  BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_fixedSizeBucketingConfig_integerValue(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_fixedSizeBucketingConfig_floatValue(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_fixedSizeBucketingConfig_integerValue(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "config" {
+  parent = "organizations/%{organization}"
+  description = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "FIXED_BUCKETING_EXAMPLE"
+        }
+
+        primitive_transformation {
+          fixed_size_bucketing_config {
+            lower_bound {
+              integer_value = 0
+            }
+            upper_bound {
+              integer_value = 200
+            }
+            bucket_size = 20
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_fixedSizeBucketingConfig_floatValue(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "config" {
+  parent = "organizations/%{organization}"
+  description = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "FIXED_BUCKETING_EXAMPLE"
+        }
+
+        primitive_transformation {
+          fixed_size_bucketing_config {
+            lower_bound {
+              float_value = 0.5
+            }
+            upper_bound {
+              float_value = 20.5
+            }
+            bucket_size = 20
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_dateShiftConfig(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"organization":  acctest.GetTestOrgFromEnv(t),
+		"random_suffix": RandString(t, 10),
+		"kms_key_name":  BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_dateShiftConfig_transient(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_dateShiftConfig_unwrapped(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_dateShiftConfig_kmsWrapped(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_dateShiftConfig_transient(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "config" {
+  parent = "organizations/%{organization}"
+  description = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "DATE_SHIFT_EXAMPLE"
+        }
+
+        primitive_transformation {
+          date_shift_config {
+            upper_bound_days = 30
+            lower_bound_days = -30
+            context {
+              name = "some-context-field"
+            }
+            crypto_key {
+              transient {
+                name = "someRandomTerraformKey"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_dateShiftConfig_unwrapped(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "config" {
+  parent = "organizations/%{organization}"
+  description = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "DATE_SHIFT_EXAMPLE"
+        }
+
+        primitive_transformation {
+          date_shift_config {
+            upper_bound_days = 30
+            lower_bound_days = -30
+            context {
+              name = "some-context-field"
+            }
+            crypto_key {
+              unwrapped {
+                key = "0836c61118ac590243bdadb25f0bb08e"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformations_primitiveTransformations_dateShiftConfig_kmsWrapped(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "config" {
+  parent = "organizations/%{organization}"
+  description = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "DATE_SHIFT_EXAMPLE"
+        }
+
+        primitive_transformation {
+          date_shift_config {
+            upper_bound_days = 30
+            lower_bound_days = -30
+            context {
+              name = "some-context-field"
+            }
+            crypto_key {
+              kms_wrapped {
+                wrapped_key     = "B64/WRAPPED/TOKENIZATION/KEY"
+                crypto_key_name = "%{kms_key_name}"
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
