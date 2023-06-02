@@ -331,6 +331,37 @@ The following arguments are supported:
   Replace with a value randomly drawn (with replacement) from a dictionary.
   Structure is [documented below](#nested_replace_dictionary_config).
 
+* `date_shift_config` -
+  (Optional)
+  Shifts dates by random number of days, with option to be consistent for the same context.
+  Structure is [documented below](#nested_date_shift_config).
+
+* `fixed_size_bucketing_config` -
+  (Optional)
+  Buckets values based on fixed size ranges. The Bucketing transformation can provide all of this functionality, but requires more configuration. This message is provided as a convenience to the user for simple bucketing strategies.
+  The transformed value will be a hyphenated string of {lower_bound}-{upper_bound}. For example, if lower_bound = 10 and upper_bound = 20, all values that are within this bucket will be replaced with "10-20".
+  This can be used on data of type: double, long.
+  If the bound Value type differs from the type of data being transformed, we will first attempt converting the type of the data to be transformed to match the type of the bound before comparing.
+  See https://cloud.google.com/dlp/docs/concepts-bucketing to learn more.
+  Structure is [documented below](#nested_fixed_size_bucketing_config).
+
+* `bucketing_config` -
+  (Optional)
+  Generalization function that buckets values based on ranges. The ranges and replacement values are dynamically provided by the user for custom behavior, such as 1-30 -> LOW 31-65 -> MEDIUM 66-100 -> HIGH
+  This can be used on data of type: number, long, string, timestamp.
+  If the provided value type differs from the type of data being transformed, we will first attempt converting the type of the data to be transformed to match the type of the bound before comparing.
+  See https://cloud.google.com/dlp/docs/concepts-bucketing to learn more.
+  Structure is [documented below](#nested_bucketing_config).
+
+* `time_part_config` -
+  (Optional)
+  For use with Date, Timestamp, and TimeOfDay, extract or preserve a portion of the value.
+  Structure is [documented below](#nested_time_part_config).
+
+* `redact_config` -
+  (Optional)
+  Redact a given value. For example, if used with an InfoTypeTransformation transforming PHONE_NUMBER, and input 'My phone number is 206-555-0123', the output would be 'My phone number is '.
+
 
 <a name="nested_replace_config"></a>The `replace_config` block supports:
 
@@ -655,6 +686,358 @@ The following arguments are supported:
 * `words` -
   (Required)
   Words or phrases defining the dictionary. The dictionary must contain at least one phrase and every phrase must contain at least 2 characters that are letters or digits.
+
+<a name="nested_date_shift_config"></a>The `date_shift_config` block supports:
+
+* `context` -
+  (Optional)
+  Points to the field that contains the context, for example, an entity id.
+  If set, must also set cryptoKey. If set, shift will be consistent for the given context.
+  Structure is [documented below](#nested_context).
+
+* `crypto_key` -
+  (Optional)
+  The key used by the encryption function.
+  Structure is [documented below](#nested_crypto_key).
+
+* `upper_bound_days` -
+  (Required)
+  Range of shift in days. Actual shift will be selected at random within this range (inclusive ends).
+  Negative means shift to earlier in time. Must not be more than 365250 days (1000 years) each direction.
+
+* `lower_bound_days` -
+  (Required)
+  Range of shift in days. Negative means shift to earlier in time.
+
+
+<a name="nested_context"></a>The `context` block supports:
+
+* `name` -
+  (Required)
+  Name describing the field.
+
+<a name="nested_crypto_key"></a>The `crypto_key` block supports:
+
+* `transient` -
+  (Optional)
+  Transient crypto key. Use this to have a random data crypto key generated. It will be discarded after the request finishes.
+  Structure is [documented below](#nested_transient).
+
+* `unwrapped` -
+  (Optional)
+  Unwrapped crypto key. Using raw keys is prone to security risks due to accidentally leaking the key. Choose another type of key if possible.
+  Structure is [documented below](#nested_unwrapped).
+
+* `kms_wrapped` -
+  (Optional)
+  KMS wrapped key.
+  Include to use an existing data crypto key wrapped by KMS. The wrapped key must be a 128-, 192-, or 256-bit key. Authorization requires the following IAM permissions when sending a request to perform a crypto transformation using a KMS-wrapped crypto key: dlp.kms.encrypt
+  For more information, see [Creating a wrapped key](https://cloud.google.com/dlp/docs/create-wrapped-key).
+  Note: When you use Cloud KMS for cryptographic operations, [charges apply](https://cloud.google.com/kms/pricing).
+  Structure is [documented below](#nested_kms_wrapped).
+
+
+<a name="nested_transient"></a>The `transient` block supports:
+
+* `name` -
+  (Required)
+  Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate `TransientCryptoKey` protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).
+
+<a name="nested_unwrapped"></a>The `unwrapped` block supports:
+
+* `key` -
+  (Required)
+  A 128/192/256 bit key.
+  A base64-encoded string.
+
+<a name="nested_kms_wrapped"></a>The `kms_wrapped` block supports:
+
+* `wrapped_key` -
+  (Required)
+  The wrapped data crypto key.
+  A base64-encoded string.
+
+* `crypto_key_name` -
+  (Required)
+  The resource name of the KMS CryptoKey to use for unwrapping.
+
+<a name="nested_fixed_size_bucketing_config"></a>The `fixed_size_bucketing_config` block supports:
+
+* `lower_bound` -
+  (Required)
+  Lower bound value of buckets.
+  All values less than lower_bound are grouped together into a single bucket; for example if lower_bound = 10, then all values less than 10 are replaced with the value "-10".
+  The `lower_bound` block must only contain one argument. See the `fixed_size_bucketing_config` block description for more information about choosing a data type.
+  Structure is [documented below](#nested_lower_bound).
+
+* `upper_bound` -
+  (Required)
+  Upper bound value of buckets.
+  All values greater than upper_bound are grouped together into a single bucket; for example if upper_bound = 89, then all values greater than 89 are replaced with the value "89+".
+  The `upper_bound` block must only contain one argument. See the `fixed_size_bucketing_config` block description for more information about choosing a data type.
+  Structure is [documented below](#nested_upper_bound).
+
+* `bucket_size` -
+  (Required)
+  Size of each bucket (except for minimum and maximum buckets).
+  So if lower_bound = 10, upper_bound = 89, and bucketSize = 10, then the following buckets would be used: -10, 10-20, 20-30, 30-40, 40-50, 50-60, 60-70, 70-80, 80-89, 89+.
+  Precision up to 2 decimals works.
+
+
+<a name="nested_lower_bound"></a>The `lower_bound` block supports:
+
+* `integer_value` -
+  (Optional)
+  An integer value (int64 format)
+
+* `float_value` -
+  (Optional)
+  A float value.
+
+<a name="nested_upper_bound"></a>The `upper_bound` block supports:
+
+* `integer_value` -
+  (Optional)
+  An integer value (int64 format)
+
+* `float_value` -
+  (Optional)
+  A float value.
+
+<a name="nested_bucketing_config"></a>The `bucketing_config` block supports:
+
+* `buckets` -
+  (Optional)
+  Set of buckets. Ranges must be non-overlapping.
+  Bucket is represented as a range, along with replacement values.
+  Structure is [documented below](#nested_buckets).
+
+
+<a name="nested_buckets"></a>The `buckets` block supports:
+
+* `min` -
+  (Optional)
+  Lower bound of the range, inclusive. Type should be the same as max if used.
+  The `min` block must only contain one argument. See the `bucketing_config` block description for more information about choosing a data type.
+  Structure is [documented below](#nested_min).
+
+* `max` -
+  (Optional)
+  Upper bound of the range, exclusive; type must match min.
+  The `max` block must only contain one argument. See the `bucketing_config` block description for more information about choosing a data type.
+  Structure is [documented below](#nested_max).
+
+* `replacement_value` -
+  (Required)
+  Replacement value for this bucket.
+  The `replacement_value` block must only contain one argument.
+  Structure is [documented below](#nested_replacement_value).
+
+
+<a name="nested_min"></a>The `min` block supports:
+
+* `integer_value` -
+  (Optional)
+  An integer value (int64 format)
+
+* `float_value` -
+  (Optional)
+  A float value.
+
+* `string_value` -
+  (Optional)
+  A string value.
+
+* `timestamp_value` -
+  (Optional)
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `time_value` -
+  (Optional)
+  Represents a time of day.
+  Structure is [documented below](#nested_time_value).
+
+* `date_value` -
+  (Optional)
+  Represents a whole or partial calendar date.
+  Structure is [documented below](#nested_date_value).
+
+* `day_of_week_value` -
+  (Optional)
+  Represents a day of the week.
+  Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
+
+
+<a name="nested_time_value"></a>The `time_value` block supports:
+
+* `hours` -
+  (Optional)
+  Hours of day in 24 hour format. Should be from 0 to 23. An API may choose to allow the value "24:00:00" for scenarios like business closing time.
+
+* `minutes` -
+  (Optional)
+  Minutes of hour of day. Must be from 0 to 59.
+
+* `seconds` -
+  (Optional)
+  Seconds of minutes of the time. Must normally be from 0 to 59. An API may allow the value 60 if it allows leap-seconds.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
+
+<a name="nested_date_value"></a>The `date_value` block supports:
+
+* `year` -
+  (Optional)
+  Year of the date. Must be from 1 to 9999, or 0 to specify a date without a year.
+
+* `month` -
+  (Optional)
+  Month of a year. Must be from 1 to 12, or 0 to specify a year without a month and day.
+
+* `day` -
+  (Optional)
+  Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
+
+<a name="nested_max"></a>The `max` block supports:
+
+* `integer_value` -
+  (Optional)
+  An integer value (int64 format)
+
+* `float_value` -
+  (Optional)
+  A float value.
+
+* `string_value` -
+  (Optional)
+  A string value.
+
+* `timestamp_value` -
+  (Optional)
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `time_value` -
+  (Optional)
+  Represents a time of day.
+  Structure is [documented below](#nested_time_value).
+
+* `date_value` -
+  (Optional)
+  Represents a whole or partial calendar date.
+  Structure is [documented below](#nested_date_value).
+
+* `day_of_week_value` -
+  (Optional)
+  Represents a day of the week.
+  Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
+
+
+<a name="nested_time_value"></a>The `time_value` block supports:
+
+* `hours` -
+  (Optional)
+  Hours of day in 24 hour format. Should be from 0 to 23. An API may choose to allow the value "24:00:00" for scenarios like business closing time.
+
+* `minutes` -
+  (Optional)
+  Minutes of hour of day. Must be from 0 to 59.
+
+* `seconds` -
+  (Optional)
+  Seconds of minutes of the time. Must normally be from 0 to 59. An API may allow the value 60 if it allows leap-seconds.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
+
+<a name="nested_date_value"></a>The `date_value` block supports:
+
+* `year` -
+  (Optional)
+  Year of the date. Must be from 1 to 9999, or 0 to specify a date without a year.
+
+* `month` -
+  (Optional)
+  Month of a year. Must be from 1 to 12, or 0 to specify a year without a month and day.
+
+* `day` -
+  (Optional)
+  Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
+
+<a name="nested_replacement_value"></a>The `replacement_value` block supports:
+
+* `integer_value` -
+  (Optional)
+  An integer value (int64 format)
+
+* `float_value` -
+  (Optional)
+  A float value.
+
+* `string_value` -
+  (Optional)
+  A string value.
+
+* `timestamp_value` -
+  (Optional)
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `time_value` -
+  (Optional)
+  Represents a time of day.
+  Structure is [documented below](#nested_time_value).
+
+* `date_value` -
+  (Optional)
+  Represents a whole or partial calendar date.
+  Structure is [documented below](#nested_date_value).
+
+* `day_of_week_value` -
+  (Optional)
+  Represents a day of the week.
+  Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
+
+
+<a name="nested_time_value"></a>The `time_value` block supports:
+
+* `hours` -
+  (Optional)
+  Hours of day in 24 hour format. Should be from 0 to 23. An API may choose to allow the value "24:00:00" for scenarios like business closing time.
+
+* `minutes` -
+  (Optional)
+  Minutes of hour of day. Must be from 0 to 59.
+
+* `seconds` -
+  (Optional)
+  Seconds of minutes of the time. Must normally be from 0 to 59. An API may allow the value 60 if it allows leap-seconds.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
+
+<a name="nested_date_value"></a>The `date_value` block supports:
+
+* `year` -
+  (Optional)
+  Year of the date. Must be from 1 to 9999, or 0 to specify a date without a year.
+
+* `month` -
+  (Optional)
+  Month of a year. Must be from 1 to 12, or 0 to specify a year without a month and day.
+
+* `day` -
+  (Optional)
+  Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
+
+<a name="nested_time_part_config"></a>The `time_part_config` block supports:
+
+* `part_to_extract` -
+  (Optional)
+  The part of the time to keep.
+  Possible values are: `YEAR`, `MONTH`, `DAY_OF_MONTH`, `DAY_OF_WEEK`, `WEEK_OF_YEAR`, `HOUR_OF_DAY`.
 
 <a name="nested_record_transformations"></a>The `record_transformations` block supports:
 
