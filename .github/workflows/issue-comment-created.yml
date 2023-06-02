@@ -1,4 +1,7 @@
-name: Issue Comment Created Triage
+name: Remove "waiting-response" label on issue comment
+# To help with triage, if we're waiting for a response from a
+# user we label the issue waiting-response.
+# When a user comments on the issue the label is removed.
 
 on:
   issue_comment:
@@ -8,8 +11,40 @@ jobs:
   remove_waiting_response:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
-      - uses: actions-ecosystem/action-remove-labels@556e306654eb4c343ecaff657772edaa3f1add86
+      - uses: actions/github-script@v6
+        env:
+          REMOVE_LABEL: "waiting-response"
         with:
-          github_token: "${{ secrets.GITHUB_TOKEN }}"
-          labels: waiting-response
+          script: |
+            const { REMOVE_LABEL } = process.env
+            console.log(`Attempting to remove label "${REMOVE_LABEL}"`)
+            
+            const { data } = await github.rest.issues.listLabelsOnIssue({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+            
+            // Return early if there are no labels
+            if (data.length == 0){
+              console.log(`Issue has no labels; not attempting to remove label "${REMOVE_LABEL}"`)
+              return
+            }
+            
+            // Check if REMOVE_LABEL is present
+            const filteredData = data.filter(label => label.name == REMOVE_LABEL)
+            
+            // Return early if filtering didn't identify the label as present
+            if (filteredData.length == 0){
+              console.log(`Label "${REMOVE_LABEL}" not found on issue; not attempting to remove it.`)
+              return
+            }
+
+            console.log(`Label "${REMOVE_LABEL}" found! Now deleting it from the issue...`)
+
+            await github.rest.issues.removeLabel({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: REMOVE_LABEL
+            })
