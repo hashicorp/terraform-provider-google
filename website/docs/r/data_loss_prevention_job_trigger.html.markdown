@@ -510,7 +510,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_storage_config).
 
 * `actions` -
-  (Required)
+  (Optional)
   A task to execute on the completion of a job.
   Structure is [documented below](#nested_actions).
 
