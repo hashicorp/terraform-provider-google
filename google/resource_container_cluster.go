@@ -1928,13 +1928,15 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	parent := fmt.Sprintf("projects/%s/locations/%s", project, location)
 	var op *container.Operation
-	err = transport_tpg.Retry(func() error {
-		clusterCreateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Create(parent, req)
-		if config.UserProjectOverride {
-			clusterCreateCall.Header().Add("X-Goog-User-Project", project)
-		}
-		op, err = clusterCreateCall.Do()
-		return err
+	err = transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() error {
+			clusterCreateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Create(parent, req)
+			if config.UserProjectOverride {
+				clusterCreateCall.Header().Add("X-Goog-User-Project", project)
+			}
+			op, err = clusterCreateCall.Do()
+			return err
+		},
 	})
 	if err != nil {
 		return err
@@ -1985,13 +1987,15 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	if d.Get("remove_default_node_pool").(bool) {
 		parent := fmt.Sprintf("%s/nodePools/%s", containerClusterFullName(project, location, clusterName), "default-pool")
-		err = transport_tpg.Retry(func() error {
-			clusterNodePoolDeleteCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Delete(parent)
-			if config.UserProjectOverride {
-				clusterNodePoolDeleteCall.Header().Add("X-Goog-User-Project", project)
-			}
-			op, err = clusterNodePoolDeleteCall.Do()
-			return err
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() error {
+				clusterNodePoolDeleteCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Delete(parent)
+				if config.UserProjectOverride {
+					clusterNodePoolDeleteCall.Header().Add("X-Goog-User-Project", project)
+				}
+				op, err = clusterNodePoolDeleteCall.Do()
+				return err
+			},
 		})
 		if err != nil {
 			return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)

@@ -414,8 +414,8 @@ func sendRequestRawBodyWithTimeout(config *transport_tpg.Config, method, project
 
 	log.Printf("[DEBUG] sendRequestRawBodyWithTimeout sending request")
 
-	err := transport_tpg.RetryTimeDuration(
-		func() error {
+	err := transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() error {
 			req, err := http.NewRequest(method, rawurl, body)
 			if err != nil {
 				return err
@@ -434,9 +434,9 @@ func sendRequestRawBodyWithTimeout(config *transport_tpg.Config, method, project
 
 			return nil
 		},
-		timeout,
-		errorRetryPredicates...,
-	)
+		Timeout:              timeout,
+		ErrorRetryPredicates: errorRetryPredicates,
+	})
 	if err != nil {
 		return nil, err
 	}

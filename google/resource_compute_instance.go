@@ -1468,8 +1468,8 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		// We're retrying for an error 412 where the metadata fingerprint is out of date
-		err = transport_tpg.Retry(
-			func() error {
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() error {
 				// retrieve up-to-date metadata from the API in case several updates hit simultaneously. instances
 				// sometimes but not always share metadata fingerprints.
 				instance, err := config.NewComputeClient(userAgent).Instances.Get(project, zone, instance.Name).Do()
@@ -1491,7 +1491,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 				return nil
 			},
-		)
+		})
 
 		if err != nil {
 			return err
@@ -1851,8 +1851,8 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("can_ip_forward") {
-		err = transport_tpg.Retry(
-			func() error {
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() error {
 				instance, err := config.NewComputeClient(userAgent).Instances.Get(project, zone, instance.Name).Do()
 				if err != nil {
 					return fmt.Errorf("Error retrieving instance: %s", err)
@@ -1872,7 +1872,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 				return nil
 			},
-		)
+		})
 
 		if err != nil {
 			return err
@@ -2039,8 +2039,8 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		if d.HasChange("advanced_machine_features") {
-			err = transport_tpg.Retry(
-				func() error {
+			err = transport_tpg.Retry(transport_tpg.RetryOptions{
+				RetryFunc: func() error {
 					// retrieve up-to-date instance from the API in case several updates hit simultaneously. instances
 					// sometimes but not always share metadata fingerprints.
 					instance, err := config.NewComputeClient(userAgent).Instances.Get(project, zone, instance.Name).Do()
@@ -2062,7 +2062,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 					return nil
 				},
-			)
+			})
 
 			if err != nil {
 				return err

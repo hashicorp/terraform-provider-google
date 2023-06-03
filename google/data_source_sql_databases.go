@@ -52,10 +52,14 @@ func dataSourceSqlDatabasesRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 	var databases *sqladmin.DatabasesListResponse
-	err = transport_tpg.RetryTimeDuration(func() (rerr error) {
-		databases, rerr = config.NewSqlAdminClient(userAgent).Databases.List(project, d.Get("instance").(string)).Do()
-		return rerr
-	}, d.Timeout(schema.TimeoutRead), transport_tpg.IsSqlOperationInProgressError)
+	err = transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() (rerr error) {
+			databases, rerr = config.NewSqlAdminClient(userAgent).Databases.List(project, d.Get("instance").(string)).Do()
+			return rerr
+		},
+		Timeout:              d.Timeout(schema.TimeoutRead),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+	})
 
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Databases in %q instance", d.Get("instance").(string)))
