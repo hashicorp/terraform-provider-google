@@ -268,34 +268,38 @@ func resourceGoogleProjectServiceUpdate(d *schema.ResourceData, meta interface{}
 
 // Disables a project service.
 func disableServiceUsageProjectService(service, project string, d *schema.ResourceData, config *transport_tpg.Config, disableDependentServices bool) error {
-	err := transport_tpg.RetryTimeDuration(func() error {
-		billingProject := project
-		userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
-		if err != nil {
-			return err
-		}
-		name := fmt.Sprintf("projects/%s/services/%s", project, service)
-		servicesDisableCall := config.NewServiceUsageClient(userAgent).Services.Disable(name, &serviceusage.DisableServiceRequest{
-			DisableDependentServices: disableDependentServices,
-		})
-		if config.UserProjectOverride {
-			// err == nil indicates that the billing_project value was found
-			if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-				billingProject = bp
+	err := transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() error {
+			billingProject := project
+			userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+			if err != nil {
+				return err
 			}
-			servicesDisableCall.Header().Add("X-Goog-User-Project", billingProject)
-		}
-		sop, err := servicesDisableCall.Do()
-		if err != nil {
-			return err
-		}
-		// Wait for the operation to complete
-		waitErr := serviceUsageOperationWait(config, sop, billingProject, "api to disable", userAgent, d.Timeout(schema.TimeoutDelete))
-		if waitErr != nil {
-			return waitErr
-		}
-		return nil
-	}, d.Timeout(schema.TimeoutDelete), transport_tpg.ServiceUsageServiceBeingActivated)
+			name := fmt.Sprintf("projects/%s/services/%s", project, service)
+			servicesDisableCall := config.NewServiceUsageClient(userAgent).Services.Disable(name, &serviceusage.DisableServiceRequest{
+				DisableDependentServices: disableDependentServices,
+			})
+			if config.UserProjectOverride {
+				// err == nil indicates that the billing_project value was found
+				if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+					billingProject = bp
+				}
+				servicesDisableCall.Header().Add("X-Goog-User-Project", billingProject)
+			}
+			sop, err := servicesDisableCall.Do()
+			if err != nil {
+				return err
+			}
+			// Wait for the operation to complete
+			waitErr := serviceUsageOperationWait(config, sop, billingProject, "api to disable", userAgent, d.Timeout(schema.TimeoutDelete))
+			if waitErr != nil {
+				return waitErr
+			}
+			return nil
+		},
+		Timeout:              d.Timeout(schema.TimeoutDelete),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.ServiceUsageServiceBeingActivated},
+	})
 	if err != nil {
 		return fmt.Errorf("Error disabling service %q for project %q: %v", service, project, err)
 	}

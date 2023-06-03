@@ -117,10 +117,14 @@ func resourceGoogleServiceAccountCreate(d *schema.ResourceData, meta interface{}
 
 	d.SetId(sa.Name)
 
-	err = transport_tpg.RetryTimeDuration(func() (operr error) {
-		_, saerr := config.NewIamClient(userAgent).Projects.ServiceAccounts.Get(d.Id()).Do()
-		return saerr
-	}, d.Timeout(schema.TimeoutCreate), transport_tpg.IsNotFoundRetryableError("service account creation"))
+	err = transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() (operr error) {
+			_, saerr := config.NewIamClient(userAgent).Projects.ServiceAccounts.Get(d.Id()).Do()
+			return saerr
+		},
+		Timeout:              d.Timeout(schema.TimeoutCreate),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsNotFoundRetryableError("service account creation")},
+	})
 
 	if err != nil {
 		return fmt.Errorf("Error reading service account after creation: %s", err)

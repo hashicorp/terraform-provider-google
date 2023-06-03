@@ -63,12 +63,15 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 	if v, ok := d.GetOk("domain"); ok {
 		filter := fmt.Sprintf("domain=%s", v.(string))
 		var resp *cloudresourcemanager.SearchOrganizationsResponse
-		err := transport_tpg.RetryTimeDuration(func() (err error) {
-			resp, err = config.NewResourceManagerClient(userAgent).Organizations.Search(&cloudresourcemanager.SearchOrganizationsRequest{
-				Filter: filter,
-			}).Do()
-			return err
-		}, d.Timeout(schema.TimeoutRead))
+		err := transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (err error) {
+				resp, err = config.NewResourceManagerClient(userAgent).Organizations.Search(&cloudresourcemanager.SearchOrganizationsRequest{
+					Filter: filter,
+				}).Do()
+				return err
+			},
+			Timeout: d.Timeout(schema.TimeoutRead),
+		})
 		if err != nil {
 			return fmt.Errorf("Error reading organization: %s", err)
 		}
@@ -94,10 +97,13 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 
 	} else if v, ok := d.GetOk("organization"); ok {
 		var resp *cloudresourcemanager.Organization
-		err := transport_tpg.RetryTimeDuration(func() (err error) {
-			resp, err = config.NewResourceManagerClient(userAgent).Organizations.Get(canonicalOrganizationName(v.(string))).Do()
-			return err
-		}, d.Timeout(schema.TimeoutRead))
+		err := transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (err error) {
+				resp, err = config.NewResourceManagerClient(userAgent).Organizations.Get(canonicalOrganizationName(v.(string))).Do()
+				return err
+			},
+			Timeout: d.Timeout(schema.TimeoutRead),
+		})
 		if err != nil {
 			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Organization Not Found : %s", v))
 		}

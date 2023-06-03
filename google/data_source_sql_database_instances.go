@@ -102,10 +102,14 @@ func dataSourceSqlDatabaseInstancesRead(d *schema.ResourceData, meta interface{}
 	databaseInstances := make([]map[string]interface{}, 0)
 	for {
 		var instances *sqladmin.InstancesListResponse
-		err = transport_tpg.RetryTimeDuration(func() (rerr error) {
-			instances, rerr = config.NewSqlAdminClient(userAgent).Instances.List(project).Filter(filter).PageToken(pageToken).Do()
-			return rerr
-		}, d.Timeout(schema.TimeoutRead), transport_tpg.IsSqlOperationInProgressError)
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (rerr error) {
+				instances, rerr = config.NewSqlAdminClient(userAgent).Instances.List(project).Filter(filter).PageToken(pageToken).Do()
+				return rerr
+			},
+			Timeout:              d.Timeout(schema.TimeoutRead),
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+		})
 		if err != nil {
 			return err
 		}

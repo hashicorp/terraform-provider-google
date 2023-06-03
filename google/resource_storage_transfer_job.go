@@ -573,9 +573,11 @@ func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) 
 
 	var res *storagetransfer.TransferJob
 
-	err = transport_tpg.Retry(func() error {
-		res, err = config.NewStorageTransferClient(userAgent).TransferJobs.Create(transferJob).Do()
-		return err
+	err = transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() error {
+			res, err = config.NewStorageTransferClient(userAgent).TransferJobs.Create(transferJob).Do()
+			return err
+		},
 	})
 
 	if err != nil {

@@ -400,11 +400,13 @@ func resourceDnsRecordSetRead(d *schema.ResourceData, meta interface{}) error {
 	dnsType := d.Get("type").(string)
 
 	var resp *dns.ResourceRecordSetsListResponse
-	err = transport_tpg.Retry(func() error {
-		var reqErr error
-		resp, reqErr = config.NewDnsClient(userAgent).ResourceRecordSets.List(
-			project, zone).Name(name).Type(dnsType).Do()
-		return reqErr
+	err = transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() error {
+			var reqErr error
+			resp, reqErr = config.NewDnsClient(userAgent).ResourceRecordSets.List(
+				project, zone).Name(name).Type(dnsType).Do()
+			return reqErr
+		},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DNS Record Set %q", d.Get("name").(string)))

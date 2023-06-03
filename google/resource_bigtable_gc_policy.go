@@ -217,9 +217,9 @@ func resourceBigtableGCPolicyUpsert(d *schema.ResourceData, meta interface{}) er
 	tableName := d.Get("table").(string)
 	columnFamily := d.Get("column_family").(string)
 
-	retryFunc := func() (interface{}, error) {
+	retryFunc := func() error {
 		reqErr := c.SetGCPolicy(ctx, tableName, columnFamily, gcPolicy)
-		return "", reqErr
+		return reqErr
 	}
 	// The default create timeout is 20 minutes.
 	timeout := d.Timeout(schema.TimeoutCreate)
@@ -227,7 +227,12 @@ func resourceBigtableGCPolicyUpsert(d *schema.ResourceData, meta interface{}) er
 	// Mutations to gc policies can only happen one-at-a-time and take some amount of time.
 	// Use a fixed polling rate of 30s based on the RetryInfo returned by the server rather than
 	// the standard up-to-10s exponential backoff for those operations.
-	_, err = transport_tpg.RetryWithPolling(retryFunc, timeout, pollInterval, transport_tpg.IsBigTableRetryableError)
+	err = transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc:            retryFunc,
+		Timeout:              timeout,
+		PollInterval:         pollInterval,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsBigTableRetryableError},
+	})
 	if err != nil {
 		return err
 	}
@@ -409,14 +414,19 @@ func resourceBigtableGCPolicyDestroy(d *schema.ResourceData, meta interface{}) e
 
 	defer c.Close()
 
-	retryFunc := func() (interface{}, error) {
+	retryFunc := func() error {
 		reqErr := c.SetGCPolicy(ctx, d.Get("table").(string), d.Get("column_family").(string), bigtable.NoGcPolicy())
-		return "", reqErr
+		return reqErr
 	}
 	// The default delete timeout is 20 minutes.
 	timeout := d.Timeout(schema.TimeoutDelete)
 	pollInterval := time.Duration(30) * time.Second
-	_, err = transport_tpg.RetryWithPolling(retryFunc, timeout, pollInterval, transport_tpg.IsBigTableRetryableError)
+	err = transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc:            retryFunc,
+		Timeout:              timeout,
+		PollInterval:         pollInterval,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsBigTableRetryableError},
+	})
 	if err != nil {
 		return err
 	}

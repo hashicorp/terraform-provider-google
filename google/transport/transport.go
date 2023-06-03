@@ -27,6 +27,7 @@ type SendRequestOptions struct {
 	Body                 map[string]any
 	Timeout              time.Duration
 	ErrorRetryPredicates []RetryErrorPredicateFunc
+	ErrorAbortPredicates []RetryErrorPredicateFunc
 }
 
 func SendRequest(opt SendRequestOptions) (map[string]interface{}, error) {
@@ -51,8 +52,8 @@ func SendRequest(opt SendRequestOptions) (map[string]interface{}, error) {
 	}
 
 	var res *http.Response
-	err := RetryTimeDuration(
-		func() error {
+	err := Retry(RetryOptions{
+		RetryFunc: func() error {
 			var buf bytes.Buffer
 			if opt.Body != nil {
 				err := json.NewEncoder(&buf).Encode(opt.Body)
@@ -83,9 +84,10 @@ func SendRequest(opt SendRequestOptions) (map[string]interface{}, error) {
 
 			return nil
 		},
-		opt.Timeout,
-		opt.ErrorRetryPredicates...,
-	)
+		Timeout:              opt.Timeout,
+		ErrorRetryPredicates: opt.ErrorRetryPredicates,
+		ErrorAbortPredicates: opt.ErrorAbortPredicates,
+	})
 	if err != nil {
 		return nil, err
 	}
