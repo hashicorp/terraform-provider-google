@@ -268,16 +268,13 @@ func resourceAccessContextManagerEgressPolicyImport(d *schema.ResourceData, meta
 	config := meta.(*transport_tpg.Config)
 
 	// current import_formats can't import fields with forward slashes in their value
-	parts, err := tpgresource.GetImportIdQualifiers([]string{"accessPolicies/(?P<accessPolicy>[^/]+)/servicePerimeters/(?P<perimeter>[^/]+)/(?P<resource>.+)"}, d, config, d.Id())
+	parts, err := tpgresource.GetImportIdQualifiers([]string{"accessPolicies/(?P<accessPolicy>[^/]+)/servicePerimeters/(?P<perimeter>[^/]+)"}, d, config, d.Id())
 	if err != nil {
 		return nil, err
 	}
 
-	if err := d.Set("egress_policy_name", fmt.Sprintf("accessPolicies/%s/servicePerimeters/%s", parts["accessPolicy"], parts["perimeter"])); err != nil {
-		return nil, fmt.Errorf("Error setting egress_policy_name: %s", err)
-	}
-	if err := d.Set("resource", parts["resource"]); err != nil {
-		return nil, fmt.Errorf("Error setting resource: %s", err)
+	if err := d.Set("perimeter", fmt.Sprintf("accessPolicies/%s/servicePerimeters/%s", parts["accessPolicy"], parts["perimeter"])); err != nil {
+		return nil, fmt.Errorf("Error setting perimeter: %s", err)
 	}
 	return []*schema.ResourceData{d}, nil
 }
