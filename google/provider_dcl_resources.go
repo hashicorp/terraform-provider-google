@@ -20,43 +20,61 @@ package google
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/services/apikeys"
+	"github.com/hashicorp/terraform-provider-google/google/services/assuredworkloads"
+	"github.com/hashicorp/terraform-provider-google/google/services/bigqueryreservation"
+	"github.com/hashicorp/terraform-provider-google/google/services/cloudbuild"
+	"github.com/hashicorp/terraform-provider-google/google/services/clouddeploy"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/services/containeraws"
+	"github.com/hashicorp/terraform-provider-google/google/services/containerazure"
+	"github.com/hashicorp/terraform-provider-google/google/services/dataplex"
+	"github.com/hashicorp/terraform-provider-google/google/services/dataproc"
+	"github.com/hashicorp/terraform-provider-google/google/services/eventarc"
+	"github.com/hashicorp/terraform-provider-google/google/services/firebaserules"
+	"github.com/hashicorp/terraform-provider-google/google/services/monitoring"
+	"github.com/hashicorp/terraform-provider-google/google/services/networkconnectivity"
+	"github.com/hashicorp/terraform-provider-google/google/services/orgpolicy"
+	"github.com/hashicorp/terraform-provider-google/google/services/osconfig"
+	"github.com/hashicorp/terraform-provider-google/google/services/privateca"
+	"github.com/hashicorp/terraform-provider-google/google/services/recaptchaenterprise"
 )
 
 var dclResources = map[string]*schema.Resource{
-	"google_apikeys_key":                                        ResourceApikeysKey(),
-	"google_assured_workloads_workload":                         ResourceAssuredWorkloadsWorkload(),
-	"google_bigquery_reservation_assignment":                    ResourceBigqueryReservationAssignment(),
-	"google_cloudbuild_worker_pool":                             ResourceCloudbuildWorkerPool(),
-	"google_clouddeploy_delivery_pipeline":                      ResourceClouddeployDeliveryPipeline(),
-	"google_clouddeploy_target":                                 ResourceClouddeployTarget(),
-	"google_compute_firewall_policy":                            ResourceComputeFirewallPolicy(),
-	"google_compute_firewall_policy_association":                ResourceComputeFirewallPolicyAssociation(),
-	"google_compute_firewall_policy_rule":                       ResourceComputeFirewallPolicyRule(),
-	"google_compute_region_network_firewall_policy":             ResourceComputeRegionNetworkFirewallPolicy(),
-	"google_compute_network_firewall_policy":                    ResourceComputeNetworkFirewallPolicy(),
-	"google_compute_network_firewall_policy_association":        ResourceComputeNetworkFirewallPolicyAssociation(),
-	"google_compute_region_network_firewall_policy_association": ResourceComputeRegionNetworkFirewallPolicyAssociation(),
-	"google_compute_network_firewall_policy_rule":               ResourceComputeNetworkFirewallPolicyRule(),
-	"google_compute_region_network_firewall_policy_rule":        ResourceComputeRegionNetworkFirewallPolicyRule(),
-	"google_container_aws_cluster":                              ResourceContainerAwsCluster(),
-	"google_container_aws_node_pool":                            ResourceContainerAwsNodePool(),
-	"google_container_azure_client":                             ResourceContainerAzureClient(),
-	"google_container_azure_cluster":                            ResourceContainerAzureCluster(),
-	"google_container_azure_node_pool":                          ResourceContainerAzureNodePool(),
-	"google_dataplex_asset":                                     ResourceDataplexAsset(),
-	"google_dataplex_lake":                                      ResourceDataplexLake(),
-	"google_dataplex_zone":                                      ResourceDataplexZone(),
-	"google_dataproc_workflow_template":                         ResourceDataprocWorkflowTemplate(),
-	"google_eventarc_channel":                                   ResourceEventarcChannel(),
-	"google_eventarc_google_channel_config":                     ResourceEventarcGoogleChannelConfig(),
-	"google_eventarc_trigger":                                   ResourceEventarcTrigger(),
-	"google_firebaserules_release":                              ResourceFirebaserulesRelease(),
-	"google_firebaserules_ruleset":                              ResourceFirebaserulesRuleset(),
-	"google_monitoring_monitored_project":                       ResourceMonitoringMonitoredProject(),
-	"google_network_connectivity_hub":                           ResourceNetworkConnectivityHub(),
-	"google_network_connectivity_spoke":                         ResourceNetworkConnectivitySpoke(),
-	"google_org_policy_policy":                                  ResourceOrgPolicyPolicy(),
-	"google_os_config_os_policy_assignment":                     ResourceOsConfigOsPolicyAssignment(),
-	"google_privateca_certificate_template":                     ResourcePrivatecaCertificateTemplate(),
-	"google_recaptcha_enterprise_key":                           ResourceRecaptchaEnterpriseKey(),
+	"google_apikeys_key":                                        apikeys.ResourceApikeysKey(),
+	"google_assured_workloads_workload":                         assuredworkloads.ResourceAssuredWorkloadsWorkload(),
+	"google_bigquery_reservation_assignment":                    bigqueryreservation.ResourceBigqueryReservationAssignment(),
+	"google_cloudbuild_worker_pool":                             cloudbuild.ResourceCloudbuildWorkerPool(),
+	"google_clouddeploy_delivery_pipeline":                      clouddeploy.ResourceClouddeployDeliveryPipeline(),
+	"google_clouddeploy_target":                                 clouddeploy.ResourceClouddeployTarget(),
+	"google_compute_firewall_policy":                            compute.ResourceComputeFirewallPolicy(),
+	"google_compute_firewall_policy_association":                compute.ResourceComputeFirewallPolicyAssociation(),
+	"google_compute_firewall_policy_rule":                       compute.ResourceComputeFirewallPolicyRule(),
+	"google_compute_region_network_firewall_policy":             compute.ResourceComputeRegionNetworkFirewallPolicy(),
+	"google_compute_network_firewall_policy":                    compute.ResourceComputeNetworkFirewallPolicy(),
+	"google_compute_network_firewall_policy_association":        compute.ResourceComputeNetworkFirewallPolicyAssociation(),
+	"google_compute_region_network_firewall_policy_association": compute.ResourceComputeRegionNetworkFirewallPolicyAssociation(),
+	"google_compute_network_firewall_policy_rule":               compute.ResourceComputeNetworkFirewallPolicyRule(),
+	"google_compute_region_network_firewall_policy_rule":        compute.ResourceComputeRegionNetworkFirewallPolicyRule(),
+	"google_container_aws_cluster":                              containeraws.ResourceContainerAwsCluster(),
+	"google_container_aws_node_pool":                            containeraws.ResourceContainerAwsNodePool(),
+	"google_container_azure_client":                             containerazure.ResourceContainerAzureClient(),
+	"google_container_azure_cluster":                            containerazure.ResourceContainerAzureCluster(),
+	"google_container_azure_node_pool":                          containerazure.ResourceContainerAzureNodePool(),
+	"google_dataplex_asset":                                     dataplex.ResourceDataplexAsset(),
+	"google_dataplex_lake":                                      dataplex.ResourceDataplexLake(),
+	"google_dataplex_zone":                                      dataplex.ResourceDataplexZone(),
+	"google_dataproc_workflow_template":                         dataproc.ResourceDataprocWorkflowTemplate(),
+	"google_eventarc_channel":                                   eventarc.ResourceEventarcChannel(),
+	"google_eventarc_google_channel_config":                     eventarc.ResourceEventarcGoogleChannelConfig(),
+	"google_eventarc_trigger":                                   eventarc.ResourceEventarcTrigger(),
+	"google_firebaserules_release":                              firebaserules.ResourceFirebaserulesRelease(),
+	"google_firebaserules_ruleset":                              firebaserules.ResourceFirebaserulesRuleset(),
+	"google_monitoring_monitored_project":                       monitoring.ResourceMonitoringMonitoredProject(),
+	"google_network_connectivity_hub":                           networkconnectivity.ResourceNetworkConnectivityHub(),
+	"google_network_connectivity_spoke":                         networkconnectivity.ResourceNetworkConnectivitySpoke(),
+	"google_org_policy_policy":                                  orgpolicy.ResourceOrgPolicyPolicy(),
+	"google_os_config_os_policy_assignment":                     osconfig.ResourceOsConfigOsPolicyAssignment(),
+	"google_privateca_certificate_template":                     privateca.ResourcePrivatecaCertificateTemplate(),
+	"google_recaptcha_enterprise_key":                           recaptchaenterprise.ResourceRecaptchaEnterpriseKey(),
 }
