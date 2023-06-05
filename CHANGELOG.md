@@ -1,4 +1,21 @@
-## 4.68.0 (Unreleased)
+## 4.69.0 (Unreleased)
+
+## 4.68.0 (June 5, 2023)
+
+FEATURES:
+* **New Resource:** `google_container_analysis_note_iam_*` ([#14706](https://github.com/hashicorp/terraform-provider-google/pull/14706))
+
+IMPROVEMENTS:
+* compute: promoted `allow_psc_global_access` field in `google_compute_forwarding_rule` to GA ([#14754](https://github.com/hashicorp/terraform-provider-google/pull/14754))
+* dlp: added `included_fields` and `excluded_fields` fields to `google_data_loss_prevention_job_trigger` ([#14736](https://github.com/hashicorp/terraform-provider-google/pull/14736))
+* dns: added `regionalL7ilb` enum support to the `routing_policy.load_balancer_type` field in `google_dns_record_set` ([#14710](https://github.com/hashicorp/terraform-provider-google/pull/14710))
+
+BUG FIXES:
+* accesscontextmanager: fixed incorrect validations for `spec` and `status` in `google_access_context_manager_service_perimeter` ([#14705](https://github.com/hashicorp/terraform-provider-google/pull/14705))
+* alloydb: increased timeouts for `google_alloydb_instance` from 20m to 40m ([#14713](https://github.com/hashicorp/terraform-provider-google/pull/14713))
+* apigee: fixed bug where updating `config_bundle` in `google_apigee_sharedflow` that's attached to `google_apigee_sharedflow_deployment` causes an error ([#14725](https://github.com/hashicorp/terraform-provider-google/pull/14725))
+* compute: increased timeout for `compute_security_policy` from 4m to 8m ([#14712](https://github.com/hashicorp/terraform-provider-google/pull/14712))
+* dataproc: fixed crash when reading `google_dataproc_cluster.virtual_cluster_config` ([#14744](https://github.com/hashicorp/terraform-provider-google/pull/14744))
 
 ## 4.67.0 (May 30, 2023)
 
