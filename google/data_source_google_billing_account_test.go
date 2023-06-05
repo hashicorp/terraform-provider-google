@@ -87,6 +87,7 @@ func testAccCheckGoogleBillingAccount_byName(name string) string {
 	return fmt.Sprintf(`
 data "google_billing_account" "acct" {
   billing_account = "%s"
+  lookup_projects = false
 }
 `, name)
 }
