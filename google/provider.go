@@ -769,6 +769,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_data_catalog_taxonomy_iam_policy":                tpgiamresource.DataSourceIamPolicy(DataCatalogTaxonomyIamSchema, DataCatalogTaxonomyIamUpdaterProducer),
 			"google_data_fusion_instance_iam_policy":                 tpgiamresource.DataSourceIamPolicy(DataFusionInstanceIamSchema, DataFusionInstanceIamUpdaterProducer),
 			"google_dataplex_asset_iam_policy":                       tpgiamresource.DataSourceIamPolicy(DataplexAssetIamSchema, DataplexAssetIamUpdaterProducer),
+			"google_dataplex_datascan_iam_policy":                    tpgiamresource.DataSourceIamPolicy(DataplexDatascanIamSchema, DataplexDatascanIamUpdaterProducer),
 			"google_dataplex_lake_iam_policy":                        tpgiamresource.DataSourceIamPolicy(DataplexLakeIamSchema, DataplexLakeIamUpdaterProducer),
 			"google_dataplex_zone_iam_policy":                        tpgiamresource.DataSourceIamPolicy(DataplexZoneIamSchema, DataplexZoneIamUpdaterProducer),
 			"google_dataproc_autoscaling_policy_iam_policy":          tpgiamresource.DataSourceIamPolicy(DataprocAutoscalingPolicyIamSchema, DataprocAutoscalingPolicyIamUpdaterProducer),
@@ -826,8 +827,8 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 }
 
 // Generated resources: 288
-// Generated IAM resources: 189
-// Total generated resources: 477
+// Generated IAM resources: 192
+// Total generated resources: 480
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1087,6 +1088,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dataplex_asset_iam_member":                               tpgiamresource.ResourceIamMember(DataplexAssetIamSchema, DataplexAssetIamUpdaterProducer, DataplexAssetIdParseFunc),
 			"google_dataplex_asset_iam_policy":                               tpgiamresource.ResourceIamPolicy(DataplexAssetIamSchema, DataplexAssetIamUpdaterProducer, DataplexAssetIdParseFunc),
 			"google_dataplex_datascan":                                       ResourceDataplexDatascan(),
+			"google_dataplex_datascan_iam_binding":                           tpgiamresource.ResourceIamBinding(DataplexDatascanIamSchema, DataplexDatascanIamUpdaterProducer, DataplexDatascanIdParseFunc),
+			"google_dataplex_datascan_iam_member":                            tpgiamresource.ResourceIamMember(DataplexDatascanIamSchema, DataplexDatascanIamUpdaterProducer, DataplexDatascanIdParseFunc),
+			"google_dataplex_datascan_iam_policy":                            tpgiamresource.ResourceIamPolicy(DataplexDatascanIamSchema, DataplexDatascanIamUpdaterProducer, DataplexDatascanIdParseFunc),
 			"google_dataplex_lake_iam_binding":                               tpgiamresource.ResourceIamBinding(DataplexLakeIamSchema, DataplexLakeIamUpdaterProducer, DataplexLakeIdParseFunc),
 			"google_dataplex_lake_iam_member":                                tpgiamresource.ResourceIamMember(DataplexLakeIamSchema, DataplexLakeIamUpdaterProducer, DataplexLakeIdParseFunc),
 			"google_dataplex_lake_iam_policy":                                tpgiamresource.ResourceIamPolicy(DataplexLakeIamSchema, DataplexLakeIamUpdaterProducer, DataplexLakeIdParseFunc),
