@@ -1472,7 +1472,7 @@ func expandGkeNodePoolTarget(d *schema.ResourceData, v interface{}, clusterAddre
 		data := v1.(map[string]interface{})
 		nodePool := dataproc.GkeNodePoolTarget{
 			NodePool: clusterAddress + "/nodePools/" + data["node_pool"].(string),
-			Roles:    convertStringSet(data["roles"].(*schema.Set)),
+			Roles:    tpgresource.ConvertStringSet(data["roles"].(*schema.Set)),
 		}
 
 		if v, ok := d.GetOk(fmt.Sprintf("virtual_cluster_config.0.kubernetes_cluster_config.0.gke_cluster_config.0.node_pool_target.%d.node_pool_config", i)); ok {
@@ -1493,7 +1493,7 @@ func expandGkeNodePoolConfig(cfg map[string]interface{}) *dataproc.GkeNodePoolCo
 	}
 
 	if v, ok := cfg["locations"]; ok {
-		conf.Locations = convertStringSet(v.(*schema.Set))
+		conf.Locations = tpgresource.ConvertStringSet(v.(*schema.Set))
 	}
 
 	if autoscalingcfg, ok := cfg["autoscaling"]; ok {
@@ -1650,7 +1650,7 @@ func expandGceClusterConfig(d *schema.ResourceData, config *transport_tpg.Config
 		conf.SubnetworkUri = snf.RelativeLink()
 	}
 	if v, ok := cfg["tags"]; ok {
-		conf.Tags = convertStringSet(v.(*schema.Set))
+		conf.Tags = tpgresource.ConvertStringSet(v.(*schema.Set))
 	}
 	if v, ok := cfg["service_account"]; ok {
 		conf.ServiceAccount = v.(string)
@@ -1667,7 +1667,7 @@ func expandGceClusterConfig(d *schema.ResourceData, config *transport_tpg.Config
 		conf.InternalIpOnly = v.(bool)
 	}
 	if v, ok := cfg["metadata"]; ok {
-		conf.Metadata = convertStringMap(v.(map[string]interface{}))
+		conf.Metadata = tpgresource.ConvertStringMap(v.(map[string]interface{}))
 	}
 	if v, ok := d.GetOk("cluster_config.0.gce_cluster_config.0.shielded_instance_config"); ok {
 		cfgSic := v.([]interface{})[0].(map[string]interface{})
@@ -1692,7 +1692,7 @@ func expandGceClusterConfig(d *schema.ResourceData, config *transport_tpg.Config
 			conf.ReservationAffinity.Key = v.(string)
 		}
 		if v, ok := cfgRa["values"]; ok {
-			conf.ReservationAffinity.Values = convertStringSet(v.(*schema.Set))
+			conf.ReservationAffinity.Values = tpgresource.ConvertStringSet(v.(*schema.Set))
 		}
 	}
 	if v, ok := d.GetOk("cluster_config.0.gce_cluster_config.0.node_group_affinity"); ok {
@@ -1831,7 +1831,7 @@ func expandDataprocMetricConfig(cfg map[string]interface{}) *dataproc.DataprocMe
 		data := raw.(map[string]interface{})
 		metric := dataproc.Metric{
 			MetricSource:    data["metric_source"].(string),
-			MetricOverrides: convertStringSet(data["metric_overrides"].(*schema.Set)),
+			MetricOverrides: tpgresource.ConvertStringSet(data["metric_overrides"].(*schema.Set)),
 		}
 		metricsSet = append(metricsSet, &metric)
 	}

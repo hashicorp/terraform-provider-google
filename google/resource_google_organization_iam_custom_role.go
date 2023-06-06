@@ -114,7 +114,7 @@ func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta 
 				Title:               d.Get("title").(string),
 				Description:         d.Get("description").(string),
 				Stage:               d.Get("stage").(string),
-				IncludedPermissions: convertStringSet(d.Get("permissions").(*schema.Set)),
+				IncludedPermissions: tpgresource.ConvertStringSet(d.Get("permissions").(*schema.Set)),
 			},
 		}).Do()
 		if err != nil {
@@ -202,7 +202,7 @@ func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta 
 			Title:               d.Get("title").(string),
 			Description:         d.Get("description").(string),
 			Stage:               d.Get("stage").(string),
-			IncludedPermissions: convertStringSet(d.Get("permissions").(*schema.Set)),
+			IncludedPermissions: tpgresource.ConvertStringSet(d.Get("permissions").(*schema.Set)),
 		}).Do()
 
 		if err != nil {

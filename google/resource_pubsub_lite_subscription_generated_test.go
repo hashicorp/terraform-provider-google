@@ -56,7 +56,7 @@ func TestAccPubsubLiteSubscription_pubsubLiteSubscriptionBasicExample(t *testing
 }
 
 func testAccPubsubLiteSubscription_pubsubLiteSubscriptionBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_pubsub_lite_topic" "example" {
   name = "tf-test-example-topic%{random_suffix}"
   project = data.google_project.project.number

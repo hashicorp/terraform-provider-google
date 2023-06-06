@@ -56,7 +56,7 @@ func TestAccComputeVpnGateway_targetVpnGatewayBasicExample(t *testing.T) {
 }
 
 func testAccComputeVpnGateway_targetVpnGatewayBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_vpn_gateway" "target_gateway" {
   name    = "tf-test-vpn-1%{random_suffix}"
   network = google_compute_network.network1.id

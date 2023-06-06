@@ -56,7 +56,7 @@ func TestAccNotebooksEnvironment_notebookEnvironmentBasicExample(t *testing.T) {
 }
 
 func testAccNotebooksEnvironment_notebookEnvironmentBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_notebooks_environment" "environment" {
   name = "tf-test-notebooks-environment%{random_suffix}"
   location = "us-west1-a"  

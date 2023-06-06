@@ -56,7 +56,7 @@ func TestAccFilestoreSnapshot_filestoreSnapshotBasicExample(t *testing.T) {
 }
 
 func testAccFilestoreSnapshot_filestoreSnapshotBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_filestore_snapshot" "snapshot" {
   name     = "tf-test-test-snapshot%{random_suffix}"
   instance = google_filestore_instance.instance.name
@@ -107,7 +107,7 @@ func TestAccFilestoreSnapshot_filestoreSnapshotFullExample(t *testing.T) {
 }
 
 func testAccFilestoreSnapshot_filestoreSnapshotFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_filestore_snapshot" "snapshot" {
   name     = "tf-test-test-snapshot%{random_suffix}"
   instance = google_filestore_instance.instance.name

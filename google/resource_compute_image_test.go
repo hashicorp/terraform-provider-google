@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -290,7 +291,7 @@ func testAccCheckComputeImageResolution(t *testing.T, n string) resource.TestChe
 		}
 
 		for input, expectation := range images {
-			result, err := resolveImage(config, project, input, config.UserAgent)
+			result, err := tpgcompute.ResolveImage(config, project, input, config.UserAgent)
 			if err != nil {
 				return fmt.Errorf("Error resolving input %s to image: %+v\n", input, err)
 			}

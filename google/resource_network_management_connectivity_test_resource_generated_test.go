@@ -55,7 +55,7 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestI
 }
 
 func testAccNetworkManagementConnectivityTest_networkManagementConnectivityTestInstancesExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_network_management_connectivity_test" "instance-test" {
   name = "tf-test-conn-test-instances%{random_suffix}"
   source {
@@ -139,7 +139,7 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestA
 }
 
 func testAccNetworkManagementConnectivityTest_networkManagementConnectivityTestAddressesExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_network_management_connectivity_test" "address-test" {
   name = "tf-test-conn-test-addr%{random_suffix}"
   source {

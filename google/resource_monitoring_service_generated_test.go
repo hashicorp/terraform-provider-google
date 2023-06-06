@@ -56,7 +56,7 @@ func TestAccMonitoringGenericService_monitoringServiceExampleExample(t *testing.
 }
 
 func testAccMonitoringGenericService_monitoringServiceExampleExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_monitoring_service" "my_service" {
   service_id = "tf-test-my-service%{random_suffix}"
   display_name = "My Service tf-test-my-service%{random_suffix}"

@@ -56,7 +56,7 @@ func TestAccHealthcareConsentStore_healthcareConsentStoreBasicExample(t *testing
 }
 
 func testAccHealthcareConsentStore_healthcareConsentStoreBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_healthcare_dataset" "dataset" {
   location = "us-central1"
   name     = "tf-test-my-dataset%{random_suffix}"
@@ -95,7 +95,7 @@ func TestAccHealthcareConsentStore_healthcareConsentStoreFullExample(t *testing.
 }
 
 func testAccHealthcareConsentStore_healthcareConsentStoreFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 
 resource "google_healthcare_dataset" "dataset" {
   location = "us-central1"
@@ -142,7 +142,7 @@ func TestAccHealthcareConsentStore_healthcareConsentStoreIamExample(t *testing.T
 }
 
 func testAccHealthcareConsentStore_healthcareConsentStoreIamExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_healthcare_dataset" "dataset" {
   location = "us-central1"
   name     = "tf-test-my-dataset%{random_suffix}"

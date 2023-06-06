@@ -56,7 +56,7 @@ func TestAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyBasicExample(t *
 }
 
 func testAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_target_https_proxy" "default" {
   region           = "us-central1"
   name             = "tf-test-test-proxy%{random_suffix}"

@@ -55,7 +55,7 @@ func TestAccComputeTargetGrpcProxy_targetGrpcProxyBasicExample(t *testing.T) {
 }
 
 func testAccComputeTargetGrpcProxy_targetGrpcProxyBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_target_grpc_proxy" "default" {
   name    = "proxy%{random_suffix}"
   url_map = google_compute_url_map.urlmap.id

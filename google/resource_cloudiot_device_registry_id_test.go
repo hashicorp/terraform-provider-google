@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-provider-google/google/services/cloudiot"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
@@ -27,7 +28,7 @@ func TestValidateCloudIoTDeviceRegistryId(t *testing.T) {
 		{TestName: "too long", Value: strings.Repeat("f", 260), ExpectError: true},
 	}
 
-	es := verify.TestStringValidationCases(x, ValidateCloudIotDeviceRegistryID)
+	es := verify.TestStringValidationCases(x, cloudiot.ValidateCloudIotDeviceRegistryID)
 	if len(es) > 0 {
 		t.Errorf("Failed to validate CloudIoT ID names: %v", es)
 	}

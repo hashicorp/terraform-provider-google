@@ -56,7 +56,7 @@ func TestAccComputeNetworkEndpointGroup_networkEndpointGroupExample(t *testing.T
 }
 
 func testAccComputeNetworkEndpointGroup_networkEndpointGroupExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_network_endpoint_group" "neg" {
   name         = "tf-test-my-lb-neg%{random_suffix}"
   network      = google_compute_network.default.id
@@ -105,7 +105,7 @@ func TestAccComputeNetworkEndpointGroup_networkEndpointGroupNonGcpExample(t *tes
 }
 
 func testAccComputeNetworkEndpointGroup_networkEndpointGroupNonGcpExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_network_endpoint_group" "neg" {
   name                  = "tf-test-my-lb-neg%{random_suffix}"
   network               = google_compute_network.default.id

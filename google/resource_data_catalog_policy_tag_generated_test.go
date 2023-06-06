@@ -56,7 +56,7 @@ func TestAccDataCatalogPolicyTag_dataCatalogTaxonomiesPolicyTagBasicExample(t *t
 }
 
 func testAccDataCatalogPolicyTag_dataCatalogTaxonomiesPolicyTagBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_catalog_policy_tag" "basic_policy_tag" {
   taxonomy = google_data_catalog_taxonomy.my_taxonomy.id
   display_name = "Low security"
@@ -97,7 +97,7 @@ func TestAccDataCatalogPolicyTag_dataCatalogTaxonomiesPolicyTagChildPoliciesExam
 }
 
 func testAccDataCatalogPolicyTag_dataCatalogTaxonomiesPolicyTagChildPoliciesExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_catalog_policy_tag" "parent_policy" {
   taxonomy = google_data_catalog_taxonomy.my_taxonomy.id
   display_name = "High"

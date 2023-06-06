@@ -57,7 +57,7 @@ func TestAccBillingBudget_billingBudgetBasicExample(t *testing.T) {
 }
 
 func testAccBillingBudget_billingBudgetBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_billing_account" "account" {
   billing_account = "%{billing_acct}"
 }
@@ -105,7 +105,7 @@ func TestAccBillingBudget_billingBudgetLastperiodExample(t *testing.T) {
 }
 
 func testAccBillingBudget_billingBudgetLastperiodExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_billing_account" "account" {
   billing_account = "%{billing_acct}"
 }
@@ -162,7 +162,7 @@ func TestAccBillingBudget_billingBudgetFilterExample(t *testing.T) {
 }
 
 func testAccBillingBudget_billingBudgetFilterExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_billing_account" "account" {
   billing_account = "%{billing_acct}"
 }
@@ -226,7 +226,7 @@ func TestAccBillingBudget_billingBudgetNotifyExample(t *testing.T) {
 }
 
 func testAccBillingBudget_billingBudgetNotifyExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_billing_account" "account" {
   billing_account = "%{billing_acct}"
 }
@@ -303,7 +303,7 @@ func TestAccBillingBudget_billingBudgetCustomperiodExample(t *testing.T) {
 }
 
 func testAccBillingBudget_billingBudgetCustomperiodExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_billing_account" "account" {
   billing_account = "%{billing_acct}"
 }
@@ -378,7 +378,7 @@ func TestAccBillingBudget_billingBudgetOptionalExample(t *testing.T) {
 }
 
 func testAccBillingBudget_billingBudgetOptionalExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_billing_account" "account" {
   billing_account = "%{billing_acct}"
 }

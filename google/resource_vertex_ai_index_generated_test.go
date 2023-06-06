@@ -57,7 +57,7 @@ func TestAccVertexAIIndex_vertexAiIndexExample(t *testing.T) {
 }
 
 func testAccVertexAIIndex_vertexAiIndexExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "tf-test-vertex-ai-index-test%{random_suffix}"
   location = "us-central1"
@@ -128,7 +128,7 @@ func TestAccVertexAIIndex_vertexAiIndexStreamingExample(t *testing.T) {
 }
 
 func testAccVertexAIIndex_vertexAiIndexStreamingExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "tf-test-vertex-ai-index-test%{random_suffix}"
   location = "us-central1"

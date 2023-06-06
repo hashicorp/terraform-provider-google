@@ -56,7 +56,7 @@ func TestAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(t *testing.T
 }
 
 func testAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_project" "my_project" {
   name       = "tf-test-project"
   project_id = "tf-test-ae-project%{random_suffix}"

@@ -9,61 +9,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
-func TestDomainMappingLabelDiffSuppress(t *testing.T) {
-	cases := map[string]struct {
-		K, Old, New        string
-		ExpectDiffSuppress bool
-	}{
-		"missing run.googleapis.com/overrideAt": {
-			K:                  "metadata.0.labels.run.googleapis.com/overrideAt",
-			Old:                "2021-04-20T22:38:23.584Z",
-			New:                "",
-			ExpectDiffSuppress: true,
-		},
-		"explicit run.googleapis.com/overrideAt": {
-			K:                  "metadata.0.labels.run.googleapis.com/overrideAt",
-			Old:                "2021-04-20T22:38:23.584Z",
-			New:                "2022-04-20T22:38:23.584Z",
-			ExpectDiffSuppress: false,
-		},
-		"missing cloud.googleapis.com/location": {
-			K:                  "metadata.0.labels.cloud.googleapis.com/location",
-			Old:                "us-central1",
-			New:                "",
-			ExpectDiffSuppress: true,
-		},
-		"explicit cloud.googleapis.com/location": {
-			K:                  "metadata.0.labels.cloud.googleapis.com/location",
-			Old:                "us-central1",
-			New:                "us-central2",
-			ExpectDiffSuppress: false,
-		},
-		"labels.%": {
-			K:                  "metadata.0.labels.%",
-			Old:                "3",
-			New:                "1",
-			ExpectDiffSuppress: true,
-		},
-		"deleted custom key": {
-			K:                  "metadata.0.labels.my-label",
-			Old:                "my-value",
-			New:                "",
-			ExpectDiffSuppress: false,
-		},
-		"added custom key": {
-			K:                  "metadata.0.labels.my-label",
-			Old:                "",
-			New:                "my-value",
-			ExpectDiffSuppress: false,
-		},
-	}
-	for tn, tc := range cases {
-		if DomainMappingLabelDiffSuppress(tc.K, tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
-			t.Errorf("bad: %s, %q: %q => %q expect DiffSuppress to return %t", tn, tc.K, tc.Old, tc.New, tc.ExpectDiffSuppress)
-		}
-	}
-}
-
 // Destroy and recreate the mapping, testing that Terraform doesn't return a 409
 func TestAccCloudRunDomainMapping_foregroundDeletion(t *testing.T) {
 	t.Parallel()

@@ -56,7 +56,7 @@ func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeBas
 }
 
 func testAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
   location         = "US"
   data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"

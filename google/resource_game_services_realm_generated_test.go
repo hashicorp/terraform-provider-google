@@ -56,7 +56,7 @@ func TestAccGameServicesRealm_gameServiceRealmBasicExample(t *testing.T) {
 }
 
 func testAccGameServicesRealm_gameServiceRealmBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_game_services_realm" "default" {
   realm_id  = "tf-test-tf-test-realm%{random_suffix}"
   time_zone = "EST"

@@ -57,7 +57,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateConfigExample(t *testing.T)
 }
 
 func testAccPrivatecaCertificate_privatecaCertificateConfigExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   location = "us-central1"
   name = "tf-test-my-pool%{random_suffix}"
@@ -187,7 +187,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateWithTemplateExample(t *test
 }
 
 func testAccPrivatecaCertificate_privatecaCertificateWithTemplateExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   location = "us-central1"
   name = "tf-test-my-pool%{random_suffix}"
@@ -350,7 +350,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateCsrExample(t *testing.T) {
 }
 
 func testAccPrivatecaCertificate_privatecaCertificateCsrExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   location = "us-central1"
   name = "tf-test-my-pool%{random_suffix}"
@@ -437,7 +437,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateNoAuthorityExample(t *testi
 }
 
 func testAccPrivatecaCertificate_privatecaCertificateNoAuthorityExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   location = "us-central1"
   name = "tf-test-my-pool%{random_suffix}"

@@ -57,7 +57,7 @@ func TestAccSpannerInstance_spannerInstanceBasicExample(t *testing.T) {
 }
 
 func testAccSpannerInstance_spannerInstanceBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_spanner_instance" "example" {
   config       = "regional-us-central1"
   display_name = "Test Spanner Instance"
@@ -96,7 +96,7 @@ func TestAccSpannerInstance_spannerInstanceProcessingUnitsExample(t *testing.T) 
 }
 
 func testAccSpannerInstance_spannerInstanceProcessingUnitsExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_spanner_instance" "example" {
   config       = "regional-us-central1"
   display_name = "Test Spanner Instance"
@@ -135,7 +135,7 @@ func TestAccSpannerInstance_spannerInstanceMultiRegionalExample(t *testing.T) {
 }
 
 func testAccSpannerInstance_spannerInstanceMultiRegionalExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_spanner_instance" "example" {
   config       = "nam-eur-asia1"
   display_name = "Multi Regional Instance"

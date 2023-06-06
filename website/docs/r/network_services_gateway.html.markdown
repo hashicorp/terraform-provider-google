@@ -302,13 +302,13 @@ The following arguments are supported:
 
 * `network` -
   (Optional)
-  The relative resource name identifying the VPC network that is using this configuration. 
-  For example: `projects/*/global/networks/network-1`. 
+  The relative resource name identifying the VPC network that is using this configuration.
+  For example: `projects/*/global/networks/network-1`.
   Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY'.
 
 * `gateway_security_policy` -
   (Optional)
-  A fully-qualified GatewaySecurityPolicy URL reference. Defines how a server should apply security policy to inbound (VM to Proxy) initiated connections. 
+  A fully-qualified GatewaySecurityPolicy URL reference. Defines how a server should apply security policy to inbound (VM to Proxy) initiated connections.
   For example: `projects/*/locations/*/gatewaySecurityPolicies/swg-policy`.
   This policy is specific to gateways of type 'SECURE_WEB_GATEWAY'.
 
@@ -325,7 +325,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-* `delete_swg_autogen_router_on_destroy` - (Optional) When deleting a gateway of type 'SECURE_WEB_GATEWAY', this boolean option will also delete auto generated router by the gateway creation. 
+* `delete_swg_autogen_router_on_destroy` - (Optional) When deleting a gateway of type 'SECURE_WEB_GATEWAY', this boolean option will also delete auto generated router by the gateway creation.
 If there is no other gateway of type 'SECURE_WEB_GATEWAY' remaining for that region and network it will be deleted.
 
 

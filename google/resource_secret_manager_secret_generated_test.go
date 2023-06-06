@@ -56,7 +56,7 @@ func TestAccSecretManagerSecret_secretConfigBasicExample(t *testing.T) {
 }
 
 func testAccSecretManagerSecret_secretConfigBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
   secret_id = "secret%{random_suffix}"
   

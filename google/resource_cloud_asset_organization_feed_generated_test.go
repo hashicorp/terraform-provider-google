@@ -58,7 +58,7 @@ func TestAccCloudAssetOrganizationFeed_cloudAssetOrganizationFeedExample(t *test
 }
 
 func testAccCloudAssetOrganizationFeed_cloudAssetOrganizationFeedExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 # Create a feed that sends notifications about network resource updates under a
 # particular organization.
 resource "google_cloud_asset_organization_feed" "organization_feed" {

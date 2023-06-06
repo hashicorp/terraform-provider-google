@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 func TestAccApigeeSyncAuthorization_apigeeSyncAuthorizationBasicTestExample(t *testing.T) {
@@ -52,7 +53,7 @@ func TestAccApigeeSyncAuthorization_apigeeSyncAuthorizationBasicTestExample(t *t
 }
 
 func testAccApigeeSyncAuthorization_apigeeSyncAuthorizationBasicTestExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test-my-project%{random_suffix}"
   name            = "tf-test-my-project%{random_suffix}"

@@ -55,7 +55,7 @@ func TestAccComputeManagedSslCertificate_managedSslCertificateBasicExample(t *te
 }
 
 func testAccComputeManagedSslCertificate_managedSslCertificateBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_managed_ssl_certificate" "default" {
   name = "tf-test-test-cert%{random_suffix}"
 
@@ -146,7 +146,7 @@ func TestAccComputeManagedSslCertificate_managedSslCertificateRecreationExample(
 }
 
 func testAccComputeManagedSslCertificate_managedSslCertificateRecreationExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 // This example allows the list of managed domains to be modified and will
 // recreate the ssl certificate and update the target https proxy correctly
 

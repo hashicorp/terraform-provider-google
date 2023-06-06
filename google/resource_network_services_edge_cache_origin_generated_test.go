@@ -56,7 +56,7 @@ func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginBasicEx
 }
 
 func testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_network_services_edge_cache_origin" "default" {
   name                 = "tf-test-my-origin%{random_suffix}"
   origin_address       = "gs://media-edge-default"
@@ -91,7 +91,7 @@ func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginAdvance
 }
 
 func testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginAdvancedExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_network_services_edge_cache_origin" "fallback" {
   name                 = "tf-test-my-fallback%{random_suffix}"
   origin_address       = "fallback.example.com"
@@ -178,7 +178,7 @@ func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginV4authE
 }
 
 func testAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginV4authExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
   secret_id = "tf-test-secret-name%{random_suffix}"
 

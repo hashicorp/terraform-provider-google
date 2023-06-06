@@ -8,10 +8,11 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/pubsub"
 )
 
 func TestAccPubsubSubscriptionIamBinding(t *testing.T) {
@@ -42,7 +43,7 @@ func TestAccPubsubSubscriptionIamBinding(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_subscription_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s roles/pubsub.subscriber", getComputedSubscriptionName(acctest.GetTestProjectFromEnv(), subscription)),
+				ImportStateId:     fmt.Sprintf("%s roles/pubsub.subscriber", pubsub.GetComputedSubscriptionName(acctest.GetTestProjectFromEnv(), subscription)),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -71,7 +72,7 @@ func TestAccPubsubSubscriptionIamMember(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_subscription_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("%s roles/pubsub.subscriber serviceAccount:%s", getComputedSubscriptionName(acctest.GetTestProjectFromEnv(), subscription), accountEmail),
+				ImportStateId:     fmt.Sprintf("%s roles/pubsub.subscriber serviceAccount:%s", pubsub.GetComputedSubscriptionName(acctest.GetTestProjectFromEnv(), subscription), accountEmail),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -107,7 +108,7 @@ func TestAccPubsubSubscriptionIamPolicy(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_subscription_iam_policy.foo",
-				ImportStateId:     getComputedSubscriptionName(acctest.GetTestProjectFromEnv(), subscription),
+				ImportStateId:     pubsub.GetComputedSubscriptionName(acctest.GetTestProjectFromEnv(), subscription),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -118,7 +119,7 @@ func TestAccPubsubSubscriptionIamPolicy(t *testing.T) {
 func testAccCheckPubsubSubscriptionIam(t *testing.T, subscription, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := GoogleProviderConfig(t)
-		p, err := config.NewPubsubClient(config.UserAgent).Projects.Subscriptions.GetIamPolicy(getComputedSubscriptionName(acctest.GetTestProjectFromEnv(), subscription)).Do()
+		p, err := config.NewPubsubClient(config.UserAgent).Projects.Subscriptions.GetIamPolicy(pubsub.GetComputedSubscriptionName(acctest.GetTestProjectFromEnv(), subscription)).Do()
 		if err != nil {
 			return err
 		}

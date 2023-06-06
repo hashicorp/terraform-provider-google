@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/pubsub"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -33,7 +34,7 @@ func TestAccPubsubTopicIamBinding(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_topic_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s roles/pubsub.publisher", getComputedTopicName(acctest.GetTestProjectFromEnv(), topic)),
+				ImportStateId:     fmt.Sprintf("%s roles/pubsub.publisher", pubsub.GetComputedTopicName(acctest.GetTestProjectFromEnv(), topic)),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -47,7 +48,7 @@ func TestAccPubsubTopicIamBinding(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_topic_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s roles/pubsub.publisher", getComputedTopicName(acctest.GetTestProjectFromEnv(), topic)),
+				ImportStateId:     fmt.Sprintf("%s roles/pubsub.publisher", pubsub.GetComputedTopicName(acctest.GetTestProjectFromEnv(), topic)),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -97,7 +98,7 @@ func TestAccPubsubTopicIamMember(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_topic_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("%s roles/pubsub.publisher serviceAccount:%s", getComputedTopicName(acctest.GetTestProjectFromEnv(), topic), accountEmail),
+				ImportStateId:     fmt.Sprintf("%s roles/pubsub.publisher serviceAccount:%s", pubsub.GetComputedTopicName(acctest.GetTestProjectFromEnv(), topic), accountEmail),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -129,7 +130,7 @@ func TestAccPubsubTopicIamPolicy(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_pubsub_topic_iam_policy.foo",
-				ImportStateId:     getComputedTopicName(acctest.GetTestProjectFromEnv(), topic),
+				ImportStateId:     pubsub.GetComputedTopicName(acctest.GetTestProjectFromEnv(), topic),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -140,7 +141,7 @@ func TestAccPubsubTopicIamPolicy(t *testing.T) {
 func testAccCheckPubsubTopicIam(t *testing.T, topic, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := GoogleProviderConfig(t)
-		p, err := config.NewPubsubClient(config.UserAgent).Projects.Topics.GetIamPolicy(getComputedTopicName(acctest.GetTestProjectFromEnv(), topic)).Do()
+		p, err := config.NewPubsubClient(config.UserAgent).Projects.Topics.GetIamPolicy(pubsub.GetComputedTopicName(acctest.GetTestProjectFromEnv(), topic)).Do()
 		if err != nil {
 			return err
 		}

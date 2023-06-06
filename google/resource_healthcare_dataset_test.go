@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/healthcare"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -50,7 +51,7 @@ func TestAccHealthcareDatasetIdParsing(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		datasetId, err := ParseHealthcareDatasetId(tc.ImportId, tc.Config)
+		datasetId, err := healthcare.ParseHealthcareDatasetId(tc.ImportId, tc.Config)
 
 		if tc.ExpectedError && err == nil {
 			t.Fatalf("bad: %s, expected an error", tn)

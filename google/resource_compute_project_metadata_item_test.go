@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -161,7 +162,7 @@ func testAccCheckProjectMetadataItemDestroyProducer(t *testing.T) func(s *terraf
 			return err
 		}
 
-		metadata := flattenMetadata(project.CommonInstanceMetadata)
+		metadata := tpgcompute.FlattenMetadata(project.CommonInstanceMetadata)
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_project_metadata_item" {

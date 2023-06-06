@@ -56,7 +56,7 @@ func TestAccComputeTargetHttpsProxy_targetHttpsProxyBasicExample(t *testing.T) {
 }
 
 func testAccComputeTargetHttpsProxy_targetHttpsProxyBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_target_https_proxy" "default" {
   name             = "tf-test-test-proxy%{random_suffix}"
   url_map          = google_compute_url_map.default.id

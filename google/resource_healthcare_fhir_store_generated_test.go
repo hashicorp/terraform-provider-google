@@ -56,7 +56,7 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreBasicExample(t *testing.T) {
 }
 
 func testAccHealthcareFhirStore_healthcareFhirStoreBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_healthcare_fhir_store" "default" {
   name    = "tf-test-example-fhir-store%{random_suffix}"
   dataset = google_healthcare_dataset.dataset.id
@@ -114,7 +114,7 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreStreamingConfigExample(t *tes
 }
 
 func testAccHealthcareFhirStore_healthcareFhirStoreStreamingConfigExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_healthcare_fhir_store" "default" {
   name    = "tf-test-example-fhir-store%{random_suffix}"
   dataset = google_healthcare_dataset.dataset.id
@@ -185,7 +185,7 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreNotificationConfigExample(t *
 }
 
 func testAccHealthcareFhirStore_healthcareFhirStoreNotificationConfigExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_healthcare_fhir_store" "default" {
   name    = "tf-test-example-fhir-store%{random_suffix}"
   dataset = google_healthcare_dataset.dataset.id

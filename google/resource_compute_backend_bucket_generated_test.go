@@ -55,7 +55,7 @@ func TestAccComputeBackendBucket_backendBucketBasicExample(t *testing.T) {
 }
 
 func testAccComputeBackendBucket_backendBucketBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_backend_bucket" "image_backend" {
   name        = "tf-test-image-backend-bucket%{random_suffix}"
   description = "Contains beautiful images"
@@ -95,7 +95,7 @@ func TestAccComputeBackendBucket_backendBucketFullExample(t *testing.T) {
 }
 
 func testAccComputeBackendBucket_backendBucketFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_backend_bucket" "image_backend_full" {
   name        = "tf-test-image-backend-bucket-full%{random_suffix}"
   description = "Contains beautiful beta mages"
@@ -146,7 +146,7 @@ func TestAccComputeBackendBucket_backendBucketSecurityPolicyExample(t *testing.T
 }
 
 func testAccComputeBackendBucket_backendBucketSecurityPolicyExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_backend_bucket" "image_backend" {
   name        = "tf-test-image-backend-bucket%{random_suffix}"
   description = "Contains beautiful images"
@@ -193,7 +193,7 @@ func TestAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(t *tes
 }
 
 func testAccComputeBackendBucket_backendBucketQueryStringWhitelistExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_backend_bucket" "image_backend" {
   name        = "tf-test-image-backend-bucket%{random_suffix}"
   description = "Contains beautiful images"
@@ -238,7 +238,7 @@ func TestAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(t *testi
 }
 
 func testAccComputeBackendBucket_backendBucketIncludeHttpHeadersExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_backend_bucket" "image_backend" {
   name        = "tf-test-image-backend-bucket%{random_suffix}"
   description = "Contains beautiful images"
@@ -283,7 +283,7 @@ func TestAccComputeBackendBucket_externalCdnLbWithBackendBucketExample(t *testin
 }
 
 func testAccComputeBackendBucket_externalCdnLbWithBackendBucketExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 # CDN load balancer with Cloud bucket as backend
 
 # Cloud Storage bucket
@@ -413,7 +413,7 @@ func TestAccComputeBackendBucket_backendBucketBypassCacheExample(t *testing.T) {
 }
 
 func testAccComputeBackendBucket_backendBucketBypassCacheExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_backend_bucket" "image_backend" {
   name        = "tf-test-image-backend-bucket%{random_suffix}"
   description = "Contains beautiful images"
@@ -458,7 +458,7 @@ func TestAccComputeBackendBucket_backendBucketCoalescingExample(t *testing.T) {
 }
 
 func testAccComputeBackendBucket_backendBucketCoalescingExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_backend_bucket" "image_backend" {
   name        = "tf-test-image-backend-bucket%{random_suffix}"
   description = "Contains beautiful images"

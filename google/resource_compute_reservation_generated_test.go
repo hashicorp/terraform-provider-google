@@ -56,7 +56,7 @@ func TestAccComputeReservation_reservationBasicExample(t *testing.T) {
 }
 
 func testAccComputeReservation_reservationBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_reservation" "gce_reservation" {
   name = "tf-test-gce-reservation%{random_suffix}"
   zone = "us-central1-a"
@@ -102,7 +102,7 @@ func TestAccComputeReservation_sharedReservationBasicExample(t *testing.T) {
 }
 
 func testAccComputeReservation_sharedReservationBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_project" "owner_project" {
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"

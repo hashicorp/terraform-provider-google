@@ -56,7 +56,7 @@ func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 }
 
 func testAccComputeRegionDisk_regionDiskBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_disk" "regiondisk" {
   name                      = "tf-test-my-region-disk%{random_suffix}"
   snapshot                  = google_compute_snapshot.snapdisk.id
@@ -109,7 +109,7 @@ func TestAccComputeRegionDisk_regionDiskFeaturesExample(t *testing.T) {
 }
 
 func testAccComputeRegionDisk_regionDiskFeaturesExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_disk" "regiondisk" {
   name                      = "tf-test-my-region-features-disk%{random_suffix}"
   type                      = "pd-ssd"

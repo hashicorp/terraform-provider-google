@@ -569,7 +569,7 @@ func resourceDataflowJobSetupEnv(d *schema.ResourceData, config *transport_tpg.C
 
 	labels := tpgresource.ExpandStringMap(d, "labels")
 
-	additionalExperiments := convertStringSet(d.Get("additional_experiments").(*schema.Set))
+	additionalExperiments := tpgresource.ConvertStringSet(d.Get("additional_experiments").(*schema.Set))
 
 	env := dataflow.RuntimeEnvironment{
 		MaxWorkers:            int64(d.Get("max_workers").(int)),

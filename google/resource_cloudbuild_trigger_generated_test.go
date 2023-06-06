@@ -56,7 +56,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerFilenameExample(t *testing.T) {
 }
 
 func testAccCloudBuildTrigger_cloudbuildTriggerFilenameExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_cloudbuild_trigger" "filename-trigger" {
   location = "us-central1"
 
@@ -101,7 +101,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerBuildExample(t *testing.T) {
 }
 
 func testAccCloudBuildTrigger_cloudbuildTriggerBuildExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_cloudbuild_trigger" "build-trigger" {
   location = "global"
 
@@ -203,7 +203,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerServiceAccountExample(t *testing.
 }
 
 func testAccCloudBuildTrigger_cloudbuildTriggerServiceAccountExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_project" "project" {}
 
 resource "google_cloudbuild_trigger" "service-account-trigger" {
@@ -264,7 +264,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerPubsubConfigExample(t *testing.T)
 }
 
 func testAccCloudBuildTrigger_cloudbuildTriggerPubsubConfigExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 
 resource "google_pubsub_topic" "mytopic" {
   name = "mytopic"
@@ -327,7 +327,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerWebhookConfigExample(t *testing.T
 }
 
 func testAccCloudBuildTrigger_cloudbuildTriggerWebhookConfigExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 
 resource "google_secret_manager_secret" "webhook_trigger_secret_key" {
   secret_id = "webhook_trigger-secret-key-1"
@@ -415,7 +415,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerManualExample(t *testing.T) {
 }
 
 func testAccCloudBuildTrigger_cloudbuildTriggerManualExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 
 resource "google_cloudbuild_trigger" "manual-trigger" {
   name        = "manual-build"
@@ -471,7 +471,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerBitbucketServerPushExample(t *tes
 }
 
 func testAccCloudBuildTrigger_cloudbuildTriggerBitbucketServerPushExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_cloudbuild_trigger" "bbs-push-trigger" {
   name        = "terraform-bbs-push-trigger"
   location    = "us-central1"
@@ -517,7 +517,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerBitbucketServerPullRequestExample
 }
 
 func testAccCloudBuildTrigger_cloudbuildTriggerBitbucketServerPullRequestExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_cloudbuild_trigger" "bbs-pull-request-trigger" {
   name        = "terraform-bbs-pull-request-trigger"
   location    = "us-central1"
@@ -564,7 +564,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerAllowFailureExample(t *testing.T)
 }
 
 func testAccCloudBuildTrigger_cloudbuildTriggerAllowFailureExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_cloudbuild_trigger" "allow-failure-trigger" {
   location = "global"
 
@@ -660,7 +660,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerAllowExitCodesExample(t *testing.
 }
 
 func testAccCloudBuildTrigger_cloudbuildTriggerAllowExitCodesExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_cloudbuild_trigger" "allow-exit-codes-trigger" {
   location = "global"
 

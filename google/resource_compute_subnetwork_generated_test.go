@@ -56,7 +56,7 @@ func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
 }
 
 func testAccComputeSubnetwork_subnetworkBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
   name          = "tf-test-test-subnetwork%{random_suffix}"
   ip_cidr_range = "10.2.0.0/16"
@@ -101,7 +101,7 @@ func TestAccComputeSubnetwork_subnetworkLoggingConfigExample(t *testing.T) {
 }
 
 func testAccComputeSubnetwork_subnetworkLoggingConfigExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_subnetwork" "subnet-with-logging" {
   name          = "tf-test-log-test-subnetwork%{random_suffix}"
   ip_cidr_range = "10.2.0.0/16"
@@ -148,7 +148,7 @@ func TestAccComputeSubnetwork_subnetworkIpv6Example(t *testing.T) {
 }
 
 func testAccComputeSubnetwork_subnetworkIpv6Example(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_subnetwork" "subnetwork-ipv6" {
   name          = "tf-test-ipv6-test-subnetwork%{random_suffix}"
   
@@ -194,7 +194,7 @@ func TestAccComputeSubnetwork_subnetworkInternalIpv6Example(t *testing.T) {
 }
 
 func testAccComputeSubnetwork_subnetworkInternalIpv6Example(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_subnetwork" "subnetwork-internal-ipv6" {
   name          = "tf-test-internal-ipv6-test-subnetwork%{random_suffix}"
   

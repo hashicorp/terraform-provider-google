@@ -57,7 +57,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanBasicExample(t *testing.T) {
 }
 
 func testAccGKEBackupBackupPlan_gkebackupBackupplanBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "tf-test-basic-cluster%{random_suffix}"
   location           = "us-central1"
@@ -111,7 +111,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanAutopilotExample(t *testing.T
 }
 
 func testAccGKEBackupBackupPlan_gkebackupBackupplanAutopilotExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "tf-test-autopilot-cluster%{random_suffix}"
   location           = "us-central1"
@@ -168,7 +168,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanCmekExample(t *testing.T) {
 }
 
 func testAccGKEBackupBackupPlan_gkebackupBackupplanCmekExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "tf-test-cmek-cluster%{random_suffix}"
   location           = "us-central1"
@@ -238,7 +238,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanFullExample(t *testing.T) {
 }
 
 func testAccGKEBackupBackupPlan_gkebackupBackupplanFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "tf-test-full-cluster%{random_suffix}"
   location           = "us-central1"

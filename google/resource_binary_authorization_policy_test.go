@@ -4,12 +4,14 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"reflect"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/binaryauthorization"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -177,7 +179,7 @@ func testAccCheckBinaryAuthorizationPolicyDefault(t *testing.T, pid string) reso
 		delete(pol, "updateTime")
 		delete(pol, "etag")
 
-		defaultPol := DefaultBinaryAuthorizationPolicy(pid)
+		defaultPol := binaryauthorization.DefaultBinaryAuthorizationPolicy(pid)
 		if !reflect.DeepEqual(pol, defaultPol) {
 			return fmt.Errorf("Policy for project %s was %v, expected default policy %v", pid, pol, defaultPol)
 		}

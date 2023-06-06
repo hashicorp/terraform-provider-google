@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/healthcare"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -21,7 +22,7 @@ func TestAccHealthcareDicomStoreIamBinding(t *testing.T) {
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/healthcare.dicomStoreAdmin"
 	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	datasetId := &HealthcareDatasetId{
+	datasetId := &healthcare.HealthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
@@ -70,7 +71,7 @@ func TestAccHealthcareDicomStoreIamMember(t *testing.T) {
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/healthcare.dicomEditor"
 	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	datasetId := &HealthcareDatasetId{
+	datasetId := &healthcare.HealthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
@@ -105,7 +106,7 @@ func TestAccHealthcareDicomStoreIamPolicy(t *testing.T) {
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/healthcare.dicomViewer"
 	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	datasetId := &HealthcareDatasetId{
+	datasetId := &healthcare.HealthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
@@ -144,7 +145,7 @@ func testAccCheckGoogleHealthcareDicomStoreIamBindingExists(t *testing.T, bindin
 		}
 
 		config := GoogleProviderConfig(t)
-		dicomStoreId, err := ParseHealthcareDicomStoreId(bindingRs.Primary.Attributes["dicom_store_id"], config)
+		dicomStoreId, err := healthcare.ParseHealthcareDicomStoreId(bindingRs.Primary.Attributes["dicom_store_id"], config)
 
 		if err != nil {
 			return err
@@ -180,7 +181,7 @@ func testAccCheckGoogleHealthcareDicomStoreIamMemberExists(t *testing.T, n, role
 		}
 
 		config := GoogleProviderConfig(t)
-		dicomStoreId, err := ParseHealthcareDicomStoreId(rs.Primary.Attributes["dicom_store_id"], config)
+		dicomStoreId, err := healthcare.ParseHealthcareDicomStoreId(rs.Primary.Attributes["dicom_store_id"], config)
 
 		if err != nil {
 			return err
@@ -215,7 +216,7 @@ func testAccCheckGoogleHealthcareDicomStoreIamPolicyExists(t *testing.T, n, role
 		}
 
 		config := GoogleProviderConfig(t)
-		dicomStoreId, err := ParseHealthcareDicomStoreId(rs.Primary.Attributes["dicom_store_id"], config)
+		dicomStoreId, err := healthcare.ParseHealthcareDicomStoreId(rs.Primary.Attributes["dicom_store_id"], config)
 
 		if err != nil {
 			return err

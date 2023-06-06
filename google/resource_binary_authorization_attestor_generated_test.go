@@ -55,7 +55,7 @@ func TestAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(
 }
 
 func testAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
   name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {

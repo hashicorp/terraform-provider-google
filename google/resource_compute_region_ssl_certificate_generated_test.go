@@ -57,7 +57,7 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateBasicExample(t *test
 }
 
 func testAccComputeRegionSslCertificate_regionSslCertificateBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_ssl_certificate" "default" {
   region      = "us-central1"
   name_prefix = "my-certificate-"
@@ -103,7 +103,7 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateRandomProviderExampl
 }
 
 func testAccComputeRegionSslCertificate_regionSslCertificateRandomProviderExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 # You may also want to control name generation explicitly:
 resource "google_compute_region_ssl_certificate" "default" {
   region   = "us-central1"
@@ -159,7 +159,7 @@ func TestAccComputeRegionSslCertificate_regionSslCertificateTargetHttpsProxiesEx
 }
 
 func testAccComputeRegionSslCertificate_regionSslCertificateTargetHttpsProxiesExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 // Using with Region Target HTTPS Proxies
 //
 // SSL certificates cannot be updated after creation. In order to apply

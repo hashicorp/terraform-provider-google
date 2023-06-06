@@ -56,7 +56,7 @@ func TestAccTPUNode_tpuNodeBasicExample(t *testing.T) {
 }
 
 func testAccTPUNode_tpuNodeBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 
 data "google_tpu_tensorflow_versions" "available" {
 }
@@ -98,7 +98,7 @@ func TestAccTPUNode_tpuNodeFullExample(t *testing.T) {
 }
 
 func testAccTPUNode_tpuNodeFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_tpu_tensorflow_versions" "available" {
 }
 

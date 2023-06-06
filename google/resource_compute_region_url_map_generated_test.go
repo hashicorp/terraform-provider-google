@@ -56,7 +56,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapBasicExample(t *testing.T) {
 }
 
 func testAccComputeRegionUrlMap_regionUrlMapBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_url_map" "regionurlmap" {
   region = "us-central1"
 
@@ -154,7 +154,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapDefaultRouteActionExample(t *testing
 }
 
 func testAccComputeRegionUrlMap_regionUrlMapDefaultRouteActionExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_url_map" "regionurlmap" {
   region = "us-central1"
 
@@ -353,7 +353,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathExample(t *testing.T) {
 }
 
 func testAccComputeRegionUrlMap_regionUrlMapL7IlbPathExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_url_map" "regionurlmap" {
   name        = "regionurlmap%{random_suffix}"
   description = "a description"
@@ -484,7 +484,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathPartialExample(t *testing.T
 }
 
 func testAccComputeRegionUrlMap_regionUrlMapL7IlbPathPartialExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_url_map" "regionurlmap" {
   name        = "regionurlmap%{random_suffix}"
   description = "a description"
@@ -583,7 +583,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRouteExample(t *testing.T) {
 }
 
 func testAccComputeRegionUrlMap_regionUrlMapL7IlbRouteExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_url_map" "regionurlmap" {
   name            = "regionurlmap%{random_suffix}"
   description     = "a description"
@@ -695,7 +695,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRoutePartialExample(t *testing.
 }
 
 func testAccComputeRegionUrlMap_regionUrlMapL7IlbRoutePartialExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_url_map" "regionurlmap" {
   name        = "regionurlmap%{random_suffix}"
   description = "a description"

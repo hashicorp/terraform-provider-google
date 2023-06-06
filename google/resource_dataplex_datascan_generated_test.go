@@ -57,7 +57,7 @@ func TestAccDataplexDatascan_dataplexDatascanBasicProfileExample(t *testing.T) {
 }
 
 func testAccDataplexDatascan_dataplexDatascanBasicProfileExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_dataplex_datascan" "basic_profile" {
   location     = "us-central1"
   data_scan_id = "tf-test-datascan%{random_suffix}"
@@ -107,7 +107,7 @@ func TestAccDataplexDatascan_dataplexDatascanFullProfileExample(t *testing.T) {
 }
 
 func testAccDataplexDatascan_dataplexDatascanFullProfileExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_dataplex_datascan" "full_profile" {
   location     = "us-central1"
   display_name = "Full Datascan Profile"
@@ -166,7 +166,7 @@ func TestAccDataplexDatascan_dataplexDatascanBasicQualityExample(t *testing.T) {
 }
 
 func testAccDataplexDatascan_dataplexDatascanBasicQualityExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_dataplex_datascan" "basic_quality" {
   location     = "us-central1"
   data_scan_id = "tf-test-datascan%{random_suffix}"
@@ -222,7 +222,7 @@ func TestAccDataplexDatascan_dataplexDatascanFullQualityExample(t *testing.T) {
 }
 
 func testAccDataplexDatascan_dataplexDatascanFullQualityExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_dataplex_datascan" "full_quality" {
   location = "us-central1"
   display_name = "Full Datascan Quality"

@@ -56,7 +56,7 @@ func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
 }
 
 func testAccComputeFirewall_firewallBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_firewall" "default" {
   name    = "tf-test-test-firewall%{random_suffix}"
   network = google_compute_network.default.name
@@ -106,7 +106,7 @@ func TestAccComputeFirewall_firewallWithTargetTagsExample(t *testing.T) {
 }
 
 func testAccComputeFirewall_firewallWithTargetTagsExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_firewall" "rules" {
   project     = "%{project}"
   name        = "tf-test-my-firewall-rule%{random_suffix}"

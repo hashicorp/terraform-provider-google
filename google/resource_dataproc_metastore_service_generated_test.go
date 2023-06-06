@@ -56,7 +56,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceBasicExample(t *tes
 }
 
 func testAccDataprocMetastoreService_dataprocMetastoreServiceBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_dataproc_metastore_service" "default" {
   service_id = "tf-test-metastore-srv%{random_suffix}"
   location   = "us-central1"
@@ -101,7 +101,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceCmekTestExample(t *
 }
 
 func testAccDataprocMetastoreService_dataprocMetastoreServiceCmekTestExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_project" "project" {}
 
 data "google_storage_project_service_account" "gcs_account" {}
@@ -172,7 +172,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceTelemetryExample(t 
 }
 
 func testAccDataprocMetastoreService_dataprocMetastoreServiceTelemetryExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_dataproc_metastore_service" "telemetry" {
   service_id = "telemetry%{random_suffix}"
   location   = "us-central1"

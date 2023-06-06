@@ -55,7 +55,7 @@ func TestAccMonitoringGroup_monitoringGroupBasicExample(t *testing.T) {
 }
 
 func testAccMonitoringGroup_monitoringGroupBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_monitoring_group" "basic" {
   display_name = "tf-test MonitoringGroup%{random_suffix}"
 
@@ -89,7 +89,7 @@ func TestAccMonitoringGroup_monitoringGroupSubgroupExample(t *testing.T) {
 }
 
 func testAccMonitoringGroup_monitoringGroupSubgroupExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_monitoring_group" "parent" {
   display_name = "tf-test MonitoringParentGroup%{random_suffix}"
   filter       = "resource.metadata.region=\"europe-west2\""
