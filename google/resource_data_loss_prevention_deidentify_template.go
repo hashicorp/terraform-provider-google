@@ -2826,6 +2826,15 @@ This argument is mandatory, except for conditions using the 'EXISTS' operator.`,
 				Optional:    true,
 				Description: `User set display name of the template.`,
 			},
+			"template_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The template id can contain uppercase and lowercase letters, numbers, and hyphens;
+that is, it must match the regular expression: [a-zA-Z\d-_]+. The maximum length is
+100 characters. Can be empty to allow the system to generate one.`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -2949,6 +2958,18 @@ func resourceDataLossPreventionDeidentifyTemplateRead(d *schema.ResourceData, me
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DataLossPreventionDeidentifyTemplate %q", d.Id()))
 	}
 
+	res, err = resourceDataLossPreventionDeidentifyTemplateDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing DataLossPreventionDeidentifyTemplate because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	if err := d.Set("name", flattenDataLossPreventionDeidentifyTemplateName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DeidentifyTemplate: %s", err)
 	}
@@ -3000,7 +3021,7 @@ func resourceDataLossPreventionDeidentifyTemplateUpdate(d *schema.ResourceData, 
 		obj["deidentifyConfig"] = deidentifyConfigProp
 	}
 
-	obj, err = resourceDataLossPreventionDeidentifyTemplateEncoder(d, meta, obj)
+	obj, err = resourceDataLossPreventionDeidentifyTemplateUpdateEncoder(d, meta, obj)
 	if err != nil {
 		return err
 	}
@@ -12693,5 +12714,23 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformat
 func resourceDataLossPreventionDeidentifyTemplateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	newObj := make(map[string]interface{})
 	newObj["deidentifyTemplate"] = obj
+	templateIdProp, ok := d.GetOk("template_id")
+	if ok && templateIdProp != nil {
+		newObj["templateId"] = templateIdProp
+	}
 	return newObj, nil
+}
+
+func resourceDataLossPreventionDeidentifyTemplateUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	newObj := make(map[string]interface{})
+	newObj["deidentifyTemplate"] = obj
+	return newObj, nil
+}
+
+func resourceDataLossPreventionDeidentifyTemplateDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("template_id", flattenDataLossPreventionDeidentifyTemplateName(res["name"], d, config)); err != nil {
+		return nil, fmt.Errorf("Error reading DeidentifyTemplate: %s", err)
+	}
+	return res, nil
 }

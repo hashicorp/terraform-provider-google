@@ -50,7 +50,7 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateBasicExample(t *
 				ResourceName:            "google_data_loss_prevention_inspect_template.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"template_id", "parent"},
 			},
 		},
 	})
@@ -185,7 +185,7 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeExampl
 				ResourceName:            "google_data_loss_prevention_inspect_template.custom",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"template_id", "parent"},
 			},
 		},
 	})
@@ -278,7 +278,7 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeSurrog
 				ResourceName:            "google_data_loss_prevention_inspect_template.custom_type_surrogate",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"template_id", "parent"},
 			},
 		},
 	})
@@ -343,6 +343,84 @@ resource "google_data_loss_prevention_inspect_template" "custom_type_surrogate" 
     limits {
       max_findings_per_item    = 10
       max_findings_per_request = 50
+    }
+  }
+}
+`, context)
+}
+
+func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateWithTemplateIdExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       acctest.GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionInspectTemplate_dlpInspectTemplateWithTemplateIdExample(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_inspect_template.with_template_id",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"template_id", "parent"},
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionInspectTemplate_dlpInspectTemplateWithTemplateIdExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_inspect_template" "with_template_id" {
+  parent = "projects/%{project}"
+  template_id = "tf-test-my-template%{random_suffix}"
+
+  inspect_config {
+    info_types {
+      name = "EMAIL_ADDRESS"
+    }
+    info_types {
+      name = "PERSON_NAME"
+    }
+
+    min_likelihood = "UNLIKELY"
+    rule_set {
+      info_types {
+        name = "EMAIL_ADDRESS"
+      }
+      rules {
+        exclusion_rule {
+          regex {
+            pattern = ".+@example.com"
+          }
+          matching_type = "MATCHING_TYPE_FULL_MATCH"
+        }
+      }
+    }
+
+    rule_set {
+      info_types {
+        name = "PERSON_NAME"
+      }
+      rules {
+        hotword_rule {
+          hotword_regex {
+            pattern = "patient"
+          }
+          proximity {
+            window_before = 50
+          }
+          likelihood_adjustment {
+            fixed_likelihood = "VERY_LIKELY"
+          }
+        }
+      }
     }
   }
 }
