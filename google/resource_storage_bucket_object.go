@@ -8,7 +8,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -173,7 +172,7 @@ func ResourceStorageBucketObject() *schema.Resource {
 				ForceNew:         true,
 				Computed:         true,
 				ConflictsWith:    []string{"customer_encryption"},
-				DiffSuppressFunc: compareCryptoKeyVersions,
+				DiffSuppressFunc: tpgresource.CompareCryptoKeyVersions,
 				Description:      `Resource name of the Cloud KMS key that will be used to encrypt the object. Overrides the object metadata's kmsKeyName value, if any.`,
 			},
 
@@ -258,18 +257,6 @@ func objectGetID(object *storage.Object) string {
 	return object.Bucket + "-" + object.Name
 }
 
-func compareCryptoKeyVersions(_, old, new string, _ *schema.ResourceData) bool {
-	// The API can return cryptoKeyVersions even though it wasn't specified.
-	// format: projects/<project>/locations/<region>/keyRings/<keyring>/cryptoKeys/<key>/cryptoKeyVersions/1
-
-	kmsKeyWithoutVersions := strings.Split(old, "/cryptoKeyVersions")[0]
-	if kmsKeyWithoutVersions == new {
-		return true
-	}
-
-	return false
-}
-
 func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -317,7 +304,7 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	if v, ok := d.GetOk("metadata"); ok {
-		object.Metadata = convertStringMap(v.(map[string]interface{}))
+		object.Metadata = tpgresource.ConvertStringMap(v.(map[string]interface{}))
 	}
 
 	if v, ok := d.GetOk("storage_class"); ok {

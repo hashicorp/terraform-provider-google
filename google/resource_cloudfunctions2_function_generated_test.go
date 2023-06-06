@@ -59,7 +59,7 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicExample(t *testing.T) {
 }
 
 func testAccCloudfunctions2function_cloudfunctions2BasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 # [START functions_v2_basic]
 locals {
   project = "%{project}" # Google Cloud Platform Project ID
@@ -137,7 +137,7 @@ func TestAccCloudfunctions2function_cloudfunctions2FullExample(t *testing.T) {
 }
 
 func testAccCloudfunctions2function_cloudfunctions2FullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 # [START functions_v2_full]
 locals {
   project = "%{project}" # Google Cloud Platform Project ID
@@ -239,7 +239,7 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicGcsExample(t *testing.T)
 }
 
 func testAccCloudfunctions2function_cloudfunctions2BasicGcsExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 # [START functions_v2_basic_gcs]
 
 resource "google_storage_bucket" "source-bucket" {
@@ -379,7 +379,7 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicAuditlogsExample(t *test
 }
 
 func testAccCloudfunctions2function_cloudfunctions2BasicAuditlogsExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 # [START functions_v2_basic_auditlogs]
 # This example follows the examples shown in this Google Cloud Community blog post
 # https://medium.com/google-cloud/applying-a-path-pattern-when-filtering-in-eventarc-f06b937b4c34
@@ -523,7 +523,7 @@ func TestAccCloudfunctions2function_cloudfunctions2SecretEnvExample(t *testing.T
 }
 
 func testAccCloudfunctions2function_cloudfunctions2SecretEnvExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 locals {
   project = "%{project}" # Google Cloud Platform Project ID
 }
@@ -622,7 +622,7 @@ func TestAccCloudfunctions2function_cloudfunctions2SecretVolumeExample(t *testin
 }
 
 func testAccCloudfunctions2function_cloudfunctions2SecretVolumeExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 locals {
   project = "%{project}" # Google Cloud Platform Project ID
 }
@@ -719,7 +719,7 @@ func TestAccCloudfunctions2function_cloudfunctions2PrivateWorkerpoolExample(t *t
 }
 
 func testAccCloudfunctions2function_cloudfunctions2PrivateWorkerpoolExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 locals {
   project = "%{project}" # Google Cloud Platform Project ID
 }

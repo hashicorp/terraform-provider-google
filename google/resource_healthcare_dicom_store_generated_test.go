@@ -56,7 +56,7 @@ func TestAccHealthcareDicomStore_healthcareDicomStoreBasicExample(t *testing.T) 
 }
 
 func testAccHealthcareDicomStore_healthcareDicomStoreBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_healthcare_dicom_store" "default" {
   name    = "tf-test-example-dicom-store%{random_suffix}"
   dataset = google_healthcare_dataset.dataset.id

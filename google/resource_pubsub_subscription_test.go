@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/pubsub"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -277,7 +278,7 @@ func TestGetComputedTopicName(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		computedTopicName := getComputedTopicName(testCase.project, testCase.topic)
+		computedTopicName := pubsub.GetComputedTopicName(testCase.project, testCase.topic)
 		if computedTopicName != testCase.expected {
 			t.Fatalf("bad computed topic name: %s' => expected %s", computedTopicName, testCase.expected)
 		}

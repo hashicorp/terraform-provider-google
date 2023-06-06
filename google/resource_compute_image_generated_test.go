@@ -56,7 +56,7 @@ func TestAccComputeImage_imageBasicExample(t *testing.T) {
 }
 
 func testAccComputeImage_imageBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
@@ -93,7 +93,7 @@ func TestAccComputeImage_imageGuestOsExample(t *testing.T) {
 }
 
 func testAccComputeImage_imageGuestOsExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
@@ -138,7 +138,7 @@ func TestAccComputeImage_imageBasicStorageLocationExample(t *testing.T) {
 }
 
 func testAccComputeImage_imageBasicStorageLocationExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_image" "example" {
   name = "tf-test-example-sl-image%{random_suffix}"
 

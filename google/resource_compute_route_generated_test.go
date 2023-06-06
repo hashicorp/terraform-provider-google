@@ -56,7 +56,7 @@ func TestAccComputeRoute_routeBasicExample(t *testing.T) {
 }
 
 func testAccComputeRoute_routeBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_route" "default" {
   name        = "tf-test-network-route%{random_suffix}"
   dest_range  = "15.0.0.0/24"
@@ -97,7 +97,7 @@ func TestAccComputeRoute_routeIlbExample(t *testing.T) {
 }
 
 func testAccComputeRoute_routeIlbExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_network" "default" {
   name                    = "tf-test-compute-network%{random_suffix}"
   auto_create_subnetworks = false

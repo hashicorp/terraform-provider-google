@@ -56,7 +56,7 @@ func TestAccComputeSnapshot_snapshotBasicExample(t *testing.T) {
 }
 
 func testAccComputeSnapshot_snapshotBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
   name        = "tf-test-my-snapshot%{random_suffix}"
   source_disk = google_compute_disk.persistent.id
@@ -108,7 +108,7 @@ func TestAccComputeSnapshot_snapshotChainnameExample(t *testing.T) {
 }
 
 func testAccComputeSnapshot_snapshotChainnameExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
   name        = "tf-test-my-snapshot%{random_suffix}"
   source_disk = google_compute_disk.persistent.id

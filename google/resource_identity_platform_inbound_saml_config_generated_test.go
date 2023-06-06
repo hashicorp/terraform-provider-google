@@ -56,7 +56,7 @@ func TestAccIdentityPlatformInboundSamlConfig_identityPlatformInboundSamlConfigB
 }
 
 func testAccIdentityPlatformInboundSamlConfig_identityPlatformInboundSamlConfigBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_identity_platform_inbound_saml_config" "saml_config" {
   name         = "%{name}"
   display_name = "Display Name"

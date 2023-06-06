@@ -56,7 +56,7 @@ func TestAccComputeUrlMap_urlMapBucketAndServiceExample(t *testing.T) {
 }
 
 func testAccComputeUrlMap_urlMapBucketAndServiceExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "a description"
@@ -160,7 +160,7 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorRouteExample(t *testing.T) {
 }
 
 func testAccComputeUrlMap_urlMapTrafficDirectorRouteExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "a description"
@@ -273,7 +273,7 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorRoutePartialExample(t *testing.T)
 }
 
 func testAccComputeUrlMap_urlMapTrafficDirectorRoutePartialExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "a description"
@@ -357,7 +357,7 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorPathExample(t *testing.T) {
 }
 
 func testAccComputeUrlMap_urlMapTrafficDirectorPathExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "a description"
@@ -490,7 +490,7 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorPathPartialExample(t *testing.T) 
 }
 
 func testAccComputeUrlMap_urlMapTrafficDirectorPathPartialExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "a description"
@@ -593,7 +593,7 @@ func TestAccComputeUrlMap_urlMapHeaderBasedRoutingExample(t *testing.T) {
 }
 
 func testAccComputeUrlMap_urlMapHeaderBasedRoutingExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "header-based routing example"
@@ -697,7 +697,7 @@ func TestAccComputeUrlMap_urlMapParameterBasedRoutingExample(t *testing.T) {
 }
 
 func testAccComputeUrlMap_urlMapParameterBasedRoutingExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_url_map" "urlmap" {
   name        = "urlmap%{random_suffix}"
   description = "parameter-based routing example"

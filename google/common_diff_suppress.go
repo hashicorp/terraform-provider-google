@@ -168,3 +168,7 @@ func LastSlashDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 func ProjectNumberDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return tpgresource.ProjectNumberDiffSuppress(k, old, new, d)
 }
+
+func compareCryptoKeyVersions(_, old, new string, _ *schema.ResourceData) bool {
+	return tpgresource.CompareCryptoKeyVersions("", old, new, nil)
+}

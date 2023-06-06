@@ -56,7 +56,7 @@ func TestAccComputeNodeTemplate_nodeTemplateBasicExample(t *testing.T) {
 }
 
 func testAccComputeNodeTemplate_nodeTemplateBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_node_template" "template" {
   name      = "tf-test-soletenant-tmpl%{random_suffix}"
   region    = "us-central1"
@@ -91,7 +91,7 @@ func TestAccComputeNodeTemplate_nodeTemplateServerBindingExample(t *testing.T) {
 }
 
 func testAccComputeNodeTemplate_nodeTemplateServerBindingExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_compute_node_types" "central1a" {
   zone     = "us-central1-a"
 }

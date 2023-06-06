@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/healthcare"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -24,7 +25,7 @@ func TestAccHealthcareDatasetIamBinding(t *testing.T) {
 	roleId := "roles/healthcare.datasetAdmin"
 	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	datasetId := &HealthcareDatasetId{
+	datasetId := &healthcare.HealthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
@@ -73,7 +74,7 @@ func TestAccHealthcareDatasetIamMember(t *testing.T) {
 	roleId := "roles/healthcare.datasetViewer"
 	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	datasetId := &HealthcareDatasetId{
+	datasetId := &healthcare.HealthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
@@ -108,7 +109,7 @@ func TestAccHealthcareDatasetIamPolicy(t *testing.T) {
 	roleId := "roles/healthcare.datasetAdmin"
 	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	datasetId := &HealthcareDatasetId{
+	datasetId := &healthcare.HealthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,

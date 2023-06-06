@@ -1997,7 +1997,7 @@ func expandComposerEnvironmentConfigSoftwareConfig(v interface{}, d *schema.Reso
 func expandComposerEnvironmentConfigSoftwareConfigStringMap(softwareConfig map[string]interface{}, k string) map[string]string {
 	v, ok := softwareConfig[k]
 	if ok && v != nil {
-		return convertStringMap(v.(map[string]interface{}))
+		return tpgresource.ConvertStringMap(v.(map[string]interface{}))
 	}
 	return map[string]string{}
 }

@@ -56,7 +56,7 @@ func TestAccBigqueryReservationReservation_bigqueryReservationBasicExample(t *te
 }
 
 func testAccBigqueryReservationReservation_bigqueryReservationBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_bigquery_reservation" "reservation" {
 	name           = "tf-test-my-reservation%{random_suffix}"
 	location       = "us-west2"

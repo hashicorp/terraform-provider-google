@@ -56,7 +56,7 @@ func TestAccAlloydbInstance_alloydbInstanceBasicExample(t *testing.T) {
 }
 
 func testAccAlloydbInstance_alloydbInstanceBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_alloydb_instance" "default" {
   cluster       = google_alloydb_cluster.default.name
   instance_id   = "tf-test-alloydb-instance%{random_suffix}"

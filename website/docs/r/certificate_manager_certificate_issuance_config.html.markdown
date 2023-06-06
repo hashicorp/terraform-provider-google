@@ -106,9 +106,9 @@ The following arguments are supported:
 
 * `rotation_window_percentage` -
   (Required)
-  It specifies the percentage of elapsed time of the certificate lifetime to wait before renewing the certificate. 
+  It specifies the percentage of elapsed time of the certificate lifetime to wait before renewing the certificate.
   Must be a number between 1-99, inclusive.
-  You must set the rotation window percentage in relation to the certificate lifetime so that certificate renewal occurs at least 7 days after 
+  You must set the rotation window percentage in relation to the certificate lifetime so that certificate renewal occurs at least 7 days after
   the certificate has been issued and at least 7 days before it expires.
 
 * `key_algorithm` -
@@ -118,7 +118,7 @@ The following arguments are supported:
 
 * `lifetime` -
   (Required)
-  Lifetime of issued certificates. A duration in seconds with up to nine fractional digits, ending with 's'. 
+  Lifetime of issued certificates. A duration in seconds with up to nine fractional digits, ending with 's'.
   Example: "1814400s". Valid values are from 21 days (1814400s) to 30 days (2592000s)
 
 * `certificate_authority_config` -
@@ -144,8 +144,8 @@ The following arguments are supported:
 
 * `ca_pool` -
   (Required)
-  A CA pool resource used to issue a certificate. 
-  The CA pool string has a relative resource path following the form 
+  A CA pool resource used to issue a certificate.
+  The CA pool string has a relative resource path following the form
   "projects/{project}/locations/{location}/caPools/{caPool}".
 
 - - -
@@ -157,7 +157,7 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  'Set of label tags associated with the CertificateIssuanceConfig resource. 
+  'Set of label tags associated with the CertificateIssuanceConfig resource.
    An object containing a list of "key": value pairs. Example: { "name": "wrench", "count": "3" }.
 
 * `location` -

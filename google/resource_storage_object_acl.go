@@ -163,7 +163,7 @@ func resourceStorageObjectAclCreate(d *schema.ResourceData, meta interface{}) er
 			return fmt.Errorf("Error reading object %s in %s: %v", object, bucket, err)
 		}
 
-		create, update, remove, err := getRoleEntityChange(roleEntitiesUpstream, convertStringSet(reMap), objectOwner)
+		create, update, remove, err := getRoleEntityChange(roleEntitiesUpstream, tpgresource.ConvertStringSet(reMap), objectOwner)
 		if err != nil {
 			return fmt.Errorf("Error reading object %s in %s. Invalid schema: %v", object, bucket, err)
 		}
@@ -245,8 +245,8 @@ func resourceStorageObjectAclUpdate(d *schema.ResourceData, meta interface{}) er
 
 		o, n := d.GetChange("role_entity")
 		create, update, remove, err := getRoleEntityChange(
-			convertStringSet(o.(*schema.Set)),
-			convertStringSet(n.(*schema.Set)),
+			tpgresource.ConvertStringSet(o.(*schema.Set)),
+			tpgresource.ConvertStringSet(n.(*schema.Set)),
 			objectOwner)
 		if err != nil {
 			return fmt.Errorf("Error reading object %s in %s. Invalid schema: %v", object, bucket, err)

@@ -55,7 +55,7 @@ func TestAccComputeBackendService_backendServiceBasicExample(t *testing.T) {
 }
 
 func testAccComputeBackendService_backendServiceBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_backend_service" "default" {
   name          = "tf-test-backend-service%{random_suffix}"
   health_checks = [google_compute_http_health_check.default.id]
@@ -95,7 +95,7 @@ func TestAccComputeBackendService_backendServiceCacheSimpleExample(t *testing.T)
 }
 
 func testAccComputeBackendService_backendServiceCacheSimpleExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_backend_service" "default" {
   name          = "tf-test-backend-service%{random_suffix}"
   health_checks = [google_compute_http_health_check.default.id]
@@ -139,7 +139,7 @@ func TestAccComputeBackendService_backendServiceCacheIncludeHttpHeadersExample(t
 }
 
 func testAccComputeBackendService_backendServiceCacheIncludeHttpHeadersExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_backend_service" "default" {
   name          = "tf-test-backend-service%{random_suffix}"
   enable_cdn  = true
@@ -181,7 +181,7 @@ func TestAccComputeBackendService_backendServiceCacheIncludeNamedCookiesExample(
 }
 
 func testAccComputeBackendService_backendServiceCacheIncludeNamedCookiesExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_backend_service" "default" {
   name          = "tf-test-backend-service%{random_suffix}"
   enable_cdn  = true
@@ -226,7 +226,7 @@ func TestAccComputeBackendService_backendServiceCacheExample(t *testing.T) {
 }
 
 func testAccComputeBackendService_backendServiceCacheExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_backend_service" "default" {
   name          = "tf-test-backend-service%{random_suffix}"
   health_checks = [google_compute_http_health_check.default.id]
@@ -275,7 +275,7 @@ func TestAccComputeBackendService_backendServiceCacheBypassCacheOnRequestHeaders
 }
 
 func testAccComputeBackendService_backendServiceCacheBypassCacheOnRequestHeadersExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_backend_service" "default" {
   name          = "tf-test-backend-service%{random_suffix}"
   health_checks = [google_compute_http_health_check.default.id]
@@ -332,7 +332,7 @@ func TestAccComputeBackendService_backendServiceExternalManagedExample(t *testin
 }
 
 func testAccComputeBackendService_backendServiceExternalManagedExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_backend_service" "default" {
   name          = "tf-test-backend-service%{random_suffix}"
   health_checks = [google_compute_health_check.default.id]

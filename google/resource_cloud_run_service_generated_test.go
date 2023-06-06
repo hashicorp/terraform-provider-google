@@ -57,7 +57,7 @@ func TestAccCloudRunService_cloudRunServiceBasicExample(t *testing.T) {
 }
 
 func testAccCloudRunService_cloudRunServiceBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_cloud_run_service" "default" {
   name     = "tf-test-cloudrun-srv%{random_suffix}"
   location = "us-central1"
@@ -105,7 +105,7 @@ func TestAccCloudRunService_cloudRunServiceSqlExample(t *testing.T) {
 }
 
 func testAccCloudRunService_cloudRunServiceSqlExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_cloud_run_service" "default" {
   name     = "tf-test-cloudrun-srv%{random_suffix}"
   location = "us-central1"
@@ -168,7 +168,7 @@ func TestAccCloudRunService_cloudRunServiceNoauthExample(t *testing.T) {
 }
 
 func testAccCloudRunService_cloudRunServiceNoauthExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 
 resource "google_cloud_run_service" "default" {
   name     = "tf-test-cloudrun-srv%{random_suffix}"
@@ -229,7 +229,7 @@ func TestAccCloudRunService_cloudRunServiceMultipleEnvironmentVariablesExample(t
 }
 
 func testAccCloudRunService_cloudRunServiceMultipleEnvironmentVariablesExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_cloud_run_service" "default" {
   name     = "tf-test-cloudrun-srv%{random_suffix}"
   location = "us-central1"
@@ -298,7 +298,7 @@ func TestAccCloudRunService_cloudRunServiceSecretEnvironmentVariablesExample(t *
 }
 
 func testAccCloudRunService_cloudRunServiceSecretEnvironmentVariablesExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_project" "project" {
 }
 
@@ -392,7 +392,7 @@ func TestAccCloudRunService_cloudRunServiceSecretVolumesExample(t *testing.T) {
 }
 
 func testAccCloudRunService_cloudRunServiceSecretVolumesExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_project" "project" {
 }
 
@@ -493,7 +493,7 @@ func TestAccCloudRunService_cloudRunServiceProbesExample(t *testing.T) {
 }
 
 func testAccCloudRunService_cloudRunServiceProbesExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_cloud_run_service" "default" {
   name     = "tf-test-cloudrun-srv%{random_suffix}"
   location = "us-central1"

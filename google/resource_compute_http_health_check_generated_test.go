@@ -55,7 +55,7 @@ func TestAccComputeHttpHealthCheck_httpHealthCheckBasicExample(t *testing.T) {
 }
 
 func testAccComputeHttpHealthCheck_httpHealthCheckBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_http_health_check" "default" {
   name         = "tf-test-authentication-health-check%{random_suffix}"
   request_path = "/health_check"

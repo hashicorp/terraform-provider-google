@@ -56,7 +56,7 @@ func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizatio
 }
 
 func testAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizationBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_certificate_manager_dns_authorization" "default" {
   name        = "tf-test-dns-auth%{random_suffix}"
   description = "The default dnss"

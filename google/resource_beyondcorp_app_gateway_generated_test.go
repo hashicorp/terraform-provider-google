@@ -56,7 +56,7 @@ func TestAccBeyondcorpAppGateway_beyondcorpAppGatewayBasicExample(t *testing.T) 
 }
 
 func testAccBeyondcorpAppGateway_beyondcorpAppGatewayBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_beyondcorp_app_gateway" "app_gateway" {
   name = "tf-test-my-app-gateway%{random_suffix}"
   type = "TCP_PROXY"
@@ -92,7 +92,7 @@ func TestAccBeyondcorpAppGateway_beyondcorpAppGatewayFullExample(t *testing.T) {
 }
 
 func testAccBeyondcorpAppGateway_beyondcorpAppGatewayFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_beyondcorp_app_gateway" "app_gateway" {
   name = "tf-test-my-app-gateway%{random_suffix}"
   type = "TCP_PROXY"

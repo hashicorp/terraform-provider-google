@@ -55,7 +55,7 @@ func TestAccPubsubTopic_pubsubTopicBasicExample(t *testing.T) {
 }
 
 func testAccPubsubTopic_pubsubTopicBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_pubsub_topic" "example" {
   name = "tf-test-example-topic%{random_suffix}"
 
@@ -93,7 +93,7 @@ func TestAccPubsubTopic_pubsubTopicGeoRestrictedExample(t *testing.T) {
 }
 
 func testAccPubsubTopic_pubsubTopicGeoRestrictedExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_pubsub_topic" "example" {
   name = "tf-test-example-topic%{random_suffix}"
 
@@ -132,7 +132,7 @@ func TestAccPubsubTopic_pubsubTopicSchemaSettingsExample(t *testing.T) {
 }
 
 func testAccPubsubTopic_pubsubTopicSchemaSettingsExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_pubsub_schema" "example" {
   name = "example%{random_suffix}"
   type = "AVRO"

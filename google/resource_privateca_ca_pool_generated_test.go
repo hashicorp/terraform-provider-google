@@ -56,7 +56,7 @@ func TestAccPrivatecaCaPool_privatecaCapoolBasicExample(t *testing.T) {
 }
 
 func testAccPrivatecaCaPool_privatecaCapoolBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   name = "tf-test-my-pool%{random_suffix}"
   location = "us-central1"
@@ -98,7 +98,7 @@ func TestAccPrivatecaCaPool_privatecaCapoolAllFieldsExample(t *testing.T) {
 }
 
 func testAccPrivatecaCaPool_privatecaCapoolAllFieldsExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   name = "tf-test-my-pool%{random_suffix}"
   location = "us-central1"

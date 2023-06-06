@@ -56,7 +56,7 @@ func TestAccMonitoringSlo_monitoringSloAppengineExample(t *testing.T) {
 }
 
 func testAccMonitoringSlo_monitoringSloAppengineExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_monitoring_app_engine_service" "default" {
   module_id = "default"
 }
@@ -111,7 +111,7 @@ func TestAccMonitoringSlo_monitoringSloRequestBasedExample(t *testing.T) {
 }
 
 func testAccMonitoringSlo_monitoringSloRequestBasedExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
   service_id = "tf-test-custom-srv-request-slos%{random_suffix}"
   display_name = "My Custom Service"
@@ -163,7 +163,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(t 
 }
 
 func testAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
   service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
   display_name = "My Custom Service"
@@ -213,7 +213,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(t *testing.
 }
 
 func testAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
   service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
   display_name = "My Custom Service"
@@ -269,7 +269,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(t *testing.T
 }
 
 func testAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
   service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
   display_name = "My Custom Service"
@@ -325,7 +325,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(t *test
 }
 
 func testAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
   service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
   display_name = "My Custom Service"

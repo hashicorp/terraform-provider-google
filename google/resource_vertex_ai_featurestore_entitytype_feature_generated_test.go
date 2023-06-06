@@ -56,7 +56,7 @@ func TestAccVertexAIFeaturestoreEntitytypeFeature_vertexAiFeaturestoreEntitytype
 }
 
 func testAccVertexAIFeaturestoreEntitytypeFeature_vertexAiFeaturestoreEntitytypeFeatureExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_vertex_ai_featurestore" "featurestore" {
   name     = "terraform%{random_suffix}"
   labels = {

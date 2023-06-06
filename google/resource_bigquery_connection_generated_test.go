@@ -60,7 +60,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudResourceExample(
 }
 
 func testAccBigqueryConnectionConnection_bigqueryConnectionCloudResourceExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_bigquery_connection" "connection" {
    connection_id = "tf-test-my-connection%{random_suffix}"
    location      = "US"
@@ -103,7 +103,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionBasicExample(t *testi
 }
 
 func testAccBigqueryConnectionConnection_bigqueryConnectionBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_sql_database_instance" "instance" {
     name             = "tf-test-my-database-instance%{random_suffix}"
     database_version = "POSTGRES_11"
@@ -180,7 +180,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionFullExample(t *testin
 }
 
 func testAccBigqueryConnectionConnection_bigqueryConnectionFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_sql_database_instance" "instance" {
     name             = "tf-test-my-database-instance%{random_suffix}"
     database_version = "POSTGRES_11"
@@ -256,7 +256,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionAwsExample(t *testing
 }
 
 func testAccBigqueryConnectionConnection_bigqueryConnectionAwsExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_bigquery_connection" "connection" {
    connection_id = "tf-test-my-connection%{random_suffix}"
    location      = "aws-us-east-1"
@@ -301,7 +301,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionAzureExample(t *testi
 }
 
 func testAccBigqueryConnectionConnection_bigqueryConnectionAzureExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_bigquery_connection" "connection" {
    connection_id = "tf-test-my-connection%{random_suffix}"
    location      = "azure-eastus2"
@@ -345,7 +345,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerExample(t
 }
 
 func testAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_bigquery_connection" "connection" {
    connection_id = "tf-test-my-connection%{random_suffix}"
    location      = "US"
@@ -388,7 +388,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerAnalytics
 }
 
 func testAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerAnalyticsExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_bigquery_connection" "connection" {
    connection_id = "tf-test-my-connection%{random_suffix}"
    location      = "US"

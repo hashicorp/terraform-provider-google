@@ -56,7 +56,7 @@ func TestAccComputeGlobalForwardingRule_globalForwardingRuleHttpExample(t *testi
 }
 
 func testAccComputeGlobalForwardingRule_globalForwardingRuleHttpExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_global_forwarding_rule" "default" {
   name       = "tf-test-global-rule%{random_suffix}"
   target     = google_compute_target_http_proxy.default.id
@@ -134,7 +134,7 @@ func TestAccComputeGlobalForwardingRule_globalForwardingRuleExternalManagedExamp
 }
 
 func testAccComputeGlobalForwardingRule_globalForwardingRuleExternalManagedExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_global_forwarding_rule" "default" {
   name                  = "tf-test-global-rule%{random_suffix}"
   target                = google_compute_target_http_proxy.default.id
@@ -205,7 +205,7 @@ func TestAccComputeGlobalForwardingRule_globalForwardingRuleHybridExample(t *tes
 }
 
 func testAccComputeGlobalForwardingRule_globalForwardingRuleHybridExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 // Roughly mirrors https://cloud.google.com/load-balancing/docs/https/setting-up-ext-https-hybrid
 variable "subnetwork_cidr" {
   default = "10.0.0.0/24"

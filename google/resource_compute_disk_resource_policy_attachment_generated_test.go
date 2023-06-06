@@ -56,7 +56,7 @@ func TestAccComputeDiskResourcePolicyAttachment_diskResourcePolicyAttachmentBasi
 }
 
 func testAccComputeDiskResourcePolicyAttachment_diskResourcePolicyAttachmentBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_disk_resource_policy_attachment" "attachment" {
   name = google_compute_resource_policy.policy.name
   disk = google_compute_disk.ssd.name

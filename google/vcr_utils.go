@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/dnaeon/go-vcr/cassette"
@@ -109,7 +110,7 @@ func readSeedFromFile(fileName string) (int64, error) {
 	// Remove NULL characters from seed
 	data = bytes.Trim(data, "\x00")
 	seed := string(data)
-	return StringToFixed64(seed)
+	return tpgresource.StringToFixed64(seed)
 }
 
 func writeSeedToFile(seed int64, fileName string) error {

@@ -56,7 +56,7 @@ func TestAccAppEngineDomainMapping_appEngineDomainMappingBasicExample(t *testing
 }
 
 func testAccAppEngineDomainMapping_appEngineDomainMappingBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_app_engine_domain_mapping" "domain_mapping" {
   domain_name = "tf-test-domain%{random_suffix}.gcp.tfacc.hashicorptest.com"
 

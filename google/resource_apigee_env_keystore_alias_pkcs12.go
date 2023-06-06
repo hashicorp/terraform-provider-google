@@ -389,7 +389,7 @@ func flattenApigeeKeystoreAliasesPkcsCertsInfoCertInfo(v interface{}, d *schema.
 func flattenApigeeKeystoreAliasesPkcsCertsInfoCertInfoVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
-		if intVal, err := StringToFixed64(strVal); err == nil {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
 			return intVal
 		}
 	}

@@ -56,7 +56,7 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderA
 }
 
 func testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderAwsBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_iam_workload_identity_pool" "pool" {
   workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
 }
@@ -97,7 +97,7 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderA
 }
 
 func testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderAwsFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_iam_workload_identity_pool" "pool" {
   workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
 }
@@ -147,7 +147,7 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderO
 }
 
 func testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderOidcBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_iam_workload_identity_pool" "pool" {
   workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
 }
@@ -191,7 +191,7 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderO
 }
 
 func testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderOidcFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_iam_workload_identity_pool" "pool" {
   workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
 }

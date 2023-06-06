@@ -843,7 +843,7 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 
 	var locations []string
 	if v, ok := d.GetOk("node_locations"); ok && v.(*schema.Set).Len() > 0 {
-		locations = convertStringSet(v.(*schema.Set))
+		locations = tpgresource.ConvertStringSet(v.(*schema.Set))
 	}
 
 	np := &container.NodePool{
@@ -1300,7 +1300,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			if v, ok := d.GetOk(prefix + "node_config.0.resource_labels"); ok {
 				resourceLabels := v.(map[string]interface{})
 				req.ResourceLabels = &container.ResourceLabels{
-					Labels: convertStringMap(resourceLabels),
+					Labels: tpgresource.ConvertStringMap(resourceLabels),
 				}
 			}
 
@@ -1338,7 +1338,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			if v, ok := d.GetOk(prefix + "node_config.0.labels"); ok {
 				labels := v.(map[string]interface{})
 				req.Labels = &container.NodeLabels{
-					Labels: convertStringMap(labels),
+					Labels: tpgresource.ConvertStringMap(labels),
 				}
 			}
 
@@ -1594,7 +1594,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 
 	if d.HasChange(prefix + "node_locations") {
 		req := &container.UpdateNodePoolRequest{
-			Locations: convertStringSet(d.Get(prefix + "node_locations").(*schema.Set)),
+			Locations: tpgresource.ConvertStringSet(d.Get(prefix + "node_locations").(*schema.Set)),
 		}
 		updateF := func() error {
 			clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)

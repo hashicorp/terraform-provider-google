@@ -57,7 +57,7 @@ func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeBasicExample(t *te
 }
 
 func testAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_stored_info_type" "basic" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -98,7 +98,7 @@ func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeDictionaryExample(
 }
 
 func testAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeDictionaryExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_stored_info_type" "dictionary" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -140,7 +140,7 @@ func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeLargeCustomDiction
 }
 
 func testAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeLargeCustomDictionaryExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_stored_info_type" "large" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -197,7 +197,7 @@ func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeWithIdExample(t *t
 }
 
 func testAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeWithIdExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_stored_info_type" "with_stored_info_type_id" {
   parent = "projects/%{project}"
   description = "Description"

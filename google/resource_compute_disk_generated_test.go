@@ -56,7 +56,7 @@ func TestAccComputeDisk_diskBasicExample(t *testing.T) {
 }
 
 func testAccComputeDisk_diskBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_disk" "default" {
   name  = "tf-test-test-disk%{random_suffix}"
   type  = "pd-ssd"
@@ -96,7 +96,7 @@ func TestAccComputeDisk_diskFeaturesExample(t *testing.T) {
 }
 
 func testAccComputeDisk_diskFeaturesExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_disk" "default" {
   name  = "tf-test-test-disk-features%{random_suffix}"
   type  = "pd-ssd"

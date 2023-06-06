@@ -55,7 +55,7 @@ func TestAccDNSPolicy_dnsPolicyBasicExample(t *testing.T) {
 }
 
 func testAccDNSPolicy_dnsPolicyBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_dns_policy" "example-policy" {
   name                      = "tf-test-example-policy%{random_suffix}"
   enable_inbound_forwarding = true

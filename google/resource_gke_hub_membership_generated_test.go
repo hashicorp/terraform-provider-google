@@ -56,7 +56,7 @@ func TestAccGKEHubMembership_gkehubMembershipBasicExample(t *testing.T) {
 }
 
 func testAccGKEHubMembership_gkehubMembershipBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"
@@ -101,7 +101,7 @@ func TestAccGKEHubMembership_gkehubMembershipIssuerExample(t *testing.T) {
 }
 
 func testAccGKEHubMembership_gkehubMembershipIssuerExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"

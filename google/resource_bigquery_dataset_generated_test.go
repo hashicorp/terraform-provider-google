@@ -55,7 +55,7 @@ func TestAccBigQueryDataset_bigqueryDatasetBasicExample(t *testing.T) {
 }
 
 func testAccBigQueryDataset_bigqueryDatasetBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_bigquery_dataset" "dataset" {
   dataset_id                  = "tf_test_example_dataset%{random_suffix}"
   friendly_name               = "test"
@@ -109,7 +109,7 @@ func TestAccBigQueryDataset_bigqueryDatasetWithMaxTimeTravelHoursExample(t *test
 }
 
 func testAccBigQueryDataset_bigqueryDatasetWithMaxTimeTravelHoursExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_bigquery_dataset" "dataset" {
   dataset_id                  = "tf_test_example_dataset%{random_suffix}"
   friendly_name               = "test"
@@ -164,7 +164,7 @@ func TestAccBigQueryDataset_bigqueryDatasetAuthorizedDatasetExample(t *testing.T
 }
 
 func testAccBigQueryDataset_bigqueryDatasetAuthorizedDatasetExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_bigquery_dataset" "public" {
   dataset_id                  = "public%{random_suffix}"
   friendly_name               = "test"
@@ -251,7 +251,7 @@ func TestAccBigQueryDataset_bigqueryDatasetAuthorizedRoutineExample(t *testing.T
 }
 
 func testAccBigQueryDataset_bigqueryDatasetAuthorizedRoutineExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_bigquery_dataset" "public" {
   dataset_id  = "tf_test_public_dataset%{random_suffix}"
   description = "This dataset is public"
@@ -318,7 +318,7 @@ func TestAccBigQueryDataset_bigqueryDatasetCaseInsensitiveNamesExample(t *testin
 }
 
 func testAccBigQueryDataset_bigqueryDatasetCaseInsensitiveNamesExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_bigquery_dataset" "dataset" {
   dataset_id                  = "tf_test_example_dataset%{random_suffix}"
   friendly_name               = "test"
@@ -373,7 +373,7 @@ func TestAccBigQueryDataset_bigqueryDatasetDefaultCollationSetExample(t *testing
 }
 
 func testAccBigQueryDataset_bigqueryDatasetDefaultCollationSetExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_bigquery_dataset" "dataset" {
   dataset_id                  = "tf_test_example_dataset%{random_suffix}"
   friendly_name               = "test"

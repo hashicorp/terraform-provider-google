@@ -57,7 +57,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBasicExample(t *testing.T)
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "basic" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -120,7 +120,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitExample(t 
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "bigquery_row_limit" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -188,7 +188,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitPercentage
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitPercentageExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "bigquery_row_limit_percentage" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -256,7 +256,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerDataCatalogOutputExample(t
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerDataCatalogOutputExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "data_catalog_output" {
   parent = "projects/%{project}"
   description = "Description"
@@ -317,7 +317,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerSccOutputExample(t *testin
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerSccOutputExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "scc_output" {
   parent = "projects/%{project}"
   description = "Description"
@@ -378,7 +378,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerJobNotificationEmailsExamp
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerJobNotificationEmailsExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "job_notification_emails" {
   parent       = "projects/%{project}"
   description  = "Description for the job_trigger created by terraform"
@@ -435,7 +435,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerDeidentifyExample(t *testi
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerDeidentifyExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "deidentify" {
   parent       = "projects/%{project}"
   description  = "Description for the job_trigger created by terraform"
@@ -549,7 +549,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerHybridExample(t *testing.T
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerHybridExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "hybrid_trigger" {
   parent = "projects/%{project}"
 
@@ -617,7 +617,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerInspectExample(t *testing.
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerInspectExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "inspect" {
   parent = "projects/%{project}"
   description = "Description"
@@ -736,7 +736,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerPublishToStackdriverExampl
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerPublishToStackdriverExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "publish_to_stackdriver" {
   parent       = "projects/%{project}"
   description  = "Description for the job_trigger created by terraform"

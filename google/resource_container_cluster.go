@@ -1830,7 +1830,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		if tpgresource.IsZone(location) {
 			locationsSet.Add(location)
 		}
-		cluster.Locations = convertStringSet(locationsSet)
+		cluster.Locations = tpgresource.ConvertStringSet(locationsSet)
 	}
 
 	if v, ok := d.GetOk("network"); ok {
@@ -2735,7 +2735,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
-				DesiredLocations: convertStringSet(azSet),
+				DesiredLocations: tpgresource.ConvertStringSet(azSet),
 			},
 		}
 
@@ -2751,7 +2751,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		if !azSet.Equal(azSetNew) {
 			req = &container.UpdateClusterRequest{
 				Update: &container.ClusterUpdate{
-					DesiredLocations: convertStringSet(azSetNew),
+					DesiredLocations: tpgresource.ConvertStringSet(azSetNew),
 				},
 			}
 
@@ -3165,7 +3165,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		resourceLabels := d.Get("resource_labels").(map[string]interface{})
 		labelFingerprint := d.Get("label_fingerprint").(string)
 		req := &container.SetLabelsRequest{
-			ResourceLabels:   convertStringMap(resourceLabels),
+			ResourceLabels:   tpgresource.ConvertStringMap(resourceLabels),
 			LabelFingerprint: labelFingerprint,
 		}
 		updateF := func() error {
@@ -4988,7 +4988,7 @@ func containerClusterAddedScopesSuppress(k, old, new string, d *schema.ResourceD
 	}
 
 	for _, i := range combined {
-		if stringInSlice(tpgresource.ConvertStringArr(o.([]interface{})), i) {
+		if tpgresource.StringInSlice(tpgresource.ConvertStringArr(o.([]interface{})), i) {
 			continue
 		}
 

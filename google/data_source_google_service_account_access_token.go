@@ -74,8 +74,8 @@ func dataSourceGoogleServiceAccountAccessTokenRead(d *schema.ResourceData, meta 
 	name := fmt.Sprintf("projects/-/serviceAccounts/%s", d.Get("target_service_account").(string))
 	tokenRequest := &iamcredentials.GenerateAccessTokenRequest{
 		Lifetime:  d.Get("lifetime").(string),
-		Delegates: convertStringSet(d.Get("delegates").(*schema.Set)),
-		Scope:     tpgresource.CanonicalizeServiceScopes(convertStringSet(d.Get("scopes").(*schema.Set))),
+		Delegates: tpgresource.ConvertStringSet(d.Get("delegates").(*schema.Set)),
+		Scope:     tpgresource.CanonicalizeServiceScopes(tpgresource.ConvertStringSet(d.Get("scopes").(*schema.Set))),
 	}
 	at, err := service.Projects.ServiceAccounts.GenerateAccessToken(name, tokenRequest).Do()
 	if err != nil {

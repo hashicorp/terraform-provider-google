@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -286,7 +287,7 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 		tc := tc
 		t.Run(tn, func(t *testing.T) {
 			t.Parallel()
-			if DiskImageDiffSuppress("image", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			if tpgcompute.DiskImageDiffSuppress("image", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
 				t.Fatalf("%q => %q expect DiffSuppress to return %t", tc.Old, tc.New, tc.ExpectDiffSuppress)
 			}
 		})
@@ -303,7 +304,7 @@ func TestAccComputeDisk_imageDiffSuppressPublicVendorsFamilyNames(t *testing.T) 
 
 	config := getInitializedConfig(t)
 
-	for _, publicImageProject := range imageMap {
+	for _, publicImageProject := range tpgcompute.ImageMap {
 		token := ""
 		for paginate := true; paginate; {
 			resp, err := config.NewComputeClient(config.UserAgent).Images.List(publicImageProject).Filter("deprecated.replacement ne .*images.*").PageToken(token).Do()
@@ -312,7 +313,7 @@ func TestAccComputeDisk_imageDiffSuppressPublicVendorsFamilyNames(t *testing.T) 
 			}
 
 			for _, image := range resp.Items {
-				if !DiskImageDiffSuppress("image", image.SelfLink, "family/"+image.Family, nil) {
+				if !tpgcompute.DiskImageDiffSuppress("image", image.SelfLink, "family/"+image.Family, nil) {
 					t.Errorf("should suppress diff for image %q and family %q", image.SelfLink, image.Family)
 				}
 			}

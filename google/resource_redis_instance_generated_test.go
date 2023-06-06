@@ -56,7 +56,7 @@ func TestAccRedisInstance_redisInstanceBasicExample(t *testing.T) {
 }
 
 func testAccRedisInstance_redisInstanceBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_redis_instance" "cache" {
   name           = "tf-test-memory-cache%{random_suffix}"
   memory_size_gb = 1
@@ -91,7 +91,7 @@ func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 }
 
 func testAccRedisInstance_redisInstanceFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_redis_instance" "cache" {
   name           = "tf-test-ha-memory-cache%{random_suffix}"
   tier           = "STANDARD_HA"
@@ -165,7 +165,7 @@ func TestAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(t *testi
 }
 
 func testAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_redis_instance" "cache-persis" {
   name           = "tf-test-ha-memory-cache-persis%{random_suffix}"
   tier           = "STANDARD_HA"
@@ -209,7 +209,7 @@ func TestAccRedisInstance_redisInstancePrivateServiceExample(t *testing.T) {
 }
 
 func testAccRedisInstance_redisInstancePrivateServiceExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 // This example assumes this network already exists.
 // The API creates a tenant network per network authorized for a
 // Redis instance and that network is not deleted when the user-created
@@ -283,7 +283,7 @@ func TestAccRedisInstance_redisInstanceMrrExample(t *testing.T) {
 }
 
 func testAccRedisInstance_redisInstanceMrrExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_redis_instance" "cache" {
   name           = "tf-test-mrr-memory-cache%{random_suffix}"
   tier           = "STANDARD_HA"

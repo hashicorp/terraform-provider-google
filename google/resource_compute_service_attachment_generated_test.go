@@ -56,7 +56,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExample(t *testing.T)
 }
 
 func testAccComputeServiceAttachment_serviceAttachmentBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
   name        = "tf-test-my-psc-ilb%{random_suffix}"
   region      = "us-west2"
@@ -165,7 +165,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentExplicitProjectsExample(t 
 }
 
 func testAccComputeServiceAttachment_serviceAttachmentExplicitProjectsExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
   name        = "tf-test-my-psc-ilb%{random_suffix}"
   region      = "us-west2"

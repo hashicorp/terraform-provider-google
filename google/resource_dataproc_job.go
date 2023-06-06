@@ -555,7 +555,7 @@ func expandPySparkJob(config map[string]interface{}) *dataproc.PySparkJob {
 		job.ArchiveUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["properties"]; ok {
-		job.Properties = convertStringMap(v.(map[string]interface{}))
+		job.Properties = tpgresource.ConvertStringMap(v.(map[string]interface{}))
 	}
 	if v, ok := config["logging_config"]; ok {
 		config := extractFirstMapConfig(v.([]interface{}))
@@ -687,7 +687,7 @@ func expandSparkJob(config map[string]interface{}) *dataproc.SparkJob {
 		job.ArchiveUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["properties"]; ok {
-		job.Properties = convertStringMap(v.(map[string]interface{}))
+		job.Properties = tpgresource.ConvertStringMap(v.(map[string]interface{}))
 	}
 	if v, ok := config["logging_config"]; ok {
 		config := extractFirstMapConfig(v.([]interface{}))
@@ -808,7 +808,7 @@ func expandHadoopJob(config map[string]interface{}) *dataproc.HadoopJob {
 		job.ArchiveUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["properties"]; ok {
-		job.Properties = convertStringMap(v.(map[string]interface{}))
+		job.Properties = tpgresource.ConvertStringMap(v.(map[string]interface{}))
 	}
 	if v, ok := config["logging_config"]; ok {
 		config := extractFirstMapConfig(v.([]interface{}))
@@ -913,13 +913,13 @@ func expandHiveJob(config map[string]interface{}) *dataproc.HiveJob {
 		job.ContinueOnFailure = v.(bool)
 	}
 	if v, ok := config["script_variables"]; ok {
-		job.ScriptVariables = convertStringMap(v.(map[string]interface{}))
+		job.ScriptVariables = tpgresource.ConvertStringMap(v.(map[string]interface{}))
 	}
 	if v, ok := config["jar_file_uris"]; ok {
 		job.JarFileUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["properties"]; ok {
-		job.Properties = convertStringMap(v.(map[string]interface{}))
+		job.Properties = tpgresource.ConvertStringMap(v.(map[string]interface{}))
 	}
 
 	return job
@@ -1021,13 +1021,13 @@ func expandPigJob(config map[string]interface{}) *dataproc.PigJob {
 		job.ContinueOnFailure = v.(bool)
 	}
 	if v, ok := config["script_variables"]; ok {
-		job.ScriptVariables = convertStringMap(v.(map[string]interface{}))
+		job.ScriptVariables = tpgresource.ConvertStringMap(v.(map[string]interface{}))
 	}
 	if v, ok := config["jar_file_uris"]; ok {
 		job.JarFileUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["properties"]; ok {
-		job.Properties = convertStringMap(v.(map[string]interface{}))
+		job.Properties = tpgresource.ConvertStringMap(v.(map[string]interface{}))
 	}
 
 	return job
@@ -1119,13 +1119,13 @@ func expandSparkSqlJob(config map[string]interface{}) *dataproc.SparkSqlJob {
 		}
 	}
 	if v, ok := config["script_variables"]; ok {
-		job.ScriptVariables = convertStringMap(v.(map[string]interface{}))
+		job.ScriptVariables = tpgresource.ConvertStringMap(v.(map[string]interface{}))
 	}
 	if v, ok := config["jar_file_uris"]; ok {
 		job.JarFileUris = tpgresource.ConvertStringArr(v.([]interface{}))
 	}
 	if v, ok := config["properties"]; ok {
-		job.Properties = convertStringMap(v.(map[string]interface{}))
+		job.Properties = tpgresource.ConvertStringMap(v.(map[string]interface{}))
 	}
 
 	return job
@@ -1227,7 +1227,7 @@ func expandPrestoJob(config map[string]interface{}) *dataproc.PrestoJob {
 		}
 	}
 	if v, ok := config["properties"]; ok {
-		job.Properties = convertStringMap(v.(map[string]interface{}))
+		job.Properties = tpgresource.ConvertStringMap(v.(map[string]interface{}))
 	}
 	if v, ok := config["output_format"]; ok {
 		job.OutputFormat = v.(string)
@@ -1242,7 +1242,7 @@ func expandPrestoJob(config map[string]interface{}) *dataproc.PrestoJob {
 func expandLoggingConfig(config map[string]interface{}) *dataproc.LoggingConfig {
 	conf := &dataproc.LoggingConfig{}
 	if v, ok := config["driver_log_levels"]; ok {
-		conf.DriverLogLevels = convertStringMap(v.(map[string]interface{}))
+		conf.DriverLogLevels = tpgresource.ConvertStringMap(v.(map[string]interface{}))
 	}
 	return conf
 }

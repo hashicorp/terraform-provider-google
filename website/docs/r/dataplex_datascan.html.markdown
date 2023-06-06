@@ -401,7 +401,7 @@ The following arguments are supported:
 
 * `strict_min_enabled` -
   (Optional)
-  Whether each value needs to be strictly greater than ('>') the minimum, or if equality is allowed. 
+  Whether each value needs to be strictly greater than ('>') the minimum, or if equality is allowed.
   Only relevant if a minValue has been defined. Default = false.
 
 * `strict_max_enabled` -
@@ -653,7 +653,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `strict_min_enabled` -
   (Optional)
-  Whether each value needs to be strictly greater than ('>') the minimum, or if equality is allowed. 
+  Whether each value needs to be strictly greater than ('>') the minimum, or if equality is allowed.
   Only relevant if a minValue has been defined. Default = false.
 
 * `strict_max_enabled` -

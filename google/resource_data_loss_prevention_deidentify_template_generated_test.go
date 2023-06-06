@@ -57,7 +57,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateBasicExamp
 }
 
 func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_deidentify_template" "basic" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -184,7 +184,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateSkipCharac
 }
 
 func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateSkipCharactersExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_deidentify_template" "basic" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -311,7 +311,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateImageTrans
 }
 
 func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateImageTransformationsExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_deidentify_template" "basic" {
   parent = "projects/%{project}"
   description = "Description"
@@ -373,7 +373,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateWithTempla
 }
 
 func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateWithTemplateIdExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_deidentify_template" "with_template_id" {
   parent = "projects/%{project}"
   template_id = "tf-test-my-template%{random_suffix}"

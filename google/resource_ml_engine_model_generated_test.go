@@ -55,7 +55,7 @@ func TestAccMLEngineModel_mlModelBasicExample(t *testing.T) {
 }
 
 func testAccMLEngineModel_mlModelBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_ml_engine_model" "default" {
   name        = "default%{random_suffix}"
   description = "My model"
@@ -89,7 +89,7 @@ func TestAccMLEngineModel_mlModelFullExample(t *testing.T) {
 }
 
 func testAccMLEngineModel_mlModelFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_ml_engine_model" "default" {
   name        = "default%{random_suffix}"
   description = "My model"

@@ -57,7 +57,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileAnyclusterExample(t *testing.T)
 }
 
 func testAccBigtableAppProfile_bigtableAppProfileAnyclusterExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_bigtable_instance" "instance" {
   name = "tf-test-bt-instance%{random_suffix}"
   cluster {
@@ -121,7 +121,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(t *testing
 }
 
 func testAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_bigtable_instance" "instance" {
   name = "tf-test-bt-instance%{random_suffix}"
   cluster {
@@ -176,7 +176,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(t *testing.
 }
 
 func testAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_bigtable_instance" "instance" {
   name = "tf-test-bt-instance%{random_suffix}"
   cluster {

@@ -56,7 +56,7 @@ func TestAccDatastreamPrivateConnection_datastreamPrivateConnectionFullExample(t
 }
 
 func testAccDatastreamPrivateConnection_datastreamPrivateConnectionFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_datastream_private_connection" "default" {
 	display_name          = "Connection profile"
 	location              = "us-central1"

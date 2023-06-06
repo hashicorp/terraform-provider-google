@@ -55,7 +55,7 @@ func TestAccContainerAnalysisNote_containerAnalysisNoteBasicExample(t *testing.T
 }
 
 func testAccContainerAnalysisNote_containerAnalysisNoteBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_container_analysis_note" "note" {
   name = "tf-test-attestor-note%{random_suffix}"
   attestation_authority {
@@ -92,7 +92,7 @@ func TestAccContainerAnalysisNote_containerAnalysisNoteAttestationFullExample(t 
 }
 
 func testAccContainerAnalysisNote_containerAnalysisNoteAttestationFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_container_analysis_note" "note" {
   name = "tf-test-attestor-note%{random_suffix}"
 

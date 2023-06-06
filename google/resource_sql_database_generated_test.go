@@ -56,7 +56,7 @@ func TestAccSQLDatabase_sqlDatabaseBasicExample(t *testing.T) {
 }
 
 func testAccSQLDatabase_sqlDatabaseBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_sql_database" "database" {
   name     = "tf-test-my-database%{random_suffix}"
   instance = google_sql_database_instance.instance.name
@@ -103,7 +103,7 @@ func TestAccSQLDatabase_sqlDatabaseDeletionPolicyExample(t *testing.T) {
 }
 
 func testAccSQLDatabase_sqlDatabaseDeletionPolicyExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_sql_database" "database_deletion_policy" {
   name     = "tf-test-my-database%{random_suffix}"
   instance = google_sql_database_instance.instance.name

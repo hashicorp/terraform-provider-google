@@ -56,7 +56,7 @@ func TestAccOSLoginSSHPublicKey_osLoginSshKeyBasicExample(t *testing.T) {
 }
 
 func testAccOSLoginSSHPublicKey_osLoginSshKeyBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_client_openid_userinfo" "me" {
 }
 

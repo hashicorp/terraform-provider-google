@@ -56,7 +56,7 @@ func TestAccHealthcareDataset_healthcareDatasetBasicExample(t *testing.T) {
 }
 
 func testAccHealthcareDataset_healthcareDatasetBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_healthcare_dataset" "default" {
   name      = "tf-test-example-dataset%{random_suffix}"
   location  = "us-central1"

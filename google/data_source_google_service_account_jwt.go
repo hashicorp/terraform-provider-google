@@ -90,7 +90,7 @@ func dataSourceGoogleServiceAccountJwtRead(d *schema.ResourceData, meta interfac
 
 	jwtRequest := &iamcredentials.SignJwtRequest{
 		Payload:   payload,
-		Delegates: convertStringSet(d.Get("delegates").(*schema.Set)),
+		Delegates: tpgresource.ConvertStringSet(d.Get("delegates").(*schema.Set)),
 	}
 
 	service := config.NewIamCredentialsClient(userAgent)

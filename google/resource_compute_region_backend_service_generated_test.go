@@ -56,7 +56,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceBasicExample(t *test
 }
 
 func testAccComputeRegionBackendService_regionBackendServiceBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
   name                            = "tf-test-region-service%{random_suffix}"
   region                          = "us-central1"
@@ -103,7 +103,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceIlbRoundRobinExample
 }
 
 func testAccComputeRegionBackendService_regionBackendServiceIlbRoundRobinExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
   region = "us-central1"
   name = "tf-test-region-service%{random_suffix}"
@@ -148,7 +148,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceExternalWeightedExam
 }
 
 func testAccComputeRegionBackendService_regionBackendServiceExternalWeightedExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
   region                = "us-central1"
   name                  = "tf-test-region-service%{random_suffix}"
@@ -195,7 +195,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceIlbRingHashExample(t
 }
 
 func testAccComputeRegionBackendService_regionBackendServiceIlbRingHashExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
   region = "us-central1"
   name = "tf-test-region-service%{random_suffix}"
@@ -256,7 +256,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceBalancingModeExample
 }
 
 func testAccComputeRegionBackendService_regionBackendServiceBalancingModeExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
   load_balancing_scheme = "INTERNAL_MANAGED"
 

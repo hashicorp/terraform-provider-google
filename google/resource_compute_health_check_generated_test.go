@@ -55,7 +55,7 @@ func TestAccComputeHealthCheck_healthCheckTcpExample(t *testing.T) {
 }
 
 func testAccComputeHealthCheck_healthCheckTcpExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_health_check" "tcp-health-check" {
   name = "tf-test-tcp-health-check%{random_suffix}"
 
@@ -94,7 +94,7 @@ func TestAccComputeHealthCheck_healthCheckTcpFullExample(t *testing.T) {
 }
 
 func testAccComputeHealthCheck_healthCheckTcpFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_health_check" "tcp-health-check" {
   name        = "tf-test-tcp-health-check%{random_suffix}"
   description = "Health check via tcp"
@@ -140,7 +140,7 @@ func TestAccComputeHealthCheck_healthCheckSslExample(t *testing.T) {
 }
 
 func testAccComputeHealthCheck_healthCheckSslExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_health_check" "ssl-health-check" {
   name = "tf-test-ssl-health-check%{random_suffix}"
 
@@ -179,7 +179,7 @@ func TestAccComputeHealthCheck_healthCheckSslFullExample(t *testing.T) {
 }
 
 func testAccComputeHealthCheck_healthCheckSslFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_health_check" "ssl-health-check" {
   name        = "tf-test-ssl-health-check%{random_suffix}"
   description = "Health check via ssl"
@@ -225,7 +225,7 @@ func TestAccComputeHealthCheck_healthCheckHttpExample(t *testing.T) {
 }
 
 func testAccComputeHealthCheck_healthCheckHttpExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_health_check" "http-health-check" {
   name = "tf-test-http-health-check%{random_suffix}"
 
@@ -264,7 +264,7 @@ func TestAccComputeHealthCheck_healthCheckHttpFullExample(t *testing.T) {
 }
 
 func testAccComputeHealthCheck_healthCheckHttpFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_health_check" "http-health-check" {
   name        = "tf-test-http-health-check%{random_suffix}"
   description = "Health check via http"
@@ -311,7 +311,7 @@ func TestAccComputeHealthCheck_healthCheckHttpsExample(t *testing.T) {
 }
 
 func testAccComputeHealthCheck_healthCheckHttpsExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_health_check" "https-health-check" {
   name = "tf-test-https-health-check%{random_suffix}"
 
@@ -350,7 +350,7 @@ func TestAccComputeHealthCheck_healthCheckHttpsFullExample(t *testing.T) {
 }
 
 func testAccComputeHealthCheck_healthCheckHttpsFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_health_check" "https-health-check" {
   name        = "tf-test-https-health-check%{random_suffix}"
   description = "Health check via https"
@@ -397,7 +397,7 @@ func TestAccComputeHealthCheck_healthCheckHttp2Example(t *testing.T) {
 }
 
 func testAccComputeHealthCheck_healthCheckHttp2Example(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_health_check" "http2-health-check" {
   name = "tf-test-http2-health-check%{random_suffix}"
 
@@ -436,7 +436,7 @@ func TestAccComputeHealthCheck_healthCheckHttp2FullExample(t *testing.T) {
 }
 
 func testAccComputeHealthCheck_healthCheckHttp2FullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_health_check" "http2-health-check" {
   name        = "tf-test-http2-health-check%{random_suffix}"
   description = "Health check via http2"
@@ -483,7 +483,7 @@ func TestAccComputeHealthCheck_healthCheckGrpcExample(t *testing.T) {
 }
 
 func testAccComputeHealthCheck_healthCheckGrpcExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_health_check" "grpc-health-check" {
   name = "tf-test-grpc-health-check%{random_suffix}"
 
@@ -522,7 +522,7 @@ func TestAccComputeHealthCheck_healthCheckGrpcFullExample(t *testing.T) {
 }
 
 func testAccComputeHealthCheck_healthCheckGrpcFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_health_check" "grpc-health-check" {
   name = "tf-test-grpc-health-check%{random_suffix}"
 

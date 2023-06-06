@@ -8,6 +8,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/hashicorp/terraform-provider-google/google/services/pubsub"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/storage/v1"
@@ -102,18 +104,18 @@ func resourceStorageNotificationCreate(d *schema.ResourceData, meta interface{})
 	bucket := d.Get("bucket").(string)
 
 	topicName := d.Get("topic").(string)
-	computedTopicName := getComputedTopicName("", topicName)
+	computedTopicName := pubsub.GetComputedTopicName("", topicName)
 	if computedTopicName != topicName {
 		project, err := tpgresource.GetProject(d, config)
 		if err != nil {
 			return err
 		}
-		computedTopicName = getComputedTopicName(project, topicName)
+		computedTopicName = pubsub.GetComputedTopicName(project, topicName)
 	}
 
 	storageNotification := &storage.Notification{
 		CustomAttributes: tpgresource.ExpandStringMap(d, "custom_attributes"),
-		EventTypes:       convertStringSet(d.Get("event_types").(*schema.Set)),
+		EventTypes:       tpgresource.ConvertStringSet(d.Get("event_types").(*schema.Set)),
 		ObjectNamePrefix: d.Get("object_name_prefix").(string),
 		PayloadFormat:    d.Get("payload_format").(string),
 		Topic:            computedTopicName,

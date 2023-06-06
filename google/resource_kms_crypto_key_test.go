@@ -6,9 +6,9 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -56,7 +56,7 @@ func TestCryptoKeyIdParsing(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		cryptoKeyId, err := ParseKmsCryptoKeyId(tc.ImportId, tc.Config)
+		cryptoKeyId, err := kms.ParseKmsCryptoKeyId(tc.ImportId, tc.Config)
 
 		if tc.ExpectedError && err == nil {
 			t.Fatalf("bad: %s, expected an error", tn)
@@ -76,41 +76,6 @@ func TestCryptoKeyIdParsing(t *testing.T) {
 		if cryptoKeyId.CryptoKeyId() != tc.ExpectedCryptoKeyId {
 			t.Fatalf("bad: %s, expected CryptoKey ID to be `%s` but is `%s`", tn, tc.ExpectedCryptoKeyId, cryptoKeyId.CryptoKeyId())
 		}
-	}
-}
-
-func TestCryptoKeyNextRotationCalculation(t *testing.T) {
-	t.Parallel()
-
-	now := time.Now().UTC()
-	period, _ := time.ParseDuration("1000000s")
-
-	expected := now.Add(period).Format(time.RFC3339Nano)
-
-	timestamp, err := kmsCryptoKeyNextRotation(now, "1000000s")
-
-	if err != nil {
-		t.Fatalf("unexpected failure parsing time %s and duration 1000s: %s", now, err.Error())
-	}
-
-	if expected != timestamp {
-		t.Fatalf("expected %s to equal %s", timestamp, expected)
-	}
-}
-
-func TestCryptoKeyNextRotationCalculation_validation(t *testing.T) {
-	t.Parallel()
-
-	_, errs := validateKmsCryptoKeyRotationPeriod("86399s", "rotation_period")
-
-	if len(errs) == 0 {
-		t.Fatalf("Periods of less than a day should be invalid")
-	}
-
-	_, errs = validateKmsCryptoKeyRotationPeriod("100000.0000000001s", "rotation_period")
-
-	if len(errs) == 0 {
-		t.Fatalf("Numbers with more than 9 fractional digits are invalid")
 	}
 }
 
@@ -154,7 +119,7 @@ func TestCryptoKeyStateUpgradeV0(t *testing.T) {
 	}
 	for tn, tc := range cases {
 		t.Run(tn, func(t *testing.T) {
-			actual, err := ResourceKMSCryptoKeyUpgradeV0(context.Background(), tc.Attributes, tc.Meta)
+			actual, err := kms.ResourceKMSCryptoKeyUpgradeV0(context.Background(), tc.Attributes, tc.Meta)
 
 			if err != nil {
 				t.Error(err)

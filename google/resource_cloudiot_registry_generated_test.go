@@ -58,7 +58,7 @@ func TestAccCloudIotDeviceRegistry_cloudiotDeviceRegistryBasicExample(t *testing
 }
 
 func testAccCloudIotDeviceRegistry_cloudiotDeviceRegistryBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_cloudiot_registry" "test-registry" {
   name     = "tf-test-cloudiot-registry%{random_suffix}"
 }
@@ -93,7 +93,7 @@ func TestAccCloudIotDeviceRegistry_cloudiotDeviceRegistrySingleEventNotification
 }
 
 func testAccCloudIotDeviceRegistry_cloudiotDeviceRegistrySingleEventNotificationConfigsExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_pubsub_topic" "default-telemetry" {
   name = "tf-test-default-telemetry%{random_suffix}"
 }
@@ -138,7 +138,7 @@ func TestAccCloudIotDeviceRegistry_cloudiotDeviceRegistryFullExample(t *testing.
 }
 
 func testAccCloudIotDeviceRegistry_cloudiotDeviceRegistryFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_pubsub_topic" "default-devicestatus" {
   name = "tf-test-default-devicestatus%{random_suffix}"
 }
