@@ -69,6 +69,40 @@ func TestAccPubsubTopic_cmek(t *testing.T) {
 	})
 }
 
+func TestAccPubsubTopic_schema(t *testing.T) {
+	t.Parallel()
+
+	schema1 := fmt.Sprintf("tf-test-schema-%s", RandString(t, 10))
+	schema2 := fmt.Sprintf("tf-test-schema-%s", RandString(t, 10))
+	topic := fmt.Sprintf("tf-test-topic-%s", RandString(t, 10))
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubTopicDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubTopic_updateWithSchema(topic, schema1),
+			},
+			{
+				ResourceName:      "google_pubsub_topic.bar",
+				ImportStateId:     topic,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccPubsubTopic_updateWithNewSchema(topic, schema2),
+			},
+			{
+				ResourceName:      "google_pubsub_topic.bar",
+				ImportStateId:     topic,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccPubsubTopic_update(topic, key, value string) string {
 	return fmt.Sprintf(`
 resource "google_pubsub_topic" "foo" {
@@ -104,4 +138,40 @@ resource "google_pubsub_topic" "topic" {
   kms_key_name = "%s"
 }
 `, topicName, kmsKey)
+}
+
+func testAccPubsubTopic_updateWithSchema(topic, schema string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_schema" "foo" {
+	name = "%s"
+	type = "PROTOCOL_BUFFER"
+  definition = "syntax = \"proto3\";\nmessage Results {\nstring f1 = 1;\n}"
+}
+
+resource "google_pubsub_topic" "bar" {
+  name = "%s"
+	schema_settings {
+    schema = google_pubsub_schema.foo.id
+    encoding = "BINARY"
+  }
+}
+`, schema, topic)
+}
+
+func testAccPubsubTopic_updateWithNewSchema(topic, schema string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_schema" "foo" {
+	name = "%s"
+	type = "PROTOCOL_BUFFER"
+	definition = "syntax = \"proto3\";\nmessage Results {\nstring f1 = 1;\n}"
+}
+
+resource "google_pubsub_topic" "bar" {
+  name = "%s"
+	schema_settings {
+    schema = google_pubsub_schema.foo.id
+    encoding = "JSON"
+  }
+}
+`, schema, topic)
 }
