@@ -47,8 +47,13 @@ resource "google_project" "default" {
 	billing_account = "%{billing_account}"
 }
 
+resource "google_project_service" "logging_service" {
+	project = google_project.default.project_id
+	service = "logging.googleapis.com"
+}
+
 data "google_logging_project_cmek_settings" "cmek_settings" {
-	project = google_project.default.name
+	project = google_project_service.logging_service.project
 }
 `, context)
 }
