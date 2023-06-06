@@ -629,6 +629,15 @@ office using the hotword regex '(xxx)', where 'xxx' is the area code in question
 					},
 				},
 			},
+			"template_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The template id can contain uppercase and lowercase letters, numbers, and hyphens;
+that is, it must match the regular expression: [a-zA-Z\d-_]+. The maximum length is
+100 characters. Can be empty to allow the system to generate one.`,
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -742,6 +751,18 @@ func resourceDataLossPreventionInspectTemplateRead(d *schema.ResourceData, meta 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DataLossPreventionInspectTemplate %q", d.Id()))
 	}
 
+	res, err = resourceDataLossPreventionInspectTemplateDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing DataLossPreventionInspectTemplate because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	if err := d.Set("name", flattenDataLossPreventionInspectTemplateName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InspectTemplate: %s", err)
 	}
@@ -787,7 +808,7 @@ func resourceDataLossPreventionInspectTemplateUpdate(d *schema.ResourceData, met
 		obj["inspectConfig"] = inspectConfigProp
 	}
 
-	obj, err = resourceDataLossPreventionInspectTemplateEncoder(d, meta, obj)
+	obj, err = resourceDataLossPreventionInspectTemplateUpdateEncoder(d, meta, obj)
 	if err != nil {
 		return err
 	}
@@ -2704,5 +2725,23 @@ func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredTy
 func resourceDataLossPreventionInspectTemplateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	newObj := make(map[string]interface{})
 	newObj["inspectTemplate"] = obj
+	templateIdProp, ok := d.GetOk("template_id")
+	if ok && templateIdProp != nil {
+		newObj["templateId"] = templateIdProp
+	}
 	return newObj, nil
+}
+
+func resourceDataLossPreventionInspectTemplateUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	newObj := make(map[string]interface{})
+	newObj["inspectTemplate"] = obj
+	return newObj, nil
+}
+
+func resourceDataLossPreventionInspectTemplateDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("template_id", flattenDataLossPreventionInspectTemplateName(res["name"], d, config)); err != nil {
+		return nil, fmt.Errorf("Error reading InspectTemplate: %s", err)
+	}
+	return res, nil
 }

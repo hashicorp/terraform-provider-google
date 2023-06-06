@@ -50,7 +50,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateBasicExamp
 				ResourceName:            "google_data_loss_prevention_deidentify_template.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"template_id", "parent"},
 			},
 		},
 	})
@@ -177,7 +177,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateSkipCharac
 				ResourceName:            "google_data_loss_prevention_deidentify_template.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"template_id", "parent"},
 			},
 		},
 	})
@@ -304,7 +304,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateImageTrans
 				ResourceName:            "google_data_loss_prevention_deidentify_template.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"template_id", "parent"},
 			},
 		},
 	})
@@ -339,6 +339,62 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 
       transforms {
         all_text {}
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateWithTemplateIdExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       acctest.GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateWithTemplateIdExample(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_deidentify_template.with_template_id",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"template_id", "parent"},
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateWithTemplateIdExample(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "with_template_id" {
+  parent = "projects/%{project}"
+  template_id = "tf-test-my-template%{random_suffix}"
+
+  deidentify_config {
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "PHONE_NUMBER"
+        }
+        info_types {
+          name = "AGE"
+        }
+
+        primitive_transformation {
+          replace_config {
+            new_value {
+              integer_value = 9
+            }
+          }
+        }
       }
     }
   }
