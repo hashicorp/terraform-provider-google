@@ -1,0 +1,3 @@
+```release-note:enhancement
+vpcaccess: Added `connected_projects` attribute to resource `google_vpc_access_connector`.
+```

@@ -150,6 +150,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `self_link` -
   The fully qualified name of this VPC connector
 
+* `connected_projects` -
+  List of projects using the connector.
+
 
 ## Timeouts
 
