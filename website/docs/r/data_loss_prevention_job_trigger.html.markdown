@@ -496,7 +496,7 @@ The following arguments are supported:
 <a name="nested_inspect_job"></a>The `inspect_job` block supports:
 
 * `inspect_template_name` -
-  (Required)
+  (Optional)
   The name of the template to run when this job is triggered.
 
 * `inspect_config` -

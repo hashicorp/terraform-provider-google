@@ -112,11 +112,6 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"inspect_template_name": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `The name of the template to run when this job is triggered.`,
-						},
 						"storage_config": {
 							Type:        schema.TypeList,
 							Required:    true,
@@ -1274,6 +1269,11 @@ at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built
 									},
 								},
 							},
+						},
+						"inspect_template_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The name of the template to run when this job is triggered.`,
 						},
 					},
 				},
