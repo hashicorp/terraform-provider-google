@@ -138,6 +138,14 @@ https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/su
 					},
 				},
 			},
+			"connected_projects": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `List of projects using the connector.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"self_link": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -387,6 +395,9 @@ func resourceVPCAccessConnectorRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("max_throughput", flattenVPCAccessConnectorMaxThroughput(res["maxThroughput"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Connector: %s", err)
 	}
+	if err := d.Set("connected_projects", flattenVPCAccessConnectorConnectedProjects(res["connectedProjects"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connector: %s", err)
+	}
 	if err := d.Set("subnet", flattenVPCAccessConnectorSubnet(res["subnet"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Connector: %s", err)
 	}
@@ -560,6 +571,10 @@ func flattenVPCAccessConnectorMaxThroughput(v interface{}, d *schema.ResourceDat
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenVPCAccessConnectorConnectedProjects(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenVPCAccessConnectorSubnet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
