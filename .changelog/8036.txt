@@ -1,0 +1,3 @@
+```release-note:enhancement
+dlp: changed `inspect_template_name` field from required to optional in `google_data_loss_prevention_job_trigger` resource
+```
