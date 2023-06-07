@@ -51,7 +51,8 @@ func ResourceComputeRegionDisk() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
-			customdiff.ForceNewIfChange("size", IsDiskShrinkage)),
+			customdiff.ForceNewIfChange("size", IsDiskShrinkage),
+			hyperDiskIopsUpdateDiffSupress),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
