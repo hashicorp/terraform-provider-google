@@ -69,6 +69,12 @@ resource "google_dataform_repository" "dataform_respository" {
       default_branch = "main"
       authentication_token_secret_version = google_secret_manager_secret_version.secret_version.id
   }
+
+  workspace_compilation_overrides {
+    default_database = "database"
+    schema_suffix = "_suffix"
+    table_prefix = "prefix_"
+  }
 }
 ```
 
@@ -89,6 +95,11 @@ The following arguments are supported:
   (Optional)
   Optional. If set, configures this repository to be linked to a Git remote.
   Structure is [documented below](#nested_git_remote_settings).
+
+* `workspace_compilation_overrides` -
+  (Optional)
+  Optional. If set, fields of workspaceCompilationOverrides override the default compilation settings that are specified in dataform.json when creating workspace-scoped compilation results.
+  Structure is [documented below](#nested_workspace_compilation_overrides).
 
 * `region` -
   (Optional)
@@ -115,6 +126,20 @@ The following arguments are supported:
 * `token_status` -
   (Output)
   Indicates the status of the Git access token. https://cloud.google.com/dataform/reference/rest/v1beta1/projects.locations.repositories#TokenStatus
+
+<a name="nested_workspace_compilation_overrides"></a>The `workspace_compilation_overrides` block supports:
+
+* `default_database` -
+  (Optional)
+  Optional. The default database (Google Cloud project ID).
+
+* `schema_suffix` -
+  (Optional)
+  Optional. The suffix that should be appended to all schema (BigQuery dataset ID) names.
+
+* `table_prefix` -
+  (Optional)
+  Optional. The prefix that should be prepended to all table names.
 
 ## Attributes Reference
 
