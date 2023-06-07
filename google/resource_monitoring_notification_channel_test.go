@@ -40,7 +40,7 @@ func TestAccMonitoringNotificationChannel_update(t *testing.T) {
 
 func TestAccMonitoringNotificationChannel_updateLabels_slack(t *testing.T) {
 	// Slack auth_token required for test not to fail, skipping test till interal testing slack can be created
-	acctest.SkipIfVcr(t)
+	t.Skip()
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
@@ -90,7 +90,7 @@ func TestAccMonitoringNotificationChannel_updateLabels(t *testing.T) {
 
 func TestAccMonitoringNotificationChannel_updateSensitiveLabels_slack(t *testing.T) {
 	// Slack auth_token required for test not to fail, skipping test till interal testing slack can be created
-	acctest.SkipIfVcr(t)
+	t.Skip()
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
