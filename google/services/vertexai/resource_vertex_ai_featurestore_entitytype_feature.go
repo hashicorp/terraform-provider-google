@@ -93,6 +93,11 @@ func ResourceVertexAIFeaturestoreEntitytypeFeature() *schema.Resource {
 				Computed:    true,
 				Description: `The timestamp when the entity type was most recently updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.`,
 			},
+			"region": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The region of the feature",
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -124,6 +129,11 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureCreate(d *schema.ResourceData,
 		return err
 	} else if v, ok := d.GetOkExists("value_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(valueTypeProp)) && (ok || !reflect.DeepEqual(v, valueTypeProp)) {
 		obj["valueType"] = valueTypeProp
+	}
+
+	obj, err = resourceVertexAIFeaturestoreEntitytypeFeatureEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}{{entitytype}}/features?featureId={{name}}")
@@ -265,6 +275,11 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureUpdate(d *schema.ResourceData,
 		obj["description"] = descriptionProp
 	}
 
+	obj, err = resourceVertexAIFeaturestoreEntitytypeFeatureEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}{{entitytype}}/features/{{name}}")
 	if err != nil {
 		return err
@@ -383,6 +398,13 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureImport(d *schema.ResourceData,
 	}
 	d.SetId(id)
 
+	entitytype := d.Get("entitytype").(string)
+
+	re := regexp.MustCompile("^projects/(.+)/locations/(.+)/featurestores/(.+)/entityTypes/(.+)$")
+	if parts := re.FindStringSubmatch(entitytype); parts != nil {
+		d.Set("region", parts[2])
+	}
+
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -423,4 +445,15 @@ func expandVertexAIFeaturestoreEntitytypeFeatureDescription(v interface{}, d tpg
 
 func expandVertexAIFeaturestoreEntitytypeFeatureValueType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceVertexAIFeaturestoreEntitytypeFeatureEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	if v, ok := d.GetOk("entitytype"); ok {
+		re := regexp.MustCompile("^projects/(.+)/locations/(.+)/featurestores/(.+)/entityTypes/(.+)$")
+		if parts := re.FindStringSubmatch(v.(string)); parts != nil {
+			d.Set("region", parts[2])
+		}
+	}
+
+	return obj, nil
 }
