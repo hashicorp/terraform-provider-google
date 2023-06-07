@@ -233,6 +233,7 @@ The following arguments are supported:
 * `provisioned_iops` -
   (Optional)
   Indicates how many IOPS must be provisioned for the disk.
+  Note: Update currently only supported by hyperdisk skus, allowing for an update of IOPS every 4 hours
 
 * `async_primary_disk` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))

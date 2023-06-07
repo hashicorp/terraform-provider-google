@@ -351,6 +351,60 @@ func TestAccComputeDisk_update(t *testing.T) {
 		},
 	})
 }
+func TestAccComputeDisk_pdHyperDiskProvisionedIopsLifeCycle(t *testing.T) {
+	t.Parallel()
+
+	context_1 := map[string]interface{}{
+		"random_suffix":    RandString(t, 10),
+		"provisioned_iops": 10000,
+		"disk_size":        64,
+		"lifecycle_bool":   true,
+	}
+	context_2 := map[string]interface{}{
+		"random_suffix":    context_1["random_suffix"],
+		"provisioned_iops": 11000,
+		"disk_size":        64,
+		"lifecycle_bool":   true,
+	}
+	context_3 := map[string]interface{}{
+		"random_suffix":    context_1["random_suffix"],
+		"provisioned_iops": 11000,
+		"disk_size":        64,
+		"lifecycle_bool":   false,
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeDisk_pdHyperDiskProvisionedIopsLifeCycle(context_1),
+			},
+			{
+				ResourceName:      "google_compute_disk.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeDisk_pdHyperDiskProvisionedIopsLifeCycle(context_2),
+			},
+			{
+				ResourceName:      "google_compute_disk.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeDisk_pdHyperDiskProvisionedIopsLifeCycle(context_3),
+			},
+			{
+				ResourceName:      "google_compute_disk.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
 
 func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 	t.Parallel()
@@ -867,6 +921,20 @@ resource "google_compute_instance_group_manager" "manager" {
   wait_for_instances = true
 }
 `, diskName, mgrName)
+}
+
+func testAccComputeDisk_pdHyperDiskProvisionedIopsLifeCycle(context map[string]interface{}) string {
+	return Nprintf(`
+	resource "google_compute_disk" "foobar" {
+		name  = "tf-test-hyperdisk-%{random_suffix}"
+		type = "hyperdisk-extreme"
+		provisioned_iops = %{provisioned_iops}
+		size = %{disk_size}
+		lifecycle {
+		  prevent_destroy = %{lifecycle_bool}
+		}
+	  }
+`, context)
 }
 
 func testAccComputeDisk_pdExtremeImplicitProvisionedIops(diskName string) string {

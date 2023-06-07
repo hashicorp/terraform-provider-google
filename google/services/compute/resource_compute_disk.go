@@ -34,6 +34,22 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
+// diffsupress for hyperdisk provisioned_iops
+func hyperDiskIopsUpdateDiffSupress(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	if !strings.Contains(d.Get("type").(string), "hyperdisk") {
+		resourceSchema := ResourceComputeDisk().Schema
+		for field := range resourceSchema {
+			if field == "provisioned_iops" && d.HasChange(field) {
+				if err := d.ForceNew(field); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
 // diffsupress for beta and to check change in source_disk attribute
 func sourceDiskDiffSupress(_, old, new string, _ *schema.ResourceData) bool {
 	s1 := strings.TrimPrefix(old, "https://www.googleapis.com/compute/beta")
@@ -294,7 +310,8 @@ func ResourceComputeDisk() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
-			customdiff.ForceNewIfChange("size", IsDiskShrinkage)),
+			customdiff.ForceNewIfChange("size", IsDiskShrinkage),
+			hyperDiskIopsUpdateDiffSupress),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -433,11 +450,11 @@ If an unsupported value is requested, the error message will list
 the supported values for the caller's project.`,
 			},
 			"provisioned_iops": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Indicates how many IOPS must be provisioned for the disk.`,
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+				Description: `Indicates how many IOPS must be provisioned for the disk.
+Note: Update currently only supported by hyperdisk skus, allowing for an update of IOPS every 4 hours`,
 			},
 			"size": {
 				Type:     schema.TypeInt,
@@ -1011,6 +1028,11 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 			obj["labels"] = labelsProp
 		}
 
+		obj, err = resourceComputeDiskUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
 		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}/setLabels")
 		if err != nil {
 			return err
@@ -1053,6 +1075,11 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 			obj["sizeGb"] = sizeGbProp
 		}
 
+		obj, err = resourceComputeDiskUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
 		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}/resize")
 		if err != nil {
 			return err
@@ -1066,6 +1093,53 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "POST",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating Disk %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Disk %q: %#v", d.Id(), res)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Updating Disk", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("provisioned_iops") {
+		obj := make(map[string]interface{})
+
+		provisionedIopsProp, err := expandComputeDiskProvisionedIops(d.Get("provisioned_iops"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("provisioned_iops"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, provisionedIopsProp)) {
+			obj["provisionedIops"] = provisionedIopsProp
+		}
+
+		obj, err = resourceComputeDiskUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}?paths=provisionedIops")
+		if err != nil {
+			return err
+		}
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
 			Project:   billingProject,
 			RawURL:    url,
 			UserAgent: userAgent,
@@ -1819,6 +1893,17 @@ func resourceComputeDiskEncoder(d *schema.ResourceData, meta interface{}, obj ma
 		log.Printf("[DEBUG] Image name resolved to: %s", imageUrl)
 	}
 
+	return obj, nil
+}
+
+func resourceComputeDiskUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+
+	if d.HasChange("provisioned_iops") && strings.Contains(d.Get("type").(string), "hyperdisk") {
+		nameProp := d.Get("name")
+		if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+			obj["name"] = nameProp
+		}
+	}
 	return obj, nil
 }
 
