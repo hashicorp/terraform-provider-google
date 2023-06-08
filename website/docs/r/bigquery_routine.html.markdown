@@ -166,7 +166,7 @@ The following arguments are supported:
   Optional. Can be set only if routineType = "TABLE_VALUED_FUNCTION".
   If absent, the return table type is inferred from definitionBody at query time in each query
   that references this routine. If present, then the columns in the evaluated table result will
-  be cast to match the column types specificed in return table type, at query time.
+  be cast to match the column types specified in return table type, at query time.
 
 * `imported_libraries` -
   (Optional)

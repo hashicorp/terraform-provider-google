@@ -73,7 +73,7 @@ The following arguments are supported:
   (Required)
   An integer indicating the priority of a rule in the list. The priority must be a value
   between 0 and 2147483647. Rules are evaluated from highest to lowest priority where 0 is the
-  highest priority and 2147483647 is the lowest prority.
+  highest priority and 2147483647 is the lowest priority.
 
 * `match` -
   (Required)

@@ -60,7 +60,7 @@ resource "google_secret_manager_secret_version" "secret_version" {
   secret_data = "secret-data"
 }
 
-resource "google_dataform_repository" "dataform_respository" {
+resource "google_dataform_repository" "dataform_repository" {
   provider = google-beta
   name = "dataform_repository"
 

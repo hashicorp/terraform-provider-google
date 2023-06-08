@@ -437,7 +437,7 @@ The following arguments are supported:
 
 * `name` -
   (Required)
-  Name of the environment variable. Must be a C_IDENTIFIER, and mnay not exceed 32768 characters.
+  Name of the environment variable. Must be a C_IDENTIFIER, and many not exceed 32768 characters.
 
 * `value` -
   (Optional)

@@ -362,7 +362,7 @@ The following arguments are supported:
 
 * `availability` -
   (Optional)
-  Availability based SLI, dervied from count of requests made to this service that return successfully.
+  Availability based SLI, derived from count of requests made to this service that return successfully.
   Structure is [documented below](#nested_availability).
 
 
@@ -649,7 +649,7 @@ The following arguments are supported:
 
 * `availability` -
   (Optional)
-  Availability based SLI, dervied from count of requests made to this service that return successfully.
+  Availability based SLI, derived from count of requests made to this service that return successfully.
   Structure is [documented below](#nested_availability).
 
 

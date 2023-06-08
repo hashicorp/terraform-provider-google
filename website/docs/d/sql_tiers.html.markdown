@@ -23,7 +23,7 @@ locals {
   all_available_tiers = [for v in data.google_sql_tiers.tiers.tiers : v.tier]
 }
 
-output "avaialble_tiers" {
+output "available_tiers" {
   description = "List of all available tiers for give project."
   value       = local.all_available_tiers
 }

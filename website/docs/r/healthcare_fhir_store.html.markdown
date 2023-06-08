@@ -285,7 +285,7 @@ The following arguments are supported:
 
 * `notification_configs` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-  A list of notifcation configs that configure the notification for every resource mutation in this FHIR store.
+  A list of notification configs that configure the notification for every resource mutation in this FHIR store.
   Structure is [documented below](#nested_notification_configs).
 
 

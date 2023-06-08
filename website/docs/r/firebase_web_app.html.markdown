@@ -105,7 +105,7 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 * `deletion_policy` - (Optional) Set to `ABANDON` to allow the WebApp to be untracked from terraform state
-rather than deleted upon `terraform destroy`. This is useful becaue the WebApp may be
+rather than deleted upon `terraform destroy`. This is useful because the WebApp may be
 serving traffic. Set to `DELETE` to delete the WebApp. Default to `ABANDON`
 
 

@@ -230,7 +230,7 @@ cluster.
 * `standard_rollout_policy` - (Required) Specifies the standard policy settings for blue-green upgrades.
     * `batch_percentage` - (Optional) Percentage of the blue pool nodes to drain in a batch.
     * `batch_node_count` - (Optional) Number of blue nodes to drain in a batch.
-    * `batch_soak_duration` - (Optionial) Soak time after each batch gets drained.
+    * `batch_soak_duration` - (Optional) Soak time after each batch gets drained.
 
 * `node_pool_soak_duration` - (Optional) Time needed after draining the entire blue pool.
     After this period, the blue pool will be cleaned up.

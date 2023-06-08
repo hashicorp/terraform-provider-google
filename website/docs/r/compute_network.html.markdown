@@ -123,8 +123,8 @@ The following arguments are supported:
   When enabling ula internal ipv6, caller optionally can specify the /48 range
   they want from the google defined ULA prefix fd20::/20. The input must be a
   valid /48 ULA IPv6 address and must be within the fd20::/20. Operation will
-  fail if the speficied /48 is already in used by another resource.
-  If the field is not speficied, then a /48 range will be randomly allocated from fd20::/20 and returned via this field.
+  fail if the specified /48 is already in used by another resource.
+  If the field is not specified, then a /48 range will be randomly allocated from fd20::/20 and returned via this field.
 
 * `network_firewall_policy_enforcement_order` -
   (Optional)

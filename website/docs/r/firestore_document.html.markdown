@@ -82,7 +82,7 @@ The following arguments are supported:
 
 * `fields` -
   (Required)
-  The document's [fields](https://cloud.google.com/firestore/docs/reference/rest/v1/projects.databases.documents) formated as a json string.
+  The document's [fields](https://cloud.google.com/firestore/docs/reference/rest/v1/projects.databases.documents) formatted as a json string.
 
 * `collection` -
   (Required)

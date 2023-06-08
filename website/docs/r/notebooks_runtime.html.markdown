@@ -575,7 +575,7 @@ The following arguments are supported:
 
 * `idle_shutdown_timeout` -
   (Optional)
-  Time in minutes to wait before shuting down runtime.
+  Time in minutes to wait before shutting down runtime.
   Default: 180 minutes
 
 * `install_gpu_driver` -
