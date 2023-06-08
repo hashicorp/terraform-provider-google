@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -27,6 +28,11 @@ func ResourceBigtableInstance() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			State: resourceBigtableInstanceImport,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -213,8 +219,9 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 
 	defer c.Close()
 
-	err = c.CreateInstanceWithClusters(ctx, conf)
-	if err != nil {
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, d.Timeout(schema.TimeoutCreate))
+	defer cancel()
+	if err := c.CreateInstanceWithClusters(ctxWithTimeout, conf); err != nil {
 		return fmt.Errorf("Error creating instance. %s", err)
 	}
 
@@ -349,8 +356,9 @@ func resourceBigtableInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	_, err = bigtable.UpdateInstanceAndSyncClusters(ctx, c, conf)
-	if err != nil {
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+	if _, err := bigtable.UpdateInstanceAndSyncClusters(ctxWithTimeout, c, conf); err != nil {
 		return fmt.Errorf("Error updating instance. %s", err)
 	}
 
