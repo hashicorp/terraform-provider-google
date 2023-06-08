@@ -301,10 +301,10 @@ Must be between 0 and 100, inclusively. Both 0 and 100 means no limit.`,
 													Optional: true,
 													Description: `List of file type groups to include in the scan. If empty, all files are scanned and available data
 format processors are applied. In addition, the binary content of the selected files is always scanned as well.
-Images are scanned only as binary if the specified region does not support image inspection and no fileTypes were specified. Possible values: ["BINARY_FILE", "TEXT_FILE", "IMAGE", "WORD", "PDF", "AVRO", "CSV", "TSV"]`,
+Images are scanned only as binary if the specified region does not support image inspection and no fileTypes were specified. Possible values: ["BINARY_FILE", "TEXT_FILE", "IMAGE", "WORD", "PDF", "AVRO", "CSV", "TSV", "POWERPOINT", "EXCEL"]`,
 													Elem: &schema.Schema{
 														Type:         schema.TypeString,
-														ValidateFunc: verify.ValidateEnum([]string{"BINARY_FILE", "TEXT_FILE", "IMAGE", "WORD", "PDF", "AVRO", "CSV", "TSV"}),
+														ValidateFunc: verify.ValidateEnum([]string{"BINARY_FILE", "TEXT_FILE", "IMAGE", "WORD", "PDF", "AVRO", "CSV", "TSV", "POWERPOINT", "EXCEL"}),
 													},
 												},
 												"files_limit_percent": {
@@ -596,7 +596,6 @@ is 1,024 characters.`,
 												},
 											},
 										},
-										ExactlyOneOf: []string{},
 									},
 									"job_notification_emails": {
 										Type:        schema.TypeList,
@@ -606,7 +605,6 @@ is 1,024 characters.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{},
 										},
-										ExactlyOneOf: []string{},
 									},
 									"pub_sub": {
 										Type:        schema.TypeList,
@@ -622,7 +620,6 @@ is 1,024 characters.`,
 												},
 											},
 										},
-										ExactlyOneOf: []string{},
 									},
 									"publish_findings_to_cloud_data_catalog": {
 										Type:        schema.TypeList,
@@ -632,7 +629,6 @@ is 1,024 characters.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{},
 										},
-										ExactlyOneOf: []string{},
 									},
 									"publish_summary_to_cscc": {
 										Type:        schema.TypeList,
@@ -642,7 +638,6 @@ is 1,024 characters.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{},
 										},
-										ExactlyOneOf: []string{},
 									},
 									"publish_to_stackdriver": {
 										Type:        schema.TypeList,
@@ -652,7 +647,6 @@ is 1,024 characters.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{},
 										},
-										ExactlyOneOf: []string{},
 									},
 									"save_findings": {
 										Type:        schema.TypeList,
@@ -712,7 +706,6 @@ Only for use with external storage. Possible values: ["BASIC_COLUMNS", "GCS_COLU
 												},
 											},
 										},
-										ExactlyOneOf: []string{},
 									},
 								},
 							},

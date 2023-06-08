@@ -509,6 +509,7 @@ resource "google_data_loss_prevention_job_trigger" "basic" {
 				file_set {
 					url = "gs://mybucket/directory/"
 				}
+				file_types = ["POWERPOINT", "EXCEL", "CSV", "TSV"]
 			}
 		}
 	}
