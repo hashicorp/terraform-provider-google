@@ -1,0 +1,3 @@
+```release-note:none
+dlp: combined tests for `identifying_fields`, `included_fields` and `excluded_fields` in resource `google_data_loss_prevention_job_trigger`
+```
