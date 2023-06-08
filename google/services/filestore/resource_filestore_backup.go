@@ -202,7 +202,7 @@ func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) err
 		UserAgent:            userAgent,
 		Body:                 obj,
 		Timeout:              d.Timeout(schema.TimeoutCreate),
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsNotFilestoreQuotaError},
+		ErrorAbortPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is429QuotaError},
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating Backup: %s", err)
@@ -271,7 +271,7 @@ func resourceFilestoreBackupRead(d *schema.ResourceData, meta interface{}) error
 		Project:              billingProject,
 		RawURL:               url,
 		UserAgent:            userAgent,
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsNotFilestoreQuotaError},
+		ErrorAbortPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is429QuotaError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("FilestoreBackup %q", d.Id()))
@@ -399,7 +399,7 @@ func resourceFilestoreBackupUpdate(d *schema.ResourceData, meta interface{}) err
 		UserAgent:            userAgent,
 		Body:                 obj,
 		Timeout:              d.Timeout(schema.TimeoutUpdate),
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsNotFilestoreQuotaError},
+		ErrorAbortPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is429QuotaError},
 	})
 
 	if err != nil {
@@ -462,7 +462,7 @@ func resourceFilestoreBackupDelete(d *schema.ResourceData, meta interface{}) err
 		UserAgent:            userAgent,
 		Body:                 obj,
 		Timeout:              d.Timeout(schema.TimeoutDelete),
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsNotFilestoreQuotaError},
+		ErrorAbortPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is429QuotaError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "Backup")

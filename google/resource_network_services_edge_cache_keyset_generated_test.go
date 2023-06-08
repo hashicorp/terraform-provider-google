@@ -152,11 +152,12 @@ func testAccCheckNetworkServicesEdgeCacheKeysetDestroyProducer(t *testing.T) fun
 			}
 
 			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "GET",
-				Project:   billingProject,
-				RawURL:    url,
-				UserAgent: config.UserAgent,
+				Config:               config,
+				Method:               "GET",
+				Project:              billingProject,
+				RawURL:               url,
+				UserAgent:            config.UserAgent,
+				ErrorAbortPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is429QuotaError},
 			})
 			if err == nil {
 				return fmt.Errorf("NetworkServicesEdgeCacheKeyset still exists at %s", url)

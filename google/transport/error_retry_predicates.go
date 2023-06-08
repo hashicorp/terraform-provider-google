@@ -411,15 +411,14 @@ func isCommonRetryableErrorCode(err error) (bool, string) {
 	return false, ""
 }
 
-// Retry if filestore operation returns a 429 with a specific message for
-// concurrent operations.
-func IsNotFilestoreQuotaError(err error) (bool, string) {
+// Do not retry if operation returns a 429
+func Is429QuotaError(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok {
 		if gerr.Code == 429 {
-			return false, ""
+			return true, "429s are not retryable for this resource"
 		}
 	}
-	return isCommonRetryableErrorCode(err)
+	return false, ""
 }
 
 // Retry if App Engine operation returns a 409 with a specific message for
