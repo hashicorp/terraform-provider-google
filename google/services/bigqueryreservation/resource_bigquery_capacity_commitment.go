@@ -30,6 +30,13 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
+func bigqueryReservationCapacityCommitmentPlanDiffSuppressFunc(_, old, new string, _ *schema.ResourceData) bool {
+	if (old == "FLEX" || old == "MONTHLY" || old == "ANNUAL") && new == old+"_FLAT_RATE" {
+		return true
+	}
+	return false
+}
+
 func ResourceBigqueryReservationCapacityCommitment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigqueryReservationCapacityCommitmentCreate,
@@ -49,9 +56,10 @@ func ResourceBigqueryReservationCapacityCommitment() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"plan": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `Capacity commitment plan. Valid values are at https://cloud.google.com/bigquery/docs/reference/reservations/rpc/google.cloud.bigquery.reservation.v1#commitmentplan`,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: bigqueryReservationCapacityCommitmentPlanDiffSuppressFunc,
+				Description:      `Capacity commitment plan. Valid values are at https://cloud.google.com/bigquery/docs/reference/reservations/rpc/google.cloud.bigquery.reservation.v1#commitmentplan`,
 			},
 			"slot_count": {
 				Type:        schema.TypeInt,
