@@ -34,6 +34,7 @@ func ResourcePubsubSchema() *schema.Resource {
 	return &schema.Resource{
 		Create: resourcePubsubSchemaCreate,
 		Read:   resourcePubsubSchemaRead,
+		Update: resourcePubsubSchemaUpdate,
 		Delete: resourcePubsubSchemaDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -42,6 +43,7 @@ func ResourcePubsubSchema() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -56,7 +58,6 @@ func ResourcePubsubSchema() *schema.Resource {
 			"definition": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Description: `The definition of the schema.
 This should contain a string representing the full definition of the schema
 that is a valid schema definition of the type specified in type.`,
@@ -64,7 +65,6 @@ that is a valid schema definition of the type specified in type.`,
 			"type": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"TYPE_UNSPECIFIED", "PROTOCOL_BUFFER", "AVRO", ""}),
 				Description:  `The type of the schema definition Default value: "TYPE_UNSPECIFIED" Possible values: ["TYPE_UNSPECIFIED", "PROTOCOL_BUFFER", "AVRO"]`,
 				Default:      "TYPE_UNSPECIFIED",
@@ -235,11 +235,85 @@ func resourcePubsubSchemaRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("type", flattenPubsubSchemaType(res["type"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Schema: %s", err)
 	}
+	if err := d.Set("definition", flattenPubsubSchemaDefinition(res["definition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schema: %s", err)
+	}
 	if err := d.Set("name", flattenPubsubSchemaName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Schema: %s", err)
 	}
 
 	return nil
+}
+
+func resourcePubsubSchemaUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Schema: %s", err)
+	}
+	billingProject = project
+
+	obj := make(map[string]interface{})
+	typeProp, err := expandPubsubSchemaType(d.Get("type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+		obj["type"] = typeProp
+	}
+	definitionProp, err := expandPubsubSchemaDefinition(d.Get("definition"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("definition"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, definitionProp)) {
+		obj["definition"] = definitionProp
+	}
+	nameProp, err := expandPubsubSchemaName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
+
+	obj, err = resourcePubsubSchemaUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/schemas/{{name}}:commit")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating Schema %q: %#v", d.Id(), obj)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+	})
+
+	if err != nil {
+		return fmt.Errorf("Error updating Schema %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Schema %q: %#v", d.Id(), res)
+	}
+
+	return resourcePubsubSchemaRead(d, meta)
 }
 
 func resourcePubsubSchemaDelete(d *schema.ResourceData, meta interface{}) error {
@@ -316,6 +390,10 @@ func flattenPubsubSchemaType(v interface{}, d *schema.ResourceData, config *tran
 	return v
 }
 
+func flattenPubsubSchemaDefinition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenPubsubSchemaName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -333,4 +411,12 @@ func expandPubsubSchemaDefinition(v interface{}, d tpgresource.TerraformResource
 
 func expandPubsubSchemaName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return tpgresource.GetResourceNameFromSelfLink(v.(string)), nil
+}
+
+func resourcePubsubSchemaUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	newObj := make(map[string]interface{})
+	newObj["name"] = d.Id()
+	obj["name"] = d.Id()
+	newObj["schema"] = obj
+	return newObj, nil
 }

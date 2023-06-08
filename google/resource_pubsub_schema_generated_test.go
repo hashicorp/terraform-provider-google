@@ -46,10 +46,9 @@ func TestAccPubsubSchema_pubsubSchemaBasicExample(t *testing.T) {
 				Config: testAccPubsubSchema_pubsubSchemaBasicExample(context),
 			},
 			{
-				ResourceName:            "google_pubsub_schema.example",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"definition"},
+				ResourceName:      "google_pubsub_schema.example",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -82,10 +81,9 @@ func TestAccPubsubSchema_pubsubSchemaProtobufExample(t *testing.T) {
 				Config: testAccPubsubSchema_pubsubSchemaProtobufExample(context),
 			},
 			{
-				ResourceName:            "google_pubsub_schema.example",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"definition"},
+				ResourceName:      "google_pubsub_schema.example",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
