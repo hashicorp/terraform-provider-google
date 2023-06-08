@@ -46,7 +46,7 @@ func (w *FilestoreOperationWaiter) QueryOp() (interface{}, error) {
 		Project:              w.Project,
 		RawURL:               url,
 		UserAgent:            w.UserAgent,
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsNotFilestoreQuotaError},
+		ErrorAbortPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is429QuotaError},
 	})
 }
 

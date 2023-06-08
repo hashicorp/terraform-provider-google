@@ -354,7 +354,7 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 		UserAgent:            userAgent,
 		Body:                 obj,
 		Timeout:              d.Timeout(schema.TimeoutCreate),
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsNotFilestoreQuotaError},
+		ErrorAbortPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is429QuotaError},
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating Instance: %s", err)
@@ -423,7 +423,7 @@ func resourceFilestoreInstanceRead(d *schema.ResourceData, meta interface{}) err
 		Project:              billingProject,
 		RawURL:               url,
 		UserAgent:            userAgent,
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsNotFilestoreQuotaError},
+		ErrorAbortPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is429QuotaError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("FilestoreInstance %q", d.Id()))
@@ -535,7 +535,7 @@ func resourceFilestoreInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		UserAgent:            userAgent,
 		Body:                 obj,
 		Timeout:              d.Timeout(schema.TimeoutUpdate),
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsNotFilestoreQuotaError},
+		ErrorAbortPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is429QuotaError},
 	})
 
 	if err != nil {
@@ -591,7 +591,7 @@ func resourceFilestoreInstanceDelete(d *schema.ResourceData, meta interface{}) e
 		UserAgent:            userAgent,
 		Body:                 obj,
 		Timeout:              d.Timeout(schema.TimeoutDelete),
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsNotFilestoreQuotaError},
+		ErrorAbortPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is429QuotaError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "Instance")

@@ -164,7 +164,7 @@ func testAccCheckFilestoreInstanceDestroyProducer(t *testing.T) func(s *terrafor
 				Project:              billingProject,
 				RawURL:               url,
 				UserAgent:            config.UserAgent,
-				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsNotFilestoreQuotaError},
+				ErrorAbortPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is429QuotaError},
 			})
 			if err == nil {
 				return fmt.Errorf("FilestoreInstance still exists at %s", url)

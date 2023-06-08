@@ -1,0 +1,3 @@
+```release-note:bug
+filestore: fixed an issue causing 429 errors to be retried
+```

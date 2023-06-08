@@ -194,13 +194,14 @@ func resourceNetworkServicesEdgeCacheKeysetCreate(d *schema.ResourceData, meta i
 	}
 
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "POST",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Config:               config,
+		Method:               "POST",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		Timeout:              d.Timeout(schema.TimeoutCreate),
+		ErrorAbortPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is429QuotaError},
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating EdgeCacheKeyset: %s", err)
@@ -254,11 +255,12 @@ func resourceNetworkServicesEdgeCacheKeysetRead(d *schema.ResourceData, meta int
 	}
 
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "GET",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
+		Config:               config,
+		Method:               "GET",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		ErrorAbortPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is429QuotaError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkServicesEdgeCacheKeyset %q", d.Id()))
@@ -361,13 +363,14 @@ func resourceNetworkServicesEdgeCacheKeysetUpdate(d *schema.ResourceData, meta i
 	}
 
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "PATCH",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Config:               config,
+		Method:               "PATCH",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		Timeout:              d.Timeout(schema.TimeoutUpdate),
+		ErrorAbortPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is429QuotaError},
 	})
 
 	if err != nil {
@@ -416,13 +419,14 @@ func resourceNetworkServicesEdgeCacheKeysetDelete(d *schema.ResourceData, meta i
 	}
 
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "DELETE",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Config:               config,
+		Method:               "DELETE",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		Timeout:              d.Timeout(schema.TimeoutDelete),
+		ErrorAbortPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is429QuotaError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "EdgeCacheKeyset")
