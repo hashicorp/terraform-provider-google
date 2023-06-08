@@ -455,6 +455,11 @@ timeout period. Defaults to 60 seconds.`,
 				Computed:    true,
 				Description: `The last update timestamp of a Cloud Function.`,
 			},
+			"url": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. The deployed url for the function.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -655,6 +660,9 @@ func resourceCloudfunctions2functionRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading function: %s", err)
 	}
 	if err := d.Set("environment", flattenCloudfunctions2functionEnvironment(res["environment"], d, config)); err != nil {
+		return fmt.Errorf("Error reading function: %s", err)
+	}
+	if err := d.Set("url", flattenCloudfunctions2functionUrl(res["url"], d, config)); err != nil {
 		return fmt.Errorf("Error reading function: %s", err)
 	}
 	if err := d.Set("state", flattenCloudfunctions2functionState(res["state"], d, config)); err != nil {
@@ -877,6 +885,10 @@ func flattenCloudfunctions2functionDescription(v interface{}, d *schema.Resource
 }
 
 func flattenCloudfunctions2functionEnvironment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudfunctions2functionUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
