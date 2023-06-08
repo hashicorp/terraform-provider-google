@@ -911,6 +911,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `environment` -
   The environment the function is hosted on.
 
+* `url` -
+  Output only. The deployed url for the function.
+
 * `state` -
   Describes the current state of the function.
 
