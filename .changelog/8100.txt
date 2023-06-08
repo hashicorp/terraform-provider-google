@@ -1,0 +1,3 @@
+```release-note:enhancement
+dlp: added missing file types `POWERPOINT` and `EXCEL` in `inspect_job.storage_config.cloud_storage_options.file_types` enum to `google_data_loss_prevention_job_trigger` resource
+```

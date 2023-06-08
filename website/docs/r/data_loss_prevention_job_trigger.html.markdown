@@ -1047,7 +1047,7 @@ The following arguments are supported:
   List of file type groups to include in the scan. If empty, all files are scanned and available data
   format processors are applied. In addition, the binary content of the selected files is always scanned as well.
   Images are scanned only as binary if the specified region does not support image inspection and no fileTypes were specified.
-  Each value may be one of: `BINARY_FILE`, `TEXT_FILE`, `IMAGE`, `WORD`, `PDF`, `AVRO`, `CSV`, `TSV`.
+  Each value may be one of: `BINARY_FILE`, `TEXT_FILE`, `IMAGE`, `WORD`, `PDF`, `AVRO`, `CSV`, `TSV`, `POWERPOINT`, `EXCEL`.
 
 * `sample_method` -
   (Optional)
