@@ -1,5 +1,21 @@
 ## 4.69.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** `google_access_context_manager_service_perimeter_egress_policy` ([#14817](https://github.com/hashicorp/terraform-provider-google/pull/14817))
+* **New Resource:** `google_access_context_manager_service_perimeter_ingress_policy` ([#14817](https://github.com/hashicorp/terraform-provider-google/pull/14817))
+* **New Resource:** `google_certificate_manager_certificate_issuance_config` ([#14798](https://github.com/hashicorp/terraform-provider-google/pull/14798))
+* **New Resource:** `google_dataplex_datascan` ([#14798](https://github.com/hashicorp/terraform-provider-google/pull/14798))
+
+IMPROVEMENTS:
+* billing: added `lookup_projects` to `google_billing_account` datasource that skips reading the list of associated projects ([#14815](https://github.com/hashicorp/terraform-provider-google/pull/14815))
+* dlp: added `redact_config`, `fixed_size_bucketing_config`, `bucketing_config`, `time_part_config` and `date_shift_config`  fields to `google_data_loss_prevention_deidentify_template` resource ([#14797](https://github.com/hashicorp/terraform-provider-google/pull/14797))
+* dlp: added `stored_info_type_id` field to `google_data_loss_prevention_stored_info_type` resource ([#14791](https://github.com/hashicorp/terraform-provider-google/pull/14791))
+* dlp: changed `actions` field from required to optional in `google_data_loss_prevention_job_trigger` resource ([#14803](https://github.com/hashicorp/terraform-provider-google/pull/14803))
+* kms: removed validation for `purpose` in `google_kms_crypto_key` to allow newly added values for the field ([#14799](https://github.com/hashicorp/terraform-provider-google/pull/14799))
+
+BUG FIXES:
+* tags: fixed providing `projects/<project_id` to `parent` causing recreation on `google_tags_tag_key` ([#14809](https://github.com/hashicorp/terraform-provider-google/pull/14809))
+
 ## 4.68.0 (June 5, 2023)
 
 FEATURES:
