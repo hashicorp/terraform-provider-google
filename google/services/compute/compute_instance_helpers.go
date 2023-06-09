@@ -225,6 +225,7 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *transport_tpg.Conf
 		if internalIP == "" {
 			internalIP = iface.NetworkIP
 		}
+
 	}
 	return flattened, region, internalIP, externalIP, nil
 }
