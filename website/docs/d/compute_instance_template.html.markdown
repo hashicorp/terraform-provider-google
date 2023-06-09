@@ -198,6 +198,8 @@ The `disk_encryption_key` block supports:
     to. The subnetwork must exist in the same `region` this instance will be
     created in. Either `network` or `subnetwork` must be provided.
 
+* `network_interface` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The URL of the network attachment that this interface should connect to in the following format: projects/{projectNumber}/regions/{region_name}/networkAttachments/{network_attachment_name}.  s
+
 * `subnetwork_project` - The ID of the project in which the subnetwork belongs.
     If it is not provided, the provider project is used.
 
