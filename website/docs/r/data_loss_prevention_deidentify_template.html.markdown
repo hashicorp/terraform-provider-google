@@ -366,6 +366,14 @@ The following arguments are supported:
   (Optional)
   Redact a given value. For example, if used with an InfoTypeTransformation transforming PHONE_NUMBER, and input 'My phone number is 206-555-0123', the output would be 'My phone number is '.
 
+* `crypto_hash_config` -
+  (Optional)
+  Pseudonymization method that generates surrogates via cryptographic hashing. Uses SHA-256. The key size must be either 32 or 64 bytes.
+  Outputs a base64 encoded representation of the hashed output (for example, L7k0BHmF1ha5U3NfGykjro4xWi1MPVQPjhMAZbSV9mM=).
+  Currently, only string and integer values can be hashed.
+  See https://cloud.google.com/dlp/docs/pseudonymization to learn more.
+  Structure is [documented below](#nested_crypto_hash_config).
+
 
 <a name="nested_replace_config"></a>The `replace_config` block supports:
 
@@ -1042,6 +1050,59 @@ The following arguments are supported:
   (Optional)
   The part of the time to keep.
   Possible values are: `YEAR`, `MONTH`, `DAY_OF_MONTH`, `DAY_OF_WEEK`, `WEEK_OF_YEAR`, `HOUR_OF_DAY`.
+
+<a name="nested_crypto_hash_config"></a>The `crypto_hash_config` block supports:
+
+* `crypto_key` -
+  (Optional)
+  The key used by the encryption function.
+  Structure is [documented below](#nested_crypto_key).
+
+
+<a name="nested_crypto_key"></a>The `crypto_key` block supports:
+
+* `transient` -
+  (Optional)
+  Transient crypto key. Use this to have a random data crypto key generated. It will be discarded after the request finishes.
+  Structure is [documented below](#nested_transient).
+
+* `unwrapped` -
+  (Optional)
+  Unwrapped crypto key. Using raw keys is prone to security risks due to accidentally leaking the key. Choose another type of key if possible.
+  Structure is [documented below](#nested_unwrapped).
+
+* `kms_wrapped` -
+  (Optional)
+  KMS wrapped key.
+  Include to use an existing data crypto key wrapped by KMS. The wrapped key must be a 128-, 192-, or 256-bit key. Authorization requires the following IAM permissions when sending a request to perform a crypto transformation using a KMS-wrapped crypto key: dlp.kms.encrypt
+  For more information, see [Creating a wrapped key](https://cloud.google.com/dlp/docs/create-wrapped-key).
+  Note: When you use Cloud KMS for cryptographic operations, [charges apply](https://cloud.google.com/kms/pricing).
+  Structure is [documented below](#nested_kms_wrapped).
+
+
+<a name="nested_transient"></a>The `transient` block supports:
+
+* `name` -
+  (Required)
+  Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate `TransientCryptoKey` protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).
+
+<a name="nested_unwrapped"></a>The `unwrapped` block supports:
+
+* `key` -
+  (Required)
+  A 128/192/256 bit key.
+  A base64-encoded string.
+
+<a name="nested_kms_wrapped"></a>The `kms_wrapped` block supports:
+
+* `wrapped_key` -
+  (Required)
+  The wrapped data crypto key.
+  A base64-encoded string.
+
+* `crypto_key_name` -
+  (Required)
+  The resource name of the KMS CryptoKey to use for unwrapping.
 
 <a name="nested_record_transformations"></a>The `record_transformations` block supports:
 
