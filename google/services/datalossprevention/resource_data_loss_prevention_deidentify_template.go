@@ -656,6 +656,86 @@ Therefore, choose your custom info type name carefully after considering what yo
 																	},
 																},
 															},
+															"crypto_hash_config": {
+																Type:     schema.TypeList,
+																Optional: true,
+																Description: `Pseudonymization method that generates surrogates via cryptographic hashing. Uses SHA-256. The key size must be either 32 or 64 bytes.
+Outputs a base64 encoded representation of the hashed output (for example, L7k0BHmF1ha5U3NfGykjro4xWi1MPVQPjhMAZbSV9mM=).
+Currently, only string and integer values can be hashed.
+See https://cloud.google.com/dlp/docs/pseudonymization to learn more.`,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"crypto_key": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `The key used by the encryption function.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"kms_wrapped": {
+																						Type:     schema.TypeList,
+																						Optional: true,
+																						Description: `KMS wrapped key.
+Include to use an existing data crypto key wrapped by KMS. The wrapped key must be a 128-, 192-, or 256-bit key. Authorization requires the following IAM permissions when sending a request to perform a crypto transformation using a KMS-wrapped crypto key: dlp.kms.encrypt
+For more information, see [Creating a wrapped key](https://cloud.google.com/dlp/docs/create-wrapped-key).
+Note: When you use Cloud KMS for cryptographic operations, [charges apply](https://cloud.google.com/kms/pricing).`,
+																						MaxItems: 1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"crypto_key_name": {
+																									Type:        schema.TypeString,
+																									Required:    true,
+																									Description: `The resource name of the KMS CryptoKey to use for unwrapping.`,
+																								},
+																								"wrapped_key": {
+																									Type:     schema.TypeString,
+																									Required: true,
+																									Description: `The wrapped data crypto key.
+
+A base64-encoded string.`,
+																								},
+																							},
+																						},
+																					},
+																					"transient": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Transient crypto key. Use this to have a random data crypto key generated. It will be discarded after the request finishes.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"name": {
+																									Type:        schema.TypeString,
+																									Required:    true,
+																									Description: `Name of the key. This is an arbitrary string used to differentiate different keys. A unique key is generated per name: two separate 'TransientCryptoKey' protos share the same generated key if their names are the same. When the data crypto key is generated, this name is not used in any way (repeating the api call will result in a different key being generated).`,
+																								},
+																							},
+																						},
+																					},
+																					"unwrapped": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Unwrapped crypto key. Using raw keys is prone to security risks due to accidentally leaking the key. Choose another type of key if possible.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"key": {
+																									Type:     schema.TypeString,
+																									Required: true,
+																									Description: `A 128/192/256 bit key.
+
+A base64-encoded string.`,
+																								},
+																							},
+																						},
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
 															"crypto_replace_ffx_fpe_config": {
 																Type:     schema.TypeList,
 																Optional: true,
@@ -4528,6 +4608,8 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationTimePartConfig(original["timePartConfig"], d, config)
 	transformed["redact_config"] =
 		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationRedactConfig(original["redactConfig"], d, config)
+	transformed["crypto_hash_config"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfig(original["cryptoHashConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationReplaceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -6027,6 +6109,93 @@ func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransfor
 	}
 	transformed := make(map[string]interface{})
 	return []interface{}{transformed}
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["crypto_key"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKey(original["cryptoKey"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["transient"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyTransient(original["transient"], d, config)
+	transformed["unwrapped"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
+	transformed["kms_wrapped"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrapped(original["kmsWrapped"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyTransient(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyTransientName(original["name"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyTransientName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyUnwrapped(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["key"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyUnwrappedKey(original["key"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyUnwrappedKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrapped(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["wrapped_key"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrappedWrappedKey(original["wrappedKey"], d, config)
+	transformed["crypto_key_name"] =
+		flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrappedCryptoKeyName(original["cryptoKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrappedWrappedKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrappedCryptoKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -10751,6 +10920,13 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransform
 		transformed["redactConfig"] = transformedRedactConfig
 	}
 
+	transformedCryptoHashConfig, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfig(original["crypto_hash_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCryptoHashConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cryptoHashConfig"] = transformedCryptoHashConfig
+	}
+
 	return transformed, nil
 }
 
@@ -12470,6 +12646,138 @@ func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransform
 	transformed := make(map[string]interface{})
 
 	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCryptoKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKey(original["crypto_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCryptoKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cryptoKey"] = transformedCryptoKey
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTransient, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyTransient(original["transient"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTransient); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["transient"] = transformedTransient
+	}
+
+	transformedUnwrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyUnwrapped(original["unwrapped"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUnwrapped); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["unwrapped"] = transformedUnwrapped
+	}
+
+	transformedKmsWrapped, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrapped(original["kms_wrapped"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsWrapped); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kmsWrapped"] = transformedKmsWrapped
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyTransient(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyTransientName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyTransientName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyUnwrapped(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyUnwrappedKey(original["key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["key"] = transformedKey
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyUnwrappedKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrapped(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedWrappedKey, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrappedWrappedKey(original["wrapped_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWrappedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["wrappedKey"] = transformedWrappedKey
+	}
+
+	transformedCryptoKeyName, err := expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrappedCryptoKeyName(original["crypto_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCryptoKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cryptoKeyName"] = transformedCryptoKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrappedWrappedKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigInfoTypeTransformationsTransformationsPrimitiveTransformationCryptoHashConfigCryptoKeyKmsWrappedCryptoKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandDataLossPreventionDeidentifyTemplateDeidentifyConfigRecordTransformations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

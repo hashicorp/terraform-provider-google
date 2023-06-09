@@ -1247,6 +1247,38 @@ resource "google_data_loss_prevention_deidentify_template" "config" {
 
       transformations {
         info_types {
+          name = "CRYPTO_HASH_TRANSIENT_EXAMPLE"
+        }
+
+        primitive_transformation {
+          crypto_hash_config {
+            crypto_key {
+              transient {
+                name = "beep" # Copy-pasting from existing test that uses this field
+              }
+            }
+          }
+        }
+      }
+
+      transformations {
+        info_types {
+          name = "CRYPTO_HASH_UNWRAPPED_EXAMPLE"
+        }
+
+        primitive_transformation {
+          crypto_hash_config {
+            crypto_key {
+              unwrapped {
+                key     = "VVdWVWFGZHRXbkUwZERkM0lYb2xRdz09"
+              }
+            }
+          }
+        }
+      }
+
+      transformations {
+        info_types {
           name = "REDACT_EXAMPLE"
         }
 
@@ -1367,6 +1399,40 @@ resource "google_data_loss_prevention_deidentify_template" "config" {
         primitive_transformation {
           time_part_config {
             part_to_extract = "MONTH"
+          }
+        }
+      }
+
+      transformations {
+        info_types {
+          name = "CRYPTO_HASH_TRANSIENT_UPDATED_EXAMPLE"
+        }
+
+        primitive_transformation {
+          crypto_hash_config {
+            crypto_key {
+              transient {
+                # update value
+                name = "beepy-beep-updated"
+              }
+            }
+          }
+        }
+      }
+
+      transformations {
+        info_types {
+          name = "CRYPTO_HASH_WRAPPED_EXAMPLE"
+        }
+
+        primitive_transformation {
+          crypto_hash_config {
+            crypto_key {
+              kms_wrapped {
+                wrapped_key     = "B64/WRAPPED/TOKENIZATION/KEY"
+                crypto_key_name = "%{kms_key_name}"
+              }
+            }
           }
         }
       }
