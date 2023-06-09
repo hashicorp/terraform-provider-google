@@ -633,6 +633,91 @@ resource "google_compute_http_health_check" "default" {
   timeout_sec        = 1
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=url_map_path_template_match&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Path Template Match
+
+
+```hcl
+resource "google_compute_url_map" "urlmap" {
+  name        = "urlmap"
+  description = "a description"
+
+  default_service = google_compute_backend_bucket.static.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "mysite"
+  }
+
+  path_matcher {
+    name            = "mysite"
+    default_service = google_compute_backend_bucket.static.id
+
+    route_rules {
+      match_rules {
+        path_template_match = "/xyzwebservices/v2/xyz/users/{username=*}/carts/{cartid=**}"
+      }
+      service = google_compute_backend_service.cart-backend.id
+      priority = 1
+      route_action {
+        url_rewrite {
+          path_template_rewrite = "/{username}-{cartid}/"
+        }
+      }
+    }
+
+    route_rules {
+      match_rules {
+        path_template_match = "/xyzwebservices/v2/xyz/users/*/accountinfo/*"
+      }
+      service = google_compute_backend_service.user-backend.id
+      priority = 2
+    }
+  }
+}
+
+resource "google_compute_backend_service" "cart-backend" {
+  name        = "cart-service"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "user-backend" {
+  name        = "user-service"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_http_health_check" "default" {
+  name               = "health-check"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+
+resource "google_compute_backend_bucket" "static" {
+  name        = "static-asset-backend-bucket"
+  bucket_name = google_storage_bucket.static.name
+  enable_cdn  = true
+}
+
+resource "google_storage_bucket" "static" {
+  name     = "static-asset-bucket"
+  location = "US"
+}
+```
 
 ## Argument Reference
 
@@ -1465,6 +1550,17 @@ The following arguments are supported:
   see en.cppreference.com/w/cpp/regex/ecmascript  Only one of prefixMatch,
   fullPathMatch or regexMatch must be specified.
 
+* `path_template_match` -
+  (Optional)
+  For satisfying the matchRule condition, the path of the request
+  must match the wildcard pattern specified in pathTemplateMatch
+  after removing any query parameters and anchor that may be part
+  of the original URL.
+  pathTemplateMatch must be between 1 and 255 characters
+  (inclusive).  The pattern specified by pathTemplateMatch may
+  have at most 5 wildcard operators and at most 5 variable
+  captures in total.
+
 
 <a name="nested_header_matches"></a>The `header_matches` block supports:
 
@@ -1830,6 +1926,20 @@ The following arguments are supported:
   Prior to forwarding the request to the selected backend service, the matching
   portion of the request's path is replaced by pathPrefixRewrite. The value must
   be between 1 and 1024 characters.
+
+* `path_template_rewrite` -
+  (Optional)
+  Prior to forwarding the request to the selected origin, if the
+  request matched a pathTemplateMatch, the matching portion of the
+  request's path is replaced re-written using the pattern specified
+  by pathTemplateRewrite.
+  pathTemplateRewrite must be between 1 and 255 characters
+  (inclusive), must start with a '/', and must only use variables
+  captured by the route's pathTemplate matchers.
+  pathTemplateRewrite may only be used when all of a route's
+  MatchRules specify pathTemplate.
+  Only one of pathPrefixRewrite and pathTemplateRewrite may be
+  specified.
 
 <a name="nested_weighted_backend_services"></a>The `weighted_backend_services` block supports:
 
