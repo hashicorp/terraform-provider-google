@@ -247,12 +247,12 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withInfoTypesVe
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -543,12 +543,12 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withExcludeByHo
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -849,6 +849,382 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
 				max_findings = "75"
 				info_type {
 					name = "PERSON_NAME"
+				}
+			}
+			max_findings_per_info_type {
+				max_findings = "80"
+				info_type {
+					name = "LAST_NAME"
+				}
+			}
+		}
+	}
+}
+`, context)
+}
+
+func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withSensitivityScore(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project": acctest.GetTestProjectFromEnv(),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withSensitivityScoreBasic(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_inspect_template.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withSensitivityScoreUpdate(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_inspect_template.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withSensitivityScoreUpdate2(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_inspect_template.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withSensitivityScoreBasic(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_inspect_template" "basic" {
+	parent       = "projects/%{project}"
+	description  = "Description"
+	display_name = "Display"
+	
+	inspect_config {
+		custom_info_types {
+			info_type {
+				name = "MY_CUSTOM_TYPE"
+				sensitivity_score {
+					score = "SENSITIVITY_MODERATE"
+				}
+			}
+			sensitivity_score {
+				score = "SENSITIVITY_HIGH"
+			}
+			surrogate_type {}
+		}
+		info_types {
+			name = "EMAIL_ADDRESS"
+			sensitivity_score {
+				score = "SENSITIVITY_MODERATE"
+			}
+		}
+		info_types {
+			name    = "PERSON_NAME"
+			version = "latest"
+		}
+		info_types {
+			name = "LAST_NAME"
+		}
+		info_types {
+			name = "DOMAIN_NAME"
+		}
+		info_types {
+			name = "PHONE_NUMBER"
+		}
+		info_types {
+			name = "FIRST_NAME"
+		}
+	
+		min_likelihood = "UNLIKELY"
+		rule_set {
+			info_types {
+				name = "EMAIL_ADDRESS"
+			}
+			rules {
+				exclusion_rule {
+					exclude_info_types {
+						info_types {
+							name = "LAST_NAME"
+							sensitivity_score {
+								score = "SENSITIVITY_LOW"
+							}
+						}
+					}
+					matching_type = "MATCHING_TYPE_FULL_MATCH"
+				}
+			}
+		}
+		rule_set {
+			info_types {
+				name = "EMAIL_ADDRESS"
+				sensitivity_score {
+					score = "SENSITIVITY_LOW"
+				}
+			}
+			info_types {
+				name = "DOMAIN_NAME"
+			}
+			info_types {
+				name = "PHONE_NUMBER"
+			}
+			info_types {
+				name = "PERSON_NAME"
+			}
+			info_types {
+				name = "FIRST_NAME"
+			}
+			rules {
+				exclusion_rule {
+					dictionary {
+						word_list {
+							words = ["TEST"]
+						}
+					}
+					matching_type = "MATCHING_TYPE_PARTIAL_MATCH"
+				}
+			}
+		}
+	
+		limits {
+			max_findings_per_item    = 10
+			max_findings_per_request = 50
+			max_findings_per_info_type {
+				max_findings = "75"
+				info_type {
+					name = "PERSON_NAME"
+					sensitivity_score {
+						score = "SENSITIVITY_HIGH"
+					}
+				}
+			}
+			max_findings_per_info_type {
+				max_findings = "80"
+				info_type {
+					name = "LAST_NAME"
+				}
+			}
+		}
+	}
+}
+`, context)
+}
+
+func testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withSensitivityScoreUpdate(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_inspect_template" "basic" {
+	parent       = "projects/%{project}"
+	description  = "Description"
+	display_name = "Display"
+	
+	inspect_config {
+		custom_info_types {
+			info_type {
+				name = "MY_CUSTOM_TYPE"
+			}
+			sensitivity_score {
+				score = "SENSITIVITY_LOW"
+			}
+			surrogate_type {}
+		}
+		info_types {
+			name = "EMAIL_ADDRESS"
+			sensitivity_score {
+				score = "SENSITIVITY_LOW"
+			}
+		}
+		info_types {
+			name    = "PERSON_NAME"
+			version = "latest"
+		}
+		info_types {
+			name = "LAST_NAME"
+		}
+		info_types {
+			name = "DOMAIN_NAME"
+		}
+		info_types {
+			name = "PHONE_NUMBER"
+		}
+		info_types {
+			name = "FIRST_NAME"
+		}
+	
+		min_likelihood = "UNLIKELY"
+		rule_set {
+			info_types {
+				name = "EMAIL_ADDRESS"
+			}
+			rules {
+				exclusion_rule {
+					exclude_info_types {
+						info_types {
+							name = "LAST_NAME"
+						}
+					}
+					matching_type = "MATCHING_TYPE_FULL_MATCH"
+				}
+			}
+		}
+		rule_set {
+			info_types {
+				name = "EMAIL_ADDRESS"
+			}
+			info_types {
+				name = "DOMAIN_NAME"
+			}
+			info_types {
+				name = "PHONE_NUMBER"
+			}
+			info_types {
+				name = "PERSON_NAME"
+			}
+			info_types {
+				name = "FIRST_NAME"
+			}
+			rules {
+				exclusion_rule {
+					dictionary {
+						word_list {
+							words = ["TEST"]
+						}
+					}
+					matching_type = "MATCHING_TYPE_PARTIAL_MATCH"
+				}
+			}
+		}
+	
+		limits {
+			max_findings_per_item    = 10
+			max_findings_per_request = 50
+			max_findings_per_info_type {
+				max_findings = "75"
+				info_type {
+					name = "PERSON_NAME"
+					sensitivity_score {
+						score = "SENSITIVITY_MODERATE"
+					}
+				}
+			}
+			max_findings_per_info_type {
+				max_findings = "80"
+				info_type {
+					name = "LAST_NAME"
+				}
+			}
+		}
+	}
+}
+`, context)
+}
+
+func testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withSensitivityScoreUpdate2(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_data_loss_prevention_inspect_template" "basic" {
+	parent       = "projects/%{project}"
+	description  = "Description"
+	display_name = "Display"
+	
+	inspect_config {
+		custom_info_types {
+			info_type {
+				name = "MY_CUSTOM_TYPE"
+				sensitivity_score {
+					score = "SENSITIVITY_LOW"
+				}
+			}
+			surrogate_type {}
+		}
+		info_types {
+			name = "EMAIL_ADDRESS"
+			sensitivity_score {
+				score = "SENSITIVITY_HIGH"
+			}
+		}
+		info_types {
+			name    = "PERSON_NAME"
+			version = "latest"
+		}
+		info_types {
+			name = "LAST_NAME"
+		}
+		info_types {
+			name = "DOMAIN_NAME"
+		}
+		info_types {
+			name = "PHONE_NUMBER"
+		}
+		info_types {
+			name = "FIRST_NAME"
+		}
+	
+		min_likelihood = "UNLIKELY"
+		rule_set {
+			info_types {
+				name = "EMAIL_ADDRESS"
+			}
+			rules {
+				exclusion_rule {
+					exclude_info_types {
+						info_types {
+							name = "LAST_NAME"
+							sensitivity_score {
+								score = "SENSITIVITY_HIGH"
+							}
+						}
+					}
+					matching_type = "MATCHING_TYPE_FULL_MATCH"
+				}
+			}
+		}
+		rule_set {
+			info_types {
+				name = "EMAIL_ADDRESS"
+			}
+			info_types {
+				name = "DOMAIN_NAME"
+			}
+			info_types {
+				name = "PHONE_NUMBER"
+			}
+			info_types {
+				name = "PERSON_NAME"
+			}
+			info_types {
+				name = "FIRST_NAME"
+			}
+			rules {
+				exclusion_rule {
+					dictionary {
+						word_list {
+							words = ["TEST"]
+						}
+					}
+					matching_type = "MATCHING_TYPE_PARTIAL_MATCH"
+				}
+			}
+		}
+	
+		limits {
+			max_findings_per_item    = 10
+			max_findings_per_request = 50
+			max_findings_per_info_type {
+				max_findings = "75"
+				info_type {
+					name = "PERSON_NAME"
+					sensitivity_score {
+						score = "SENSITIVITY_LOW"
+					}
 				}
 			}
 			max_findings_per_info_type {

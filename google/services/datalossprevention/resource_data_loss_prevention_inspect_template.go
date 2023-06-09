@@ -108,6 +108,22 @@ treated as a custom info type.`,
 													Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names
 listed at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.`,
 												},
+												"sensitivity_score": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional custom sensitivity for this InfoType. This only applies to data profiling.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"score": {
+																Type:         schema.TypeString,
+																Required:     true,
+																ValidateFunc: verify.ValidateEnum([]string{"SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"}),
+																Description:  `The sensitivity score applied to the resource. Possible values: ["SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"]`,
+															},
+														},
+													},
+												},
 												"version": {
 													Type:        schema.TypeString,
 													Optional:    true,
@@ -200,6 +216,22 @@ Its syntax (https://github.com/google/re2/wiki/Syntax) can be found under the go
 											},
 										},
 									},
+									"sensitivity_score": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional custom sensitivity for this InfoType. This only applies to data profiling.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"score": {
+													Type:         schema.TypeString,
+													Required:     true,
+													ValidateFunc: verify.ValidateEnum([]string{"SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"}),
+													Description:  `The sensitivity score applied to the resource. Possible values: ["SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"]`,
+												},
+											},
+										},
+									},
 									"stored_type": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -256,6 +288,22 @@ By default this may be all types, but may change over time as detectors are upda
 										Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
 at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.`,
 									},
+									"sensitivity_score": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional custom sensitivity for this InfoType. This only applies to data profiling.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"score": {
+													Type:         schema.TypeString,
+													Required:     true,
+													ValidateFunc: verify.ValidateEnum([]string{"SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"}),
+													Description:  `The sensitivity score applied to the resource. Possible values: ["SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"]`,
+												},
+											},
+										},
+									},
 									"version": {
 										Type:        schema.TypeString,
 										Optional:    true,
@@ -302,6 +350,22 @@ specified in another InfoTypeLimit.`,
 																Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
 at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.`,
 															},
+															"sensitivity_score": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Optional custom sensitivity for this InfoType. This only applies to data profiling.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"score": {
+																			Type:         schema.TypeString,
+																			Required:     true,
+																			ValidateFunc: verify.ValidateEnum([]string{"SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"}),
+																			Description:  `The sensitivity score applied to the resource. Possible values: ["SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"]`,
+																		},
+																	},
+																},
+															},
 															"version": {
 																Type:        schema.TypeString,
 																Optional:    true,
@@ -346,6 +410,22 @@ other rules are executed in the order they are specified for each info type.`,
 													Required: true,
 													Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
 at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.`,
+												},
+												"sensitivity_score": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional custom sensitivity for this InfoType. This only applies to data profiling.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"score": {
+																Type:         schema.TypeString,
+																Required:     true,
+																ValidateFunc: verify.ValidateEnum([]string{"SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"}),
+																Description:  `The sensitivity score applied to the resource. Possible values: ["SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"]`,
+															},
+														},
+													},
 												},
 												"version": {
 													Type:        schema.TypeString,
@@ -496,6 +576,22 @@ office using the hotword regex '(xxx)', where 'xxx' is the area code in question
 																						Required: true,
 																						Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
 at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.`,
+																					},
+																					"sensitivity_score": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional custom sensitivity for this InfoType. This only applies to data profiling.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"score": {
+																									Type:         schema.TypeString,
+																									Required:     true,
+																									ValidateFunc: verify.ValidateEnum([]string{"SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"}),
+																									Description:  `The sensitivity score applied to the resource. Possible values: ["SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"]`,
+																								},
+																							},
+																						},
 																					},
 																					"version": {
 																						Type:        schema.TypeString,
@@ -1074,6 +1170,8 @@ func flattenDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerIn
 		flattenDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInfoTypeInfoTypeName(original["name"], d, config)
 	transformed["version"] =
 		flattenDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInfoTypeInfoTypeVersion(original["version"], d, config)
+	transformed["sensitivity_score"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInfoTypeInfoTypeSensitivityScore(original["sensitivityScore"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInfoTypeInfoTypeName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1081,6 +1179,23 @@ func flattenDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerIn
 }
 
 func flattenDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInfoTypeInfoTypeVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInfoTypeInfoTypeSensitivityScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["score"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInfoTypeInfoTypeSensitivityScoreScore(original["score"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInfoTypeInfoTypeSensitivityScoreScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1114,8 +1229,9 @@ func flattenDataLossPreventionInspectTemplateInspectConfigInfoTypes(v interface{
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":    flattenDataLossPreventionInspectTemplateInspectConfigInfoTypesName(original["name"], d, config),
-			"version": flattenDataLossPreventionInspectTemplateInspectConfigInfoTypesVersion(original["version"], d, config),
+			"name":              flattenDataLossPreventionInspectTemplateInspectConfigInfoTypesName(original["name"], d, config),
+			"version":           flattenDataLossPreventionInspectTemplateInspectConfigInfoTypesVersion(original["version"], d, config),
+			"sensitivity_score": flattenDataLossPreventionInspectTemplateInspectConfigInfoTypesSensitivityScore(original["sensitivityScore"], d, config),
 		})
 	}
 	return transformed
@@ -1125,6 +1241,23 @@ func flattenDataLossPreventionInspectTemplateInspectConfigInfoTypesName(v interf
 }
 
 func flattenDataLossPreventionInspectTemplateInspectConfigInfoTypesVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigInfoTypesSensitivityScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["score"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigInfoTypesSensitivityScoreScore(original["score"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigInfoTypesSensitivityScoreScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1164,8 +1297,9 @@ func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypes(v int
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":    flattenDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesName(original["name"], d, config),
-			"version": flattenDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesVersion(original["version"], d, config),
+			"name":              flattenDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesName(original["name"], d, config),
+			"version":           flattenDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesVersion(original["version"], d, config),
+			"sensitivity_score": flattenDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesSensitivityScore(original["sensitivityScore"], d, config),
 		})
 	}
 	return transformed
@@ -1175,6 +1309,23 @@ func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesName(v
 }
 
 func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesSensitivityScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["score"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesSensitivityScoreScore(original["score"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesSensitivityScoreScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1445,8 +1596,9 @@ func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionR
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":    flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypesInfoTypesName(original["name"], d, config),
-			"version": flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypesInfoTypesVersion(original["version"], d, config),
+			"name":              flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypesInfoTypesName(original["name"], d, config),
+			"version":           flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypesInfoTypesVersion(original["version"], d, config),
+			"sensitivity_score": flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypesInfoTypesSensitivityScore(original["sensitivityScore"], d, config),
 		})
 	}
 	return transformed
@@ -1456,6 +1608,23 @@ func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionR
 }
 
 func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypesInfoTypesVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypesInfoTypesSensitivityScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["score"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypesInfoTypesSensitivityScoreScore(original["score"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypesInfoTypesSensitivityScoreScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1559,13 +1728,14 @@ func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypes(v inte
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"info_type":      flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoType(original["infoType"], d, config),
-			"likelihood":     flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesLikelihood(original["likelihood"], d, config),
-			"exclusion_type": flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesExclusionType(original["exclusionType"], d, config),
-			"regex":          flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegex(original["regex"], d, config),
-			"dictionary":     flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionary(original["dictionary"], d, config),
-			"surrogate_type": flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSurrogateType(original["surrogateType"], d, config),
-			"stored_type":    flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredType(original["storedType"], d, config),
+			"info_type":         flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoType(original["infoType"], d, config),
+			"likelihood":        flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesLikelihood(original["likelihood"], d, config),
+			"exclusion_type":    flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesExclusionType(original["exclusionType"], d, config),
+			"sensitivity_score": flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSensitivityScore(original["sensitivityScore"], d, config),
+			"regex":             flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegex(original["regex"], d, config),
+			"dictionary":        flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionary(original["dictionary"], d, config),
+			"surrogate_type":    flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSurrogateType(original["surrogateType"], d, config),
+			"stored_type":       flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredType(original["storedType"], d, config),
 		})
 	}
 	return transformed
@@ -1583,6 +1753,8 @@ func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTyp
 		flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTypeName(original["name"], d, config)
 	transformed["version"] =
 		flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTypeVersion(original["version"], d, config)
+	transformed["sensitivity_score"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTypeSensitivityScore(original["sensitivityScore"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTypeName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1593,11 +1765,45 @@ func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTyp
 	return v
 }
 
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTypeSensitivityScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["score"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTypeSensitivityScoreScore(original["score"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTypeSensitivityScoreScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesLikelihood(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
 func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesExclusionType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSensitivityScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["score"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSensitivityScoreScore(original["score"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSensitivityScoreScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1879,6 +2085,13 @@ func expandDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInf
 		transformed["version"] = transformedVersion
 	}
 
+	transformedSensitivityScore, err := expandDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInfoTypeInfoTypeSensitivityScore(original["sensitivity_score"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSensitivityScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sensitivityScore"] = transformedSensitivityScore
+	}
+
 	return transformed, nil
 }
 
@@ -1887,6 +2100,29 @@ func expandDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInf
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInfoTypeInfoTypeVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInfoTypeInfoTypeSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScore, err := expandDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInfoTypeInfoTypeSensitivityScoreScore(original["score"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["score"] = transformedScore
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigLimitsMaxFindingsPerInfoTypeInfoTypeSensitivityScoreScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1918,6 +2154,13 @@ func expandDataLossPreventionInspectTemplateInspectConfigInfoTypes(v interface{}
 			transformed["version"] = transformedVersion
 		}
 
+		transformedSensitivityScore, err := expandDataLossPreventionInspectTemplateInspectConfigInfoTypesSensitivityScore(original["sensitivity_score"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSensitivityScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["sensitivityScore"] = transformedSensitivityScore
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1928,6 +2171,29 @@ func expandDataLossPreventionInspectTemplateInspectConfigInfoTypesName(v interfa
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigInfoTypesVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigInfoTypesSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScore, err := expandDataLossPreventionInspectTemplateInspectConfigInfoTypesSensitivityScoreScore(original["score"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["score"] = transformedScore
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigInfoTypesSensitivityScoreScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1988,6 +2254,13 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypes(v inte
 			transformed["version"] = transformedVersion
 		}
 
+		transformedSensitivityScore, err := expandDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesSensitivityScore(original["sensitivity_score"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSensitivityScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["sensitivityScore"] = transformedSensitivityScore
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1998,6 +2271,29 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesName(v 
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScore, err := expandDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesSensitivityScoreScore(original["score"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["score"] = transformedScore
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigRuleSetInfoTypesSensitivityScoreScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2365,6 +2661,13 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRu
 			transformed["version"] = transformedVersion
 		}
 
+		transformedSensitivityScore, err := expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypesInfoTypesSensitivityScore(original["sensitivity_score"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSensitivityScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["sensitivityScore"] = transformedSensitivityScore
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2375,6 +2678,29 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRu
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypesInfoTypesVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypesInfoTypesSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScore, err := expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypesInfoTypesSensitivityScoreScore(original["score"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["score"] = transformedScore
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypesInfoTypesSensitivityScoreScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2503,6 +2829,13 @@ func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypes(v inter
 			transformed["exclusionType"] = transformedExclusionType
 		}
 
+		transformedSensitivityScore, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSensitivityScore(original["sensitivity_score"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSensitivityScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["sensitivityScore"] = transformedSensitivityScore
+		}
+
 		transformedRegex, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegex(original["regex"], d, config)
 		if err != nil {
 			return nil, err
@@ -2559,6 +2892,13 @@ func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoType
 		transformed["version"] = transformedVersion
 	}
 
+	transformedSensitivityScore, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTypeSensitivityScore(original["sensitivity_score"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSensitivityScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sensitivityScore"] = transformedSensitivityScore
+	}
+
 	return transformed, nil
 }
 
@@ -2570,11 +2910,57 @@ func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoType
 	return v, nil
 }
 
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTypeSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScore, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTypeSensitivityScoreScore(original["score"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["score"] = transformedScore
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoTypeSensitivityScoreScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesLikelihood(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesExclusionType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScore, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSensitivityScoreScore(original["score"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["score"] = transformedScore
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSensitivityScoreScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

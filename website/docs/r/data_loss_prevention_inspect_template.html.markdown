@@ -394,6 +394,19 @@ The following arguments are supported:
   (Optional)
   Version name for this InfoType.
 
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
 <a name="nested_info_types"></a>The `info_types` block supports:
 
 * `name` -
@@ -404,6 +417,19 @@ The following arguments are supported:
 * `version` -
   (Optional)
   Version of the information type to use. By default, the version is set to stable
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
 <a name="nested_rule_set"></a>The `rule_set` block supports:
 
@@ -428,6 +454,19 @@ The following arguments are supported:
 * `version` -
   (Optional)
   Version name for this InfoType.
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
 <a name="nested_rules"></a>The `rules` block supports:
 
@@ -587,6 +626,19 @@ The following arguments are supported:
   (Optional)
   Version name for this InfoType.
 
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
 <a name="nested_exclude_by_hotword"></a>The `exclude_by_hotword` block supports:
 
 * `hotword_regex` -
@@ -648,6 +700,11 @@ The following arguments are supported:
   If set to EXCLUSION_TYPE_EXCLUDE this infoType will not cause a finding to be returned. It still can be used for rules matching.
   Possible values are: `EXCLUSION_TYPE_EXCLUDE`.
 
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
 * `regex` -
   (Optional)
   Regular expression which defines the rule.
@@ -678,6 +735,26 @@ The following arguments are supported:
 * `version` -
   (Optional)
   Version name for this InfoType.
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
 <a name="nested_regex"></a>The `regex` block supports:
 
