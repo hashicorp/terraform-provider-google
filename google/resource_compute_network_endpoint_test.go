@@ -190,7 +190,7 @@ data "google_compute_image" "my_image" {
 // was destroyed properly.
 func testAccCheckComputeNetworkEndpointWithPortsDestroyed(t *testing.T, negId string, ports ...string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		foundPorts, err := testAccComputeNetworkEndpointsListEndpointPorts(t, negId)
+		foundPorts, err := testAccComputeNetworkEndpointListEndpointPorts(t, negId)
 		if err != nil {
 			return fmt.Errorf("unable to confirm endpoints with ports %+v was destroyed: %v", ports, err)
 		}
@@ -204,7 +204,7 @@ func testAccCheckComputeNetworkEndpointWithPortsDestroyed(t *testing.T, negId st
 	}
 }
 
-func testAccComputeNetworkEndpointsListEndpointPorts(t *testing.T, negId string) (map[string]struct{}, error) {
+func testAccComputeNetworkEndpointListEndpointPorts(t *testing.T, negId string) (map[string]struct{}, error) {
 	config := GoogleProviderConfig(t)
 
 	url := fmt.Sprintf("https://www.googleapis.com/compute/v1/%s/listNetworkEndpoints", negId)
