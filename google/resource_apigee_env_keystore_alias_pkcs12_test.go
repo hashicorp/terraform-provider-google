@@ -17,6 +17,8 @@ import (
 
 func TestAccApigeeKeystoresAliasesPkcs12_ApigeeKeystoresAliasesPkcs12Example(t *testing.T) {
 	t.Parallel()
+	// Resource uses multipart boundary which by default is random
+	acctest.SkipIfVcr(t)
 
 	context := map[string]interface{}{
 		"org_id":          acctest.GetTestOrgFromEnv(t),
