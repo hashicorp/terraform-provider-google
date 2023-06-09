@@ -775,6 +775,111 @@ resource "google_compute_http_health_check" "default" {
 `, context)
 }
 
+func TestAccComputeUrlMap_urlMapPathTemplateMatchExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeUrlMap_urlMapPathTemplateMatchExample(context),
+			},
+			{
+				ResourceName:            "google_compute_url_map.urlmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"default_service"},
+			},
+		},
+	})
+}
+
+func testAccComputeUrlMap_urlMapPathTemplateMatchExample(context map[string]interface{}) string {
+	return tpgresource.Nprintf(`
+resource "google_compute_url_map" "urlmap" {
+  name        = "urlmap%{random_suffix}"
+  description = "a description"
+
+  default_service = google_compute_backend_bucket.static.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "mysite"
+  }
+
+  path_matcher {
+    name            = "mysite"
+    default_service = google_compute_backend_bucket.static.id
+
+    route_rules {
+      match_rules {
+        path_template_match = "/xyzwebservices/v2/xyz/users/{username=*}/carts/{cartid=**}"
+      }
+      service = google_compute_backend_service.cart-backend.id
+      priority = 1
+      route_action {
+        url_rewrite {
+          path_template_rewrite = "/{username}-{cartid}/"
+        }
+      }
+    }
+
+    route_rules {
+      match_rules {
+        path_template_match = "/xyzwebservices/v2/xyz/users/*/accountinfo/*"
+      }
+      service = google_compute_backend_service.user-backend.id
+      priority = 2
+    }
+  }
+}
+
+resource "google_compute_backend_service" "cart-backend" {
+  name        = "tf-test-cart-service%{random_suffix}"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_backend_service" "user-backend" {
+  name        = "tf-test-user-service%{random_suffix}"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_http_health_check" "default" {
+  name               = "tf-test-health-check%{random_suffix}"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+
+resource "google_compute_backend_bucket" "static" {
+  name        = "tf-test-static-asset-backend-bucket%{random_suffix}"
+  bucket_name = google_storage_bucket.static.name
+  enable_cdn  = true
+}
+
+resource "google_storage_bucket" "static" {
+  name     = "tf-test-static-asset-bucket%{random_suffix}"
+  location = "US"
+}
+`, context)
+}
+
 func testAccCheckComputeUrlMapDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
