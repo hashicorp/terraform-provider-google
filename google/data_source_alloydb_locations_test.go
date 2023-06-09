@@ -21,9 +21,9 @@ func TestAccDataSourceAlloydbLocations_basic(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { acctest.AccTestPreCheck(t) },
-		Providers:    TestAccProviders,
-		CheckDestroy: testAccSqlDatabaseDestroyProducer(t),
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceAlloydbLocations_basic(context),
