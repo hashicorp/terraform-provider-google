@@ -1,5 +1,10 @@
 ## 4.70.0 (Unreleased)
 
+## 4.69.1 (June 12, 2023)
+
+NOTE:
+* Added a new user guide to the provider documentation ([#14886](https://github.com/hashicorp/terraform-provider-google/pull/14886))
+
 ## 4.69.0 (June 12, 2023)
 
 FEATURES:
