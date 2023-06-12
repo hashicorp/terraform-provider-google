@@ -25,7 +25,7 @@ It is recommended to not set this field (or set it to true) until you're ready t
 ```hcl
 resource "google_sql_database_instance" "main" {
   name             = "main-instance"
-  database_version = "POSTGRES_14"
+  database_version = "POSTGRES_15"
   region           = "us-central1"
 
   settings {
@@ -69,7 +69,7 @@ locals {
 
 resource "google_sql_database_instance" "postgres" {
   name             = "postgres-instance-${random_id.db_name_suffix.hex}"
-  database_version = "POSTGRES_14"
+  database_version = "POSTGRES_15"
 
   settings {
     tier = "db-f1-micro"
@@ -172,7 +172,7 @@ The following arguments are supported:
 * `database_version` - (Required) The MySQL, PostgreSQL or
 SQL Server version to use. Supported values include `MYSQL_5_6`,
 `MYSQL_5_7`, `MYSQL_8_0`, `POSTGRES_9_6`,`POSTGRES_10`, `POSTGRES_11`,
-`POSTGRES_12`, `POSTGRES_13`, `POSTGRES_14`, `SQLSERVER_2017_STANDARD`,
+`POSTGRES_12`, `POSTGRES_13`, `POSTGRES_14`, `POSTGRES_15`, `SQLSERVER_2017_STANDARD`,
 `SQLSERVER_2017_ENTERPRISE`, `SQLSERVER_2017_EXPRESS`, `SQLSERVER_2017_WEB`.
 `SQLSERVER_2019_STANDARD`, `SQLSERVER_2019_ENTERPRISE`, `SQLSERVER_2019_EXPRESS`,
 `SQLSERVER_2019_WEB`.
