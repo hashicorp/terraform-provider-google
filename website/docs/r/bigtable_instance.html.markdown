@@ -143,6 +143,14 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/instances/{{name}}`
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
+
+- `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
+
 ## Import
 
 Bigtable Instances can be imported using any of these accepted formats:

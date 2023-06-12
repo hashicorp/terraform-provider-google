@@ -85,6 +85,13 @@ exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/instances/{{instance_name}}/tables/{{name}}`
 
+## Timeouts
+
+This resource provides the following
+[Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
+
+- `create` - Default is 45 minutes.
+- `update` - Default is 20 minutes.
 
 ## Import
 
