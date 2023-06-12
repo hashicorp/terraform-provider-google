@@ -15,10 +15,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"crypto/md5"
 	"crypto/sha256"
 	"encoding/base64"
-	"io/ioutil"
 	"net/http"
 
 	"google.golang.org/api/googleapi"
@@ -135,11 +133,11 @@ func ResourceStorageBucketObject() *schema.Resource {
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					localMd5Hash := ""
 					if source, ok := d.GetOkExists("source"); ok {
-						localMd5Hash = getFileMd5Hash(source.(string))
+						localMd5Hash = tpgresource.GetFileMd5Hash(source.(string))
 					}
 
 					if content, ok := d.GetOkExists("content"); ok {
-						localMd5Hash = getContentMd5Hash([]byte(content.(string)))
+						localMd5Hash = tpgresource.GetContentMd5Hash([]byte(content.(string)))
 					}
 
 					// If `source` or `content` is dynamically set, both field will be empty.
@@ -497,20 +495,11 @@ func setEncryptionHeaders(customerEncryption map[string]string, headers http.Hea
 }
 
 func getFileMd5Hash(filename string) string {
-	data, err := ioutil.ReadFile(filename)
-	if err != nil {
-		log.Printf("[WARN] Failed to read source file %q. Cannot compute md5 hash for it.", filename)
-		return ""
-	}
-	return getContentMd5Hash(data)
+	return tpgresource.GetFileMd5Hash(filename)
 }
 
 func getContentMd5Hash(content []byte) string {
-	h := md5.New()
-	if _, err := h.Write(content); err != nil {
-		log.Printf("[WARN] Failed to compute md5 hash for content: %v", err)
-	}
-	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+	return tpgresource.GetContentMd5Hash(content)
 }
 
 func expandCustomerEncryption(input []interface{}) map[string]string {

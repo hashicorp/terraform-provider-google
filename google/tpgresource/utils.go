@@ -3,8 +3,12 @@
 package tpgresource
 
 import (
+	"crypto/md5"
+	"encoding/base64"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/url"
 	"reflect"
 	"regexp"
@@ -676,4 +680,21 @@ func BuildReplacementFunc(re *regexp.Regexp, d TerraformResourceData, config *tr
 	}
 
 	return f, nil
+}
+
+func GetFileMd5Hash(filename string) string {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		log.Printf("[WARN] Failed to read source file %q. Cannot compute md5 hash for it.", filename)
+		return ""
+	}
+	return GetContentMd5Hash(data)
+}
+
+func GetContentMd5Hash(content []byte) string {
+	h := md5.New()
+	if _, err := h.Write(content); err != nil {
+		log.Printf("[WARN] Failed to compute md5 hash for content: %v", err)
+	}
+	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
 
 func TestAccComputeAttachedDisk_basic(t *testing.T) {
@@ -136,7 +137,7 @@ func testCheckAttachedDiskIsNowDetached(t *testing.T, instanceName, diskName str
 			return err
 		}
 
-		ad := findDiskByName(instance.Disks, diskName)
+		ad := compute.FindDiskByName(instance.Disks, diskName)
 		if ad != nil {
 			return fmt.Errorf("compute disk is still attached to compute instance")
 		}
