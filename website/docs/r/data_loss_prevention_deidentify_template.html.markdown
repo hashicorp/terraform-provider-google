@@ -269,6 +269,19 @@ The following arguments are supported:
   (Optional)
   Version name for this InfoType.
 
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
 <a name="nested_info_type_transformations"></a>The `info_type_transformations` block supports:
 
 * `transformations` -
@@ -301,6 +314,19 @@ The following arguments are supported:
 * `version` -
   (Optional)
   Version name for this InfoType.
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
 <a name="nested_primitive_transformation"></a>The `primitive_transformation` block supports:
 
@@ -575,6 +601,19 @@ The following arguments are supported:
   (Optional)
   Optional version name for this InfoType.
 
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
 <a name="nested_context"></a>The `context` block supports:
 
 * `name` -
@@ -684,6 +723,19 @@ The following arguments are supported:
 * `version` -
   (Optional)
   Optional version name for this InfoType.
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
 <a name="nested_replace_dictionary_config"></a>The `replace_dictionary_config` block supports:
 
@@ -1571,6 +1623,19 @@ The following arguments are supported:
   (Optional)
   Optional version name for this InfoType.
 
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
 <a name="nested_fixed_size_bucketing_config"></a>The `fixed_size_bucketing_config` block supports:
 
 * `lower_bound` -
@@ -2193,6 +2258,19 @@ The following arguments are supported:
   (Optional)
   Optional version name for this InfoType.
 
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
 <a name="nested_context"></a>The `context` block supports:
 
 * `name` -
@@ -2245,6 +2323,19 @@ The following arguments are supported:
 * `version` -
   (Optional)
   Version name for this InfoType.
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
 <a name="nested_primitive_transformation"></a>The `primitive_transformation` block supports:
 
@@ -2544,6 +2635,19 @@ The following arguments are supported:
   (Optional)
   Optional version name for this InfoType.
 
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
 <a name="nested_fixed_size_bucketing_config"></a>The `fixed_size_bucketing_config` block supports:
 
 * `lower_bound` -
@@ -3036,6 +3140,19 @@ The following arguments are supported:
 * `version` -
   (Optional)
   Optional version name for this InfoType.
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
 <a name="nested_context"></a>The `context` block supports:
 
