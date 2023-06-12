@@ -15,6 +15,10 @@ const (
 	localizedMsgTmpl        = "LocalizedMessage%d message"
 	helpLinkDescriptionTmpl = "Help%dLink%d Description"
 	helpLinkUrlTmpl         = "https://help%d.com/link%d"
+	quotaExceededMsg        = "Quota DISKS_TOTAL_GB exceeded.  Limit: 1100.0 in region us-central1."
+	quotaExceededCode       = "QUOTA_EXCEEDED"
+	quotaMetricName         = "compute.googleapis.com/disks_total_storage"
+	quotaLimitName          = "DISKS-TOTAL-GB-per-project-region"
 )
 
 var locales = []string{"en-US", "es-US", "es-ES", "es-MX", "de-DE"}
@@ -51,6 +55,27 @@ func buildOperationError(numLocalizedMsg int, numHelpWithLinks []int) compute.Op
 
 	return compute.OperationError{Errors: opErrorErrors}
 
+}
+
+func buildOperationErrorQuotaExceeded(withDetails bool, withDimensions bool) compute.OperationError {
+	opError := &compute.OperationErrorErrors{Message: quotaExceededMsg, Code: quotaExceededCode}
+	opErrorErrors := []*compute.OperationErrorErrors{opError}
+	if withDetails {
+		quotaInfo := &compute.QuotaExceededInfo{
+			MetricName: quotaMetricName,
+			LimitName:  quotaLimitName,
+			Limit:      1100,
+		}
+		if withDimensions {
+			quotaInfo.Dimensions = map[string]string{"region": "us-central1"}
+		}
+		opError.ErrorDetails = append(opError.ErrorDetails,
+			&compute.OperationErrorErrorsErrorDetails{
+				QuotaInfo: quotaInfo,
+			})
+	}
+
+	return compute.OperationError{Errors: opErrorErrors}
 }
 
 func omitAlways(numLocalizedMsg int, numHelpWithLinks []int) []string {
@@ -179,6 +204,43 @@ func TestComputeOperationError_Error(t *testing.T) {
 				"https://help1.com/link1",
 			},
 			expectOmits: append(omitAlways(2, []int{1}), []string{}...),
+		},
+		{
+			name:  "QuotaMessageOnly",
+			input: buildOperationErrorQuotaExceeded(false, false),
+			expectContains: []string{
+				"Quota DISKS_TOTAL_GB exceeded.  Limit: 1100.0 in region us-central1.",
+			},
+			expectOmits: append(omitAlways(0, []int{}), []string{
+				"metric name = compute.googleapis.com/disks_total_storage",
+			}...),
+		},
+		{
+			name:  "QuotaMessageWithDetailsNoDimensions",
+			input: buildOperationErrorQuotaExceeded(true, false),
+			expectContains: []string{
+				"Quota DISKS_TOTAL_GB exceeded.  Limit: 1100.0 in region us-central1.",
+				"metric name = compute.googleapis.com/disks_total_storage",
+				"limit name = DISKS-TOTAL-GB-per-project-region",
+			},
+			expectOmits: append(omitAlways(0, []int{}), []string{
+				"dimensions = map[region:us-central1]",
+			}...),
+		},
+		{
+			name:  "QuotaMessageWithDetailsWithDimensions",
+			input: buildOperationErrorQuotaExceeded(true, true),
+			expectContains: []string{
+				"Quota DISKS_TOTAL_GB exceeded.  Limit: 1100.0 in region us-central1.",
+				"metric name = compute.googleapis.com/disks_total_storage",
+				"limit name = DISKS-TOTAL-GB-per-project-region",
+				"dimensions = map[region:us-central1]",
+			},
+			expectOmits: append(omitAlways(0, []int{}), []string{
+				"LocalizedMessage1",
+				"Help1Link1 Description",
+				"https://help1.com/link1",
+			}...),
 		},
 	}
 

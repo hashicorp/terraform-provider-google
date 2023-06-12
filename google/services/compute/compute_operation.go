@@ -140,6 +140,14 @@ func writeOperationError(w io.StringWriter, opError *compute.OperationErrorError
 	var link *compute.HelpLink
 
 	for _, ed := range opError.ErrorDetails {
+		if opError.Code == "QUOTA_EXCEEDED" && ed.QuotaInfo != nil {
+			w.WriteString("\tmetric name = " + ed.QuotaInfo.MetricName + "\n")
+			w.WriteString("\tlimit name = " + ed.QuotaInfo.LimitName + "\n")
+			if ed.QuotaInfo.Dimensions != nil {
+				w.WriteString("\tdimensions = " + fmt.Sprint(ed.QuotaInfo.Dimensions) + "\n")
+			}
+			break
+		}
 		if lm == nil && ed.LocalizedMessage != nil {
 			lm = ed.LocalizedMessage
 		}
