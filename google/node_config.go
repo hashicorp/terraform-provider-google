@@ -493,6 +493,47 @@ func schemaNodeConfig() *schema.Schema {
 						},
 					},
 				},
+				"sole_tenant_config": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					Description: `Node affinity options for sole tenant node pools.`,
+					ForceNew:    true,
+					MaxItems:    1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"node_affinity": {
+								Type:        schema.TypeSet,
+								Required:    true,
+								ForceNew:    true,
+								Description: `.`,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"key": {
+											Type:        schema.TypeString,
+											Required:    true,
+											ForceNew:    true,
+											Description: `.`,
+										},
+										"operator": {
+											Type:         schema.TypeString,
+											Required:     true,
+											ForceNew:     true,
+											Description:  `.`,
+											ValidateFunc: validation.StringInSlice([]string{"IN", "NOT_IN"}, false),
+										},
+										"values": {
+											Type:        schema.TypeList,
+											Required:    true,
+											ForceNew:    true,
+											Description: `.`,
+											Elem:        &schema.Schema{Type: schema.TypeString},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 		},
 	}
@@ -735,6 +776,10 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		}
 	}
 
+	if v, ok := nodeConfig["sole_tenant_config"]; ok && len(v.([]interface{})) > 0 {
+		nc.SoleTenantConfig = expandSoleTenantConfig(v)
+	}
+
 	return nc
 }
 
@@ -805,6 +850,34 @@ func expandLinuxNodeConfig(v interface{}) *container.LinuxNodeConfig {
 	}
 }
 
+func expandSoleTenantConfig(v interface{}) *container.SoleTenantConfig {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	cfg := ls[0].(map[string]interface{})
+	affinitiesRaw, ok := cfg["node_affinity"]
+	if !ok {
+		return nil
+	}
+	affinities := make([]*container.NodeAffinity, 0)
+	for _, v := range affinitiesRaw.(*schema.Set).List() {
+		na := v.(map[string]interface{})
+
+		affinities = append(affinities, &container.NodeAffinity{
+			Key:      na["key"].(string),
+			Operator: na["operator"].(string),
+			Values:   tpgresource.ConvertStringArr(na["values"].([]interface{})),
+		})
+	}
+	return &container.SoleTenantConfig{
+		NodeAffinities: affinities,
+	}
+}
+
 func flattenNodeConfigDefaults(c *container.NodeConfigDefaults) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, 1)
 
@@ -855,6 +928,7 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 		"linux_node_config":                  flattenLinuxNodeConfig(c.LinuxNodeConfig),
 		"node_group":                         c.NodeGroup,
 		"advanced_machine_features":          flattenAdvancedMachineFeaturesConfig(c.AdvancedMachineFeatures),
+		"sole_tenant_config":                 flattenSoleTenantConfig(c.SoleTenantConfig),
 	})
 
 	if len(c.OauthScopes) > 0 {
@@ -1009,4 +1083,22 @@ func flattenLinuxNodeConfig(c *container.LinuxNodeConfig) []map[string]interface
 		})
 	}
 	return result
+}
+
+func flattenSoleTenantConfig(c *container.SoleTenantConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c == nil {
+		return result
+	}
+	affinities := []map[string]interface{}{}
+	for _, affinity := range c.NodeAffinities {
+		affinities = append(affinities, map[string]interface{}{
+			"key":      affinity.Key,
+			"operator": affinity.Operator,
+			"values":   affinity.Values,
+		})
+	}
+	return append(result, map[string]interface{}{
+		"node_affinity": affinities,
+	})
 }
