@@ -1117,6 +1117,29 @@ func TestAccContainerNodePool_concurrent(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_withSoleTenantConfig(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", RandString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", RandString(t, 10))
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withSoleTenantConfig(cluster, np),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_sole_tenant_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_ephemeralStorageLocalSsdConfig(t *testing.T) {
 	t.Parallel()
 
@@ -2719,4 +2742,53 @@ resource "google_container_node_pool" "np2" {
 	version 		   = "1.23.13-gke.900"
   }
 `, cluster, np1, np2)
+}
+
+func testAccContainerNodePool_withSoleTenantConfig(cluster, np string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_compute_node_template" "soletenant-tmpl" {
+  name      = "tf-test-soletenant-tmpl"
+  region    = "us-central1"
+  node_type = "n1-node-96-624"
+}
+
+resource "google_compute_node_group" "nodes" {
+  name        = "tf-test-soletenant-group"
+  zone        = "us-central1-a"
+  size          = 1
+  node_template = google_compute_node_template.soletenant-tmpl.id
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+}
+
+resource "google_container_node_pool" "with_sole_tenant_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  node_config {
+       machine_type = "n1-standard-2"
+       sole_tenant_config {
+			node_affinity {
+				key = "compute.googleapis.com/node-group-name"
+				operator = "IN"
+				values = [google_compute_node_group.nodes.name]
+			}
+       }
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+  }
+}
+`, cluster, np)
 }
