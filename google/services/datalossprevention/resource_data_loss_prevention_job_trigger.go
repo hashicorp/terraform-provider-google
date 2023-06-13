@@ -1374,6 +1374,15 @@ at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built
 				Description:  `Whether the trigger is currently active. Default value: "HEALTHY" Possible values: ["PAUSED", "HEALTHY", "CANCELLED"]`,
 				Default:      "HEALTHY",
 			},
+			"trigger_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `The trigger id can contain uppercase and lowercase letters, numbers, and hyphens;
+that is, it must match the regular expression: [a-zA-Z\d-_]+.
+The maximum length is 100 characters. Can be empty to allow the system to generate one.`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -1514,6 +1523,18 @@ func resourceDataLossPreventionJobTriggerRead(d *schema.ResourceData, meta inter
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DataLossPreventionJobTrigger %q", d.Id()))
 	}
 
+	res, err = resourceDataLossPreventionJobTriggerDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing DataLossPreventionJobTrigger because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	if err := d.Set("name", flattenDataLossPreventionJobTriggerName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading JobTrigger: %s", err)
 	}
@@ -1586,7 +1607,7 @@ func resourceDataLossPreventionJobTriggerUpdate(d *schema.ResourceData, meta int
 		obj["inspectJob"] = inspectJobProp
 	}
 
-	obj, err = resourceDataLossPreventionJobTriggerEncoder(d, meta, obj)
+	obj, err = resourceDataLossPreventionJobTriggerUpdateEncoder(d, meta, obj)
 	if err != nil {
 		return err
 	}
@@ -5761,7 +5782,26 @@ func expandDataLossPreventionJobTriggerInspectJobActionsPublishToStackdriver(v i
 }
 
 func resourceDataLossPreventionJobTriggerEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+
+	newObj := make(map[string]interface{})
+	newObj["jobTrigger"] = obj
+	triggerIdProp, ok := d.GetOk("trigger_id")
+	if ok && triggerIdProp != nil {
+		newObj["triggerId"] = triggerIdProp
+	}
+	return newObj, nil
+}
+
+func resourceDataLossPreventionJobTriggerUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	newObj := make(map[string]interface{})
 	newObj["jobTrigger"] = obj
 	return newObj, nil
+}
+
+func resourceDataLossPreventionJobTriggerDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	config := meta.(*transport_tpg.Config)
+	if err := d.Set("trigger_id", flattenDataLossPreventionJobTriggerName(res["name"], d, config)); err != nil {
+		return nil, fmt.Errorf("Error reading JobTrigger: %s", err)
+	}
+	return res, nil
 }

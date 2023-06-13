@@ -432,6 +432,44 @@ resource "google_data_loss_prevention_job_trigger" "publish_to_stackdriver" {
   }
 }
 ```
+## Example Usage - Dlp Job Trigger With Id
+
+
+```hcl
+resource "google_data_loss_prevention_job_trigger" "with_trigger_id" {
+  parent = "projects/my-project-name"
+  description = "Starting description"
+  display_name = "display"
+  trigger_id = "id-"
+
+  triggers {
+    schedule {
+      recurrence_period_duration = "86400s"
+    }
+  }
+
+  inspect_job {
+    inspect_template_name = "fake"
+    actions {
+      save_findings {
+        output_config {
+          table {
+            project_id = "project"
+            dataset_id = "dataset123"
+          }
+        }
+      }
+    }
+    storage_config {
+      cloud_storage_options {
+        file_set {
+          url = "gs://mybucket/directory/"
+        }
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -480,6 +518,12 @@ The following arguments are supported:
 * `display_name` -
   (Optional)
   User set display name of the job trigger.
+
+* `trigger_id` -
+  (Optional)
+  The trigger id can contain uppercase and lowercase letters, numbers, and hyphens;
+  that is, it must match the regular expression: [a-zA-Z\d-_]+.
+  The maximum length is 100 characters. Can be empty to allow the system to generate one.
 
 * `status` -
   (Optional)
