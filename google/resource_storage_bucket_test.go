@@ -67,7 +67,21 @@ func TestAccStorageBucket_basicWithAutoclass(t *testing.T) {
 		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageBucket_basicWithAutoclass(bucketName),
+				Config: testAccStorageBucket_basicWithAutoclass(bucketName, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "force_destroy", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+			// Autoclass is ForceNew, so this destroys & recreates, but does test the explicitly disabled config
+			{
+				Config: testAccStorageBucket_basicWithAutoclass(bucketName, false),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "false"),
@@ -1359,16 +1373,16 @@ resource "google_storage_bucket" "bucket" {
 `, bucketName)
 }
 
-func testAccStorageBucket_basicWithAutoclass(bucketName string) string {
+func testAccStorageBucket_basicWithAutoclass(bucketName string, autoclass bool) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "%s"
   location = "US"
   autoclass  {
-    enabled  = true
+    enabled  = %t
   }
 }
-`, bucketName)
+`, bucketName, autoclass)
 }
 
 func testAccStorageBucket_requesterPays(bucketName string, pays bool) string {
