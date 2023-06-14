@@ -269,8 +269,25 @@ func ResourceStorageBucket() *schema.Resource {
 					},
 				},
 				Description: `The bucket's autoclass configuration.`,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					_, n := d.GetChange(strings.TrimSuffix(k, ".#"))
+					if !strings.HasSuffix(k, ".#") {
+						return false
+					}
+					var l []interface{}
+					if new == "1" && old == "0" {
+						l = n.([]interface{})
+						contents, ok := l[0].(map[string]interface{})
+						if !ok {
+							return false
+						}
+						if contents["enabled"] == false {
+							return true
+						}
+					}
+					return false
+				},
 			},
-
 			"website": {
 				Type:     schema.TypeList,
 				Optional: true,
