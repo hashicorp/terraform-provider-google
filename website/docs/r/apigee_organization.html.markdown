@@ -225,6 +225,9 @@ In addition to the arguments listed above, the following computed attributes are
   Output only. Base64-encoded public certificate for the root CA of the Apigee organization.
   Valid only when `RuntimeType` is CLOUD. A base64-encoded string.
 
+* `apigee_project_id` -
+  Output only. Project ID of the Apigee Tenant Project.
+
 
 ## Timeouts
 
