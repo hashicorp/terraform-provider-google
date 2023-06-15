@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -20,6 +23,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccIapAppEngineServiceIamBindingGenerated(t *testing.T) {
@@ -29,8 +34,8 @@ func TestAccIapAppEngineServiceIamBindingGenerated(t *testing.T) {
 		"random_suffix":   RandString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
 		"project_id":      fmt.Sprintf("tf-test%s", RandString(t, 10)),
-		"org_id":          GetTestOrgFromEnv(t),
-		"billing_account": GetTestBillingAccountFromEnv(t),
+		"org_id":          acctest.GetTestOrgFromEnv(t),
+		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
 
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -40,7 +45,7 @@ func TestAccIapAppEngineServiceIamBindingGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -73,8 +78,8 @@ func TestAccIapAppEngineServiceIamMemberGenerated(t *testing.T) {
 		"random_suffix":   RandString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
 		"project_id":      fmt.Sprintf("tf-test%s", RandString(t, 10)),
-		"org_id":          GetTestOrgFromEnv(t),
-		"billing_account": GetTestBillingAccountFromEnv(t),
+		"org_id":          acctest.GetTestOrgFromEnv(t),
+		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
 
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -84,7 +89,7 @@ func TestAccIapAppEngineServiceIamMemberGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -108,8 +113,8 @@ func TestAccIapAppEngineServiceIamPolicyGenerated(t *testing.T) {
 		"random_suffix":   RandString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
 		"project_id":      fmt.Sprintf("tf-test%s", RandString(t, 10)),
-		"org_id":          GetTestOrgFromEnv(t),
-		"billing_account": GetTestBillingAccountFromEnv(t),
+		"org_id":          acctest.GetTestOrgFromEnv(t),
+		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
 
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -119,11 +124,12 @@ func TestAccIapAppEngineServiceIamPolicyGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineServiceIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_iap_app_engine_service_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_iap_app_engine_service_iam_policy.foo",
@@ -151,8 +157,8 @@ func TestAccIapAppEngineServiceIamBindingGenerated_withCondition(t *testing.T) {
 		"random_suffix":   RandString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
 		"project_id":      fmt.Sprintf("tf-test%s", RandString(t, 10)),
-		"org_id":          GetTestOrgFromEnv(t),
-		"billing_account": GetTestBillingAccountFromEnv(t),
+		"org_id":          acctest.GetTestOrgFromEnv(t),
+		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
 
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -162,7 +168,7 @@ func TestAccIapAppEngineServiceIamBindingGenerated_withCondition(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -180,15 +186,15 @@ func TestAccIapAppEngineServiceIamBindingGenerated_withCondition(t *testing.T) {
 
 func TestAccIapAppEngineServiceIamBindingGenerated_withAndWithoutCondition(t *testing.T) {
 	// Multiple fine-grained resources
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
 		"random_suffix":   RandString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
 		"project_id":      fmt.Sprintf("tf-test%s", RandString(t, 10)),
-		"org_id":          GetTestOrgFromEnv(t),
-		"billing_account": GetTestBillingAccountFromEnv(t),
+		"org_id":          acctest.GetTestOrgFromEnv(t),
+		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
 
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -198,7 +204,7 @@ func TestAccIapAppEngineServiceIamBindingGenerated_withAndWithoutCondition(t *te
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -233,8 +239,8 @@ func TestAccIapAppEngineServiceIamMemberGenerated_withCondition(t *testing.T) {
 		"random_suffix":   RandString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
 		"project_id":      fmt.Sprintf("tf-test%s", RandString(t, 10)),
-		"org_id":          GetTestOrgFromEnv(t),
-		"billing_account": GetTestBillingAccountFromEnv(t),
+		"org_id":          acctest.GetTestOrgFromEnv(t),
+		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
 
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -244,7 +250,7 @@ func TestAccIapAppEngineServiceIamMemberGenerated_withCondition(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -262,15 +268,15 @@ func TestAccIapAppEngineServiceIamMemberGenerated_withCondition(t *testing.T) {
 
 func TestAccIapAppEngineServiceIamMemberGenerated_withAndWithoutCondition(t *testing.T) {
 	// Multiple fine-grained resources
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
 		"random_suffix":   RandString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
 		"project_id":      fmt.Sprintf("tf-test%s", RandString(t, 10)),
-		"org_id":          GetTestOrgFromEnv(t),
-		"billing_account": GetTestBillingAccountFromEnv(t),
+		"org_id":          acctest.GetTestOrgFromEnv(t),
+		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
 
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -280,7 +286,7 @@ func TestAccIapAppEngineServiceIamMemberGenerated_withAndWithoutCondition(t *tes
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -315,8 +321,8 @@ func TestAccIapAppEngineServiceIamPolicyGenerated_withCondition(t *testing.T) {
 		"random_suffix":   RandString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
 		"project_id":      fmt.Sprintf("tf-test%s", RandString(t, 10)),
-		"org_id":          GetTestOrgFromEnv(t),
-		"billing_account": GetTestBillingAccountFromEnv(t),
+		"org_id":          acctest.GetTestOrgFromEnv(t),
+		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
 
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -330,7 +336,7 @@ func TestAccIapAppEngineServiceIamPolicyGenerated_withCondition(t *testing.T) {
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -484,6 +490,15 @@ resource "google_iap_app_engine_service_iam_policy" "foo" {
   app_id = "${google_app_engine_standard_app_version.version.project}"
   service = "${google_app_engine_standard_app_version.version.service}"
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_iap_app_engine_service_iam_policy" "foo" {
+  project = "${google_app_engine_standard_app_version.version.project}"
+  app_id = "${google_app_engine_standard_app_version.version.project}"
+  service = "${google_app_engine_standard_app_version.version.service}"
+  depends_on = [
+    google_iap_app_engine_service_iam_policy.foo
+  ]
 }
 `, context)
 }

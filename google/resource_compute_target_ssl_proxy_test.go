@@ -1,8 +1,13 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
 	"fmt"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -23,7 +28,7 @@ func TestAccComputeTargetSslProxy_update(t *testing.T) {
 	var proxy compute.TargetSslProxy
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeTargetSslProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -110,7 +115,7 @@ func testAccCheckComputeTargetSslProxyHasSslCertificate(t *testing.T, cert strin
 		certURL := fmt.Sprintf(canonicalSslCertificateTemplate, config.Project, cert)
 
 		for _, sslCertificate := range proxy.SslCertificates {
-			if ConvertSelfLinkToV1(sslCertificate) == certURL {
+			if tpgresource.ConvertSelfLinkToV1(sslCertificate) == certURL {
 				return nil
 			}
 		}
@@ -123,7 +128,7 @@ func testAccCheckComputeTargetSslProxyHasCertificateMap(t *testing.T, certificat
 	return func(s *terraform.State) error {
 		config := GoogleProviderConfig(t)
 		wantCertMapURL := fmt.Sprintf(canonicalCertificateMapTemplate, config.Project, certificateMap)
-		gotCertMapURL := ConvertSelfLinkToV1(proxy.CertificateMap)
+		gotCertMapURL := tpgresource.ConvertSelfLinkToV1(proxy.CertificateMap)
 		if wantCertMapURL != gotCertMapURL {
 			return fmt.Errorf("certificate map not found: got %q, want %q", gotCertMapURL, wantCertMapURL)
 		}

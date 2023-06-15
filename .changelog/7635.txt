@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added new field `async_primary_disk` to `google_compute_disk` and `google_compute_region_disk`
+```
+```release-note:enhancement
+compute: added new field `disk_consistency_group_policy` to `google_compute_resource_policy`
+```

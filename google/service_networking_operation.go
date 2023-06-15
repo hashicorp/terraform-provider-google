@@ -1,36 +1,17 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
 	"time"
 
+	tpgservicenetworking "github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/servicenetworking/v1"
 )
 
-type ServiceNetworkingOperationWaiter struct {
-	Service             *servicenetworking.APIService
-	Project             string
-	UserProjectOverride bool
-	CommonOperationWaiter
-}
-
-func (w *ServiceNetworkingOperationWaiter) QueryOp() (interface{}, error) {
-	opGetCall := w.Service.Operations.Get(w.Op.Name)
-	if w.UserProjectOverride {
-		opGetCall.Header().Add("X-Goog-User-Project", w.Project)
-	}
-	return opGetCall.Do()
-}
-
+// Deprecated: For backward compatibility ServiceNetworkingOperationWaitTime is still working,
+// but all new code should use ServiceNetworkingOperationWaitTime in the tpgservicenetworking package instead.
 func ServiceNetworkingOperationWaitTime(config *transport_tpg.Config, op *servicenetworking.Operation, activity, userAgent, project string, timeout time.Duration) error {
-	w := &ServiceNetworkingOperationWaiter{
-		Service:             config.NewServiceNetworkingClient(userAgent),
-		Project:             project,
-		UserProjectOverride: config.UserProjectOverride,
-	}
-
-	if err := w.SetOp(op); err != nil {
-		return err
-	}
-	return OperationWait(w, activity, timeout, config.PollInterval)
+	return tpgservicenetworking.ServiceNetworkingOperationWaitTime(config, op, activity, userAgent, project, timeout)
 }

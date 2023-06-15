@@ -204,6 +204,71 @@ resource "google_data_loss_prevention_inspect_template" "custom" {
 	}
 }
 ```
+## Example Usage - Dlp Inspect Template Custom Type Surrogate
+
+
+```hcl
+resource "google_data_loss_prevention_inspect_template" "custom_type_surrogate" {
+  parent = "projects/my-project-name"
+  description = "My description"
+  display_name = "display_name"
+
+  inspect_config {
+    custom_info_types {
+      info_type {
+        name = "MY_CUSTOM_TYPE"
+      }
+
+      likelihood = "UNLIKELY"
+
+      surrogate_type {}
+    }
+
+    info_types {
+      name = "EMAIL_ADDRESS"
+    }
+
+    min_likelihood = "UNLIKELY"
+    rule_set {
+      info_types {
+        name = "EMAIL_ADDRESS"
+      }
+      rules {
+        exclusion_rule {
+          regex {
+            pattern = ".+@example.com"
+          }
+          matching_type = "MATCHING_TYPE_FULL_MATCH"
+        }
+      }
+    }
+
+    rule_set {
+      info_types {
+        name = "MY_CUSTOM_TYPE"
+      }
+      rules {
+        hotword_rule {
+          hotword_regex {
+            pattern = "example*"
+          }
+          proximity {
+            window_before = 50
+          }
+          likelihood_adjustment {
+            fixed_likelihood = "VERY_LIKELY"
+          }
+        }
+      }
+    }
+
+    limits {
+      max_findings_per_item    = 10
+      max_findings_per_request = 50
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -229,6 +294,12 @@ The following arguments are supported:
 * `display_name` -
   (Optional)
   User set display name of the inspect template.
+
+* `template_id` -
+  (Optional)
+  The template id can contain uppercase and lowercase letters, numbers, and hyphens;
+  that is, it must match the regular expression: [a-zA-Z\d-_]+. The maximum length is
+  100 characters. Can be empty to allow the system to generate one.
 
 * `inspect_config` -
   (Optional)
@@ -319,6 +390,23 @@ The following arguments are supported:
   Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
   at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.
 
+* `version` -
+  (Optional)
+  Version name for this InfoType.
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
 <a name="nested_info_types"></a>The `info_types` block supports:
 
 * `name` -
@@ -329,6 +417,19 @@ The following arguments are supported:
 * `version` -
   (Optional)
   Version of the information type to use. By default, the version is set to stable
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
 <a name="nested_rule_set"></a>The `rule_set` block supports:
 
@@ -349,6 +450,23 @@ The following arguments are supported:
   (Required)
   Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
   at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.
+
+* `version` -
+  (Optional)
+  Version name for this InfoType.
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
 <a name="nested_rules"></a>The `rules` block supports:
 
@@ -445,6 +563,12 @@ The following arguments are supported:
   Set of infoTypes for which findings would affect this rule.
   Structure is [documented below](#nested_exclude_info_types).
 
+* `exclude_by_hotword` -
+  (Optional)
+  Drop if the hotword rule is contained in the proximate context.
+  For tabular data, the context includes the column name.
+  Structure is [documented below](#nested_exclude_by_hotword).
+
 
 <a name="nested_dictionary"></a>The `dictionary` block supports:
 
@@ -498,6 +622,62 @@ The following arguments are supported:
   Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
   at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.
 
+* `version` -
+  (Optional)
+  Version name for this InfoType.
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
+<a name="nested_exclude_by_hotword"></a>The `exclude_by_hotword` block supports:
+
+* `hotword_regex` -
+  (Required)
+  Regular expression pattern defining what qualifies as a hotword.
+  Structure is [documented below](#nested_hotword_regex).
+
+* `proximity` -
+  (Required)
+  Proximity of the finding within which the entire hotword must reside. The total length of the window cannot
+  exceed 1000 characters. Note that the finding itself will be included in the window, so that hotwords may be
+  used to match substrings of the finding itself. For example, the certainty of a phone number regex
+  `(\d{3}) \d{3}-\d{4}` could be adjusted upwards if the area code is known to be the local area code of a company
+  office using the hotword regex `(xxx)`, where `xxx` is the area code in question.
+  Structure is [documented below](#nested_proximity).
+
+
+<a name="nested_hotword_regex"></a>The `hotword_regex` block supports:
+
+* `pattern` -
+  (Required)
+  Pattern defining the regular expression. Its syntax
+  (https://github.com/google/re2/wiki/Syntax) can be found under the google/re2 repository on GitHub.
+
+* `group_indexes` -
+  (Optional)
+  The index of the submatch to extract as findings. When not specified,
+  the entire match is returned. No more than 3 may be included.
+
+<a name="nested_proximity"></a>The `proximity` block supports:
+
+* `window_before` -
+  (Optional)
+  Number of characters before the finding to consider.
+
+* `window_after` -
+  (Optional)
+  Number of characters after the finding to consider.
+
 <a name="nested_custom_info_types"></a>The `custom_info_types` block supports:
 
 * `info_type` -
@@ -520,6 +700,11 @@ The following arguments are supported:
   If set to EXCLUSION_TYPE_EXCLUDE this infoType will not cause a finding to be returned. It still can be used for rules matching.
   Possible values are: `EXCLUSION_TYPE_EXCLUDE`.
 
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
 * `regex` -
   (Optional)
   Regular expression which defines the rule.
@@ -529,6 +714,10 @@ The following arguments are supported:
   (Optional)
   Dictionary which defines the rule.
   Structure is [documented below](#nested_dictionary).
+
+* `surrogate_type` -
+  (Optional)
+  Message for detecting output from deidentification transformations that support reversing.
 
 * `stored_type` -
   (Optional)
@@ -542,6 +731,30 @@ The following arguments are supported:
   (Required)
   Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names
   listed at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.
+
+* `version` -
+  (Optional)
+  Version name for this InfoType.
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
 <a name="nested_regex"></a>The `regex` block supports:
 

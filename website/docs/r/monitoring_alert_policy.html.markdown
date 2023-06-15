@@ -83,6 +83,34 @@ resource "google_monitoring_alert_policy" "alert_policy" {
   }
 }
 ```
+## Example Usage - Monitoring Alert Policy Forecast Options
+
+
+```hcl
+resource "google_monitoring_alert_policy" "alert_policy" {
+  display_name = "My Alert Policy"
+  combiner     = "OR"
+  conditions {
+    display_name = "test condition"
+    condition_threshold {
+      filter     = "metric.type=\"compute.googleapis.com/instance/disk/write_bytes_count\" AND resource.type=\"gce_instance\""
+      duration   = "60s"
+      forecast_options {
+        forecast_horizon = "3600s"
+      }
+      comparison = "COMPARISON_GT"
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "ALIGN_RATE"
+      }
+    }
+  }
+
+  user_labels = {
+    foo = "bar"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -427,6 +455,16 @@ The following arguments are supported:
   that unhealthy states are detected and
   alerted on quickly.
 
+* `forecast_options` -
+  (Optional)
+  When this field is present, the `MetricThreshold`
+  condition forecasts whether the time series is
+  predicted to violate the threshold within the
+  `forecastHorizon`. When this field is not set, the
+  `MetricThreshold` tests the current value of the
+  timeseries against the threshold.
+  Structure is [documented below](#nested_forecast_options).
+
 * `comparison` -
   (Required)
   The comparison to apply between the time
@@ -579,6 +617,17 @@ The following arguments are supported:
   specified; otherwise, an error is
   returned.
   Possible values are: `REDUCE_NONE`, `REDUCE_MEAN`, `REDUCE_MIN`, `REDUCE_MAX`, `REDUCE_SUM`, `REDUCE_STDDEV`, `REDUCE_COUNT`, `REDUCE_COUNT_TRUE`, `REDUCE_COUNT_FALSE`, `REDUCE_FRACTION_TRUE`, `REDUCE_PERCENTILE_99`, `REDUCE_PERCENTILE_95`, `REDUCE_PERCENTILE_50`, `REDUCE_PERCENTILE_05`.
+
+<a name="nested_forecast_options"></a>The `forecast_options` block supports:
+
+* `forecast_horizon` -
+  (Required)
+  The length of time into the future to forecast
+  whether a timeseries will violate the threshold.
+  If the predicted value is found to violate the
+  threshold, and the violation is observed in all
+  forecasts made for the Configured `duration`,
+  then the timeseries is considered to be failing.
 
 <a name="nested_trigger"></a>The `trigger` block supports:
 
@@ -754,12 +803,31 @@ The following arguments are supported:
   (Optional)
   If an alert policy that was active has no data for this long, any open incidents will close.
 
+* `notification_channel_strategy` -
+  (Optional)
+  Control over how the notification channels in `notification_channels`
+  are notified when this alert fires, on a per-channel basis.
+  Structure is [documented below](#nested_notification_channel_strategy).
+
 
 <a name="nested_notification_rate_limit"></a>The `notification_rate_limit` block supports:
 
 * `period` -
   (Optional)
   Not more than one notification per period.
+
+<a name="nested_notification_channel_strategy"></a>The `notification_channel_strategy` block supports:
+
+* `notification_channel_names` -
+  (Optional)
+  The notification channels that these settings apply to. Each of these
+  correspond to the name field in one of the NotificationChannel objects
+  referenced in the notification_channels field of this AlertPolicy. The format is
+  `projects/[PROJECT_ID_OR_NUMBER]/notificationChannels/[CHANNEL_ID]`
+
+* `renotify_interval` -
+  (Optional)
+  The frequency at which to send reminder notifications for open incidents.
 
 <a name="nested_documentation"></a>The `documentation` block supports:
 

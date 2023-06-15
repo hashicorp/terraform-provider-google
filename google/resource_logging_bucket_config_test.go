@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccLoggingBucketConfigFolder_basic(t *testing.T) {
@@ -13,11 +16,11 @@ func TestAccLoggingBucketConfigFolder_basic(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"folder_name":   "tf-test-" + RandString(t, 10),
-		"org_id":        GetTestOrgFromEnv(t),
+		"org_id":        acctest.GetTestOrgFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -48,11 +51,11 @@ func TestAccLoggingBucketConfigProject_basic(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"project_name":  "tf-test-" + RandString(t, 10),
-		"org_id":        GetTestOrgFromEnv(t),
+		"org_id":        acctest.GetTestOrgFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -92,11 +95,11 @@ func TestAccLoggingBucketConfigProject_analyticsEnabled(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"project_name":  "tf-test-" + RandString(t, 10),
-		"org_id":        GetTestOrgFromEnv(t),
+		"org_id":        acctest.GetTestOrgFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -126,8 +129,8 @@ func TestAccLoggingBucketConfigProject_cmekSettings(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project_name":    "tf-test-" + RandString(t, 10),
-		"org_id":          GetTestOrgFromEnv(t),
-		"billing_account": GetTestBillingAccountFromEnv(t),
+		"org_id":          acctest.GetTestOrgFromEnv(t),
+		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
 	}
 
 	bucketId := fmt.Sprintf("tf-test-bucket-%s", RandString(t, 10))
@@ -136,7 +139,7 @@ func TestAccLoggingBucketConfigProject_cmekSettings(t *testing.T) {
 	cryptoKeyNameUpdate := fmt.Sprintf("tf-test-crypto-key-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -166,12 +169,12 @@ func TestAccLoggingBucketConfigBillingAccount_basic(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix":        RandString(t, 10),
-		"billing_account_name": "billingAccounts/" + GetTestMasterBillingAccountFromEnv(t),
-		"org_id":               GetTestOrgFromEnv(t),
+		"billing_account_name": "billingAccounts/" + acctest.GetTestMasterBillingAccountFromEnv(t),
+		"org_id":               acctest.GetTestOrgFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -201,11 +204,11 @@ func TestAccLoggingBucketConfigOrganization_basic(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
-		"org_id":        GetTestOrgFromEnv(t),
+		"org_id":        acctest.GetTestOrgFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -291,8 +294,13 @@ resource "google_project" "default" {
 	billing_account = "%{billing_account}"
 }
 
+resource "google_project_service" "logging_service" {
+	project = google_project.default.project_id
+	service = "logging.googleapis.com"
+}
+
 data "google_logging_project_cmek_settings" "cmek_settings" {
-	project = google_project.default.name
+	project = google_project_service.logging_service.project
 }
 
 resource "google_kms_key_ring" "keyring" {
@@ -375,8 +383,8 @@ func TestAccLoggingBucketConfig_CreateBuckets_withCustomId(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix":        RandString(t, 10),
-		"billing_account_name": GetTestBillingAccountFromEnv(t),
-		"org_id":               GetTestOrgFromEnv(t),
+		"billing_account_name": acctest.GetTestBillingAccountFromEnv(t),
+		"org_id":               acctest.GetTestOrgFromEnv(t),
 		"project_name":         "tf-test-" + RandString(t, 10),
 		"bucket_id":            "tf-test-bucket-" + RandString(t, 10),
 	}
@@ -385,7 +393,7 @@ func TestAccLoggingBucketConfig_CreateBuckets_withCustomId(t *testing.T) {
 
 	for res, config := range configList {
 		VcrTest(t, resource.TestCase{
-			PreCheck:                 func() { AccTestPreCheck(t) },
+			PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 			ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 			Steps: []resource.TestStep{
 				{

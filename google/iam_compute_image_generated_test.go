@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -20,6 +23,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccComputeImageIamBindingGenerated(t *testing.T) {
@@ -36,7 +41,7 @@ func TestAccComputeImageIamBindingGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -44,7 +49,7 @@ func TestAccComputeImageIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_image_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -54,7 +59,7 @@ func TestAccComputeImageIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_image_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -76,7 +81,7 @@ func TestAccComputeImageIamMemberGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -85,7 +90,7 @@ func TestAccComputeImageIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_image_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -107,15 +112,16 @@ func TestAccComputeImageIamPolicyGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeImageIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_compute_image_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_compute_image_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -124,7 +130,7 @@ func TestAccComputeImageIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_image_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -146,7 +152,7 @@ func TestAccComputeImageIamBindingGenerated_withCondition(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -154,7 +160,7 @@ func TestAccComputeImageIamBindingGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_image_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser %s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -164,7 +170,7 @@ func TestAccComputeImageIamBindingGenerated_withCondition(t *testing.T) {
 
 func TestAccComputeImageIamBindingGenerated_withAndWithoutCondition(t *testing.T) {
 	// Multiple fine-grained resources
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -178,7 +184,7 @@ func TestAccComputeImageIamBindingGenerated_withAndWithoutCondition(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -186,19 +192,19 @@ func TestAccComputeImageIamBindingGenerated_withAndWithoutCondition(t *testing.T
 			},
 			{
 				ResourceName:      "google_compute_image_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_compute_image_iam_binding.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser %s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_compute_image_iam_binding.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser %s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title_no_desc"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -220,7 +226,7 @@ func TestAccComputeImageIamMemberGenerated_withCondition(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -228,7 +234,7 @@ func TestAccComputeImageIamMemberGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_image_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -238,7 +244,7 @@ func TestAccComputeImageIamMemberGenerated_withCondition(t *testing.T) {
 
 func TestAccComputeImageIamMemberGenerated_withAndWithoutCondition(t *testing.T) {
 	// Multiple fine-grained resources
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -252,7 +258,7 @@ func TestAccComputeImageIamMemberGenerated_withAndWithoutCondition(t *testing.T)
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -260,19 +266,19 @@ func TestAccComputeImageIamMemberGenerated_withAndWithoutCondition(t *testing.T)
 			},
 			{
 				ResourceName:      "google_compute_image_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_compute_image_iam_member.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_compute_image_iam_member.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title_no_desc"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -298,7 +304,7 @@ func TestAccComputeImageIamPolicyGenerated_withCondition(t *testing.T) {
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -312,7 +318,7 @@ func TestAccComputeImageIamPolicyGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_image_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s", GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -360,6 +366,14 @@ resource "google_compute_image_iam_policy" "foo" {
   project = google_compute_image.example.project
   image = google_compute_image.example.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_compute_image_iam_policy" "foo" {
+  project = google_compute_image.example.project
+  image = google_compute_image.example.name
+  depends_on = [
+    google_compute_image_iam_policy.foo
+  ]
 }
 `, context)
 }

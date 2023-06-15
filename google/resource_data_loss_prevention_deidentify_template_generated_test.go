@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -21,18 +24,22 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -43,14 +50,14 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateBasicExamp
 				ResourceName:            "google_data_loss_prevention_deidentify_template.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"template_id", "parent"},
 			},
 		},
 	})
 }
 
 func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_deidentify_template" "basic" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -154,12 +161,12 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateSkipCharac
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -170,14 +177,14 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateSkipCharac
 				ResourceName:            "google_data_loss_prevention_deidentify_template.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"template_id", "parent"},
 			},
 		},
 	})
 }
 
 func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateSkipCharactersExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_deidentify_template" "basic" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -277,6 +284,124 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 `, context)
 }
 
+func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateImageTransformationsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       acctest.GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateImageTransformationsExample(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_deidentify_template.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"template_id", "parent"},
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateImageTransformationsExample(context map[string]interface{}) string {
+	return tpgresource.Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "basic" {
+  parent = "projects/%{project}"
+  description = "Description"
+  display_name = "Displayname"
+  
+  deidentify_config {
+    image_transformations {
+      transforms {
+        redaction_color {
+          red = 0.5
+          blue = 1
+          green = 0.2
+        }
+        selected_info_types {
+          info_types {
+            name = "COLOR_INFO"
+            version = "latest"
+          }
+        }
+      }
+
+      transforms {
+        all_info_types {}
+      }
+
+      transforms {
+        all_text {}
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateWithTemplateIdExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       acctest.GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateWithTemplateIdExample(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_deidentify_template.with_template_id",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"template_id", "parent"},
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateWithTemplateIdExample(context map[string]interface{}) string {
+	return tpgresource.Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "with_template_id" {
+  parent = "projects/%{project}"
+  template_id = "tf-test-my-template%{random_suffix}"
+
+  deidentify_config {
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "PHONE_NUMBER"
+        }
+        info_types {
+          name = "AGE"
+        }
+
+        primitive_transformation {
+          replace_config {
+            new_value {
+              integer_value = 9
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -289,7 +414,7 @@ func testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t *testing.
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{DataLossPreventionBasePath}}{{parent}}/deidentifyTemplates/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -300,7 +425,13 @@ func testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t *testing.
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("DataLossPreventionDeidentifyTemplate still exists at %s", url)
 			}

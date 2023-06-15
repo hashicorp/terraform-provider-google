@@ -1,0 +1,9 @@
+```release-note:enhancement
+workstations: supported in-place update for `host` and `container` in `google_workstations_workstation_config` (beta)
+```
+```release-note:bug
+workstations: fixed an issue where unsetting the container working directory in `google_workstations_workstations_config` was not propagated to the underlying resource (beta)
+```
+```release-note:bug
+workstations: fixed an issue where modifying `persistent_directories` and `encryption_key` would fail with API errors; now updating them will recreate the resource (beta)
+```

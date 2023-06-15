@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -6,6 +8,9 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/healthcare"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
@@ -13,11 +18,11 @@ import (
 func TestAccHealthcareFhirStoreIamBinding(t *testing.T) {
 	t.Parallel()
 
-	projectId := GetTestProjectFromEnv()
+	projectId := acctest.GetTestProjectFromEnv()
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/healthcare.fhirStoreAdmin"
 	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	datasetId := &HealthcareDatasetId{
+	datasetId := &healthcare.HealthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
@@ -25,7 +30,7 @@ func TestAccHealthcareFhirStoreIamBinding(t *testing.T) {
 	fhirStoreName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -62,11 +67,11 @@ func TestAccHealthcareFhirStoreIamBinding(t *testing.T) {
 func TestAccHealthcareFhirStoreIamMember(t *testing.T) {
 	t.Parallel()
 
-	projectId := GetTestProjectFromEnv()
+	projectId := acctest.GetTestProjectFromEnv()
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/healthcare.fhirResourceEditor"
 	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	datasetId := &HealthcareDatasetId{
+	datasetId := &healthcare.HealthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
@@ -74,7 +79,7 @@ func TestAccHealthcareFhirStoreIamMember(t *testing.T) {
 	fhirStoreName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -97,11 +102,11 @@ func TestAccHealthcareFhirStoreIamMember(t *testing.T) {
 func TestAccHealthcareFhirStoreIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	projectId := GetTestProjectFromEnv()
+	projectId := acctest.GetTestProjectFromEnv()
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/healthcare.fhirResourceEditor"
 	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	datasetId := &HealthcareDatasetId{
+	datasetId := &healthcare.HealthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
@@ -109,14 +114,17 @@ func TestAccHealthcareFhirStoreIamPolicy(t *testing.T) {
 	fhirStoreName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Policy creation (no update for policy, no need to test)
 				Config: testAccHealthcareFhirStoreIamPolicy_basic(account, datasetName, fhirStoreName, roleId),
-				Check: testAccCheckGoogleHealthcareFhirStoreIamPolicyExists(t, "foo", roleId,
-					fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleHealthcareFhirStoreIamPolicyExists(t, "foo", roleId,
+						fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", account, projectId),
+					),
+					resource.TestCheckResourceAttrSet("data.google_healthcare_fhir_store_iam_policy.foo", "policy_data"),
 				),
 			},
 			{
@@ -137,7 +145,7 @@ func testAccCheckGoogleHealthcareFhirStoreIamBindingExists(t *testing.T, binding
 		}
 
 		config := GoogleProviderConfig(t)
-		fhirStoreId, err := ParseHealthcareFhirStoreId(bindingRs.Primary.Attributes["fhir_store_id"], config)
+		fhirStoreId, err := healthcare.ParseHealthcareFhirStoreId(bindingRs.Primary.Attributes["fhir_store_id"], config)
 
 		if err != nil {
 			return err
@@ -173,7 +181,7 @@ func testAccCheckGoogleHealthcareFhirStoreIamMemberExists(t *testing.T, n, role,
 		}
 
 		config := GoogleProviderConfig(t)
-		fhirStoreId, err := ParseHealthcareFhirStoreId(rs.Primary.Attributes["fhir_store_id"], config)
+		fhirStoreId, err := healthcare.ParseHealthcareFhirStoreId(rs.Primary.Attributes["fhir_store_id"], config)
 
 		if err != nil {
 			return err
@@ -208,7 +216,7 @@ func testAccCheckGoogleHealthcareFhirStoreIamPolicyExists(t *testing.T, n, role,
 		}
 
 		config := GoogleProviderConfig(t)
-		fhirStoreId, err := ParseHealthcareFhirStoreId(rs.Primary.Attributes["fhir_store_id"], config)
+		fhirStoreId, err := healthcare.ParseHealthcareFhirStoreId(rs.Primary.Attributes["fhir_store_id"], config)
 
 		if err != nil {
 			return err
@@ -353,5 +361,10 @@ resource "google_healthcare_fhir_store_iam_policy" "foo" {
   fhir_store_id = google_healthcare_fhir_store.fhir_store.id
   policy_data   = data.google_iam_policy.foo.policy_data
 }
+
+data "google_healthcare_fhir_store_iam_policy" "foo" {
+  fhir_store_id = google_healthcare_fhir_store.fhir_store.id
+}
+
 `, account, datasetName, fhirStoreName, roleId)
 }

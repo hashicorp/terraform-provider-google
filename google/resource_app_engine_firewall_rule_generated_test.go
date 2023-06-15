@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -21,18 +24,22 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":        GetTestOrgFromEnv(t),
+		"org_id":        acctest.GetTestOrgFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckAppEngineFirewallRuleDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -49,7 +56,7 @@ func TestAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(t *testing.T
 }
 
 func testAccAppEngineFirewallRule_appEngineFirewallRuleBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_project" "my_project" {
   name       = "tf-test-project"
   project_id = "tf-test-ae-project%{random_suffix}"
@@ -82,7 +89,7 @@ func testAccCheckAppEngineFirewallRuleDestroyProducer(t *testing.T) func(s *terr
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
 			if err != nil {
 				return err
 			}
@@ -93,7 +100,13 @@ func testAccCheckAppEngineFirewallRuleDestroyProducer(t *testing.T) func(s *terr
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("AppEngineFirewallRule still exists at %s", url)
 			}

@@ -160,9 +160,20 @@ The following arguments are supported:
   (Optional)
   User-provided description of the backup.
 
+* `encryption_config` -
+  (Optional)
+  EncryptionConfig describes the encryption config of a cluster or a backup that is encrypted with a CMEK (customer-managed encryption key).
+  Structure is [documented below](#nested_encryption_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_encryption_config"></a>The `encryption_config` block supports:
+
+* `kms_key_name` -
+  (Optional)
+  The fully-qualified resource name of the KMS key. Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].
 
 ## Attributes Reference
 
@@ -191,6 +202,20 @@ In addition to the arguments listed above, the following computed attributes are
 * `etag` -
   A hash of the resource.
 
+* `encryption_info` -
+  EncryptionInfo describes the encryption information of a cluster or a backup.
+  Structure is [documented below](#nested_encryption_info).
+
+
+<a name="nested_encryption_info"></a>The `encryption_info` block contains:
+
+* `encryption_type` -
+  (Output)
+  Output only. Type of encryption.
+
+* `kms_key_versions` -
+  (Output)
+  Output only. Cloud KMS key versions that are being used to protect the database or the backup.
 
 ## Timeouts
 

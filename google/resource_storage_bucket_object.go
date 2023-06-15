@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -6,17 +8,15 @@ import (
 	"io"
 	"log"
 	"os"
-	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"crypto/md5"
 	"crypto/sha256"
 	"encoding/base64"
-	"io/ioutil"
 	"net/http"
 
 	"google.golang.org/api/googleapi"
@@ -133,11 +133,11 @@ func ResourceStorageBucketObject() *schema.Resource {
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					localMd5Hash := ""
 					if source, ok := d.GetOkExists("source"); ok {
-						localMd5Hash = getFileMd5Hash(source.(string))
+						localMd5Hash = tpgresource.GetFileMd5Hash(source.(string))
 					}
 
 					if content, ok := d.GetOkExists("content"); ok {
-						localMd5Hash = getContentMd5Hash([]byte(content.(string)))
+						localMd5Hash = tpgresource.GetContentMd5Hash([]byte(content.(string)))
 					}
 
 					// If `source` or `content` is dynamically set, both field will be empty.
@@ -170,7 +170,7 @@ func ResourceStorageBucketObject() *schema.Resource {
 				ForceNew:         true,
 				Computed:         true,
 				ConflictsWith:    []string{"customer_encryption"},
-				DiffSuppressFunc: compareCryptoKeyVersions,
+				DiffSuppressFunc: tpgresource.CompareCryptoKeyVersions,
 				Description:      `Resource name of the Cloud KMS key that will be used to encrypt the object. Overrides the object metadata's kmsKeyName value, if any.`,
 			},
 
@@ -255,21 +255,9 @@ func objectGetID(object *storage.Object) string {
 	return object.Bucket + "-" + object.Name
 }
 
-func compareCryptoKeyVersions(_, old, new string, _ *schema.ResourceData) bool {
-	// The API can return cryptoKeyVersions even though it wasn't specified.
-	// format: projects/<project>/locations/<region>/keyRings/<keyring>/cryptoKeys/<key>/cryptoKeyVersions/1
-
-	kmsKeyWithoutVersions := strings.Split(old, "/cryptoKeyVersions")[0]
-	if kmsKeyWithoutVersions == new {
-		return true
-	}
-
-	return false
-}
-
 func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -314,7 +302,7 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	if v, ok := d.GetOk("metadata"); ok {
-		object.Metadata = convertStringMap(v.(map[string]interface{}))
+		object.Metadata = tpgresource.ConvertStringMap(v.(map[string]interface{}))
 	}
 
 	if v, ok := d.GetOk("storage_class"); ok {
@@ -354,7 +342,7 @@ func resourceStorageBucketObjectCreate(d *schema.ResourceData, meta interface{})
 
 func resourceStorageBucketObjectUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -392,7 +380,7 @@ func resourceStorageBucketObjectUpdate(d *schema.ResourceData, meta interface{})
 
 func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -411,7 +399,7 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 	res, err := getCall.Do()
 
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Storage Bucket Object %q", d.Get("name").(string)))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Storage Bucket Object %q", d.Get("name").(string)))
 	}
 
 	if err := d.Set("md5hash", res.Md5Hash); err != nil {
@@ -470,7 +458,7 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceStorageBucketObjectDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -507,20 +495,11 @@ func setEncryptionHeaders(customerEncryption map[string]string, headers http.Hea
 }
 
 func getFileMd5Hash(filename string) string {
-	data, err := ioutil.ReadFile(filename)
-	if err != nil {
-		log.Printf("[WARN] Failed to read source file %q. Cannot compute md5 hash for it.", filename)
-		return ""
-	}
-	return getContentMd5Hash(data)
+	return tpgresource.GetFileMd5Hash(filename)
 }
 
 func getContentMd5Hash(content []byte) string {
-	h := md5.New()
-	if _, err := h.Write(content); err != nil {
-		log.Printf("[WARN] Failed to compute md5 hash for content: %v", err)
-	}
-	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+	return tpgresource.GetContentMd5Hash(content)
 }
 
 func expandCustomerEncryption(input []interface{}) map[string]string {

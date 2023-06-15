@@ -26,7 +26,7 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 To get more information about GatewaySecurityPolicy, see:
 
-* [API documentation](https://cloud.google.com/secure-web-proxy/docs/reference/network-security/rest/v1alpha1/projects.locations.gatewaySecurityPolicies)
+* [API documentation](https://cloud.google.com/secure-web-proxy/docs/reference/network-security/rest/v1beta1/projects.locations.gatewaySecurityPolicies)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_security_gateway_security_policy_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -42,6 +42,95 @@ resource "google_network_security_gateway_security_policy" "default" {
   name        = "my-gateway-security-policy"
   location    = "us-central1"
   description = "my description"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_security_gateway_security_policy_tls_inspection_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Security Gateway Security Policy Tls Inspection Basic
+
+
+```hcl
+resource "google_privateca_ca_pool" "default" {
+  provider = google-beta
+  name      = "my-basic-ca-pool"
+  location  = "us-central1"
+  tier     = "DEVOPS"
+  publishing_options {
+    publish_ca_cert = false
+    publish_crl = false
+  }
+  issuance_policy {
+    maximum_lifetime = "1209600s"
+    baseline_values {
+      ca_options {
+        is_ca = false
+      }
+      key_usage {
+        base_key_usage {}
+        extended_key_usage {
+          server_auth = true
+        }
+      }
+    }
+  }
+}
+
+
+resource "google_privateca_certificate_authority" "default" {
+  provider = google-beta
+  pool = google_privateca_ca_pool.default.name
+  certificate_authority_id = "my-basic-certificate-authority"
+  location = "us-central1"
+  lifetime = "86400s"
+  type = "SELF_SIGNED"
+  deletion_protection = false
+  skip_grace_period = true
+  ignore_active_certificates_on_deletion = true
+  config {
+    subject_config {
+      subject {
+        organization = "Test LLC"
+        common_name = "my-ca"
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = false
+        }
+      }
+    }
+  }
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+}
+
+resource "google_network_security_tls_inspection_policy" "default" {
+  provider = google-beta
+  name     = "my-tls-inspection-policy"
+  location = "us-central1"
+  ca_pool  = google_privateca_ca_pool.default.id
+  depends_on = [google_privateca_ca_pool.default, google_privateca_certificate_authority.default]
+}
+
+resource "google_network_security_gateway_security_policy" "default" {
+  provider    = google-beta
+  name        = "my-gateway-security-policy"
+  location    = "us-central1"
+  description = "my description"
+  tls_inspection_policy = google_network_security_tls_inspection_policy.default.id
+  depends_on = [google_network_security_tls_inspection_policy.default]
 }
 ```
 
@@ -62,6 +151,10 @@ The following arguments are supported:
 * `description` -
   (Optional)
   A free-text description of the resource. Max length 1024 characters.
+
+* `tls_inspection_policy` -
+  (Optional)
+  Name of a TlsInspectionPolicy resource that defines how TLS inspection is performed for any rule that enables it.
 
 * `location` -
   (Optional)

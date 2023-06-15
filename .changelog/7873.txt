@@ -1,0 +1,3 @@
+```release-note: enhancement
+bigquery: Added general field `load.parquet_options ` to `google_bigquery_job`
+```

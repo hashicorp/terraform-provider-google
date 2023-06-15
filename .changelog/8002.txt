@@ -1,0 +1,3 @@
+```release-note:bug
+gkeonprem: updated `hostname` field of ip_block from required to optional from resource `google_gkeonprem_vmware_cluster` 
+```

@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -19,6 +22,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataprocMetastoreServiceIamBindingGenerated(t *testing.T) {
@@ -30,7 +35,7 @@ func TestAccDataprocMetastoreServiceIamBindingGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -38,7 +43,7 @@ func TestAccDataprocMetastoreServiceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataproc_metastore_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/services/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-metastore-srv%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/services/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-metastore-srv%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -48,7 +53,7 @@ func TestAccDataprocMetastoreServiceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataproc_metastore_service_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/services/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-metastore-srv%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/services/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-metastore-srv%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -65,7 +70,7 @@ func TestAccDataprocMetastoreServiceIamMemberGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -74,7 +79,7 @@ func TestAccDataprocMetastoreServiceIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataproc_metastore_service_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/services/%s roles/viewer user:admin@hashicorptest.com", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-metastore-srv%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/services/%s roles/viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-metastore-srv%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -91,15 +96,16 @@ func TestAccDataprocMetastoreServiceIamPolicyGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocMetastoreServiceIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_dataproc_metastore_service_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_dataproc_metastore_service_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/services/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-metastore-srv%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/services/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-metastore-srv%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -108,7 +114,7 @@ func TestAccDataprocMetastoreServiceIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataproc_metastore_service_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/services/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-metastore-srv%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/services/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-metastore-srv%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -174,6 +180,15 @@ resource "google_dataproc_metastore_service_iam_policy" "foo" {
   location = google_dataproc_metastore_service.default.location
   service_id = google_dataproc_metastore_service.default.service_id
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_dataproc_metastore_service_iam_policy" "foo" {
+  project = google_dataproc_metastore_service.default.project
+  location = google_dataproc_metastore_service.default.location
+  service_id = google_dataproc_metastore_service.default.service_id
+  depends_on = [
+    google_dataproc_metastore_service_iam_policy.foo
+  ]
 }
 `, context)
 }

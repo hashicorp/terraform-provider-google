@@ -1,0 +1,3 @@
+```release-note:none
+Adding in t.Skip() for slack tests to skip vcr and nightly builds for TestAccMonitoringNotificationChannel_updateSensitiveLabels_slack and TestAccMonitoringNotificationChannel_updateLabels_slack
+```

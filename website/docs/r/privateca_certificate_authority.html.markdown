@@ -389,7 +389,7 @@ The following arguments are supported:
 
 * `non_ca` -
   (Optional)
-  When true, the "CA" in Basic Constraints extension will be set to false. 
+  When true, the "CA" in Basic Constraints extension will be set to false.
   If both `is_ca` and `non_ca` are unset, the extension will be omitted from the CA certificate.
 
 * `max_issuer_path_length` -
@@ -705,7 +705,7 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
 
 * `pem_issuer_chain` -
   (Optional)
-  Contains the PEM certificate chain for the issuers of this CertificateAuthority, 
+  Contains the PEM certificate chain for the issuers of this CertificateAuthority,
   but not pem certificate for this CA itself.
   Structure is [documented below](#nested_pem_issuer_chain).
 

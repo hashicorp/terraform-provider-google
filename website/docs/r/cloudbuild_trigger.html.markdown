@@ -163,7 +163,7 @@ resource "google_cloudbuild_trigger" "service-account-trigger" {
 }
 
 resource "google_service_account" "cloudbuild_service_account" {
-  account_id = "tf-test-my-service-account"
+  account_id = "cloud-sa"
 }
 
 resource "google_project_iam_member" "act_as" {
@@ -368,11 +368,6 @@ git_file_source {
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_repo&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Cloudbuild Trigger Repo
 
 
@@ -484,6 +479,208 @@ resource "google_cloudbuild_trigger" "ghe-trigger" {
   filename = "cloudbuild.yaml"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_allow_failure&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Allow Failure
+
+
+```hcl
+resource "google_cloudbuild_trigger" "allow-failure-trigger" {
+  location = "global"
+
+  trigger_template {
+    branch_name = "main"
+    repo_name   = "my-repo"
+  }
+
+  build {
+    step {
+      name = "ubuntu"
+      args = ["-c", "exit 1"]
+      allow_failure = true
+    }
+
+    source {
+      storage_source {
+        bucket = "mybucket"
+        object = "source_code.tar.gz"
+      }
+    }
+    tags = ["build", "newFeature"]
+    substitutions = {
+      _FOO = "bar"
+      _BAZ = "qux"
+    }
+    queue_ttl = "20s"
+    logs_bucket = "gs://mybucket/logs"
+    secret {
+      kms_key_name = "projects/myProject/locations/global/keyRings/keyring-name/cryptoKeys/key-name"
+      secret_env = {
+        PASSWORD = "ZW5jcnlwdGVkLXBhc3N3b3JkCg=="
+      }
+    }
+    available_secrets {
+      secret_manager {
+        env          = "MY_SECRET"
+        version_name = "projects/myProject/secrets/mySecret/versions/latest"
+      }
+    }
+    artifacts {
+      images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
+      objects {
+        location = "gs://bucket/path/to/somewhere/"
+        paths = ["path"]
+      }
+    }
+    options {
+      source_provenance_hash = ["MD5"]
+      requested_verify_option = "VERIFIED"
+      machine_type = "N1_HIGHCPU_8"
+      disk_size_gb = 100
+      substitution_option = "ALLOW_LOOSE"
+      dynamic_substitutions = true
+      log_streaming_option = "STREAM_OFF"
+      worker_pool = "pool"
+      logging = "LEGACY"
+      env = ["ekey = evalue"]
+      secret_env = ["secretenv = svalue"]
+      volumes {
+        name = "v1"
+        path = "v1"
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_allow_exit_codes&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Allow Exit Codes
+
+
+```hcl
+resource "google_cloudbuild_trigger" "allow-exit-codes-trigger" {
+  location = "global"
+
+  trigger_template {
+    branch_name = "main"
+    repo_name   = "my-repo"
+  }
+
+  build {
+    step {
+      name = "ubuntu"
+      args = ["-c", "exit 1"]
+      allow_exit_codes = [1,3]
+    }
+
+    source {
+      storage_source {
+        bucket = "mybucket"
+        object = "source_code.tar.gz"
+      }
+    }
+    tags = ["build", "newFeature"]
+    substitutions = {
+      _FOO = "bar"
+      _BAZ = "qux"
+    }
+    queue_ttl = "20s"
+    logs_bucket = "gs://mybucket/logs"
+    secret {
+      kms_key_name = "projects/myProject/locations/global/keyRings/keyring-name/cryptoKeys/key-name"
+      secret_env = {
+        PASSWORD = "ZW5jcnlwdGVkLXBhc3N3b3JkCg=="
+      }
+    }
+    available_secrets {
+      secret_manager {
+        env          = "MY_SECRET"
+        version_name = "projects/myProject/secrets/mySecret/versions/latest"
+      }
+    }
+    artifacts {
+      images = ["gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA"]
+      objects {
+        location = "gs://bucket/path/to/somewhere/"
+        paths = ["path"]
+      }
+    }
+    options {
+      source_provenance_hash = ["MD5"]
+      requested_verify_option = "VERIFIED"
+      machine_type = "N1_HIGHCPU_8"
+      disk_size_gb = 100
+      substitution_option = "ALLOW_LOOSE"
+      dynamic_substitutions = true
+      log_streaming_option = "STREAM_OFF"
+      worker_pool = "pool"
+      logging = "LEGACY"
+      env = ["ekey = evalue"]
+      secret_env = ["secretenv = svalue"]
+      volumes {
+        name = "v1"
+        path = "v1"
+      }
+    }
+  }
+}
+```
+## Example Usage - Cloudbuild Trigger Pubsub With Repo
+
+
+```hcl
+resource "google_cloudbuildv2_connection" "my-connection" {
+  provider = google-beta
+  location = "us-central1"
+  name = "my-connection"
+
+  github_config {
+    app_installation_id = 123123
+    authorizer_credential {
+      oauth_token_secret_version = "projects/my-project/secrets/github-pat-secret/versions/latest"
+    }
+  }
+}
+
+resource "google_cloudbuildv2_repository" "my-repository" {
+  provider = google-beta
+  name = "my-repo"
+  parent_connection = google_cloudbuildv2_connection.my-connection.id
+  remote_uri = "https://github.com/myuser/my-repo.git"
+}
+
+resource "google_pubsub_topic" "mytopic" {
+  provider = google-beta
+  name = "mytopic"
+}
+
+resource "google_cloudbuild_trigger" "pubsub-with-repo-trigger" {
+  provider = google-beta
+  name = "pubsub-with-repo-trigger"
+  location = "us-central1"
+
+  pubsub_config {
+    topic = google_pubsub_topic.mytopic.id
+  }
+  source_to_build {
+    repository = google_cloudbuildv2_repository.my-repository.id
+    ref = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+  git_file_source {
+    path = "cloudbuild.yaml"
+    repository = google_cloudbuildv2_repository.my-repository.id
+    revision = "refs/heads/main"
+    repo_type = "GITHUB"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -531,7 +728,7 @@ The following arguments are supported:
 
 * `filename` -
   (Optional)
-  Path, from the source root, to a file whose contents is used for the template. 
+  Path, from the source root, to a file whose contents is used for the template.
   Either a filename or build template must be provided. Set this only when using trigger_template or github.
   When using Pub/Sub, Webhook or Manual set the file name using git_file_source instead.
 
@@ -551,9 +748,9 @@ The following arguments are supported:
 
 * `source_to_build` -
   (Optional)
-  The repo and ref of the repository from which to build. 
-  This field is used only for those triggers that do not respond to SCM events. 
-  Triggers that respond to such events build source at whatever commit caused the event. 
+  The repo and ref of the repository from which to build.
+  This field is used only for those triggers that do not respond to SCM events.
+  Triggers that respond to such events build source at whatever commit caused the event.
   This field is currently only used by Webhook, Pub/Sub, Manual, and Cron triggers.
   One of `trigger_template`, `github`, `pubsub_config` `webhook_config` or `source_to_build` must be provided.
   Structure is [documented below](#nested_source_to_build).
@@ -602,22 +799,22 @@ The following arguments are supported:
 
 * `pubsub_config` -
   (Optional)
-  PubsubConfig describes the configuration of a trigger that creates 
+  PubsubConfig describes the configuration of a trigger that creates
   a build whenever a Pub/Sub message is published.
   One of `trigger_template`, `github`, `pubsub_config` `webhook_config` or `source_to_build` must be provided.
   Structure is [documented below](#nested_pubsub_config).
 
 * `webhook_config` -
   (Optional)
-  WebhookConfig describes the configuration of a trigger that creates 
+  WebhookConfig describes the configuration of a trigger that creates
   a build whenever a webhook is sent to a trigger's webhook URL.
   One of `trigger_template`, `github`, `pubsub_config` `webhook_config` or `source_to_build` must be provided.
   Structure is [documented below](#nested_webhook_config).
 
 * `approval_config` -
   (Optional)
-  Configuration for manual approval to start a build invocation of this BuildTrigger. 
-  Builds created by this trigger will require approval before they execute. 
+  Configuration for manual approval to start a build invocation of this BuildTrigger.
+  Builds created by this trigger will require approval before they execute.
   Any user with a Cloud Build Approver role for the project can approve a build.
   Structure is [documented below](#nested_approval_config).
 
@@ -643,19 +840,24 @@ The following arguments are supported:
 
 * `uri` -
   (Optional)
-  The URI of the repo (optional). If unspecified, the repo from which the trigger 
+  The URI of the repo (optional). If unspecified, the repo from which the trigger
   invocation originated is assumed to be the repo from which to read the specified path.
+
+* `repository` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The fully qualified resource name of the Repo API repository. The fully qualified resource name of the Repo API repository.
+  If unspecified, the repo from which the trigger invocation originated is assumed to be the repo from which to read the specified path.
 
 * `repo_type` -
   (Required)
-  The type of the repo, since it may not be explicit from the repo field (e.g from a URL). 
+  The type of the repo, since it may not be explicit from the repo field (e.g from a URL).
   Values can be UNKNOWN, CLOUD_SOURCE_REPOSITORIES, GITHUB, BITBUCKET_SERVER
   Possible values are: `UNKNOWN`, `CLOUD_SOURCE_REPOSITORIES`, `GITHUB`, `BITBUCKET_SERVER`.
 
 * `revision` -
   (Optional)
-  The branch, tag, arbitrary ref, or SHA version of the repo to use when resolving the 
-  filename (optional). This field respects the same syntax/resolution as described here: https://git-scm.com/docs/gitrevisions 
+  The branch, tag, arbitrary ref, or SHA version of the repo to use when resolving the
+  filename (optional). This field respects the same syntax/resolution as described here: https://git-scm.com/docs/gitrevisions
   If unspecified, the revision from which the trigger invocation originated is assumed to be the revision from which to read the specified path.
 
 * `github_enterprise_config` -
@@ -718,8 +920,13 @@ The following arguments are supported:
 <a name="nested_source_to_build"></a>The `source_to_build` block supports:
 
 * `uri` -
-  (Required)
-  The URI of the repo (required).
+  (Optional)
+  The URI of the repo.
+
+* `repository` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The qualified resource name of the Repo API repository.
+  Either uri or repository can be specified and is required.
 
 * `ref` -
   (Required)
@@ -919,7 +1126,7 @@ The following arguments are supported:
 
 * `approval_required` -
   (Optional)
-  Whether or not approval is needed. If this is set on a build, it will become pending when run, 
+  Whether or not approval is needed. If this is set on a build, it will become pending when run,
   and will need to be explicitly approved to start.
 
 <a name="nested_build"></a>The `build` block supports:
@@ -947,14 +1154,14 @@ The following arguments are supported:
 
 * `queue_ttl` -
   (Optional)
-  TTL in queue for this build. If provided and the build is enqueued longer than this value, 
+  TTL in queue for this build. If provided and the build is enqueued longer than this value,
   the build will expire and the build status will be EXPIRED.
   The TTL starts ticking from createTime.
   A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
 
 * `logs_bucket` -
   (Optional)
-  Google Cloud Storage bucket where logs should be written. 
+  Google Cloud Storage bucket where logs should be written.
   Logs file names will be of the format ${logsBucket}/log-${build_id}.txt.
 
 * `timeout` -
@@ -1017,14 +1224,14 @@ The following arguments are supported:
 
 * `generation` -
   (Optional)
-  Google Cloud Storage generation for the object. 
+  Google Cloud Storage generation for the object.
   If the generation is omitted, the latest generation will be used
 
 <a name="nested_repo_source"></a>The `repo_source` block supports:
 
 * `project_id` -
   (Optional)
-  ID of the project that owns the Cloud Source Repository. 
+  ID of the project that owns the Cloud Source Repository.
   If omitted, the project ID requesting the build is assumed.
 
 * `repo_name` -
@@ -1034,7 +1241,7 @@ The following arguments are supported:
 * `dir` -
   (Optional)
   Directory, relative to the source root, in which to run the build.
-  This must be a relative path. If a step's dir is specified and is an absolute path, 
+  This must be a relative path. If a step's dir is specified and is an absolute path,
   this value is ignored for that step's execution.
 
 * `invert_regex` -
@@ -1048,13 +1255,13 @@ The following arguments are supported:
 * `branch_name` -
   (Optional)
   Regex matching branches to build. Exactly one a of branch name, tag, or commit SHA must be provided.
-  The syntax of the regular expressions accepted is the syntax accepted by RE2 and 
+  The syntax of the regular expressions accepted is the syntax accepted by RE2 and
   described at https://github.com/google/re2/wiki/Syntax
 
 * `tag_name` -
   (Optional)
   Regex matching tags to build. Exactly one a of branch name, tag, or commit SHA must be provided.
-  The syntax of the regular expressions accepted is the syntax accepted by RE2 and 
+  The syntax of the regular expressions accepted is the syntax accepted by RE2 and
   described at https://github.com/google/re2/wiki/Syntax
 
 * `commit_sha` -
@@ -1070,8 +1277,8 @@ The following arguments are supported:
 * `secret_env` -
   (Optional)
   Map of environment variable name to its encrypted value.
-  Secret environment variables must be unique across all of a build's secrets, 
-  and must be used by at least one build step. Values can be at most 64 KB in size. 
+  Secret environment variables must be unique across all of a build's secrets,
+  and must be used by at least one build step. Values can be at most 64 KB in size.
   There can be at most 100 secret values across all of a build's secrets.
 
 <a name="nested_available_secrets"></a>The `available_secrets` block supports:
@@ -1103,7 +1310,7 @@ The following arguments are supported:
   run directly. If not, the host will attempt to pull the image first, using
   the builder service account's credentials if necessary.
   The Docker daemon's cache will already have the latest versions of all of
-  the officially supported build steps (see https://github.com/GoogleCloudPlatform/cloud-builders 
+  the officially supported build steps (see https://github.com/GoogleCloudPlatform/cloud-builders
   for images and examples).
   The Docker daemon will also have cached many of the layers for some popular
   images, like "ubuntu", "debian", but they will be refreshed at the time
@@ -1189,8 +1396,22 @@ The following arguments are supported:
 
 * `script` -
   (Optional)
-  A shell script to be executed in the step. 
+  A shell script to be executed in the step.
   When script is provided, the user cannot specify the entrypoint or args.
+
+* `allow_failure` -
+  (Optional)
+  Allow this build step to fail without failing the entire build.
+  If false, the entire build will fail if this step fails. Otherwise, the
+  build will succeed, but this step will still have a failure status.
+  Error information will be reported in the `failureDetail` field.
+  `allowExitCodes` takes precedence over this field.
+
+* `allow_exit_codes` -
+  (Optional)
+  Allow this build step to fail without failing the entire build if and
+  only if the exit code is one of the specified codes.
+  If `allowFailure` is also specified, this field will take precedence.
 
 
 <a name="nested_volumes"></a>The `volumes` block supports:

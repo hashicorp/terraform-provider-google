@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -6,19 +8,21 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccBigtableInstance_basic(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigtableInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -50,13 +54,13 @@ func TestAccBigtableInstance_basic(t *testing.T) {
 
 func TestAccBigtableInstance_cluster(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigtableInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -67,7 +71,7 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "cluster"}, // we don't read instance type back
 			},
 			{
 				Config: testAccBigtableInstance_clusterReordered(instanceName, 5),
@@ -75,8 +79,9 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 			{
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
+				PlanOnly:                true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "cluster"}, // we don't read instance type back
 			},
 			{
 				Config: testAccBigtableInstance_clusterModified(instanceName, 5),
@@ -85,7 +90,7 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "cluster"}, // we don't read instance type back
 			},
 			{
 				Config: testAccBigtableInstance_clusterReordered(instanceName, 5),
@@ -93,8 +98,9 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 			{
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
+				PlanOnly:                true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "cluster"}, // we don't read instance type back
 			},
 			{
 				Config: testAccBigtableInstance_clusterModifiedAgain(instanceName, 5),
@@ -103,7 +109,7 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "cluster"}, // we don't read instance type back
 			},
 		},
 	})
@@ -111,13 +117,13 @@ func TestAccBigtableInstance_cluster(t *testing.T) {
 
 func TestAccBigtableInstance_development(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigtableInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -136,13 +142,13 @@ func TestAccBigtableInstance_development(t *testing.T) {
 
 func TestAccBigtableInstance_allowDestroy(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigtableInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -169,16 +175,16 @@ func TestAccBigtableInstance_allowDestroy(t *testing.T) {
 
 func TestAccBigtableInstance_kms(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	kms1 := BootstrapKMSKeyInLocation(t, "us-central1")
 	kms2 := BootstrapKMSKeyInLocation(t, "us-east1")
-	pid := GetTestProjectFromEnv()
+	pid := acctest.GetTestProjectFromEnv()
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigtableInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -203,13 +209,13 @@ func TestAccBigtableInstance_kms(t *testing.T) {
 
 func TestAccBigtableInstance_createWithAutoscalingAndUpdate(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigtableInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -246,13 +252,13 @@ func TestAccBigtableInstance_createWithAutoscalingAndUpdate(t *testing.T) {
 
 func TestAccBigtableInstance_createWithAutoscalingAndUpdateWithStorageTarget(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigtableInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -289,13 +295,13 @@ func TestAccBigtableInstance_createWithAutoscalingAndUpdateWithStorageTarget(t *
 
 func TestAccBigtableInstance_enableAndDisableAutoscaling(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigtableInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -336,13 +342,13 @@ func TestAccBigtableInstance_enableAndDisableAutoscaling(t *testing.T) {
 
 func TestAccBigtableInstance_enableAndDisableAutoscalingWithoutNumNodes(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigtableInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{

@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -7,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -110,7 +113,7 @@ func getRoleEntityPair(role_entity string) (*RoleEntity, error) {
 
 func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -132,12 +135,12 @@ func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) er
 		default_acl = v.(string)
 	}
 
-	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "storage/buckets/{{bucket}}")
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	if len(predefined_acl) > 0 {
 		res, err := config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
@@ -214,7 +217,7 @@ func resourceStorageBucketAclCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceStorageBucketAclRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -231,7 +234,7 @@ func resourceStorageBucketAclRead(d *schema.ResourceData, meta interface{}) erro
 		res, err := config.NewStorageClient(userAgent).BucketAccessControls.List(bucket).Do()
 
 		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Storage Bucket ACL for bucket %q", d.Get("bucket").(string)))
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Storage Bucket ACL for bucket %q", d.Get("bucket").(string)))
 		}
 		entities := make([]string, 0, len(res.Items))
 		for _, item := range res.Items {
@@ -257,19 +260,19 @@ func resourceStorageBucketAclRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	bucket := d.Get("bucket").(string)
 
-	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "storage/buckets/{{bucket}}")
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	if d.HasChange("role_entity") {
 		bkt, err := config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
@@ -355,19 +358,19 @@ func resourceStorageBucketAclUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceStorageBucketAclDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	bucket := d.Get("bucket").(string)
 
-	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "storage/buckets/{{bucket}}")
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	bkt, err := config.NewStorageClient(userAgent).Buckets.Get(bucket).Do()
 	if err != nil {

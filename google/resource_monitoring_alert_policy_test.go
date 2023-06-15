@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -6,6 +8,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // Stackdriver tests cannot be run in parallel otherwise they will error out with:
@@ -13,11 +17,12 @@ import (
 
 func TestAccMonitoringAlertPolicy(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
-		"basic":  testAccMonitoringAlertPolicy_basic,
-		"full":   testAccMonitoringAlertPolicy_full,
-		"update": testAccMonitoringAlertPolicy_update,
-		"mql":    testAccMonitoringAlertPolicy_mql,
-		"log":    testAccMonitoringAlertPolicy_log,
+		"basic":    testAccMonitoringAlertPolicy_basic,
+		"full":     testAccMonitoringAlertPolicy_full,
+		"update":   testAccMonitoringAlertPolicy_update,
+		"mql":      testAccMonitoringAlertPolicy_mql,
+		"log":      testAccMonitoringAlertPolicy_log,
+		"forecast": testAccMonitoringAlertPolicy_forecast,
 	}
 
 	for name, tc := range testCases {
@@ -39,7 +44,7 @@ func testAccMonitoringAlertPolicy_basic(t *testing.T) {
 	filter := `metric.type=\"compute.googleapis.com/instance/disk/write_bytes_count\" AND resource.type=\"gce_instance\"`
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckAlertPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -65,7 +70,7 @@ func testAccMonitoringAlertPolicy_update(t *testing.T) {
 	aligner2 := "ALIGN_MAX"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckAlertPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -96,7 +101,7 @@ func testAccMonitoringAlertPolicy_full(t *testing.T) {
 	conditionName2 := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckAlertPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -118,7 +123,7 @@ func testAccMonitoringAlertPolicy_mql(t *testing.T) {
 	conditionName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckAlertPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -140,7 +145,7 @@ func testAccMonitoringAlertPolicy_log(t *testing.T) {
 	conditionName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckAlertPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -168,7 +173,12 @@ func testAccCheckAlertPolicyDestroyProducer(t *testing.T) func(s *terraform.Stat
 			name := rs.Primary.Attributes["name"]
 
 			url := fmt.Sprintf("https://monitoring.googleapis.com/v3/%s", name)
-			_, err := SendRequest(config, "GET", "", url, config.UserAgent, nil)
+			_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 
 			if err == nil {
 				return fmt.Errorf("Error, alert policy %s still exists", name)
@@ -177,6 +187,29 @@ func testAccCheckAlertPolicyDestroyProducer(t *testing.T) func(s *terraform.Stat
 
 		return nil
 	}
+}
+
+func testAccMonitoringAlertPolicy_forecast(t *testing.T) {
+
+	alertName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	conditionName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	filter := `metric.type=\"compute.googleapis.com/instance/disk/write_bytes_count\" AND resource.type=\"gce_instance\"`
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlertPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringAlertPolicy_forecastCfg(alertName, conditionName, "ALIGN_RATE", filter),
+			},
+			{
+				ResourceName:      "google_monitoring_alert_policy.forecast",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
 }
 
 func testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner, filter string) string {
@@ -332,4 +365,33 @@ resource "google_monitoring_alert_policy" "log" {
   }
 }
 `, alertName, conditionName)
+}
+
+func testAccMonitoringAlertPolicy_forecastCfg(alertName, conditionName, aligner, filter string) string {
+	return fmt.Sprintf(`
+resource "google_monitoring_alert_policy" "forecast" {
+  display_name = "%s"
+  enabled      = true
+  combiner     = "OR"
+
+  conditions {
+    display_name = "%s"
+
+    condition_threshold {
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "%s"
+      }
+
+      duration        = "60s"
+      forecast_options {
+        forecast_horizon = "3600s"
+      }
+      comparison      = "COMPARISON_GT"
+      filter          = "%s"
+      threshold_value = "0.5"
+    }
+  }
+}
+`, alertName, conditionName, aligner, filter)
 }

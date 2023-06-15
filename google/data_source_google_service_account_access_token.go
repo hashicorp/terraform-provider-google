@@ -1,11 +1,16 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
 	"fmt"
 	"log"
 
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"strings"
+
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
@@ -19,7 +24,7 @@ func DataSourceGoogleServiceAccountAccessToken() *schema.Resource {
 			"target_service_account": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validateRegexp("(" + strings.Join(PossibleServiceAccountNames, "|") + ")"),
+				ValidateFunc: verify.ValidateRegexp("(" + strings.Join(verify.PossibleServiceAccountNames, "|") + ")"),
 			},
 			"access_token": {
 				Type:      schema.TypeString,
@@ -32,7 +37,7 @@ func DataSourceGoogleServiceAccountAccessToken() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 					StateFunc: func(v interface{}) string {
-						return canonicalizeServiceScope(v.(string))
+						return tpgresource.CanonicalizeServiceScope(v.(string))
 					},
 				},
 				// ValidateFunc is not yet supported on lists or sets.
@@ -42,13 +47,13 @@ func DataSourceGoogleServiceAccountAccessToken() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: validateRegexp(ServiceAccountLinkRegex),
+					ValidateFunc: verify.ValidateRegexp(verify.ServiceAccountLinkRegex),
 				},
 			},
 			"lifetime": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateDuration(), // duration <=3600s; TODO: support validateDuration(min,max)
+				ValidateFunc: verify.ValidateDuration(), // duration <=3600s; TODO: support validateDuration(min,max)
 				Default:      "3600s",
 			},
 		},
@@ -57,7 +62,7 @@ func DataSourceGoogleServiceAccountAccessToken() *schema.Resource {
 
 func dataSourceGoogleServiceAccountAccessTokenRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -69,8 +74,8 @@ func dataSourceGoogleServiceAccountAccessTokenRead(d *schema.ResourceData, meta 
 	name := fmt.Sprintf("projects/-/serviceAccounts/%s", d.Get("target_service_account").(string))
 	tokenRequest := &iamcredentials.GenerateAccessTokenRequest{
 		Lifetime:  d.Get("lifetime").(string),
-		Delegates: convertStringSet(d.Get("delegates").(*schema.Set)),
-		Scope:     canonicalizeServiceScopes(convertStringSet(d.Get("scopes").(*schema.Set))),
+		Delegates: tpgresource.ConvertStringSet(d.Get("delegates").(*schema.Set)),
+		Scope:     tpgresource.CanonicalizeServiceScopes(tpgresource.ConvertStringSet(d.Get("scopes").(*schema.Set))),
 	}
 	at, err := service.Projects.ServiceAccounts.GenerateAccessToken(name, tokenRequest).Do()
 	if err != nil {

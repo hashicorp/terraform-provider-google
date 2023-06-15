@@ -1,9 +1,14 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
 	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -15,7 +20,7 @@ func TestAccServiceAccountIamBinding(t *testing.T) {
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -40,7 +45,7 @@ func TestAccServiceAccountIamBinding_withCondition(t *testing.T) {
 	conditionTitle := "expires_after_2019_12_31"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -59,7 +64,7 @@ func TestAccServiceAccountIamBinding_withCondition(t *testing.T) {
 
 func TestAccServiceAccountIamBinding_withAndWithoutCondition(t *testing.T) {
 	// Resource creation race condition
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
@@ -67,7 +72,7 @@ func TestAccServiceAccountIamBinding_withAndWithoutCondition(t *testing.T) {
 	conditionTitle := "expires_after_2019_12_31"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -98,7 +103,7 @@ func TestAccServiceAccountIamMember(t *testing.T) {
 	identity := fmt.Sprintf("serviceAccount:%s", email)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -131,7 +136,7 @@ func TestAccServiceAccountIamMember_withCondition(t *testing.T) {
 	conditionTitle := "expires_after_2019_12_31"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -150,7 +155,7 @@ func TestAccServiceAccountIamMember_withCondition(t *testing.T) {
 
 func TestAccServiceAccountIamMember_withAndWithoutCondition(t *testing.T) {
 	// Resource creation race condition
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
@@ -158,7 +163,7 @@ func TestAccServiceAccountIamMember_withAndWithoutCondition(t *testing.T) {
 	conditionTitle := "expires_after_2019_12_31"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -187,11 +192,12 @@ func TestAccServiceAccountIamPolicy(t *testing.T) {
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountIamPolicy_basic(account),
+				Check:  resource.TestCheckResourceAttrSet("data.google_service_account_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_service_account_iam_policy.foo",
@@ -209,7 +215,7 @@ func TestAccServiceAccountIamPolicy_withCondition(t *testing.T) {
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -230,7 +236,7 @@ func TestAccServiceAccountIamPolicy_withCondition(t *testing.T) {
 func testAccCheckGoogleServiceAccountIam(t *testing.T, account string, numBindings int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := GoogleProviderConfig(t)
-		p, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.GetIamPolicy(serviceAccountCanonicalId(account)).OptionsRequestedPolicyVersion(IamPolicyVersion).Do()
+		p, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.GetIamPolicy(serviceAccountCanonicalId(account)).OptionsRequestedPolicyVersion(tpgiamresource.IamPolicyVersion).Do()
 		if err != nil {
 			return err
 		}
@@ -244,11 +250,11 @@ func testAccCheckGoogleServiceAccountIam(t *testing.T, account string, numBindin
 }
 
 func serviceAccountCanonicalId(account string) string {
-	return fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", GetTestProjectFromEnv(), account, GetTestProjectFromEnv())
+	return fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", acctest.GetTestProjectFromEnv(), account, acctest.GetTestProjectFromEnv())
 }
 
 func serviceAccountCanonicalEmail(account string) string {
-	return fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv())
+	return fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, acctest.GetTestProjectFromEnv())
 }
 
 func testAccServiceAccountIamBinding_basic(account string) string {
@@ -392,6 +398,10 @@ data "google_iam_policy" "foo" {
 resource "google_service_account_iam_policy" "foo" {
   service_account_id = google_service_account.test_account.name
   policy_data        = data.google_iam_policy.foo.policy_data
+}
+
+data "google_service_account_iam_policy" "foo" {
+  service_account_id = google_service_account.test_account.name
 }
 `, account)
 }

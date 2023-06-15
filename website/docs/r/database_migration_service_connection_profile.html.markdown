@@ -227,7 +227,7 @@ resource "google_database_migration_service_connection_profile" "alloydbprofile"
     foo = "bar" 
   }
   alloydb {
-    cluster_id = "dbmsalloycluster%{random_suffix}"
+    cluster_id = "tf-test-dbmsalloycluster%{random_suffix}"
     settings {
       initial_user {
         user = "alloyuser%{random_suffix}"
@@ -320,7 +320,7 @@ The following arguments are supported:
 
 * `password` -
   (Required)
-  Required. Input only. The password for the user that Database Migration Service will be using to connect to the database. 
+  Required. Input only. The password for the user that Database Migration Service will be using to connect to the database.
   This field is not returned on request, and the value is encrypted when stored in Database Migration Service.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
@@ -346,7 +346,7 @@ The following arguments are supported:
 
 * `client_key` -
   (Optional)
-  Input only. The unencrypted PKCS#1 or PKCS#8 PEM-encoded private key associated with the Client Certificate. 
+  Input only. The unencrypted PKCS#1 or PKCS#8 PEM-encoded private key associated with the Client Certificate.
   If this field is used then the 'clientCertificate' field is mandatory.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
@@ -358,7 +358,7 @@ The following arguments are supported:
 
 * `ca_certificate` -
   (Required)
-  Required. Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate. 
+  Required. Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
   The replica will use this certificate to verify it's connecting to the right host.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
@@ -378,7 +378,7 @@ The following arguments are supported:
 
 * `password` -
   (Required)
-  Required. Input only. The password for the user that Database Migration Service will be using to connect to the database. 
+  Required. Input only. The password for the user that Database Migration Service will be using to connect to the database.
   This field is not returned on request, and the value is encrypted when stored in Database Migration Service.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
@@ -408,7 +408,7 @@ The following arguments are supported:
 
 * `client_key` -
   (Optional)
-  Input only. The unencrypted PKCS#1 or PKCS#8 PEM-encoded private key associated with the Client Certificate. 
+  Input only. The unencrypted PKCS#1 or PKCS#8 PEM-encoded private key associated with the Client Certificate.
   If this field is used then the 'clientCertificate' field is mandatory.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
@@ -420,7 +420,7 @@ The following arguments are supported:
 
 * `ca_certificate` -
   (Required)
-  Required. Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate. 
+  Required. Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
   The replica will use this certificate to verify it's connecting to the right host.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
@@ -448,7 +448,7 @@ The following arguments are supported:
 
 * `database_version` -
   (Optional)
-  The database engine type and version. 
+  The database engine type and version.
   Currently supported values located at https://cloud.google.com/database-migration/docs/reference/rest/v1/projects.locations.connectionProfiles#sqldatabaseversion
 
 * `user_labels` -
@@ -457,7 +457,7 @@ The following arguments are supported:
 
 * `tier` -
   (Optional)
-  The tier (or machine type) for this instance, for example: db-n1-standard-1 (MySQL instances) or db-custom-1-3840 (PostgreSQL instances). 
+  The tier (or machine type) for this instance, for example: db-n1-standard-1 (MySQL instances) or db-custom-1-3840 (PostgreSQL instances).
   For more information, see https://cloud.google.com/sql/docs/mysql/instance-settings
 
 * `storage_auto_resize_limit` -
@@ -476,7 +476,7 @@ The following arguments are supported:
 
 * `auto_storage_increase` -
   (Optional)
-  If you enable this setting, Cloud SQL checks your available storage every 30 seconds. If the available storage falls below a threshold size, Cloud SQL automatically adds additional storage capacity. 
+  If you enable this setting, Cloud SQL checks your available storage every 30 seconds. If the available storage falls below a threshold size, Cloud SQL automatically adds additional storage capacity.
   If the available storage repeatedly falls below the threshold size, Cloud SQL continues to add storage until it reaches the maximum of 30 TB.
 
 * `database_flags` -
@@ -526,7 +526,7 @@ The following arguments are supported:
 
 * `private_network` -
   (Optional)
-  The resource link for the VPC network from which the Cloud SQL instance is accessible for private IP. For example, projects/myProject/global/networks/default. 
+  The resource link for the VPC network from which the Cloud SQL instance is accessible for private IP. For example, projects/myProject/global/networks/default.
   This setting can be updated, but it cannot be removed after it is set.
 
 * `require_ssl` -
@@ -578,7 +578,7 @@ The following arguments are supported:
 
 * `vpc_network` -
   (Required)
-  Required. The resource link for the VPC network in which cluster resources are created and from which they are accessible via Private IP. The network must belong to the same project as the cluster. 
+  Required. The resource link for the VPC network in which cluster resources are created and from which they are accessible via Private IP. The network must belong to the same project as the cluster.
   It is specified in the form: 'projects/{project_number}/global/networks/{network_id}'. This is required to create a cluster.
 
 * `labels` -

@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,6 +7,8 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/cloudbilling/v1"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -20,11 +24,11 @@ var IamBillingAccountSchema = map[string]*schema.Schema{
 
 type BillingAccountIamUpdater struct {
 	billingAccountId string
-	d                TerraformResourceData
+	d                tpgresource.TerraformResourceData
 	Config           *transport_tpg.Config
 }
 
-func NewBillingAccountIamUpdater(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func NewBillingAccountIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (tpgiamresource.ResourceIamUpdater, error) {
 	return &BillingAccountIamUpdater{
 		billingAccountId: canonicalBillingAccountId(d.Get("billing_account_id").(string)),
 		d:                d,
@@ -40,7 +44,7 @@ func BillingAccountIdParseFunc(d *schema.ResourceData, _ *transport_tpg.Config) 
 }
 
 func (u *BillingAccountIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +58,7 @@ func (u *BillingAccountIamUpdater) SetResourceIamPolicy(policy *cloudresourceman
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -88,7 +92,7 @@ func canonicalBillingAccountId(resource string) string {
 
 func resourceManagerToBillingPolicy(p *cloudresourcemanager.Policy) (*cloudbilling.Policy, error) {
 	out := &cloudbilling.Policy{}
-	err := Convert(p, out)
+	err := tpgresource.Convert(p, out)
 	if err != nil {
 		return nil, errwrap.Wrapf("Cannot convert a v1 policy to a billing policy: {{err}}", err)
 	}
@@ -97,7 +101,7 @@ func resourceManagerToBillingPolicy(p *cloudresourcemanager.Policy) (*cloudbilli
 
 func billingToResourceManagerPolicy(p *cloudbilling.Policy) (*cloudresourcemanager.Policy, error) {
 	out := &cloudresourcemanager.Policy{}
-	err := Convert(p, out)
+	err := tpgresource.Convert(p, out)
 	if err != nil {
 		return nil, errwrap.Wrapf("Cannot convert a billing policy to a v1 policy: {{err}}", err)
 	}

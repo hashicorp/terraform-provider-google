@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,11 +7,12 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccBigtableInstanceIamBinding(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	instance := "tf-bigtable-iam-" + RandString(t, 10)
@@ -18,10 +21,10 @@ func TestAccBigtableInstanceIamBinding(t *testing.T) {
 	role := "roles/bigtable.user"
 
 	importId := fmt.Sprintf("projects/%s/instances/%s %s",
-		GetTestProjectFromEnv(), instance, role)
+		acctest.GetTestProjectFromEnv(), instance, role)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -54,7 +57,7 @@ func TestAccBigtableInstanceIamBinding(t *testing.T) {
 
 func TestAccBigtableInstanceIamMember(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	instance := "tf-bigtable-iam-" + RandString(t, 10)
@@ -63,13 +66,13 @@ func TestAccBigtableInstanceIamMember(t *testing.T) {
 	role := "roles/bigtable.user"
 
 	importId := fmt.Sprintf("projects/%s/instances/%s %s serviceAccount:%s",
-		GetTestProjectFromEnv(),
+		acctest.GetTestProjectFromEnv(),
 		instance,
 		role,
 		serviceAccountCanonicalEmail(account))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -94,7 +97,7 @@ func TestAccBigtableInstanceIamMember(t *testing.T) {
 
 func TestAccBigtableInstanceIamPolicy(t *testing.T) {
 	// bigtable instance does not use the shared HTTP client, this test creates an instance
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	instance := "tf-bigtable-iam-" + RandString(t, 10)
@@ -103,15 +106,16 @@ func TestAccBigtableInstanceIamPolicy(t *testing.T) {
 	role := "roles/bigtable.user"
 
 	importId := fmt.Sprintf("projects/%s/instances/%s",
-		GetTestProjectFromEnv(), instance)
+		acctest.GetTestProjectFromEnv(), instance)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
 				Config: testAccBigtableInstanceIamPolicy(instance, cluster, account, role),
+				Check:  resource.TestCheckResourceAttrSet("data.google_bigtable_instance_iam_policy.policy", "policy_data"),
 			},
 			{
 				ResourceName:      "google_bigtable_instance_iam_policy.policy",
@@ -200,6 +204,10 @@ data "google_iam_policy" "policy" {
 resource "google_bigtable_instance_iam_policy" "policy" {
   instance    = google_bigtable_instance.instance.name
   policy_data = data.google_iam_policy.policy.policy_data
+}
+
+data "google_bigtable_instance_iam_policy" "policy" {
+  instance    = google_bigtable_instance.instance.name
 }
 `, instance, cluster, account, role)
 }

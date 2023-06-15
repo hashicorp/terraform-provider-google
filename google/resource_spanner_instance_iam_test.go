@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccSpannerInstanceIamBinding(t *testing.T) {
@@ -12,11 +15,11 @@ func TestAccSpannerInstanceIamBinding(t *testing.T) {
 
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/spanner.databaseAdmin"
-	project := GetTestProjectFromEnv()
+	project := acctest.GetTestProjectFromEnv()
 	instance := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -51,14 +54,14 @@ func TestAccSpannerInstanceIamBinding(t *testing.T) {
 func TestAccSpannerInstanceIamMember(t *testing.T) {
 	t.Parallel()
 
-	project := GetTestProjectFromEnv()
+	project := acctest.GetTestProjectFromEnv()
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/spanner.databaseAdmin"
 	instance := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	conditionTitle := "Access only database one"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -81,17 +84,18 @@ func TestAccSpannerInstanceIamMember(t *testing.T) {
 func TestAccSpannerInstanceIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	project := GetTestProjectFromEnv()
+	project := acctest.GetTestProjectFromEnv()
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/spanner.databaseAdmin"
 	instance := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSpannerInstanceIamPolicy_basic(account, instance, role),
+				Check:  resource.TestCheckResourceAttrSet("data.google_spanner_instance_iam_policy.foo", "policy_data"),
 			},
 			// Test a few import formats
 			{
@@ -214,6 +218,11 @@ resource "google_spanner_instance_iam_policy" "foo" {
   project     = google_spanner_instance.instance.project
   instance    = google_spanner_instance.instance.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_spanner_instance_iam_policy" "foo" {
+  project     = google_spanner_instance.instance.project
+  instance    = google_spanner_instance.instance.name
 }
 `, account, instance, instance, roleId)
 }

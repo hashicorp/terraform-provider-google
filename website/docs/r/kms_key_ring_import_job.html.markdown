@@ -28,7 +28,7 @@ was wrapped with the `KeyRingImportJob`'s public key.
 
 ~> **Note:** KeyRingImportJobs cannot be deleted from Google Cloud Platform.
 Destroying a Terraform-managed KeyRingImportJob will remove it from state but
-*will not delete the resource from the project.* 
+*will not delete the resource from the project.*
 
 
 To get more information about KeyRingImportJob, see:

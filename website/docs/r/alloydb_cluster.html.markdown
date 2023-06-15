@@ -135,6 +135,11 @@ The following arguments are supported:
   (Optional)
   User-defined labels for the alloydb cluster.
 
+* `encryption_config` -
+  (Optional)
+  EncryptionConfig describes the encryption config of a cluster or a backup that is encrypted with a CMEK (customer-managed encryption key).
+  Structure is [documented below](#nested_encryption_config).
+
 * `display_name` -
   (Optional)
   User-settable and human-readable display name for the Cluster.
@@ -153,6 +158,12 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_encryption_config"></a>The `encryption_config` block supports:
+
+* `kms_key_name` -
+  (Optional)
+  The fully-qualified resource name of the KMS key. Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].
 
 <a name="nested_initial_user"></a>The `initial_user` block supports:
 
@@ -181,6 +192,11 @@ The following arguments are supported:
   (Optional)
   Labels to apply to backups created using this configuration.
 
+* `encryption_config` -
+  (Optional)
+  EncryptionConfig describes the encryption config of a cluster or a backup that is encrypted with a CMEK (customer-managed encryption key).
+  Structure is [documented below](#nested_encryption_config).
+
 * `weekly_schedule` -
   (Optional)
   Weekly schedule for the Backup.
@@ -200,6 +216,12 @@ The following arguments are supported:
   (Optional)
   Whether automated backups are enabled.
 
+
+<a name="nested_encryption_config"></a>The `encryption_config` block supports:
+
+* `kms_key_name` -
+  (Optional)
+  The fully-qualified resource name of the KMS key. Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].
 
 <a name="nested_weekly_schedule"></a>The `weekly_schedule` block supports:
 
@@ -222,15 +244,15 @@ The following arguments are supported:
 
 * `minutes` -
   (Optional)
-  Minutes of hour of day. Must be from 0 to 59.
+  Minutes of hour of day. Currently, only the value 0 is supported.
 
 * `seconds` -
   (Optional)
-  Seconds of minutes of the time. Must normally be from 0 to 59. An API may allow the value 60 if it allows leap-seconds.
+  Seconds of minutes of the time. Currently, only the value 0 is supported.
 
 * `nanos` -
   (Optional)
-  Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
+  Fractions of seconds in nanoseconds. Currently, only the value 0 is supported.
 
 <a name="nested_time_based_retention"></a>The `time_based_retention` block supports:
 
@@ -257,6 +279,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `uid` -
   The system-generated UID of the resource.
 
+* `encryption_info` -
+  EncryptionInfo describes the encryption information of a cluster or a backup.
+  Structure is [documented below](#nested_encryption_info).
+
 * `database_version` -
   The database engine major version. This is an output-only field and it's populated at the Cluster creation time. This field cannot be changed after cluster creation.
 
@@ -268,6 +294,16 @@ In addition to the arguments listed above, the following computed attributes are
   Cluster created via DMS migration.
   Structure is [documented below](#nested_migration_source).
 
+
+<a name="nested_encryption_info"></a>The `encryption_info` block contains:
+
+* `encryption_type` -
+  (Output)
+  Output only. Type of encryption.
+
+* `kms_key_versions` -
+  (Output)
+  Output only. Cloud KMS key versions that are being used to protect the database or the backup.
 
 <a name="nested_backup_source"></a>The `backup_source` block contains:
 

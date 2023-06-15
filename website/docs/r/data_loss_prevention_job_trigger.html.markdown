@@ -179,6 +179,94 @@ resource "google_data_loss_prevention_job_trigger" "job_notification_emails" {
   }
 }
 ```
+## Example Usage - Dlp Job Trigger Deidentify
+
+
+```hcl
+resource "google_data_loss_prevention_job_trigger" "deidentify" {
+  parent       = "projects/my-project-name"
+  description  = "Description for the job_trigger created by terraform"
+  display_name = "TerraformDisplayName"
+  
+  triggers {
+    schedule {
+      recurrence_period_duration = "86400s"
+    }
+  }
+  
+  inspect_job {
+    inspect_template_name = "sample-inspect-template"
+    actions {
+      deidentify {
+        cloud_storage_output    = "gs://samplebucket/dir/"
+        file_types_to_transform = ["CSV", "TSV"]
+        transformation_details_storage_config {
+          table {
+            project_id = "my-project-name"
+            dataset_id = google_bigquery_dataset.default.dataset_id
+            table_id   = google_bigquery_table.default.table_id
+          }
+        }
+        transformation_config {
+          deidentify_template            = "sample-deidentify-template"
+          image_redact_template          = "sample-image-redact-template"
+          structured_deidentify_template = "sample-structured-deidentify-template"
+        }
+      }
+    }
+    storage_config {
+      cloud_storage_options {
+        file_set {
+          url = "gs://mybucket/directory/"
+        }
+      }
+    }
+  }
+}
+  
+resource "google_bigquery_dataset" "default" {
+  dataset_id                  = "tf_test"
+  friendly_name               = "terraform-test"
+  description                 = "Description for the dataset created by terraform"
+  location                    = "US"
+  default_table_expiration_ms = 3600000
+  
+  labels = {
+    env = "default"
+  }
+}
+  
+resource "google_bigquery_table" "default" {
+  dataset_id          = google_bigquery_dataset.default.dataset_id
+  table_id            = "tf_test"
+  deletion_protection = false
+  
+  time_partitioning {
+    type = "DAY"
+  }
+  
+  labels = {
+    env = "default"
+  }
+  
+  schema = <<EOF
+    [
+    {
+      "name": "quantity",
+      "type": "NUMERIC",
+      "mode": "NULLABLE",
+      "description": "The quantity"
+    },
+    {
+      "name": "name",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Name of the object"
+    }
+    ]
+  EOF
+}
+```
 ## Example Usage - Dlp Job Trigger Hybrid
 
 
@@ -215,6 +303,167 @@ resource "google_data_loss_prevention_job_trigger" "hybrid_trigger" {
           identifying_fields {
             name = "booking_id"
           }
+        }
+      }
+    }
+  }
+}
+```
+## Example Usage - Dlp Job Trigger Inspect
+
+
+```hcl
+resource "google_data_loss_prevention_job_trigger" "inspect" {
+  parent = "projects/my-project-name"
+  description = "Description"
+  display_name = "Displayname"
+
+  triggers {
+    schedule {
+      recurrence_period_duration = "86400s"
+    }
+  }
+
+  inspect_job {
+    inspect_template_name = "fake"
+    actions {
+      save_findings {
+        output_config {
+          table {
+            project_id = "project"
+            dataset_id = "dataset"
+          }
+        }
+      }
+    }
+    storage_config {
+      cloud_storage_options {
+        file_set {
+          url = "gs://mybucket/directory/"
+        }
+      }
+    }
+    inspect_config {
+      custom_info_types {
+        info_type {
+          name = "MY_CUSTOM_TYPE"
+        }
+  
+        likelihood = "UNLIKELY"
+  
+        regex {
+          pattern = "test*"
+        }
+      }
+  
+      info_types {
+        name = "EMAIL_ADDRESS"
+      }
+  
+      min_likelihood = "UNLIKELY"
+      rule_set {
+        info_types {
+          name = "EMAIL_ADDRESS"
+        }
+        rules {
+          exclusion_rule {
+            regex {
+              pattern = ".+@example.com"
+            }
+            matching_type = "MATCHING_TYPE_FULL_MATCH"
+          }
+        }
+      }
+  
+      rule_set {
+        info_types {
+          name = "MY_CUSTOM_TYPE"
+        }
+        rules {
+          hotword_rule {
+            hotword_regex {
+              pattern = "example*"
+            }
+            proximity {
+              window_before = 50
+            }
+            likelihood_adjustment {
+              fixed_likelihood = "VERY_LIKELY"
+            }
+          }
+        }
+      }
+  
+      limits {
+        max_findings_per_item    = 10
+        max_findings_per_request = 50
+      }
+    }
+  }
+}
+```
+## Example Usage - Dlp Job Trigger Publish To Stackdriver
+
+
+```hcl
+resource "google_data_loss_prevention_job_trigger" "publish_to_stackdriver" {
+  parent       = "projects/my-project-name"
+  description  = "Description for the job_trigger created by terraform"
+  display_name = "TerraformDisplayName"
+
+  triggers {
+    schedule {
+      recurrence_period_duration = "86400s"
+    }
+  }
+
+  inspect_job {
+    inspect_template_name = "sample-inspect-template"
+    actions {
+      publish_to_stackdriver {}
+    }
+    storage_config {
+      cloud_storage_options {
+        file_set {
+          url = "gs://mybucket/directory/"
+        }
+      }
+    }
+  }
+}
+```
+## Example Usage - Dlp Job Trigger With Id
+
+
+```hcl
+resource "google_data_loss_prevention_job_trigger" "with_trigger_id" {
+  parent = "projects/my-project-name"
+  description = "Starting description"
+  display_name = "display"
+  trigger_id = "id-"
+
+  triggers {
+    schedule {
+      recurrence_period_duration = "86400s"
+    }
+  }
+
+  inspect_job {
+    inspect_template_name = "fake"
+    actions {
+      save_findings {
+        output_config {
+          table {
+            project_id = "project"
+            dataset_id = "dataset123"
+          }
+        }
+      }
+    }
+    storage_config {
+      cloud_storage_options {
+        file_set {
+          url = "gs://mybucket/directory/"
         }
       }
     }
@@ -270,6 +519,12 @@ The following arguments are supported:
   (Optional)
   User set display name of the job trigger.
 
+* `trigger_id` -
+  (Optional)
+  The trigger id can contain uppercase and lowercase letters, numbers, and hyphens;
+  that is, it must match the regular expression: [a-zA-Z\d-_]+.
+  The maximum length is 100 characters. Can be empty to allow the system to generate one.
+
 * `status` -
   (Optional)
   Whether the trigger is currently active.
@@ -285,8 +540,13 @@ The following arguments are supported:
 <a name="nested_inspect_job"></a>The `inspect_job` block supports:
 
 * `inspect_template_name` -
-  (Required)
+  (Optional)
   The name of the template to run when this job is triggered.
+
+* `inspect_config` -
+  (Optional)
+  The core content of the template.
+  Structure is [documented below](#nested_inspect_config).
 
 * `storage_config` -
   (Required)
@@ -294,10 +554,501 @@ The following arguments are supported:
   Structure is [documented below](#nested_storage_config).
 
 * `actions` -
-  (Required)
+  (Optional)
   A task to execute on the completion of a job.
   Structure is [documented below](#nested_actions).
 
+
+<a name="nested_inspect_config"></a>The `inspect_config` block supports:
+
+* `exclude_info_types` -
+  (Optional)
+  When true, excludes type information of the findings.
+
+* `include_quote` -
+  (Optional)
+  When true, a contextual quote from the data that triggered a finding is included in the response.
+
+* `min_likelihood` -
+  (Optional)
+  Only returns findings equal or above this threshold. See https://cloud.google.com/dlp/docs/likelihood for more info
+  Default value is `POSSIBLE`.
+  Possible values are: `VERY_UNLIKELY`, `UNLIKELY`, `POSSIBLE`, `LIKELY`, `VERY_LIKELY`.
+
+* `limits` -
+  (Optional)
+  Configuration to control the number of findings returned.
+  Structure is [documented below](#nested_limits).
+
+* `info_types` -
+  (Optional)
+  Restricts what infoTypes to look for. The values must correspond to InfoType values returned by infoTypes.list
+  or listed at https://cloud.google.com/dlp/docs/infotypes-reference.
+  When no InfoTypes or CustomInfoTypes are specified in a request, the system may automatically choose what detectors to run.
+  By default this may be all types, but may change over time as detectors are updated.
+  Structure is [documented below](#nested_info_types).
+
+* `rule_set` -
+  (Optional)
+  Set of rules to apply to the findings for this InspectConfig. Exclusion rules, contained in the set are executed in the end,
+  other rules are executed in the order they are specified for each info type.
+  Structure is [documented below](#nested_rule_set).
+
+* `custom_info_types` -
+  (Optional)
+  Custom info types to be used. See https://cloud.google.com/dlp/docs/creating-custom-infotypes to learn more.
+  Structure is [documented below](#nested_custom_info_types).
+
+
+<a name="nested_limits"></a>The `limits` block supports:
+
+* `max_findings_per_item` -
+  (Optional)
+  Max number of findings that will be returned for each item scanned. The maximum returned is 2000.
+
+* `max_findings_per_request` -
+  (Optional)
+  Max number of findings that will be returned per request/job. The maximum returned is 2000.
+
+* `max_findings_per_info_type` -
+  (Optional)
+  Configuration of findings limit given for specified infoTypes.
+  Structure is [documented below](#nested_max_findings_per_info_type).
+
+
+<a name="nested_max_findings_per_info_type"></a>The `max_findings_per_info_type` block supports:
+
+* `info_type` -
+  (Optional)
+  Type of information the findings limit applies to. Only one limit per infoType should be provided. If InfoTypeLimit does
+  not have an infoType, the DLP API applies the limit against all infoTypes that are found but not
+  specified in another InfoTypeLimit.
+  Structure is [documented below](#nested_info_type).
+
+* `max_findings` -
+  (Optional)
+  Max findings limit for the given infoType.
+
+
+<a name="nested_info_type"></a>The `info_type` block supports:
+
+* `name` -
+  (Required)
+  Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
+  at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.
+
+* `version` -
+  (Optional)
+  Version of the information type to use. By default, the version is set to stable
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
+<a name="nested_info_types"></a>The `info_types` block supports:
+
+* `name` -
+  (Required)
+  Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
+  at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.
+
+* `version` -
+  (Optional)
+  Version of the information type to use. By default, the version is set to stable
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
+<a name="nested_rule_set"></a>The `rule_set` block supports:
+
+* `info_types` -
+  (Optional)
+  List of infoTypes this rule set is applied to.
+  Structure is [documented below](#nested_info_types).
+
+* `rules` -
+  (Required)
+  Set of rules to be applied to infoTypes. The rules are applied in order.
+  Structure is [documented below](#nested_rules).
+
+
+<a name="nested_info_types"></a>The `info_types` block supports:
+
+* `name` -
+  (Required)
+  Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
+  at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.
+
+* `version` -
+  (Optional)
+  Version of the information type to use. By default, the version is set to stable.
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
+<a name="nested_rules"></a>The `rules` block supports:
+
+* `hotword_rule` -
+  (Optional)
+  Hotword-based detection rule.
+  Structure is [documented below](#nested_hotword_rule).
+
+* `exclusion_rule` -
+  (Optional)
+  The rule that specifies conditions when findings of infoTypes specified in InspectionRuleSet are removed from results.
+  Structure is [documented below](#nested_exclusion_rule).
+
+
+<a name="nested_hotword_rule"></a>The `hotword_rule` block supports:
+
+* `hotword_regex` -
+  (Optional)
+  Regular expression pattern defining what qualifies as a hotword.
+  Structure is [documented below](#nested_hotword_regex).
+
+* `proximity` -
+  (Optional)
+  Proximity of the finding within which the entire hotword must reside. The total length of the window cannot
+  exceed 1000 characters. Note that the finding itself will be included in the window, so that hotwords may be
+  used to match substrings of the finding itself. For example, the certainty of a phone number regex
+  `(\d{3}) \d{3}-\d{4}` could be adjusted upwards if the area code is known to be the local area code of a company
+  office using the hotword regex `(xxx)`, where `xxx` is the area code in question.
+  Structure is [documented below](#nested_proximity).
+
+* `likelihood_adjustment` -
+  (Optional)
+  Likelihood adjustment to apply to all matching findings.
+  Structure is [documented below](#nested_likelihood_adjustment).
+
+
+<a name="nested_hotword_regex"></a>The `hotword_regex` block supports:
+
+* `pattern` -
+  (Optional)
+  Pattern defining the regular expression. Its syntax
+  (https://github.com/google/re2/wiki/Syntax) can be found under the google/re2 repository on GitHub.
+
+* `group_indexes` -
+  (Optional)
+  The index of the submatch to extract as findings. When not specified,
+  the entire match is returned. No more than 3 may be included.
+
+<a name="nested_proximity"></a>The `proximity` block supports:
+
+* `window_before` -
+  (Optional)
+  Number of characters before the finding to consider. Either this or window_after must be specified
+
+* `window_after` -
+  (Optional)
+  Number of characters after the finding to consider. Either this or window_before must be specified
+
+<a name="nested_likelihood_adjustment"></a>The `likelihood_adjustment` block supports:
+
+* `fixed_likelihood` -
+  (Optional)
+  Set the likelihood of a finding to a fixed value. Either this or relative_likelihood can be set.
+  Possible values are: `VERY_UNLIKELY`, `UNLIKELY`, `POSSIBLE`, `LIKELY`, `VERY_LIKELY`.
+
+* `relative_likelihood` -
+  (Optional)
+  Increase or decrease the likelihood by the specified number of levels. For example,
+  if a finding would be POSSIBLE without the detection rule and relativeLikelihood is 1,
+  then it is upgraded to LIKELY, while a value of -1 would downgrade it to UNLIKELY.
+  Likelihood may never drop below VERY_UNLIKELY or exceed VERY_LIKELY, so applying an
+  adjustment of 1 followed by an adjustment of -1 when base likelihood is VERY_LIKELY
+  will result in a final likelihood of LIKELY. Either this or fixed_likelihood can be set.
+
+<a name="nested_exclusion_rule"></a>The `exclusion_rule` block supports:
+
+* `matching_type` -
+  (Required)
+  How the rule is applied. See the documentation for more information: https://cloud.google.com/dlp/docs/reference/rest/v2/InspectConfig#MatchingType
+  Possible values are: `MATCHING_TYPE_FULL_MATCH`, `MATCHING_TYPE_PARTIAL_MATCH`, `MATCHING_TYPE_INVERSE_MATCH`.
+
+* `dictionary` -
+  (Optional)
+  Dictionary which defines the rule.
+  Structure is [documented below](#nested_dictionary).
+
+* `regex` -
+  (Optional)
+  Regular expression which defines the rule.
+  Structure is [documented below](#nested_regex).
+
+* `exclude_info_types` -
+  (Optional)
+  Set of infoTypes for which findings would affect this rule.
+  Structure is [documented below](#nested_exclude_info_types).
+
+* `exclude_by_hotword` -
+  (Optional)
+  Drop if the hotword rule is contained in the proximate context.
+  Structure is [documented below](#nested_exclude_by_hotword).
+
+
+<a name="nested_dictionary"></a>The `dictionary` block supports:
+
+* `word_list` -
+  (Optional)
+  List of words or phrases to search for.
+  Structure is [documented below](#nested_word_list).
+
+* `cloud_storage_path` -
+  (Optional)
+  Newline-delimited file of words in Cloud Storage. Only a single file is accepted.
+  Structure is [documented below](#nested_cloud_storage_path).
+
+
+<a name="nested_word_list"></a>The `word_list` block supports:
+
+* `words` -
+  (Required)
+  Words or phrases defining the dictionary. The dictionary must contain at least one
+  phrase and every phrase must contain at least 2 characters that are letters or digits.
+
+<a name="nested_cloud_storage_path"></a>The `cloud_storage_path` block supports:
+
+* `path` -
+  (Required)
+  A url representing a file or path (no wildcards) in Cloud Storage. Example: `gs://[BUCKET_NAME]/dictionary.txt`
+
+<a name="nested_regex"></a>The `regex` block supports:
+
+* `pattern` -
+  (Required)
+  Pattern defining the regular expression.
+  Its syntax (https://github.com/google/re2/wiki/Syntax) can be found under the google/re2 repository on GitHub.
+
+* `group_indexes` -
+  (Optional)
+  The index of the submatch to extract as findings. When not specified, the entire match is returned. No more than 3 may be included.
+
+<a name="nested_exclude_info_types"></a>The `exclude_info_types` block supports:
+
+* `info_types` -
+  (Required)
+  If a finding is matched by any of the infoType detectors listed here, the finding will be excluded from the scan results.
+  Structure is [documented below](#nested_info_types).
+
+
+<a name="nested_info_types"></a>The `info_types` block supports:
+
+* `name` -
+  (Required)
+  Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
+  at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.
+
+* `version` -
+  (Optional)
+  Version of the information type to use. By default, the version is set to stable.
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
+<a name="nested_exclude_by_hotword"></a>The `exclude_by_hotword` block supports:
+
+* `hotword_regex` -
+  (Optional)
+  Regular expression pattern defining what qualifies as a hotword.
+  Structure is [documented below](#nested_hotword_regex).
+
+* `proximity` -
+  (Optional)
+  Proximity of the finding within which the entire hotword must reside. The total length of the window cannot
+  exceed 1000 characters. Note that the finding itself will be included in the window, so that hotwords may be
+  used to match substrings of the finding itself. For example, the certainty of a phone number regex
+  `(\d{3}) \d{3}-\d{4}` could be adjusted upwards if the area code is known to be the local area code of a company
+  office using the hotword regex `(xxx)`, where `xxx` is the area code in question.
+  Structure is [documented below](#nested_proximity).
+
+
+<a name="nested_hotword_regex"></a>The `hotword_regex` block supports:
+
+* `pattern` -
+  (Optional)
+  Pattern defining the regular expression. Its syntax
+  (https://github.com/google/re2/wiki/Syntax) can be found under the google/re2 repository on GitHub.
+
+* `group_indexes` -
+  (Optional)
+  The index of the submatch to extract as findings. When not specified,
+  the entire match is returned. No more than 3 may be included.
+
+<a name="nested_proximity"></a>The `proximity` block supports:
+
+* `window_before` -
+  (Optional)
+  Number of characters before the finding to consider. Either this or window_after must be specified
+
+* `window_after` -
+  (Optional)
+  Number of characters after the finding to consider. Either this or window_before must be specified
+
+<a name="nested_custom_info_types"></a>The `custom_info_types` block supports:
+
+* `info_type` -
+  (Required)
+  CustomInfoType can either be a new infoType, or an extension of built-in infoType, when the name matches one of existing
+  infoTypes and that infoType is specified in `info_types` field. Specifying the latter adds findings to the
+  one detected by the system. If built-in info type is not specified in `info_types` list then the name is
+  treated as a custom info type.
+  Structure is [documented below](#nested_info_type).
+
+* `likelihood` -
+  (Optional)
+  Likelihood to return for this CustomInfoType. This base value can be altered by a detection rule if the finding meets the criteria
+  specified by the rule.
+  Default value is `VERY_LIKELY`.
+  Possible values are: `VERY_UNLIKELY`, `UNLIKELY`, `POSSIBLE`, `LIKELY`, `VERY_LIKELY`.
+
+* `exclusion_type` -
+  (Optional)
+  If set to EXCLUSION_TYPE_EXCLUDE this infoType will not cause a finding to be returned. It still can be used for rules matching.
+  Possible values are: `EXCLUSION_TYPE_EXCLUDE`.
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+* `regex` -
+  (Optional)
+  Regular expression which defines the rule.
+  Structure is [documented below](#nested_regex).
+
+* `dictionary` -
+  (Optional)
+  Dictionary which defines the rule.
+  Structure is [documented below](#nested_dictionary).
+
+* `stored_type` -
+  (Optional)
+  A reference to a StoredInfoType to use with scanning.
+  Structure is [documented below](#nested_stored_type).
+
+* `surrogate_type` -
+  (Optional)
+  Message for detecting output from deidentification transformations that support reversing.
+
+
+<a name="nested_info_type"></a>The `info_type` block supports:
+
+* `name` -
+  (Required)
+  Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names
+  listed at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.
+
+* `version` -
+  (Optional)
+  Version of the information type to use. By default, the version is set to stable.
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType. This only applies to data profiling.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
+<a name="nested_regex"></a>The `regex` block supports:
+
+* `pattern` -
+  (Required)
+  Pattern defining the regular expression.
+  Its syntax (https://github.com/google/re2/wiki/Syntax) can be found under the google/re2 repository on GitHub.
+
+* `group_indexes` -
+  (Optional)
+  The index of the submatch to extract as findings. When not specified, the entire match is returned. No more than 3 may be included.
+
+<a name="nested_dictionary"></a>The `dictionary` block supports:
+
+* `word_list` -
+  (Optional)
+  List of words or phrases to search for.
+  Structure is [documented below](#nested_word_list).
+
+* `cloud_storage_path` -
+  (Optional)
+  Newline-delimited file of words in Cloud Storage. Only a single file is accepted.
+  Structure is [documented below](#nested_cloud_storage_path).
+
+
+<a name="nested_word_list"></a>The `word_list` block supports:
+
+* `words` -
+  (Required)
+  Words or phrases defining the dictionary. The dictionary must contain at least one
+  phrase and every phrase must contain at least 2 characters that are letters or digits.
+
+<a name="nested_cloud_storage_path"></a>The `cloud_storage_path` block supports:
+
+* `path` -
+  (Required)
+  A url representing a file or path (no wildcards) in Cloud Storage. Example: `gs://[BUCKET_NAME]/dictionary.txt`
+
+<a name="nested_stored_type"></a>The `stored_type` block supports:
+
+* `name` -
+  (Required)
+  Resource name of the requested StoredInfoType, for example `organizations/433245324/storedInfoTypes/432452342`
+  or `projects/project-id/storedInfoTypes/432452342`.
+
+* `create_time` -
+  (Output)
+  The creation timestamp of an inspectTemplate. Set by the server.
 
 <a name="nested_storage_config"></a>The `storage_config` block supports:
 
@@ -417,7 +1168,7 @@ The following arguments are supported:
   List of file type groups to include in the scan. If empty, all files are scanned and available data
   format processors are applied. In addition, the binary content of the selected files is always scanned as well.
   Images are scanned only as binary if the specified region does not support image inspection and no fileTypes were specified.
-  Each value may be one of: `BINARY_FILE`, `TEXT_FILE`, `IMAGE`, `WORD`, `PDF`, `AVRO`, `CSV`, `TSV`.
+  Each value may be one of: `BINARY_FILE`, `TEXT_FILE`, `IMAGE`, `WORD`, `PDF`, `AVRO`, `CSV`, `TSV`, `POWERPOINT`, `EXCEL`.
 
 * `sample_method` -
   (Optional)
@@ -469,19 +1220,19 @@ The following arguments are supported:
 
 * `rows_limit` -
   (Optional)
-  Max number of rows to scan. If the table has more rows than this value, the rest of the rows are omitted. 
-  If not set, or if set to 0, all rows will be scanned. Only one of rowsLimit and rowsLimitPercent can be 
+  Max number of rows to scan. If the table has more rows than this value, the rest of the rows are omitted.
+  If not set, or if set to 0, all rows will be scanned. Only one of rowsLimit and rowsLimitPercent can be
   specified. Cannot be used in conjunction with TimespanConfig.
 
 * `rows_limit_percent` -
   (Optional)
-  Max percentage of rows to scan. The rest are omitted. The number of rows scanned is rounded down. 
-  Must be between 0 and 100, inclusively. Both 0 and 100 means no limit. Defaults to 0. Only one of 
+  Max percentage of rows to scan. The rest are omitted. The number of rows scanned is rounded down.
+  Must be between 0 and 100, inclusively. Both 0 and 100 means no limit. Defaults to 0. Only one of
   rowsLimit and rowsLimitPercent can be specified. Cannot be used in conjunction with TimespanConfig.
 
 * `sample_method` -
   (Optional)
-  How to sample rows if not all rows are scanned. Meaningful only when used in conjunction with either 
+  How to sample rows if not all rows are scanned. Meaningful only when used in conjunction with either
   rowsLimit or rowsLimitPercent. If not specified, rows are scanned in the order BigQuery reads them.
   Default value is `TOP`.
   Possible values are: `TOP`, `RANDOM_START`.
@@ -491,6 +1242,17 @@ The following arguments are supported:
   Specifies the BigQuery fields that will be returned with findings.
   If not specified, no identifying fields will be returned for findings.
   Structure is [documented below](#nested_identifying_fields).
+
+* `included_fields` -
+  (Optional)
+  Limit scanning only to these fields.
+  Structure is [documented below](#nested_included_fields).
+
+* `excluded_fields` -
+  (Optional)
+  References to fields excluded from scanning.
+  This allows you to skip inspection of entire columns which you know have no findings.
+  Structure is [documented below](#nested_excluded_fields).
 
 
 <a name="nested_table_reference"></a>The `table_reference` block supports:
@@ -512,6 +1274,18 @@ The following arguments are supported:
 * `name` -
   (Required)
   Name of a BigQuery field to be returned with the findings.
+
+<a name="nested_included_fields"></a>The `included_fields` block supports:
+
+* `name` -
+  (Required)
+  Name describing the field to which scanning is limited.
+
+<a name="nested_excluded_fields"></a>The `excluded_fields` block supports:
+
+* `name` -
+  (Required)
+  Name describing the field excluded from scanning.
 
 <a name="nested_hybrid_options"></a>The `hybrid_options` block supports:
 
@@ -587,6 +1361,10 @@ The following arguments are supported:
   Create a de-identified copy of the requested table or files.
   Structure is [documented below](#nested_deidentify).
 
+* `publish_to_stackdriver` -
+  (Optional)
+  Enable Stackdriver metric dlp.googleapis.com/findingCount.
+
 
 <a name="nested_save_findings"></a>The `save_findings` block supports:
 
@@ -649,7 +1427,7 @@ The following arguments are supported:
 * `file_types_to_transform` -
   (Optional)
   List of user-specified file type groups to transform. If specified, only the files with these filetypes will be transformed.
-  If empty, all supported files will be transformed. Supported types may be automatically added over time. 
+  If empty, all supported files will be transformed. Supported types may be automatically added over time.
   If a file type is set in this field that isn't supported by the Deidentify action then the job will fail and will not be successfully created/started.
   Each value may be one of: `IMAGE`, `TEXT_FILE`, `CSV`, `TSV`.
 
@@ -710,6 +1488,12 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `name` -
   The resource name of the job trigger. Set by the server.
+
+* `create_time` -
+  The creation timestamp of an inspectTemplate. Set by the server.
+
+* `update_time` -
+  The last update timestamp of an inspectTemplate. Set by the server.
 
 * `last_run_time` -
   The timestamp of the last time this trigger executed.

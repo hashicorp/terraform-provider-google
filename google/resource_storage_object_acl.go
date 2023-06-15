@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,6 +7,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -117,7 +120,7 @@ func getObjectAclId(object string) string {
 
 func resourceStorageObjectAclCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -125,12 +128,12 @@ func resourceStorageObjectAclCreate(d *schema.ResourceData, meta interface{}) er
 	bucket := d.Get("bucket").(string)
 	object := d.Get("object").(string)
 
-	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	// If we're using a predefined acl we just use the canned api.
 	if predefinedAcl, ok := d.GetOk("predefined_acl"); ok {
@@ -160,7 +163,7 @@ func resourceStorageObjectAclCreate(d *schema.ResourceData, meta interface{}) er
 			return fmt.Errorf("Error reading object %s in %s: %v", object, bucket, err)
 		}
 
-		create, update, remove, err := getRoleEntityChange(roleEntitiesUpstream, convertStringSet(reMap), objectOwner)
+		create, update, remove, err := getRoleEntityChange(roleEntitiesUpstream, tpgresource.ConvertStringSet(reMap), objectOwner)
 		if err != nil {
 			return fmt.Errorf("Error reading object %s in %s. Invalid schema: %v", object, bucket, err)
 		}
@@ -178,7 +181,7 @@ func resourceStorageObjectAclCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceStorageObjectAclRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -188,7 +191,7 @@ func resourceStorageObjectAclRead(d *schema.ResourceData, meta interface{}) erro
 
 	roleEntities, err := getRoleEntitiesAsStringsFromApi(config, bucket, object, userAgent)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Storage Object ACL for Bucket %q", d.Get("bucket").(string)))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Storage Object ACL for Bucket %q", d.Get("bucket").(string)))
 	}
 
 	err = d.Set("role_entity", roleEntities)
@@ -202,7 +205,7 @@ func resourceStorageObjectAclRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceStorageObjectAclUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -210,12 +213,12 @@ func resourceStorageObjectAclUpdate(d *schema.ResourceData, meta interface{}) er
 	bucket := d.Get("bucket").(string)
 	object := d.Get("object").(string)
 
-	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	if _, ok := d.GetOk("predefined_acl"); d.HasChange("predefined_acl") && ok {
 		res, err := config.NewStorageClient(userAgent).Objects.Get(bucket, object).Do()
@@ -242,8 +245,8 @@ func resourceStorageObjectAclUpdate(d *schema.ResourceData, meta interface{}) er
 
 		o, n := d.GetChange("role_entity")
 		create, update, remove, err := getRoleEntityChange(
-			convertStringSet(o.(*schema.Set)),
-			convertStringSet(n.(*schema.Set)),
+			tpgresource.ConvertStringSet(o.(*schema.Set)),
+			tpgresource.ConvertStringSet(n.(*schema.Set)),
 			objectOwner)
 		if err != nil {
 			return fmt.Errorf("Error reading object %s in %s. Invalid schema: %v", object, bucket, err)
@@ -260,7 +263,7 @@ func resourceStorageObjectAclUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceStorageObjectAclDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -268,12 +271,12 @@ func resourceStorageObjectAclDelete(d *schema.ResourceData, meta interface{}) er
 	bucket := d.Get("bucket").(string)
 	object := d.Get("object").(string)
 
-	lockName, err := ReplaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
+	lockName, err := tpgresource.ReplaceVars(d, config, "storage/buckets/{{bucket}}/objects/{{object}}")
 	if err != nil {
 		return err
 	}
-	mutexKV.Lock(lockName)
-	defer mutexKV.Unlock(lockName)
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	res, err := config.NewStorageClient(userAgent).Objects.Get(bucket, object).Do()
 	if err != nil {

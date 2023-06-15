@@ -215,7 +215,7 @@ The following arguments are supported:
 
 * `description` -
   (Optional)
-  A human-readable description for the job. 
+  A human-readable description for the job.
   This string must not contain more than 500 characters.
 
 * `schedule` -
@@ -244,8 +244,8 @@ The following arguments are supported:
 
 * `retry_config` -
   (Optional)
-  By default, if a job does not complete successfully, 
-  meaning that an acknowledgement is not received from the handler, 
+  By default, if a job does not complete successfully,
+  meaning that an acknowledgement is not received from the handler,
   then it will be retried with exponential backoff according to the settings
   Structure is [documented below](#nested_retry_config).
 
@@ -259,14 +259,14 @@ The following arguments are supported:
 * `app_engine_http_target` -
   (Optional)
   App Engine HTTP target.
-  If the job providers a App Engine HTTP target the cron will 
+  If the job providers a App Engine HTTP target the cron will
   send a request to the service instance
   Structure is [documented below](#nested_app_engine_http_target).
 
 * `http_target` -
   (Optional)
   HTTP target.
-  If the job providers a http_target the cron will 
+  If the job providers a http_target the cron will
   send a request to the targeted url
   Structure is [documented below](#nested_http_target).
 
@@ -282,13 +282,13 @@ The following arguments are supported:
 
 * `retry_count` -
   (Optional)
-  The number of attempts that the system will make to run a 
+  The number of attempts that the system will make to run a
   job using the exponential backoff procedure described by maxDoublings.
   Values greater than 5 and negative values are not allowed.
 
 * `max_retry_duration` -
   (Optional)
-  The time limit for retrying a failed job, measured from time when an execution was first attempted. 
+  The time limit for retrying a failed job, measured from time when an execution was first attempted.
   If specified with retryCount, the job will be retried until both limits are reached.
   A duration in seconds with up to nine fractional digits, terminated by 's'.
 
@@ -305,8 +305,8 @@ The following arguments are supported:
 * `max_doublings` -
   (Optional)
   The time between retries will double maxDoublings times.
-  A job's retry interval starts at minBackoffDuration, 
-  then doubles maxDoublings times, then increases linearly, 
+  A job's retry interval starts at minBackoffDuration,
+  then doubles maxDoublings times, then increases linearly,
   and finally retries retries at intervals of maxBackoffDuration up to retryCount times.
 
 <a name="nested_pubsub_target"></a>The `pubsub_target` block supports:
@@ -343,22 +343,22 @@ The following arguments are supported:
 * `relative_uri` -
   (Required)
   The relative URI.
-  The relative URL must begin with "/" and must be a valid HTTP relative URL. 
-  It can contain a path, query string arguments, and \# fragments. 
-  If the relative URL is empty, then the root path "/" will be used. 
+  The relative URL must begin with "/" and must be a valid HTTP relative URL.
+  It can contain a path, query string arguments, and \# fragments.
+  If the relative URL is empty, then the root path "/" will be used.
   No spaces are allowed, and the maximum length allowed is 2083 characters
 
 * `body` -
   (Optional)
-  HTTP request body. 
-  A request body is allowed only if the HTTP method is POST or PUT. 
+  HTTP request body.
+  A request body is allowed only if the HTTP method is POST or PUT.
   It will result in invalid argument error to set a body on a job with an incompatible HttpMethod.
   A base64-encoded string.
 
 * `headers` -
   (Optional)
   HTTP request headers.
-  This map contains the header field names and values. 
+  This map contains the header field names and values.
   Headers can be set when the job is created.
 
 
@@ -391,14 +391,14 @@ The following arguments are supported:
 
 * `body` -
   (Optional)
-  HTTP request body. 
-  A request body is allowed only if the HTTP method is POST, PUT, or PATCH. 
+  HTTP request body.
+  A request body is allowed only if the HTTP method is POST, PUT, or PATCH.
   It is an error to set body on a job with an incompatible HttpMethod.
   A base64-encoded string.
 
 * `headers` -
   (Optional)
-  This map contains the header field names and values. 
+  This map contains the header field names and values.
   Repeated headers are not supported, but a header value can contain commas.
 
 * `oauth_token` -

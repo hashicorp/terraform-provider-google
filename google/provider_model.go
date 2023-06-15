@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -136,11 +138,6 @@ type ProviderModel struct {
 	NetworkConnectivityCustomEndpoint  types.String `tfsdk:"network_connectivity_custom_endpoint"`
 	OrgPolicyCustomEndpoint            types.String `tfsdk:"org_policy_custom_endpoint"`
 	RecaptchaEnterpriseCustomEndpoint  types.String `tfsdk:"recaptcha_enterprise_custom_endpoint"`
-}
-
-type ProviderBatching struct {
-	SendAfter      types.String `tfsdk:"send_after"`
-	EnableBatching types.Bool   `tfsdk:"enable_batching"`
 }
 
 var ProviderBatchingAttributes = map[string]attr.Type{

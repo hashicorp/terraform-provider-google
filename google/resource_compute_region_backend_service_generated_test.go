@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -21,6 +24,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccComputeRegionBackendService_regionBackendServiceBasicExample(t *testing.T) {
@@ -31,7 +38,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceBasicExample(t *test
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -49,7 +56,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceBasicExample(t *test
 }
 
 func testAccComputeRegionBackendService_regionBackendServiceBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
   name                            = "tf-test-region-service%{random_suffix}"
   region                          = "us-central1"
@@ -78,7 +85,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceIlbRoundRobinExample
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -96,7 +103,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceIlbRoundRobinExample
 }
 
 func testAccComputeRegionBackendService_regionBackendServiceIlbRoundRobinExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
   region = "us-central1"
   name = "tf-test-region-service%{random_suffix}"
@@ -123,7 +130,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceExternalWeightedExam
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -141,7 +148,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceExternalWeightedExam
 }
 
 func testAccComputeRegionBackendService_regionBackendServiceExternalWeightedExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
   region                = "us-central1"
   name                  = "tf-test-region-service%{random_suffix}"
@@ -170,7 +177,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceIlbRingHashExample(t
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -188,7 +195,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceIlbRingHashExample(t
 }
 
 func testAccComputeRegionBackendService_regionBackendServiceIlbRingHashExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
   region = "us-central1"
   name = "tf-test-region-service%{random_suffix}"
@@ -231,7 +238,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceBalancingModeExample
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -249,7 +256,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceBalancingModeExample
 }
 
 func testAccComputeRegionBackendService_regionBackendServiceBalancingModeExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_backend_service" "default" {
   load_balancing_scheme = "INTERNAL_MANAGED"
 
@@ -336,7 +343,7 @@ func testAccCheckComputeRegionBackendServiceDestroyProducer(t *testing.T) func(s
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -347,7 +354,13 @@ func testAccCheckComputeRegionBackendServiceDestroyProducer(t *testing.T) func(s
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("ComputeRegionBackendService still exists at %s", url)
 			}

@@ -1,0 +1,3 @@
+```release-note:bug
+cloudplatform: added validation for `role_id` on `google_organization_iam_custom_role`
+```

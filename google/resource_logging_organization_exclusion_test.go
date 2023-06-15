@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -6,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 // Logging exclusions don't always work when making parallel requests, so run tests serially
@@ -31,12 +34,12 @@ func TestAccLoggingOrganizationExclusion(t *testing.T) {
 }
 
 func testAccLoggingOrganizationExclusion_basic(t *testing.T) {
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	exclusionName := "tf-test-exclusion-" + RandString(t, 10)
 	description := "Description " + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingOrganizationExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -53,13 +56,13 @@ func testAccLoggingOrganizationExclusion_basic(t *testing.T) {
 }
 
 func testAccLoggingOrganizationExclusion_update(t *testing.T) {
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	exclusionName := "tf-test-exclusion-" + RandString(t, 10)
 	descriptionBefore := "Basic Organization Logging Exclusion" + RandString(t, 10)
 	descriptionAfter := "Updated Basic Organization Logging Exclusion" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingOrganizationExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -84,10 +87,10 @@ func testAccLoggingOrganizationExclusion_update(t *testing.T) {
 }
 
 func testAccLoggingOrganizationExclusion_multiple(t *testing.T) {
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingOrganizationExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -142,7 +145,7 @@ resource "google_logging_organization_exclusion" "basic" {
   description = "%s"
   filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
-`, exclusionName, orgId, description, GetTestProjectFromEnv())
+`, exclusionName, orgId, description, acctest.GetTestProjectFromEnv())
 }
 
 func testAccLoggingOrganizationExclusion_multipleCfg(exclusionName, orgId string) string {
@@ -155,7 +158,7 @@ resource "google_logging_organization_exclusion" "basic%d" {
 	description      = "Basic Organization Logging Exclusion"
 	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
-`, i, exclusionName, i, orgId, GetTestProjectFromEnv())
+`, i, exclusionName, i, orgId, acctest.GetTestProjectFromEnv())
 	}
 	return s
 }

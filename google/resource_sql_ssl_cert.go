@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,6 +7,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -96,12 +99,12 @@ func ResourceSqlSslCert() *schema.Resource {
 
 func resourceSqlSslCertCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -113,8 +116,8 @@ func resourceSqlSslCertCreate(d *schema.ResourceData, meta interface{}) error {
 		CommonName: commonName,
 	}
 
-	mutexKV.Lock(instanceMutexKey(project, instance))
-	defer mutexKV.Unlock(instanceMutexKey(project, instance))
+	transport_tpg.MutexStore.Lock(instanceMutexKey(project, instance))
+	defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instance))
 	resp, err := config.NewSqlAdminClient(userAgent).SslCerts.Insert(project, instance, sslCertsInsertRequest).Do()
 	if err != nil {
 		return fmt.Errorf("Error, failed to insert "+
@@ -146,12 +149,12 @@ func resourceSqlSslCertCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceSqlSslCertRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -162,7 +165,7 @@ func resourceSqlSslCertRead(d *schema.ResourceData, meta interface{}) error {
 
 	sslCerts, err := config.NewSqlAdminClient(userAgent).SslCerts.Get(project, instance, fingerprint).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("SQL Ssl Cert %q in instance %q", commonName, instance))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SQL Ssl Cert %q in instance %q", commonName, instance))
 	}
 
 	if sslCerts == nil {
@@ -203,12 +206,12 @@ func resourceSqlSslCertRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceSqlSslCertDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -217,8 +220,8 @@ func resourceSqlSslCertDelete(d *schema.ResourceData, meta interface{}) error {
 	commonName := d.Get("common_name").(string)
 	fingerprint := d.Get("sha1_fingerprint").(string)
 
-	mutexKV.Lock(instanceMutexKey(project, instance))
-	defer mutexKV.Unlock(instanceMutexKey(project, instance))
+	transport_tpg.MutexStore.Lock(instanceMutexKey(project, instance))
+	defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instance))
 	op, err := config.NewSqlAdminClient(userAgent).SslCerts.Delete(project, instance, fingerprint).Do()
 
 	if err != nil {

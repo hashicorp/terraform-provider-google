@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertexai: Increased `google_vertex_ai_metadata_store` creation timeout to 40 minutes. (beta)
+```

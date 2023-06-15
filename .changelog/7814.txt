@@ -1,0 +1,9 @@
+```release-note:enhancement
+dlp: added `surrogate_type` custom type to `google_data_loss_prevention_inspect_template` resource
+```
+```release-note:enhancement
+dlp: added `exclude_by_hotword` exclusion rule to `google_data_loss_prevention_inspect_template` resource
+```
+```release-note:enhancement
+dlp: added `version` field for multiple `info_type` blocks to `google_data_loss_prevention_inspect_template` resource
+```

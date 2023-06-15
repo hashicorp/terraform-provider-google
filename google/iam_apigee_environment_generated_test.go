@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -19,6 +22,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccApigeeEnvironmentIamBindingGenerated(t *testing.T) {
@@ -27,12 +32,12 @@ func TestAccApigeeEnvironmentIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":   RandString(t, 10),
 		"role":            "roles/viewer",
-		"org_id":          GetTestOrgFromEnv(t),
-		"billing_account": GetTestBillingAccountFromEnv(t),
+		"org_id":          acctest.GetTestOrgFromEnv(t),
+		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -64,12 +69,12 @@ func TestAccApigeeEnvironmentIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":   RandString(t, 10),
 		"role":            "roles/viewer",
-		"org_id":          GetTestOrgFromEnv(t),
-		"billing_account": GetTestBillingAccountFromEnv(t),
+		"org_id":          acctest.GetTestOrgFromEnv(t),
+		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -92,16 +97,17 @@ func TestAccApigeeEnvironmentIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":   RandString(t, 10),
 		"role":            "roles/viewer",
-		"org_id":          GetTestOrgFromEnv(t),
-		"billing_account": GetTestBillingAccountFromEnv(t),
+		"org_id":          acctest.GetTestOrgFromEnv(t),
+		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeEnvironmentIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_apigee_environment_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_apigee_environment_iam_policy.foo",
@@ -272,6 +278,14 @@ resource "google_apigee_environment_iam_policy" "foo" {
   org_id = google_apigee_environment.apigee_environment.org_id
   env_id = google_apigee_environment.apigee_environment.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_apigee_environment_iam_policy" "foo" {
+  org_id = google_apigee_environment.apigee_environment.org_id
+  env_id = google_apigee_environment.apigee_environment.name
+  depends_on = [
+    google_apigee_environment_iam_policy.foo
+  ]
 }
 `, context)
 }

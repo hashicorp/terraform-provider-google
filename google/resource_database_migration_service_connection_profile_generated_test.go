@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -21,6 +24,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfileCloudsqlExample(t *testing.T) {
@@ -31,7 +38,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDatabaseMigrationServiceConnectionProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -49,7 +56,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 }
 
 func testAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfileCloudsqlExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_project" "project" {
 }
 
@@ -147,7 +154,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDatabaseMigrationServiceConnectionProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -165,7 +172,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 }
 
 func testAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfilePostgresExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_sql_database_instance" "postgresqldb" {
   name             = "tf-test-my-database%{random_suffix}"
   database_version = "POSTGRES_12"
@@ -223,7 +230,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDatabaseMigrationServiceConnectionProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -241,7 +248,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 }
 
 func testAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfileAlloydbExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_project" "project" {
 }
 
@@ -276,7 +283,7 @@ resource "google_database_migration_service_connection_profile" "alloydbprofile"
     foo = "bar" 
   }
   alloydb {
-    cluster_id = "dbmsalloycluster%{random_suffix}"
+    cluster_id = "tf-test-dbmsalloycluster%{random_suffix}"
     settings {
       initial_user {
         user = "alloyuser%{random_suffix}"
@@ -317,7 +324,7 @@ func testAccCheckDatabaseMigrationServiceConnectionProfileDestroyProducer(t *tes
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DatabaseMigrationServiceBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{DatabaseMigrationServiceBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
 			if err != nil {
 				return err
 			}
@@ -328,7 +335,13 @@ func testAccCheckDatabaseMigrationServiceConnectionProfileDestroyProducer(t *tes
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("DatabaseMigrationServiceConnectionProfile still exists at %s", url)
 			}

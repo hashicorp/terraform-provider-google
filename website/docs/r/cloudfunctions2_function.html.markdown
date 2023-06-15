@@ -678,14 +678,14 @@ The following arguments are supported:
 
 * `generation` -
   (Optional)
-  Google Cloud Storage generation for the object. If the generation 
+  Google Cloud Storage generation for the object. If the generation
   is omitted, the latest generation will be used.
 
 <a name="nested_repo_source"></a>The `repo_source` block supports:
 
 * `project_id` -
   (Optional)
-  ID of the project that owns the Cloud Source Repository. If omitted, the 
+  ID of the project that owns the Cloud Source Repository. If omitted, the
   project ID requesting the build is assumed.
 
 * `repo_name` -
@@ -710,7 +710,7 @@ The following arguments are supported:
 
 * `invert_regex` -
   (Optional)
-  Only trigger a build if the revision regex does 
+  Only trigger a build if the revision regex does
   NOT match the revision regex.
 
 <a name="nested_service_config"></a>The `service_config` block supports:
@@ -910,6 +910,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `environment` -
   The environment the function is hosted on.
+
+* `url` -
+  Output only. The deployed url for the function.
 
 * `state` -
   Describes the current state of the function.

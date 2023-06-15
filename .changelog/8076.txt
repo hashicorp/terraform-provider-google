@@ -1,0 +1,3 @@
+```release-note:bug
+Tags: fixed providing `projects/<project_id` to `parent` causing recreation on `google_tags_tag_key`
+```

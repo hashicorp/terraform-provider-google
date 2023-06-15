@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package transport
 
 import (
@@ -146,6 +148,54 @@ func is403QuotaExceededPerMinuteError(err error) (bool, string) {
 	return false, ""
 }
 
+// We've encountered a few common fingerprint-related strings; if this is one of
+// them, we're confident this is an error due to fingerprints.
+var FINGERPRINT_FAIL_ERRORS = []string{"Invalid fingerprint.", "Supplied fingerprint does not match current metadata fingerprint."}
+
+// Retry the operation if it looks like a fingerprint mismatch.
+func IsFingerprintError(err error) (bool, string) {
+	gerr, ok := err.(*googleapi.Error)
+	if !ok {
+		return false, ""
+	}
+
+	if gerr.Code != 412 {
+		return false, ""
+	}
+
+	for _, msg := range FINGERPRINT_FAIL_ERRORS {
+		if strings.Contains(err.Error(), msg) {
+			return true, "fingerprint mismatch"
+		}
+	}
+
+	return false, ""
+}
+
+const METADATA_FINGERPRINT_RETRIES = 10
+
+// Since the google compute API uses optimistic locking, there is a chance
+// we need to resubmit our updated metadata. To do this, you need to provide
+// an update function that attempts to submit your metadata
+func MetadataRetryWrapper(update func() error) error {
+	attempt := 0
+	for attempt < METADATA_FINGERPRINT_RETRIES {
+		err := update()
+		if err == nil {
+			return nil
+		}
+
+		if ok, _ := IsFingerprintError(err); !ok {
+			// Something else went wrong, don't retry
+			return err
+		}
+
+		log.Printf("[DEBUG] Dismissed an error as retryable as a fingerprint mismatch: %s", err)
+		attempt++
+	}
+	return fmt.Errorf("Failed to update metadata after %d retries", attempt)
+}
+
 // If a permission necessary to provision a resource is created in the same config
 // as the resource itself, the permission may not have propagated by the time terraform
 // attempts to create the resource. This allows those errors to be retried until the timeout expires
@@ -153,6 +203,180 @@ func IamMemberMissing(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok {
 		if gerr.Code == 400 && strings.Contains(gerr.Body, "permission") {
 			return true, "Waiting for IAM member permissions to propagate."
+		}
+	}
+	return false, ""
+}
+
+// Retry if Cloud SQL operation returns a 429 with a specific message for
+// concurrent operations.
+func IsSqlOperationInProgressError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 {
+		if strings.Contains(gerr.Body, "instanceAlreadyExists") {
+			return false, ""
+		}
+
+		return true, "Waiting for other concurrent Cloud SQL operations to finish"
+	}
+	return false, ""
+}
+
+// Retry if service usage decides you're activating the same service multiple
+// times. This can happen if a service and a dependent service aren't batched
+// together- eg container.googleapis.com in one request followed by compute.g.c
+// in the next (container relies on compute and implicitly activates it)
+func ServiceUsageServiceBeingActivated(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 400 {
+		if strings.Contains(gerr.Body, "Another activation or deactivation is in progress") {
+			return true, "Waiting for same service activation/deactivation to finish"
+		}
+
+		return false, ""
+	}
+	return false, ""
+}
+
+// See https://github.com/hashicorp/terraform-provider-google/issues/14691 for
+// details on the error message this handles
+// This is a post-operation error so it uses tpgresource.CommonOpError instead of googleapi.Error
+func ServiceUsageInternalError160009(err error) (bool, string) {
+	// a cyclical dependency between transport/tpgresource blocks using tpgresource.CommonOpError
+	// so just work off the error string. Ideally, we'd use that type instead.
+	s := err.Error()
+	if strings.Contains(s, "encountered internal error") && strings.Contains(s, "160009") && strings.Contains(s, "with failed services") {
+		return true, "retrying internal error 160009."
+	}
+
+	return false, ""
+}
+
+// Retry if Bigquery operation returns a 403 with a specific message for
+// concurrent operations (which are implemented in terms of 'edit quota').
+func IsBigqueryIAMQuotaError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 403 && strings.Contains(strings.ToLower(gerr.Body), "exceeded rate limits") {
+			return true, "Waiting for Bigquery edit quota to refresh"
+		}
+	}
+	return false, ""
+}
+
+// Retry if Monitoring operation returns a 409 with a specific message for
+// concurrent operations.
+func IsMonitoringConcurrentEditError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 409 && (strings.Contains(strings.ToLower(gerr.Body), "too many concurrent edits") ||
+			strings.Contains(strings.ToLower(gerr.Body), "could not fulfill the request")) {
+			return true, "Waiting for other Monitoring changes to finish"
+		}
+	}
+	return false, ""
+}
+
+// Retry if KMS CryptoKeyVersions returns a 400 for PENDING_GENERATION
+func IsCryptoKeyVersionsPendingGeneration(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 400 {
+		if strings.Contains(gerr.Body, "PENDING_GENERATION") {
+			return true, "Waiting for pending key generation"
+		}
+	}
+	return false, ""
+}
+
+// Retry if getting a resource/operation returns a 404 for specific operations.
+// opType should describe the operation for which 404 can be retryable.
+func IsNotFoundRetryableError(opType string) RetryErrorPredicateFunc {
+	return func(err error) (bool, string) {
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+			return true, fmt.Sprintf("Retry 404s for %s", opType)
+		}
+		return false, ""
+	}
+}
+
+func IsPeeringOperationInProgress(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 400 && strings.Contains(gerr.Body, "There is a peering operation in progress") {
+			return true, "Waiting peering operation to complete"
+		}
+	}
+	return false, ""
+}
+
+func DatastoreIndex409Contention(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 409 && strings.Contains(gerr.Body, "too much contention") {
+			return true, "too much contention - waiting for less activity"
+		}
+	}
+	return false, ""
+}
+
+func IapClient409Operation(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 409 && strings.Contains(strings.ToLower(gerr.Body), "operation was aborted") {
+			return true, "operation was aborted possibly due to concurrency issue - retrying"
+		}
+	}
+	return false, ""
+}
+
+func HealthcareDatasetNotInitialized(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 404 && strings.Contains(strings.ToLower(gerr.Body), "dataset not initialized") {
+			return true, "dataset not initialized - retrying"
+		}
+	}
+	return false, ""
+}
+
+// Cloud Run APIs may return a 409 on create to indicate that a resource has been deleted in the foreground
+// (eg GET and LIST) but not the backing apiserver. When we encounter a 409, we can retry it.
+// Note that due to limitations in MMv1's error_retry_predicates this is currently applied to all requests.
+// We only expect to receive it on create, though.
+func IsCloudRunCreationConflict(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 409 {
+			return true, "saw a 409 - waiting until background deletion completes"
+		}
+	}
+
+	return false, ""
+}
+
+// If a service account is deleted in the middle of updating an IAM policy
+// it can cause the API to return an error. In fine-grained IAM resources we
+// read the policy, modify it, then send it back to the API. Retrying is
+// useful particularly in high-traffic projects.
+// We don't want to retry _every_ time we see this error because the
+// user-provided SA could trigger this too. At the callsite, we should check
+// if the current etag matches the old etag and short-circuit if they do as
+// that indicates the new config is the likely problem.
+func IamServiceAccountNotFound(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 400 && strings.Contains(gerr.Body, "Service account") && strings.Contains(gerr.Body, "does not exist") {
+			return true, "service account not found in IAM"
+		}
+	}
+
+	return false, ""
+}
+
+// Concurrent Apigee operations can fail with a 400 error
+func IsApigeeRetryableError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 400 && strings.Contains(strings.ToLower(gerr.Body), "the resource is locked by another operation") {
+			return true, "Waiting for other concurrent operations to finish"
+		}
+	}
+
+	return false, ""
+}
+
+func IsDataflowJobUpdateRetryableError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 404 && strings.Contains(gerr.Body, "in RUNNING OR DRAINING state") {
+			return true, "Waiting for job to be in a valid state"
 		}
 	}
 	return false, ""
@@ -187,15 +411,14 @@ func isCommonRetryableErrorCode(err error) (bool, string) {
 	return false, ""
 }
 
-// Retry if filestore operation returns a 429 with a specific message for
-// concurrent operations.
-func IsNotFilestoreQuotaError(err error) (bool, string) {
+// Do not retry if operation returns a 429
+func Is429QuotaError(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok {
 		if gerr.Code == 429 {
-			return false, ""
+			return true, "429s are not retryable for this resource"
 		}
 	}
-	return isCommonRetryableErrorCode(err)
+	return false, ""
 }
 
 // Retry if App Engine operation returns a 409 with a specific message for
@@ -232,6 +455,20 @@ func IsBigTableRetryableError(err error) (bool, string) {
 		if retryDelayDuration != 0 {
 			// TODO: Consider sleep for `retryDelayDuration` before retrying.
 			return true, "Bigtable operation failed with a retryable error, will retry"
+		}
+	}
+
+	return false, ""
+}
+
+// Gateway of type 'SECURE_WEB_GATEWAY' automatically creates a router but does not delete it.
+// This router might be re-used by other gateways located in the same network.
+// When multiple gateways are being deleted at the same time, multiple attempts to delete the
+// same router will be triggered and the api throws an error saying the "The resource <router> is not ready".
+func IsSwgAutogenRouterRetryable(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 400 && strings.Contains(strings.ToLower(gerr.Body), "not ready") {
+			return true, "Waiting swg autogen router to be ready"
 		}
 	}
 

@@ -1,0 +1,3 @@
+```release-note:bug
+certificatemanager: fixed an issue where `self_managed.pem_certificate` and `self_managed.pem_certificate` can't be updated on `google_certificate_manager_certificate`
+```

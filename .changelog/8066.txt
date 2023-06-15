@@ -1,0 +1,3 @@
+```release-note:enhancement
+Adding in ability to update Hyperdisk PD IOPS without recreation
+```

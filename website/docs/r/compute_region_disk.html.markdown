@@ -80,6 +80,73 @@ resource "google_compute_snapshot" "snapdisk" {
   zone        = "us-central1-a"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_disk_async&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Disk Async
+
+
+```hcl
+resource "google_compute_region_disk" "primary" {
+  provider = google-beta
+
+  name                      = "primary-region-disk"
+  type                      = "pd-ssd"
+  region                    = "us-central1"
+  physical_block_size_bytes = 4096
+
+  replica_zones = ["us-central1-a", "us-central1-f"]
+}
+
+resource "google_compute_region_disk" "secondary" {
+  provider = google-beta
+
+  name                      = "secondary-region-disk"
+  type                      = "pd-ssd"
+  region                    = "us-east1"
+  physical_block_size_bytes = 4096
+
+  async_primary_disk {
+    disk = google_compute_region_disk.primary.id
+  }
+
+  replica_zones = ["us-east1-b", "us-east1-c"]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_disk_features&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Disk Features
+
+
+```hcl
+resource "google_compute_region_disk" "regiondisk" {
+  name                      = "my-region-features-disk"
+  type                      = "pd-ssd"
+  region                    = "us-central1"
+  physical_block_size_bytes = 4096
+
+  guest_os_features {
+    type = "SECURE_BOOT"
+  }
+
+  guest_os_features {
+    type = "MULTI_IP_SUBNET"
+  }
+
+  guest_os_features {
+    type = "WINDOWS"
+  }
+
+  licenses = ["https://www.googleapis.com/compute/v1/projects/windows-cloud/global/licenses/windows-server-core"]
+
+  replica_zones = ["us-central1-a", "us-central1-f"]
+}
+```
 
 ## Argument Reference
 
@@ -151,6 +218,21 @@ The following arguments are supported:
   * zones/{zone}/disks/{disk}
   * regions/{region}/disks/{disk}
 
+* `async_primary_disk` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A nested object resource
+  Structure is [documented below](#nested_async_primary_disk).
+
+* `guest_os_features` -
+  (Optional)
+  A list of features to enable on the guest operating system.
+  Applicable only for bootable disks.
+  Structure is [documented below](#nested_guest_os_features).
+
+* `licenses` -
+  (Optional)
+  Any applicable license URI.
+
 * `region` -
   (Optional)
   A reference to the region where the disk resides.
@@ -188,6 +270,19 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_async_primary_disk"></a>The `async_primary_disk` block supports:
+
+* `disk` -
+  (Required)
+  Primary disk for asynchronous disk replication.
+
+<a name="nested_guest_os_features"></a>The `guest_os_features` block supports:
+
+* `type` -
+  (Required)
+  The type of supported feature. Read [Enabling guest operating system features](https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features) to see a list of available options.
+  Possible values are: `MULTI_IP_SUBNET`, `SECURE_BOOT`, `SEV_CAPABLE`, `UEFI_COMPATIBLE`, `VIRTIO_SCSI_MULTIQUEUE`, `WINDOWS`, `GVNIC`, `SEV_LIVE_MIGRATABLE`, `SEV_SNP_CAPABLE`, `SUSPEND_RESUME_COMPATIBLE`, `TDX_CAPABLE`.
 
 <a name="nested_disk_encryption_key"></a>The `disk_encryption_key` block supports:
 

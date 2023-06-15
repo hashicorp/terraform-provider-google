@@ -1,0 +1,6 @@
+```release-note:enhancement
+alloydb: added `encryption_config` and `encryption_info` fields in `google_alloydb_cluster`, to allow CMEK encryption of the cluster's data.
+```
+```release-note:enhancement
+alloydb: added the `encryption_config` field inside the `automated_backup_policy` block in`google_alloydb_cluster`, to allow CMEK encryption of automated backups.
+```

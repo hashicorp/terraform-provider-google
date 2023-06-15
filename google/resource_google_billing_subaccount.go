@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -7,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/cloudbilling/v1"
 )
@@ -31,7 +34,7 @@ func ResourceBillingSubaccount() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: compareSelfLinkOrResourceName,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 			},
 			"deletion_policy": {
 				Type:         schema.TypeString,
@@ -58,7 +61,7 @@ func ResourceBillingSubaccount() *schema.Resource {
 
 func resourceBillingSubaccountCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -83,7 +86,7 @@ func resourceBillingSubaccountCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceBillingSubaccountRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -92,7 +95,7 @@ func resourceBillingSubaccountRead(d *schema.ResourceData, meta interface{}) err
 
 	billingAccount, err := config.NewBillingClient(userAgent).BillingAccounts.Get(d.Id()).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Billing Subaccount Not Found : %s", id))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Billing Subaccount Not Found : %s", id))
 	}
 
 	if err := d.Set("name", billingAccount.Name); err != nil {
@@ -116,7 +119,7 @@ func resourceBillingSubaccountRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceBillingSubaccountUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -127,7 +130,7 @@ func resourceBillingSubaccountUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 		_, err := config.NewBillingClient(userAgent).BillingAccounts.Patch(d.Id(), billingAccount).UpdateMask("display_name").Do()
 		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Error updating billing account : %s", d.Id()))
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Error updating billing account : %s", d.Id()))
 		}
 	}
 	return resourceBillingSubaccountRead(d, meta)
@@ -135,7 +138,7 @@ func resourceBillingSubaccountUpdate(d *schema.ResourceData, meta interface{}) e
 
 func resourceBillingSubaccountDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -149,7 +152,7 @@ func resourceBillingSubaccountDelete(d *schema.ResourceData, meta interface{}) e
 		}
 		_, err := config.NewBillingClient(userAgent).BillingAccounts.Patch(d.Id(), billingAccount).UpdateMask("display_name").Do()
 		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("Error updating billing account : %s", d.Id()))
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Error updating billing account : %s", d.Id()))
 		}
 	}
 

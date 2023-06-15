@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed a crash when all zero values are specified `google_container_node_pool.upgrade_settings.blue_green_settings.standard_rollout_policy` subfields
+```

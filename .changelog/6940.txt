@@ -1,0 +1,3 @@
+```release-note:new-datasource
+google_vertex_ai_index
+```

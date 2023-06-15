@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -21,6 +24,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExample(t *testing.T) {
@@ -31,7 +38,7 @@ func TestAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExa
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckStorageObjectAccessControlDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -49,7 +56,7 @@ func TestAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExa
 }
 
 func testAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_storage_object_access_control" "public_rule" {
   object = google_storage_bucket_object.object.output_name
   bucket = google_storage_bucket.bucket.name
@@ -82,7 +89,7 @@ func testAccCheckStorageObjectAccessControlDestroyProducer(t *testing.T) func(s 
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{StorageBasePath}}b/{{bucket}}/o/{{%object}}/acl/{{entity}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{StorageBasePath}}b/{{bucket}}/o/{{%object}}/acl/{{entity}}")
 			if err != nil {
 				return err
 			}
@@ -93,7 +100,13 @@ func testAccCheckStorageObjectAccessControlDestroyProducer(t *testing.T) func(s 
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("StorageObjectAccessControl still exists at %s", url)
 			}

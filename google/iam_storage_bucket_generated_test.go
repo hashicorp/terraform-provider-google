@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -20,6 +23,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccStorageBucketIamBindingGenerated(t *testing.T) {
@@ -37,7 +42,7 @@ func TestAccStorageBucketIamBindingGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -78,7 +83,7 @@ func TestAccStorageBucketIamMemberGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -99,7 +104,7 @@ func TestAccStorageBucketIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	// This may skip test, so do it first
-	sa := GetTestServiceAccountFromEnv(t)
+	sa := acctest.GetTestServiceAccountFromEnv(t)
 	context := map[string]interface{}{
 		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/storage.objectViewer",
@@ -113,11 +118,12 @@ func TestAccStorageBucketIamPolicyGenerated(t *testing.T) {
 	context["service_account"] = sa
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBucketIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_storage_bucket_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_storage_bucket_iam_policy.foo",
@@ -153,7 +159,7 @@ func TestAccStorageBucketIamBindingGenerated_withCondition(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -171,7 +177,7 @@ func TestAccStorageBucketIamBindingGenerated_withCondition(t *testing.T) {
 
 func TestAccStorageBucketIamBindingGenerated_withAndWithoutCondition(t *testing.T) {
 	// Multiple fine-grained resources
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -186,7 +192,7 @@ func TestAccStorageBucketIamBindingGenerated_withAndWithoutCondition(t *testing.
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -229,7 +235,7 @@ func TestAccStorageBucketIamMemberGenerated_withCondition(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -247,7 +253,7 @@ func TestAccStorageBucketIamMemberGenerated_withCondition(t *testing.T) {
 
 func TestAccStorageBucketIamMemberGenerated_withAndWithoutCondition(t *testing.T) {
 	// Multiple fine-grained resources
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -262,7 +268,7 @@ func TestAccStorageBucketIamMemberGenerated_withAndWithoutCondition(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -294,7 +300,7 @@ func TestAccStorageBucketIamPolicyGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
 	// This may skip test, so do it first
-	sa := GetTestServiceAccountFromEnv(t)
+	sa := acctest.GetTestServiceAccountFromEnv(t)
 	context := map[string]interface{}{
 		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/storage.objectViewer",
@@ -312,7 +318,7 @@ func TestAccStorageBucketIamPolicyGenerated_withCondition(t *testing.T) {
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -372,6 +378,13 @@ data "google_iam_policy" "foo" {
 resource "google_storage_bucket_iam_policy" "foo" {
   bucket = google_storage_bucket.default.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_storage_bucket_iam_policy" "foo" {
+  bucket = google_storage_bucket.default.name
+  depends_on = [
+    google_storage_bucket_iam_policy.foo
+  ]
 }
 `, context)
 }

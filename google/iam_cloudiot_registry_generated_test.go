@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -19,6 +22,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccCloudIotDeviceRegistryIamBindingGenerated(t *testing.T) {
@@ -27,12 +32,12 @@ func TestAccCloudIotDeviceRegistryIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
-		"project":       GetTestProjectFromEnv(),
-		"region":        GetTestRegionFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
+		"region":        acctest.GetTestRegionFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -40,7 +45,7 @@ func TestAccCloudIotDeviceRegistryIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudiot_registry_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/registries/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudiot-registry%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/registries/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudiot-registry%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -50,7 +55,7 @@ func TestAccCloudIotDeviceRegistryIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudiot_registry_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/registries/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudiot-registry%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/registries/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudiot-registry%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -64,12 +69,12 @@ func TestAccCloudIotDeviceRegistryIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
-		"project":       GetTestProjectFromEnv(),
-		"region":        GetTestRegionFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
+		"region":        acctest.GetTestRegionFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -78,7 +83,7 @@ func TestAccCloudIotDeviceRegistryIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudiot_registry_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/registries/%s roles/viewer user:admin@hashicorptest.com", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudiot-registry%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/registries/%s roles/viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudiot-registry%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -92,20 +97,21 @@ func TestAccCloudIotDeviceRegistryIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
-		"project":       GetTestProjectFromEnv(),
-		"region":        GetTestRegionFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
+		"region":        acctest.GetTestRegionFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudIotDeviceRegistryIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_cloudiot_registry_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_cloudiot_registry_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/registries/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudiot-registry%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/registries/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudiot-registry%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -114,7 +120,7 @@ func TestAccCloudIotDeviceRegistryIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloudiot_registry_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/registries/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudiot-registry%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/registries/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudiot-registry%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -156,6 +162,15 @@ resource "google_cloudiot_registry_iam_policy" "foo" {
   region = google_cloudiot_registry.test-registry.region
   name = google_cloudiot_registry.test-registry.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_cloudiot_registry_iam_policy" "foo" {
+  project = google_cloudiot_registry.test-registry.project
+  region = google_cloudiot_registry.test-registry.region
+  name = google_cloudiot_registry.test-registry.name
+  depends_on = [
+    google_cloudiot_registry_iam_policy.foo
+  ]
 }
 `, context)
 }

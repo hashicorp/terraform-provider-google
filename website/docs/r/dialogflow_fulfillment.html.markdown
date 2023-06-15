@@ -117,7 +117,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
-  The unique identifier of the fulfillment. 
+  The unique identifier of the fulfillment.
   Format: projects/<Project ID>/agent/fulfillment - projects/<Project ID>/locations/<Location ID>/agent/fulfillment
 
 

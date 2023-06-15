@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,6 +7,8 @@ import (
 	"testing"
 
 	"strconv"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -14,7 +18,7 @@ import (
 func TestAccLoggingFolderSink_basic(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	sinkName := "tf-test-sink-" + RandString(t, 10)
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 	folderName := "tf-test-folder-" + RandString(t, 10)
@@ -22,7 +26,7 @@ func TestAccLoggingFolderSink_basic(t *testing.T) {
 	var sink logging.LogSink
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -44,13 +48,13 @@ func TestAccLoggingFolderSink_basic(t *testing.T) {
 func TestAccLoggingFolderSink_described(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	sinkName := "tf-test-sink-" + RandString(t, 10)
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 	folderName := "tf-test-folder-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -68,13 +72,13 @@ func TestAccLoggingFolderSink_described(t *testing.T) {
 func TestAccLoggingFolderSink_disabled(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	sinkName := "tf-test-sink-" + RandString(t, 10)
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 	folderName := "tf-test-folder-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -92,13 +96,13 @@ func TestAccLoggingFolderSink_disabled(t *testing.T) {
 func TestAccLoggingFolderSink_removeOptionals(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	sinkName := "tf-test-sink-" + RandString(t, 10)
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 	folderName := "tf-test-folder-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -125,7 +129,7 @@ func TestAccLoggingFolderSink_removeOptionals(t *testing.T) {
 func TestAccLoggingFolderSink_folderAcceptsFullFolderPath(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	sinkName := "tf-test-sink-" + RandString(t, 10)
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 	folderName := "tf-test-folder-" + RandString(t, 10)
@@ -133,7 +137,7 @@ func TestAccLoggingFolderSink_folderAcceptsFullFolderPath(t *testing.T) {
 	var sink logging.LogSink
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -155,7 +159,7 @@ func TestAccLoggingFolderSink_folderAcceptsFullFolderPath(t *testing.T) {
 func TestAccLoggingFolderSink_update(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	sinkName := "tf-test-sink-" + RandString(t, 10)
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 	updatedBucketName := "tf-test-sink-bucket-" + RandString(t, 10)
@@ -165,7 +169,7 @@ func TestAccLoggingFolderSink_update(t *testing.T) {
 	var sinkBefore, sinkAfter logging.LogSink
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -202,13 +206,13 @@ func TestAccLoggingFolderSink_update(t *testing.T) {
 func TestAccLoggingFolderSink_updateBigquerySink(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	sinkName := "tf-test-sink-" + RandString(t, 10)
 	bqDatasetID := "tf_test_sink_" + RandString(t, 10)
 	folderName := "tf-test-folder-" + RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -235,7 +239,7 @@ func TestAccLoggingFolderSink_updateBigquerySink(t *testing.T) {
 func TestAccLoggingFolderSink_heredoc(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	sinkName := "tf-test-sink-" + RandString(t, 10)
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 	folderName := "tf-test-folder-" + RandString(t, 10)
@@ -243,7 +247,7 @@ func TestAccLoggingFolderSink_heredoc(t *testing.T) {
 	var sink logging.LogSink
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingFolderSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -354,7 +358,7 @@ resource "google_folder" "my-folder" {
   display_name = "%s"
   parent       = "%s"
 }
-`, sinkName, GetTestProjectFromEnv(), bucketName, folderName, folderParent)
+`, sinkName, acctest.GetTestProjectFromEnv(), bucketName, folderName, folderParent)
 }
 
 func testAccLoggingFolderSink_described(sinkName, bucketName, folderName, folderParent string) string {
@@ -377,7 +381,7 @@ resource "google_folder" "my-folder" {
   display_name = "%s"
   parent       = "%s"
 }
-`, sinkName, GetTestProjectFromEnv(), bucketName, folderName, folderParent)
+`, sinkName, acctest.GetTestProjectFromEnv(), bucketName, folderName, folderParent)
 }
 
 func testAccLoggingFolderSink_disabled(sinkName, bucketName, folderName, folderParent string) string {
@@ -400,7 +404,7 @@ resource "google_folder" "my-folder" {
   display_name = "%s"
   parent       = "%s"
 }
-`, sinkName, GetTestProjectFromEnv(), bucketName, folderName, folderParent)
+`, sinkName, acctest.GetTestProjectFromEnv(), bucketName, folderName, folderParent)
 }
 
 func testAccLoggingFolderSink_removeOptionals(sinkName, bucketName, folderName, folderParent string) string {
@@ -443,7 +447,7 @@ resource "google_folder" "my-folder" {
   display_name = "%s"
   parent       = "%s"
 }
-`, sinkName, GetTestProjectFromEnv(), bucketName, folderName, folderParent)
+`, sinkName, acctest.GetTestProjectFromEnv(), bucketName, folderName, folderParent)
 }
 
 func testAccLoggingFolderSink_heredoc(sinkName, bucketName, folderName, folderParent string) string {
@@ -473,7 +477,7 @@ resource "google_folder" "my-folder" {
   display_name = "%s"
   parent       = "%s"
 }
-`, sinkName, GetTestProjectFromEnv(), bucketName, folderName, folderParent)
+`, sinkName, acctest.GetTestProjectFromEnv(), bucketName, folderName, folderParent)
 }
 
 func testAccLoggingFolderSink_bigquery_before(sinkName, bqDatasetID, folderName, folderParent string) string {
@@ -498,7 +502,7 @@ resource "google_bigquery_dataset" "logging_sink" {
 resource "google_folder" "my-folder" {
   display_name = "%s"
   parent       = "%s"
-}`, sinkName, GetTestProjectFromEnv(), GetTestProjectFromEnv(), bqDatasetID, folderName, folderParent)
+}`, sinkName, acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), bqDatasetID, folderName, folderParent)
 }
 
 func testAccLoggingFolderSink_bigquery_after(sinkName, bqDatasetID, folderName, folderParent string) string {
@@ -519,5 +523,5 @@ resource "google_bigquery_dataset" "logging_sink" {
 resource "google_folder" "my-folder" {
   display_name = "%s"
   parent       = "%s"
-}`, sinkName, GetTestProjectFromEnv(), GetTestProjectFromEnv(), bqDatasetID, folderName, folderParent)
+}`, sinkName, acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), bqDatasetID, folderName, folderParent)
 }

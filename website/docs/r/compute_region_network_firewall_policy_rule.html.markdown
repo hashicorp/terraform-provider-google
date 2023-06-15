@@ -22,9 +22,23 @@ description: |-
 
 The Compute NetworkFirewallPolicyRule resource
 
-## Example Usage - regional
+## Example Usage - regional_net_sec_rule
 ```hcl
+resource "google_network_security_address_group" "basic_regional_networksecurity_address_group" {
+  provider = google-beta
+
+  name        = "policy"
+  parent      = "projects/my-project-name"
+  description = "Sample regional networksecurity_address_group"
+  location    = "us-west1"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
+}
+
 resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
+  provider = google-beta
+
   name        = "policy"
   description = "Sample regional network firewall policy"
   project     = "my-project-name"
@@ -32,6 +46,8 @@ resource "google_compute_region_network_firewall_policy" "basic_regional_network
 }
 
 resource "google_compute_region_network_firewall_policy_rule" "primary" {
+  provider = google-beta
+
   action                  = "allow"
   description             = "This is a simple rule description"
   direction               = "INGRESS"
@@ -56,14 +72,20 @@ resource "google_compute_region_network_firewall_policy_rule" "primary" {
     src_secure_tags {
       name = "tagValues/${google_tags_tag_value.basic_value.name}"
     }
+    
+    src_address_groups = [google_network_security_address_group.basic_regional_networksecurity_address_group.id]
   }
 }
 
 resource "google_compute_network" "basic_network" {
+  provider = google-beta
+
   name = "network"
 }
 
 resource "google_tags_tag_key" "basic_key" {
+  provider = google-beta
+
   description = "For keyname resources."
   parent      = "organizations/123456789"
   purpose     = "GCE_FIREWALL"
@@ -75,6 +97,8 @@ resource "google_tags_tag_key" "basic_key" {
 }
 
 resource "google_tags_tag_value" "basic_value" {
+  provider = google-beta
+
   description = "For valuename resources."
   parent      = "tagKeys/${google_tags_tag_key.basic_key.name}"
   short_name  = "tagvalue"
@@ -110,6 +134,10 @@ The following arguments are supported:
 
 The `match` block supports:
     
+* `dest_address_groups` -
+  (Optional)
+  Address groups which should be matched against the traffic destination. Maximum number of destination address groups is 10. Destination address groups is only supported in Egress rules.
+    
 * `dest_fqdns` -
   (Optional)
   Domain names that will be used to match against the resolved domain name of destination of traffic. Can only be specified if DIRECTION is egress.
@@ -129,6 +157,10 @@ The `match` block supports:
 * `layer4_configs` -
   (Required)
   Pairs of IP protocols and ports that the rule should match.
+    
+* `src_address_groups` -
+  (Optional)
+  Address groups which should be matched against the traffic source. Maximum number of source address groups is 10. Source address groups is only supported in Ingress rules.
     
 * `src_fqdns` -
   (Optional)

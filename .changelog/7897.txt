@@ -1,0 +1,9 @@
+```release-note:enhancement
+cloudrunv2: Added the beta field `template.containers.depends_on` to `google_cloud_run_v2_service`.
+```
+```release-note:enhancement
+cloudrunv2: Added the beta field `template.volumes.empty_dir` to `google_cloud_run_v2_service`.
+```
+```release-note:enhancement
+cloudrunv2: Added the beta field `template.template.volumes.empty_dir` to `google_cloud_run_v2_job`.
+```

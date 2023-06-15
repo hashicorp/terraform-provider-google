@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Workstations"
+subcategory: "Cloud Workstations"
 description: |-
   A set of configuration options describing how a workstation will be run.
 ---
@@ -74,7 +74,10 @@ resource "google_workstations_workstation_config" "default" {
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		         = "us-central1"
-  
+
+  idle_timeout = "600s"
+  running_timeout = "21600s"
+
   host {
     gce_instance {
       machine_type                = "e2-standard-4"
@@ -207,7 +210,71 @@ resource "google_workstations_workstation_config" "default" {
     mount_path = "/home"
     gce_pd {
       size_gb        = 200
+      fs_type        = "ext4"
+      disk_type      = "pd-standard"
       reclaim_policy = "DELETE"
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=workstation_config_source_snapshot&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Workstation Config Source Snapshot
+
+
+```hcl
+resource "google_compute_network" "default" {
+  provider                = google-beta
+  name                    = "workstation-cluster"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  provider      = google-beta
+  name          = "workstation-cluster"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.default.name
+}
+
+resource "google_compute_disk" "my_source_disk" {
+  provider = google-beta
+  name     = "workstation-config"
+  size     = 10
+  type     = "pd-ssd"
+  zone     = "us-central1-a"
+}
+
+resource "google_compute_snapshot" "my_source_snapshot" {
+  provider    = google-beta
+  name        = "workstation-config"
+  source_disk = google_compute_disk.my_source_disk.name
+  zone        = "us-central1-a"
+}
+
+resource "google_workstations_workstation_cluster" "default" {
+  provider               = google-beta
+  workstation_cluster_id = "workstation-cluster"
+  network                = google_compute_network.default.id
+  subnetwork             = google_compute_subnetwork.default.id
+  location               = "us-central1"
+}
+
+resource "google_workstations_workstation_config" "default" {
+  provider               = google-beta
+  workstation_config_id  = "workstation-config"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = google_workstations_workstation_cluster.default.location
+
+  persistent_directories {
+    mount_path = "/home"
+
+    gce_pd {
+      source_snapshot = google_compute_snapshot.my_source_snapshot.id
+      reclaim_policy  = "DELETE"
     }
   }
 }
@@ -359,11 +426,11 @@ The following arguments are supported:
 
 * `workstation_config_id` -
   (Required)
-  The ID of the workstation cluster config.
+  The ID to be assigned to the workstation cluster config.
 
 * `workstation_cluster_id` -
   (Required)
-  The name of the workstation cluster.
+  The ID of the parent workstation cluster.
 
 * `location` -
   (Required)
@@ -384,6 +451,16 @@ The following arguments are supported:
 * `annotations` -
   (Optional)
   Client-specified annotations. This is distinct from labels.
+
+* `idle_timeout` -
+  (Optional)
+  How long to wait before automatically stopping an instance that hasn't recently received any user traffic. A value of 0 indicates that this instance should never time out from idleness. Defaults to 20 minutes.
+  A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
+
+* `running_timeout` -
+  (Optional)
+  How long to wait before automatically stopping a workstation after it was started. A value of 0 indicates that workstations using this configuration should never time out from running duration. Must be greater than 0 and less than 24 hours if `encryption_key` is set. Defaults to 12 hours.
+  A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
 
 * `host` -
   (Optional)
@@ -416,7 +493,7 @@ The following arguments are supported:
 
 * `gce_instance` -
   (Optional)
-  Specifies a Compute Engine instance as the host.
+  A runtime using a Compute Engine instance.
   Structure is [documented below](#nested_gce_instance).
 
 
@@ -485,7 +562,7 @@ The following arguments are supported:
 
 * `gce_pd` -
   (Optional)
-  PersistentDirectory backed by a Compute Engine regional persistent disk.
+  A directory to persist across workstation sessions, backed by a Compute Engine regional persistent disk. Can only be updated if not empty during creation.
   Structure is [documented below](#nested_gce_pd).
 
 
@@ -493,26 +570,31 @@ The following arguments are supported:
 
 * `fs_type` -
   (Optional)
-  Type of file system that the disk should be formatted with. The workstation image must support this file system type. Must be empty if sourceSnapshot is set.
+  Type of file system that the disk should be formatted with. The workstation image must support this file system type. Must be empty if `sourceSnapshot` is set. Defaults to `ext4`.
 
 * `disk_type` -
   (Optional)
-  Type of the disk to use.
+  The type of the persistent disk for the home directory. Defaults to `pd-standard`.
 
 * `size_gb` -
   (Optional)
-  Size of the disk in GB. Must be empty if sourceSnapshot is set.
+  The GB capacity of a persistent home directory for each workstation created with this configuration. Must be empty if `sourceSnapshot` is set.
+  Valid values are `10`, `50`, `100`, `200`, `500`, or `1000`. Defaults to `200`. If less than `200` GB, the `diskType` must be `pd-balanced` or `pd-ssd`.
 
 * `reclaim_policy` -
   (Optional)
-  What should happen to the disk after the workstation is deleted. Defaults to DELETE.
-  Possible values are: `RECLAIM_POLICY_UNSPECIFIED`, `DELETE`, `RETAIN`.
+  Whether the persistent disk should be deleted when the workstation is deleted. Valid values are `DELETE` and `RETAIN`. Defaults to `DELETE`.
+  Possible values are: `DELETE`, `RETAIN`.
+
+* `source_snapshot` -
+  (Optional)
+  Name of the snapshot to use as the source for the disk. This can be the snapshot's `self_link`, `id`, or a string in the format of `projects/{project}/global/snapshots/{snapshot}`. If set, `sizeGb` and `fsType` must be empty. Can only be updated if it has an existing value.
 
 <a name="nested_container"></a>The `container` block supports:
 
 * `image` -
   (Optional)
-  Docker image defining the container. This image must be accessible by the config"s service account.
+  Docker image defining the container. This image must be accessible by the config's service account.
 
 * `command` -
   (Optional)
@@ -558,11 +640,11 @@ In addition to the arguments listed above, the following computed attributes are
   The system-generated UID of the resource.
 
 * `etag` -
-  Checksum computed by the server. 
+  Checksum computed by the server.
   May be sent on update and delete requests to ensure that the client has an up-to-date value before proceeding.
 
 * `create_time` -
-  Time the Instance was created in UTC.
+  Time when this resource was created.
 
 * `degraded` -
   Whether this resource is in degraded mode, in which case it may require user action to restore full functionality. Details can be found in the conditions field.

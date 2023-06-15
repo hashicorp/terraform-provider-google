@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -21,6 +24,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccDocumentAIProcessor_documentaiProcessorExample(t *testing.T) {
@@ -31,7 +38,7 @@ func TestAccDocumentAIProcessor_documentaiProcessorExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDocumentAIProcessorDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -49,7 +56,7 @@ func TestAccDocumentAIProcessor_documentaiProcessorExample(t *testing.T) {
 }
 
 func testAccDocumentAIProcessor_documentaiProcessorExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_document_ai_processor" "processor" {
   location = "us"
   display_name = "tf-test-test-processor%{random_suffix}"
@@ -66,7 +73,7 @@ func TestAccDocumentAIProcessor_documentaiProcessorEuExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDocumentAIProcessorDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -84,7 +91,7 @@ func TestAccDocumentAIProcessor_documentaiProcessorEuExample(t *testing.T) {
 }
 
 func testAccDocumentAIProcessor_documentaiProcessorEuExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_document_ai_processor" "processor" {
   location = "eu"
   display_name = "tf-test-test-processor%{random_suffix}"
@@ -105,7 +112,7 @@ func testAccCheckDocumentAIProcessorDestroyProducer(t *testing.T) func(s *terraf
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DocumentAIBasePath}}projects/{{project}}/locations/{{location}}/processors/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{DocumentAIBasePath}}projects/{{project}}/locations/{{location}}/processors/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -116,7 +123,13 @@ func testAccCheckDocumentAIProcessorDestroyProducer(t *testing.T) func(s *terraf
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("DocumentAIProcessor still exists at %s", url)
 			}

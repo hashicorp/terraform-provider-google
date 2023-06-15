@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccComputeFirewallPolicyRule_update(t *testing.T) {
@@ -12,11 +15,11 @@ func TestAccComputeFirewallPolicyRule_update(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
-		"org_name":      fmt.Sprintf("organizations/%s", GetTestOrgFromEnv(t)),
+		"org_name":      fmt.Sprintf("organizations/%s", acctest.GetTestOrgFromEnv(t)),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -94,6 +97,7 @@ resource "google_compute_firewall_policy" "default" {
   description = "Resource created for Terraform acceptance testing"
 }
 
+
 resource "google_compute_firewall_policy_rule" "default" {
   firewall_policy = google_compute_firewall_policy.default.id
   description = "Resource created for Terraform acceptance testing"
@@ -147,6 +151,7 @@ resource "google_compute_firewall_policy" "default" {
   description = "Resource created for Terraform acceptance testing"
 }
 
+
 resource "google_compute_firewall_policy_rule" "default" {
   firewall_policy = google_compute_firewall_policy.default.id
   description = "Resource created for Terraform acceptance testing"
@@ -168,6 +173,7 @@ resource "google_compute_firewall_policy_rule" "default" {
     dest_fqdns = ["google.com"]
     dest_region_codes = ["US"]
     dest_threat_intelligences = ["iplist-known-malicious-ips"]
+    src_address_groups = []
   }
   target_resources = [google_compute_network.network1.self_link, google_compute_network.network2.self_link]
   target_service_accounts = [google_service_account.service_account.email]
@@ -206,6 +212,7 @@ resource "google_compute_firewall_policy" "default" {
   description = "Resource created for Terraform acceptance testing"
 }
 
+
 resource "google_compute_firewall_policy_rule" "default" {
   firewall_policy = google_compute_firewall_policy.default.id
   description = "Test description"
@@ -235,11 +242,11 @@ func TestAccComputeFirewallPolicyRule_multipleRules(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
-		"org_name":      fmt.Sprintf("organizations/%s", GetTestOrgFromEnv(t)),
+		"org_name":      fmt.Sprintf("organizations/%s", acctest.GetTestOrgFromEnv(t)),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -288,6 +295,7 @@ resource "google_compute_firewall_policy" "default" {
   short_name  = "tf-test-policy-%{random_suffix}"
   description = "Resource created for Terraform acceptance testing"
 }
+
 
 resource "google_compute_firewall_policy_rule" "rule1" {
   firewall_policy = google_compute_firewall_policy.default.id
@@ -346,6 +354,7 @@ resource "google_compute_firewall_policy" "default" {
   short_name  = "tf-test-policy-%{random_suffix}"
   description = "Description Update"
 }
+
 
 resource "google_compute_firewall_policy_rule" "rule1" {
   firewall_policy = google_compute_firewall_policy.default.id
@@ -423,6 +432,7 @@ resource "google_compute_firewall_policy" "default" {
   short_name  = "tf-test-policy-%{random_suffix}"
   description = "Resource created for Terraform acceptance testing"
 }
+
 
 resource "google_compute_firewall_policy_rule" "rule1" {
   firewall_policy = google_compute_firewall_policy.default.id

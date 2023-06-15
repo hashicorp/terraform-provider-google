@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,19 +7,20 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccMemcacheInstance_update(t *testing.T) {
 	t.Parallel()
 	// Temporary as CI has used up servicenetworking quota
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 
 	prefix := fmt.Sprintf("%d", RandInt(t))
 	name := fmt.Sprintf("tf-test-%s", prefix)
 	network := BootstrapSharedTestNetwork(t, "memcache-update")
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMemcacheInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{

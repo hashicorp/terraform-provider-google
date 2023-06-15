@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -19,6 +22,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccBigqueryConnectionConnectionIamBindingGenerated(t *testing.T) {
@@ -30,7 +35,7 @@ func TestAccBigqueryConnectionConnectionIamBindingGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
@@ -42,7 +47,7 @@ func TestAccBigqueryConnectionConnectionIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_connection_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/connections/%s roles/viewer", GetTestProjectFromEnv(), "US", fmt.Sprintf("tf-test-my-connection%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/connections/%s roles/viewer", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf-test-my-connection%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -52,7 +57,7 @@ func TestAccBigqueryConnectionConnectionIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_connection_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/connections/%s roles/viewer", GetTestProjectFromEnv(), "US", fmt.Sprintf("tf-test-my-connection%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/connections/%s roles/viewer", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf-test-my-connection%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -69,7 +74,7 @@ func TestAccBigqueryConnectionConnectionIamMemberGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
@@ -82,7 +87,7 @@ func TestAccBigqueryConnectionConnectionIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_connection_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/connections/%s roles/viewer user:admin@hashicorptest.com", GetTestProjectFromEnv(), "US", fmt.Sprintf("tf-test-my-connection%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/connections/%s roles/viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf-test-my-connection%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -99,7 +104,7 @@ func TestAccBigqueryConnectionConnectionIamPolicyGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
@@ -108,10 +113,11 @@ func TestAccBigqueryConnectionConnectionIamPolicyGenerated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigqueryConnectionConnectionIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_bigquery_connection_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_bigquery_connection_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/connections/%s", GetTestProjectFromEnv(), "US", fmt.Sprintf("tf-test-my-connection%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/connections/%s", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf-test-my-connection%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -120,7 +126,7 @@ func TestAccBigqueryConnectionConnectionIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_connection_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/connections/%s", GetTestProjectFromEnv(), "US", fmt.Sprintf("tf-test-my-connection%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/connections/%s", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf-test-my-connection%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -170,6 +176,15 @@ resource "google_bigquery_connection_iam_policy" "foo" {
   location = google_bigquery_connection.connection.location
   connection_id = google_bigquery_connection.connection.connection_id
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_bigquery_connection_iam_policy" "foo" {
+  project = google_bigquery_connection.connection.project
+  location = google_bigquery_connection.connection.location
+  connection_id = google_bigquery_connection.connection.connection_id
+  depends_on = [
+    google_bigquery_connection_iam_policy.foo
+  ]
 }
 `, context)
 }

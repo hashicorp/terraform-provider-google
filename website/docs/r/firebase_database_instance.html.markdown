@@ -101,7 +101,7 @@ The following arguments are supported:
 
 * `instance_id` -
   (Required)
-  The globally unique identifier of the Firebase Realtime Database instance. 
+  The globally unique identifier of the Firebase Realtime Database instance.
   Instance IDs cannot be reused after deletion.
 
 

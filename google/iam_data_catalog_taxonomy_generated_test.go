@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -18,6 +21,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataCatalogTaxonomyIamBindingGenerated(t *testing.T) {
@@ -29,7 +34,7 @@ func TestAccDataCatalogTaxonomyIamBindingGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -52,7 +57,7 @@ func TestAccDataCatalogTaxonomyIamMemberGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -72,11 +77,12 @@ func TestAccDataCatalogTaxonomyIamPolicyGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogTaxonomyIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_data_catalog_taxonomy_iam_policy.foo", "policy_data"),
 			},
 			{
 				Config: testAccDataCatalogTaxonomyIamPolicy_emptyBinding(context),
@@ -119,6 +125,13 @@ data "google_iam_policy" "foo" {
 resource "google_data_catalog_taxonomy_iam_policy" "foo" {
   taxonomy = google_data_catalog_taxonomy.basic_taxonomy.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_data_catalog_taxonomy_iam_policy" "foo" {
+  taxonomy = google_data_catalog_taxonomy.basic_taxonomy.name
+  depends_on = [
+    google_data_catalog_taxonomy_iam_policy.foo
+  ]
 }
 `, context)
 }

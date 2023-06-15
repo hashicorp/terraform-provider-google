@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -21,6 +24,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccMonitoringSlo_monitoringSloAppengineExample(t *testing.T) {
@@ -31,7 +38,7 @@ func TestAccMonitoringSlo_monitoringSloAppengineExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -49,7 +56,7 @@ func TestAccMonitoringSlo_monitoringSloAppengineExample(t *testing.T) {
 }
 
 func testAccMonitoringSlo_monitoringSloAppengineExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_monitoring_app_engine_service" "default" {
   module_id = "default"
 }
@@ -81,12 +88,12 @@ func TestAccMonitoringSlo_monitoringSloRequestBasedExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -104,7 +111,7 @@ func TestAccMonitoringSlo_monitoringSloRequestBasedExample(t *testing.T) {
 }
 
 func testAccMonitoringSlo_monitoringSloRequestBasedExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
   service_id = "tf-test-custom-srv-request-slos%{random_suffix}"
   display_name = "My Custom Service"
@@ -138,7 +145,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(t 
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -156,7 +163,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(t 
 }
 
 func testAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
   service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
   display_name = "My Custom Service"
@@ -188,7 +195,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(t *testing.
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -206,7 +213,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(t *testing.
 }
 
 func testAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
   service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
   display_name = "My Custom Service"
@@ -244,7 +251,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(t *testing.T
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -262,7 +269,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(t *testing.T
 }
 
 func testAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
   service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
   display_name = "My Custom Service"
@@ -300,7 +307,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(t *test
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMonitoringSloDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -318,7 +325,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(t *test
 }
 
 func testAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_monitoring_custom_service" "customsrv" {
   service_id = "tf-test-custom-srv-windows-slos%{random_suffix}"
   display_name = "My Custom Service"
@@ -367,7 +374,7 @@ func testAccCheckMonitoringSloDestroyProducer(t *testing.T) func(s *terraform.St
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{MonitoringBasePath}}v3/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{MonitoringBasePath}}v3/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -378,7 +385,13 @@ func testAccCheckMonitoringSloDestroyProducer(t *testing.T) func(s *terraform.St
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("MonitoringSlo still exists at %s", url)
 			}

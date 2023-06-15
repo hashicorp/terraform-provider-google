@@ -164,6 +164,44 @@ resource "google_compute_http_health_check" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_service_cache_bypass_cache_on_request_headers&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service Cache Bypass Cache On Request Headers
+
+
+```hcl
+resource "google_compute_backend_service" "default" {
+  name          = "backend-service"
+  health_checks = [google_compute_http_health_check.default.id]
+  enable_cdn  = true
+  cdn_policy {
+    cache_mode = "CACHE_ALL_STATIC"
+    default_ttl = 3600
+    client_ttl  = 7200
+    max_ttl     = 10800
+    negative_caching = true
+    signed_url_cache_max_age_sec = 7200
+
+    bypass_cache_on_request_headers {
+      header_name = "Authorization"
+    }
+
+    bypass_cache_on_request_headers {
+      header_name = "Proxy-Authorization"
+    }
+  }
+}
+
+resource "google_compute_http_health_check" "default" {
+  name               = "health-check"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=backend_service_traffic_director_round_robin&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -770,6 +808,12 @@ The following arguments are supported:
   (Optional)
   Serve existing content from the cache (if available) when revalidating content with the origin, or when an error is encountered when refreshing the cache.
 
+* `bypass_cache_on_request_headers` -
+  (Optional)
+  Bypass the cache when the specified request headers are matched - e.g. Pragma or Authorization headers. Up to 5 headers can be specified.
+  The cache is bypassed for all cdnPolicy.cacheMode settings.
+  Structure is [documented below](#nested_bypass_cache_on_request_headers).
+
 
 <a name="nested_cache_key_policy"></a>The `cache_key_policy` block supports:
 
@@ -826,6 +870,12 @@ The following arguments are supported:
   (Optional)
   The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
   (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
+
+<a name="nested_bypass_cache_on_request_headers"></a>The `bypass_cache_on_request_headers` block supports:
+
+* `header_name` -
+  (Required)
+  The header field name to match on when bypassing cache. Values are case-insensitive.
 
 <a name="nested_iap"></a>The `iap` block supports:
 

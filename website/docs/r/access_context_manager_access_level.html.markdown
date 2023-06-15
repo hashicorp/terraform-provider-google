@@ -102,7 +102,7 @@ The following arguments are supported:
 
 * `custom` -
   (Optional)
-  Custom access level conditions are set using the Cloud Common Expression Language to represent the necessary conditions for the level to apply to a request. 
+  Custom access level conditions are set using the Cloud Common Expression Language to represent the necessary conditions for the level to apply to a request.
   See CEL spec at: https://github.com/google/cel-spec.
   Structure is [documented below](#nested_custom).
 
@@ -234,7 +234,7 @@ The following arguments are supported:
 * `expr` -
   (Required)
   Represents a textual expression in the Common Expression Language (CEL) syntax. CEL is a C-like expression language.
-  This page details the objects and attributes that are used to the build the CEL expressions for 
+  This page details the objects and attributes that are used to the build the CEL expressions for
   custom access levels - https://cloud.google.com/access-context-manager/docs/custom-access-level-spec.
   Structure is [documented below](#nested_expr).
 

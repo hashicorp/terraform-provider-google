@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccPubsubLiteTopic_pubsubLiteTopic_count_update(t *testing.T) {
@@ -13,7 +16,7 @@ func TestAccPubsubLiteTopic_pubsubLiteTopic_count_update(t *testing.T) {
 	topic := fmt.Sprintf("tf-test-topic-foo-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPubsubLiteTopicDestroyProducer(t),
 		Steps: []resource.TestStep{

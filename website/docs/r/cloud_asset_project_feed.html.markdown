@@ -107,13 +107,13 @@ The following arguments are supported:
 * `billing_project` -
   (Optional)
   The project whose identity will be used when sending messages to the
-  destination pubsub topic. It also specifies the project for API 
+  destination pubsub topic. It also specifies the project for API
   enablement check, quota, and billing. If not specified, the resource's
   project will be used.
 
 * `asset_names` -
   (Optional)
-  A list of the full names of the assets to receive updates. You must specify either or both of 
+  A list of the full names of the assets to receive updates. You must specify either or both of
   assetNames and assetTypes. Only asset updates matching specified assetNames and assetTypes are
   exported to the feed. For example: //compute.googleapis.com/projects/my_project_123/zones/zone1/instances/instance1.
   See https://cloud.google.com/apis/design/resourceNames#fullResourceName for more info.
@@ -162,7 +162,7 @@ The following arguments are supported:
 
 * `location` -
   (Optional)
-  String indicating the location of the expression for error reporting, e.g. a file 
+  String indicating the location of the expression for error reporting, e.g. a file
   name and a position in the file.
 
 ## Attributes Reference

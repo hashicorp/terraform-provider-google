@@ -1,0 +1,3 @@
+```release-note:bug
+dns: fixed bug in `google_dns_keys` data source where list attributes could not be used at plan-time
+```

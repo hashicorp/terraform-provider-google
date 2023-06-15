@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -11,6 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 const uaEnvVar = "TF_APPEND_USER_AGENT"
@@ -59,7 +63,7 @@ func generateFrameworkUserAgentString(metaData *ProviderMetaModel, currUserAgent
 	return currUserAgent
 }
 
-// getProject reads the "project" field from the given resource and falls
+// GetProject reads the "project" field from the given resource and falls
 // back to the provider's value if not given. If the provider's value is not
 // given, an error is returned.
 func getProjectFramework(rVal, pVal types.String, diags *diag.Diagnostics) types.String {
@@ -80,7 +84,7 @@ func getProjectFromFrameworkSchema(projectSchemaField string, rVal, pVal types.S
 }
 
 func handleDatasourceNotFoundError(ctx context.Context, err error, state *tfsdk.State, resource string, diags *diag.Diagnostics) {
-	if IsGoogleApiErrorWithCode(err, 404) {
+	if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		tflog.Warn(ctx, fmt.Sprintf("Removing %s because it's gone", resource))
 		// The resource doesn't exist anymore
 		state.RemoveResource(ctx)
@@ -93,22 +97,22 @@ func handleDatasourceNotFoundError(ctx context.Context, err error, state *tfsdk.
 
 // Parses a project field with the following formats:
 // - projects/{my_projects}/{resource_type}/{resource_name}
-func parseProjectFieldValueFramework(resourceType, fieldValue, projectSchemaField string, rVal, pVal types.String, isEmptyValid bool, diags *diag.Diagnostics) *ProjectFieldValue {
+func parseProjectFieldValueFramework(resourceType, fieldValue, projectSchemaField string, rVal, pVal types.String, isEmptyValid bool, diags *diag.Diagnostics) *tpgresource.ProjectFieldValue {
 	if len(fieldValue) == 0 {
 		if isEmptyValid {
-			return &ProjectFieldValue{resourceType: resourceType}
+			return &tpgresource.ProjectFieldValue{ResourceType: resourceType}
 		}
 		diags.AddError("field can not be empty", fmt.Sprintf("The project field for resource %s cannot be empty", resourceType))
 		return nil
 	}
 
-	r := regexp.MustCompile(fmt.Sprintf(projectBasePattern, resourceType))
+	r := regexp.MustCompile(fmt.Sprintf(tpgresource.ProjectBasePattern, resourceType))
 	if parts := r.FindStringSubmatch(fieldValue); parts != nil {
-		return &ProjectFieldValue{
+		return &tpgresource.ProjectFieldValue{
 			Project: parts[1],
 			Name:    parts[2],
 
-			resourceType: resourceType,
+			ResourceType: resourceType,
 		}
 	}
 
@@ -117,10 +121,10 @@ func parseProjectFieldValueFramework(resourceType, fieldValue, projectSchemaFiel
 		return nil
 	}
 
-	return &ProjectFieldValue{
+	return &tpgresource.ProjectFieldValue{
 		Project: project.ValueString(),
-		Name:    GetResourceNameFromSelfLink(fieldValue),
+		Name:    tpgresource.GetResourceNameFromSelfLink(fieldValue),
 
-		resourceType: resourceType,
+		ResourceType: resourceType,
 	}
 }

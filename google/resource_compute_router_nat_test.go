@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -6,19 +8,20 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccComputeRouterNat_basic(t *testing.T) {
 	t.Parallel()
 
-	project := GetTestProjectFromEnv()
-	region := GetTestRegionFromEnv()
+	project := acctest.GetTestProjectFromEnv()
+	region := acctest.GetTestRegionFromEnv()
 
 	testId := RandString(t, 10)
 	routerName := fmt.Sprintf("tf-test-router-nat-%s", testId)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRouterNatDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -65,7 +68,7 @@ func TestAccComputeRouterNat_update(t *testing.T) {
 	routerName := fmt.Sprintf("tf-test-router-nat-%s", testId)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRouterNatDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -120,7 +123,7 @@ func TestAccComputeRouterNat_removeLogConfig(t *testing.T) {
 	routerName := fmt.Sprintf("tf-test-router-nat-%s", testId)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRouterNatDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -151,7 +154,7 @@ func TestAccComputeRouterNat_withManualIpAndSubnetConfiguration(t *testing.T) {
 	routerName := fmt.Sprintf("tf-test-router-nat-%s", testId)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRouterNatDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -174,7 +177,7 @@ func TestAccComputeRouterNat_withPortAllocationMethods(t *testing.T) {
 	routerName := fmt.Sprintf("tf-test-router-nat-%s", testId)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRouterNatDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -241,7 +244,7 @@ func TestAccComputeRouterNat_withNatRules(t *testing.T) {
 	matchUpdate := "destination.ip == '1.1.0.1' || destination.ip == '8.8.8.8'"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRouterNatDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -364,12 +367,12 @@ func testAccCheckComputeRouterNatDestroyProducer(t *testing.T) func(s *terraform
 				continue
 			}
 
-			project, err := GetTestProject(rs.Primary, config)
+			project, err := acctest.GetTestProject(rs.Primary, config)
 			if err != nil {
 				return err
 			}
 
-			region, err := GetTestRegion(rs.Primary, config)
+			region, err := acctest.GetTestRegion(rs.Primary, config)
 			if err != nil {
 				return err
 			}
@@ -398,12 +401,12 @@ func testAccCheckComputeRouterNatDelete(t *testing.T, n string) resource.TestChe
 				continue
 			}
 
-			project, err := GetTestProject(rs.Primary, config)
+			project, err := acctest.GetTestProject(rs.Primary, config)
 			if err != nil {
 				return err
 			}
 
-			region, err := GetTestRegion(rs.Primary, config)
+			region, err := acctest.GetTestRegion(rs.Primary, config)
 			if err != nil {
 				return err
 			}

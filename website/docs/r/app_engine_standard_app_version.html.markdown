@@ -272,7 +272,7 @@ The following arguments are supported:
 
 * `noop_on_destroy` - (Optional) If set to `true`, the application version will not be deleted.
 
-* `delete_service_on_destroy` - (Optional) If set to `true`, the service will be deleted if it is the last version.    
+* `delete_service_on_destroy` - (Optional) If set to `true`, the service will be deleted if it is the last version.
 
 
 <a name="nested_handlers"></a>The `handlers` block supports:

@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_certificate_manager_certificate_issuance_config`
+```

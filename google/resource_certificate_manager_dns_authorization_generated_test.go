@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -21,6 +24,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizationBasicExample(t *testing.T) {
@@ -31,7 +38,7 @@ func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizatio
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCertificateManagerDnsAuthorizationDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -49,11 +56,11 @@ func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizatio
 }
 
 func testAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizationBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_certificate_manager_dns_authorization" "default" {
   name        = "tf-test-dns-auth%{random_suffix}"
   description = "The default dnss"
-  domain      = "%{random_suffix}.hashicorptest.com"
+  domain      = "subdomain%{random_suffix}.hashicorptest.com"
 }
 
 output "record_name_to_insert" {
@@ -82,7 +89,7 @@ func testAccCheckCertificateManagerDnsAuthorizationDestroyProducer(t *testing.T)
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -93,7 +100,13 @@ func testAccCheckCertificateManagerDnsAuthorizationDestroyProducer(t *testing.T)
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("CertificateManagerDnsAuthorization still exists at %s", url)
 			}

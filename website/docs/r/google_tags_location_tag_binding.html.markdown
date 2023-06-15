@@ -15,8 +15,9 @@ To get more information about TagBinding, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
 
-## Example Usage - Location Tag Binding Basic
+## Example Usage
 
+To bind a tag to a Cloud Run instance:
 
 ```hcl
 resource "google_project" "project" {
@@ -26,21 +27,49 @@ resource "google_project" "project" {
 }
 
 resource "google_tags_tag_key" "key" {
-	parent = "organizations/123456789"
-	short_name = "keyname"
+	parent      = "organizations/123456789"
+	short_name  = "keyname"
 	description = "For keyname resources."
 }
 
 resource "google_tags_tag_value" "value" {
-	parent = "tagKeys/${google_tags_tag_key.key.name}"
-	short_name = "valuename"
+	parent      = "tagKeys/${google_tags_tag_key.key.name}"
+	short_name  = "valuename"
 	description = "For valuename resources."
 }
 
 resource "google_tags_location_tag_binding" "binding" {
-	parent = "//run.googleapis.com/projects/${data.google_project.project.number}/locations/${google_cloud_run_service.default.location}/services/${google_cloud_run_service.default.name}"
+	parent    = "//run.googleapis.com/projects/${data.google_project.project.number}/locations/${google_cloud_run_service.default.location}/services/${google_cloud_run_service.default.name}"
 	tag_value = "tagValues/${google_tags_tag_value.value.name}"
-    location = "us-central1"
+	location  = "us-central1"
+}
+```
+
+To bind a (firewall) tag to compute instance:
+
+```hcl
+resource "google_project" "project" {
+	project_id = "project_id"
+	name       = "project_id"
+	org_id     = "123456789"
+}
+
+resource "google_tags_tag_key" "key" {
+	parent      = "organizations/123456789"
+	short_name  = "keyname"
+	description = "For keyname resources."
+}
+
+resource "google_tags_tag_value" "value" {
+	parent      = "tagKeys/${google_tags_tag_key.key.name}"
+	short_name  = "valuename"
+	description = "For valuename resources."
+}
+
+resource "google_tags_location_tag_binding" "binding" {
+	parent    = "//compute.googleapis.com/projects/${google_project.project.number}/zones/us-central1-a/instances/${google_compute_instance.instance.instance_id}"
+	tag_value = "tagValues/${google_tags_tag_value.value.name}"
+	location  = "us-central1"
 }
 ```
 

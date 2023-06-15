@@ -1,0 +1,3 @@
+```release-note:enhancement
+firebase: added additional import formats for app resources, removed the need to supply duplicate projects in some cases
+```

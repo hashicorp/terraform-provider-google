@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -19,6 +22,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccServiceManagementServiceConsumersIamBindingGenerated(t *testing.T) {
@@ -27,12 +32,12 @@ func TestAccServiceManagementServiceConsumersIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":    RandString(t, 10),
 		"role":             "roles/servicemanagement.serviceController",
-		"project_name":     GetTestProjectFromEnv(),
-		"consumer_project": GetTestProjectFromEnv(),
+		"project_name":     acctest.GetTestProjectFromEnv(),
+		"consumer_project": acctest.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -64,12 +69,12 @@ func TestAccServiceManagementServiceConsumersIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":    RandString(t, 10),
 		"role":             "roles/servicemanagement.serviceController",
-		"project_name":     GetTestProjectFromEnv(),
-		"consumer_project": GetTestProjectFromEnv(),
+		"project_name":     acctest.GetTestProjectFromEnv(),
+		"consumer_project": acctest.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -92,16 +97,17 @@ func TestAccServiceManagementServiceConsumersIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":    RandString(t, 10),
 		"role":             "roles/servicemanagement.serviceController",
-		"project_name":     GetTestProjectFromEnv(),
-		"consumer_project": GetTestProjectFromEnv(),
+		"project_name":     acctest.GetTestProjectFromEnv(),
+		"consumer_project": acctest.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceManagementServiceConsumersIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_endpoints_service_consumers_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_endpoints_service_consumers_iam_policy.foo",
@@ -176,6 +182,14 @@ resource "google_endpoints_service_consumers_iam_policy" "foo" {
   service_name = google_endpoints_service.endpoints_service.service_name
   consumer_project = "%{consumer_project}"
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_endpoints_service_consumers_iam_policy" "foo" {
+  service_name = google_endpoints_service.endpoints_service.service_name
+  consumer_project = "%{consumer_project}"
+  depends_on = [
+    google_endpoints_service_consumers_iam_policy.foo
+  ]
 }
 `, context)
 }

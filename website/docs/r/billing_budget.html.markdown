@@ -380,7 +380,7 @@ The following arguments are supported:
 
 * `end_date` -
   (Optional)
-  Optional. The end date of the time period. Budgets with elapsed end date won't be processed. 
+  Optional. The end date of the time period. Budgets with elapsed end date won't be processed.
   If unset, specifies to track all usage incurred since the startDate.
   Structure is [documented below](#nested_end_date).
 

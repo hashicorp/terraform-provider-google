@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataprocClusterIamBinding(t *testing.T) {
@@ -15,10 +18,10 @@ func TestAccDataprocClusterIamBinding(t *testing.T) {
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s %s",
-		GetTestProjectFromEnv(), "us-central1", cluster, role)
+		acctest.GetTestProjectFromEnv(), "us-central1", cluster, role)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -57,14 +60,14 @@ func TestAccDataprocClusterIamMember(t *testing.T) {
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s %s serviceAccount:%s",
-		GetTestProjectFromEnv(),
+		acctest.GetTestProjectFromEnv(),
 		"us-central1",
 		cluster,
 		role,
 		serviceAccountCanonicalEmail(account))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -95,15 +98,16 @@ func TestAccDataprocClusterIamPolicy(t *testing.T) {
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s",
-		GetTestProjectFromEnv(), "us-central1", cluster)
+		acctest.GetTestProjectFromEnv(), "us-central1", cluster)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
 				Config: testAccDataprocClusterIamPolicy(cluster, account, role),
+				Check:  resource.TestCheckResourceAttrSet("data.google_dataproc_cluster_iam_policy.policy", "policy_data"),
 			},
 			{
 				ResourceName:      "google_dataproc_cluster_iam_policy.policy",
@@ -196,6 +200,12 @@ resource "google_dataproc_cluster_iam_policy" "policy" {
   region      = "us-central1"
   policy_data = data.google_iam_policy.policy.policy_data
 }
+
+data "google_dataproc_cluster_iam_policy" "policy" {
+  cluster     = google_dataproc_cluster.cluster.name
+  region      = "us-central1"
+}
+
 `, cluster, account, role)
 }
 

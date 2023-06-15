@@ -123,7 +123,7 @@ The following arguments are supported:
 
 * `processing_units` -
   (Optional)
-  The number of processing units allocated to this instance. Exactly one of processing_units 
+  The number of processing units allocated to this instance. Exactly one of processing_units
   or node_count must be present in terraform.
 
 * `labels` -

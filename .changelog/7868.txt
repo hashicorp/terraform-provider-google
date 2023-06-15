@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed node auto-provisioning not working when `auto_provisioning_defaults.management` is not provided on `google_container_cluster`
+```

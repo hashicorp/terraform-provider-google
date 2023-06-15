@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -6,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
 )
 
@@ -13,16 +16,17 @@ func TestAccFolderIamPolicy_basic(t *testing.T) {
 	t.Parallel()
 
 	folderDisplayName := "tf-test-" + RandString(t, 10)
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	parent := "organizations/" + org
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGoogleFolderIamPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccFolderIamPolicy_basic(folderDisplayName, parent, "roles/viewer", "user:admin@hashicorptest.com"),
+				Check:  resource.TestCheckResourceAttrSet("data.google_folder_iam_policy.test", "policy_data"),
 			},
 			{
 				ResourceName:      "google_folder_iam_policy.test",
@@ -45,11 +49,11 @@ func TestAccFolderIamPolicy_auditConfigs(t *testing.T) {
 	t.Parallel()
 
 	folderDisplayName := "tf-test-" + RandString(t, 10)
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	parent := "organizations/" + org
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGoogleFolderIamPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -118,6 +122,10 @@ data "google_iam_policy" "test" {
 resource "google_folder_iam_policy" "test" {
   folder      = google_folder.permissiontest.name
   policy_data = data.google_iam_policy.test.policy_data
+}
+
+data "google_folder_iam_policy" "test" {
+  folder      = google_folder.permissiontest.name
 }
 `, folder, parent, role, member)
 }

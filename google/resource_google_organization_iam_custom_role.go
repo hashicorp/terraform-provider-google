@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,7 +7,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 	"google.golang.org/api/iam/v1"
 )
 
@@ -22,10 +26,11 @@ func ResourceGoogleOrganizationIamCustomRole() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"role_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The role id to use for this role.`,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				Description:  `The role id to use for this role.`,
+				ValidateFunc: verify.ValidateIAMCustomRoleID,
 			},
 			"org_id": {
 				Type:        schema.TypeString,
@@ -51,7 +56,7 @@ func ResourceGoogleOrganizationIamCustomRole() *schema.Resource {
 				Default:          "GA",
 				Description:      `The current launch stage of the role. Defaults to GA.`,
 				ValidateFunc:     validation.StringInSlice([]string{"ALPHA", "BETA", "GA", "DEPRECATED", "DISABLED", "EAP"}, false),
-				DiffSuppressFunc: EmptyOrDefaultStringSuppress("ALPHA"),
+				DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("ALPHA"),
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -75,7 +80,7 @@ func ResourceGoogleOrganizationIamCustomRole() *schema.Resource {
 
 func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -101,7 +106,7 @@ func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta 
 			// If a role with same name exists and is enabled, just return error
 			return fmt.Errorf("Custom project role %s already exists and must be imported", roleId)
 		}
-	} else if err := handleNotFoundError(err, d, fmt.Sprintf("Custom Organization Role %q", roleId)); err == nil {
+	} else if err := transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Custom Organization Role %q", roleId)); err == nil {
 		// If no role was found, actually create a new role.
 		role, err := config.NewIamClient(userAgent).Organizations.Roles.Create(orgId, &iam.CreateRoleRequest{
 			RoleId: d.Get("role_id").(string),
@@ -109,7 +114,7 @@ func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta 
 				Title:               d.Get("title").(string),
 				Description:         d.Get("description").(string),
 				Stage:               d.Get("stage").(string),
-				IncludedPermissions: convertStringSet(d.Get("permissions").(*schema.Set)),
+				IncludedPermissions: tpgresource.ConvertStringSet(d.Get("permissions").(*schema.Set)),
 			},
 		}).Do()
 		if err != nil {
@@ -126,17 +131,17 @@ func resourceGoogleOrganizationIamCustomRoleCreate(d *schema.ResourceData, meta 
 
 func resourceGoogleOrganizationIamCustomRoleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
 	role, err := config.NewIamClient(userAgent).Organizations.Roles.Get(d.Id()).Do()
 	if err != nil {
-		return handleNotFoundError(err, d, d.Id())
+		return transport_tpg.HandleNotFoundError(err, d, d.Id())
 	}
 
-	parsedRoleName, err := ParseOrganizationCustomRoleName(role.Name)
+	parsedRoleName, err := tpgresource.ParseOrganizationCustomRoleName(role.Name)
 	if err != nil {
 		return err
 	}
@@ -171,7 +176,7 @@ func resourceGoogleOrganizationIamCustomRoleRead(d *schema.ResourceData, meta in
 
 func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -197,7 +202,7 @@ func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta 
 			Title:               d.Get("title").(string),
 			Description:         d.Get("description").(string),
 			Stage:               d.Get("stage").(string),
-			IncludedPermissions: convertStringSet(d.Get("permissions").(*schema.Set)),
+			IncludedPermissions: tpgresource.ConvertStringSet(d.Get("permissions").(*schema.Set)),
 		}).Do()
 
 		if err != nil {
@@ -211,7 +216,7 @@ func resourceGoogleOrganizationIamCustomRoleUpdate(d *schema.ResourceData, meta 
 
 func resourceGoogleOrganizationIamCustomRoleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}

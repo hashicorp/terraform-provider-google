@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -21,6 +24,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccComputeManagedSslCertificate_managedSslCertificateBasicExample(t *testing.T) {
@@ -31,7 +38,7 @@ func TestAccComputeManagedSslCertificate_managedSslCertificateBasicExample(t *te
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeManagedSslCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -48,7 +55,7 @@ func TestAccComputeManagedSslCertificate_managedSslCertificateBasicExample(t *te
 }
 
 func testAccComputeManagedSslCertificate_managedSslCertificateBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_managed_ssl_certificate" "default" {
   name = "tf-test-test-cert%{random_suffix}"
 
@@ -110,7 +117,7 @@ resource "google_compute_global_forwarding_rule" "default" {
 }
 
 func TestAccComputeManagedSslCertificate_managedSslCertificateRecreationExample(t *testing.T) {
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -118,7 +125,7 @@ func TestAccComputeManagedSslCertificate_managedSslCertificateRecreationExample(
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
@@ -139,7 +146,7 @@ func TestAccComputeManagedSslCertificate_managedSslCertificateRecreationExample(
 }
 
 func testAccComputeManagedSslCertificate_managedSslCertificateRecreationExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 // This example allows the list of managed domains to be modified and will
 // recreate the ssl certificate and update the target https proxy correctly
 
@@ -221,7 +228,7 @@ func testAccCheckComputeManagedSslCertificateDestroyProducer(t *testing.T) func(
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/global/sslCertificates/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -232,7 +239,13 @@ func testAccCheckComputeManagedSslCertificateDestroyProducer(t *testing.T) func(
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("ComputeManagedSslCertificate still exists at %s", url)
 			}

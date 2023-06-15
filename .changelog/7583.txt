@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added support for IPv6 prefix exchange in `google_compute_router_peer`
+```

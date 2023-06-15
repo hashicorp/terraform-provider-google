@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -21,6 +24,10 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func init() {
@@ -35,7 +42,7 @@ func testSweepComputeHaVpnGateway(region string) error {
 	resourceName := "ComputeHaVpnGateway"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := SharedConfigForRegion(region)
+	config, err := acctest.SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -48,10 +55,10 @@ func testSweepComputeHaVpnGateway(region string) error {
 	}
 
 	t := &testing.T{}
-	billingId := GetTestBillingAccountFromEnv(t)
+	billingId := acctest.GetTestBillingAccountFromEnv(t)
 
 	// Setup variables to replace in list template
-	d := &ResourceDataMock{
+	d := &tpgresource.ResourceDataMock{
 		FieldsInSchema: map[string]interface{}{
 			"project":         config.Project,
 			"region":          region,
@@ -62,13 +69,19 @@ func testSweepComputeHaVpnGateway(region string) error {
 	}
 
 	listTemplate := strings.Split("https://compute.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/vpnGateways", "?")[0]
-	listUrl, err := ReplaceVars(d, config, listTemplate)
+	listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 		return nil
 	}
 
-	res, err := SendRequest(config, "GET", config.Project, listUrl, config.UserAgent, nil)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    listUrl,
+		UserAgent: config.UserAgent,
+	})
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", listUrl, err)
 		return nil
@@ -92,15 +105,15 @@ func testSweepComputeHaVpnGateway(region string) error {
 			return nil
 		}
 
-		name := GetResourceNameFromSelfLink(obj["name"].(string))
+		name := tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
 		// Skip resources that shouldn't be sweeped
-		if !IsSweepableTestResource(name) {
+		if !acctest.IsSweepableTestResource(name) {
 			nonPrefixCount++
 			continue
 		}
 
 		deleteTemplate := "https://compute.googleapis.com/compute/v1/projects/{{project}}/regions/{{region}}/vpnGateways/{{name}}"
-		deleteUrl, err := ReplaceVars(d, config, deleteTemplate)
+		deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 			return nil
@@ -108,7 +121,13 @@ func testSweepComputeHaVpnGateway(region string) error {
 		deleteUrl = deleteUrl + name
 
 		// Don't wait on operations as we may have a lot to delete
-		_, err = SendRequest(config, "DELETE", config.Project, deleteUrl, config.UserAgent, nil)
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "DELETE",
+			Project:   config.Project,
+			RawURL:    deleteUrl,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
 		} else {

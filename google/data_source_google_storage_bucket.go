@@ -1,17 +1,20 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func DataSourceGoogleStorageBucket() *schema.Resource {
 
-	dsSchema := datasourceSchemaFromResourceSchema(ResourceStorageBucket().Schema)
+	dsSchema := tpgresource.DatasourceSchemaFromResourceSchema(ResourceStorageBucket().Schema)
 
-	addRequiredFieldsToSchema(dsSchema, "name")
+	tpgresource.AddRequiredFieldsToSchema(dsSchema, "name")
 
 	return &schema.Resource{
 		Read:   dataSourceGoogleStorageBucketRead,
@@ -21,7 +24,7 @@ func DataSourceGoogleStorageBucket() *schema.Resource {
 
 func dataSourceGoogleStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}

@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -21,6 +24,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeBasicExample(t *testing.T) {
@@ -31,7 +38,7 @@ func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeBas
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigqueryAnalyticsHubDataExchangeDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -49,7 +56,7 @@ func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeBas
 }
 
 func testAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
   location         = "US"
   data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
@@ -71,7 +78,7 @@ func testAccCheckBigqueryAnalyticsHubDataExchangeDestroyProducer(t *testing.T) f
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{BigqueryAnalyticsHubBasePath}}projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}")
 			if err != nil {
 				return err
 			}
@@ -82,7 +89,13 @@ func testAccCheckBigqueryAnalyticsHubDataExchangeDestroyProducer(t *testing.T) f
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("BigqueryAnalyticsHubDataExchange still exists at %s", url)
 			}

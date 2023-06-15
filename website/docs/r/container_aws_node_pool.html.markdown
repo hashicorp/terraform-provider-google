@@ -271,6 +271,10 @@ The `config` block supports:
   (Optional)
   Optional. The IDs of additional security groups to add to nodes in this pool. The manager will automatically create security groups with minimum rules needed for a functioning cluster.
     
+* `spot_config` -
+  (Optional)
+  (Beta only) Optional. When specified, the node pool will provision Spot instances from the set of spot_config.instance_types. This field is mutually exclusive with `instance_type`
+    
 * `ssh_config` -
   (Optional)
   Optional. The SSH configuration.
@@ -350,6 +354,12 @@ The `root_volume` block supports:
 * `volume_type` -
   (Optional)
   Optional. Type of the EBS volume. When unspecified, it defaults to GP2 volume. Possible values: VOLUME_TYPE_UNSPECIFIED, GP2, GP3
+    
+The `spot_config` block supports:
+    
+* `instance_types` -
+  (Required)
+  List of AWS EC2 instance types for creating a spot node pool's nodes. The specified instance types must have the same number of CPUs and memory. You can use the Amazon EC2 Instance Selector tool (https://github.com/aws/amazon-ec2-instance-selector) to choose instance types with matching CPU and memory
     
 The `ssh_config` block supports:
     

@@ -1,0 +1,3 @@
+```release-note:bug
+apigee: increased `google_apigee_organization` timeout defaults to 45m from 20m
+```

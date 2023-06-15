@@ -1,0 +1,3 @@
+```release-note:enhancement
+kms: removed validation for `purpose` in `google_kms_crypto_key` to allow newly added values for the field
+```

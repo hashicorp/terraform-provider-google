@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -20,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/sirupsen/logrus"
@@ -1317,7 +1320,7 @@ func GetCredentials(ctx context.Context, data ProviderModel, initialCredentialsO
 	}
 
 	if !data.AccessToken.IsNull() {
-		contents, _, err := pathOrContents(data.AccessToken.ValueString())
+		contents, _, err := verify.PathOrContents(data.AccessToken.ValueString())
 		if err != nil {
 			diags.AddError("error loading access token", err.Error())
 			return googleoauth.Credentials{}
@@ -1342,7 +1345,7 @@ func GetCredentials(ctx context.Context, data ProviderModel, initialCredentialsO
 	}
 
 	if !data.Credentials.IsNull() {
-		contents, _, err := pathOrContents(data.Credentials.ValueString())
+		contents, _, err := verify.PathOrContents(data.Credentials.ValueString())
 		if err != nil {
 			diags.AddError(fmt.Sprintf("error loading credentials: %s", err), err.Error())
 			return googleoauth.Credentials{}
@@ -1358,7 +1361,7 @@ func GetCredentials(ctx context.Context, data ProviderModel, initialCredentialsO
 			return *creds
 		}
 
-		creds, err := googleoauth.CredentialsFromJSON(ctx, []byte(contents), clientScopes...)
+		creds, err := transport.Creds(ctx, option.WithCredentialsJSON([]byte(contents)), option.WithScopes(clientScopes...))
 		if err != nil {
 			diags.AddError("unable to parse credentials", err.Error())
 			return googleoauth.Credentials{}
@@ -1382,14 +1385,12 @@ func GetCredentials(ctx context.Context, data ProviderModel, initialCredentialsO
 
 	tflog.Info(ctx, "Authenticating using DefaultClient...")
 	tflog.Info(ctx, fmt.Sprintf("  -- Scopes: %s", clientScopes))
-	defaultTS, err := googleoauth.DefaultTokenSource(context.Background(), clientScopes...)
+	creds, err := transport.Creds(context.Background(), option.WithScopes(clientScopes...))
 	if err != nil {
 		diags.AddError(fmt.Sprintf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  "+
 			"No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'"), err.Error())
 		return googleoauth.Credentials{}
 	}
 
-	return googleoauth.Credentials{
-		TokenSource: defaultTS,
-	}
+	return *creds
 }

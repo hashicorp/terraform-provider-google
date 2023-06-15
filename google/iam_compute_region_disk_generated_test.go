@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -19,6 +22,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccComputeRegionDiskIamBindingGenerated(t *testing.T) {
@@ -30,7 +35,7 @@ func TestAccComputeRegionDiskIamBindingGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -38,7 +43,7 @@ func TestAccComputeRegionDiskIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_region_disk_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/disks/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-region-disk%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/disks/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-region-disk%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -48,7 +53,7 @@ func TestAccComputeRegionDiskIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_region_disk_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/disks/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-region-disk%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/disks/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-region-disk%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -65,7 +70,7 @@ func TestAccComputeRegionDiskIamMemberGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -74,7 +79,7 @@ func TestAccComputeRegionDiskIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_region_disk_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/disks/%s roles/viewer user:admin@hashicorptest.com", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-region-disk%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/disks/%s roles/viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-region-disk%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -91,15 +96,16 @@ func TestAccComputeRegionDiskIamPolicyGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeRegionDiskIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_compute_region_disk_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_compute_region_disk_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/disks/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-region-disk%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/disks/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-region-disk%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -108,7 +114,7 @@ func TestAccComputeRegionDiskIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_region_disk_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/disks/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-region-disk%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/disks/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-region-disk%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -190,6 +196,15 @@ resource "google_compute_region_disk_iam_policy" "foo" {
   region = google_compute_region_disk.regiondisk.region
   name = google_compute_region_disk.regiondisk.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_compute_region_disk_iam_policy" "foo" {
+  project = google_compute_region_disk.regiondisk.project
+  region = google_compute_region_disk.regiondisk.region
+  name = google_compute_region_disk.regiondisk.name
+  depends_on = [
+    google_compute_region_disk_iam_policy.foo
+  ]
 }
 `, context)
 }

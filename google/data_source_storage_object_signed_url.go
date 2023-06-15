@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -20,6 +22,7 @@ import (
 	"time"
 
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -192,7 +195,7 @@ func loadJwtConfig(d *schema.ResourceData, meta interface{}) (*jwt.Config, error
 	}
 
 	if strings.TrimSpace(credentials) != "" {
-		contents, _, err := pathOrContents(credentials)
+		contents, _, err := verify.PathOrContents(credentials)
 		if err != nil {
 			return nil, errwrap.Wrapf("Error loading credentials: {{err}}", err)
 		}

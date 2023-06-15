@@ -1,0 +1,3 @@
+```release-note:bug
+cloudrun: fixed an issues where the system annotation "run.googleapis.com/operation-id" and "run.googleapis.com/ingress" may cause permadiffs for `metadata.annotation` in `google_cloud_run_service`
+```

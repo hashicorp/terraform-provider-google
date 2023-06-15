@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccComputeDiskResourcePolicyAttachment_update(t *testing.T) {
@@ -15,7 +18,7 @@ func TestAccComputeDiskResourcePolicyAttachment_update(t *testing.T) {
 	policyName2 := fmt.Sprintf("tf-test-policy-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -23,7 +26,7 @@ func TestAccComputeDiskResourcePolicyAttachment_update(t *testing.T) {
 			},
 			{
 				ResourceName: "google_compute_disk_resource_policy_attachment.foobar",
-				// ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/resourcePolicies/%s", GetTestProjectFromEnv(), "us-central1", policyName),
+				// ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/resourcePolicies/%s", acctest.GetTestProjectFromEnv(), "us-central1", policyName),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -32,7 +35,7 @@ func TestAccComputeDiskResourcePolicyAttachment_update(t *testing.T) {
 			},
 			{
 				ResourceName: "google_compute_disk_resource_policy_attachment.foobar",
-				// ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/resourcePolicies/%s", GetTestProjectFromEnv(), "us-central1", policyName),
+				// ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/resourcePolicies/%s", acctest.GetTestProjectFromEnv(), "us-central1", policyName),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

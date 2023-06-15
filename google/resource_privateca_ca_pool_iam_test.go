@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -8,17 +10,20 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/privateca"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 func TestAccPrivatecaCaPoolIamMemberAllAuthenticatedUsersCasing(t *testing.T) {
 	t.Parallel()
 
 	capool := "tf-test-pool-iam-" + RandString(t, 10)
-	project := GetTestProjectFromEnv()
-	region := GetTestRegionFromEnv()
+	project := acctest.GetTestProjectFromEnv()
+	region := acctest.GetTestRegionFromEnv()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -34,20 +39,20 @@ func TestAccPrivatecaCaPoolIamMemberAllAuthenticatedUsersCasing(t *testing.T) {
 func testAccCheckPrivatecaCaPoolIam(t *testing.T, capool, region, project, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
-		d := &ResourceDataMock{
+		d := &tpgresource.ResourceDataMock{
 			FieldsInSchema: map[string]interface{}{
 				"ca_pool": capool,
 				"role":    role,
 				"member":  "",
 			},
 		}
-		u := &PrivatecaCaPoolIamUpdater{
-			project:  project,
-			location: region,
-			caPool:   capool,
-			d:        d,
-			Config:   GoogleProviderConfig(t),
+		u := &privateca.PrivatecaCaPoolIamUpdater{
+			Config: GoogleProviderConfig(t),
 		}
+		u.SetProject(project)
+		u.SetLocation(region)
+		u.SetCaPool(capool)
+		u.SetResourceData(d)
 		p, err := u.GetResourceIamPolicy()
 		if err != nil {
 			return err

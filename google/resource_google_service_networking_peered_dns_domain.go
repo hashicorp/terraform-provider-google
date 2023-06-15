@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -7,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -93,12 +96,12 @@ func resourceGoogleServiceNetworkingPeeredDNSDomainImport(d *schema.ResourceData
 
 func resourceGoogleServiceNetworkingPeeredDNSDomainCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -143,12 +146,12 @@ func resourceGoogleServiceNetworkingPeeredDNSDomainCreate(d *schema.ResourceData
 
 func resourceGoogleServiceNetworkingPeeredDNSDomainRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -211,7 +214,7 @@ func resourceGoogleServiceNetworkingPeeredDNSDomainRead(d *schema.ResourceData, 
 
 func resourceGoogleServiceNetworkingPeeredDNSDomainDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -220,11 +223,14 @@ func resourceGoogleServiceNetworkingPeeredDNSDomainDelete(d *schema.ResourceData
 	apiService := config.NewServiceNetworkingClient(userAgent)
 	peeredDnsDomainsService := servicenetworking.NewServicesProjectsGlobalNetworksPeeredDnsDomainsService(apiService)
 
-	if err := RetryTimeDuration(func() error {
-		_, delErr := peeredDnsDomainsService.Delete(d.Id()).Do()
-		return delErr
-	}, d.Timeout(schema.TimeoutDelete)); err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Peered DNS domain %s", name))
+	if err := transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() error {
+			_, delErr := peeredDnsDomainsService.Delete(d.Id()).Do()
+			return delErr
+		},
+		Timeout: d.Timeout(schema.TimeoutDelete),
+	}); err != nil {
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Peered DNS domain %s", name))
 	}
 
 	d.SetId("")
@@ -238,7 +244,7 @@ func getProjectNumber(d *schema.ResourceData, config *transport_tpg.Config, proj
 	log.Printf("[DEBUG] Retrieving project number by doing a GET with the project id, as required by service networking")
 	// err == nil indicates that the billing_project value was found
 	billingProject := project
-	if bp, err := getBillingProject(d, config); err == nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 

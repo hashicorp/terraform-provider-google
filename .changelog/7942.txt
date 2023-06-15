@@ -1,0 +1,6 @@
+```release-note:enhancement
+networkservices: added necessary fields to `google_network_services_gateway` to make it compatible with secure web proxy (beta)
+```
+```release-note:bug
+networkservices: fixed a bug where modifying non-updatable fields `scope` in `google_network_services_gateway` would fail with API errors; now updating them will recreate the resource (beta)
+```

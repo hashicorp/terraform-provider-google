@@ -1,10 +1,11 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
 	"context"
 	"errors"
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"log"
 	"strings"
 	"time"
@@ -15,12 +16,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
+
 	"google.golang.org/api/googleapi"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 
 // Match fully-qualified or relative URLs
-const privateNetworkLinkRegex = "^(?:http(?:s)?://.+/)?projects/(" + ProjectRegex + ")/global/networks/((?:[a-z](?:[-a-z0-9]*[a-z0-9])?))$"
+const privateNetworkLinkRegex = "^(?:http(?:s)?://.+/)?projects/(" + verify.ProjectRegex + ")/global/networks/((?:[a-z](?:[-a-z0-9]*[a-z0-9])?))$"
 
 var sqlDatabaseAuthorizedNetWorkSchemaElem *schema.Resource = &schema.Resource{
 	Schema: map[string]*schema.Schema{
@@ -111,7 +117,7 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
-			customdiff.ForceNewIfChange("settings.0.disk_size", isDiskShrinkage),
+			customdiff.ForceNewIfChange("settings.0.disk_size", compute.IsDiskShrinkage),
 			customdiff.ForceNewIfChange("master_instance_name", isMasterInstanceNameSet),
 			customdiff.IfValueChange("instance_type", isReplicaPromoteRequested, checkPromoteConfigurationsAndUpdateDiff),
 			privateNetworkCustomizeDiff,
@@ -149,6 +155,20 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 							Type:        schema.TypeString,
 							Required:    true,
 							Description: `The machine type to use. See tiers for more details and supported versions. Postgres supports only shared-core machine types, and custom machine types such as db-custom-2-13312. See the Custom Machine Type Documentation to learn about specifying custom machine types.`,
+						},
+						"advanced_machine_features": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"threads_per_core": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `The number of threads per physical core. Can be 1 or 2.`,
+									},
+								},
+							},
 						},
 						"activation_policy": {
 							Type:        schema.TypeString,
@@ -390,8 +410,8 @@ is set to true. Defaults to ZONAL.`,
 									"private_network": {
 										Type:             schema.TypeString,
 										Optional:         true,
-										ValidateFunc:     orEmpty(validateRegexp(privateNetworkLinkRegex)),
-										DiffSuppressFunc: compareSelfLinkRelativePaths,
+										ValidateFunc:     verify.OrEmpty(verify.ValidateRegexp(privateNetworkLinkRegex)),
+										DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 										AtLeastOneOf:     ipConfigurationKeys,
 										Description:      `The VPC network from which the Cloud SQL instance is accessible for private IP. For example, projects/myProject/global/networks/default. Specifying a network enables private IP. At least ipv4_enabled must be enabled or a private_network must be configured. This setting can be updated, but it cannot be removed after it is set.`,
 									},
@@ -606,7 +626,7 @@ is set to true. Defaults to ZONAL.`,
 			"database_version": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `The MySQL, PostgreSQL or SQL Server (beta) version to use. Supported values include MYSQL_5_6, MYSQL_5_7, MYSQL_8_0, POSTGRES_9_6, POSTGRES_10, POSTGRES_11, POSTGRES_12, POSTGRES_13, POSTGRES_14, SQLSERVER_2017_STANDARD, SQLSERVER_2017_ENTERPRISE, SQLSERVER_2017_EXPRESS, SQLSERVER_2017_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
+				Description: `The MySQL, PostgreSQL or SQL Server (beta) version to use. Supported values include MYSQL_5_6, MYSQL_5_7, MYSQL_8_0, POSTGRES_9_6, POSTGRES_10, POSTGRES_11, POSTGRES_12, POSTGRES_13, POSTGRES_14, POSTGRES_15, SQLSERVER_2017_STANDARD, SQLSERVER_2017_ENTERPRISE, SQLSERVER_2017_EXPRESS, SQLSERVER_2017_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
 			},
 
 			"encryption_key_name": {
@@ -865,7 +885,7 @@ is set to true. Defaults to ZONAL.`,
 						"point_in_time": {
 							Type:             schema.TypeString,
 							Optional:         true,
-							DiffSuppressFunc: TimestampDiffSuppress(time.RFC3339Nano),
+							DiffSuppressFunc: tpgresource.TimestampDiffSuppress(time.RFC3339Nano),
 							Description:      `The timestamp of the point in time that should be restored.`,
 						},
 						"database_names": {
@@ -929,17 +949,17 @@ func pitrSupportDbCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v 
 
 func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 
-	region, err := getRegion(d, config)
+	region, err := tpgresource.GetRegion(d, config)
 	if err != nil {
 		return err
 	}
@@ -997,8 +1017,8 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	// modified at the same time. Lock the master until we're done in order
 	// to prevent that.
 	if !sqlDatabaseIsMaster(d) {
-		mutexKV.Lock(instanceMutexKey(project, instance.MasterInstanceName))
-		defer mutexKV.Unlock(instanceMutexKey(project, instance.MasterInstanceName))
+		transport_tpg.MutexStore.Lock(instanceMutexKey(project, instance.MasterInstanceName))
+		defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instance.MasterInstanceName))
 	}
 
 	if k, ok := d.GetOk("encryption_key_name"); ok {
@@ -1019,21 +1039,25 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	var op *sqladmin.Operation
-	err = RetryTimeDuration(func() (operr error) {
-		if cloneContext != nil {
-			cloneContext.DestinationInstanceName = name
-			clodeReq := sqladmin.InstancesCloneRequest{CloneContext: cloneContext}
-			op, operr = config.NewSqlAdminClient(userAgent).Instances.Clone(project, cloneSource, &clodeReq).Do()
-		} else {
-			op, operr = config.NewSqlAdminClient(userAgent).Instances.Insert(project, instance).Do()
-		}
-		return operr
-	}, d.Timeout(schema.TimeoutCreate), IsSqlOperationInProgressError)
+	err = transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() (operr error) {
+			if cloneContext != nil {
+				cloneContext.DestinationInstanceName = name
+				clodeReq := sqladmin.InstancesCloneRequest{CloneContext: cloneContext}
+				op, operr = config.NewSqlAdminClient(userAgent).Instances.Clone(project, cloneSource, &clodeReq).Do()
+			} else {
+				op, operr = config.NewSqlAdminClient(userAgent).Instances.Insert(project, instance).Do()
+			}
+			return operr
+		},
+		Timeout:              d.Timeout(schema.TimeoutCreate),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+	})
 	if err != nil {
 		return fmt.Errorf("Error, failed to create instance %s: %s", instance.Name, err)
 	}
 
-	id, err := ReplaceVars(d, config, "projects/{{project}}/instances/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/instances/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1052,24 +1076,30 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	// risk of it being left on the instance, which would present a security concern.
 	if sqlDatabaseIsMaster(d) {
 		var users *sqladmin.UsersListResponse
-		err = RetryTimeDuration(func() error {
-			users, err = config.NewSqlAdminClient(userAgent).Users.List(project, instance.Name).Do()
-			return err
-		}, d.Timeout(schema.TimeoutRead), IsSqlOperationInProgressError)
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() error {
+				users, err = config.NewSqlAdminClient(userAgent).Users.List(project, instance.Name).Do()
+				return err
+			},
+			Timeout:              d.Timeout(schema.TimeoutRead),
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+		})
 		if err != nil {
 			return fmt.Errorf("Error, attempting to list users associated with instance %s: %s", instance.Name, err)
 		}
 		for _, u := range users.Items {
 			if u.Name == "root" && u.Host == "%" {
-				err = retry(func() error {
-					op, err = config.NewSqlAdminClient(userAgent).Users.Delete(project, instance.Name).Host(u.Host).Name(u.Name).Do()
-					if err == nil {
-						err = SqlAdminOperationWaitTime(config, op, project, "Delete default root User", userAgent, d.Timeout(schema.TimeoutCreate))
-					}
-					return err
+				err = transport_tpg.Retry(transport_tpg.RetryOptions{
+					RetryFunc: func() error {
+						op, err = config.NewSqlAdminClient(userAgent).Users.Delete(project, instance.Name).Host(u.Host).Name(u.Name).Do()
+						if err == nil {
+							err = SqlAdminOperationWaitTime(config, op, project, "Delete default root User", userAgent, d.Timeout(schema.TimeoutCreate))
+						}
+						return err
+					},
 				})
 				if err != nil {
-					return fmt.Errorf("Error, failed to delete default 'root'@'*' user, but the database was created successfully: %s", err)
+					return fmt.Errorf("Error, failed to delete default 'root'@'*' u, but the database was created successfully: %s", err)
 				}
 			}
 		}
@@ -1077,10 +1107,14 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	// patch any fields that need to be sent postcreation
 	if patchData != nil {
-		err = RetryTimeDuration(func() (rerr error) {
-			op, rerr = config.NewSqlAdminClient(userAgent).Instances.Patch(project, instance.Name, patchData).Do()
-			return rerr
-		}, d.Timeout(schema.TimeoutUpdate), IsSqlOperationInProgressError)
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (rerr error) {
+				op, rerr = config.NewSqlAdminClient(userAgent).Instances.Patch(project, instance.Name, patchData).Do()
+				return rerr
+			},
+			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+		})
 		if err != nil {
 			return fmt.Errorf("Error, failed to update instance settings for %s: %s", instance.Name, err)
 		}
@@ -1105,10 +1139,14 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		_settings := s.([]interface{})[0].(map[string]interface{})
 		instanceUpdate.Settings.SettingsVersion = int64(_settings["version"].(int))
 		var op *sqladmin.Operation
-		err = RetryTimeDuration(func() (rerr error) {
-			op, rerr = config.NewSqlAdminClient(userAgent).Instances.Update(project, name, instanceUpdate).Do()
-			return rerr
-		}, d.Timeout(schema.TimeoutUpdate), IsSqlOperationInProgressError)
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (rerr error) {
+				op, rerr = config.NewSqlAdminClient(userAgent).Instances.Update(project, name, instanceUpdate).Do()
+				return rerr
+			},
+			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+		})
 		if err != nil {
 			return fmt.Errorf("Error, failed to update instance settings for %s: %s", instance.Name, err)
 		}
@@ -1147,6 +1185,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		// Version is unset in Create but is set during update
 		SettingsVersion:           int64(_settings["version"].(int)),
 		Tier:                      _settings["tier"].(string),
+		AdvancedMachineFeatures:   expandSqlServerAdvancedMachineFeatures(_settings["advanced_machine_features"].([]interface{})),
 		ForceSendFields:           []string{"StorageAutoResize"},
 		ActivationPolicy:          _settings["activation_policy"].(string),
 		ActiveDirectoryConfig:     expandActiveDirectoryConfig(_settings["active_directory_config"].([]interface{})),
@@ -1160,7 +1199,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		DataDiskType:              _settings["disk_type"].(string),
 		PricingPlan:               _settings["pricing_plan"].(string),
 		DeletionProtectionEnabled: _settings["deletion_protection_enabled"].(bool),
-		UserLabels:                convertStringMap(_settings["user_labels"].(map[string]interface{})),
+		UserLabels:                tpgresource.ConvertStringMap(_settings["user_labels"].(map[string]interface{})),
 		BackupConfiguration:       expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
 		DatabaseFlags:             expandDatabaseFlags(_settings["database_flags"].([]interface{})),
 		IpConfiguration:           expandIpConfiguration(_settings["ip_configuration"].([]interface{}), databaseVersion),
@@ -1365,6 +1404,18 @@ func expandDenyMaintenancePeriod(configured []interface{}) []*sqladmin.DenyMaint
 
 }
 
+func expandSqlServerAdvancedMachineFeatures(configured interface{}) *sqladmin.AdvancedMachineFeatures {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+
+	config := l[0].(map[string]interface{})
+	return &sqladmin.AdvancedMachineFeatures{
+		ThreadsPerCore: int64(config["threads_per_core"].(int)),
+	}
+}
+
 func expandSqlServerAuditConfig(configured interface{}) *sqladmin.SqlServerAuditConfig {
 	l := configured.([]interface{})
 	if len(l) == 0 {
@@ -1412,23 +1463,27 @@ func expandPasswordValidationPolicy(configured []interface{}) *sqladmin.Password
 
 func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
 
 	var instance *sqladmin.DatabaseInstance
-	err = RetryTimeDuration(func() (rerr error) {
-		instance, rerr = config.NewSqlAdminClient(userAgent).Instances.Get(project, d.Get("name").(string)).Do()
-		return rerr
-	}, d.Timeout(schema.TimeoutRead), IsSqlOperationInProgressError)
+	err = transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() (rerr error) {
+			instance, rerr = config.NewSqlAdminClient(userAgent).Instances.Get(project, d.Get("name").(string)).Do()
+			return rerr
+		},
+		Timeout:              d.Timeout(schema.TimeoutRead),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+	})
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("SQL Database Instance %q", d.Get("name").(string)))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SQL Database Instance %q", d.Get("name").(string)))
 	}
 
 	if err := d.Set("name", instance.Name); err != nil {
@@ -1518,12 +1573,12 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -1555,10 +1610,14 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	// Check if the activation policy is being updated. If it is being changed to ALWAYS this should be done first.
 	if d.HasChange("settings.0.activation_policy") && d.Get("settings.0.activation_policy").(string) == "ALWAYS" {
 		instance = &sqladmin.DatabaseInstance{Settings: &sqladmin.Settings{ActivationPolicy: "ALWAYS"}}
-		err = RetryTimeDuration(func() (rerr error) {
-			op, rerr = config.NewSqlAdminClient(userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
-			return rerr
-		}, d.Timeout(schema.TimeoutUpdate), IsSqlOperationInProgressError)
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (rerr error) {
+				op, rerr = config.NewSqlAdminClient(userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
+				return rerr
+			},
+			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+		})
 		if err != nil {
 			return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
 		}
@@ -1576,10 +1635,14 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	// performed with other fields, we first patch database version before updating the rest of the fields.
 	if d.HasChange("database_version") {
 		instance = &sqladmin.DatabaseInstance{DatabaseVersion: databaseVersion}
-		err = RetryTimeDuration(func() (rerr error) {
-			op, rerr = config.NewSqlAdminClient(userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
-			return rerr
-		}, d.Timeout(schema.TimeoutUpdate), IsSqlOperationInProgressError)
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (rerr error) {
+				op, rerr = config.NewSqlAdminClient(userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
+				return rerr
+			},
+			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+		})
 		if err != nil {
 			return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
 		}
@@ -1628,14 +1691,17 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 			Password: password,
 		}
 
-		mutexKV.Lock(instanceMutexKey(project, instance))
-		defer mutexKV.Unlock(instanceMutexKey(project, instance))
+		transport_tpg.MutexStore.Lock(instanceMutexKey(project, instance))
+		defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instance))
 		var op *sqladmin.Operation
 		updateFunc := func() error {
 			op, err = config.NewSqlAdminClient(userAgent).Users.Update(project, instance, user).Host(host).Name(name).Do()
 			return err
 		}
-		err = RetryTimeDuration(updateFunc, d.Timeout(schema.TimeoutUpdate))
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: updateFunc,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
 
 		if err != nil {
 			if err := d.Set("root_password", oldPwd.(string)); err != nil {
@@ -1658,10 +1724,14 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	// performed with other fields, we first patch maintenance version before updating the rest of the fields.
 	if d.HasChange("maintenance_version") {
 		instance = &sqladmin.DatabaseInstance{MaintenanceVersion: maintenance_version}
-		err = RetryTimeDuration(func() (rerr error) {
-			op, rerr = config.NewSqlAdminClient(userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
-			return rerr
-		}, d.Timeout(schema.TimeoutUpdate), IsSqlOperationInProgressError)
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (rerr error) {
+				op, rerr = config.NewSqlAdminClient(userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
+				return rerr
+			},
+			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+		})
 		if err != nil {
 			return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
 		}
@@ -1676,10 +1746,14 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	if promoteReadReplicaRequired {
-		err = RetryTimeDuration(func() (rerr error) {
-			op, rerr = config.NewSqlAdminClient(userAgent).Instances.PromoteReplica(project, d.Get("name").(string)).Do()
-			return rerr
-		}, d.Timeout(schema.TimeoutUpdate), IsSqlOperationInProgressError)
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (rerr error) {
+				op, rerr = config.NewSqlAdminClient(userAgent).Instances.PromoteReplica(project, d.Get("name").(string)).Do()
+				return rerr
+			},
+			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+		})
 		if err != nil {
 			return fmt.Errorf("Error, failed to promote read replica instance as primary stand-alone %s: %s", instance.Name, err)
 		}
@@ -1708,18 +1782,22 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	// Lock on the master_instance_name just in case updating any replica
 	// settings causes operations on the master.
 	if v, ok := d.GetOk("master_instance_name"); ok {
-		mutexKV.Lock(instanceMutexKey(project, v.(string)))
-		defer mutexKV.Unlock(instanceMutexKey(project, v.(string)))
+		transport_tpg.MutexStore.Lock(instanceMutexKey(project, v.(string)))
+		defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, v.(string)))
 	}
 
 	if _, ok := d.GetOk("instance_type"); ok {
 		instance.InstanceType = d.Get("instance_type").(string)
 	}
 
-	err = RetryTimeDuration(func() (rerr error) {
-		op, rerr = config.NewSqlAdminClient(userAgent).Instances.Update(project, d.Get("name").(string), instance).Do()
-		return rerr
-	}, d.Timeout(schema.TimeoutUpdate), IsSqlOperationInProgressError)
+	err = transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() (rerr error) {
+			op, rerr = config.NewSqlAdminClient(userAgent).Instances.Update(project, d.Get("name").(string), instance).Do()
+			return rerr
+		},
+		Timeout:              d.Timeout(schema.TimeoutUpdate),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+	})
 	if err != nil {
 		return fmt.Errorf("Error, failed to update instance settings for %s: %s", instance.Name, err)
 	}
@@ -1754,12 +1832,12 @@ func maintenanceVersionDiffSuppress(_, old, new string, _ *schema.ResourceData) 
 
 func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	project, err := getProject(d, config)
+	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
 	}
@@ -1773,22 +1851,26 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 	// Lock on the master_instance_name just in case deleting a replica causes
 	// operations on the master.
 	if v, ok := d.GetOk("master_instance_name"); ok {
-		mutexKV.Lock(instanceMutexKey(project, v.(string)))
-		defer mutexKV.Unlock(instanceMutexKey(project, v.(string)))
+		transport_tpg.MutexStore.Lock(instanceMutexKey(project, v.(string)))
+		defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, v.(string)))
 	}
 
 	var op *sqladmin.Operation
-	err = RetryTimeDuration(func() (rerr error) {
-		op, rerr = config.NewSqlAdminClient(userAgent).Instances.Delete(project, d.Get("name").(string)).Do()
-		if rerr != nil {
-			return rerr
-		}
-		err = SqlAdminOperationWaitTime(config, op, project, "Delete Instance", userAgent, d.Timeout(schema.TimeoutDelete))
-		if err != nil {
-			return err
-		}
-		return nil
-	}, d.Timeout(schema.TimeoutDelete), IsSqlOperationInProgressError, IsSqlInternalError)
+	err = transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() (rerr error) {
+			op, rerr = config.NewSqlAdminClient(userAgent).Instances.Delete(project, d.Get("name").(string)).Do()
+			if rerr != nil {
+				return rerr
+			}
+			err = SqlAdminOperationWaitTime(config, op, project, "Delete Instance", userAgent, d.Timeout(schema.TimeoutDelete))
+			if err != nil {
+				return err
+			}
+			return nil
+		},
+		Timeout:              d.Timeout(schema.TimeoutDelete),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError, IsSqlInternalError},
+	})
 	if err != nil {
 		return fmt.Errorf("Error, failed to delete instance %s: %s", d.Get("name").(string), err)
 	}
@@ -1797,7 +1879,7 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 
 func resourceSqlDatabaseInstanceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
-	if err := ParseImportId([]string{
+	if err := tpgresource.ParseImportId([]string{
 		"projects/(?P<project>[^/]+)/instances/(?P<name>[^/]+)",
 		"(?P<project>[^/]+)/(?P<name>[^/]+)",
 		"(?P<name>[^/]+)"}, d, config); err != nil {
@@ -1809,7 +1891,7 @@ func resourceSqlDatabaseInstanceImport(d *schema.ResourceData, meta interface{})
 	}
 
 	// Replace import id for the resource id
-	id, err := ReplaceVars(d, config, "projects/{{project}}/instances/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/instances/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -1882,6 +1964,10 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 		data["password_validation_policy"] = flattenPasswordValidationPolicy(settings.PasswordValidationPolicy)
 	}
 
+	if settings.AdvancedMachineFeatures != nil {
+		data["advanced_machine_features"] = flattenSqlServerAdvancedMachineFeatures(settings.AdvancedMachineFeatures)
+	}
+
 	return []map[string]interface{}{data}
 }
 
@@ -1936,6 +2022,17 @@ func flattenDenyMaintenancePeriod(denyMaintenancePeriod []*sqladmin.DenyMaintena
 	}
 
 	return flags
+}
+
+func flattenSqlServerAdvancedMachineFeatures(advancedMachineFeatures *sqladmin.AdvancedMachineFeatures) []map[string]interface{} {
+	if advancedMachineFeatures == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"threads_per_core": advancedMachineFeatures.ThreadsPerCore,
+		},
+	}
 }
 
 func flattenSqlServerAuditConfig(sqlServerAuditConfig *sqladmin.SqlServerAuditConfig) []map[string]interface{} {
@@ -2168,10 +2265,14 @@ func sqlDatabaseInstanceRestoreFromBackup(d *schema.ResourceData, config *transp
 	}
 
 	var op *sqladmin.Operation
-	err := RetryTimeDuration(func() (operr error) {
-		op, operr = config.NewSqlAdminClient(userAgent).Instances.RestoreBackup(project, instanceId, backupRequest).Do()
-		return operr
-	}, d.Timeout(schema.TimeoutUpdate), IsSqlOperationInProgressError)
+	err := transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() (operr error) {
+			op, operr = config.NewSqlAdminClient(userAgent).Instances.RestoreBackup(project, instanceId, backupRequest).Do()
+			return operr
+		},
+		Timeout:              d.Timeout(schema.TimeoutUpdate),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+	})
 	if err != nil {
 		return fmt.Errorf("Error, failed to restore instance from backup %s: %s", instanceId, err)
 	}

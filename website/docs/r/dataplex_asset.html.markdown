@@ -25,7 +25,7 @@ The Dataplex Asset resource
 ## Example Usage - basic_asset
 ```hcl
 resource "google_storage_bucket" "basic_bucket" {
-  name          = "dataplex-bucket-%{random_suffix}"
+  name          = "bucket"
   location      = "us-west1"
   uniform_bucket_level_access = true
   lifecycle {
@@ -75,7 +75,7 @@ resource "google_dataplex_asset" "primary" {
   }
  
   resource_spec {
-    name = "projects/my-project-name/buckets/dataplex-bucket-%{random_suffix}"
+    name = "projects/my-project-name/buckets/bucket"
     type = "STORAGE_BUCKET"
   }
  

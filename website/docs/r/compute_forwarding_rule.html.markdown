@@ -1017,26 +1017,23 @@ resource "google_compute_subnetwork" "proxy" {
 ```hcl
 // Forwarding rule for VPC private service connect
 resource "google_compute_forwarding_rule" "default" {
-  provider              = google-beta
-  name                  = "psc-endpoint"
-  region                = "us-central1"
-  load_balancing_scheme = ""
-  target                = google_compute_service_attachment.producer_service_attachment.id
-  network               = google_compute_network.consumer_net.name
-  ip_address            = google_compute_address.consumer_address.id
+  name                    = "psc-endpoint"
+  region                  = "us-central1"
+  load_balancing_scheme   = ""
+  target                  = google_compute_service_attachment.producer_service_attachment.id
+  network                 = google_compute_network.consumer_net.name
+  ip_address              = google_compute_address.consumer_address.id
   allow_psc_global_access = true
 }
 
 // Consumer service endpoint
 
 resource "google_compute_network" "consumer_net" {
-  provider                = google-beta
   name                    = "consumer-net"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "consumer_subnet" {
-  provider      = google-beta
   name          = "consumer-net"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
@@ -1045,7 +1042,6 @@ resource "google_compute_subnetwork" "consumer_subnet" {
 
 resource "google_compute_address" "consumer_address" {
   name         = "website-ip-1"
-  provider     = google-beta
   region       = "us-central1"
   subnetwork   = google_compute_subnetwork.consumer_subnet.id
   address_type = "INTERNAL"
@@ -1055,13 +1051,11 @@ resource "google_compute_address" "consumer_address" {
 // Producer service attachment
 
 resource "google_compute_network" "producer_net" {
-  provider                = google-beta
   name                    = "producer-net"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "producer_subnet" {
-  provider      = google-beta
   name          = "producer-net"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
@@ -1069,7 +1063,6 @@ resource "google_compute_subnetwork" "producer_subnet" {
 }
 
 resource "google_compute_subnetwork" "psc_producer_subnet" {
-  provider      = google-beta
   name          = "producer-psc-net"
   ip_cidr_range = "10.1.0.0/16"
   region        = "us-central1"
@@ -1079,7 +1072,6 @@ resource "google_compute_subnetwork" "psc_producer_subnet" {
 }
 
 resource "google_compute_service_attachment" "producer_service_attachment" {
-  provider    = google-beta
   name        = "producer-service"
   region      = "us-central1"
   description = "A service attachment configured with Terraform"
@@ -1088,12 +1080,9 @@ resource "google_compute_service_attachment" "producer_service_attachment" {
   connection_preference = "ACCEPT_AUTOMATIC"
   nat_subnets           = [google_compute_subnetwork.psc_producer_subnet.name]
   target_service        = google_compute_forwarding_rule.producer_target_service.id
-
-
 }
 
 resource "google_compute_forwarding_rule" "producer_target_service" {
-  provider = google-beta
   name     = "producer-forwarding-rule"
   region   = "us-central1"
 
@@ -1102,12 +1091,9 @@ resource "google_compute_forwarding_rule" "producer_target_service" {
   all_ports             = true
   network               = google_compute_network.producer_net.name
   subnetwork            = google_compute_subnetwork.producer_subnet.name
-
-
 }
 
 resource "google_compute_region_backend_service" "producer_service_backend" {
-  provider = google-beta
   name     = "producer-service-backend"
   region   = "us-central1"
 
@@ -1115,7 +1101,6 @@ resource "google_compute_region_backend_service" "producer_service_backend" {
 }
 
 resource "google_compute_health_check" "producer_service_health_check" {
-  provider = google-beta
   name     = "producer-service-health-check"
 
   check_interval_sec = 1
@@ -1134,46 +1119,32 @@ resource "google_compute_health_check" "producer_service_health_check" {
 
 
 ```hcl
-// Forwarding rule for VPC private service connect
-resource "google_compute_forwarding_rule" "default" {
-  provider              = google-beta
-  name                  = "steering-rule"
-  region                = "us-central1"
-  ip_address            = google_compute_address.address.id
-  backend_service       = google_compute_region_backend_service.backend_service.id
-  network_tier = "PREMIUM"
-  description = "A test steering forwarding rule"
-  ip_protocol = "TCP"
+resource "google_compute_forwarding_rule" "steering" {
+  name = "steering-rule"
+  region = "us-central1"
+  ip_address = google_compute_address.basic.self_link
+  backend_service = google_compute_region_backend_service.external.self_link
   load_balancing_scheme = "EXTERNAL"
-  port_range = "80-81"
   source_ip_ranges = ["34.121.88.0/24", "35.187.239.137"]
-  depends_on = [google_compute_forwarding_rule.external_forwarding_rule]
+  depends_on = [google_compute_forwarding_rule.external]
 }
 
-resource "google_compute_address" "address" {
-  name         = "website-ip-1"
-  provider     = google-beta
-  region       = "us-central1"
+resource "google_compute_address" "basic" {
+  name = "website-ip"
+  region = "us-central1"
 }
 
-resource "google_compute_forwarding_rule" "external_forwarding_rule" {
-  provider = google-beta
-  name     = "forwarding-rule"
-  region                = "us-central1"
-  ip_address            = google_compute_address.address.id
-  backend_service       = google_compute_region_backend_service.backend_service.id
-  network_tier = "PREMIUM"
-  description = "A test steering forwarding rule"
-  ip_protocol = "TCP"
+resource "google_compute_region_backend_service" "external" {
+  name = "service-backend"
+  region = "us-central1"
   load_balancing_scheme = "EXTERNAL"
-  port_range = "80-81"
 }
 
-resource "google_compute_region_backend_service" "backend_service" {
-  provider = google-beta
-  name     = "service-backend"
-  region   = "us-central1"
-
+resource "google_compute_forwarding_rule" "external" {
+  name = "external-forwarding-rule"
+  region = "us-central1"
+  ip_address = google_compute_address.basic.self_link
+  backend_service = google_compute_region_backend_service.external.self_link
   load_balancing_scheme = "EXTERNAL"
 }
 ```
@@ -1185,13 +1156,17 @@ The following arguments are supported:
 
 * `name` -
   (Required)
-  Name of the resource; provided by the client when the resource is
-  created. The name must be 1-63 characters long, and comply with
-  RFC1035. Specifically, the name must be 1-63 characters long and match
-  the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?` which means the
-  first character must be a lowercase letter, and all following
-  characters must be a dash, lowercase letter, or digit, except the last
-  character, which cannot be a dash.
+  Name of the resource; provided by the client when the resource is created.
+  The name must be 1-63 characters long, and comply with
+  [RFC1035](https://www.ietf.org/rfc/rfc1035.txt).
+  Specifically, the name must be 1-63 characters long and match the regular
+  expression `[a-z]([-a-z0-9]*[a-z0-9])?` which means the first
+  character must be a lowercase letter, and all following characters must
+  be a dash, lowercase letter, or digit, except the last character, which
+  cannot be a dash.
+  For Private Service Connect forwarding rules that forward traffic to Google
+  APIs, the forwarding rule name must be a 1-20 characters string with
+  lowercase letters and numbers and must start with a letter.
 
 
 - - -
@@ -1199,17 +1174,12 @@ The following arguments are supported:
 
 * `is_mirroring_collector` -
   (Optional)
-  Indicates whether or not this load balancer can be used
-  as a collector for packet mirroring. To prevent mirroring loops,
-  instances behind this load balancer will not have their traffic
-  mirrored even if a PacketMirroring rule applies to them. This
-  can only be set to true for load balancers that have their
-  loadBalancingScheme set to INTERNAL.
-
-* `allow_psc_global_access` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-  This is used in PSC consumer ForwardingRule to control 
-  whether the PSC endpoint can be accessed from another region.
+  Indicates whether or not this load balancer can be used as a collector for
+  packet mirroring. To prevent mirroring loops, instances behind this
+  load balancer will not have their traffic mirrored even if a
+  `PacketMirroring` rule applies to them.
+  This can only be set to true for load balancers that have their
+  `loadBalancingScheme` set to `INTERNAL`.
 
 * `description` -
   (Optional)
@@ -1218,129 +1188,185 @@ The following arguments are supported:
 
 * `ip_address` -
   (Optional)
-  The IP address that this forwarding rule serves. When a client sends
-  traffic to this IP address, the forwarding rule directs the traffic to
-  the target that you specify in the forwarding rule. The
-  loadBalancingScheme and the forwarding rule's target determine the
-  type of IP address that you can use. For detailed information, refer
-  to [IP address specifications](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts#ip_address_specifications).
-  An address can be specified either by a literal IP address or a
-  reference to an existing Address resource. If you don't specify a
-  reserved IP address, an ephemeral IP address is assigned.
-  The value must be set to 0.0.0.0 when the target is a targetGrpcProxy
-  that has validateForProxyless field set to true.
-  For Private Service Connect forwarding rules that forward traffic to
-  Google APIs, IP address must be provided.
+  IP address for which this forwarding rule accepts traffic. When a client
+  sends traffic to this IP address, the forwarding rule directs the traffic
+  to the referenced `target` or `backendService`.
+  While creating a forwarding rule, specifying an `IPAddress` is
+  required under the following circumstances:
+  * When the `target` is set to `targetGrpcProxy` and
+  `validateForProxyless` is set to `true`, the
+  `IPAddress` should be set to `0.0.0.0`.
+  * When the `target` is a Private Service Connect Google APIs
+  bundle, you must specify an `IPAddress`.
+
+  Otherwise, you can optionally specify an IP address that references an
+  existing static (reserved) IP address resource. When omitted, Google Cloud
+  assigns an ephemeral IP address.
+  Use one of the following formats to specify an IP address while creating a
+  forwarding rule:
+  * IP address number, as in `100.1.2.3`
+  * IPv6 address range, as in `2600:1234::/96`
+  * Full resource URL, as in
+  `https://www.googleapis.com/compute/v1/projects/project_id/regions/region/addresses/address-name`
+  * Partial URL or by name, as in:
+    * `projects/project_id/regions/region/addresses/address-name`
+    * `regions/region/addresses/address-name`
+    * `global/addresses/address-name`
+    * `address-name`
+
+  The forwarding rule's `target` or `backendService`,
+  and in most cases, also the `loadBalancingScheme`, determine the
+  type of IP address that you can use. For detailed information, see
+  [IP address
+  specifications](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts#ip_address_specifications).
+  When reading an `IPAddress`, the API always returns the IP
+  address number.
 
 * `ip_protocol` -
   (Optional)
   The IP protocol to which this rule applies.
-  When the load balancing scheme is INTERNAL, only TCP and UDP are
-  valid.
+  For protocol forwarding, valid
+  options are `TCP`, `UDP`, `ESP`,
+  `AH`, `SCTP`, `ICMP` and
+  `L3_DEFAULT`.
+  The valid IP protocols are different for different load balancing products
+  as described in [Load balancing
+  features](https://cloud.google.com/load-balancing/docs/features#protocols_from_the_load_balancer_to_the_backends).
   Possible values are: `TCP`, `UDP`, `ESP`, `AH`, `SCTP`, `ICMP`, `L3_DEFAULT`.
 
 * `backend_service` -
   (Optional)
-  A BackendService to receive the matched traffic. This is used only
-  for INTERNAL load balancing.
+  Identifies the backend service to which the forwarding rule sends traffic.
+  Required for Internal TCP/UDP Load Balancing and Network Load Balancing;
+  must be omitted for all other load balancer types.
 
 * `load_balancing_scheme` -
   (Optional)
-  This signifies what the ForwardingRule will be used for and can be
-  EXTERNAL, EXTERNAL_MANAGED, INTERNAL, or INTERNAL_MANAGED. EXTERNAL is used for Classic
-  Cloud VPN gateways, protocol forwarding to VMs from an external IP address,
-  and HTTP(S), SSL Proxy, TCP Proxy, and Network TCP/UDP load balancers.
-  INTERNAL is used for protocol forwarding to VMs from an internal IP address,
-  and internal TCP/UDP load balancers.
-  EXTERNAL_MANAGED is used for regional external HTTP(S) load balancers.
-  INTERNAL_MANAGED is used for internal HTTP(S) load balancers.
-  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) only) Note: This field must be set to ""
-  if the target is an URI of a service attachment.
+  Specifies the forwarding rule type.
+  For more information about forwarding rules, refer to
+  [Forwarding rule concepts](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts).
   Default value is `EXTERNAL`.
   Possible values are: `EXTERNAL`, `EXTERNAL_MANAGED`, `INTERNAL`, `INTERNAL_MANAGED`.
 
 * `network` -
   (Optional)
-  For internal load balancing, this field identifies the network that
-  the load balanced IP should belong to for this Forwarding Rule. If
-  this field is not specified, the default network will be used.
-  This field is only used for INTERNAL load balancing.
+  This field is not used for external load balancing.
+  For Internal TCP/UDP Load Balancing, this field identifies the network that
+  the load balanced IP should belong to for this Forwarding Rule.
+  If the subnetwork is specified, the network of the subnetwork will be used.
+  If neither subnetwork nor this field is specified, the default network will
+  be used.
+  For Private Service Connect forwarding rules that forward traffic to Google
+  APIs, a network must be provided.
 
 * `port_range` -
   (Optional)
-  This field is used along with the target field for TargetHttpProxy,
-  TargetHttpsProxy, TargetSslProxy, TargetTcpProxy, TargetVpnGateway,
-  TargetPool, TargetInstance.
-  Applicable only when IPProtocol is TCP, UDP, or SCTP, only packets
-  addressed to ports in the specified range will be forwarded to target.
-  Forwarding rules with the same [IPAddress, IPProtocol] pair must have
-  disjoint port ranges.
-  Some types of forwarding target have constraints on the acceptable
-  ports:
-  * TargetHttpProxy: 80, 8080
-  * TargetHttpsProxy: 443
-  * TargetTcpProxy: 25, 43, 110, 143, 195, 443, 465, 587, 700, 993, 995,
-                    1883, 5222
-  * TargetSslProxy: 25, 43, 110, 143, 195, 443, 465, 587, 700, 993, 995,
-                    1883, 5222
-  * TargetVpnGateway: 500, 4500
+  This field can only be used:
+  * If `IPProtocol` is one of TCP, UDP, or SCTP.
+  * By backend service-based network load balancers, target pool-based
+  network load balancers, internal proxy load balancers, external proxy load
+  balancers, Traffic Director, external protocol forwarding, and Classic VPN.
+  Some products have restrictions on what ports can be used. See
+  [port specifications](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts#port_specifications)
+  for details.
+
+  Only packets addressed to ports in the specified range will be forwarded to
+  the backends configured with this forwarding rule.
+  The `ports` and `port_range` fields are mutually exclusive.
+  For external forwarding rules, two or more forwarding rules cannot use the
+  same `[IPAddress, IPProtocol]` pair, and cannot have
+  overlapping `portRange`s.
+  For internal forwarding rules within the same VPC network, two or more
+  forwarding rules cannot use the same `[IPAddress, IPProtocol]`
+  pair, and cannot have overlapping `portRange`s.
 
 * `ports` -
   (Optional)
-  This field is used along with internal load balancing and network
-  load balancer when the forwarding rule references a backend service
-  and when protocol is not L3_DEFAULT.
-  A single port or a comma separated list of ports can be configured.
-  Only packets addressed to these ports will be forwarded to the backends
-  configured with this forwarding rule.
-  You can only use one of ports and portRange, or allPorts.
-  The three are mutually exclusive.
-  You may specify a maximum of up to 5 ports, which can be non-contiguous.
+  This field can only be used:
+  * If `IPProtocol` is one of TCP, UDP, or SCTP.
+  * By internal TCP/UDP load balancers, backend service-based network load
+  balancers, and internal protocol forwarding.
+
+  You can specify a list of up to five ports by number, separated by commas.
+  The ports can be contiguous or discontiguous. Only packets addressed to
+  these ports will be forwarded to the backends configured with this
+  forwarding rule.
+  For external forwarding rules, two or more forwarding rules cannot use the
+  same `[IPAddress, IPProtocol]` pair, and cannot share any values
+  defined in `ports`.
+  For internal forwarding rules within the same VPC network, two or more
+  forwarding rules cannot use the same `[IPAddress, IPProtocol]`
+  pair, and cannot share any values defined in `ports`.
+  The `ports` and `port_range` fields are mutually exclusive.
 
 * `subnetwork` -
   (Optional)
-  The subnetwork that the load balanced IP should belong to for this
-  Forwarding Rule.  This field is only used for INTERNAL load balancing.
-  If the network specified is in auto subnet mode, this field is
-  optional. However, if the network is in custom subnet mode, a
-  subnetwork must be specified.
+  This field identifies the subnetwork that the load balanced IP should
+  belong to for this Forwarding Rule, used in internal load balancing and
+  network load balancing with IPv6.
+  If the network specified is in auto subnet mode, this field is optional.
+  However, a subnetwork must be specified if the network is in custom subnet
+  mode or when creating external forwarding rule with IPv6.
 
 * `target` -
   (Optional)
-  The URL of the target resource to receive the matched traffic.
-  The target must live in the same region as the forwarding rule.
-  The forwarded traffic must be of a type appropriate to the target
-  object.
+  The URL of the target resource to receive the matched traffic.  For
+  regional forwarding rules, this target must be in the same region as the
+  forwarding rule. For global forwarding rules, this target must be a global
+  load balancing resource.
+  The forwarded traffic must be of a type appropriate to the target object.
+  *  For load balancers, see the "Target" column in [Port specifications](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts#ip_address_specifications).
+  *  For Private Service Connect forwarding rules that forward traffic to Google APIs, provide the name of a supported Google API bundle:
+    *  `vpc-sc` - [ APIs that support VPC Service Controls](https://cloud.google.com/vpc-service-controls/docs/supported-products).
+    *  `all-apis` - [All supported Google APIs](https://cloud.google.com/vpc/docs/private-service-connect#supported-apis).
+
+  For Private Service Connect forwarding rules that forward traffic to managed services, the target must be a service attachment.
 
 * `allow_global_access` -
   (Optional)
-  If true, clients can access ILB from all regions.
-  Otherwise only allows from the local region the ILB is located at.
+  This field is used along with the `backend_service` field for
+  internal load balancing or with the `target` field for internal
+  TargetInstance.
+  If the field is set to `TRUE`, clients can access ILB from all
+  regions.
+  Otherwise only allows access from clients in the same region as the
+  internal load balancer.
 
 * `labels` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Labels to apply to this forwarding rule.  A list of key->value pairs.
 
 * `all_ports` -
   (Optional)
-  This field can be used with internal load balancer or network load balancer
-  when the forwarding rule references a backend service, or with the target
-  field when it references a TargetInstance. Set this to true to
-  allow packets addressed to any ports to be forwarded to the backends configured
-  with this forwarding rule. This can be used when the protocol is TCP/UDP, and it
-  must be set to true when the protocol is set to L3_DEFAULT.
-  Cannot be set if port or portRange are set.
+  This field can only be used:
+  * If `IPProtocol` is one of TCP, UDP, or SCTP.
+  * By internal TCP/UDP load balancers, backend service-based network load
+  balancers, and internal and external protocol forwarding.
+
+  Set this field to true to allow packets addressed to any port or packets
+  lacking destination port information (for example, UDP fragments after the
+  first fragment) to be forwarded to the backends configured with this
+  forwarding rule.
+  The `ports`, `port_range`, and
+  `allPorts` fields are mutually exclusive.
 
 * `network_tier` -
   (Optional)
-  The networking tier used for configuring this address. If this field is not
-  specified, it is assumed to be PREMIUM.
+  This signifies the networking tier used for configuring
+  this load balancer and can only take the following values:
+  `PREMIUM`, `STANDARD`.
+  For regional ForwardingRule, the valid values are `PREMIUM` and
+  `STANDARD`. For GlobalForwardingRule, the valid value is
+  `PREMIUM`.
+  If this field is not specified, it is assumed to be `PREMIUM`.
+  If `IPAddress` is specified, this value must be equal to the
+  networkTier of the Address.
   Possible values are: `PREMIUM`, `STANDARD`.
 
 * `service_directory_registrations` -
   (Optional)
-  Service Directory resources to register this forwarding rule with. Currently,
-  only supports a single Service Directory resource.
+  Service Directory resources to register this forwarding rule with.
+  Currently, only supports a single Service Directory resource.
   Structure is [documented below](#nested_service_directory_registrations).
 
 * `service_label` -
@@ -1355,6 +1381,14 @@ The following arguments are supported:
   must be a dash, lowercase letter, or digit, except the last
   character, which cannot be a dash.
   This field is only used for INTERNAL load balancing.
+
+* `source_ip_ranges` -
+  (Optional)
+  If not empty, this Forwarding Rule will only forward the traffic when the source IP address matches one of the IP addresses or CIDR ranges set here. Note that a Forwarding Rule can only have up to 64 source IP ranges, and this field can only be used with a regional Forwarding Rule whose scheme is EXTERNAL. Each sourceIpRange entry should be either an IP address (for example, 1.2.3.4) or a CIDR range (for example, 1.2.3.0/24).
+
+* `allow_psc_global_access` -
+  (Optional)
+  This is used in PSC consumer ForwardingRule to control whether the PSC endpoint can be accessed from another region.
 
 * `region` -
   (Optional)
@@ -1388,16 +1422,18 @@ In addition to the arguments listed above, the following computed attributes are
   The PSC connection id of the PSC Forwarding Rule.
 
 * `psc_connection_status` -
-  The PSC connection status of the PSC Forwarding Rule. Possible values: STATUS_UNSPECIFIED, PENDING, ACCEPTED, REJECTED, CLOSED
+  The PSC connection status of the PSC Forwarding Rule. Possible values: `STATUS_UNSPECIFIED`, `PENDING`, `ACCEPTED`, `REJECTED`, `CLOSED`
 
 * `label_fingerprint` -
-  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The fingerprint used for optimistic locking of this resource.  Used
   internally during updates.
 
 * `service_name` -
   The internal fully qualified service name for this Forwarding Rule.
   This field is only used for INTERNAL load balancing.
+
+* `base_forwarding_rule` -
+  [Output Only] The URL for the corresponding base Forwarding Rule. By base Forwarding Rule, we mean the Forwarding Rule that has the same IP address, protocol, and port settings with the current Forwarding Rule, but without sourceIPRanges specified. Always empty if the current Forwarding Rule does not have sourceIPRanges specified.
 * `self_link` - The URI of the created resource.
 
 

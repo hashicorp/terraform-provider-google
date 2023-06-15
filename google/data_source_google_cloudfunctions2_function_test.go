@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataSourceGoogleCloudFunctions2Function_basic(t *testing.T) {
@@ -16,7 +19,7 @@ func TestAccDataSourceGoogleCloudFunctions2Function_basic(t *testing.T) {
 	zipFilePath := "./test-fixtures/cloudfunctions2/function-source.zip"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudfunctions2functionDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -24,7 +27,7 @@ func TestAccDataSourceGoogleCloudFunctions2Function_basic(t *testing.T) {
 				Config: testAccDataSourceGoogleCloudFunctions2FunctionConfig(functionName,
 					bucketName, zipFilePath),
 				Check: resource.ComposeTestCheckFunc(
-					CheckDataSourceStateMatchesResourceStateWithIgnores(funcDataNameHttp,
+					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(funcDataNameHttp,
 						"google_cloudfunctions2_function.function_http_v2", map[string]struct{}{"build_config.0.source.0.storage_source.0.bucket": {}, "build_config.0.source.0.storage_source.0.object": {}}),
 				),
 			},

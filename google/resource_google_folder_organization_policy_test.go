@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,6 +7,8 @@ import (
 	"reflect"
 	"sort"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -16,9 +20,9 @@ func TestAccFolderOrganizationPolicy_boolean(t *testing.T) {
 
 	folder := fmt.Sprintf("tf-test-%d", RandInt(t))
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGoogleFolderOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -55,9 +59,9 @@ func TestAccFolderOrganizationPolicy_list_allowAll(t *testing.T) {
 
 	folder := fmt.Sprintf("tf-test-%d", RandInt(t))
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGoogleFolderOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -78,10 +82,10 @@ func TestAccFolderOrganizationPolicy_list_allowSome(t *testing.T) {
 	t.Parallel()
 
 	folder := fmt.Sprintf("tf-test-%d", RandInt(t))
-	org := GetTestOrgFromEnv(t)
-	project := GetTestProjectFromEnv()
+	org := acctest.GetTestOrgFromEnv(t)
+	project := acctest.GetTestProjectFromEnv()
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGoogleFolderOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -102,9 +106,9 @@ func TestAccFolderOrganizationPolicy_list_denySome(t *testing.T) {
 	t.Parallel()
 
 	folder := fmt.Sprintf("tf-test-%d", RandInt(t))
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGoogleFolderOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -125,9 +129,9 @@ func TestAccFolderOrganizationPolicy_list_update(t *testing.T) {
 	t.Parallel()
 
 	folder := fmt.Sprintf("tf-test-%d", RandInt(t))
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGoogleFolderOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -152,9 +156,9 @@ func TestAccFolderOrganizationPolicy_restore_defaultTrue(t *testing.T) {
 	t.Parallel()
 
 	folder := fmt.Sprintf("tf-test-%d", RandInt(t))
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGoogleOrganizationPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{

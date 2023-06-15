@@ -1,9 +1,12 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataSourceGooglePubsubSubscription_basic(t *testing.T) {
@@ -14,14 +17,14 @@ func TestAccDataSourceGooglePubsubSubscription_basic(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGooglePubsubSubscription_basic(context),
 				Check: resource.ComposeTestCheckFunc(
-					CheckDataSourceStateMatchesResourceState("data.google_pubsub_subscription.foo", "google_pubsub_subscription.foo"),
+					acctest.CheckDataSourceStateMatchesResourceState("data.google_pubsub_subscription.foo", "google_pubsub_subscription.foo"),
 				),
 			},
 		},
@@ -36,14 +39,14 @@ func TestAccDataSourceGooglePubsubSubscription_optionalProject(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGooglePubsubSubscription_optionalProject(context),
 				Check: resource.ComposeTestCheckFunc(
-					CheckDataSourceStateMatchesResourceState("data.google_pubsub_subscription.foo", "google_pubsub_subscription.foo"),
+					acctest.CheckDataSourceStateMatchesResourceState("data.google_pubsub_subscription.foo", "google_pubsub_subscription.foo"),
 				),
 			},
 		},

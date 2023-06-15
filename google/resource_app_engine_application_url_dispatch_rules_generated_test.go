@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -21,6 +24,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 func TestAccAppEngineApplicationUrlDispatchRules_appEngineApplicationUrlDispatchRulesBasicExample(t *testing.T) {
@@ -31,7 +37,7 @@ func TestAccAppEngineApplicationUrlDispatchRules_appEngineApplicationUrlDispatch
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckAppEngineApplicationUrlDispatchRulesDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -48,7 +54,7 @@ func TestAccAppEngineApplicationUrlDispatchRules_appEngineApplicationUrlDispatch
 }
 
 func testAccAppEngineApplicationUrlDispatchRules_appEngineApplicationUrlDispatchRulesBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_app_engine_application_url_dispatch_rules" "web_service" {
   dispatch_rules {
     domain  = "*"

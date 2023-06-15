@@ -1,7 +1,10 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -19,7 +22,7 @@ func TestAccComputeInstanceGroup_basic(t *testing.T) {
 	var zone = "us-central1-c"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComputeInstanceGroup_destroyProducer(t),
 		Steps: []resource.TestStep{
@@ -41,7 +44,7 @@ func TestAccComputeInstanceGroup_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateId:     fmt.Sprintf("%s/%s/%s", GetTestProjectFromEnv(), zone, instanceName),
+				ImportStateId:     fmt.Sprintf("%s/%s/%s", acctest.GetTestProjectFromEnv(), zone, instanceName),
 			},
 		},
 	})
@@ -56,7 +59,7 @@ func TestAccComputeInstanceGroup_rename(t *testing.T) {
 	var healthName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComputeInstanceGroup_destroyProducer(t),
 		Steps: []resource.TestStep{
@@ -87,7 +90,7 @@ func TestAccComputeInstanceGroup_update(t *testing.T) {
 	var instanceName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComputeInstanceGroup_destroyProducer(t),
 		Steps: []resource.TestStep{
@@ -128,7 +131,7 @@ func TestAccComputeInstanceGroup_outOfOrderInstances(t *testing.T) {
 	var instanceName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComputeInstanceGroup_destroyProducer(t),
 		Steps: []resource.TestStep{
@@ -150,7 +153,7 @@ func TestAccComputeInstanceGroup_network(t *testing.T) {
 	var instanceName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComputeInstanceGroup_destroyProducer(t),
 		Steps: []resource.TestStep{

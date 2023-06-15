@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccComputeGlobalNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
@@ -16,10 +19,10 @@ func TestAccComputeGlobalNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 		"modified_port": 100,
 	}
 	negId := fmt.Sprintf("projects/%s/global/networkEndpointGroups/neg-%s",
-		GetTestProjectFromEnv(), context["random_suffix"])
+		acctest.GetTestProjectFromEnv(), context["random_suffix"])
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{

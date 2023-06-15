@@ -1,0 +1,3 @@
+```release-note:bug
+vertexai: made google_vertex_ai_featurestore_entitytype_feature always use regional corresponding to parent's region
+```

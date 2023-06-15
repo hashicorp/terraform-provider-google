@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -6,6 +8,8 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	resourceManagerV3 "google.golang.org/api/cloudresourcemanager/v3"
@@ -21,11 +25,11 @@ var IamFolderSchema = map[string]*schema.Schema{
 
 type FolderIamUpdater struct {
 	folderId string
-	d        TerraformResourceData
+	d        tpgresource.TerraformResourceData
 	Config   *transport_tpg.Config
 }
 
-func NewFolderIamUpdater(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func NewFolderIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (tpgiamresource.ResourceIamUpdater, error) {
 	return &FolderIamUpdater{
 		folderId: canonicalFolderId(d.Get("folder").(string)),
 		d:        d,
@@ -44,7 +48,7 @@ func FolderIdParseFunc(d *schema.ResourceData, _ *transport_tpg.Config) error {
 }
 
 func (u *FolderIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +62,7 @@ func (u *FolderIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Pol
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -98,7 +102,7 @@ func canonicalFolderId(folder string) string {
 // v1 and v2 policy are identical
 func v1PolicyToV2(in *cloudresourcemanager.Policy) (*resourceManagerV3.Policy, error) {
 	out := &resourceManagerV3.Policy{}
-	err := Convert(in, out)
+	err := tpgresource.Convert(in, out)
 	if err != nil {
 		return nil, errwrap.Wrapf("Cannot convert a v1 policy to a v2 policy: {{err}}", err)
 	}
@@ -107,7 +111,7 @@ func v1PolicyToV2(in *cloudresourcemanager.Policy) (*resourceManagerV3.Policy, e
 
 func v2PolicyToV1(in *resourceManagerV3.Policy) (*cloudresourcemanager.Policy, error) {
 	out := &cloudresourcemanager.Policy{}
-	err := Convert(in, out)
+	err := tpgresource.Convert(in, out)
 	if err != nil {
 		return nil, errwrap.Wrapf("Cannot convert a v2 policy to a v1 policy: {{err}}", err)
 	}
@@ -119,7 +123,7 @@ func getFolderIamPolicyByFolderName(folderName, userAgent string, config *transp
 	p, err := config.NewResourceManagerV3Client(userAgent).Folders.GetIamPolicy(folderName,
 		&resourceManagerV3.GetIamPolicyRequest{
 			Options: &resourceManagerV3.GetPolicyOptions{
-				RequestedPolicyVersion: IamPolicyVersion,
+				RequestedPolicyVersion: tpgiamresource.IamPolicyVersion,
 			},
 		}).Do()
 	if err != nil {

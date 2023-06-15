@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: DCL     ***
@@ -22,22 +25,24 @@ import (
 	dataplex "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/dataplex"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccDataplexAsset_BasicAssetHandWritten(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_name":  GetTestProjectFromEnv(),
-		"region":        GetTestRegionFromEnv(),
+		"project_name":  acctest.GetTestProjectFromEnv(),
+		"region":        acctest.GetTestRegionFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataplexAssetDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -66,7 +71,7 @@ func TestAccDataplexAsset_BasicAssetHandWritten(t *testing.T) {
 func testAccDataplexAsset_BasicAssetHandWritten(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "basic_bucket" {
-  name          = "dataplex-bucket-%{random_suffix}"
+  name          = "tf-test-bucket%{random_suffix}"
   location      = "%{region}"
   uniform_bucket_level_access = true
   lifecycle {
@@ -116,7 +121,7 @@ resource "google_dataplex_asset" "primary" {
   }
  
   resource_spec {
-    name = "projects/%{project_name}/buckets/dataplex-bucket-%{random_suffix}"
+    name = "projects/%{project_name}/buckets/tf-test-bucket%{random_suffix}"
     type = "STORAGE_BUCKET"
   }
  
@@ -131,7 +136,7 @@ resource "google_dataplex_asset" "primary" {
 func testAccDataplexAsset_BasicAssetHandWrittenUpdate0(context map[string]interface{}) string {
 	return Nprintf(`
 resource "google_storage_bucket" "basic_bucket" {
-  name          = "dataplex-bucket-%{random_suffix}"
+  name          = "tf-test-bucket%{random_suffix}"
   location      = "%{region}"
   uniform_bucket_level_access = true
   lifecycle {
@@ -181,7 +186,7 @@ resource "google_dataplex_asset" "primary" {
   }
  
   resource_spec {
-    name = "projects/%{project_name}/buckets/dataplex-bucket-%{random_suffix}"
+    name = "projects/%{project_name}/buckets/tf-test-bucket%{random_suffix}"
     type = "STORAGE_BUCKET"
   }
  

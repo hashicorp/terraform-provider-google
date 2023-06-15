@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,11 +7,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -37,7 +41,7 @@ func TestAccStorageObjectAcl_basic(t *testing.T) {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
-			AccTestPreCheck(t)
+			acctest.AccTestPreCheck(t)
 		},
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
@@ -68,7 +72,7 @@ func TestAccStorageObjectAcl_upgrade(t *testing.T) {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
-			AccTestPreCheck(t)
+			acctest.AccTestPreCheck(t)
 		},
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectAclDestroyProducer(t),
@@ -122,7 +126,7 @@ func TestAccStorageObjectAcl_downgrade(t *testing.T) {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
-			AccTestPreCheck(t)
+			acctest.AccTestPreCheck(t)
 		},
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectAclDestroyProducer(t),
@@ -176,7 +180,7 @@ func TestAccStorageObjectAcl_predefined(t *testing.T) {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
-			AccTestPreCheck(t)
+			acctest.AccTestPreCheck(t)
 		},
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectAclDestroyProducer(t),
@@ -202,7 +206,7 @@ func TestAccStorageObjectAcl_predefinedToExplicit(t *testing.T) {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
-			AccTestPreCheck(t)
+			acctest.AccTestPreCheck(t)
 		},
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectAclDestroyProducer(t),
@@ -237,7 +241,7 @@ func TestAccStorageObjectAcl_explicitToPredefined(t *testing.T) {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
-			AccTestPreCheck(t)
+			acctest.AccTestPreCheck(t)
 		},
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectAclDestroyProducer(t),
@@ -273,7 +277,7 @@ func TestAccStorageObjectAcl_unordered(t *testing.T) {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
-			AccTestPreCheck(t)
+			acctest.AccTestPreCheck(t)
 		},
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectAclDestroyProducer(t),
@@ -323,7 +327,7 @@ func (t *testRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
 
 // Test that we don't fail if there's no owner for object
 func TestAccStorageObjectAcl_noOwner(t *testing.T) {
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	bucketName := testBucketName(t)
@@ -355,7 +359,7 @@ func TestAccStorageObjectAcl_noOwner(t *testing.T) {
 			if errObjectAcl != nil {
 				panic(errObjectAcl)
 			}
-			AccTestPreCheck(t)
+			acctest.AccTestPreCheck(t)
 		},
 		Providers: providers,
 		Steps: []resource.TestStep{

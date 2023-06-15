@@ -1,9 +1,5 @@
-// ----------------------------------------------------------------------------
-//
-//     ***     HANDWRITTEN CODE    ***    Type: MMv1     ***
-//
-// ----------------------------------------------------------------------------
-
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -14,6 +10,9 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func init() {
@@ -28,7 +27,7 @@ func testSweepFirebaseAppleApp(region string) error {
 	resourceName := "FirebaseAppleApp"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := SharedConfigForRegion(region)
+	config, err := acctest.SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -41,10 +40,10 @@ func testSweepFirebaseAppleApp(region string) error {
 	}
 
 	t := &testing.T{}
-	billingId := GetTestBillingAccountFromEnv(t)
+	billingId := acctest.GetTestBillingAccountFromEnv(t)
 
 	// Setup variables to replace in list template
-	d := &ResourceDataMock{
+	d := &tpgresource.ResourceDataMock{
 		FieldsInSchema: map[string]interface{}{
 			"project":         config.Project,
 			"region":          region,
@@ -55,13 +54,19 @@ func testSweepFirebaseAppleApp(region string) error {
 	}
 
 	listTemplate := strings.Split("https://firebase.googleapis.com/v1beta1/projects/{{project}}/iosApps", "?")[0]
-	listUrl, err := ReplaceVars(d, config, listTemplate)
+	listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 		return nil
 	}
 
-	res, err := SendRequest(config, "GET", config.Project, listUrl, config.UserAgent, nil)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    listUrl,
+		UserAgent: config.UserAgent,
+	})
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", listUrl, err)
 		return nil
@@ -86,7 +91,7 @@ func testSweepFirebaseAppleApp(region string) error {
 		}
 
 		// Skip resources that shouldn't be sweeped
-		if !IsSweepableTestResource(obj["displayName"].(string)) {
+		if !acctest.IsSweepableTestResource(obj["displayName"].(string)) {
 			nonPrefixCount++
 			continue
 		}
@@ -98,7 +103,14 @@ func testSweepFirebaseAppleApp(region string) error {
 		body["immediate"] = true
 
 		// Don't wait on operations as we may have a lot to delete
-		_, err = SendRequest(config, "POST", config.Project, deleteUrl, config.UserAgent, body)
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   config.Project,
+			RawURL:    deleteUrl,
+			UserAgent: config.UserAgent,
+			Body:      body,
+		})
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
 		} else {

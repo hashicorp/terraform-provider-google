@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,6 +7,9 @@ import (
 	"fmt"
 	"regexp"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -15,11 +20,11 @@ import (
 func TestAccProjectIamPolicy_basic(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	member := "user:evanbrown@google.com"
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
@@ -33,6 +38,7 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 			// merges policies, so we validate the expected state.
 			{
 				Config: testAccProjectAssociatePolicyBasic(pid, org, member),
+				Check:  resource.TestCheckResourceAttrSet("data.google_project_iam_policy.acceptance", "policy_data"),
 			},
 			{
 				ResourceName: "google_project_iam_policy.acceptance",
@@ -46,10 +52,10 @@ func TestAccProjectIamPolicy_basic(t *testing.T) {
 func TestAccProjectIamPolicy_emptyMembers(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -63,10 +69,10 @@ func TestAccProjectIamPolicy_emptyMembers(t *testing.T) {
 func TestAccProjectIamPolicy_expanded(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -83,10 +89,10 @@ func TestAccProjectIamPolicy_expanded(t *testing.T) {
 func TestAccProjectIamPolicy_basicAuditConfig(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
@@ -113,10 +119,10 @@ func TestAccProjectIamPolicy_basicAuditConfig(t *testing.T) {
 func TestAccProjectIamPolicy_expandedAuditConfig(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -132,10 +138,10 @@ func TestAccProjectIamPolicy_expandedAuditConfig(t *testing.T) {
 func TestAccProjectIamPolicy_withCondition(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// Create a new project
@@ -162,11 +168,11 @@ func TestAccProjectIamPolicy_withCondition(t *testing.T) {
 func TestAccProjectIamPolicy_invalidMembers(t *testing.T) {
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -224,13 +230,13 @@ func testAccCheckGoogleProjectIamPolicyExists(projectRes, policyRes, pid string)
 		}
 
 		// The bindings in both policies should be identical
-		if !compareBindings(projectPolicy.Bindings, policyPolicy.Bindings) {
-			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", debugPrintBindings(projectPolicy.Bindings), debugPrintBindings(policyPolicy.Bindings))
+		if !tpgiamresource.CompareBindings(projectPolicy.Bindings, policyPolicy.Bindings) {
+			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", tpgiamresource.DebugPrintBindings(projectPolicy.Bindings), tpgiamresource.DebugPrintBindings(policyPolicy.Bindings))
 		}
 
 		// The audit configs in both policies should be identical
-		if !compareAuditConfigs(projectPolicy.AuditConfigs, policyPolicy.AuditConfigs) {
-			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", debugPrintAuditConfigs(projectPolicy.AuditConfigs), debugPrintAuditConfigs(policyPolicy.AuditConfigs))
+		if !tpgiamresource.CompareAuditConfigs(projectPolicy.AuditConfigs, policyPolicy.AuditConfigs) {
+			return fmt.Errorf("Project and data source policies do not match: project policy is %+v, data resource policy is  %+v", tpgiamresource.DebugPrintAuditConfigs(projectPolicy.AuditConfigs), tpgiamresource.DebugPrintAuditConfigs(policyPolicy.AuditConfigs))
 		}
 		return nil
 	}
@@ -263,6 +269,10 @@ resource "google_project" "acceptance" {
 resource "google_project_iam_policy" "acceptance" {
   project     = google_project.acceptance.id
   policy_data = data.google_iam_policy.admin.policy_data
+}
+
+data "google_project_iam_policy" "acceptance" {
+  project     = google_project.acceptance.id
 }
 
 data "google_iam_policy" "admin" {

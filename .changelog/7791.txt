@@ -1,0 +1,6 @@
+```release-note:enhancement
+gkehub: moved `google_gke_hub_feature` from beta to ga
+```
+```release-note:enhancement
+compute: added `dest_address_groups` and `src_address_groups` fields to `google_compute_firewall_policy_rule` and `google_compute_network_firewall_policy_rule`
+```

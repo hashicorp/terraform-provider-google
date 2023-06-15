@@ -1,0 +1,3 @@
+```release-note:bug
+compute: increased timeout for `compute_security_policy` from 4m to 8m
+```

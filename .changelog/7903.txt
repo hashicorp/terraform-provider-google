@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed crash on `terraform destroy -refresh=false` for instance group managers with `wait_for_instances = "true"` if the instance group manager was not found
+```

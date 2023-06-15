@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -21,6 +24,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccCloudSchedulerJob_schedulerJobPubsubExample(t *testing.T) {
@@ -31,7 +38,7 @@ func TestAccCloudSchedulerJob_schedulerJobPubsubExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudSchedulerJobDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -49,7 +56,7 @@ func TestAccCloudSchedulerJob_schedulerJobPubsubExample(t *testing.T) {
 }
 
 func testAccCloudSchedulerJob_schedulerJobPubsubExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_pubsub_topic" "topic" {
   name = "tf-test-job-topic%{random_suffix}"
 }
@@ -76,7 +83,7 @@ func TestAccCloudSchedulerJob_schedulerJobHttpExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudSchedulerJobDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -94,7 +101,7 @@ func TestAccCloudSchedulerJob_schedulerJobHttpExample(t *testing.T) {
 }
 
 func testAccCloudSchedulerJob_schedulerJobHttpExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
   name             = "tf-test-test-job%{random_suffix}"
   description      = "test http job"
@@ -123,7 +130,7 @@ func TestAccCloudSchedulerJob_schedulerJobPausedExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudSchedulerJobDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -141,7 +148,7 @@ func TestAccCloudSchedulerJob_schedulerJobPausedExample(t *testing.T) {
 }
 
 func testAccCloudSchedulerJob_schedulerJobPausedExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
   paused           = true
   name             = "tf-test-test-job%{random_suffix}"
@@ -171,7 +178,7 @@ func TestAccCloudSchedulerJob_schedulerJobAppEngineExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudSchedulerJobDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -189,7 +196,7 @@ func TestAccCloudSchedulerJob_schedulerJobAppEngineExample(t *testing.T) {
 }
 
 func testAccCloudSchedulerJob_schedulerJobAppEngineExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
   name             = "tf-test-test-job%{random_suffix}"
   schedule         = "*/4 * * * *"
@@ -223,13 +230,13 @@ func TestAccCloudSchedulerJob_schedulerJobOauthExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_name":  GetTestProjectFromEnv(),
-		"region":        GetTestRegionFromEnv(),
+		"project_name":  acctest.GetTestProjectFromEnv(),
+		"region":        acctest.GetTestRegionFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudSchedulerJobDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -247,7 +254,7 @@ func TestAccCloudSchedulerJob_schedulerJobOauthExample(t *testing.T) {
 }
 
 func testAccCloudSchedulerJob_schedulerJobOauthExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_compute_default_service_account" "default" {
 }
 
@@ -278,7 +285,7 @@ func TestAccCloudSchedulerJob_schedulerJobOidcExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudSchedulerJobDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -296,7 +303,7 @@ func TestAccCloudSchedulerJob_schedulerJobOidcExample(t *testing.T) {
 }
 
 func testAccCloudSchedulerJob_schedulerJobOidcExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 data "google_compute_default_service_account" "default" {
 }
 
@@ -331,7 +338,7 @@ func testAccCheckCloudSchedulerJobDestroyProducer(t *testing.T) func(s *terrafor
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -342,7 +349,13 @@ func testAccCheckCloudSchedulerJobDestroyProducer(t *testing.T) func(s *terrafor
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("CloudSchedulerJob still exists at %s", url)
 			}

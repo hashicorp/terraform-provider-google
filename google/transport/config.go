@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package transport
 
 import (
@@ -23,6 +25,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/option"
+
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"golang.org/x/oauth2"
 	googleoauth "golang.org/x/oauth2/google"
@@ -1750,7 +1754,7 @@ type StaticTokenSource struct {
 // instead.
 func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bool) (googleoauth.Credentials, error) {
 	if c.AccessToken != "" {
-		contents, _, err := PathOrContents(c.AccessToken)
+		contents, _, err := verify.PathOrContents(c.AccessToken)
 		if err != nil {
 			return googleoauth.Credentials{}, fmt.Errorf("Error loading access token: %s", err)
 		}
@@ -1773,7 +1777,7 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 	}
 
 	if c.Credentials != "" {
-		contents, _, err := PathOrContents(c.Credentials)
+		contents, _, err := verify.PathOrContents(c.Credentials)
 		if err != nil {
 			return googleoauth.Credentials{}, fmt.Errorf("error loading credentials: %s", err)
 		}
@@ -1787,7 +1791,7 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 			return *creds, nil
 		}
 
-		creds, err := googleoauth.CredentialsFromJSON(c.Context, []byte(contents), clientScopes...)
+		creds, err := transport.Creds(c.Context, option.WithCredentialsJSON([]byte(contents)), option.WithScopes(clientScopes...))
 		if err != nil {
 			return googleoauth.Credentials{}, fmt.Errorf("unable to parse credentials from '%s': %s", contents, err)
 		}
@@ -1809,14 +1813,12 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 
 	log.Printf("[INFO] Authenticating using DefaultClient...")
 	log.Printf("[INFO]   -- Scopes: %s", clientScopes)
-	defaultTS, err := googleoauth.DefaultTokenSource(context.Background(), clientScopes...)
+	creds, err := transport.Creds(context.Background(), option.WithScopes(clientScopes...))
 	if err != nil {
 		return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'.  Original error: %w", err)
 	}
 
-	return googleoauth.Credentials{
-		TokenSource: defaultTS,
-	}, err
+	return *creds, nil
 }
 
 // Remove the `/{{version}}/` from a base path if present.
@@ -1941,7 +1943,13 @@ func GetCurrentUserEmail(config *Config, userAgent string) (string, error) {
 
 	// See https://github.com/golang/oauth2/issues/306 for a recommendation to do this from a Go maintainer
 	// URL retrieved from https://accounts.google.com/.well-known/openid-configuration
-	res, err := SendRequest(config, "GET", "NO_BILLING_PROJECT_OVERRIDE", "https://openidconnect.googleapis.com/v1/userinfo", userAgent, nil)
+	res, err := SendRequest(SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   "NO_BILLING_PROJECT_OVERRIDE",
+		RawURL:    "https://openidconnect.googleapis.com/v1/userinfo",
+		UserAgent: userAgent,
+	})
 
 	if err != nil {
 		return "", fmt.Errorf("error retrieving userinfo for your provider credentials. have you enabled the 'https://www.googleapis.com/auth/userinfo.email' scope? error: %s", err)

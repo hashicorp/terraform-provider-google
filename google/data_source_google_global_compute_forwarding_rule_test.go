@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataSourceGoogleGlobalForwardingRule(t *testing.T) {
@@ -14,12 +17,12 @@ func TestAccDataSourceGoogleGlobalForwardingRule(t *testing.T) {
 	ruleName := fmt.Sprintf("tf-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleGlobalForwardingRuleConfig(poolName, ruleName),
-				Check:  CheckDataSourceStateMatchesResourceStateWithIgnores("data.google_compute_global_forwarding_rule.my_forwarding_rule", "google_compute_global_forwarding_rule.foobar-fr", map[string]struct{}{"port_range": {}, "target": {}}),
+				Check:  acctest.CheckDataSourceStateMatchesResourceStateWithIgnores("data.google_compute_global_forwarding_rule.my_forwarding_rule", "google_compute_global_forwarding_rule.foobar-fr", map[string]struct{}{"port_range": {}, "target": {}}),
 			},
 		},
 	})

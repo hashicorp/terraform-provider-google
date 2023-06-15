@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -8,6 +10,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 func init() {
@@ -23,7 +27,7 @@ func testSweepComputeInstanceGroupManager(region string) error {
 	resourceName := "ComputeInstanceGroupManager"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := SharedConfigForRegion(region)
+	config, err := acctest.SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -45,13 +49,13 @@ func testSweepComputeInstanceGroupManager(region string) error {
 	nonPrefixCount := 0
 	for zone, itemList := range found.Items {
 		for _, igm := range itemList.InstanceGroupManagers {
-			if !IsSweepableTestResource(igm.Name) {
+			if !acctest.IsSweepableTestResource(igm.Name) {
 				nonPrefixCount++
 				continue
 			}
 
 			// Don't wait on operations as we may have a lot to delete
-			_, err := config.NewComputeClient(config.UserAgent).InstanceGroupManagers.Delete(config.Project, GetResourceNameFromSelfLink(zone), igm.Name).Do()
+			_, err := config.NewComputeClient(config.UserAgent).InstanceGroupManagers.Delete(config.Project, tpgresource.GetResourceNameFromSelfLink(zone), igm.Name).Do()
 			if err != nil {
 				log.Printf("[INFO][SWEEPER_LOG] Error deleting %s resource %s : %s", resourceName, igm.Name, err)
 			} else {
@@ -67,79 +71,6 @@ func testSweepComputeInstanceGroupManager(region string) error {
 	return nil
 }
 
-func TestInstanceGroupManager_parseUniqueId(t *testing.T) {
-	expectations := map[string][]string{
-		"projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=123":                                       {"projects/imre-test/global/instanceTemplates/example-template-custom", "123"},
-		"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=123": {"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom", "123"},
-		"projects/imre-test/global/instanceTemplates/example-template-custom":                                                    {"projects/imre-test/global/instanceTemplates/example-template-custom", ""},
-		"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom":              {"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom", ""},
-		"example-template-custom?uniqueId=123":                                                                                   {"example-template-custom", "123"},
-
-		// this test demonstrates that uniqueIds can't override eachother
-		"projects/imre-test/global/instanceTemplates/example?uniqueId=123?uniqueId=456": {"projects/imre-test/global/instanceTemplates/example", "123?uniqueId=456"},
-	}
-
-	for k, v := range expectations {
-		aName, aUniqueId := parseUniqueId(k)
-		if v[0] != aName {
-			t.Errorf("parseUniqueId failed; name of %v should be %v, not %v", k, v[0], aName)
-		}
-		if v[1] != aUniqueId {
-			t.Errorf("parseUniqueId failed; uniqueId of %v should be %v, not %v", k, v[1], aUniqueId)
-		}
-	}
-}
-
-func TestInstanceGroupManager_compareInstanceTemplate(t *testing.T) {
-	shouldAllMatch := []string{
-		// uniqueId not present
-		"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom",
-		"projects/imre-test/global/instanceTemplates/example-template-custom",
-		// uniqueId present
-		"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=123",
-		"projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=123",
-	}
-	shouldNotMatch := map[string]string{
-		// mismatching name
-		"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom": "projects/imre-test/global/instanceTemplates/example-template-custom2",
-		"projects/imre-test/global/instanceTemplates/example-template-custom":                                       "https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom2",
-		// matching name, but mismatching uniqueId
-		"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=123": "projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=1234",
-		"projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=123":                                       "https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=1234",
-	}
-	for _, v1 := range shouldAllMatch {
-		for _, v2 := range shouldAllMatch {
-			if !compareSelfLinkRelativePathsIgnoreParams("", v1, v2, nil) {
-				t.Fatalf("compareSelfLinkRelativePathsIgnoreParams did not match (and should have) %v and %v", v1, v2)
-			}
-		}
-	}
-
-	for v1, v2 := range shouldNotMatch {
-		if compareSelfLinkRelativePathsIgnoreParams("", v1, v2, nil) {
-			t.Fatalf("compareSelfLinkRelativePathsIgnoreParams did match (and shouldn't) %v and %v", v1, v2)
-		}
-	}
-}
-
-func TestInstanceGroupManager_convertUniqueId(t *testing.T) {
-	matches := map[string]string{
-		// uniqueId not present (should return the same)
-		"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom": "https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom",
-		"projects/imre-test/global/instanceTemplates/example-template-custom":                                       "projects/imre-test/global/instanceTemplates/example-template-custom",
-		// uniqueId present (should return the last component replaced)
-		"https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=123": "https://www.googleapis.com/compute/v1/projects/imre-test/global/instanceTemplates/123",
-		"projects/imre-test/global/instanceTemplates/example-template-custom?uniqueId=123":                                       "projects/imre-test/global/instanceTemplates/123",
-		"tf-test-igm-8amncgtq22?uniqueId=8361222501423044003":                                                                    "8361222501423044003",
-	}
-	for input, expected := range matches {
-		actual := ConvertToUniqueIdWhenPresent(input)
-		if actual != expected {
-			t.Fatalf("invalid return value by ConvertToUniqueIdWhenPresent for input %v; expected: %v, actual: %v", input, expected, actual)
-		}
-	}
-}
-
 func TestAccInstanceGroupManager_basic(t *testing.T) {
 	t.Parallel()
 
@@ -149,7 +80,7 @@ func TestAccInstanceGroupManager_basic(t *testing.T) {
 	igm2 := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -181,7 +112,7 @@ func TestAccInstanceGroupManager_self_link_unique(t *testing.T) {
 	igm2 := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -211,7 +142,7 @@ func TestAccInstanceGroupManager_targetSizeZero(t *testing.T) {
 	igmName := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -240,7 +171,7 @@ func TestAccInstanceGroupManager_update(t *testing.T) {
 	description2 := "Manager 2"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -277,7 +208,7 @@ func TestAccInstanceGroupManager_update(t *testing.T) {
 
 func TestAccInstanceGroupManager_updateLifecycle(t *testing.T) {
 	// Randomness in instance template
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	tag1 := "tag1"
@@ -285,7 +216,7 @@ func TestAccInstanceGroupManager_updateLifecycle(t *testing.T) {
 	igm := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -313,13 +244,13 @@ func TestAccInstanceGroupManager_updateLifecycle(t *testing.T) {
 
 func TestAccInstanceGroupManager_updatePolicy(t *testing.T) {
 	// Randomness in instance template
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	igm := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -375,14 +306,14 @@ func TestAccInstanceGroupManager_updatePolicy(t *testing.T) {
 
 func TestAccInstanceGroupManager_separateRegions(t *testing.T) {
 	// Randomness in instance template
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	igm1 := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 	igm2 := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -413,7 +344,7 @@ func TestAccInstanceGroupManager_versions(t *testing.T) {
 	igm := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -439,7 +370,7 @@ func TestAccInstanceGroupManager_autoHealingPolicies(t *testing.T) {
 	hck := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -475,7 +406,7 @@ func TestAccInstanceGroupManager_stateful(t *testing.T) {
 	network := fmt.Sprintf("tf-test-igm-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -519,7 +450,7 @@ func TestAccInstanceGroupManager_waitForStatus(t *testing.T) {
 	perInstanceConfig := fmt.Sprintf("tf-test-config-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
 		Steps: []resource.TestStep{

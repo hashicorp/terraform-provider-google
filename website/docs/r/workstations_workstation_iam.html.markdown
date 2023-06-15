@@ -12,17 +12,21 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Workstations"
+subcategory: "Cloud Workstations"
 description: |-
-  Collection of resources to manage IAM policy for Workstations Workstation
+  Collection of resources to manage IAM policy for Cloud Workstations Workstation
 ---
 
-# IAM policy for Workstations Workstation
-Three different resources help you manage your IAM policy for Workstations Workstation. Each of these resources serves a different use case:
+# IAM policy for Cloud Workstations Workstation
+Three different resources help you manage your IAM policy for Cloud Workstations Workstation. Each of these resources serves a different use case:
 
 * `google_workstations_workstation_iam_policy`: Authoritative. Sets the IAM policy for the workstation and replaces any existing policy already attached.
 * `google_workstations_workstation_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the workstation are preserved.
 * `google_workstations_workstation_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the workstation are preserved.
+
+A data source can be used to retrieve policy data in advent you do not need creation
+
+* `google_workstations_workstation_iam_policy`: Retrieves the IAM policy for the workstation
 
 ~> **Note:** `google_workstations_workstation_iam_policy` **cannot** be used in conjunction with `google_workstations_workstation_iam_binding` and `google_workstations_workstation_iam_member` or they will fight over what your policy should be.
 
@@ -89,11 +93,12 @@ resource "google_workstations_workstation_iam_member" "member" {
 }
 ```
 
+
 ## Argument Reference
 
 The following arguments are supported:
 
-* `location` - (Required) The location where the workstation cluster config should reside.
+* `location` - (Required) The location where the workstation parent resources reside.
  Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
@@ -136,7 +141,7 @@ For all import syntaxes, the "resource in question" can take any of the followin
 
 Any variables not passed in the import command will be taken from the provider configuration.
 
-Workstations workstation IAM resources can be imported using the resource identifiers, role, and member.
+Cloud Workstations workstation IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
 ```

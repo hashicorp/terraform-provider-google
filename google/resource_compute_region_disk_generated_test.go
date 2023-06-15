@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -21,6 +24,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
@@ -31,7 +38,7 @@ func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -49,7 +56,7 @@ func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 }
 
 func testAccComputeRegionDisk_regionDiskBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_compute_region_disk" "regiondisk" {
   name                      = "tf-test-my-region-disk%{random_suffix}"
   snapshot                  = google_compute_snapshot.snapdisk.id
@@ -76,6 +83,58 @@ resource "google_compute_snapshot" "snapdisk" {
 `, context)
 }
 
+func TestAccComputeRegionDisk_regionDiskFeaturesExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionDisk_regionDiskFeaturesExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_disk.regiondisk",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"type", "region", "snapshot"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionDisk_regionDiskFeaturesExample(context map[string]interface{}) string {
+	return tpgresource.Nprintf(`
+resource "google_compute_region_disk" "regiondisk" {
+  name                      = "tf-test-my-region-features-disk%{random_suffix}"
+  type                      = "pd-ssd"
+  region                    = "us-central1"
+  physical_block_size_bytes = 4096
+
+  guest_os_features {
+    type = "SECURE_BOOT"
+  }
+
+  guest_os_features {
+    type = "MULTI_IP_SUBNET"
+  }
+
+  guest_os_features {
+    type = "WINDOWS"
+  }
+
+  licenses = ["https://www.googleapis.com/compute/v1/projects/windows-cloud/global/licenses/windows-server-core"]
+
+  replica_zones = ["us-central1-a", "us-central1-f"]
+}
+`, context)
+}
+
 func testAccCheckComputeRegionDiskDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -88,7 +147,7 @@ func testAccCheckComputeRegionDiskDestroyProducer(t *testing.T) func(s *terrafor
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -99,7 +158,13 @@ func testAccCheckComputeRegionDiskDestroyProducer(t *testing.T) func(s *terrafor
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("ComputeRegionDisk still exists at %s", url)
 			}

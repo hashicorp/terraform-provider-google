@@ -63,6 +63,7 @@ resource "google_privateca_ca_pool" "default" {
   publishing_options {
     publish_ca_cert = false
     publish_crl = true
+    encoding_format = "PEM"
   }
   labels = {
     foo = "bar"
@@ -372,7 +373,7 @@ The following arguments are supported:
 
 * `non_ca` -
   (Optional)
-  When true, the "CA" in Basic Constraints extension will be set to false. 
+  When true, the "CA" in Basic Constraints extension will be set to false.
   If both `is_ca` and `non_ca` are unset, the extension will be omitted from the CA certificate.
 
 * `max_issuer_path_length` -
@@ -550,6 +551,13 @@ The following arguments are supported:
   in all issued Certificates. If this is false, CRLs will not be published and the corresponding X.509 extension will not
   be written in issued certificates. CRLs will expire 7 days from their creation. However, we will rebuild daily. CRLs are
   also rebuilt shortly after a certificate is revoked.
+
+* `encoding_format` -
+  (Optional)
+  Specifies the encoding format of each CertificateAuthority's CA
+  certificate and CRLs. If this is omitted, CA certificates and CRLs
+  will be published in PEM.
+  Possible values are: `PEM`, `DER`.
 
 ## Attributes Reference
 

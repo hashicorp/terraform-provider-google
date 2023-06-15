@@ -1,18 +1,23 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccComputeTargetPool_basic(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeTargetPoolDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -44,7 +49,7 @@ func TestAccComputeTargetPool_update(t *testing.T) {
 	name2 := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeTargetPoolDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -139,8 +144,8 @@ func testAccCheckComputeTargetPoolHealthCheck(targetPool, healthCheck string) re
 		}
 
 		hcLink := healthCheckRes.Primary.Attributes["self_link"]
-		if ConvertSelfLinkToV1(targetPoolRes.Primary.Attributes["health_checks.0"]) != hcLink {
-			return fmt.Errorf("Health check not set up. Expected %q to equal %q", ConvertSelfLinkToV1(targetPoolRes.Primary.Attributes["health_checks.0"]), hcLink)
+		if tpgresource.ConvertSelfLinkToV1(targetPoolRes.Primary.Attributes["health_checks.0"]) != hcLink {
+			return fmt.Errorf("Health check not set up. Expected %q to equal %q", tpgresource.ConvertSelfLinkToV1(targetPoolRes.Primary.Attributes["health_checks.0"]), hcLink)
 		}
 
 		return nil

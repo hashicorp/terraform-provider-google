@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -20,6 +23,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccPrivatecaCertificateTemplateIamBindingGenerated(t *testing.T) {
@@ -36,7 +41,7 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -44,7 +49,7 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -54,7 +59,7 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -76,7 +81,7 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -85,7 +90,7 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -107,15 +112,16 @@ func TestAccPrivatecaCertificateTemplateIamPolicyGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateTemplateIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_privateca_certificate_template_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -124,7 +130,7 @@ func TestAccPrivatecaCertificateTemplateIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -146,7 +152,7 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated_withCondition(t *tes
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -154,7 +160,7 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated_withCondition(t *tes
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser %s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser %s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -164,7 +170,7 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated_withCondition(t *tes
 
 func TestAccPrivatecaCertificateTemplateIamBindingGenerated_withAndWithoutCondition(t *testing.T) {
 	// Multiple fine-grained resources
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -178,7 +184,7 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated_withAndWithoutCondit
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -186,19 +192,19 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated_withAndWithoutCondit
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_binding.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser %s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser %s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_binding.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser %s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser %s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title_no_desc"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -220,7 +226,7 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated_withCondition(t *test
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -228,7 +234,7 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated_withCondition(t *test
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com %s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -238,7 +244,7 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated_withCondition(t *test
 
 func TestAccPrivatecaCertificateTemplateIamMemberGenerated_withAndWithoutCondition(t *testing.T) {
 	// Multiple fine-grained resources
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -252,7 +258,7 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated_withAndWithoutConditi
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -260,19 +266,19 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated_withAndWithoutConditi
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_member.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com %s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_member.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com %s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s roles/privateca.templateUser user:admin@hashicorptest.com %s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"]), context["condition_title_no_desc"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -298,7 +304,7 @@ func TestAccPrivatecaCertificateTemplateIamPolicyGenerated_withCondition(t *test
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -312,7 +318,7 @@ func TestAccPrivatecaCertificateTemplateIamPolicyGenerated_withCondition(t *test
 			},
 			{
 				ResourceName:      "google_privateca_certificate_template_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/certificateTemplates/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-template%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -376,6 +382,13 @@ data "google_iam_policy" "foo" {
 resource "google_privateca_certificate_template_iam_policy" "foo" {
   certificate_template = google_privateca_certificate_template.default.id
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_privateca_certificate_template_iam_policy" "foo" {
+  certificate_template = google_privateca_certificate_template.default.id
+  depends_on = [
+    google_privateca_certificate_template_iam_policy.foo
+  ]
 }
 `, context)
 }

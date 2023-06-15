@@ -175,6 +175,25 @@ resource "google_compute_resource_policy" "hourly" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=resource_policy_consistency_group&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Resource Policy Consistency Group
+
+
+```hcl
+resource "google_compute_resource_policy" "cgroup" {
+  provider = google-beta
+
+  name   = "gce-policy"
+  region = "europe-west1"
+  disk_consistency_group_policy {
+    enabled = true
+  }
+}
+```
 
 ## Argument Reference
 
@@ -213,6 +232,11 @@ The following arguments are supported:
   (Optional)
   Resource policy for scheduling instance operations.
   Structure is [documented below](#nested_instance_schedule_policy).
+
+* `disk_consistency_group_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Replication consistency group for asynchronous disk replication.
+  Structure is [documented below](#nested_disk_consistency_group_policy).
 
 * `region` -
   (Optional)
@@ -333,8 +357,8 @@ The following arguments are supported:
 
 * `chain_name` -
   (Optional)
-  Creates the new snapshot in the snapshot chain labeled with the 
-  specified name. The chain name must be 1-63 characters long and comply 
+  Creates the new snapshot in the snapshot chain labeled with the
+  specified name. The chain name must be 1-63 characters long and comply
   with RFC1035.
 
 <a name="nested_group_placement_policy"></a>The `group_placement_policy` block supports:
@@ -399,6 +423,12 @@ The following arguments are supported:
 * `schedule` -
   (Required)
   Specifies the frequency for the operation, using the unix-cron format.
+
+<a name="nested_disk_consistency_group_policy"></a>The `disk_consistency_group_policy` block supports:
+
+* `enabled` -
+  (Required)
+  Enable disk consistency on the resource policy.
 
 ## Attributes Reference
 

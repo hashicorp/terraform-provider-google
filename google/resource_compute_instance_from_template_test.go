@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -7,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -20,7 +23,7 @@ func TestAccComputeInstanceFromTemplate_basic(t *testing.T) {
 	resourceName := "google_compute_instance_from_template.foobar"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -48,7 +51,7 @@ func TestAccComputeInstanceFromTemplate_self_link_unique(t *testing.T) {
 	resourceName := "google_compute_instance_from_template.foobar"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -78,7 +81,7 @@ func TestAccComputeInstanceFromTemplate_overrideBootDisk(t *testing.T) {
 	resourceName := "google_compute_instance_from_template.inst"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -107,7 +110,7 @@ func TestAccComputeInstanceFromTemplate_overrideAttachedDisk(t *testing.T) {
 	resourceName := "google_compute_instance_from_template.inst"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -136,7 +139,7 @@ func TestAccComputeInstanceFromTemplate_overrideScratchDisk(t *testing.T) {
 	resourceName := "google_compute_instance_from_template.inst"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -164,7 +167,7 @@ func TestAccComputeInstanceFromTemplate_overrideScheduling(t *testing.T) {
 	resourceName := "google_compute_instance_from_template.inst"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -193,7 +196,7 @@ func TestAccComputeInstanceFromTemplate_012_removableFields(t *testing.T) {
 		testAccComputeInstanceFromTemplate_012_removableFields2(instanceName)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -228,7 +231,7 @@ func TestAccComputeInstanceFromTemplate_overrideMetadataDotStartupScript(t *test
 	resourceName := "google_compute_instance_from_template.inst"
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{

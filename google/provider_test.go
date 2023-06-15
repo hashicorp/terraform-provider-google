@@ -1,16 +1,21 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
 	"context"
 	"errors"
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"io/ioutil"
 	"regexp"
 	"testing"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestProvider(t *testing.T) {
@@ -25,6 +30,13 @@ func TestProvider_impl(t *testing.T) {
 
 func TestProvider_noDuplicatesInResourceMap(t *testing.T) {
 	_, err := ResourceMapWithErrors()
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestProvider_noDuplicatesInDatasourceMap(t *testing.T) {
+	_, err := DatasourceMapWithErrors()
 	if err != nil {
 		t.Error(err)
 	}
@@ -100,35 +112,32 @@ func TestProvider_validateCredentials(t *testing.T) {
 	}
 }
 
-// Used for testing the `providerConfigure` function
-func setupSDKProviderConfigTest(t *testing.T, configValues map[string]interface{},
-	envValues map[string]string) (context.Context, *schema.Provider, *schema.ResourceData) {
+// Used to create populated schema.ResourceData structs in tests.
+// Pass in a schema and a config map containing the fields and values you wish to set
+// The returned schema.ResourceData can represent a configured resource, data source or provider.
+func setupTestResourceDataFromConfigMap(t *testing.T, s map[string]*schema.Schema, configValues map[string]interface{}) *schema.ResourceData {
+	return tpgresource.SetupTestResourceDataFromConfigMap(t, s, configValues)
+}
 
-	ctx := context.Background()
-	p := Provider()
-
-	// Create empty schema.ResourceData using the SDK Provider schema
-	emptyConfigMap := map[string]interface{}{}
-	d := schema.TestResourceDataRaw(t, p.Schema, emptyConfigMap)
-
-	// Load Terraform config data
-	if len(configValues) > 0 {
-		for k, v := range configValues {
-			err := d.Set(k, v)
-			if err != nil {
-				t.Fatalf("error during test setup: %v", err)
-			}
+// unsetProviderConfigEnvs unsets any ENVs in the test environment that
+// configure the provider.
+// The testing package will restore the original values after the test
+func unsetTestProviderConfigEnvs(t *testing.T) {
+	envs := providerConfigEnvNames()
+	if len(envs) > 0 {
+		for _, k := range envs {
+			t.Setenv(k, "")
 		}
 	}
+}
 
+func setupTestEnvs(t *testing.T, envValues map[string]string) {
 	// Set ENVs
 	if len(envValues) > 0 {
 		for k, v := range envValues {
 			t.Setenv(k, v)
 		}
 	}
-
-	return ctx, p, d
 }
 
 // Returns a fake credentials JSON string with the client_email set to a test-specific value
@@ -248,7 +257,11 @@ func TestProvider_providerConfigure_credentials(t *testing.T) {
 		t.Run(tn, func(t *testing.T) {
 
 			// Arrange
-			ctx, p, d := setupSDKProviderConfigTest(t, tc.ConfigValues, tc.EnvVariables)
+			ctx := context.Background()
+			unsetTestProviderConfigEnvs(t)
+			setupTestEnvs(t, tc.EnvVariables)
+			p := Provider()
+			d := tpgresource.SetupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
 
 			// Act
 			c, diags := providerConfigure(ctx, d, p)
@@ -340,7 +353,11 @@ func TestProvider_providerConfigure_accessToken(t *testing.T) {
 		t.Run(tn, func(t *testing.T) {
 
 			// Arrange
-			ctx, p, d := setupSDKProviderConfigTest(t, tc.ConfigValues, tc.EnvVariables)
+			ctx := context.Background()
+			unsetTestProviderConfigEnvs(t)
+			setupTestEnvs(t, tc.EnvVariables)
+			p := Provider()
+			d := tpgresource.SetupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
 
 			// Act
 			c, diags := providerConfigure(ctx, d, p)
@@ -421,7 +438,11 @@ func TestProvider_providerConfigure_impersonateServiceAccount(t *testing.T) {
 		t.Run(tn, func(t *testing.T) {
 
 			// Arrange
-			ctx, p, d := setupSDKProviderConfigTest(t, tc.ConfigValues, tc.EnvVariables)
+			ctx := context.Background()
+			unsetTestProviderConfigEnvs(t)
+			setupTestEnvs(t, tc.EnvVariables)
+			p := Provider()
+			d := tpgresource.SetupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
 
 			// Act
 			c, diags := providerConfigure(ctx, d, p)
@@ -491,7 +512,11 @@ func TestProvider_providerConfigure_impersonateServiceAccountDelegates(t *testin
 		t.Run(tn, func(t *testing.T) {
 
 			// Arrange
-			ctx, p, d := setupSDKProviderConfigTest(t, tc.ConfigValues, tc.EnvVariables)
+			ctx := context.Background()
+			unsetTestProviderConfigEnvs(t)
+			setupTestEnvs(t, tc.EnvVariables)
+			p := Provider()
+			d := tpgresource.SetupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
 
 			// Act
 			c, diags := providerConfigure(ctx, d, p)
@@ -630,7 +655,11 @@ func TestProvider_providerConfigure_project(t *testing.T) {
 		t.Run(tn, func(t *testing.T) {
 
 			// Arrange
-			ctx, p, d := setupSDKProviderConfigTest(t, tc.ConfigValues, tc.EnvVariables)
+			ctx := context.Background()
+			unsetTestProviderConfigEnvs(t)
+			setupTestEnvs(t, tc.EnvVariables)
+			p := Provider()
+			d := tpgresource.SetupTestResourceDataFromConfigMap(t, p.Schema, tc.ConfigValues)
 
 			// Act
 			c, diags := providerConfigure(ctx, d, p)
@@ -675,7 +704,7 @@ func TestAccProviderBasePath_setBasePath(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -695,7 +724,7 @@ func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
 	t.Parallel()
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -712,7 +741,7 @@ func TestAccProviderMeta_setModuleName(t *testing.T) {
 
 	moduleName := "my-module"
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -730,11 +759,11 @@ func TestAccProviderMeta_setModuleName(t *testing.T) {
 
 func TestAccProviderUserProjectOverride(t *testing.T) {
 	// Parallel fine-grained resource creation
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
-	billing := GetTestBillingAccountFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
+	billing := acctest.GetTestBillingAccountFromEnv(t)
 	pid := "tf-test-" + RandString(t, 10)
 	topicName := "tf-test-topic-" + RandString(t, 10)
 
@@ -745,7 +774,7 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		// No TestDestroy since that's not really the point of this test
 		Steps: []resource.TestStep{
@@ -772,11 +801,11 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 // a reference to a different resource instead of a project field.
 func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 	// Parallel fine-grained resource creation
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	org := GetTestOrgFromEnv(t)
-	billing := GetTestBillingAccountFromEnv(t)
+	org := acctest.GetTestOrgFromEnv(t)
+	billing := acctest.GetTestBillingAccountFromEnv(t)
 	pid := "tf-test-" + RandString(t, 10)
 
 	config := BootstrapConfig(t)
@@ -786,7 +815,7 @@ func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		// No TestDestroy since that's not really the point of this test
 		Steps: []resource.TestStep{

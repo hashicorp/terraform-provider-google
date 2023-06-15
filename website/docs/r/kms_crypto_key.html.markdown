@@ -107,8 +107,7 @@ The following arguments are supported:
   The immutable purpose of this CryptoKey. See the
   [purpose reference](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys#CryptoKeyPurpose)
   for possible inputs.
-  Default value is `ENCRYPT_DECRYPT`.
-  Possible values are: `ENCRYPT_DECRYPT`, `ASYMMETRIC_SIGN`, `ASYMMETRIC_DECRYPT`, `MAC`.
+  Default value is "ENCRYPT_DECRYPT".
 
 * `rotation_period` -
   (Optional)
@@ -133,7 +132,7 @@ The following arguments are supported:
 
 * `skip_initial_version_creation` -
   (Optional)
-  If set to true, the request will create a CryptoKey without any CryptoKeyVersions. 
+  If set to true, the request will create a CryptoKey without any CryptoKeyVersions.
   You must use the `google_kms_key_ring_import_job` resource to import the CryptoKeyVersion.
 
 

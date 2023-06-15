@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -5,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccBigqueryDatasetIamBinding(t *testing.T) {
@@ -15,10 +18,10 @@ func TestAccBigqueryDatasetIamBinding(t *testing.T) {
 	role := "roles/bigquery.dataViewer"
 
 	importId := fmt.Sprintf("projects/%s/datasets/%s %s",
-		GetTestProjectFromEnv(), dataset, role)
+		acctest.GetTestProjectFromEnv(), dataset, role)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -57,13 +60,13 @@ func TestAccBigqueryDatasetIamMember(t *testing.T) {
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/datasets/%s %s serviceAccount:%s",
-		GetTestProjectFromEnv(),
+		acctest.GetTestProjectFromEnv(),
 		dataset,
 		role,
 		serviceAccountCanonicalEmail(account))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -94,15 +97,16 @@ func TestAccBigqueryDatasetIamPolicy(t *testing.T) {
 	role := "roles/bigquery.dataOwner"
 
 	importId := fmt.Sprintf("projects/%s/datasets/%s",
-		GetTestProjectFromEnv(), dataset)
+		acctest.GetTestProjectFromEnv(), dataset)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
 				Config: testAccBigqueryDatasetIamPolicy(dataset, account, role),
+				Check:  resource.TestCheckResourceAttrSet("data.google_bigquery_dataset_iam_policy.policy", "policy_data"),
 			},
 			{
 				ResourceName:      "google_bigquery_dataset_iam_policy.policy",
@@ -191,6 +195,10 @@ data "google_iam_policy" "policy" {
 resource "google_bigquery_dataset_iam_policy" "policy" {
   dataset_id  = google_bigquery_dataset.dataset.dataset_id
   policy_data = data.google_iam_policy.policy.policy_data
+}
+
+data "google_bigquery_dataset_iam_policy" "policy" {
+  dataset_id  = google_bigquery_dataset.dataset.dataset_id
 }
 `, dataset, account, role)
 }

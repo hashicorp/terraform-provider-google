@@ -346,7 +346,7 @@ subnetwork in which the cluster's instances are launched.
     The desired state of IPv6 connectivity to Google Services. By default, no private IPv6 access to or from Google Services (all access will be via IPv4).
 
 * `datapath_provider` - (Optional)
-    The desired datapath provider for this cluster. By default, uses the IPTables-based kube-proxy implementation.
+    The desired datapath provider for this cluster. This is set to `LEGACY_DATAPATH` by default, which uses the IPTables-based kube-proxy implementation. Set to `ADVANCED_DATAPATH` to enable Dataplane v2.
 
 * `default_snat_status` - (Optional)
   [GKE SNAT](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-masquerade-agent#how_ipmasq_works) DefaultSnatStatus contains the desired state of whether default sNAT should be disabled on the cluster, [API doc](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters#networkconfig). Structure is [documented below](#nested_default_snat_status)
@@ -389,6 +389,10 @@ subnetwork in which the cluster's instances are launched.
 
 * `gcp_filestore_csi_driver_config` - (Optional) The status of the Filestore CSI driver addon,
     which allows the usage of filestore instance as volumes.
+    It is disabled by default; set `enabled = true` to enable.
+
+* `gcs_fuse_csi_driver_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))) The status of the GCSFuse CSI driver addon,
+    which allows the usage of a gcs bucket as volumes.
     It is disabled by default; set `enabled = true` to enable.
 
 * `cloudrun_config` - (Optional). Structure is [documented below](#nested_cloudrun_config).
@@ -693,7 +697,7 @@ pick a specific range to use.
 
 * `stack_type` - (Optional) The IP Stack Type of the cluster. 
 Default value is `IPV4`.
-Possible values are `IPV4` and `PV4_IPV6`.
+Possible values are `IPV4` and `IPV4_IPV6`.
 
 <a name="nested_master_auth"></a>The `master_auth` block supports:
 
@@ -887,8 +891,27 @@ linux_node_config {
 
 * `node_group` - (Optional) Setting this field will assign instances of this pool to run on the specified node group. This is useful for running workloads on [sole tenant nodes](https://cloud.google.com/compute/docs/nodes/sole-tenant-nodes).
 
+* `sole_tenant_config` (Optional)  Allows specifying multiple [node affinities](https://cloud.google.com/compute/docs/nodes/sole-tenant-nodes#node_affinity_and_anti-affinity) useful for running workloads on [sole tenant nodes](https://cloud.google.com/kubernetes-engine/docs/how-to/sole-tenancy). `node_affinity` structure is [documented below](#nested_node_affinity).
+
+sole_tenant_config {
+  node_affinity {
+    key = "compute.googleapis.com/node-group-name"
+    operator = "IN"
+    values = ["node-group-name"]
+  }
+}
+```
+
 * `advanced_machine_features` - (Optional) Specifies options for controlling
-  advanced machine features. Structure is documented below.
+  advanced machine features. Structure is [documented below](#nested_advanced_machine_features).
+
+<a name="nested_node_affinity"></a>The `node_affinity` block supports:
+
+* `key` (Required) - The default or custom node affinity label key name.
+
+* `operator` (Required) - Specifies affinity or anti-affinity. Accepted values are `"IN"` or `"NOT_IN"`
+
+* `values` (Required) - List of node affinity label values as strings.
 
 <a name="nested_advanced_machine_features"></a>The `advanced_machine_features` block supports:
 
@@ -1171,7 +1194,7 @@ and all pods running on the nodes. Specified as a map from the key, such as
 
 <a name="nested_gateway_api_config"></a>The `gateway_api_config` block supports:
 
-* `channel` - (Required) Which Gateway Api channel should be used. `CHANNEL_DISABLED` or `CHANNEL_STANDARD`.
+* `channel` - (Required) Which Gateway Api channel should be used. `CHANNEL_DISABLED`, `CHANNEL_EXPERIMENTAL` or `CHANNEL_STANDARD`.
 
 <a name="nested_protect_config"></a>The `protect_config` block supports:
 

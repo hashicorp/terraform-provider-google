@@ -64,13 +64,13 @@ The following arguments are supported:
   (Required)
   The user-assigned display name of the App.
 
+* `bundle_id` -
+  (Required)
+  The canonical bundle ID of the Apple app as it would appear in the Apple AppStore.
+
 
 - - -
 
-
-* `bundle_id` -
-  (Optional)
-  The canonical bundle ID of the Apple app as it would appear in the Apple AppStore.
 
 * `app_store_id` -
   (Optional)
@@ -92,7 +92,7 @@ serving traffic. Set to `DELETE` to delete the Apple. Defaults to `DELETE`.
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `{{name}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/iosApps/{{app_id}}`
 
 * `name` -
   The fully qualified resource name of the App, for example:
@@ -118,10 +118,11 @@ This resource provides the following
 AppleApp can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_firebase_apple_app.default projects/{{project}}/iosApps/{{appId}}
-$ terraform import google_firebase_apple_app.default {{project}}/{{appId}}
-$ terraform import google_firebase_apple_app.default iosApps/{{appId}}
-$ terraform import google_firebase_apple_app.default {{appId}}
+$ terraform import google_firebase_apple_app.default {{project}} projects/{{project}}/iosApps/{{app_id}}
+$ terraform import google_firebase_apple_app.default projects/{{project}}/iosApps/{{app_id}}
+$ terraform import google_firebase_apple_app.default {{project}}/{{project}}/{{app_id}}
+$ terraform import google_firebase_apple_app.default iosApps/{{app_id}}
+$ terraform import google_firebase_apple_app.default {{app_id}}
 ```
 
 ## User Project Overrides

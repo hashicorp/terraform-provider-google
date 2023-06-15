@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: fixed plan failure because of an unused zone being unavailable
+```

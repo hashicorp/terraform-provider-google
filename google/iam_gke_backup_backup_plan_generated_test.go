@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -19,6 +22,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccGKEBackupBackupPlanIamBindingGenerated(t *testing.T) {
@@ -27,11 +32,11 @@ func TestAccGKEBackupBackupPlanIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -39,7 +44,7 @@ func TestAccGKEBackupBackupPlanIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -49,7 +54,7 @@ func TestAccGKEBackupBackupPlanIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -63,11 +68,11 @@ func TestAccGKEBackupBackupPlanIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -76,7 +81,7 @@ func TestAccGKEBackupBackupPlanIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer user:admin@hashicorptest.com", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -90,19 +95,20 @@ func TestAccGKEBackupBackupPlanIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGKEBackupBackupPlanIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_gke_backup_backup_plan_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -111,7 +117,7 @@ func TestAccGKEBackupBackupPlanIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -195,6 +201,15 @@ resource "google_gke_backup_backup_plan_iam_policy" "foo" {
   location = google_gke_backup_backup_plan.basic.location
   name = google_gke_backup_backup_plan.basic.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_gke_backup_backup_plan_iam_policy" "foo" {
+  project = google_gke_backup_backup_plan.basic.project
+  location = google_gke_backup_backup_plan.basic.location
+  name = google_gke_backup_backup_plan.basic.name
+  depends_on = [
+    google_gke_backup_backup_plan_iam_policy.foo
+  ]
 }
 `, context)
 }

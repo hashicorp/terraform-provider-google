@@ -12,14 +12,14 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Workstations"
+subcategory: "Cloud Workstations"
 description: |-
-  A managed workstation cluster.
+  A grouping of workstation configurations and the associated workstations in that region.
 ---
 
 # google\_workstations\_workstation\_cluster
 
-A managed workstation cluster.
+A grouping of workstation configurations and the associated workstations in that region.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
@@ -128,17 +128,17 @@ The following arguments are supported:
 
 * `network` -
   (Required)
-  The relative resource name of the VPC network on which the instance can be accessed. 
+  The relative resource name of the VPC network on which the instance can be accessed.
   It is specified in the following form: "projects/{projectNumber}/global/networks/{network_id}".
 
 * `subnetwork` -
   (Required)
-  Name of the Compute Engine subnetwork in which instances associated with this cluster will be created. 
+  Name of the Compute Engine subnetwork in which instances associated with this cluster will be created.
   Must be part of the subnetwork specified for this cluster.
 
 * `workstation_cluster_id` -
   (Required)
-  The ID of the workstation cluster.
+  ID to use for the workstation cluster.
 
 
 - - -
@@ -177,14 +177,14 @@ The following arguments are supported:
 
 * `cluster_hostname` -
   (Output)
-  Hostname for the workstation cluster. 
-  This field will be populated only when private endpoint is enabled. 
+  Hostname for the workstation cluster.
+  This field will be populated only when private endpoint is enabled.
   To access workstations in the cluster, create a new DNS zone mapping this domain name to an internal IP address and a forwarding rule mapping that address to the service attachment.
 
 * `service_attachment_uri` -
   (Output)
-  Service attachment URI for the workstation cluster. 
-  The service attachemnt is created when private endpoint is enabled. 
+  Service attachment URI for the workstation cluster.
+  The service attachment is created when private endpoint is enabled.
   To access workstations in the cluster, configure access to the managed service using (Private Service Connect)[https://cloud.google.com/vpc/docs/configure-private-service-connect-services].
 
 ## Attributes Reference
@@ -200,15 +200,15 @@ In addition to the arguments listed above, the following computed attributes are
   The system-generated UID of the resource.
 
 * `degraded` -
-  Whether this resource is in degraded mode, in which case it may require user action to restore full functionality. 
+  Whether this resource is in degraded mode, in which case it may require user action to restore full functionality.
   Details can be found in the conditions field.
 
 * `etag` -
-  Checksum computed by the server. 
+  Checksum computed by the server.
   May be sent on update and delete requests to ensure that the client has an up-to-date value before proceeding.
 
 * `create_time` -
-  Time the Instance was created in UTC.
+  Time when this resource was created.
 
 * `conditions` -
   Status conditions describing the current resource state.

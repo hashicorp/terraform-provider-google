@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -19,6 +22,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataplexAssetIamBindingGenerated(t *testing.T) {
@@ -27,11 +32,11 @@ func TestAccDataplexAssetIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
-		"project_name":  GetTestProjectFromEnv(),
+		"project_name":  acctest.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -39,7 +44,7 @@ func TestAccDataplexAssetIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataplex_asset_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/lakes/%s/zones/%s/assets/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-lake%s", context["random_suffix"]), fmt.Sprintf("tf-test-zone%s", context["random_suffix"]), fmt.Sprintf("tf-test-asset%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/lakes/%s/zones/%s/assets/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-lake%s", context["random_suffix"]), fmt.Sprintf("tf-test-zone%s", context["random_suffix"]), fmt.Sprintf("tf-test-asset%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -49,7 +54,7 @@ func TestAccDataplexAssetIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataplex_asset_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/lakes/%s/zones/%s/assets/%s roles/viewer", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-lake%s", context["random_suffix"]), fmt.Sprintf("tf-test-zone%s", context["random_suffix"]), fmt.Sprintf("tf-test-asset%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/lakes/%s/zones/%s/assets/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-lake%s", context["random_suffix"]), fmt.Sprintf("tf-test-zone%s", context["random_suffix"]), fmt.Sprintf("tf-test-asset%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -63,11 +68,11 @@ func TestAccDataplexAssetIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
-		"project_name":  GetTestProjectFromEnv(),
+		"project_name":  acctest.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -76,7 +81,7 @@ func TestAccDataplexAssetIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataplex_asset_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/lakes/%s/zones/%s/assets/%s roles/viewer user:admin@hashicorptest.com", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-lake%s", context["random_suffix"]), fmt.Sprintf("tf-test-zone%s", context["random_suffix"]), fmt.Sprintf("tf-test-asset%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/lakes/%s/zones/%s/assets/%s roles/viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-lake%s", context["random_suffix"]), fmt.Sprintf("tf-test-zone%s", context["random_suffix"]), fmt.Sprintf("tf-test-asset%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -90,19 +95,20 @@ func TestAccDataplexAssetIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
-		"project_name":  GetTestProjectFromEnv(),
+		"project_name":  acctest.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataplexAssetIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_dataplex_asset_iam_policy.foo", "policy_data"),
 			},
 			{
 				ResourceName:      "google_dataplex_asset_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/lakes/%s/zones/%s/assets/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-lake%s", context["random_suffix"]), fmt.Sprintf("tf-test-zone%s", context["random_suffix"]), fmt.Sprintf("tf-test-asset%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/lakes/%s/zones/%s/assets/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-lake%s", context["random_suffix"]), fmt.Sprintf("tf-test-zone%s", context["random_suffix"]), fmt.Sprintf("tf-test-asset%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -111,7 +117,7 @@ func TestAccDataplexAssetIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_dataplex_asset_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/lakes/%s/zones/%s/assets/%s", GetTestProjectFromEnv(), GetTestRegionFromEnv(), fmt.Sprintf("tf-test-lake%s", context["random_suffix"]), fmt.Sprintf("tf-test-zone%s", context["random_suffix"]), fmt.Sprintf("tf-test-asset%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/lakes/%s/zones/%s/assets/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-lake%s", context["random_suffix"]), fmt.Sprintf("tf-test-zone%s", context["random_suffix"]), fmt.Sprintf("tf-test-asset%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -271,6 +277,17 @@ resource "google_dataplex_asset_iam_policy" "foo" {
   dataplex_zone = google_dataplex_asset.example.dataplex_zone
   asset = google_dataplex_asset.example.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_dataplex_asset_iam_policy" "foo" {
+  project = google_dataplex_asset.example.project
+  location = google_dataplex_asset.example.location
+  lake = google_dataplex_asset.example.lake
+  dataplex_zone = google_dataplex_asset.example.dataplex_zone
+  asset = google_dataplex_asset.example.name
+  depends_on = [
+    google_dataplex_asset_iam_policy.foo
+  ]
 }
 `, context)
 }

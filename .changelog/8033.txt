@@ -1,0 +1,4 @@
+```release-note:enhancement
+compute: added `pathTemplateMatch` option in `google_compute_url_map` (`pathMatchers[].routeRules[].matchRules[].pathTemplateMatch`) 
+compute: added `pathTemplateRewrite` option in `google_compute_url_map` (`pathMatchers[].routeRules[].routeAction.urlRewrite.pathTemplateMatch`) 
+```

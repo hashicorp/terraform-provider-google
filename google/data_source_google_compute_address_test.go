@@ -1,13 +1,19 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
 	"fmt"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestComputeAddressIdParsing(t *testing.T) {
@@ -51,7 +57,7 @@ func TestComputeAddressIdParsing(t *testing.T) {
 	}
 
 	for tn, tc := range cases {
-		addressId, err := parseComputeAddressId(tc.ImportId, tc.Config)
+		addressId, err := compute.ParseComputeAddressId(tc.ImportId, tc.Config)
 
 		if tc.ExpectedError && err == nil {
 			t.Fatalf("bad: %s, expected an error", tn)
@@ -64,8 +70,8 @@ func TestComputeAddressIdParsing(t *testing.T) {
 			t.Fatalf("bad: %s, err: %#v", tn, err)
 		}
 
-		if addressId.canonicalId() != tc.ExpectedCanonicalId {
-			t.Fatalf("bad: %s, expected canonical id to be `%s` but is `%s`", tn, tc.ExpectedCanonicalId, addressId.canonicalId())
+		if addressId.CanonicalId() != tc.ExpectedCanonicalId {
+			t.Fatalf("bad: %s, expected canonical id to be `%s` but is `%s`", tn, tc.ExpectedCanonicalId, addressId.CanonicalId())
 		}
 	}
 }
@@ -81,7 +87,7 @@ func TestAccDataSourceComputeAddress(t *testing.T) {
 	dsFullName := fmt.Sprintf("data.google_compute_address.%s", dsName)
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataSourceComputeAddressDestroy(t, rsFullName),
 		Steps: []resource.TestStep{
@@ -126,7 +132,7 @@ func testAccDataSourceComputeAddressCheck(t *testing.T, data_source_name string,
 			}
 		}
 
-		if !compareSelfLinkOrResourceName("", ds_attr["self_link"], rs_attr["self_link"], nil) && ds_attr["self_link"] != rs_attr["self_link"] {
+		if !tpgresource.CompareSelfLinkOrResourceName("", ds_attr["self_link"], rs_attr["self_link"], nil) && ds_attr["self_link"] != rs_attr["self_link"] {
 			return fmt.Errorf("self link does not match: %s vs %s", ds_attr["self_link"], rs_attr["self_link"])
 		}
 
@@ -151,7 +157,7 @@ func testAccCheckDataSourceComputeAddressDestroy(t *testing.T, name string) reso
 
 			config := GoogleProviderConfig(t)
 
-			addressId, err := parseComputeAddressId(rs.Primary.ID, nil)
+			addressId, err := compute.ParseComputeAddressId(rs.Primary.ID, nil)
 			if err != nil {
 				return err
 			}

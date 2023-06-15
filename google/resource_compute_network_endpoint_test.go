@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -6,11 +8,13 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 	// Multiple fine-grained resources
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -21,10 +25,10 @@ func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 		"add2_port":     102,
 	}
 	negId := fmt.Sprintf("projects/%s/zones/%s/networkEndpointGroups/tf-test-neg-%s",
-		GetTestProjectFromEnv(), GetTestZoneFromEnv(), context["random_suffix"])
+		acctest.GetTestProjectFromEnv(), acctest.GetTestZoneFromEnv(), context["random_suffix"])
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -186,7 +190,7 @@ data "google_compute_image" "my_image" {
 // was destroyed properly.
 func testAccCheckComputeNetworkEndpointWithPortsDestroyed(t *testing.T, negId string, ports ...string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		foundPorts, err := testAccComputeNetworkEndpointsListEndpointPorts(t, negId)
+		foundPorts, err := testAccComputeNetworkEndpointListEndpointPorts(t, negId)
 		if err != nil {
 			return fmt.Errorf("unable to confirm endpoints with ports %+v was destroyed: %v", ports, err)
 		}
@@ -200,11 +204,16 @@ func testAccCheckComputeNetworkEndpointWithPortsDestroyed(t *testing.T, negId st
 	}
 }
 
-func testAccComputeNetworkEndpointsListEndpointPorts(t *testing.T, negId string) (map[string]struct{}, error) {
+func testAccComputeNetworkEndpointListEndpointPorts(t *testing.T, negId string) (map[string]struct{}, error) {
 	config := GoogleProviderConfig(t)
 
 	url := fmt.Sprintf("https://www.googleapis.com/compute/v1/%s/listNetworkEndpoints", negId)
-	res, err := SendRequest(config, "POST", "", url, config.UserAgent, nil)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		RawURL:    url,
+		UserAgent: config.UserAgent,
+	})
 	if err != nil {
 		return nil, err
 	}

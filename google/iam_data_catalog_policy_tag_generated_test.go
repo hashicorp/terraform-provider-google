@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -18,6 +21,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataCatalogPolicyTagIamBindingGenerated(t *testing.T) {
@@ -29,7 +34,7 @@ func TestAccDataCatalogPolicyTagIamBindingGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -52,7 +57,7 @@ func TestAccDataCatalogPolicyTagIamMemberGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
@@ -72,11 +77,12 @@ func TestAccDataCatalogPolicyTagIamPolicyGenerated(t *testing.T) {
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataCatalogPolicyTagIamPolicy_basicGenerated(context),
+				Check:  resource.TestCheckResourceAttrSet("data.google_data_catalog_policy_tag_iam_policy.foo", "policy_data"),
 			},
 			{
 				Config: testAccDataCatalogPolicyTagIamPolicy_emptyBinding(context),
@@ -131,6 +137,13 @@ data "google_iam_policy" "foo" {
 resource "google_data_catalog_policy_tag_iam_policy" "foo" {
   policy_tag = google_data_catalog_policy_tag.basic_policy_tag.name
   policy_data = data.google_iam_policy.foo.policy_data
+}
+
+data "google_data_catalog_policy_tag_iam_policy" "foo" {
+  policy_tag = google_data_catalog_policy_tag.basic_policy_tag.name
+  depends_on = [
+    google_data_catalog_policy_tag_iam_policy.foo
+  ]
 }
 `, context)
 }

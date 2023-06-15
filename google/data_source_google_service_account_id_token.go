@@ -1,10 +1,14 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 	iamcredentials "google.golang.org/api/iamcredentials/v1"
 	"google.golang.org/api/idtoken"
 	"google.golang.org/api/option"
@@ -29,14 +33,14 @@ func DataSourceGoogleServiceAccountIdToken() *schema.Resource {
 			"target_service_account": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateRegexp("(" + strings.Join(PossibleServiceAccountNames, "|") + ")"),
+				ValidateFunc: verify.ValidateRegexp("(" + strings.Join(verify.PossibleServiceAccountNames, "|") + ")"),
 			},
 			"delegates": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: validateRegexp(ServiceAccountLinkRegex),
+					ValidateFunc: verify.ValidateRegexp(verify.ServiceAccountLinkRegex),
 				},
 			},
 			"include_email": {
@@ -64,7 +68,7 @@ func DataSourceGoogleServiceAccountIdToken() *schema.Resource {
 
 func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := generateUserAgentString(d, config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -84,7 +88,7 @@ func dataSourceGoogleServiceAccountIdTokenRead(d *schema.ResourceData, meta inte
 		tokenRequest := &iamcredentials.GenerateIdTokenRequest{
 			Audience:     targetAudience,
 			IncludeEmail: d.Get("include_email").(bool),
-			Delegates:    convertStringSet(d.Get("delegates").(*schema.Set)),
+			Delegates:    tpgresource.ConvertStringSet(d.Get("delegates").(*schema.Set)),
 		}
 		at, err := service.Projects.ServiceAccounts.GenerateIdToken(name, tokenRequest).Do()
 		if err != nil {

@@ -102,12 +102,12 @@ The following arguments are supported:
 
 * `service_type` -
   (Optional)
-  The type of service that this basic service defines, e.g. 
+  The type of service that this basic service defines, e.g.
   APP_ENGINE service type
 
 * `service_labels` -
   (Optional)
-  Labels that specify the resource that emits the monitoring data 
+  Labels that specify the resource that emits the monitoring data
   which is used for SLO reporting of this `Service`.
 
 ## Attributes Reference

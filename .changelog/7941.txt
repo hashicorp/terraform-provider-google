@@ -1,0 +1,6 @@
+```release-note:none
+google_sql_user: Replaced users.list api with users.get api to increase efficiency. [this change is not visible to end-users]
+```
+```release-note:none
+google_sql_database_instance: Replaced users.list api with users.get api to increase efficiency. [this change is not visible to end-users]
+```

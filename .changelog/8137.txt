@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fixed a bug in `google_storage_bucket` that caused a permadiff when the `autoclass.enabled` field was explicitly set to false
+```

@@ -199,7 +199,7 @@ The `authorizer_credential` block supports:
   A SecretManager resource containing the OAuth token that authorizes the Cloud Build connection. Format: `projects/*/secrets/*/versions/*`.
     
 * `username` -
-  The username associated to this token.
+  Output only. The username associated to this token.
     
 The `github_enterprise_config` block supports:
     

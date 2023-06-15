@@ -38,7 +38,7 @@ To get more information about BitbucketServerConfig, see:
 
 ```hcl
 resource "google_cloudbuild_bitbucket_server_config" "bbs-config" {
-    config_id = "mybbsconfig"
+    config_id = "bbs-config"
     location = "us-central1"
     host_uri = "https://bbs.com"
     secrets {
@@ -55,7 +55,7 @@ resource "google_cloudbuild_bitbucket_server_config" "bbs-config" {
 
 ```hcl
 resource "google_cloudbuild_bitbucket_server_config" "bbs-config-with-repos" {
-    config_id = "mybbsconfig"
+    config_id = "bbs-config"
     location = "us-central1"
     host_uri = "https://bbs.com"
     secrets {
@@ -113,7 +113,7 @@ resource "google_service_networking_connection" "default" {
 }
 
 resource "google_cloudbuild_bitbucket_server_config" "bbs-config-with-peered-network" {
-    config_id = "mybbsconfig"
+    config_id = "bbs-config"
     location = "us-central1"
     host_uri = "https://bbs.com"
     secrets {
@@ -187,9 +187,9 @@ The following arguments are supported:
 
 * `peered_network` -
   (Optional)
-  The network to be used when reaching out to the Bitbucket Server instance. The VPC network must be enabled for private service connection. 
-  This should be set if the Bitbucket Server instance is hosted on-premises and not reachable by public internet. If this field is left empty, 
-  no network peering will occur and calls to the Bitbucket Server instance will be made over the public internet. Must be in the format 
+  The network to be used when reaching out to the Bitbucket Server instance. The VPC network must be enabled for private service connection.
+  This should be set if the Bitbucket Server instance is hosted on-premises and not reachable by public internet. If this field is left empty,
+  no network peering will occur and calls to the Bitbucket Server instance will be made over the public internet. Must be in the format
   projects/{project}/global/networks/{network}, where {project} is a project number or id and {network} is the name of a VPC network in the project.
 
 * `ssl_ca` -

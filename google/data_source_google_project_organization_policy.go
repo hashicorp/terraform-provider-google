@@ -1,17 +1,20 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 func DataSourceGoogleProjectOrganizationPolicy() *schema.Resource {
 	// Generate datasource schema from resource
-	dsSchema := datasourceSchemaFromResourceSchema(ResourceGoogleProjectOrganizationPolicy().Schema)
+	dsSchema := tpgresource.DatasourceSchemaFromResourceSchema(ResourceGoogleProjectOrganizationPolicy().Schema)
 
-	addRequiredFieldsToSchema(dsSchema, "project")
-	addRequiredFieldsToSchema(dsSchema, "constraint")
+	tpgresource.AddRequiredFieldsToSchema(dsSchema, "project")
+	tpgresource.AddRequiredFieldsToSchema(dsSchema, "constraint")
 
 	return &schema.Resource{
 		Read:   datasourceGoogleProjectOrganizationPolicyRead,

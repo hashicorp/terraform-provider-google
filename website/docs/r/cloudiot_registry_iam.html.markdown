@@ -24,6 +24,10 @@ Three different resources help you manage your IAM policy for Cloud IoT Core Dev
 * `google_cloudiot_registry_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the deviceregistry are preserved.
 * `google_cloudiot_registry_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the deviceregistry are preserved.
 
+A data source can be used to retrieve policy data in advent you do not need creation
+
+* `google_cloudiot_registry_iam_policy`: Retrieves the IAM policy for the deviceregistry
+
 ~> **Note:** `google_cloudiot_registry_iam_policy` **cannot** be used in conjunction with `google_cloudiot_registry_iam_binding` and `google_cloudiot_registry_iam_member` or they will fight over what your policy should be.
 
 ~> **Note:** `google_cloudiot_registry_iam_binding` resources **can be** used in conjunction with `google_cloudiot_registry_iam_member` resources **only if** they do not grant privilege to the same role.
@@ -76,6 +80,7 @@ resource "google_cloudiot_registry_iam_member" "member" {
   member = "user:jane@example.com"
 }
 ```
+
 
 ## Argument Reference
 

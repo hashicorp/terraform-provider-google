@@ -1,0 +1,3 @@
+```release-note:enhancement
+pubsub: Allowed `schema_settings` of `google_pubsub_topic` to change without deleting and recreating the resource
+```

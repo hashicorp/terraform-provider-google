@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
@@ -6,11 +8,12 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccDataSourceDNSKeys_basic(t *testing.T) {
 	// TODO: https://github.com/hashicorp/terraform-provider-google/issues/14158
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	dnsZoneName := fmt.Sprintf("tf-test-dnskey-test-%s", RandString(t, 10))
@@ -18,7 +21,7 @@ func TestAccDataSourceDNSKeys_basic(t *testing.T) {
 	var kskDigest1, kskDigest2, zskPubKey1, zskPubKey2, kskAlg1, kskAlg2 string
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { AccTestPreCheck(t) },
+		PreCheck:     func() { acctest.AccTestPreCheck(t) },
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducerFramework(t),
 		Steps: []resource.TestStep{
 			{
@@ -28,7 +31,7 @@ func TestAccDataSourceDNSKeys_basic(t *testing.T) {
 						Source:            "hashicorp/google",
 					},
 				},
-				Config: testAccDataSourceDNSKeysConfig(dnsZoneName, "on"),
+				Config: testAccDataSourceDNSKeysConfigWithOutputs(dnsZoneName, "on"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceDNSKeysDSRecordCheck("data.google_dns_keys.foo_dns_key"),
 					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key", "key_signing_keys.#", "1"),
@@ -42,7 +45,7 @@ func TestAccDataSourceDNSKeys_basic(t *testing.T) {
 			},
 			{
 				ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
-				Config:                   testAccDataSourceDNSKeysConfig(dnsZoneName, "on"),
+				Config:                   testAccDataSourceDNSKeysConfigWithOutputs(dnsZoneName, "on"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceDNSKeysDSRecordCheck("data.google_dns_keys.foo_dns_key"),
 					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key", "key_signing_keys.#", "1"),
@@ -61,13 +64,13 @@ func TestAccDataSourceDNSKeys_basic(t *testing.T) {
 
 func TestAccDataSourceDNSKeys_noDnsSec(t *testing.T) {
 	// TODO: https://github.com/hashicorp/terraform-provider-google/issues/14158
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	dnsZoneName := fmt.Sprintf("tf-test-dnskey-test-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { AccTestPreCheck(t) },
+		PreCheck:     func() { acctest.AccTestPreCheck(t) },
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducerFramework(t),
 		Steps: []resource.TestStep{
 			{
@@ -130,4 +133,26 @@ data "google_dns_keys" "foo_dns_key_id" {
   managed_zone = google_dns_managed_zone.foo.id
 }
 `, dnsZoneName, dnsZoneName, dnssecStatus)
+}
+
+// This function extends the config returned from the `testAccDataSourceDNSKeysConfig` function
+// to include output blocks that access the `key_signing_keys` and `zone_signing_keys` attributes.
+// These are null if DNSSEC is not enabled.
+func testAccDataSourceDNSKeysConfigWithOutputs(dnsZoneName, dnssecStatus string) string {
+
+	config := testAccDataSourceDNSKeysConfig(dnsZoneName, dnssecStatus)
+	config = config + `
+# These outputs will cause an error if google_dns_managed_zone.foo.dnssec_config.state == "off"
+
+output "test_access_google_dns_keys_key_signing_keys" {
+  description = "Testing that we can access a value in key_signing_keys ok as a computed block"
+  value       = data.google_dns_keys.foo_dns_key_id.key_signing_keys[0].ds_record
+}
+
+output "test_access_google_dns_keys_zone_signing_keys" {
+  description = "Testing that we can access a value in zone_signing_keys ok as a computed block"
+  value       = data.google_dns_keys.foo_dns_key_id.zone_signing_keys[0].id
+}
+`
+	return config
 }

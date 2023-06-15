@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 // ----------------------------------------------------------------------------
 //
 //     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
@@ -21,18 +24,22 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -43,14 +50,14 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBasicExample(t *testing.T)
 				ResourceName:            "google_data_loss_prevention_job_trigger.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"trigger_id", "parent"},
 			},
 		},
 	})
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "basic" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -90,12 +97,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitExample(t 
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -106,14 +113,14 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitExample(t 
 				ResourceName:            "google_data_loss_prevention_job_trigger.bigquery_row_limit",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"trigger_id", "parent"},
 			},
 		},
 	})
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "bigquery_row_limit" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -158,12 +165,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitPercentage
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -174,14 +181,14 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitPercentage
 				ResourceName:            "google_data_loss_prevention_job_trigger.bigquery_row_limit_percentage",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"trigger_id", "parent"},
 			},
 		},
 	})
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitPercentageExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "bigquery_row_limit_percentage" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -226,12 +233,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerDataCatalogOutputExample(t
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -242,14 +249,14 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerDataCatalogOutputExample(t
 				ResourceName:            "google_data_loss_prevention_job_trigger.data_catalog_output",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"trigger_id", "parent"},
 			},
 		},
 	})
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerDataCatalogOutputExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "data_catalog_output" {
   parent = "projects/%{project}"
   description = "Description"
@@ -287,12 +294,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerSccOutputExample(t *testin
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -303,14 +310,14 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerSccOutputExample(t *testin
 				ResourceName:            "google_data_loss_prevention_job_trigger.scc_output",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"trigger_id", "parent"},
 			},
 		},
 	})
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerSccOutputExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "scc_output" {
   parent = "projects/%{project}"
   description = "Description"
@@ -348,12 +355,12 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerJobNotificationEmailsExamp
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -364,14 +371,14 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerJobNotificationEmailsExamp
 				ResourceName:            "google_data_loss_prevention_job_trigger.job_notification_emails",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"trigger_id", "parent"},
 			},
 		},
 	})
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerJobNotificationEmailsExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "job_notification_emails" {
   parent       = "projects/%{project}"
   description  = "Description for the job_trigger created by terraform"
@@ -400,17 +407,131 @@ resource "google_data_loss_prevention_job_trigger" "job_notification_emails" {
 `, context)
 }
 
-func TestAccDataLossPreventionJobTrigger_dlpJobTriggerHybridExample(t *testing.T) {
+func TestAccDataLossPreventionJobTrigger_dlpJobTriggerDeidentifyExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       GetTestProjectFromEnv(),
+		"project":       acctest.GetTestProjectFromEnv(),
 		"name":          "tf_test_" + RandString(t, 10),
 		"random_suffix": RandString(t, 10),
 	}
 
 	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerDeidentifyExample(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.deidentify",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"trigger_id", "parent"},
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionJobTrigger_dlpJobTriggerDeidentifyExample(context map[string]interface{}) string {
+	return tpgresource.Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "deidentify" {
+  parent       = "projects/%{project}"
+  description  = "Description for the job_trigger created by terraform"
+  display_name = "TerraformDisplayName"
+  
+  triggers {
+    schedule {
+      recurrence_period_duration = "86400s"
+    }
+  }
+  
+  inspect_job {
+    inspect_template_name = "sample-inspect-template"
+    actions {
+      deidentify {
+        cloud_storage_output    = "gs://samplebucket/dir/"
+        file_types_to_transform = ["CSV", "TSV"]
+        transformation_details_storage_config {
+          table {
+            project_id = "%{project}"
+            dataset_id = google_bigquery_dataset.default.dataset_id
+            table_id   = google_bigquery_table.default.table_id
+          }
+        }
+        transformation_config {
+          deidentify_template            = "sample-deidentify-template"
+          image_redact_template          = "sample-image-redact-template"
+          structured_deidentify_template = "sample-structured-deidentify-template"
+        }
+      }
+    }
+    storage_config {
+      cloud_storage_options {
+        file_set {
+          url = "gs://mybucket/directory/"
+        }
+      }
+    }
+  }
+}
+  
+resource "google_bigquery_dataset" "default" {
+  dataset_id                  = "%{name}"
+  friendly_name               = "terraform-test"
+  description                 = "Description for the dataset created by terraform"
+  location                    = "US"
+  default_table_expiration_ms = 3600000
+  
+  labels = {
+    env = "default"
+  }
+}
+  
+resource "google_bigquery_table" "default" {
+  dataset_id          = google_bigquery_dataset.default.dataset_id
+  table_id            = "%{name}"
+  deletion_protection = false
+  
+  time_partitioning {
+    type = "DAY"
+  }
+  
+  labels = {
+    env = "default"
+  }
+  
+  schema = <<EOF
+    [
+    {
+      "name": "quantity",
+      "type": "NUMERIC",
+      "mode": "NULLABLE",
+      "description": "The quantity"
+    },
+    {
+      "name": "name",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Name of the object"
+    }
+    ]
+  EOF
+}
+`, context)
+}
+
+func TestAccDataLossPreventionJobTrigger_dlpJobTriggerHybridExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       acctest.GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -421,14 +542,14 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerHybridExample(t *testing.T
 				ResourceName:            "google_data_loss_prevention_job_trigger.hybrid_trigger",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"trigger_id", "parent"},
 			},
 		},
 	})
 }
 
 func testAccDataLossPreventionJobTrigger_dlpJobTriggerHybridExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return tpgresource.Nprintf(`
 resource "google_data_loss_prevention_job_trigger" "hybrid_trigger" {
   parent = "projects/%{project}"
 
@@ -469,6 +590,245 @@ resource "google_data_loss_prevention_job_trigger" "hybrid_trigger" {
 `, context)
 }
 
+func TestAccDataLossPreventionJobTrigger_dlpJobTriggerInspectExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       acctest.GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerInspectExample(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.inspect",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"trigger_id", "parent"},
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionJobTrigger_dlpJobTriggerInspectExample(context map[string]interface{}) string {
+	return tpgresource.Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "inspect" {
+  parent = "projects/%{project}"
+  description = "Description"
+  display_name = "Displayname"
+
+  triggers {
+    schedule {
+      recurrence_period_duration = "86400s"
+    }
+  }
+
+  inspect_job {
+    inspect_template_name = "fake"
+    actions {
+      save_findings {
+        output_config {
+          table {
+            project_id = "project"
+            dataset_id = "dataset"
+          }
+        }
+      }
+    }
+    storage_config {
+      cloud_storage_options {
+        file_set {
+          url = "gs://mybucket/directory/"
+        }
+      }
+    }
+    inspect_config {
+      custom_info_types {
+        info_type {
+          name = "MY_CUSTOM_TYPE"
+        }
+  
+        likelihood = "UNLIKELY"
+  
+        regex {
+          pattern = "test*"
+        }
+      }
+  
+      info_types {
+        name = "EMAIL_ADDRESS"
+      }
+  
+      min_likelihood = "UNLIKELY"
+      rule_set {
+        info_types {
+          name = "EMAIL_ADDRESS"
+        }
+        rules {
+          exclusion_rule {
+            regex {
+              pattern = ".+@example.com"
+            }
+            matching_type = "MATCHING_TYPE_FULL_MATCH"
+          }
+        }
+      }
+  
+      rule_set {
+        info_types {
+          name = "MY_CUSTOM_TYPE"
+        }
+        rules {
+          hotword_rule {
+            hotword_regex {
+              pattern = "example*"
+            }
+            proximity {
+              window_before = 50
+            }
+            likelihood_adjustment {
+              fixed_likelihood = "VERY_LIKELY"
+            }
+          }
+        }
+      }
+  
+      limits {
+        max_findings_per_item    = 10
+        max_findings_per_request = 50
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccDataLossPreventionJobTrigger_dlpJobTriggerPublishToStackdriverExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       acctest.GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerPublishToStackdriverExample(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.publish_to_stackdriver",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"trigger_id", "parent"},
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionJobTrigger_dlpJobTriggerPublishToStackdriverExample(context map[string]interface{}) string {
+	return tpgresource.Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "publish_to_stackdriver" {
+  parent       = "projects/%{project}"
+  description  = "Description for the job_trigger created by terraform"
+  display_name = "TerraformDisplayName"
+
+  triggers {
+    schedule {
+      recurrence_period_duration = "86400s"
+    }
+  }
+
+  inspect_job {
+    inspect_template_name = "sample-inspect-template"
+    actions {
+      publish_to_stackdriver {}
+    }
+    storage_config {
+      cloud_storage_options {
+        file_set {
+          url = "gs://mybucket/directory/"
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccDataLossPreventionJobTrigger_dlpJobTriggerWithIdExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       acctest.GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerWithIdExample(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.with_trigger_id",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"trigger_id", "parent"},
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionJobTrigger_dlpJobTriggerWithIdExample(context map[string]interface{}) string {
+	return tpgresource.Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "with_trigger_id" {
+  parent = "projects/%{project}"
+  description = "Starting description"
+  display_name = "display"
+  trigger_id = "tf-test-id-%{random_suffix}"
+
+  triggers {
+    schedule {
+      recurrence_period_duration = "86400s"
+    }
+  }
+
+  inspect_job {
+    inspect_template_name = "fake"
+    actions {
+      save_findings {
+        output_config {
+          table {
+            project_id = "project"
+            dataset_id = "dataset123"
+          }
+        }
+      }
+    }
+    storage_config {
+      cloud_storage_options {
+        file_set {
+          url = "gs://mybucket/directory/"
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckDataLossPreventionJobTriggerDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -481,7 +841,7 @@ func testAccCheckDataLossPreventionJobTriggerDestroyProducer(t *testing.T) func(
 
 			config := GoogleProviderConfig(t)
 
-			url, err := replaceVarsForTest(config, rs, "{{DataLossPreventionBasePath}}{{parent}}/jobTriggers/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{DataLossPreventionBasePath}}{{parent}}/jobTriggers/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -492,7 +852,13 @@ func testAccCheckDataLossPreventionJobTriggerDestroyProducer(t *testing.T) func(
 				billingProject = config.BillingProject
 			}
 
-			_, err = SendRequest(config, "GET", billingProject, url, config.UserAgent, nil)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("DataLossPreventionJobTrigger still exists at %s", url)
 			}

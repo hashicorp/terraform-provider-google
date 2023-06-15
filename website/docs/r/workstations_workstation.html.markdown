@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Workstations"
+subcategory: "Cloud Workstations"
 description: |-
   A single instance of a developer workstation with its own persistent storage.
 ---
@@ -112,15 +112,15 @@ The following arguments are supported:
 
 * `workstation_config_id` -
   (Required)
-  The ID of the workstation cluster config.
+  The ID of the parent workstation cluster config.
 
 * `workstation_cluster_id` -
   (Required)
-  The name of the workstation cluster.
+  The ID of the parent workstation cluster.
 
 * `location` -
   (Required)
-  The location where the workstation cluster config should reside.
+  The location where the workstation parent resources reside.
 
 
 - - -
@@ -149,17 +149,17 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/workstationClusters/{{workstation_cluster_id}}/workstationConfigs/{{workstation_config_id}}/workstations/{{workstation_id}}`
 
 * `name` -
-  The name of the cluster resource.
+  Full name of this resource.
 
 * `uid` -
-  The system-generated UID of the resource.
+  A system-assigned unique identified for this resource.
 
 * `create_time` -
-  Time the Instance was created in UTC.
+  Time when this resource was created.
 
 * `host` -
-  Host to which clients can send HTTPS traffic that will be received by the workstation. 
-  Authorized traffic will be received to the workstation as HTTP on port 80. 
+  Host to which clients can send HTTPS traffic that will be received by the workstation.
+  Authorized traffic will be received to the workstation as HTTP on port 80.
   To send traffic to a different port, clients may prefix the host with the destination port in the format "{port}-{host}".
 
 * `state` -

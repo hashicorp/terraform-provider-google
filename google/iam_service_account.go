@@ -1,11 +1,17 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package google
 
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
+
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/iam/v1"
 )
@@ -15,17 +21,17 @@ var IamServiceAccountSchema = map[string]*schema.Schema{
 		Type:         schema.TypeString,
 		Required:     true,
 		ForceNew:     true,
-		ValidateFunc: validateRegexp(ServiceAccountLinkRegex),
+		ValidateFunc: verify.ValidateRegexp(verify.ServiceAccountLinkRegex),
 	},
 }
 
 type ServiceAccountIamUpdater struct {
 	serviceAccountId string
-	d                TerraformResourceData
+	d                tpgresource.TerraformResourceData
 	Config           *transport_tpg.Config
 }
 
-func NewServiceAccountIamUpdater(d TerraformResourceData, config *transport_tpg.Config) (ResourceIamUpdater, error) {
+func NewServiceAccountIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (tpgiamresource.ResourceIamUpdater, error) {
 	return &ServiceAccountIamUpdater{
 		serviceAccountId: d.Get("service_account_id").(string),
 		d:                d,
@@ -41,12 +47,12 @@ func ServiceAccountIdParseFunc(d *schema.ResourceData, _ *transport_tpg.Config) 
 }
 
 func (u *ServiceAccountIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
 
-	p, err := u.Config.NewIamClient(userAgent).Projects.ServiceAccounts.GetIamPolicy(u.serviceAccountId).OptionsRequestedPolicyVersion(IamPolicyVersion).Do()
+	p, err := u.Config.NewIamClient(userAgent).Projects.ServiceAccounts.GetIamPolicy(u.serviceAccountId).OptionsRequestedPolicyVersion(tpgiamresource.IamPolicyVersion).Do()
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
@@ -66,7 +72,7 @@ func (u *ServiceAccountIamUpdater) SetResourceIamPolicy(policy *cloudresourceman
 		return err
 	}
 
-	userAgent, err := generateUserAgentString(u.d, u.Config.UserAgent)
+	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
 		return err
 	}
@@ -96,7 +102,7 @@ func (u *ServiceAccountIamUpdater) DescribeResource() string {
 
 func resourceManagerToIamPolicy(p *cloudresourcemanager.Policy) (*iam.Policy, error) {
 	out := &iam.Policy{}
-	err := Convert(p, out)
+	err := tpgresource.Convert(p, out)
 	if err != nil {
 		return nil, errwrap.Wrapf("Cannot convert a v1 policy to a iam policy: {{err}}", err)
 	}
@@ -105,7 +111,7 @@ func resourceManagerToIamPolicy(p *cloudresourcemanager.Policy) (*iam.Policy, er
 
 func iamToResourceManagerPolicy(p *iam.Policy) (*cloudresourcemanager.Policy, error) {
 	out := &cloudresourcemanager.Policy{}
-	err := Convert(p, out)
+	err := tpgresource.Convert(p, out)
 	if err != nil {
 		return nil, errwrap.Wrapf("Cannot convert a iam policy to a v1 policy: {{err}}", err)
 	}
