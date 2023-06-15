@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -285,7 +286,7 @@ func getFolderIamPolicyByParentAndDisplayName(parent, displayName string, config
 		return nil, fmt.Errorf("Folder not found: %s", displayName)
 	}
 
-	return getFolderIamPolicyByFolderName(folderMatch.Name, config.UserAgent, config)
+	return resourcemanager.GetFolderIamPolicyByFolderName(folderMatch.Name, config.UserAgent, config)
 }
 
 func testAccFolderIamBasic(org, fname string) string {

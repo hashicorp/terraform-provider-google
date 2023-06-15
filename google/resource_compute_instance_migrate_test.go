@@ -114,7 +114,7 @@ func TestAccComputeInstanceMigrateState(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
+	waitErr := tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -187,7 +187,7 @@ func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
+	waitErr := tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -255,7 +255,7 @@ func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
+	waitErr := tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -308,7 +308,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating disk: %s", err)
 	}
-	waitErr := ComputeOperationWaitTime(config, op, config.Project, "disk to create", config.UserAgent, 4*time.Minute)
+	waitErr := tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "disk to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -340,7 +340,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr = ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
+	waitErr = tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -389,7 +389,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 	if err != nil {
 		t.Fatalf("Error creating disk: %s", err)
 	}
-	waitErr := ComputeOperationWaitTime(config, op, config.Project, "disk to create", config.UserAgent, 4*time.Minute)
+	waitErr := tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "disk to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -421,7 +421,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr = ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
+	waitErr = tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -490,7 +490,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
+	waitErr := tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -559,7 +559,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *te
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
+	waitErr := tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -630,7 +630,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *te
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
+	waitErr := tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -703,7 +703,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromAutoDeleteAndImage(
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
+	waitErr := tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -772,7 +772,7 @@ func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
+	waitErr := tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -837,7 +837,7 @@ func TestAccComputeInstanceMigrateState_v4FixScratchDisk(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating instance: %s", err)
 	}
-	waitErr := ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
+	waitErr := tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "instance to create", config.UserAgent, 4*time.Minute)
 	if waitErr != nil {
 		t.Fatal(waitErr)
 	}
@@ -916,7 +916,7 @@ func cleanUpInstance(config *transport_tpg.Config, instanceName, zone string) {
 	}
 
 	// Wait for the operation to complete
-	opErr := ComputeOperationWaitTime(config, op, config.Project, "instance to delete", config.UserAgent, 4*time.Minute)
+	opErr := tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "instance to delete", config.UserAgent, 4*time.Minute)
 	if opErr != nil {
 		log.Printf("[WARNING] Error deleting instance %q, dangling resources may exist: %s", instanceName, opErr)
 	}
@@ -930,7 +930,7 @@ func cleanUpDisk(config *transport_tpg.Config, diskName, zone string) {
 	}
 
 	// Wait for the operation to complete
-	opErr := ComputeOperationWaitTime(config, op, config.Project, "disk to delete", config.UserAgent, 4*time.Minute)
+	opErr := tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "disk to delete", config.UserAgent, 4*time.Minute)
 	if opErr != nil {
 		log.Printf("[WARNING] Error deleting disk %q, dangling resources may exist: %s", diskName, opErr)
 	}

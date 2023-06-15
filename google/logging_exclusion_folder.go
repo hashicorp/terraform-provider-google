@@ -7,6 +7,8 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/logging/v2"
@@ -29,7 +31,7 @@ type FolderLoggingExclusionUpdater struct {
 }
 
 func NewFolderLoggingExclusionUpdater(d *schema.ResourceData, config *transport_tpg.Config) (ResourceLoggingExclusionUpdater, error) {
-	folder := parseFolderId(d.Get("folder"))
+	folder := resourcemanager.ParseFolderId(d.Get("folder"))
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return nil, err
