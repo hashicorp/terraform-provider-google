@@ -158,12 +158,13 @@ func TestBigqueryDataTransferConfig_resourceBigqueryDTCParamsCustomDiffFuncForce
 // but it will get deleted by parallel tests, so they need to be run serially.
 func TestAccBigqueryDataTransferConfig(t *testing.T) {
 	testCases := map[string]func(t *testing.T){
-		"basic":           testAccBigqueryDataTransferConfig_scheduledQuery_basic,
-		"update":          testAccBigqueryDataTransferConfig_scheduledQuery_update,
-		"service_account": testAccBigqueryDataTransferConfig_scheduledQuery_with_service_account,
-		"no_destintation": testAccBigqueryDataTransferConfig_scheduledQuery_no_destination,
-		"booleanParam":    testAccBigqueryDataTransferConfig_copy_booleanParam,
-		"update_params":   testAccBigqueryDataTransferConfig_force_new_update_params,
+		"basic":                  testAccBigqueryDataTransferConfig_scheduledQuery_basic,
+		"update":                 testAccBigqueryDataTransferConfig_scheduledQuery_update,
+		"service_account":        testAccBigqueryDataTransferConfig_scheduledQuery_with_service_account,
+		"no_destintation":        testAccBigqueryDataTransferConfig_scheduledQuery_no_destination,
+		"booleanParam":           testAccBigqueryDataTransferConfig_copy_booleanParam,
+		"update_params":          testAccBigqueryDataTransferConfig_force_new_update_params,
+		"update_service_account": testAccBigqueryDataTransferConfig_scheduledQuery_update_service_account,
 	}
 
 	for name, tc := range testCases {
@@ -384,6 +385,78 @@ func testAccCheckBigqueryDataTransferConfigDestroyProducer(t *testing.T) func(s 
 	}
 }
 
+func testAccBigqueryDataTransferConfig_scheduledQuery_update_service_account(t *testing.T) {
+	random_suffix1 := RandString(t, 10)
+	random_suffix2 := RandString(t, 10)
+	transferConfigID := ""
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryDataTransferConfig_scheduledQuery_updateServiceAccount(random_suffix1, random_suffix1),
+				Check:  testAccCheckDataTransferConfigID("google_bigquery_data_transfer_config.query_config", &transferConfigID),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.query_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "service_account_name"},
+			},
+			{
+				Config: testAccBigqueryDataTransferConfig_scheduledQuery_updateServiceAccount(random_suffix1, random_suffix2),
+				Check:  testAccCheckDataTransferConfigIDChange("google_bigquery_data_transfer_config.query_config", &transferConfigID),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.query_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "service_account_name"},
+			},
+		},
+	})
+}
+
+// Retrieve transfer config ID and stores it in transferConfigID
+func testAccCheckDataTransferConfigID(resourceName string, transferConfigID *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resourceName)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("Transfer config ID is not set")
+		}
+
+		*transferConfigID = rs.Primary.ID
+		return nil
+	}
+}
+
+// Check if transfer config ID matches the one stored in transferConfigID
+func testAccCheckDataTransferConfigIDChange(resourceName string, transferConfigID *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resourceName)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("Transfer config ID is not set")
+		}
+
+		if *transferConfigID != rs.Primary.ID {
+			return fmt.Errorf("Transfer config was recreated after changing service account")
+		}
+		return nil
+	}
+}
+
 func testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, random_suffix2, schedule, start_time, end_time, letter string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {}
@@ -583,4 +656,44 @@ resource "google_bigquery_data_transfer_config" "update_config" {
   }
 }
 `, random_suffix, random_suffix, random_suffix, path, random_suffix, table)
+}
+
+func testAccBigqueryDataTransferConfig_scheduledQuery_updateServiceAccount(random_suffix string, service_account string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "bqwriter%s" {
+  account_id = "bqwriter%s"
+}
+
+resource "google_project_iam_member" "data_editor" {
+  project = data.google_project.project.project_id
+
+  role   = "roles/bigquery.dataEditor"
+  member = "serviceAccount:${google_service_account.bqwriter%s.email}"
+}
+
+resource "google_bigquery_dataset" "my_dataset" {
+  dataset_id    = "my_dataset%s"
+  friendly_name = "foo"
+  description   = "bar"
+  location      = "asia-northeast1"
+}
+
+resource "google_bigquery_data_transfer_config" "query_config" {
+  depends_on = [google_project_iam_member.data_editor]
+
+  display_name           = "my-query-%s"
+  location               = "asia-northeast1"
+  data_source_id         = "scheduled_query"
+  schedule               = "every 15 minutes"
+  destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
+  service_account_name   = google_service_account.bqwriter%s.email
+  params = {
+    destination_table_name_template = "my_table"
+    write_disposition               = "WRITE_APPEND"
+    query                           = "SELECT 1 AS a"
+  }
+}
+`, service_account, service_account, service_account, random_suffix, random_suffix, service_account)
 }

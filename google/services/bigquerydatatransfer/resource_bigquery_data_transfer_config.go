@@ -245,7 +245,6 @@ to a different credential configuration in the config will require an apply to u
 			"service_account_name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Description: `Service account email. If this field is set, transfer config will
 be created with this service account credentials. It requires that
 requesting user calling this API has permissions to act as this service account.`,
@@ -576,7 +575,7 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryDataTransferBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryDataTransferBasePath}}{{name}}?serviceAccountName={{service_account_name}}")
 	if err != nil {
 		return err
 	}
