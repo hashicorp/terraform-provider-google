@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_gke_hub_feature` (ga only)
+```
+```release-note:new-resource
+`google_gke_hub_feature_iam_*`
+```

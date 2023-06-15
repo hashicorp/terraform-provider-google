@@ -64,6 +64,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/gameservices"
 	"github.com/hashicorp/terraform-provider-google/google/services/gkebackup"
 	"github.com/hashicorp/terraform-provider-google/google/services/gkehub"
+	"github.com/hashicorp/terraform-provider-google/google/services/gkehub2"
 	"github.com/hashicorp/terraform-provider-google/google/services/healthcare"
 	"github.com/hashicorp/terraform-provider-google/google/services/iam2"
 	"github.com/hashicorp/terraform-provider-google/google/services/iambeta"
@@ -473,6 +474,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"gke_hub2_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"healthcare_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -864,6 +870,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dns_managed_zone_iam_policy":                     tpgiamresource.DataSourceIamPolicy(dns.DNSManagedZoneIamSchema, dns.DNSManagedZoneIamUpdaterProducer),
 			"google_gke_backup_backup_plan_iam_policy":               tpgiamresource.DataSourceIamPolicy(gkebackup.GKEBackupBackupPlanIamSchema, gkebackup.GKEBackupBackupPlanIamUpdaterProducer),
 			"google_gke_hub_membership_iam_policy":                   tpgiamresource.DataSourceIamPolicy(gkehub.GKEHubMembershipIamSchema, gkehub.GKEHubMembershipIamUpdaterProducer),
+			"google_gke_hub_feature_iam_policy":                      tpgiamresource.DataSourceIamPolicy(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer),
 			"google_healthcare_consent_store_iam_policy":             tpgiamresource.DataSourceIamPolicy(healthcare.HealthcareConsentStoreIamSchema, healthcare.HealthcareConsentStoreIamUpdaterProducer),
 			"google_iap_app_engine_service_iam_policy":               tpgiamresource.DataSourceIamPolicy(iap.IapAppEngineServiceIamSchema, iap.IapAppEngineServiceIamUpdaterProducer),
 			"google_iap_app_engine_version_iam_policy":               tpgiamresource.DataSourceIamPolicy(iap.IapAppEngineVersionIamSchema, iap.IapAppEngineVersionIamUpdaterProducer),
@@ -913,9 +920,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 290
-// Generated IAM resources: 192
-// Total generated resources: 482
+// Generated resources: 291
+// Generated IAM resources: 195
+// Total generated resources: 486
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1236,6 +1243,10 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_gke_hub_membership_iam_binding":                          tpgiamresource.ResourceIamBinding(gkehub.GKEHubMembershipIamSchema, gkehub.GKEHubMembershipIamUpdaterProducer, gkehub.GKEHubMembershipIdParseFunc),
 			"google_gke_hub_membership_iam_member":                           tpgiamresource.ResourceIamMember(gkehub.GKEHubMembershipIamSchema, gkehub.GKEHubMembershipIamUpdaterProducer, gkehub.GKEHubMembershipIdParseFunc),
 			"google_gke_hub_membership_iam_policy":                           tpgiamresource.ResourceIamPolicy(gkehub.GKEHubMembershipIamSchema, gkehub.GKEHubMembershipIamUpdaterProducer, gkehub.GKEHubMembershipIdParseFunc),
+			"google_gke_hub_feature":                                         gkehub2.ResourceGKEHub2Feature(),
+			"google_gke_hub_feature_iam_binding":                             tpgiamresource.ResourceIamBinding(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer, gkehub2.GKEHub2FeatureIdParseFunc),
+			"google_gke_hub_feature_iam_member":                              tpgiamresource.ResourceIamMember(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer, gkehub2.GKEHub2FeatureIdParseFunc),
+			"google_gke_hub_feature_iam_policy":                              tpgiamresource.ResourceIamPolicy(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer, gkehub2.GKEHub2FeatureIdParseFunc),
 			"google_healthcare_consent_store":                                healthcare.ResourceHealthcareConsentStore(),
 			"google_healthcare_consent_store_iam_binding":                    tpgiamresource.ResourceIamBinding(healthcare.HealthcareConsentStoreIamSchema, healthcare.HealthcareConsentStoreIamUpdaterProducer, healthcare.HealthcareConsentStoreIdParseFunc),
 			"google_healthcare_consent_store_iam_member":                     tpgiamresource.ResourceIamMember(healthcare.HealthcareConsentStoreIamSchema, healthcare.HealthcareConsentStoreIamUpdaterProducer, healthcare.HealthcareConsentStoreIdParseFunc),
@@ -1680,6 +1691,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.GameServicesBasePath = d.Get("game_services_custom_endpoint").(string)
 	config.GKEBackupBasePath = d.Get("gke_backup_custom_endpoint").(string)
 	config.GKEHubBasePath = d.Get("gke_hub_custom_endpoint").(string)
+	config.GKEHub2BasePath = d.Get("gke_hub2_custom_endpoint").(string)
 	config.HealthcareBasePath = d.Get("healthcare_custom_endpoint").(string)
 	config.IAM2BasePath = d.Get("iam2_custom_endpoint").(string)
 	config.IAMBetaBasePath = d.Get("iam_beta_custom_endpoint").(string)

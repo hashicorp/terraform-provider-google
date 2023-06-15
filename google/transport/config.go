@@ -234,6 +234,7 @@ type Config struct {
 	GameServicesBasePath             string
 	GKEBackupBasePath                string
 	GKEHubBasePath                   string
+	GKEHub2BasePath                  string
 	HealthcareBasePath               string
 	IAM2BasePath                     string
 	IAMBetaBasePath                  string
@@ -342,6 +343,7 @@ const FirestoreBasePathKey = "Firestore"
 const GameServicesBasePathKey = "GameServices"
 const GKEBackupBasePathKey = "GKEBackup"
 const GKEHubBasePathKey = "GKEHub"
+const GKEHub2BasePathKey = "GKEHub2"
 const HealthcareBasePathKey = "Healthcare"
 const IAM2BasePathKey = "IAM2"
 const IAMBetaBasePathKey = "IAMBeta"
@@ -444,6 +446,7 @@ var DefaultBasePaths = map[string]string{
 	GameServicesBasePathKey:             "https://gameservices.googleapis.com/v1/",
 	GKEBackupBasePathKey:                "https://gkebackup.googleapis.com/v1/",
 	GKEHubBasePathKey:                   "https://gkehub.googleapis.com/v1/",
+	GKEHub2BasePathKey:                  "https://gkehub.googleapis.com/v1/",
 	HealthcareBasePathKey:               "https://healthcare.googleapis.com/v1/",
 	IAM2BasePathKey:                     "https://iam.googleapis.com/v2/",
 	IAMBetaBasePathKey:                  "https://iam.googleapis.com/v1/",
@@ -816,6 +819,11 @@ func HandleSDKDefaults(d *schema.ResourceData) error {
 		d.Set("gke_hub_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_GKE_HUB_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[GKEHubBasePathKey]))
+	}
+	if d.Get("gke_hub2_custom_endpoint") == "" {
+		d.Set("gke_hub2_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_GKE_HUB2_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[GKEHub2BasePathKey]))
 	}
 	if d.Get("healthcare_custom_endpoint") == "" {
 		d.Set("healthcare_custom_endpoint", MultiEnvDefault([]string{
@@ -1884,6 +1892,7 @@ func ConfigureBasePaths(c *Config) {
 	c.GameServicesBasePath = DefaultBasePaths[GameServicesBasePathKey]
 	c.GKEBackupBasePath = DefaultBasePaths[GKEBackupBasePathKey]
 	c.GKEHubBasePath = DefaultBasePaths[GKEHubBasePathKey]
+	c.GKEHub2BasePath = DefaultBasePaths[GKEHub2BasePathKey]
 	c.HealthcareBasePath = DefaultBasePaths[HealthcareBasePathKey]
 	c.IAM2BasePath = DefaultBasePaths[IAM2BasePathKey]
 	c.IAMBetaBasePath = DefaultBasePaths[IAMBetaBasePathKey]

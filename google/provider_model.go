@@ -76,6 +76,7 @@ type ProviderModel struct {
 	GameServicesCustomEndpoint             types.String `tfsdk:"game_services_custom_endpoint"`
 	GKEBackupCustomEndpoint                types.String `tfsdk:"gke_backup_custom_endpoint"`
 	GKEHubCustomEndpoint                   types.String `tfsdk:"gke_hub_custom_endpoint"`
+	GKEHub2CustomEndpoint                  types.String `tfsdk:"gke_hub2_custom_endpoint"`
 	HealthcareCustomEndpoint               types.String `tfsdk:"healthcare_custom_endpoint"`
 	IAM2CustomEndpoint                     types.String `tfsdk:"iam2_custom_endpoint"`
 	IAMBetaCustomEndpoint                  types.String `tfsdk:"iam_beta_custom_endpoint"`
