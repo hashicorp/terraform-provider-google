@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 
 	"google.golang.org/api/compute/v1"
@@ -2350,7 +2351,7 @@ func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resour
 		if err != nil {
 			return fmt.Errorf("Could not stop instance: %s", err)
 		}
-		err = ComputeOperationWaitTime(config, op, config.Project, "Waiting on stop", config.UserAgent, 20*time.Minute)
+		err = tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "Waiting on stop", config.UserAgent, 20*time.Minute)
 		if err != nil {
 			return fmt.Errorf("Could not stop instance: %s", err)
 		}
@@ -2364,7 +2365,7 @@ func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resour
 		if err != nil {
 			return fmt.Errorf("Could not change machine type: %s", err)
 		}
-		err = ComputeOperationWaitTime(config, op, config.Project, "Waiting machine type change", config.UserAgent, 20*time.Minute)
+		err = tpgcompute.ComputeOperationWaitTime(config, op, config.Project, "Waiting machine type change", config.UserAgent, 20*time.Minute)
 		if err != nil {
 			return fmt.Errorf("Could not change machine type: %s", err)
 		}

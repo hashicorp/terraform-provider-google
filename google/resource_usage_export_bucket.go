@@ -7,6 +7,7 @@ import (
 	"log"
 	"time"
 
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -109,7 +110,7 @@ func resourceProjectUsageBucketCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 	d.SetId(project)
-	err = ComputeOperationWaitTime(config, op, project, "Setting usage export bucket.", userAgent, d.Timeout(schema.TimeoutCreate))
+	err = tpgcompute.ComputeOperationWaitTime(config, op, project, "Setting usage export bucket.", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		d.SetId("")
 		return err
@@ -139,7 +140,7 @@ func resourceProjectUsageBucketDelete(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	err = ComputeOperationWaitTime(config, op, project,
+	err = tpgcompute.ComputeOperationWaitTime(config, op, project,
 		"Setting usage export bucket to nil, automatically disabling usage export.", userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err

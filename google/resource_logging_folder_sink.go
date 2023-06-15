@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -50,7 +51,7 @@ func resourceLoggingFolderSinkCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	folder := parseFolderId(d.Get("folder"))
+	folder := resourcemanager.ParseFolderId(d.Get("folder"))
 	id, sink := expandResourceLoggingSink(d, "folders", folder)
 	sink.IncludeChildren = d.Get("include_children").(bool)
 
