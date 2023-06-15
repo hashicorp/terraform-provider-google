@@ -142,6 +142,11 @@ Valid only when 'RuntimeType' is CLOUD. For example: 'projects/foo/locations/us/
 				Description:  `Runtime type of the Apigee organization based on the Apigee subscription purchased. Default value: "CLOUD" Possible values: ["CLOUD", "HYBRID"]`,
 				Default:      "CLOUD",
 			},
+			"apigee_project_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. Project ID of the Apigee Tenant Project.`,
+			},
 			"ca_certificate": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -349,6 +354,9 @@ func resourceApigeeOrganizationRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error reading Organization: %s", err)
 	}
 	if err := d.Set("properties", flattenApigeeOrganizationProperties(res["properties"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Organization: %s", err)
+	}
+	if err := d.Set("apigee_project_id", flattenApigeeOrganizationApigeeProjectId(res["apigeeProjectId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Organization: %s", err)
 	}
 
@@ -617,6 +625,10 @@ func flattenApigeeOrganizationPropertiesPropertyName(v interface{}, d *schema.Re
 }
 
 func flattenApigeeOrganizationPropertiesPropertyValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenApigeeOrganizationApigeeProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

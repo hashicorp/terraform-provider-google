@@ -1,0 +1,3 @@
+```release-note:enhancement
+apigee: added output-only field `apigee_project_id` to resource `google_apigee_organization`
+```
