@@ -37,6 +37,7 @@ func ResourceBigtableInstance() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			resourceBigtableInstanceClusterReorderTypeList,
+			resourceBigtableInstanceUniqueClusterID,
 		),
 
 		SchemaVersion: 1,
@@ -494,6 +495,23 @@ func getBigtableZone(z string, config *transport_tpg.Config) (string, error) {
 		return "", fmt.Errorf("cannot determine zone: set in cluster.0.zone, or set provider-level zone")
 	}
 	return tpgresource.GetResourceNameFromSelfLink(z), nil
+}
+
+// resourceBigtableInstanceUniqueClusterID asserts cluster ID uniqueness.
+func resourceBigtableInstanceUniqueClusterID(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+	_, newCount := diff.GetChange("cluster.#")
+	clusters := map[string]bool{}
+
+	for i := 0; i < newCount.(int); i++ {
+		_, newId := diff.GetChange(fmt.Sprintf("cluster.%d.cluster_id", i))
+		clusterID := newId.(string)
+		if clusters[clusterID] {
+			return fmt.Errorf("duplicated cluster_id: %q", clusterID)
+		}
+		clusters[clusterID] = true
+	}
+
+	return nil
 }
 
 // resourceBigtableInstanceClusterReorderTypeList causes the cluster block to

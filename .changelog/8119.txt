@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: validate that `cluster_id` values are unique within `google_bigtable_instance`
+```
