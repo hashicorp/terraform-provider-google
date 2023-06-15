@@ -1,0 +1,3 @@
+```release-note:enhancement
+increase default timeout for instance operations to 1 hour
+```
