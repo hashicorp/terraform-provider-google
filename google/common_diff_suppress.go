@@ -172,3 +172,7 @@ func ProjectNumberDiffSuppress(k, old, new string, d *schema.ResourceData) bool 
 func compareCryptoKeyVersions(_, old, new string, _ *schema.ResourceData) bool {
 	return tpgresource.CompareCryptoKeyVersions("", old, new, nil)
 }
+
+func cidrOrSizeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	return tpgresource.CidrOrSizeDiffSuppress(k, old, new, d)
+}

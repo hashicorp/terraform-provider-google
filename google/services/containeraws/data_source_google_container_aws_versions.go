@@ -1,6 +1,6 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
-package google
+package containeraws
 
 import (
 	"fmt"
@@ -11,19 +11,24 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func DataSourceGoogleContainerAttachedVersions() *schema.Resource {
+func DataSourceGoogleContainerAwsVersions() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceGoogleContainerAttachedVersionsRead,
+		Read: dataSourceGoogleContainerAwsVersionsRead,
 		Schema: map[string]*schema.Schema{
 			"project": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"location": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"valid_versions": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"supported_regions": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -32,7 +37,7 @@ func DataSourceGoogleContainerAttachedVersions() *schema.Resource {
 	}
 }
 
-func dataSourceGoogleContainerAttachedVersionsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceGoogleContainerAwsVersionsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -52,7 +57,7 @@ func dataSourceGoogleContainerAttachedVersionsRead(d *schema.ResourceData, meta 
 		return fmt.Errorf("Cannot determine location: set location in this data source or at provider-level")
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedServerConfig")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAwsBasePath}}projects/{{project}}/locations/{{location}}/awsServerConfig")
 	if err != nil {
 		return err
 	}
@@ -64,6 +69,9 @@ func dataSourceGoogleContainerAttachedVersionsRead(d *schema.ResourceData, meta 
 		UserAgent: userAgent,
 	})
 	if err != nil {
+		return err
+	}
+	if err := d.Set("supported_regions", res["supportedAwsRegions"]); err != nil {
 		return err
 	}
 	var validVersions []string

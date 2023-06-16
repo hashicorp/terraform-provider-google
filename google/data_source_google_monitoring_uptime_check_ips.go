@@ -48,7 +48,7 @@ func dataSourceGoogleMonitoringUptimeCheckIpsRead(d *schema.ResourceData, meta i
 
 	url := "https://monitoring.googleapis.com/v3/uptimeCheckIps"
 
-	uptimeCheckIps, err := paginatedListRequest("", url, userAgent, config, flattenUptimeCheckIpsList)
+	uptimeCheckIps, err := tpgresource.PaginatedListRequest("", url, userAgent, config, flattenUptimeCheckIpsList)
 	if err != nil {
 		return fmt.Errorf("Error retrieving monitoring uptime check ips: %s", err)
 	}

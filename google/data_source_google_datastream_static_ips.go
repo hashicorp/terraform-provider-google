@@ -52,7 +52,7 @@ func dataSourceGoogleDatastreamStaticIpsRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	staticIps, err := paginatedListRequest(project, url, userAgent, config, flattenStaticIpsList)
+	staticIps, err := tpgresource.PaginatedListRequest(project, url, userAgent, config, flattenStaticIpsList)
 	if err != nil {
 		return fmt.Errorf("Error retrieving monitoring uptime check ips: %s", err)
 	}
