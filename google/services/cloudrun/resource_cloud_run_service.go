@@ -133,7 +133,7 @@ func ResourceCloudRunService() *schema.Resource {
 				Description: `Name must be unique within a Google Cloud project and region.
 Is required when creating resources. Name is primarily intended
 for creation idempotence and configuration definition. Cannot be updated.
-More info: http://kubernetes.io/docs/user-guide/identifiers#names`,
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names`,
 			},
 			"template": {
 				Type:     schema.TypeList,
@@ -752,7 +752,7 @@ annotation key.`,
 										DiffSuppressFunc: cloudrunTemplateAnnotationDiffSuppress,
 										Description: `Annotations is a key value map stored with a resource that
 may be set by external tools to store and retrieve arbitrary metadata. More
-info: http://kubernetes.io/docs/user-guide/annotations
+info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
 
 **Note**: The Cloud Run API may add additional annotations that were not provided in your config.
 If terraform plan shows a diff where a server-side annotation is added, you can add it to your config
@@ -904,7 +904,7 @@ and annotations.`,
 							DiffSuppressFunc: cloudrunAnnotationDiffSuppress,
 							Description: `Annotations is a key value map stored with a resource that
 may be set by external tools to store and retrieve arbitrary metadata. More
-info: http://kubernetes.io/docs/user-guide/annotations
+info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
 
 **Note**: The Cloud Run API may add additional annotations that were not provided in your config.
 If terraform plan shows a diff where a server-side annotation is added, you can add it to your config
