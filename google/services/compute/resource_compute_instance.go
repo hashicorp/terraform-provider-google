@@ -42,6 +42,7 @@ var (
 		"boot_disk.0.initialize_params.0.type",
 		"boot_disk.0.initialize_params.0.image",
 		"boot_disk.0.initialize_params.0.labels",
+		"boot_disk.0.initialize_params.0.resource_manager_tags",
 	}
 
 	schedulingKeys = []string{
@@ -215,6 +216,14 @@ func ResourceComputeInstance() *schema.Resource {
 										Computed:     true,
 										ForceNew:     true,
 										Description:  `A set of key/value label pairs assigned to the disk.`,
+									},
+
+									"resource_manager_tags": {
+										Type:         schema.TypeMap,
+										Optional:     true,
+										AtLeastOneOf: initializeParamsKeys,
+										ForceNew:     true,
+										Description:  `A map of resource manager tags. Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored (both PUT & PATCH) when empty.`,
 									},
 								},
 							},
@@ -533,6 +542,25 @@ func ResourceComputeInstance() *schema.Resource {
 							ForceNew:         true,
 							DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 							Description:      `The accelerator type resource exposed to this instance. E.g. nvidia-tesla-k80.`,
+						},
+					},
+				},
+			},
+
+			"params": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Stores additional params passed with the request, but not persisted as part of resource payload.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"resource_manager_tags": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							// This field is intentionally not updatable. The API overrides all existing tags on the field when updated.  See go/gce-tags-terraform-support for details.
+							ForceNew:    true,
+							Description: `A map of resource manager tags. Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored (both PUT & PATCH) when empty.`,
 						},
 					},
 				},
@@ -1013,6 +1041,11 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		return nil, fmt.Errorf("Error creating scheduling: %s", err)
 	}
 
+	params, err := expandParams(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error creating params: %s", err)
+	}
+
 	metadata, err := resourceInstanceMetadata(d)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating metadata: %s", err)
@@ -1047,6 +1080,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		NetworkInterfaces:          networkInterfaces,
 		NetworkPerformanceConfig:   networkPerformanceConfig,
 		Tags:                       resourceInstanceTags(d),
+		Params:                     params,
 		Labels:                     tpgresource.ExpandLabels(d),
 		ServiceAccounts:            expandServiceAccounts(d.Get("service_account").([]interface{})),
 		GuestAccelerators:          accels,
@@ -2361,6 +2395,16 @@ func resourceComputeInstanceImportState(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
+func expandParams(d *schema.ResourceData) (*compute.InstanceParams, error) {
+	params := &compute.InstanceParams{}
+
+	if _, ok := d.GetOk("params.0.resource_manager_tags"); ok {
+		params.ResourceManagerTags = tpgresource.ExpandStringMap(d, "params.0.resource_manager_tags")
+	}
+
+	return params, nil
+}
+
 func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, project string) (*compute.AttachedDisk, error) {
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -2429,6 +2473,10 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 		if _, ok := d.GetOk("boot_disk.0.initialize_params.0.labels"); ok {
 			disk.InitializeParams.Labels = tpgresource.ExpandStringMap(d, "boot_disk.0.initialize_params.0.labels")
 		}
+
+		if _, ok := d.GetOk("boot_disk.0.initialize_params.0.resource_manager_tags"); ok {
+			disk.InitializeParams.ResourceManagerTags = tpgresource.ExpandStringMap(d, "boot_disk.0.initialize_params.0.resource_manager_tags")
+		}
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.mode"); ok {
@@ -2464,9 +2512,10 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config 
 			"type": tpgresource.GetResourceNameFromSelfLink(diskDetails.Type),
 			// If the config specifies a family name that doesn't match the image name, then
 			// the diff won't be properly suppressed. See DiffSuppressFunc for this field.
-			"image":  diskDetails.SourceImage,
-			"size":   diskDetails.SizeGb,
-			"labels": diskDetails.Labels,
+			"image":                 diskDetails.SourceImage,
+			"size":                  diskDetails.SizeGb,
+			"labels":                diskDetails.Labels,
+			"resource_manager_tags": d.Get("boot_disk.0.initialize_params.0.resource_manager_tags"),
 		}}
 	}
 

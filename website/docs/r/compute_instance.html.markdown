@@ -148,6 +148,8 @@ is desired, you will need to modify your state file manually using
 `Intel Haswell` or `Intel Skylake`. See the complete list [here](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform).
     **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true or your instance must have a `desired_status` of `TERMINATED` in order to update this field.
 
+* `params` - (Optional) Additional instance parameters.
+.
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
@@ -236,6 +238,8 @@ is desired, you will need to modify your state file manually using
 
 * `labels` - (Optional) A set of key/value label pairs assigned to the disk. This  
     field is only applicable for persistent disks.
+
+* `resource_manager_tags` - (Optional) A tag is a key-value pair that can be attached to a Google Cloud resource. You can use tags to conditionally allow or deny policies based on whether a resource has a specific tag.
 
 <a name="nested_scratch_disk"></a>The `scratch_disk` block supports:
 
@@ -410,6 +414,10 @@ specified, then this instance will have no external IPv6 Internet access. Struct
     or `NOT_IN` for anti-affinities.
 
 * `values` (Required) - The values for the node affinity label.
+
+<a name="nested_params"></a>The `params` block supports:
+
+* `resource_manager_tags` (Optional) - A tag is a key-value pair that can be attached to a Google Cloud resource. You can use tags to conditionally allow or deny policies based on whether a resource has a specific tag.
 
 <a name="nested_shielded_instance_config"></a>The `shielded_instance_config` block supports:
 

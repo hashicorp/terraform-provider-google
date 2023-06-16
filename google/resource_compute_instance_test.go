@@ -84,7 +84,7 @@ func computeInstanceImportStep(zone, instanceName string, additionalImportIgnore
 	// metadata is only read into state if set in the config
 	// importing doesn't know whether metadata.startup_script vs metadata_startup_script is set in the config,
 	// it always takes metadata.startup-script
-	ignores := []string{"metadata.%", "metadata.startup-script", "metadata_startup_script"}
+	ignores := []string{"metadata.%", "metadata.startup-script", "metadata_startup_script", "boot_disk.0.initialize_params.0.resource_manager_tags.%", "params.0.resource_manager_tags.%"}
 
 	return resource.TestStep{
 		ResourceName:            "google_compute_instance.foobar",
@@ -225,6 +225,32 @@ func TestAccComputeInstance_basic5(t *testing.T) {
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
 					testAccCheckComputeInstanceDisk(&instance, instanceName, true, true),
 				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_resourceManagerTags(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	context := map[string]interface{}{
+		"project":       acctest.GetTestProjectFromEnv(),
+		"random_suffix": RandString(t, 10),
+		"instance_name": instanceName,
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_resourceManagerTags(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance)),
 			},
 		},
 	})
@@ -3190,6 +3216,58 @@ resource "google_compute_instance" "foobar" {
   }
 }
 `, instance)
+}
+
+func testAccComputeInstance_resourceManagerTags(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_tags_tag_key" "key" {
+  parent = "projects/%{project}"
+  short_name = "foobarbaz%{random_suffix}"
+  description = "For foo/bar resources."
+}
+
+resource "google_tags_tag_value" "value" {
+  parent = "tagKeys/${google_tags_tag_key.key.name}"
+  short_name = "foo%{random_suffix}"
+  description = "For foo resources."
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name           = "%{instance_name}"
+  machine_type   = "e2-medium"
+  zone           = "us-central1-a"
+  can_ip_forward = false
+  tags           = ["tag-key", "tag-value"]
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+      resource_manager_tags = {
+        "tagKeys/${google_tags_tag_key.key.name}" = "tagValues/${google_tags_tag_value.value.name}"
+      }
+    }
+  }
+
+  params {
+    resource_manager_tags = {
+      "tagKeys/${google_tags_tag_key.key.name}" = "tagValues/${google_tags_tag_value.value.name}"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+}
+`, context)
 }
 
 func testAccComputeInstance_basic_deletionProtectionFalse(instance string) string {
