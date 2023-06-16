@@ -8,7 +8,7 @@ IMPROVEMENTS:
 * bigtable: added 20 minutes timeout support to `google_bigtable_gc_policy` ([#14861](https://github.com/hashicorp/terraform-provider-google/pull/14861))
 * cloudfunctions2: added `url` output field to `google_cloudfunctions2_function` ([#14851](https://github.com/hashicorp/terraform-provider-google/pull/14851))
 * compute: added field `network_attachment` to `google_compute_instance_template` ([#14874](https://github.com/hashicorp/terraform-provider-google/pull/14874))
-* compute: added error details for Compute Operation with quota exceeded errors. ([#14879](https://github.com/hashicorp/terraform-provider-google/pull/14879))
+* compute: surfaced additional information about quota exceeded errors for compute resources. ([#14879](https://github.com/hashicorp/terraform-provider-google/pull/14879))
 * compute: added `path_template_match` and `path_template_rewrite` to `google_compute_url_map`. ([#14873](https://github.com/hashicorp/terraform-provider-google/pull/14873))
 * compute: added ability to update Hyperdisk PD IOPS without recreation to `google_compute_disk` ([#14844](https://github.com/hashicorp/terraform-provider-google/pull/14844))
 * container: added `sole_tenant_config` to `node_config` in `google_container_node_pool` and `google_container_cluster` ([#14897](https://github.com/hashicorp/terraform-provider-google/pull/14897))
