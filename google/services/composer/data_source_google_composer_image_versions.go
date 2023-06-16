@@ -1,6 +1,6 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
-package google
+package composer
 
 import (
 	"fmt"
@@ -68,7 +68,7 @@ func dataSourceGoogleComposerImageVersionsRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	versions, err := paginatedListRequest(project, url, userAgent, config, flattenGoogleComposerImageVersions)
+	versions, err := tpgresource.PaginatedListRequest(project, url, userAgent, config, flattenGoogleComposerImageVersions)
 	if err != nil {
 		return fmt.Errorf("Error listing Composer image versions: %s", err)
 	}

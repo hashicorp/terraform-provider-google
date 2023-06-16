@@ -1,6 +1,6 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
-package google
+package container
 
 import (
 	"context"
@@ -1219,7 +1219,7 @@ func ResourceContainerCluster() *schema.Resource {
 							Computed:         true,
 							ForceNew:         true,
 							ConflictsWith:    ipAllocationRangeFields,
-							DiffSuppressFunc: cidrOrSizeDiffSuppress,
+							DiffSuppressFunc: tpgresource.CidrOrSizeDiffSuppress,
 							Description:      `The IP address range for the cluster pod IPs. Set to blank to have a range chosen with the default size. Set to /netmask (e.g. /14) to have a range chosen with a specific netmask. Set to a CIDR notation (e.g. 10.96.0.0/14) from the RFC-1918 private networks (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to pick a specific range to use.`,
 						},
 
@@ -1229,7 +1229,7 @@ func ResourceContainerCluster() *schema.Resource {
 							Computed:         true,
 							ForceNew:         true,
 							ConflictsWith:    ipAllocationRangeFields,
-							DiffSuppressFunc: cidrOrSizeDiffSuppress,
+							DiffSuppressFunc: tpgresource.CidrOrSizeDiffSuppress,
 							Description:      `The IP address range of the services IPs in this cluster. Set to blank to have a range chosen with the default size. Set to /netmask (e.g. /14) to have a range chosen with a specific netmask. Set to a CIDR notation (e.g. 10.96.0.0/14) from the RFC-1918 private networks (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to pick a specific range to use.`,
 						},
 
@@ -4955,11 +4955,6 @@ func extractNodePoolInformationFromCluster(d *schema.ResourceData, config *trans
 	}, nil
 }
 
-func cidrOrSizeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	// If the user specified a size and the API returned a full cidr block, suppress.
-	return strings.HasPrefix(new, "/") && strings.HasSuffix(old, new)
-}
-
 // Suppress unremovable default scope values from GCP.
 // If the default service account would not otherwise have it, the `monitoring.write` scope
 // is added to a GKE cluster's scopes regardless of what the user provided.
@@ -4979,7 +4974,7 @@ func containerClusterAddedScopesSuppress(k, old, new string, d *schema.ResourceD
 	}
 
 	// combine what the default scopes are with what was passed
-	m := golangSetFromStringSlice(append(addedScopes, tpgresource.ConvertStringArr(n.([]interface{}))...))
+	m := tpgresource.GolangSetFromStringSlice(append(addedScopes, tpgresource.ConvertStringArr(n.([]interface{}))...))
 	combined := tpgresource.StringSliceFromGolangSet(m)
 
 	// compare if the combined new scopes and default scopes differ from the old scopes

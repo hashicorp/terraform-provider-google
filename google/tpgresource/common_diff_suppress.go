@@ -263,3 +263,8 @@ func CompareCryptoKeyVersions(_, old, new string, _ *schema.ResourceData) bool {
 
 	return false
 }
+
+func CidrOrSizeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// If the user specified a size and the API returned a full cidr block, suppress.
+	return strings.HasPrefix(new, "/") && strings.HasSuffix(old, new)
+}

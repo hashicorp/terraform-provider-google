@@ -1,6 +1,6 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
-package google
+package cloudfunctions
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -37,13 +37,13 @@ func dataSourceGoogleCloudFunctionsFunctionRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	cloudFuncId := &cloudFunctionId{
+	cloudFuncId := &CloudFunctionId{
 		Project: project,
 		Region:  region,
 		Name:    d.Get("name").(string),
 	}
 
-	d.SetId(cloudFuncId.cloudFunctionId())
+	d.SetId(cloudFuncId.CloudFunctionId())
 
 	err = resourceCloudFunctionsRead(d, meta)
 	if err != nil {

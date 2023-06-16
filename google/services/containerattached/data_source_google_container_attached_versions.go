@@ -1,6 +1,6 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
-package google
+package containerattached
 
 import (
 	"fmt"
@@ -11,24 +11,19 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func DataSourceGoogleContainerAzureVersions() *schema.Resource {
+func DataSourceGoogleContainerAttachedVersions() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceGoogleContainerAzureVersionsRead,
+		Read: dataSourceGoogleContainerAttachedVersionsRead,
 		Schema: map[string]*schema.Schema{
 			"project": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 			},
 			"location": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 			},
 			"valid_versions": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"supported_regions": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -37,7 +32,7 @@ func DataSourceGoogleContainerAzureVersions() *schema.Resource {
 	}
 }
 
-func dataSourceGoogleContainerAzureVersionsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceGoogleContainerAttachedVersionsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -57,7 +52,7 @@ func dataSourceGoogleContainerAzureVersionsRead(d *schema.ResourceData, meta int
 		return fmt.Errorf("Cannot determine location: set location in this data source or at provider-level")
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAzureBasePath}}projects/{{project}}/locations/{{location}}/azureServerConfig")
+	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedServerConfig")
 	if err != nil {
 		return err
 	}
@@ -69,9 +64,6 @@ func dataSourceGoogleContainerAzureVersionsRead(d *schema.ResourceData, meta int
 		UserAgent: userAgent,
 	})
 	if err != nil {
-		return err
-	}
-	if err := d.Set("supported_regions", res["supportedAzureRegions"]); err != nil {
 		return err
 	}
 	var validVersions []string

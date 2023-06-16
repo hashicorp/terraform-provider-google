@@ -1,6 +1,6 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
-package google
+package composer
 
 import (
 	"fmt"
@@ -307,7 +307,7 @@ func ResourceComposerEnvironment() *schema.Resource {
 													ForceNew:         true,
 													AtLeastOneOf:     composerIpAllocationPolicyKeys,
 													Description:      `The IP address range used to allocate IP addresses to pods in the cluster. For Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*, this field is applicable only when use_ip_aliases is true. Set to blank to have GKE choose a range with the default size. Set to /netmask (e.g. /14) to have GKE choose a range with a specific netmask. Set to a CIDR notation (e.g. 10.96.0.0/14) from the RFC-1918 private networks (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to pick a specific range to use. Specify either cluster_secondary_range_name or cluster_ipv4_cidr_block but not both.`,
-													DiffSuppressFunc: cidrOrSizeDiffSuppress,
+													DiffSuppressFunc: tpgresource.CidrOrSizeDiffSuppress,
 													ConflictsWith:    []string{"config.0.node_config.0.ip_allocation_policy.0.cluster_secondary_range_name"},
 												},
 												"services_ipv4_cidr_block": {
@@ -316,7 +316,7 @@ func ResourceComposerEnvironment() *schema.Resource {
 													ForceNew:         true,
 													AtLeastOneOf:     composerIpAllocationPolicyKeys,
 													Description:      `The IP address range used to allocate IP addresses in this cluster. For Cloud Composer environments in versions composer-1.*.*-airflow-*.*.*, this field is applicable only when use_ip_aliases is true. Set to blank to have GKE choose a range with the default size. Set to /netmask (e.g. /14) to have GKE choose a range with a specific netmask. Set to a CIDR notation (e.g. 10.96.0.0/14) from the RFC-1918 private networks (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to pick a specific range to use. Specify either services_secondary_range_name or services_ipv4_cidr_block but not both.`,
-													DiffSuppressFunc: cidrOrSizeDiffSuppress,
+													DiffSuppressFunc: tpgresource.CidrOrSizeDiffSuppress,
 													ConflictsWith:    []string{"config.0.node_config.0.ip_allocation_policy.0.services_secondary_range_name"},
 												},
 											},
@@ -808,7 +808,7 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	env := &composer.Environment{
-		Name:   envName.resourceName(),
+		Name:   envName.ResourceName(),
 		Labels: tpgresource.ExpandLabels(d),
 		Config: transformedConfig,
 	}
@@ -816,8 +816,8 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 	// Some fields cannot be specified during create and must be updated post-creation.
 	updateOnlyEnv := getComposerEnvironmentPostCreateUpdateObj(env)
 
-	log.Printf("[DEBUG] Creating new Environment %q", envName.parentName())
-	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Create(envName.parentName(), env).Do()
+	log.Printf("[DEBUG] Creating new Environment %q", envName.ParentName())
+	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Create(envName.ParentName(), env).Do()
 	if err != nil {
 		return err
 	}
@@ -868,7 +868,7 @@ func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	res, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Get(envName.resourceName()).Do()
+	res, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Get(envName.ResourceName()).Do()
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComposerEnvironment %q", d.Id()))
 	}
@@ -1122,7 +1122,7 @@ func resourceComposerEnvironmentPatchField(updateMask, userAgent string, env *co
 	}
 
 	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.
-		Patch(envName.resourceName(), env).
+		Patch(envName.ResourceName(), env).
 		UpdateMask(updateMask).Do()
 	if err != nil {
 		return err
@@ -1153,7 +1153,7 @@ func resourceComposerEnvironmentDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	log.Printf("[DEBUG] Deleting Environment %q", d.Id())
-	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Delete(envName.resourceName()).Do()
+	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Delete(envName.ResourceName()).Do()
 	if err != nil {
 		return err
 	}
@@ -2041,7 +2041,7 @@ func validateComposerEnvironmentEnvVariables(v interface{}, k string) (ws []stri
 	return ws, errors
 }
 
-func handleComposerEnvironmentCreationOpFailure(id string, envName *composerEnvironmentName, d *schema.ResourceData, config *transport_tpg.Config) error {
+func handleComposerEnvironmentCreationOpFailure(id string, envName *ComposerEnvironmentName, d *schema.ResourceData, config *transport_tpg.Config) error {
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -2049,11 +2049,11 @@ func handleComposerEnvironmentCreationOpFailure(id string, envName *composerEnvi
 
 	log.Printf("[WARNING] Creation operation for Composer Environment %q failed, check Environment isn't still running", id)
 	// Try to get possible created but invalid environment.
-	env, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Get(envName.resourceName()).Do()
+	env, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Get(envName.ResourceName()).Do()
 	if err != nil {
 		// If error is 401, we don't have to clean up environment, return nil.
 		// Otherwise, we encountered another error.
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Composer Environment %q", envName.resourceName()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Composer Environment %q", envName.ResourceName()))
 	}
 
 	if env.State == "CREATING" {
@@ -2064,7 +2064,7 @@ func handleComposerEnvironmentCreationOpFailure(id string, envName *composerEnvi
 	}
 
 	log.Printf("[WARNING] Environment %q from failed creation operation was created, deleting.", id)
-	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Delete(envName.resourceName()).Do()
+	op, err := config.NewComposerClient(userAgent).Projects.Locations.Environments.Delete(envName.ResourceName()).Do()
 	if err != nil {
 		return fmt.Errorf("Could not delete the invalid created environment with state %q: %s", env.State, err)
 	}
@@ -2100,7 +2100,7 @@ func getComposerEnvironmentPostCreateUpdateObj(env *composer.Environment) (updat
 	return updateEnv
 }
 
-func resourceComposerEnvironmentName(d *schema.ResourceData, config *transport_tpg.Config) (*composerEnvironmentName, error) {
+func resourceComposerEnvironmentName(d *schema.ResourceData, config *transport_tpg.Config) (*ComposerEnvironmentName, error) {
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return nil, err
@@ -2111,24 +2111,24 @@ func resourceComposerEnvironmentName(d *schema.ResourceData, config *transport_t
 		return nil, err
 	}
 
-	return &composerEnvironmentName{
+	return &ComposerEnvironmentName{
 		Project:     project,
 		Region:      region,
 		Environment: d.Get("name").(string),
 	}, nil
 }
 
-type composerEnvironmentName struct {
+type ComposerEnvironmentName struct {
 	Project     string
 	Region      string
 	Environment string
 }
 
-func (n *composerEnvironmentName) resourceName() string {
+func (n *ComposerEnvironmentName) ResourceName() string {
 	return fmt.Sprintf("projects/%s/locations/%s/environments/%s", n.Project, n.Region, n.Environment)
 }
 
-func (n *composerEnvironmentName) parentName() string {
+func (n *ComposerEnvironmentName) ParentName() string {
 	return fmt.Sprintf("projects/%s/locations/%s", n.Project, n.Region)
 }
 
