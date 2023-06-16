@@ -635,7 +635,7 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 			"annotations": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: `Unstructured key value map that may be set by external tools to store and arbitrary metadata. They are not queryable and should be preserved when modifying objects. Cloud Run will populate some annotations using 'run.googleapis.com' or 'serving.knative.dev' namespaces. This field follows Kubernetes annotations' namespacing, limits, and rules. More info: https://kubernetes.io/docs/user-guide/annotations`,
+				Description: `Unstructured key value map that may be set by external tools to store and arbitrary metadata. They are not queryable and should be preserved when modifying objects. Cloud Run will populate some annotations using 'run.googleapis.com' or 'serving.knative.dev' namespaces. This field follows Kubernetes annotations' namespacing, limits, and rules. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"binary_authorization": {
