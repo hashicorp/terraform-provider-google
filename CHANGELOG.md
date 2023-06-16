@@ -25,7 +25,7 @@ IMPROVEMENTS:
 * vpcaccess: added `connected_projects` field to resource `google_vpc_access_connector`. ([#14835](https://github.com/hashicorp/terraform-provider-google/pull/14835))
 
 BUG FIXES:
-* filestore: fixed an issue causing 429 errors to be retried ([#14850](https://github.com/hashicorp/terraform-provider-google/pull/14850))
+* provider: fixed an issue on multiple resources where non-retryable quota errors were considered retryable ([#14850](https://github.com/hashicorp/terraform-provider-google/pull/14850))
 * vertexai: made `google_vertex_ai_featurestore_entitytype_feature` always use region corresponding to parent's region ([#14843](https://github.com/hashicorp/terraform-provider-google/pull/14843))
 
 
