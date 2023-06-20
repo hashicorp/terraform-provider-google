@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/storage"
 )
 
 func TestAccStorageDefaultObjectAcl_basic(t *testing.T) {
@@ -143,7 +144,7 @@ func TestAccStorageDefaultObjectAcl_unordered(t *testing.T) {
 
 func testAccCheckGoogleStorageDefaultObjectAcl(t *testing.T, bucket, roleEntityS string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		roleEntity, _ := getRoleEntityPair(roleEntityS)
+		roleEntity, _ := storage.GetRoleEntityPair(roleEntityS)
 		config := GoogleProviderConfig(t)
 
 		res, err := config.NewStorageClient(config.UserAgent).DefaultObjectAccessControls.Get(bucket,
@@ -184,7 +185,7 @@ func testAccStorageDefaultObjectAclDestroyProducer(t *testing.T) func(s *terrafo
 
 func testAccCheckGoogleStorageDefaultObjectAclDelete(t *testing.T, bucket, roleEntityS string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		roleEntity, _ := getRoleEntityPair(roleEntityS)
+		roleEntity, _ := storage.GetRoleEntityPair(roleEntityS)
 		config := GoogleProviderConfig(t)
 
 		_, err := config.NewStorageClient(config.UserAgent).DefaultObjectAccessControls.Get(bucket, roleEntity.Entity).Do()
