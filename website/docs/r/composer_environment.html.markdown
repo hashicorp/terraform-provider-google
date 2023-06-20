@@ -679,6 +679,12 @@ The `config` block supports:
   environment size are `ENVIRONMENT_SIZE_SMALL`, `ENVIRONMENT_SIZE_MEDIUM`,
   and `ENVIRONMENT_SIZE_LARGE`.
 
+* `resilience_mode` -
+  (Optional, Cloud Composer 2.1.15 or newer only)
+  The resilience mode states whether high resilience is enabled for 
+  the environment or not. Value for resilience mode is `HIGH_RESILIENCE`.
+  If unspecified, defaults to standard resilience.
+
 * `master_authorized_networks_config` -
   (Optional)
   Configuration options for the master authorized networks feature. Enabled
