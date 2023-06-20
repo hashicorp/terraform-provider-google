@@ -1,4 +1,34 @@
-## 4.70.0 (Unreleased)
+## 4.71.0 (Unreleased)
+
+## 4.70.0 (June 20, 2023)
+
+FEATURES:
+* **New Resource:** `google_compute_network_endpoints` ([#14869](https://github.com/hashicorp/terraform-provider-google/pull/14869))
+* **New Resource:** `vertex_ai_index_endpoint` ([#14842](https://github.com/hashicorp/terraform-provider-google/pull/14842))
+
+IMPROVEMENTS:
+* bigtable: added 20 minutes timeout support to `google_bigtable_gc_policy` ([#14861](https://github.com/hashicorp/terraform-provider-google/pull/14861))
+* cloudfunctions2: added `url` output field to `google_cloudfunctions2_function` ([#14851](https://github.com/hashicorp/terraform-provider-google/pull/14851))
+* compute: added field `network_attachment` to `google_compute_instance_template` ([#14874](https://github.com/hashicorp/terraform-provider-google/pull/14874))
+* compute: surfaced additional information about quota exceeded errors for compute resources. ([#14879](https://github.com/hashicorp/terraform-provider-google/pull/14879))
+* compute: added `path_template_match` and `path_template_rewrite` to `google_compute_url_map`. ([#14873](https://github.com/hashicorp/terraform-provider-google/pull/14873))
+* compute: added ability to update Hyperdisk PD IOPS without recreation to `google_compute_disk` ([#14844](https://github.com/hashicorp/terraform-provider-google/pull/14844))
+* container: added `sole_tenant_config` to `node_config` in `google_container_node_pool` and `google_container_cluster` ([#14897](https://github.com/hashicorp/terraform-provider-google/pull/14897))
+* dataform: added field `workspace_compilation_overrides` to resource `google_dataform_repository` (beta) ([#14839](https://github.com/hashicorp/terraform-provider-google/pull/14839))
+* dlp: added `crypto_hash_config` to `google_data_loss_prevention_deidentify_template` ([#14870](https://github.com/hashicorp/terraform-provider-google/pull/14870))
+* dlp: added `trigger_id` field to `google_data_loss_prevention_job_trigger` ([#14892](https://github.com/hashicorp/terraform-provider-google/pull/14892))
+* dlp: added missing file types `POWERPOINT` and `EXCEL` in `inspect_job.storage_config.cloud_storage_options.file_types` enum to `google_data_loss_prevention_job_trigger` resource ([#14856](https://github.com/hashicorp/terraform-provider-google/pull/14856))
+* dlp: added multiple `sensitivity_score` field to `google_data_loss_prevention_deidentify_template` resource ([#14880](https://github.com/hashicorp/terraform-provider-google/pull/14880))
+* dlp: added multiple `sensitivity_score` field to `google_data_loss_prevention_inspect_template` resource ([#14871](https://github.com/hashicorp/terraform-provider-google/pull/14871))
+* dlp: added multiple `sensitivity_score` field to `google_data_loss_prevention_job_trigger` resource ([#14881](https://github.com/hashicorp/terraform-provider-google/pull/14881))
+* dlp: changed `inspect_template_name` field from required to optional in `google_data_loss_prevention_job_trigger` resource ([#14845](https://github.com/hashicorp/terraform-provider-google/pull/14845))
+* pubsub: allowed `definition` field of `google_pubsub_schema` updatable. (https://cloud.google.com/pubsub/docs/schemas#commit-schema-revision) ([#14857](https://github.com/hashicorp/terraform-provider-google/pull/14857))
+* sql: added `POSTGRES_15` to version docs for `database_version` field to `google_sql_database_instance` ([#14891](https://github.com/hashicorp/terraform-provider-google/pull/14891))
+* vpcaccess: added `connected_projects` field to resource `google_vpc_access_connector`. ([#14835](https://github.com/hashicorp/terraform-provider-google/pull/14835))
+
+BUG FIXES:
+* provider: fixed an issue on multiple resources where non-retryable quota errors were considered retryable ([#14850](https://github.com/hashicorp/terraform-provider-google/pull/14850))
+* vertexai: made `google_vertex_ai_featurestore_entitytype_feature` always use region corresponding to parent's region ([#14843](https://github.com/hashicorp/terraform-provider-google/pull/14843))
 
 ## 4.69.1 (June 12, 2023)
 
