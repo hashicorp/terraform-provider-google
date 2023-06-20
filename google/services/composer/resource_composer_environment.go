@@ -66,6 +66,7 @@ var (
 		"config.0.workloads_config",
 		"config.0.environment_size",
 		"config.0.master_authorized_networks_config",
+		"config.0.resilience_mode",
 	}
 
 	recoveryConfigKeys = []string{
@@ -739,6 +740,15 @@ func ResourceComposerEnvironment() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"ENVIRONMENT_SIZE_SMALL", "ENVIRONMENT_SIZE_MEDIUM", "ENVIRONMENT_SIZE_LARGE"}, false),
 							Description:  `The size of the Cloud Composer environment. This field is supported for Cloud Composer environments in versions composer-2.*.*-airflow-*.*.* and newer.`,
 						},
+						"resilience_mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ForceNew:     true,
+							AtLeastOneOf: composerConfigKeys,
+							ValidateFunc: validation.StringInSlice([]string{"HIGH_RESILIENCE"}, false),
+							Description:  `Whether high resilience is enabled or not. This field is supported for Cloud Composer environments in versions composer-2.1.15-airflow-*.*.* and newer.`,
+						},
 						"master_authorized_networks_config": {
 							Type:         schema.TypeList,
 							Optional:     true,
@@ -1205,6 +1215,7 @@ func flattenComposerEnvironmentConfig(envCfg *composer.EnvironmentConfig) interf
 	transformed["workloads_config"] = flattenComposerEnvironmentConfigWorkloadsConfig(envCfg.WorkloadsConfig)
 	transformed["recovery_config"] = flattenComposerEnvironmentConfigRecoveryConfig(envCfg.RecoveryConfig)
 	transformed["environment_size"] = envCfg.EnvironmentSize
+	transformed["resilience_mode"] = envCfg.ResilienceMode
 	transformed["master_authorized_networks_config"] = flattenComposerEnvironmentConfigMasterAuthorizedNetworksConfig(envCfg.MasterAuthorizedNetworksConfig)
 	return []interface{}{transformed}
 }
@@ -1520,6 +1531,13 @@ func expandComposerEnvironmentConfig(v interface{}, d *schema.ResourceData, conf
 		return nil, err
 	}
 	transformed.EnvironmentSize = transformedEnvironmentSize
+
+	transformedResilienceMode, err := expandComposerEnvironmentConfigResilienceMode(original["resilience_mode"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed.ResilienceMode = transformedResilienceMode
+
 	transformedMasterAuthorizedNetworksConfig, err := expandComposerEnvironmentConfigMasterAuthorizedNetworksConfig(original["master_authorized_networks_config"], d, config)
 	if err != nil {
 		return nil, err
@@ -1737,6 +1755,13 @@ func expandComposerEnvironmentConfigRecoveryConfig(v interface{}, d *schema.Reso
 }
 
 func expandComposerEnvironmentConfigEnvironmentSize(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (string, error) {
+	if v == nil {
+		return "", nil
+	}
+	return v.(string), nil
+}
+
+func expandComposerEnvironmentConfigResilienceMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (string, error) {
 	if v == nil {
 		return "", nil
 	}
