@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/services/dataflow"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -442,9 +443,9 @@ func testAccCheckDataflowJobDestroyProducer(t *testing.T) func(s *terraform.Stat
 				if err != nil {
 					return fmt.Errorf("could not parse attribute: %v", err)
 				}
-				_, ok = dataflowTerminalStatesMap[job.CurrentState]
+				_, ok = dataflow.DataflowTerminalStatesMap[job.CurrentState]
 				if !ok && skipWait {
-					_, ok = dataflowTerminatingStatesMap[job.CurrentState]
+					_, ok = dataflow.DataflowTerminatingStatesMap[job.CurrentState]
 				}
 				if !ok {
 					return fmt.Errorf("Job still present")
@@ -472,9 +473,9 @@ func testAccCheckDataflowJobRegionDestroyProducer(t *testing.T) func(s *terrafor
 				if err != nil {
 					return fmt.Errorf("could not parse attribute: %v", err)
 				}
-				_, ok = dataflowTerminalStatesMap[job.CurrentState]
+				_, ok = dataflow.DataflowTerminalStatesMap[job.CurrentState]
 				if !ok && skipWait {
-					_, ok = dataflowTerminatingStatesMap[job.CurrentState]
+					_, ok = dataflow.DataflowTerminatingStatesMap[job.CurrentState]
 				}
 				if !ok {
 					return fmt.Errorf("Job still present")

@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/logging"
 )
 
 // Logging exclusions don't always work when making parallel requests, so run tests serially
@@ -64,14 +65,14 @@ func testAccLoggingFolderExclusion_folderAcceptsFullFolderPath(t *testing.T) {
 	description := "Description " + RandString(t, 10)
 
 	checkFn := func(s []*terraform.InstanceState) error {
-		loggingExclusionId, err := parseLoggingExclusionId(s[0].ID)
+		loggingExclusionId, err := logging.ParseLoggingExclusionId(s[0].ID)
 		if err != nil {
 			return err
 		}
 
 		folderAttribute := s[0].Attributes["folder"]
-		if loggingExclusionId.resourceId != folderAttribute {
-			return fmt.Errorf("imported folder id does not match: actual = %#v expected = %#v", folderAttribute, loggingExclusionId.resourceId)
+		if loggingExclusionId.ResourceId != folderAttribute {
+			return fmt.Errorf("imported folder id does not match: actual = %#v expected = %#v", folderAttribute, loggingExclusionId.ResourceId)
 		}
 
 		return nil
