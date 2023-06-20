@@ -245,6 +245,33 @@ https://iam.googleapis.com/projects/<project-number>/locations/<location>/worklo
 								Type: schema.TypeString,
 							},
 						},
+						"jwks_json": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `OIDC JWKs in JSON String format. For details on definition of a
+JWK, see https:tools.ietf.org/html/rfc7517. If not set, then we
+use the 'jwks_uri' from the discovery document fetched from the
+.well-known path for the 'issuer_uri'. Currently, RSA and EC asymmetric
+keys are supported. The JWK must use following format and include only
+the following fields:
+'''
+{
+  "keys": [
+    {
+          "kty": "RSA/EC",
+          "alg": "<algorithm>",
+          "use": "sig",
+          "kid": "<key-id>",
+          "n": "",
+          "e": "",
+          "x": "",
+          "y": "",
+          "crv": ""
+    }
+  ]
+}
+'''`,
+						},
 					},
 				},
 				ExactlyOneOf: []string{"aws", "oidc"},
@@ -558,7 +585,8 @@ func resourceIAMBetaWorkloadIdentityPoolProviderUpdate(d *schema.ResourceData, m
 
 	if d.HasChange("oidc") {
 		updateMask = append(updateMask, "oidc.allowed_audiences",
-			"oidc.issuer_uri")
+			"oidc.issuer_uri",
+			"oidc.jwks_json")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -730,6 +758,8 @@ func flattenIAMBetaWorkloadIdentityPoolProviderOidc(v interface{}, d *schema.Res
 		flattenIAMBetaWorkloadIdentityPoolProviderOidcAllowedAudiences(original["allowedAudiences"], d, config)
 	transformed["issuer_uri"] =
 		flattenIAMBetaWorkloadIdentityPoolProviderOidcIssuerUri(original["issuerUri"], d, config)
+	transformed["jwks_json"] =
+		flattenIAMBetaWorkloadIdentityPoolProviderOidcJwksJson(original["jwksJson"], d, config)
 	return []interface{}{transformed}
 }
 func flattenIAMBetaWorkloadIdentityPoolProviderOidcAllowedAudiences(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -737,6 +767,10 @@ func flattenIAMBetaWorkloadIdentityPoolProviderOidcAllowedAudiences(v interface{
 }
 
 func flattenIAMBetaWorkloadIdentityPoolProviderOidcIssuerUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIAMBetaWorkloadIdentityPoolProviderOidcJwksJson(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -813,6 +847,13 @@ func expandIAMBetaWorkloadIdentityPoolProviderOidc(v interface{}, d tpgresource.
 		transformed["issuerUri"] = transformedIssuerUri
 	}
 
+	transformedJwksJson, err := expandIAMBetaWorkloadIdentityPoolProviderOidcJwksJson(original["jwks_json"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedJwksJson); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["jwksJson"] = transformedJwksJson
+	}
+
 	return transformed, nil
 }
 
@@ -821,6 +862,10 @@ func expandIAMBetaWorkloadIdentityPoolProviderOidcAllowedAudiences(v interface{}
 }
 
 func expandIAMBetaWorkloadIdentityPoolProviderOidcIssuerUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMBetaWorkloadIdentityPoolProviderOidcJwksJson(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

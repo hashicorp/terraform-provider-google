@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: Added optional field `jwks_json` to `workloadidentityprovider`
+```
