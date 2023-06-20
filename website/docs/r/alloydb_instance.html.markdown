@@ -125,7 +125,12 @@ The following arguments are supported:
 
 * `availability_type` -
   (Optional)
-  Availability type of an Instance. Defaults to REGIONAL for both primary and read instances. Note that primary and read instances can have different availability types.
+  'Availability type of an Instance. Defaults to REGIONAL for both primary and read instances.
+  Note that primary and read instances can have different availability types.
+  Only READ_POOL instance supports ZONAL type. Users can't specify the zone for READ_POOL instance.
+  Zone is automatically chosen from the list of zones in the region specified.
+  Read pool of size 1 can only have zonal availability. Read pools with node count of 2 or more
+  can have regional availability (nodes are present in 2 or more zones in a region).'
   Possible values are: `AVAILABILITY_TYPE_UNSPECIFIED`, `ZONAL`, `REGIONAL`.
 
 * `read_pool_config` -
