@@ -525,11 +525,27 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 								},
 							},
 						},
+						"annotations": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Description: `Unstructured key value map that may be set by external tools to store and arbitrary metadata. They are not queryable and should be preserved when modifying objects.
+
+Cloud Run API v2 does not support annotations with 'run.googleapis.com', 'cloud.googleapis.com', 'serving.knative.dev', or 'autoscaling.knative.dev' namespaces, and they will be rejected.
+All system annotations in v1 now have a corresponding field in v2 ExecutionTemplate.
+
+This field follows Kubernetes annotations' namespacing, limits, and rules.`,
+							Elem: &schema.Schema{Type: schema.TypeString},
+						},
 						"labels": {
-							Type:        schema.TypeMap,
-							Optional:    true,
-							Description: `KRM-style labels for the resource.`,
-							Elem:        &schema.Schema{Type: schema.TypeString},
+							Type:     schema.TypeMap,
+							Optional: true,
+							Description: `Unstructured key value map that can be used to organize and categorize objects. User-provided labels are shared with Google's billing system, so they can be used to filter,
+or break down billing charges by team, component, environment, state, etc. For more information, visit https://cloud.google.com/resource-manager/docs/creating-managing-labels or
+https://cloud.google.com/run/docs/configuring/labels.
+
+Cloud Run API v2 does not support labels with 'run.googleapis.com', 'cloud.googleapis.com', 'serving.knative.dev', or 'autoscaling.knative.dev' namespaces, and they will be rejected.
+All system labels in v1 now have a corresponding field in v2 ExecutionTemplate.`,
+							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 						"parallelism": {
 							Type:        schema.TypeInt,
@@ -545,6 +561,17 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 						},
 					},
 				},
+			},
+			"annotations": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Unstructured key value map that may be set by external tools to store and arbitrary metadata. They are not queryable and should be preserved when modifying objects.
+
+Cloud Run API v2 does not support annotations with 'run.googleapis.com', 'cloud.googleapis.com', 'serving.knative.dev', or 'autoscaling.knative.dev' namespaces, and they will be rejected on new resources.
+All system annotations in v1 now have a corresponding field in v2 Job.
+
+This field follows Kubernetes annotations' namespacing, limits, and rules.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"binary_authorization": {
 				Type:        schema.TypeList,
@@ -577,10 +604,14 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 				Description: `Arbitrary version identifier for the API client.`,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `KRM-style labels for the resource. User-provided labels are shared with Google's billing system, so they can be used to filter, or break down billing charges by team, component, environment, state, etc. For more information, visit https://cloud.google.com/resource-manager/docs/creating-managing-labels or https://cloud.google.com/run/docs/configuring/labels Cloud Run will populate some labels with 'run.googleapis.com' or 'serving.knative.dev' namespaces. Those labels are read-only, and user changes will not be preserved.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Unstructured key value map that can be used to organize and categorize objects. User-provided labels are shared with Google's billing system, so they can be used to filter, or break down billing charges by team, component,
+environment, state, etc. For more information, visit https://cloud.google.com/resource-manager/docs/creating-managing-labels or https://cloud.google.com/run/docs/configuring/labels.
+
+Cloud Run API v2 does not support labels with 'run.googleapis.com', 'cloud.googleapis.com', 'serving.knative.dev', or 'autoscaling.knative.dev' namespaces, and they will be rejected.
+All system labels in v1 now have a corresponding field in v2 Job.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"launch_stage": {
 				Type:         schema.TypeString,
@@ -789,6 +820,12 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
+	annotationsProp, err := expandCloudRunV2JobAnnotations(d.Get("annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
+		obj["annotations"] = annotationsProp
+	}
 	clientProp, err := expandCloudRunV2JobClient(d.Get("client"), d, config)
 	if err != nil {
 		return err
@@ -933,6 +970,9 @@ func resourceCloudRunV2JobRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("labels", flattenCloudRunV2JobLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
+	if err := d.Set("annotations", flattenCloudRunV2JobAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
 	if err := d.Set("client", flattenCloudRunV2JobClient(res["client"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
@@ -994,6 +1034,12 @@ func resourceCloudRunV2JobUpdate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
+	}
+	annotationsProp, err := expandCloudRunV2JobAnnotations(d.Get("annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
+		obj["annotations"] = annotationsProp
 	}
 	clientProp, err := expandCloudRunV2JobClient(d.Get("client"), d, config)
 	if err != nil {
@@ -1150,6 +1196,10 @@ func flattenCloudRunV2JobLabels(v interface{}, d *schema.ResourceData, config *t
 	return v
 }
 
+func flattenCloudRunV2JobAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCloudRunV2JobClient(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1196,6 +1246,8 @@ func flattenCloudRunV2JobTemplate(v interface{}, d *schema.ResourceData, config 
 	transformed := make(map[string]interface{})
 	transformed["labels"] =
 		flattenCloudRunV2JobTemplateLabels(original["labels"], d, config)
+	transformed["annotations"] =
+		flattenCloudRunV2JobTemplateAnnotations(original["annotations"], d, config)
 	transformed["parallelism"] =
 		flattenCloudRunV2JobTemplateParallelism(original["parallelism"], d, config)
 	transformed["task_count"] =
@@ -1205,6 +1257,10 @@ func flattenCloudRunV2JobTemplate(v interface{}, d *schema.ResourceData, config 
 	return []interface{}{transformed}
 }
 func flattenCloudRunV2JobTemplateLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2JobTemplateAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2152,6 +2208,17 @@ func expandCloudRunV2JobLabels(v interface{}, d tpgresource.TerraformResourceDat
 	return m, nil
 }
 
+func expandCloudRunV2JobAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
 func expandCloudRunV2JobClient(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -2214,6 +2281,13 @@ func expandCloudRunV2JobTemplate(v interface{}, d tpgresource.TerraformResourceD
 		transformed["labels"] = transformedLabels
 	}
 
+	transformedAnnotations, err := expandCloudRunV2JobTemplateAnnotations(original["annotations"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAnnotations); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["annotations"] = transformedAnnotations
+	}
+
 	transformedParallelism, err := expandCloudRunV2JobTemplateParallelism(original["parallelism"], d, config)
 	if err != nil {
 		return nil, err
@@ -2239,6 +2313,17 @@ func expandCloudRunV2JobTemplate(v interface{}, d tpgresource.TerraformResourceD
 }
 
 func expandCloudRunV2JobTemplateLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandCloudRunV2JobTemplateAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

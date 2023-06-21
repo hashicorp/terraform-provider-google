@@ -51,12 +51,18 @@ func testAccCloudRunV2Job_cloudrunv2JobFull(context map[string]interface{}) stri
     labels = {
       label-1 = "value-1"
     }
+    annotations = {
+      job-annotation-1 = "job-value-1"
+    }
     client = "client-1"
     client_version = "client-version-1"
     
     template {
       labels = {
         label-1 = "value-1"
+      }
+      annotations = {
+        temp-annotation-1 = "temp-value-1"
       }
       parallelism = 4
       task_count = 4
@@ -117,12 +123,18 @@ resource "google_cloud_run_v2_job" "default" {
   labels = {
     label-1 = "value-update"
   }
+  annotations = {
+    job-annotation-1 = "job-value-update"
+  }
   client = "client-update"
   client_version = "client-version-update"
   
   template {
     labels = {
       label-1 = "value-update"
+    }
+    annotations = {
+      temp-annotation-1 = "temp-value-update"
     }
     parallelism = 2
     task_count = 8

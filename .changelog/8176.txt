@@ -1,0 +1,4 @@
+```release-note:enhancement
+
+cloudrunv2: added fields `annotations` and `template.annotations` to resource `google_cloud_run_v2_job`
+```
