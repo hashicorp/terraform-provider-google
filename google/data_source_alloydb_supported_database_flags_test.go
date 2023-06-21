@@ -23,7 +23,6 @@ func TestAccDataSourceAlloydbSupportedDatabaseFlags_basic(t *testing.T) {
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccSqlDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceAlloydbSupportedDatabaseFlags_basic(context),
