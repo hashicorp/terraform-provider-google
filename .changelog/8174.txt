@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed an issue where api default value for `edition` field of `google_bigquery_reservation` was not handled
+```

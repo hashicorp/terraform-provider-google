@@ -88,6 +88,7 @@ unit of parallelism. Queries using this reservation might use more slots during 
 			},
 			"edition": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `The edition type. Valid values are STANDARD, ENTERPRISE, ENTERPRISE_PLUS`,
