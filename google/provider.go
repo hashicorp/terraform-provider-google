@@ -1465,6 +1465,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_logging_project_exclusion":              logging.ResourceLoggingExclusion(logging.ProjectLoggingExclusionSchema, logging.NewProjectLoggingExclusionUpdater, logging.ProjectLoggingExclusionIdParseFunc),
 			"google_logging_project_bucket_config":          logging.ResourceLoggingProjectBucketConfig(),
 			"google_monitoring_dashboard":                   monitoring.ResourceMonitoringDashboard(),
+			"google_os_config_os_policy_assignment":         osconfig.ResourceOSConfigOSPolicyAssignment(),
 			"google_service_networking_connection":          servicenetworking.ResourceServiceNetworkingConnection(),
 			"google_sql_database_instance":                  sql.ResourceSqlDatabaseInstance(),
 			"google_sql_ssl_cert":                           sql.ResourceSqlSslCert(),
