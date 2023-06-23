@@ -893,6 +893,7 @@ linux_node_config {
 
 * `sole_tenant_config` (Optional)  Allows specifying multiple [node affinities](https://cloud.google.com/compute/docs/nodes/sole-tenant-nodes#node_affinity_and_anti-affinity) useful for running workloads on [sole tenant nodes](https://cloud.google.com/kubernetes-engine/docs/how-to/sole-tenancy). `node_affinity` structure is [documented below](#nested_node_affinity).
 
+```hcl
 sole_tenant_config {
   node_affinity {
     key = "compute.googleapis.com/node-group-name"

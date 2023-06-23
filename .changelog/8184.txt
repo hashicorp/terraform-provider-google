@@ -1,0 +1,3 @@
+```release-note:bug
+Fixed incorrect code block in the description of container_cluster resource.
+```
