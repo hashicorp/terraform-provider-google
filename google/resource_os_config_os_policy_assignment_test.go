@@ -3,37 +3,39 @@
 package google
 
 import (
-	"context"
 	"fmt"
-	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
-	osconfig "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/osconfig"
+	"strings"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-
-	"strings"
-	"testing"
 )
 
-func TestAccOsConfigOsPolicyAssignment_basicOsPolicyAssignment(t *testing.T) {
+func TestAccOSConfigOSPolicyAssignment_basic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_name":  acctest.GetTestProjectFromEnv(),
-		"zone":          acctest.GetTestZoneFromEnv(),
 		"random_suffix": RandString(t, 10),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
-		"billing_act":   acctest.GetTestBillingAccountFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckOsConfigOsPolicyAssignmentDestroyProducer(t),
+		CheckDestroy:             testAccCheckOSConfigOSPolicyAssignmentDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccOsConfigOsPolicyAssignment_PercentOsPolicyAssignment(context),
+				Config: testAccOSConfigOSPolicyAssignment_basic(context),
+			},
+			{
+				ResourceName:            "google_os_config_os_policy_assignment.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"rollout.0.min_wait_duration"},
+			},
+			{
+				Config: testAccOSConfigOSPolicyAssignment_update(context),
 			},
 			{
 				ResourceName:            "google_os_config_os_policy_assignment.primary",
@@ -45,26 +47,8 @@ func TestAccOsConfigOsPolicyAssignment_basicOsPolicyAssignment(t *testing.T) {
 	})
 }
 
-func testAccOsConfigOsPolicyAssignment_PercentOsPolicyAssignment(context map[string]interface{}) string {
+func testAccOSConfigOSPolicyAssignment_basic(context map[string]interface{}) string {
 	return Nprintf(`
-resource "google_project" "project" {
-  project_id      = "tf-test%{random_suffix}"
-  name            = "tf-test%{random_suffix}"
-  org_id          = "%{org_id}"
-  billing_account = "%{billing_act}"
-}
-
-resource "google_project_service" "compute" {
-  project = google_project.project.project_id
-  service = "compute.googleapis.com"
-}
-
-resource "google_project_service" "osconfig" {
-  project = google_project.project.project_id
-  service = "osconfig.googleapis.com"
-  depends_on = [google_project_service.compute]
-}
-
 resource "google_os_config_os_policy_assignment" "primary" {
   instance_filter {
     all = false
@@ -84,8 +68,8 @@ resource "google_os_config_os_policy_assignment" "primary" {
     }
   }
 
-  location = "%{zone}"
-  name     = "tf-test-assignment%{random_suffix}"
+  location = "us-central1-a"
+  name     = "tf-test-policy-assignment%{random_suffix}"
 
   os_policies {
     id   = "policy"
@@ -145,22 +129,97 @@ resource "google_os_config_os_policy_assignment" "primary" {
       percent = 100
     }
 
-    min_wait_duration = "3s"
+    min_wait_duration = "3.2s"
   }
 
   description = "A test os policy assignment"
-  project     = google_project.project.project_id
-  depends_on = [google_project_service.compute, google_project_service.osconfig]
 }
-
-
 `, context)
 }
 
-func testAccCheckOsConfigOsPolicyAssignmentDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccOSConfigOSPolicyAssignment_update(context map[string]interface{}) string {
+	return Nprintf(`
+resource "google_os_config_os_policy_assignment" "primary" {
+  instance_filter {
+    all = false
+    inventories {
+      os_short_name = "centos"
+      os_version    = "9.*"
+    }
+  }
+
+  location = "us-central1-a"
+  name     = "tf-test-policy-assignment%{random_suffix}"
+
+  os_policies {
+    id   = "policy"
+    mode = "ENFORCEMENT"
+
+    resource_groups {
+      resources {
+        id = "apt-to-yum"
+
+        repository {
+          yum {
+            id           = "new-yum"
+            display_name = "new-yum"
+            base_url     = "http://mirrors.rcs.alaska.edu/centos/"
+            gpg_keys     = ["RPM-GPG-KEY-CentOS-Debug-7"]
+          }
+        }
+      }
+      inventory_filters {
+        os_short_name = "centos"
+        os_version    = "8.*"
+      }
+
+      resources {
+        id = "new-exec1"
+        exec {
+          validate {
+            interpreter = "POWERSHELL"
+            args        = ["arg2"]
+            file {
+              local_path = "$HOME/script.bat"
+            }
+            output_file_path = "$HOME/out"
+          }
+          enforce {
+            interpreter = "POWERSHELL"
+            args        = ["arg2"]
+            file {
+              allow_insecure = false
+              remote {
+                uri             = "https://www.example.com/script.bat"
+                sha256_checksum = "9f8e5818ccb47024d01000db713c0a333679b64678ff5fe2d9bea0a23014dd54"
+              }
+            }
+            output_file_path = "$HOME/out"
+          }
+        }
+      }
+    }
+    allow_no_resource_group_match = true
+    description                   = "An updated test os policy"
+  }
+
+  rollout {
+    disruption_budget {
+      percent = 90
+    }
+
+    min_wait_duration = "3.1s"
+  }
+
+  description = "An updated test os policy assignment"
+}
+`, context)
+}
+
+func testAccCheckOSConfigOSPolicyAssignmentDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "rs.google_os_config_os_policy_assignment" {
+			if rs.Type != "google_os_config_os_policy_assignment" {
 				continue
 			}
 			if strings.HasPrefix(name, "data.") {
@@ -169,33 +228,29 @@ func testAccCheckOsConfigOsPolicyAssignmentDestroyProducer(t *testing.T) func(s 
 
 			config := GoogleProviderConfig(t)
 
+			url, err := replaceVarsForTest(config, rs, "{{OSConfigBasePath}}projects/{{project}}/locations/{{location}}/osPolicyAssignments/{{name}}")
+			if err != nil {
+				return err
+			}
+
 			billingProject := ""
+
 			if config.BillingProject != "" {
 				billingProject = config.BillingProject
 			}
 
-			obj := &osconfig.OSPolicyAssignment{
-				Location:           dcl.String(rs.Primary.Attributes["location"]),
-				Name:               dcl.String(rs.Primary.Attributes["name"]),
-				Description:        dcl.String(rs.Primary.Attributes["description"]),
-				Project:            dcl.StringOrNil(rs.Primary.Attributes["project"]),
-				SkipAwaitRollout:   dcl.Bool(rs.Primary.Attributes["skip_await_rollout"] == "true"),
-				Baseline:           dcl.Bool(rs.Primary.Attributes["baseline"] == "true"),
-				Deleted:            dcl.Bool(rs.Primary.Attributes["deleted"] == "true"),
-				Etag:               dcl.StringOrNil(rs.Primary.Attributes["etag"]),
-				Reconciling:        dcl.Bool(rs.Primary.Attributes["reconciling"] == "true"),
-				RevisionCreateTime: dcl.StringOrNil(rs.Primary.Attributes["revision_create_time"]),
-				RevisionId:         dcl.StringOrNil(rs.Primary.Attributes["revision_id"]),
-				RolloutState:       osconfig.OSPolicyAssignmentRolloutStateEnumRef(rs.Primary.Attributes["rollout_state"]),
-				Uid:                dcl.StringOrNil(rs.Primary.Attributes["uid"]),
-			}
-
-			client := transport_tpg.NewDCLOsConfigClient(config, config.UserAgent, billingProject, 0)
-			_, err := client.GetOSPolicyAssignment(context.Background(), obj)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
-				return fmt.Errorf("google_os_config_os_policy_assignment still exists %v", obj)
+				return fmt.Errorf("OSConfigOSPolicyAssignment still exists at %s", url)
 			}
 		}
+
 		return nil
 	}
 }
