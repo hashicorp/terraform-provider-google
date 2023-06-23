@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_compute_region_security_policy` (beta)
+````
+```release-note:new-resource
+`google_compute_network_edge_security_service` (beta)
+```
