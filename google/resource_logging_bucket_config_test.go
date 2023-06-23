@@ -124,6 +124,42 @@ func TestAccLoggingBucketConfigProject_analyticsEnabled(t *testing.T) {
 	})
 }
 
+func TestAccLoggingBucketConfigProject_locked(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":   RandString(t, 10),
+		"project_name":    "tf-test-" + RandString(t, 10),
+		"org_id":          acctest.GetTestOrgFromEnv(t),
+		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingBucketConfigProject_locked(context, false),
+			},
+			{
+				ResourceName:            "google_logging_project_bucket_config.variable_locked",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project"},
+			},
+			{
+				Config: testAccLoggingBucketConfigProject_locked(context, true),
+			},
+			{
+				ResourceName:            "google_logging_project_bucket_config.variable_locked",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project"},
+			},
+		},
+	})
+}
+
 func TestAccLoggingBucketConfigProject_cmekSettings(t *testing.T) {
 	t.Parallel()
 
@@ -285,6 +321,32 @@ resource "google_logging_project_bucket_config" "basic" {
 `, context), analytics)
 }
 
+func testAccLoggingBucketConfigProject_locked(context map[string]interface{}, locked bool) string {
+	return fmt.Sprintf(Nprintf(`
+resource "google_project" "default" {
+	project_id = "%{project_name}"
+	name       = "%{project_name}"
+	org_id     = "%{org_id}"
+	billing_account = "%{billing_account}"
+}
+
+resource "google_logging_project_bucket_config" "fixed_locked" {
+	project    = google_project.default.name
+	location  = "global"
+	locked = true
+	bucket_id = "fixed-locked"
+}
+
+resource "google_logging_project_bucket_config" "variable_locked" {
+	project    = google_project.default.name
+	location  = "global"
+	description = "lock status is %v" # test simultaneous update
+	locked = %t
+	bucket_id = "variable-locked"
+}
+`, context), locked, locked)
+}
+
 func testAccLoggingBucketConfigProject_preCmekSettings(context map[string]interface{}, keyRingName, cryptoKeyName, cryptoKeyNameUpdate string) string {
 	return fmt.Sprintf(Nprintf(`
 resource "google_project" "default" {
@@ -444,7 +506,6 @@ resource "google_logging_organization_bucket_config" "basic" {
 }
 
 func getLoggingBucketConfigs(context map[string]interface{}) map[string]string {
-
 	return map[string]string{
 		"project": Nprintf(`resource "google_project" "default" {
 				project_id = "%{project_name}"

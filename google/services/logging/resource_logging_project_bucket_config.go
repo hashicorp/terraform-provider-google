@@ -44,6 +44,11 @@ var loggingProjectBucketConfigSchema = map[string]*schema.Schema{
 		Computed:    true,
 		Description: `An optional description for this bucket.`,
 	},
+	"locked": {
+		Type:        schema.TypeBool,
+		Optional:    true,
+		Description: `Whether the bucket is locked. The retention period on a locked bucket cannot be changed. Locked buckets may only be deleted if they are empty.`,
+	},
 	"retention_days": {
 		Type:        schema.TypeInt,
 		Optional:    true,
@@ -185,9 +190,9 @@ func resourceLoggingProjectBucketConfigCreate(d *schema.ResourceData, meta inter
 	obj := make(map[string]interface{})
 	obj["name"] = d.Get("name")
 	obj["description"] = d.Get("description")
+	obj["locked"] = d.Get("locked")
 	obj["retentionDays"] = d.Get("retention_days")
 	obj["analyticsEnabled"] = d.Get("enable_analytics")
-	obj["locked"] = d.Get("locked")
 	obj["cmekSettings"] = expandCmekSettings(d.Get("cmek_settings"))
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{LoggingBasePath}}projects/{{project}}/locations/{{location}}/buckets?bucketId={{bucket_id}}")
@@ -261,6 +266,9 @@ func resourceLoggingProjectBucketConfigRead(d *schema.ResourceData, meta interfa
 	}
 	if err := d.Set("description", res["description"]); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err := d.Set("locked", res["locked"]); err != nil {
+		return fmt.Errorf("Error setting locked: %s", err)
 	}
 	if err := d.Set("lifecycle_state", res["lifecycleState"]); err != nil {
 		return fmt.Errorf("Error setting lifecycle_state: %s", err)
@@ -345,6 +353,32 @@ func resourceLoggingProjectBucketConfigUpdate(d *schema.ResourceData, meta inter
 	}
 	if err != nil {
 		return fmt.Errorf("Error updating Logging Bucket Config %q: %s", d.Id(), err)
+	}
+
+	// Check if locked is being changed (although removal will fail). Locking is
+	// an atomic operation and can not be performed while other fields.
+	// update locked last so that we lock *after* setting the right settings
+	if d.HasChange("locked") {
+		updateMaskLocked := []string{"locked"}
+		objLocked := map[string]interface{}{
+			"locked": d.Get("locked"),
+		}
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMaskLocked, ",")})
+		if err != nil {
+			return err
+		}
+
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      objLocked,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating Logging Bucket Config %q: %s", d.Id(), err)
+		}
 	}
 
 	return resourceLoggingProjectBucketConfigRead(d, meta)
