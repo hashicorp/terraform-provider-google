@@ -1,10 +1,11 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
-package google
+package fwtransport
 
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -21,6 +22,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
+
+	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 
@@ -28,25 +31,135 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Provider methods
+type FrameworkProviderConfig struct {
+	BillingProject             types.String
+	Client                     *http.Client
+	Context                    context.Context
+	gRPCLoggingOptions         []option.ClientOption
+	PollInterval               time.Duration
+	Project                    types.String
+	Region                     types.String
+	Zone                       types.String
+	RequestBatcherIam          *transport_tpg.RequestBatcher
+	RequestBatcherServiceUsage *transport_tpg.RequestBatcher
+	Scopes                     []string
+	TokenSource                oauth2.TokenSource
+	UserAgent                  string
+	UserProjectOverride        bool
+
+	// paths for client setup
+	AccessApprovalBasePath           string
+	AccessContextManagerBasePath     string
+	ActiveDirectoryBasePath          string
+	AlloydbBasePath                  string
+	ApigeeBasePath                   string
+	AppEngineBasePath                string
+	ArtifactRegistryBasePath         string
+	BeyondcorpBasePath               string
+	BigQueryBasePath                 string
+	BigqueryAnalyticsHubBasePath     string
+	BigqueryConnectionBasePath       string
+	BigqueryDatapolicyBasePath       string
+	BigqueryDataTransferBasePath     string
+	BigqueryReservationBasePath      string
+	BigtableBasePath                 string
+	BillingBasePath                  string
+	BinaryAuthorizationBasePath      string
+	CertificateManagerBasePath       string
+	CloudAssetBasePath               string
+	CloudBuildBasePath               string
+	CloudFunctionsBasePath           string
+	Cloudfunctions2BasePath          string
+	CloudIdentityBasePath            string
+	CloudIdsBasePath                 string
+	CloudIotBasePath                 string
+	CloudRunBasePath                 string
+	CloudRunV2BasePath               string
+	CloudSchedulerBasePath           string
+	CloudTasksBasePath               string
+	ComputeBasePath                  string
+	ContainerAnalysisBasePath        string
+	ContainerAttachedBasePath        string
+	DatabaseMigrationServiceBasePath string
+	DataCatalogBasePath              string
+	DataFusionBasePath               string
+	DataLossPreventionBasePath       string
+	DataplexBasePath                 string
+	DataprocBasePath                 string
+	DataprocMetastoreBasePath        string
+	DatastoreBasePath                string
+	DatastreamBasePath               string
+	DeploymentManagerBasePath        string
+	DialogflowBasePath               string
+	DialogflowCXBasePath             string
+	DNSBasePath                      string
+	DocumentAIBasePath               string
+	EssentialContactsBasePath        string
+	FilestoreBasePath                string
+	FirestoreBasePath                string
+	GameServicesBasePath             string
+	GKEBackupBasePath                string
+	GKEHubBasePath                   string
+	GKEHub2BasePath                  string
+	HealthcareBasePath               string
+	IAM2BasePath                     string
+	IAMBetaBasePath                  string
+	IAMWorkforcePoolBasePath         string
+	IapBasePath                      string
+	IdentityPlatformBasePath         string
+	KMSBasePath                      string
+	LoggingBasePath                  string
+	MemcacheBasePath                 string
+	MLEngineBasePath                 string
+	MonitoringBasePath               string
+	NetworkManagementBasePath        string
+	NetworkServicesBasePath          string
+	NotebooksBasePath                string
+	OSConfigBasePath                 string
+	OSLoginBasePath                  string
+	PrivatecaBasePath                string
+	PubsubBasePath                   string
+	PubsubLiteBasePath               string
+	RedisBasePath                    string
+	ResourceManagerBasePath          string
+	SecretManagerBasePath            string
+	SecurityCenterBasePath           string
+	ServiceManagementBasePath        string
+	ServiceUsageBasePath             string
+	SourceRepoBasePath               string
+	SpannerBasePath                  string
+	SQLBasePath                      string
+	StorageBasePath                  string
+	StorageTransferBasePath          string
+	TagsBasePath                     string
+	TPUBasePath                      string
+	VertexAIBasePath                 string
+	VPCAccessBasePath                string
+	WorkflowsBasePath                string
+}
+
+var defaultClientScopes = []string{
+	"https://www.googleapis.com/auth/cloud-platform",
+	"https://www.googleapis.com/auth/userinfo.email",
+}
 
 // LoadAndValidateFramework handles the bulk of configuring the provider
 // it is pulled out so that we can manually call this from our testing provider as well
-func (p *frameworkProvider) LoadAndValidateFramework(ctx context.Context, data ProviderModel, tfVersion string, diags *diag.Diagnostics) {
+func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, data fwmodels.ProviderModel, tfVersion string, diags *diag.Diagnostics, providerversion string) {
 	// Set defaults if needed
 	p.HandleDefaults(ctx, &data, diags)
 	if diags.HasError() {
 		return
 	}
 
-	p.context = ctx
+	p.Context = ctx
 
 	// Handle User Agent string
-	p.userAgent = CompileUserAgentString(ctx, "terraform-provider-google", tfVersion, p.version)
+	p.UserAgent = CompileUserAgentString(ctx, "terraform-provider-google", tfVersion, providerversion)
 	// opt in extension for adding to the User-Agent header
 	if ext := os.Getenv("GOOGLE_TERRAFORM_USERAGENT_EXTENSION"); ext != "" {
-		ua := p.userAgent
-		p.userAgent = fmt.Sprintf("%s %s", ua, ext)
+		ua := p.UserAgent
+		p.UserAgent = fmt.Sprintf("%s %s", ua, ext)
 	}
 
 	// Set up client configuration
@@ -59,7 +172,7 @@ func (p *frameworkProvider) LoadAndValidateFramework(ctx context.Context, data P
 	p.SetupGrpcLogging()
 
 	// Handle Batching Config
-	batchingConfig := transport_tpg.GetBatchingConfig(ctx, data.Batching, diags)
+	batchingConfig := GetBatchingConfig(ctx, data.Batching, diags)
 	if diags.HasError() {
 		return
 	}
@@ -155,17 +268,17 @@ func (p *frameworkProvider) LoadAndValidateFramework(ctx context.Context, data P
 	p.VPCAccessBasePath = data.VPCAccessCustomEndpoint.ValueString()
 	p.WorkflowsBasePath = data.WorkflowsCustomEndpoint.ValueString()
 
-	p.context = ctx
-	p.region = data.Region
-	p.zone = data.Zone
-	p.pollInterval = 10 * time.Second
-	p.project = data.Project
-	p.requestBatcherServiceUsage = transport_tpg.NewRequestBatcher("Service Usage", ctx, batchingConfig)
+	p.Context = ctx
+	p.Region = data.Region
+	p.Zone = data.Zone
+	p.PollInterval = 10 * time.Second
+	p.Project = data.Project
+	p.RequestBatcherServiceUsage = transport_tpg.NewRequestBatcher("Service Usage", ctx, batchingConfig)
 	p.RequestBatcherIam = transport_tpg.NewRequestBatcher("IAM", ctx, batchingConfig)
 }
 
 // HandleDefaults will handle all the defaults necessary in the provider
-func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderModel, diags *diag.Diagnostics) {
+func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmodels.ProviderModel, diags *diag.Diagnostics) {
 	if data.AccessToken.IsNull() && data.Credentials.IsNull() {
 		credentials := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CREDENTIALS",
@@ -240,7 +353,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 	}
 
 	if !data.Batching.IsNull() {
-		var pbConfigs []transport_tpg.ProviderBatching
+		var pbConfigs []fwmodels.ProviderBatching
 		d := data.Batching.ElementsAs(ctx, &pbConfigs, true)
 		diags.Append(d...)
 		if diags.HasError() {
@@ -255,7 +368,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 			pbConfigs[0].EnableBatching = types.BoolValue(true)
 		}
 
-		data.Batching, d = types.ListValueFrom(ctx, types.ObjectType{}.WithAttributeTypes(ProviderBatchingAttributes), pbConfigs)
+		data.Batching, d = types.ListValueFrom(ctx, types.ObjectType{}.WithAttributeTypes(fwmodels.ProviderBatchingAttributes), pbConfigs)
 	}
 
 	if data.UserProjectOverride.IsNull() && os.Getenv("USER_PROJECT_OVERRIDE") != "" {
@@ -1174,7 +1287,7 @@ func (p *frameworkProvider) HandleDefaults(ctx context.Context, data *ProviderMo
 	}
 }
 
-func (p *frameworkProvider) SetupClient(ctx context.Context, data ProviderModel, diags *diag.Diagnostics) {
+func (p *FrameworkProviderConfig) SetupClient(ctx context.Context, data fwmodels.ProviderModel, diags *diag.Diagnostics) {
 	tokenSource := GetTokenSource(ctx, data, false, diags)
 	if diags.HasError() {
 		return
@@ -1227,11 +1340,11 @@ func (p *frameworkProvider) SetupClient(ctx context.Context, data ProviderModel,
 	}
 	client.Timeout = timeout
 
-	p.tokenSource = tokenSource
-	p.client = client
+	p.TokenSource = tokenSource
+	p.Client = client
 }
 
-func (p *frameworkProvider) SetupGrpcLogging() {
+func (p *FrameworkProviderConfig) SetupGrpcLogging() {
 	logger := logrus.StandardLogger()
 
 	logrus.SetLevel(logrus.DebugLevel)
@@ -1251,7 +1364,7 @@ func (p *frameworkProvider) SetupGrpcLogging() {
 	)
 }
 
-func (p *frameworkProvider) logGoogleIdentities(ctx context.Context, data ProviderModel, diags *diag.Diagnostics) {
+func (p *FrameworkProviderConfig) logGoogleIdentities(ctx context.Context, data fwmodels.ProviderModel, diags *diag.Diagnostics) {
 	// GetCurrentUserEmailFramework doesn't pass an error back from logGoogleIdentities, so we want
 	// a separate diagnostics here
 	var d diag.Diagnostics
@@ -1263,9 +1376,9 @@ func (p *frameworkProvider) logGoogleIdentities(ctx context.Context, data Provid
 			return
 		}
 
-		p.client = oauth2.NewClient(ctx, tokenSource) // p.client isn't initialised fully when this code is called.
+		p.Client = oauth2.NewClient(ctx, tokenSource) // p.Client isn't initialised fully when this code is called.
 
-		email := GetCurrentUserEmailFramework(p, p.userAgent, &d)
+		email := GetCurrentUserEmailFramework(p, p.UserAgent, &d)
 		if d.HasError() {
 			tflog.Info(ctx, "error retrieving userinfo for your provider credentials. have you enabled the 'https://www.googleapis.com/auth/userinfo.email' scope?")
 		}
@@ -1280,8 +1393,8 @@ func (p *frameworkProvider) logGoogleIdentities(ctx context.Context, data Provid
 		return
 	}
 
-	p.client = oauth2.NewClient(ctx, tokenSource) // p.client isn't initialised fully when this code is called.
-	email := GetCurrentUserEmailFramework(p, p.userAgent, &d)
+	p.Client = oauth2.NewClient(ctx, tokenSource) // p.Client isn't initialised fully when this code is called.
+	email := GetCurrentUserEmailFramework(p, p.UserAgent, &d)
 	if d.HasError() {
 		tflog.Info(ctx, "error retrieving userinfo for your provider credentials. have you enabled the 'https://www.googleapis.com/auth/userinfo.email' scope?")
 	}
@@ -1294,7 +1407,7 @@ func (p *frameworkProvider) logGoogleIdentities(ctx context.Context, data Provid
 		return
 	}
 
-	p.client = oauth2.NewClient(ctx, tokenSource) // p.client isn't initialised fully when this code is called.
+	p.Client = oauth2.NewClient(ctx, tokenSource) // p.Client isn't initialised fully when this code is called.
 
 	return
 }
@@ -1303,7 +1416,7 @@ func (p *frameworkProvider) logGoogleIdentities(ctx context.Context, data Provid
 
 // GetTokenSource gets token source based on the Google Credentials configured.
 // If initialCredentialsOnly is true, don't follow the impersonation settings and return the initial set of creds.
-func GetTokenSource(ctx context.Context, data ProviderModel, initialCredentialsOnly bool, diags *diag.Diagnostics) oauth2.TokenSource {
+func GetTokenSource(ctx context.Context, data fwmodels.ProviderModel, initialCredentialsOnly bool, diags *diag.Diagnostics) oauth2.TokenSource {
 	creds := GetCredentials(ctx, data, initialCredentialsOnly, diags)
 
 	return creds.TokenSource
@@ -1312,7 +1425,7 @@ func GetTokenSource(ctx context.Context, data ProviderModel, initialCredentialsO
 // GetCredentials gets credentials with a given scope (clientScopes).
 // If initialCredentialsOnly is true, don't follow the impersonation
 // settings and return the initial set of creds instead.
-func GetCredentials(ctx context.Context, data ProviderModel, initialCredentialsOnly bool, diags *diag.Diagnostics) googleoauth.Credentials {
+func GetCredentials(ctx context.Context, data fwmodels.ProviderModel, initialCredentialsOnly bool, diags *diag.Diagnostics) googleoauth.Credentials {
 	var clientScopes []string
 	var delegates []string
 
@@ -1402,4 +1515,38 @@ func GetCredentials(ctx context.Context, data ProviderModel, initialCredentialsO
 	}
 
 	return *creds
+}
+
+// GetBatchingConfig returns the batching config object given the
+// provider configuration set for batching
+func GetBatchingConfig(ctx context.Context, data types.List, diags *diag.Diagnostics) *transport_tpg.BatchingConfig {
+	bc := &transport_tpg.BatchingConfig{
+		SendAfter:      time.Second * transport_tpg.DefaultBatchSendIntervalSec,
+		EnableBatching: true,
+	}
+
+	if data.IsNull() {
+		return bc
+	}
+
+	var pbConfigs []fwmodels.ProviderBatching
+	d := data.ElementsAs(ctx, &pbConfigs, true)
+	diags.Append(d...)
+	if diags.HasError() {
+		return bc
+	}
+
+	sendAfter, err := time.ParseDuration(pbConfigs[0].SendAfter.ValueString())
+	if err != nil {
+		diags.AddError("error parsing send after time duration", err.Error())
+		return bc
+	}
+
+	bc.SendAfter = sendAfter
+
+	if !pbConfigs[0].EnableBatching.IsNull() {
+		bc.EnableBatching = pbConfigs[0].EnableBatching.ValueBool()
+	}
+
+	return bc
 }

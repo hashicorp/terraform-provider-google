@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -190,7 +191,7 @@ func closeRecorder(t *testing.T) {
 		// We did not cache the config if it does not use VCR
 		if !t.Failed() && acctest.IsVcrEnabled() {
 			// If a test succeeds, write new seed/yaml to files
-			err := fwProvider.client.Transport.(*recorder.Recorder).Stop()
+			err := fwProvider.Client.Transport.(*recorder.Recorder).Stop()
 			if err != nil {
 				t.Error(err)
 			}
@@ -378,7 +379,7 @@ func HandleVCRConfiguration(ctx context.Context, testName string, rndTripper htt
 
 func NewFrameworkTestProvider(testName string) *frameworkTestProvider {
 	return &frameworkTestProvider{
-		frameworkProvider: frameworkProvider{
+		FrameworkProvider: FrameworkProvider{
 			version: "test",
 		},
 		TestName: testName,
@@ -386,23 +387,23 @@ func NewFrameworkTestProvider(testName string) *frameworkTestProvider {
 }
 
 // frameworkTestProvider is a test version of the plugin-framework version of the provider
-// that embeds frameworkProvider whose configure function we can use
+// that embeds FrameworkProvider whose configure function we can use
 // the Configure function is overwritten in the framework_provider_test file
 type frameworkTestProvider struct {
-	frameworkProvider
+	FrameworkProvider
 	TestName string
 }
 
-// Configure is here to overwrite the frameworkProvider configure function for VCR testing
+// Configure is here to overwrite the FrameworkProvider configure function for VCR testing
 func (p *frameworkTestProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
-	p.frameworkProvider.Configure(ctx, req, resp)
+	p.FrameworkProvider.Configure(ctx, req, resp)
 	if acctest.IsVcrEnabled() {
 		if resp.Diagnostics.HasError() {
 			return
 		}
 
 		var diags fwDiags.Diagnostics
-		p.pollInterval, p.client.Transport, diags = HandleVCRConfiguration(ctx, p.TestName, p.client.Transport, p.pollInterval)
+		p.PollInterval, p.Client.Transport, diags = HandleVCRConfiguration(ctx, p.TestName, p.Client.Transport, p.PollInterval)
 		if diags.HasError() {
 			resp.Diagnostics.Append(diags...)
 			return
@@ -417,8 +418,8 @@ func (p *frameworkTestProvider) Configure(ctx context.Context, req provider.Conf
 	}
 }
 
-func configureApiClient(ctx context.Context, p *frameworkProvider, diags *fwDiags.Diagnostics) {
-	var data ProviderModel
+func configureApiClient(ctx context.Context, p *FrameworkProvider, diags *fwDiags.Diagnostics) {
+	var data fwmodels.ProviderModel
 	var d fwDiags.Diagnostics
 
 	// Set defaults if needed - the only attribute without a default is ImpersonateServiceAccountDelegates
@@ -428,7 +429,7 @@ func configureApiClient(ctx context.Context, p *frameworkProvider, diags *fwDiag
 	if diags.HasError() {
 		return
 	}
-	p.LoadAndValidateFramework(ctx, data, "test", diags)
+	p.LoadAndValidateFramework(ctx, data, "test", diags, p.version)
 }
 
 // GetSDKProvider gets the SDK provider with an overwritten configure function to be called by MuxedProviders

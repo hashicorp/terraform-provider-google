@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/fwtransport"
 )
 
 func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
@@ -98,18 +99,18 @@ func testAccCheckDNSManagedZoneDestroyProducerFramework(t *testing.T) func(s *te
 
 			p := GetFwTestProvider(t)
 
-			url, err := replaceVarsForFrameworkTest(&p.frameworkProvider, rs, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
+			url, err := acctest.ReplaceVarsForFrameworkTest(&p.FrameworkProvider.FrameworkProviderConfig, rs, "{{DNSBasePath}}projects/{{project}}/managedZones/{{name}}")
 			if err != nil {
 				return err
 			}
 
 			billingProject := ""
 
-			if !p.billingProject.IsNull() && p.billingProject.String() != "" {
-				billingProject = p.billingProject.String()
+			if !p.BillingProject.IsNull() && p.BillingProject.String() != "" {
+				billingProject = p.BillingProject.String()
 			}
 
-			_, diags := sendFrameworkRequest(&p.frameworkProvider, "GET", billingProject, url, p.userAgent, nil)
+			_, diags := fwtransport.SendFrameworkRequest(&p.FrameworkProvider.FrameworkProviderConfig, "GET", billingProject, url, p.UserAgent, nil)
 			if !diags.HasError() {
 				return fmt.Errorf("DNSManagedZone still exists at %s", url)
 			}
