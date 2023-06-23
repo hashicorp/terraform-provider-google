@@ -4065,7 +4065,7 @@ data "google_container_engine_versions" "central1a" {
 resource "google_container_cluster" "with_version" {
   name               = "%s"
   location           = "us-central1-a"
-  min_master_version = data.google_container_engine_versions.central1a.valid_master_versions[2]
+  min_master_version = data.google_container_engine_versions.central1a.valid_master_versions[3]
   initial_node_count = 1
 }
 `, clusterName)
