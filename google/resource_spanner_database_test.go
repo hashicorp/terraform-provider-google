@@ -390,18 +390,6 @@ resource "google_spanner_database" "basic" {
 `, instanceName, instanceName, databaseName, databaseName, databaseName)
 }
 
-// Unit Tests for type spannerDatabaseId
-func TestDatabaseNameForApi(t *testing.T) {
-	id := spannerDatabaseId{
-		Project:  "project123",
-		Instance: "instance456",
-		Database: "db789",
-	}
-	actual := id.databaseUri()
-	expected := "projects/project123/instances/instance456/databases/db789"
-	expectEquals(t, expected, actual)
-}
-
 // Unit Tests for validation of retention period argument
 func TestValidateDatabaseRetentionPeriod(t *testing.T) {
 	t.Parallel()

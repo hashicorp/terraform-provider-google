@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/provider"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -69,7 +70,7 @@ func init() {
 	configs = make(map[string]*transport_tpg.Config)
 	fwProviders = make(map[string]*frameworkTestProvider)
 	sources = make(map[string]VcrSource)
-	testAccProvider = Provider()
+	testAccProvider = provider.Provider()
 	TestAccProviders = map[string]*schema.Provider{
 		"google": testAccProvider,
 	}
@@ -83,7 +84,7 @@ func GoogleProviderConfig(t *testing.T) *transport_tpg.Config {
 		return config
 	}
 
-	sdkProvider := Provider()
+	sdkProvider := provider.Provider()
 	rc := terraform.ResourceConfig{}
 	sdkProvider.Configure(context.Background(), &rc)
 	return sdkProvider.Meta().(*transport_tpg.Config)

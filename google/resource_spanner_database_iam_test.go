@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/spanner"
 )
 
 func TestAccSpannerDatabaseIamBinding(t *testing.T) {
@@ -28,7 +29,7 @@ func TestAccSpannerDatabaseIamBinding(t *testing.T) {
 			},
 			{
 				ResourceName: "google_spanner_database_iam_binding.foo",
-				ImportStateId: fmt.Sprintf("%s %s", spannerDatabaseId{
+				ImportStateId: fmt.Sprintf("%s %s", spanner.SpannerDatabaseId{
 					Project:  project,
 					Instance: instance,
 					Database: database,
@@ -42,7 +43,7 @@ func TestAccSpannerDatabaseIamBinding(t *testing.T) {
 			},
 			{
 				ResourceName: "google_spanner_database_iam_binding.foo",
-				ImportStateId: fmt.Sprintf("%s %s", spannerDatabaseId{
+				ImportStateId: fmt.Sprintf("%s %s", spanner.SpannerDatabaseId{
 					Project:  project,
 					Instance: instance,
 					Database: database,
@@ -74,7 +75,7 @@ func TestAccSpannerDatabaseIamMember(t *testing.T) {
 			},
 			{
 				ResourceName: "google_spanner_database_iam_member.foo",
-				ImportStateId: fmt.Sprintf("%s %s serviceAccount:%s@%s.iam.gserviceaccount.com %s", spannerDatabaseId{
+				ImportStateId: fmt.Sprintf("%s %s serviceAccount:%s@%s.iam.gserviceaccount.com %s", spanner.SpannerDatabaseId{
 					Instance: instance,
 					Database: database,
 					Project:  project,
@@ -106,7 +107,7 @@ func TestAccSpannerDatabaseIamPolicy(t *testing.T) {
 			// Test a few import formats
 			{
 				ResourceName: "google_spanner_database_iam_policy.foo",
-				ImportStateId: spannerDatabaseId{
+				ImportStateId: spanner.SpannerDatabaseId{
 					Instance: instance,
 					Database: database,
 					Project:  project,
