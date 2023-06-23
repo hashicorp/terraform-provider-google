@@ -288,6 +288,7 @@ region. If not provided, defaults to the same region as the function.`,
 						},
 						"available_memory": {
 							Type:     schema.TypeString,
+							Computed: true,
 							Optional: true,
 							Description: `The amount of memory available for a function.
 Defaults to 256M. Supported units are k, M, G, Mi, Gi. If no unit is
@@ -308,6 +309,7 @@ supplied the value is interpreted as bytes.`,
 						},
 						"max_instance_count": {
 							Type:     schema.TypeInt,
+							Computed: true,
 							Optional: true,
 							Description: `The limit on the maximum number of function instances that may coexist at a
 given time.`,
@@ -411,6 +413,7 @@ given time.`,
 						},
 						"timeout_seconds": {
 							Type:     schema.TypeInt,
+							Computed: true,
 							Optional: true,
 							Description: `The function execution timeout. Execution is considered failed and
 can be terminated if the function is not completed at the end of the
