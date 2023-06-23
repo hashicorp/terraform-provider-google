@@ -3,9 +3,13 @@
 package acctest
 
 import (
+	"encoding/hex"
 	"fmt"
+	"hash/crc32"
+	"runtime"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -54,4 +58,17 @@ func IsSweepableTestResource(resourceName string) bool {
 		}
 	}
 	return false
+}
+
+func AddTestSweepers(name string, sweeper func(region string) error) {
+	_, filename, _, _ := runtime.Caller(0)
+	hash := crc32.NewIEEE()
+	hash.Write([]byte(filename))
+	hashedFilename := hex.EncodeToString(hash.Sum(nil))
+	uniqueName := name + "_" + hashedFilename
+
+	resource.AddTestSweepers(uniqueName, &resource.Sweeper{
+		Name: name,
+		F:    sweeper,
+	})
 }
