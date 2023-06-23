@@ -69,7 +69,7 @@ resource "google_tags_tag_value" "value" {
 resource "google_tags_location_tag_binding" "binding" {
 	parent    = "//compute.googleapis.com/projects/${google_project.project.number}/zones/us-central1-a/instances/${google_compute_instance.instance.instance_id}"
 	tag_value = "tagValues/${google_tags_tag_value.value.name}"
-	location  = "us-central1"
+	location  = "us-central1-a"
 }
 ```
 
