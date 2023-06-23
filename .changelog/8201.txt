@@ -1,0 +1,3 @@
+```release-note:enhancement
+logging: added support for `locked` to `google_logging_project_bucket_config`
+```
