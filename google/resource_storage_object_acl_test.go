@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/provider"
 	"github.com/hashicorp/terraform-provider-google/google/services/storage"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -343,7 +344,7 @@ func TestAccStorageObjectAcl_noOwner(t *testing.T) {
 	// use plugin-framework, best I can guess we'll want to do something similar to NewFrameworkTestProvider where
 	// we have a nested production version of the provider, we re-write configure to call the production version and
 	// add the additional things inside there.
-	provider := Provider()
+	provider := provider.Provider()
 	oldConfigureFunc := provider.ConfigureContextFunc
 	provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		c, diagnostics := oldConfigureFunc(ctx, d)

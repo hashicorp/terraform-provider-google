@@ -85,3 +85,15 @@ func TestSpannerDatabase_resourceSpannerDBDdlCustomDiffFuncForceNew(t *testing.T
 		}
 	}
 }
+
+// Unit Tests for type SpannerDatabaseId
+func TestDatabaseNameForApi(t *testing.T) {
+	id := SpannerDatabaseId{
+		Project:  "project123",
+		Instance: "instance456",
+		Database: "db789",
+	}
+	actual := id.databaseUri()
+	expected := "projects/project123/instances/instance456/databases/db789"
+	expectEquals(t, expected, actual)
+}

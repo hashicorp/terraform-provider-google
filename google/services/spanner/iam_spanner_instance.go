@@ -1,6 +1,6 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
-package google
+package spanner
 
 import (
 	"fmt"
@@ -77,7 +77,7 @@ func (u *SpannerInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanage
 		return nil, err
 	}
 
-	p, err := u.Config.NewSpannerClient(userAgent).Projects.Instances.GetIamPolicy(spannerInstanceId{
+	p, err := u.Config.NewSpannerClient(userAgent).Projects.Instances.GetIamPolicy(SpannerInstanceId{
 		Project:  u.project,
 		Instance: u.instance,
 	}.instanceUri(), &spanner.GetIamPolicyRequest{
@@ -113,7 +113,7 @@ func (u *SpannerInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		return err
 	}
 
-	_, err = u.Config.NewSpannerClient(userAgent).Projects.Instances.SetIamPolicy(spannerInstanceId{
+	_, err = u.Config.NewSpannerClient(userAgent).Projects.Instances.SetIamPolicy(SpannerInstanceId{
 		Project:  u.project,
 		Instance: u.instance,
 	}.instanceUri(), &spanner.SetIamPolicyRequest{
@@ -128,7 +128,7 @@ func (u *SpannerInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 }
 
 func (u *SpannerInstanceIamUpdater) GetResourceId() string {
-	return spannerInstanceId{
+	return SpannerInstanceId{
 		Project:  u.project,
 		Instance: u.instance,
 	}.TerraformId()
@@ -142,33 +142,33 @@ func (u *SpannerInstanceIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("Spanner Instance: %s/%s", u.project, u.instance)
 }
 
-type spannerInstanceId struct {
+type SpannerInstanceId struct {
 	Project  string
 	Instance string
 }
 
-func (s spannerInstanceId) TerraformId() string {
+func (s SpannerInstanceId) TerraformId() string {
 	return fmt.Sprintf("%s/%s", s.Project, s.Instance)
 }
 
-func (s spannerInstanceId) parentProjectUri() string {
+func (s SpannerInstanceId) parentProjectUri() string {
 	return fmt.Sprintf("projects/%s", s.Project)
 }
 
-func (s spannerInstanceId) instanceUri() string {
+func (s SpannerInstanceId) instanceUri() string {
 	return fmt.Sprintf("%s/instances/%s", s.parentProjectUri(), s.Instance)
 }
 
-func (s spannerInstanceId) instanceConfigUri(c string) string {
+func (s SpannerInstanceId) instanceConfigUri(c string) string {
 	return fmt.Sprintf("%s/instanceConfigs/%s", s.parentProjectUri(), c)
 }
 
-func extractSpannerInstanceId(id string) (*spannerInstanceId, error) {
+func extractSpannerInstanceId(id string) (*SpannerInstanceId, error) {
 	if !regexp.MustCompile("^" + verify.ProjectRegex + "/[a-z0-9-]+$").Match([]byte(id)) {
 		return nil, fmt.Errorf("Invalid spanner id format, expecting {projectId}/{instanceId}")
 	}
 	parts := strings.Split(id, "/")
-	return &spannerInstanceId{
+	return &SpannerInstanceId{
 		Project:  parts[0],
 		Instance: parts[1],
 	}, nil

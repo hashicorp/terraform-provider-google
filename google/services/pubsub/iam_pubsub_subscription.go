@@ -1,13 +1,12 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
-package google
+package pubsub
 
 import (
 	"fmt"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	tpgpubsub "github.com/hashicorp/terraform-provider-google/google/services/pubsub"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -42,7 +41,7 @@ func NewPubsubSubscriptionIamUpdater(d tpgresource.TerraformResourceData, config
 		return nil, err
 	}
 
-	subscription := tpgpubsub.GetComputedSubscriptionName(project, d.Get("subscription").(string))
+	subscription := GetComputedSubscriptionName(project, d.Get("subscription").(string))
 
 	return &PubsubSubscriptionIamUpdater{
 		subscription: subscription,
