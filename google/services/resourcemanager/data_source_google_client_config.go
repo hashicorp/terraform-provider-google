@@ -1,6 +1,6 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
-package google
+package resourcemanager
 
 import (
 	"context"
@@ -10,13 +10,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
+	"github.com/hashicorp/terraform-provider-google/google/fwresource"
+	"github.com/hashicorp/terraform-provider-google/google/fwtransport"
 )
 
 // Ensure the data source satisfies the expected interfaces.
 var (
 	_ datasource.DataSource              = &GoogleClientConfigDataSource{}
 	_ datasource.DataSourceWithConfigure = &GoogleClientConfigDataSource{}
-	_ LocationDescriber                  = &GoogleClientConfigModel{}
+	_ fwresource.LocationDescriber       = &GoogleClientConfigModel{}
 )
 
 func NewGoogleClientConfigDataSource() datasource.DataSource {
@@ -24,7 +27,7 @@ func NewGoogleClientConfigDataSource() datasource.DataSource {
 }
 
 type GoogleClientConfigDataSource struct {
-	providerConfig *frameworkProvider
+	providerConfig *fwtransport.FrameworkProviderConfig
 }
 
 type GoogleClientConfigModel struct {
@@ -37,14 +40,14 @@ type GoogleClientConfigModel struct {
 	AccessToken types.String `tfsdk:"access_token"`
 }
 
-func (m *GoogleClientConfigModel) GetLocationDescription(providerConfig *frameworkProvider) LocationDescription {
-	return LocationDescription{
+func (m *GoogleClientConfigModel) GetLocationDescription(providerConfig *fwtransport.FrameworkProviderConfig) fwresource.LocationDescription {
+	return fwresource.LocationDescription{
 		RegionSchemaField: types.StringValue("region"),
 		ZoneSchemaField:   types.StringValue("zone"),
 		ResourceRegion:    m.Region,
 		ResourceZone:      m.Zone,
-		ProviderRegion:    providerConfig.region,
-		ProviderZone:      providerConfig.zone,
+		ProviderRegion:    providerConfig.Region,
+		ProviderZone:      providerConfig.Zone,
 	}
 }
 
@@ -95,11 +98,11 @@ func (d *GoogleClientConfigDataSource) Configure(ctx context.Context, req dataso
 		return
 	}
 
-	p, ok := req.ProviderData.(*frameworkProvider)
+	p, ok := req.ProviderData.(*fwtransport.FrameworkProviderConfig)
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Data Source Configure Type",
-			fmt.Sprintf("Expected *frameworkProvider, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *fwtransport.FrameworkProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 		return
 	}
@@ -110,7 +113,7 @@ func (d *GoogleClientConfigDataSource) Configure(ctx context.Context, req dataso
 
 func (d *GoogleClientConfigDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data GoogleClientConfigModel
-	var metaData *ProviderMetaModel
+	var metaData *fwmodels.ProviderMetaModel
 	var diags diag.Diagnostics
 
 	// Read Provider meta into the meta model
@@ -129,12 +132,12 @@ func (d *GoogleClientConfigDataSource) Read(ctx context.Context, req datasource.
 	region, _ := locationInfo.GetRegion()
 	zone, _ := locationInfo.GetZone()
 
-	data.Id = types.StringValue(fmt.Sprintf("projects/%s/regions/%s/zones/%s", d.providerConfig.project.String(), region.String(), zone.String()))
-	data.Project = d.providerConfig.project
+	data.Id = types.StringValue(fmt.Sprintf("projects/%s/regions/%s/zones/%s", d.providerConfig.Project.String(), region.String(), zone.String()))
+	data.Project = d.providerConfig.Project
 	data.Region = region
 	data.Zone = zone
 
-	token, err := d.providerConfig.tokenSource.Token()
+	token, err := d.providerConfig.TokenSource.Token()
 	if err != nil {
 		diags.AddError("Error setting access_token", err.Error())
 		return

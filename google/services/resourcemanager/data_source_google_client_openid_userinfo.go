@@ -1,6 +1,6 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
-package google
+package resourcemanager
 
 import (
 	"context"
@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
+	"github.com/hashicorp/terraform-provider-google/google/fwtransport"
 )
 
 // Ensure the data source satisfies the expected interfaces.
@@ -23,7 +25,7 @@ func NewGoogleClientOpenIDUserinfoDataSource() datasource.DataSource {
 }
 
 type GoogleClientOpenIDUserinfoDataSource struct {
-	providerConfig *frameworkProvider
+	providerConfig *fwtransport.FrameworkProviderConfig
 }
 
 type GoogleClientOpenIDUserinfoModel struct {
@@ -68,11 +70,11 @@ func (d *GoogleClientOpenIDUserinfoDataSource) Configure(ctx context.Context, re
 		return
 	}
 
-	p, ok := req.ProviderData.(*frameworkProvider)
+	p, ok := req.ProviderData.(*fwtransport.FrameworkProviderConfig)
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Data Source Configure Type",
-			fmt.Sprintf("Expected *frameworkProvider, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *fwtransport.FrameworkProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 		return
 	}
@@ -83,7 +85,7 @@ func (d *GoogleClientOpenIDUserinfoDataSource) Configure(ctx context.Context, re
 
 func (d *GoogleClientOpenIDUserinfoDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data GoogleClientOpenIDUserinfoModel
-	var metaData *ProviderMetaModel
+	var metaData *fwmodels.ProviderMetaModel
 	var diags diag.Diagnostics
 
 	// Read Provider meta into the meta model
@@ -98,8 +100,8 @@ func (d *GoogleClientOpenIDUserinfoDataSource) Read(ctx context.Context, req dat
 		return
 	}
 
-	userAgent := generateFrameworkUserAgentString(metaData, d.providerConfig.userAgent)
-	email := GetCurrentUserEmailFramework(d.providerConfig, userAgent, &diags)
+	userAgent := fwtransport.GenerateFrameworkUserAgentString(metaData, d.providerConfig.UserAgent)
+	email := fwtransport.GetCurrentUserEmailFramework(d.providerConfig, userAgent, &diags)
 
 	data.Email = types.StringValue(email)
 	data.Id = types.StringValue(email)

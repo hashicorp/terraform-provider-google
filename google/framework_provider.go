@@ -4,8 +4,6 @@ package google
 
 import (
 	"context"
-	"net/http"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -16,146 +14,41 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
-	"golang.org/x/oauth2"
-	"google.golang.org/api/option"
+	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
+	"github.com/hashicorp/terraform-provider-google/google/fwtransport"
+	"github.com/hashicorp/terraform-provider-google/google/services/dns"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // Ensure the implementation satisfies the expected interfaces
 var (
-	_ provider.ProviderWithMetaSchema = &frameworkProvider{}
-
-	defaultClientScopes = []string{
-		"https://www.googleapis.com/auth/cloud-platform",
-		"https://www.googleapis.com/auth/userinfo.email",
-	}
+	_ provider.ProviderWithMetaSchema = &FrameworkProvider{}
 )
 
 // New is a helper function to simplify provider server and testing implementation.
 func New(version string) provider.ProviderWithMetaSchema {
-	return &frameworkProvider{
+	return &FrameworkProvider{
 		version: version,
 	}
 }
 
-// frameworkProvider is the provider implementation.
-type frameworkProvider struct {
-	billingProject             types.String
-	client                     *http.Client
-	context                    context.Context
-	gRPCLoggingOptions         []option.ClientOption
-	pollInterval               time.Duration
-	project                    types.String
-	region                     types.String
-	zone                       types.String
-	RequestBatcherIam          *transport_tpg.RequestBatcher
-	requestBatcherServiceUsage *transport_tpg.RequestBatcher
-	scopes                     []string
-	tokenSource                oauth2.TokenSource
-	userAgent                  string
-	userProjectOverride        bool
-	version                    string
-
-	// paths for client setup
-	AccessApprovalBasePath           string
-	AccessContextManagerBasePath     string
-	ActiveDirectoryBasePath          string
-	AlloydbBasePath                  string
-	ApigeeBasePath                   string
-	AppEngineBasePath                string
-	ArtifactRegistryBasePath         string
-	BeyondcorpBasePath               string
-	BigQueryBasePath                 string
-	BigqueryAnalyticsHubBasePath     string
-	BigqueryConnectionBasePath       string
-	BigqueryDatapolicyBasePath       string
-	BigqueryDataTransferBasePath     string
-	BigqueryReservationBasePath      string
-	BigtableBasePath                 string
-	BillingBasePath                  string
-	BinaryAuthorizationBasePath      string
-	CertificateManagerBasePath       string
-	CloudAssetBasePath               string
-	CloudBuildBasePath               string
-	CloudFunctionsBasePath           string
-	Cloudfunctions2BasePath          string
-	CloudIdentityBasePath            string
-	CloudIdsBasePath                 string
-	CloudIotBasePath                 string
-	CloudRunBasePath                 string
-	CloudRunV2BasePath               string
-	CloudSchedulerBasePath           string
-	CloudTasksBasePath               string
-	ComputeBasePath                  string
-	ContainerAnalysisBasePath        string
-	ContainerAttachedBasePath        string
-	DatabaseMigrationServiceBasePath string
-	DataCatalogBasePath              string
-	DataFusionBasePath               string
-	DataLossPreventionBasePath       string
-	DataplexBasePath                 string
-	DataprocBasePath                 string
-	DataprocMetastoreBasePath        string
-	DatastoreBasePath                string
-	DatastreamBasePath               string
-	DeploymentManagerBasePath        string
-	DialogflowBasePath               string
-	DialogflowCXBasePath             string
-	DNSBasePath                      string
-	DocumentAIBasePath               string
-	EssentialContactsBasePath        string
-	FilestoreBasePath                string
-	FirestoreBasePath                string
-	GameServicesBasePath             string
-	GKEBackupBasePath                string
-	GKEHubBasePath                   string
-	GKEHub2BasePath                  string
-	HealthcareBasePath               string
-	IAM2BasePath                     string
-	IAMBetaBasePath                  string
-	IAMWorkforcePoolBasePath         string
-	IapBasePath                      string
-	IdentityPlatformBasePath         string
-	KMSBasePath                      string
-	LoggingBasePath                  string
-	MemcacheBasePath                 string
-	MLEngineBasePath                 string
-	MonitoringBasePath               string
-	NetworkManagementBasePath        string
-	NetworkServicesBasePath          string
-	NotebooksBasePath                string
-	OSConfigBasePath                 string
-	OSLoginBasePath                  string
-	PrivatecaBasePath                string
-	PubsubBasePath                   string
-	PubsubLiteBasePath               string
-	RedisBasePath                    string
-	ResourceManagerBasePath          string
-	SecretManagerBasePath            string
-	SecurityCenterBasePath           string
-	ServiceManagementBasePath        string
-	ServiceUsageBasePath             string
-	SourceRepoBasePath               string
-	SpannerBasePath                  string
-	SQLBasePath                      string
-	StorageBasePath                  string
-	StorageTransferBasePath          string
-	TagsBasePath                     string
-	TPUBasePath                      string
-	VertexAIBasePath                 string
-	VPCAccessBasePath                string
-	WorkflowsBasePath                string
+// FrameworkProvider is the provider implementation.
+type FrameworkProvider struct {
+	fwtransport.FrameworkProviderConfig
+	version string
 }
 
 // Metadata returns the provider type name.
-func (p *frameworkProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
+func (p *FrameworkProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
 	resp.TypeName = "google"
 	resp.Version = p.version
 }
 
 // MetaSchema returns the provider meta schema.
-func (p *frameworkProvider) MetaSchema(_ context.Context, _ provider.MetaSchemaRequest, resp *provider.MetaSchemaResponse) {
+func (p *FrameworkProvider) MetaSchema(_ context.Context, _ provider.MetaSchemaRequest, resp *provider.MetaSchemaResponse) {
 	resp.Schema = metaschema.Schema{
 		Attributes: map[string]metaschema.Attribute{
 			"module_name": metaschema.StringAttribute{
@@ -166,7 +59,7 @@ func (p *frameworkProvider) MetaSchema(_ context.Context, _ provider.MetaSchemaR
 }
 
 // Schema defines the provider-level schema for configuration data.
-func (p *frameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
+func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"credentials": schema.StringAttribute{
@@ -842,8 +735,8 @@ func (p *frameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 }
 
 // Configure prepares an API client for data sources and resources.
-func (p *frameworkProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
-	var data ProviderModel
+func (p *FrameworkProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+	var data fwmodels.ProviderModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 
@@ -852,28 +745,28 @@ func (p *frameworkProvider) Configure(ctx context.Context, req provider.Configur
 	}
 
 	// Configuration values are now available.
-	p.LoadAndValidateFramework(ctx, data, req.TerraformVersion, &resp.Diagnostics)
+	p.LoadAndValidateFramework(ctx, data, req.TerraformVersion, &resp.Diagnostics, p.version)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// Example client configuration for data sources and resources
-	resp.DataSourceData = p
-	resp.ResourceData = p
+	resp.DataSourceData = &p.FrameworkProviderConfig
+	resp.ResourceData = &p.FrameworkProviderConfig
 }
 
 // DataSources defines the data sources implemented in the provider.
-func (p *frameworkProvider) DataSources(_ context.Context) []func() datasource.DataSource {
+func (p *FrameworkProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		NewGoogleClientConfigDataSource,
-		NewGoogleClientOpenIDUserinfoDataSource,
-		NewGoogleDnsManagedZoneDataSource,
-		NewGoogleDnsRecordSetDataSource,
-		NewGoogleDnsKeysDataSource,
+		resourcemanager.NewGoogleClientConfigDataSource,
+		resourcemanager.NewGoogleClientOpenIDUserinfoDataSource,
+		dns.NewGoogleDnsManagedZoneDataSource,
+		dns.NewGoogleDnsRecordSetDataSource,
+		dns.NewGoogleDnsKeysDataSource,
 	}
 }
 
 // Resources defines the resources implemented in the provider.
-func (p *frameworkProvider) Resources(_ context.Context) []func() resource.Resource {
+func (p *FrameworkProvider) Resources(_ context.Context) []func() resource.Resource {
 	return nil
 }

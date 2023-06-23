@@ -1,13 +1,13 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
-package google
+package fwmodels
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// ProviderModel describes the provider data model.
+// ProviderModel describes the provider config data model.
 type ProviderModel struct {
 	Credentials                        types.String `tfsdk:"credentials"`
 	AccessToken                        types.String `tfsdk:"access_token"`
@@ -139,6 +139,11 @@ type ProviderModel struct {
 	NetworkConnectivityCustomEndpoint  types.String `tfsdk:"network_connectivity_custom_endpoint"`
 	OrgPolicyCustomEndpoint            types.String `tfsdk:"org_policy_custom_endpoint"`
 	RecaptchaEnterpriseCustomEndpoint  types.String `tfsdk:"recaptcha_enterprise_custom_endpoint"`
+}
+
+type ProviderBatching struct {
+	SendAfter      types.String `tfsdk:"send_after"`
+	EnableBatching types.Bool   `tfsdk:"enable_batching"`
 }
 
 var ProviderBatchingAttributes = map[string]attr.Type{
