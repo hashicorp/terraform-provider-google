@@ -123,9 +123,7 @@ resource "google_cloudfunctions2_function" "terraform-test2" {
   }
 
   service_config {
-    max_instance_count  = 1
-    available_memory    = "1536Mi"
-    timeout_seconds     = 30
+    min_instance_count = 1
   }
 }
 `, context)
