@@ -1,0 +1,3 @@
+```release-note:none
+Fixed the "location" argument in the usage example of google_tags_location_tag_binding for compute instances.
+```
