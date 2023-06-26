@@ -4,9 +4,7 @@ package google
 
 import (
 	"bytes"
-	"context"
 	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 	"testing"
@@ -15,52 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
-
-func init() {
-	resource.AddTestSweepers("gcp_container_cluster", &resource.Sweeper{
-		Name: "gcp_container_cluster",
-		F:    testSweepContainerClusters,
-	})
-}
-
-func testSweepContainerClusters(region string) error {
-	config, err := acctest.SharedConfigForRegion(region)
-	if err != nil {
-		log.Fatalf("error getting shared config for region: %s", err)
-	}
-
-	err = config.LoadAndValidate(context.Background())
-	if err != nil {
-		log.Fatalf("error loading: %s", err)
-	}
-
-	// List clusters for all zones by using "-" as the zone name
-	found, err := config.NewContainerClient(config.UserAgent).Projects.Zones.Clusters.List(config.Project, "-").Do()
-	if err != nil {
-		log.Printf("error listing container clusters: %s", err)
-		return nil
-	}
-
-	if len(found.Clusters) == 0 {
-		log.Printf("No container clusters found.")
-		return nil
-	}
-
-	for _, cluster := range found.Clusters {
-		if acctest.IsSweepableTestResource(cluster.Name) {
-			log.Printf("Sweeping Container Cluster: %s", cluster.Name)
-			clusterURL := fmt.Sprintf("projects/%s/locations/%s/clusters/%s", config.Project, cluster.Location, cluster.Name)
-			_, err := config.NewContainerClient(config.UserAgent).Projects.Locations.Clusters.Delete(clusterURL).Do()
-
-			if err != nil {
-				log.Printf("Error, failed to delete cluster %s: %s", cluster.Name, err)
-				return nil
-			}
-		}
-	}
-
-	return nil
-}
 
 func TestAccContainerCluster_basic(t *testing.T) {
 	t.Parallel()

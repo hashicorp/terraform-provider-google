@@ -10,12 +10,13 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/sweeper"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func init() {
-	acctest.AddTestSweepers("FirebaseAndroidApp", testSweepFirebaseAndroidApp)
+	sweeper.AddTestSweepers("FirebaseAndroidApp", testSweepFirebaseAndroidApp)
 }
 
 // At the time of writing, the CI only passes us-central1 as the region
