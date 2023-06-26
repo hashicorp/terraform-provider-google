@@ -118,6 +118,7 @@ type FrameworkProviderConfig struct {
 	OSConfigBasePath                 string
 	OSLoginBasePath                  string
 	PrivatecaBasePath                string
+	PublicCABasePath                 string
 	PubsubBasePath                   string
 	PubsubLiteBasePath               string
 	RedisBasePath                    string
@@ -249,6 +250,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.OSConfigBasePath = data.OSConfigCustomEndpoint.ValueString()
 	p.OSLoginBasePath = data.OSLoginCustomEndpoint.ValueString()
 	p.PrivatecaBasePath = data.PrivatecaCustomEndpoint.ValueString()
+	p.PublicCABasePath = data.PublicCACustomEndpoint.ValueString()
 	p.PubsubBasePath = data.PubsubCustomEndpoint.ValueString()
 	p.PubsubLiteBasePath = data.PubsubLiteCustomEndpoint.ValueString()
 	p.RedisBasePath = data.RedisCustomEndpoint.ValueString()
@@ -947,6 +949,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.PrivatecaBasePathKey])
 		if customEndpoint != nil {
 			data.PrivatecaCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.PublicCACustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_PUBLIC_CA_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.PublicCABasePathKey])
+		if customEndpoint != nil {
+			data.PublicCACustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.PubsubCustomEndpoint.IsNull() {

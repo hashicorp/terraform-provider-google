@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_certificate_manager_public_ca_external_account_key`
+```

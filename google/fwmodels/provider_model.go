@@ -94,6 +94,7 @@ type ProviderModel struct {
 	OSConfigCustomEndpoint                 types.String `tfsdk:"os_config_custom_endpoint"`
 	OSLoginCustomEndpoint                  types.String `tfsdk:"os_login_custom_endpoint"`
 	PrivatecaCustomEndpoint                types.String `tfsdk:"privateca_custom_endpoint"`
+	PublicCACustomEndpoint                 types.String `tfsdk:"public_ca_custom_endpoint"`
 	PubsubCustomEndpoint                   types.String `tfsdk:"pubsub_custom_endpoint"`
 	PubsubLiteCustomEndpoint               types.String `tfsdk:"pubsub_lite_custom_endpoint"`
 	RedisCustomEndpoint                    types.String `tfsdk:"redis_custom_endpoint"`
