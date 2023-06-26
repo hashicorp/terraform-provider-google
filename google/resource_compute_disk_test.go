@@ -357,19 +357,16 @@ func TestAccComputeDisk_pdHyperDiskProvisionedIopsLifeCycle(t *testing.T) {
 	context_1 := map[string]interface{}{
 		"random_suffix":    RandString(t, 10),
 		"provisioned_iops": 10000,
-		"disk_size":        64,
 		"lifecycle_bool":   true,
 	}
 	context_2 := map[string]interface{}{
 		"random_suffix":    context_1["random_suffix"],
 		"provisioned_iops": 11000,
-		"disk_size":        64,
 		"lifecycle_bool":   true,
 	}
 	context_3 := map[string]interface{}{
 		"random_suffix":    context_1["random_suffix"],
 		"provisioned_iops": 11000,
-		"disk_size":        64,
 		"lifecycle_bool":   false,
 	}
 
@@ -396,6 +393,58 @@ func TestAccComputeDisk_pdHyperDiskProvisionedIopsLifeCycle(t *testing.T) {
 			},
 			{
 				Config: testAccComputeDisk_pdHyperDiskProvisionedIopsLifeCycle(context_3),
+			},
+			{
+				ResourceName:      "google_compute_disk.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeDisk_pdHyperDiskProvisionedThroughputLifeCycle(t *testing.T) {
+	t.Parallel()
+
+	context_1 := map[string]interface{}{
+		"random_suffix":          RandString(t, 10),
+		"provisioned_throughput": 180,
+		"lifecycle_bool":         true,
+	}
+	context_2 := map[string]interface{}{
+		"random_suffix":          context_1["random_suffix"],
+		"provisioned_throughput": 20,
+		"lifecycle_bool":         true,
+	}
+	context_3 := map[string]interface{}{
+		"random_suffix":          context_1["random_suffix"],
+		"provisioned_throughput": 20,
+		"lifecycle_bool":         false,
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeDisk_pdHyperDiskProvisionedThroughputLifeCycle(context_1),
+			},
+			{
+				ResourceName:      "google_compute_disk.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeDisk_pdHyperDiskProvisionedThroughputLifeCycle(context_2),
+			},
+			{
+				ResourceName:      "google_compute_disk.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeDisk_pdHyperDiskProvisionedThroughputLifeCycle(context_3),
 			},
 			{
 				ResourceName:      "google_compute_disk.foobar",
@@ -926,12 +975,27 @@ resource "google_compute_instance_group_manager" "manager" {
 func testAccComputeDisk_pdHyperDiskProvisionedIopsLifeCycle(context map[string]interface{}) string {
 	return Nprintf(`
 	resource "google_compute_disk" "foobar" {
-		name  = "tf-test-hyperdisk-%{random_suffix}"
-		type = "hyperdisk-extreme"
-		provisioned_iops = %{provisioned_iops}
-		size = %{disk_size}
+		name                    = "tf-test-hyperdisk-%{random_suffix}"
+		type                    = "hyperdisk-extreme"
+		provisioned_iops        = %{provisioned_iops}
+		size                    = 64
 		lifecycle {
-		  prevent_destroy = %{lifecycle_bool}
+		  prevent_destroy       = %{lifecycle_bool}
+		}
+	  }
+`, context)
+}
+
+func testAccComputeDisk_pdHyperDiskProvisionedThroughputLifeCycle(context map[string]interface{}) string {
+	return Nprintf(`
+	resource "google_compute_disk" "foobar" {
+		name                   = "tf-test-hyperdisk-%{random_suffix}"
+		type                   = "hyperdisk-throughput"
+		zone                   = "us-east4-c"
+		provisioned_throughput = %{provisioned_throughput}
+		size                   = 2048
+		lifecycle {
+		  prevent_destroy      = %{lifecycle_bool}
 		}
 	  }
 `, context)

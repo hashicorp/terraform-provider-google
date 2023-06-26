@@ -233,7 +233,14 @@ The following arguments are supported:
 * `provisioned_iops` -
   (Optional)
   Indicates how many IOPS must be provisioned for the disk.
-  Note: Update currently only supported by hyperdisk skus, allowing for an update of IOPS every 4 hours
+  Note: Updating currently is only supported by hyperdisk skus without the need to delete and recreate the disk, hyperdisk
+  allows for an update of IOPS every 4 hours. To update your hyperdisk more frequently, you'll need to manually delete and recreate it
+
+* `provisioned_throughput` -
+  (Optional)
+  Indicates how much Throughput must be provisioned for the disk.
+  Note: Updating currently is only supported by hyperdisk skus without the need to delete and recreate the disk, hyperdisk
+  allows for an update of Throughput every 4 hours. To update your hyperdisk more frequently, you'll need to manually delete and recreate it
 
 * `async_primary_disk` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
