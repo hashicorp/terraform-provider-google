@@ -51,6 +51,7 @@ func ResourceKMSCryptoKey() *schema.Resource {
 		},
 
 		SchemaVersion: 1,
+
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceKMSCryptoKeyResourceV0().CoreConfigSchema().ImpliedType(),

@@ -56,6 +56,7 @@ func ResourceCertificateManagerCertificate() *schema.Resource {
 		},
 
 		SchemaVersion: 1,
+
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceCertificateManagerCertificateResourceV0().CoreConfigSchema().ImpliedType(),

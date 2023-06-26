@@ -51,6 +51,7 @@ func ResourceFilestoreInstance() *schema.Resource {
 		},
 
 		SchemaVersion: 1,
+
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceFilestoreInstanceResourceV0().CoreConfigSchema().ImpliedType(),

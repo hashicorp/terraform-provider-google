@@ -46,6 +46,7 @@ func ResourceWorkflowsWorkflow() *schema.Resource {
 		},
 
 		SchemaVersion: 1,
+
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceWorkflowsWorkflowResourceV0().CoreConfigSchema().ImpliedType(),
