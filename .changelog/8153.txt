@@ -1,0 +1,3 @@
+```release-note:enhancement 
+compute: added `provisioned_throughput` field to `google_compute_disk` used by `hyperdisk-throughput` pd type
+```
