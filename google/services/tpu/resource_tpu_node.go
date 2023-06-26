@@ -25,6 +25,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -99,7 +100,9 @@ func ResourceTPUNode() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
-		CustomizeDiff: tpuNodeCustomizeDiff,
+		CustomizeDiff: customdiff.All(
+			tpuNodeCustomizeDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"accelerator_type": {

@@ -72,8 +72,8 @@ func ResourceComputeSubnetwork() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
-			customdiff.ForceNewIfChange("ip_cidr_range", IsShrinkageIpCidr),
 			resourceComputeSubnetworkSecondaryIpRangeSetStyleDiff,
+			customdiff.ForceNewIfChange("ip_cidr_range", IsShrinkageIpCidr),
 		),
 
 		Schema: map[string]*schema.Schema{

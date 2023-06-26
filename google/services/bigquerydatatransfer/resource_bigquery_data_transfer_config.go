@@ -96,7 +96,10 @@ func ResourceBigqueryDataTransferConfig() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
-		CustomizeDiff: customdiff.All(sensitiveParamCustomizeDiff, paramsCustomizeDiff),
+		CustomizeDiff: customdiff.All(
+			sensitiveParamCustomizeDiff,
+			paramsCustomizeDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"data_source_id": {

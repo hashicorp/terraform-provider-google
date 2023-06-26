@@ -24,6 +24,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -73,7 +74,9 @@ func ResourceDeploymentManagerDeployment() *schema.Resource {
 			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
 
-		CustomizeDiff: customDiffDeploymentManagerDeployment,
+		CustomizeDiff: customdiff.All(
+			customDiffDeploymentManagerDeployment,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {

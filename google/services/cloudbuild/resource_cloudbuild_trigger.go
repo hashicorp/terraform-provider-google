@@ -25,6 +25,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -87,6 +88,7 @@ func ResourceCloudBuildTrigger() *schema.Resource {
 		},
 
 		SchemaVersion: 2,
+
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceCloudBuildTriggerResourceV0().CoreConfigSchema().ImpliedType(),
@@ -99,8 +101,9 @@ func ResourceCloudBuildTrigger() *schema.Resource {
 				Version: 1,
 			},
 		},
-
-		CustomizeDiff: stepTimeoutCustomizeDiff,
+		CustomizeDiff: customdiff.All(
+			stepTimeoutCustomizeDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"approval_config": {

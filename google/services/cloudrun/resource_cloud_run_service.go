@@ -26,6 +26,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -117,7 +118,9 @@ func ResourceCloudRunService() *schema.Resource {
 		},
 
 		SchemaVersion: 1,
-		CustomizeDiff: revisionNameCustomizeDiff,
+		CustomizeDiff: customdiff.All(
+			revisionNameCustomizeDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"location": {

@@ -62,6 +62,7 @@ func ResourceBillingBudget() *schema.Resource {
 		},
 
 		SchemaVersion: 1,
+
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceBillingBudgetResourceV0().CoreConfigSchema().ImpliedType(),

@@ -92,7 +92,8 @@ func ResourceRedisInstance() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
-			customdiff.ForceNewIfChange("redis_version", isRedisVersionDecreasing)),
+			customdiff.ForceNewIfChange("redis_version", isRedisVersionDecreasing),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"memory_size_gb": {

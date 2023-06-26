@@ -26,6 +26,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -117,7 +118,9 @@ func ResourceDatastreamStream() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
-		CustomizeDiff: resourceDatastreamStreamCustomDiff,
+		CustomizeDiff: customdiff.All(
+			resourceDatastreamStreamCustomDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"destination_config": {

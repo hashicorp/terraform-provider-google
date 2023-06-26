@@ -24,6 +24,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -141,7 +142,9 @@ func ResourceComputeRegionBackendService() *schema.Resource {
 
 		SchemaVersion: 1,
 		MigrateState:  tpgresource.MigrateStateNoop,
-		CustomizeDiff: customDiffRegionBackendService,
+		CustomizeDiff: customdiff.All(
+			customDiffRegionBackendService,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {

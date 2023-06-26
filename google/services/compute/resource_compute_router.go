@@ -24,6 +24,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -66,7 +67,9 @@ func ResourceComputeRouter() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
-		CustomizeDiff: resourceComputeRouterCustomDiff,
+		CustomizeDiff: customdiff.All(
+			resourceComputeRouterCustomDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
