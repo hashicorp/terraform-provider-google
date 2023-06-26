@@ -5,9 +5,7 @@ package google
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"os"
-	"strings"
 	"testing"
 
 	"archive/zip"
@@ -31,14 +29,6 @@ const testBucketTriggerPath = "./test-fixtures/cloudfunctions/bucket_trigger.js"
 const testFirestoreTriggerPath = "./test-fixtures/cloudfunctions/firestore_trigger.js"
 const testSecretEnvVarFunctionPath = "./test-fixtures/cloudfunctions/secret_environment_variables.js"
 const testSecretVolumesMountFunctionPath = "./test-fixtures/cloudfunctions/secret_volumes_mount.js"
-const testFunctionsSourceArchivePrefix = "cloudfunczip"
-
-func init() {
-	resource.AddTestSweepers("gcp_cloud_function_source_archive", &resource.Sweeper{
-		Name: "gcp_cloud_function_source_archive",
-		F:    sweepCloudFunctionSourceZipArchives,
-	})
-}
 
 func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 	t.Parallel()
@@ -627,28 +617,6 @@ func createZIPArchiveForCloudFunctionSource(t *testing.T, sourcePath string) str
 		t.Fatal(err.Error())
 	}
 	return tmpfile.Name()
-}
-
-func sweepCloudFunctionSourceZipArchives(_ string) error {
-	files, err := ioutil.ReadDir(os.TempDir())
-	if err != nil {
-		log.Printf("Error reading files: %s", err)
-		return nil
-	}
-	for _, f := range files {
-		if f.IsDir() {
-			continue
-		}
-		if strings.HasPrefix(f.Name(), testFunctionsSourceArchivePrefix) {
-			filepath := fmt.Sprintf("%s/%s", os.TempDir(), f.Name())
-			if err := os.Remove(filepath); err != nil {
-				log.Printf("Error removing files: %s", err)
-				return nil
-			}
-			log.Printf("[INFO] cloud functions sweeper removed old file %s", filepath)
-		}
-	}
-	return nil
 }
 
 func testAccCloudFunctionsFunction_basic(functionName string, bucketName string, zipFilePath string) string {
