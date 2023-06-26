@@ -1750,7 +1750,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	clusterName := d.Get("name").(string)
 
-	ipAllocationBlock, err := expandIPAllocationPolicy(d.Get("ip_allocation_policy"), d.Get("networking_mode").(string))
+	ipAllocationBlock, err := expandIPAllocationPolicy(d.Get("ip_allocation_policy"), d.Get("networking_mode").(string), d.Get("enable_autopilot").(bool))
 	if err != nil {
 		return err
 	}
@@ -3536,10 +3536,13 @@ func expandPodCidrOverprovisionConfig(configured interface{}) *container.PodCIDR
 	}
 }
 
-func expandIPAllocationPolicy(configured interface{}, networkingMode string) (*container.IPAllocationPolicy, error) {
+func expandIPAllocationPolicy(configured interface{}, networkingMode string, autopilot bool) (*container.IPAllocationPolicy, error) {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		if networkingMode == "VPC_NATIVE" {
+			if autopilot {
+				return nil, nil
+			}
 			return nil, fmt.Errorf("`ip_allocation_policy` block is required for VPC_NATIVE clusters.")
 		}
 		return &container.IPAllocationPolicy{
@@ -5034,6 +5037,9 @@ func validatePrivateClusterConfig(cluster *container.Cluster) error {
 func containerClusterAutopilotCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	if d.HasChange("enable_autopilot") && d.Get("enable_autopilot").(bool) {
 		if err := d.SetNew("enable_intranode_visibility", true); err != nil {
+			return err
+		}
+		if err := d.SetNew("networking_mode", "VPC_NATIVE"); err != nil {
 			return err
 		}
 	}
