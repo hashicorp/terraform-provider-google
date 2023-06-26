@@ -93,6 +93,7 @@ func configureTestBasePaths(c *transport_tpg.Config, url string) {
 	c.OSConfigBasePath = url
 	c.OSLoginBasePath = url
 	c.PrivatecaBasePath = url
+	c.PublicCABasePath = url
 	c.PubsubBasePath = url
 	c.PubsubLiteBasePath = url
 	c.RedisBasePath = url
