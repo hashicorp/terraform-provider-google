@@ -76,21 +76,24 @@ func TestAccFilestoreInstance_update(t *testing.T) {
 func testAccFilestoreInstance_update(name string) string {
 	return fmt.Sprintf(`
 resource "google_filestore_instance" "instance" {
-  name = "tf-instance-%s"
-  zone = "us-central1-b"
+  name        = "tf-instance-%s"
+  zone        = "us-central1-b"
+  tier        = "BASIC_HDD"
+  description = "An instance created during testing."
+
   file_shares {
-    capacity_gb = 2660
+    capacity_gb = 1024
     name        = "share"
   }
+
   networks {
     network = "default"
     modes   = ["MODE_IPV4"]
   }
+
   labels = {
     baz = "qux"
   }
-  tier        = "PREMIUM"
-  description = "An instance created during testing."
 }
 `, name)
 }
@@ -98,18 +101,20 @@ resource "google_filestore_instance" "instance" {
 func testAccFilestoreInstance_update2(name string) string {
 	return fmt.Sprintf(`
 resource "google_filestore_instance" "instance" {
-  name = "tf-instance-%s"
-  zone = "us-central1-b"
+  name        = "tf-instance-%s"
+  zone        = "us-central1-b"
+  tier        = "BASIC_HDD"
+  description = "A modified instance created during testing."
+
   file_shares {
-    capacity_gb = 2760
+    capacity_gb = 1536
     name        = "share"
   }
+
   networks {
     network = "default"
     modes   = ["MODE_IPV4"]
   }
-  tier        = "PREMIUM"
-  description = "A modified instance created during testing."
 }
 `, name)
 }
@@ -151,7 +156,7 @@ func testAccFilestoreInstance_reservedIpRange_update(name string) string {
 resource "google_filestore_instance" "instance" {
   name = "tf-instance-%s"
   zone = "us-central1-b"
-  tier    = "BASIC_HDD"
+  tier = "BASIC_HDD"
 
   file_shares {
     capacity_gb = 1024
@@ -172,7 +177,7 @@ func testAccFilestoreInstance_reservedIpRange_update2(name string) string {
 resource "google_filestore_instance" "instance" {
   name = "tf-instance-%s"
   zone = "us-central1-b"
-  tier    = "BASIC_HDD"
+  tier = "BASIC_HDD"
 
   file_shares {
     capacity_gb = 1024

@@ -41,12 +41,12 @@ To get more information about Snapshot, see:
 resource "google_filestore_snapshot" "snapshot" {
   name     = "test-snapshot"
   instance = google_filestore_instance.instance.name
-  location = "us-central1"
+  location = "us-east1"
 }
 
 resource "google_filestore_instance" "instance" {
   name     = "test-instance-for-snapshot"
-  location = "us-central1"
+  location = "us-east1"
   tier     = "ENTERPRISE"
 
   file_shares {
@@ -72,7 +72,7 @@ resource "google_filestore_instance" "instance" {
 resource "google_filestore_snapshot" "snapshot" {
   name     = "test-snapshot"
   instance = google_filestore_instance.instance.name
-  location = "us-central1"
+  location = "us-west1"
 
   description = "Snapshot of test-instance-for-snapshot"
 
@@ -83,7 +83,7 @@ resource "google_filestore_snapshot" "snapshot" {
 
 resource "google_filestore_instance" "instance" {
   name     = "test-instance-for-snapshot"
-  location = "us-central1"
+  location = "us-west1"
   tier     = "ENTERPRISE"
 
   file_shares {

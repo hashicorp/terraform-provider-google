@@ -38,31 +38,30 @@ To get more information about Backup, see:
 
 
 ```hcl
-
 resource "google_filestore_instance" "instance" {
-  name = "tf-fs-inst"
+  name     = "tf-fs-inst"
   location = "us-central1-b"
-  tier = "BASIC_SSD"
+  tier     = "BASIC_HDD"
 
   file_shares {
-    capacity_gb = 2560
+    capacity_gb = 1024
     name        = "share1"
   }
 
   networks {
-    network = "default"
-    modes   = ["MODE_IPV4"]
+    network      = "default"
+    modes        = ["MODE_IPV4"]
     connect_mode = "DIRECT_PEERING"
   }
 }
 
 resource "google_filestore_backup" "backup" {
-  name        = "tf-fs-bkup"
-  location    = "us-central1"
+  name              = "tf-fs-bkup"
+  location          = "us-central1"
+  description       = "This is a filestore backup for the test instance"
   source_instance   = google_filestore_instance.instance.id
   source_file_share = "share1"
 
-  description = "This is a filestore backup for the test instance"
   labels = {
     "files":"label1",
     "other-label": "label2"
