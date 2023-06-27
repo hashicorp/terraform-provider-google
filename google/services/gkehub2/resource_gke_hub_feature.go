@@ -195,6 +195,7 @@ func resourceGKEHub2FeatureCreate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
+	url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 	log.Printf("[DEBUG] Creating new Feature: %#v", obj)
 	billingProject := ""
@@ -203,7 +204,7 @@ func resourceGKEHub2FeatureCreate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Feature: %s", err)
 	}
-	billingProject = project
+	billingProject = strings.TrimPrefix(project, "projects/")
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -228,6 +229,7 @@ func resourceGKEHub2FeatureCreate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
+	id = strings.ReplaceAll(id, "projects/projects/", "projects/")
 	d.SetId(id)
 
 	// Use the resource in the operation response to populate
@@ -248,6 +250,7 @@ func resourceGKEHub2FeatureCreate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
+	id = strings.ReplaceAll(id, "projects/projects/", "projects/")
 	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Feature %q: %#v", d.Id(), res)
@@ -266,6 +269,7 @@ func resourceGKEHub2FeatureRead(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
+	url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 	billingProject := ""
 
@@ -273,7 +277,7 @@ func resourceGKEHub2FeatureRead(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Feature: %s", err)
 	}
-	billingProject = project
+	billingProject = strings.TrimPrefix(project, "projects/")
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -333,7 +337,7 @@ func resourceGKEHub2FeatureUpdate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Feature: %s", err)
 	}
-	billingProject = project
+	billingProject = strings.TrimPrefix(project, "projects/")
 
 	obj := make(map[string]interface{})
 	labelsProp, err := expandGKEHub2FeatureLabels(d.Get("labels"), d, config)
@@ -353,6 +357,7 @@ func resourceGKEHub2FeatureUpdate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
+	url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 	log.Printf("[DEBUG] Updating Feature %q: %#v", d.Id(), obj)
 	updateMask := []string{}
@@ -416,12 +421,13 @@ func resourceGKEHub2FeatureDelete(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Feature: %s", err)
 	}
-	billingProject = project
+	billingProject = strings.TrimPrefix(project, "projects/")
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/features/{{name}}")
 	if err != nil {
 		return err
 	}
+	url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Feature %q", d.Id())
@@ -471,6 +477,7 @@ func resourceGKEHub2FeatureImport(d *schema.ResourceData, meta interface{}) ([]*
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
+	id = strings.ReplaceAll(id, "projects/projects/", "projects/")
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil

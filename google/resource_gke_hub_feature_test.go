@@ -178,9 +178,10 @@ func TestAccGKEHubFeature_gkehubFeatureMcsd(t *testing.T) {
 				Config: testAccGKEHubFeature_gkehubFeatureMcsd(context),
 			},
 			{
-				ResourceName:      "google_gke_hub_feature.feature",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_gke_hub_feature.feature",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project"},
 			},
 			{
 				Config: testAccGKEHubFeature_gkehubFeatureMcsdUpdate(context),
@@ -199,7 +200,7 @@ func testAccGKEHubFeature_gkehubFeatureMcsd(context map[string]interface{}) stri
 resource "google_gke_hub_feature" "feature" {
   name = "multiclusterservicediscovery"
   location = "global"
-  project = google_project.project.project_id
+  project = "projects/${google_project.project.project_id}"
   labels = {
     foo = "bar"
   }
