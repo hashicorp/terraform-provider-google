@@ -1,0 +1,6 @@
+```release-note:bug
+compute: fixed an issue with setting project field to long form in `google_compute_forwarding_rule` and `google_compute_global_forwarding_rule`
+```
+```release-note:bug
+gkehub: fixed an issue with setting project field to long form in `google_gke_hub_feature`
+```

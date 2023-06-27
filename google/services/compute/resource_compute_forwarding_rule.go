@@ -601,6 +601,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
+	url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 	log.Printf("[DEBUG] Creating new ForwardingRule: %#v", obj)
 	billingProject := ""
@@ -609,7 +610,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return fmt.Errorf("Error fetching project for ForwardingRule: %s", err)
 	}
-	billingProject = project
+	billingProject = strings.TrimPrefix(project, "projects/")
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -634,6 +635,7 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
+	id = strings.ReplaceAll(id, "projects/projects/", "projects/")
 	d.SetId(id)
 
 	err = ComputeOperationWaitTime(
@@ -705,6 +707,7 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
+	url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 	billingProject := ""
 
@@ -712,7 +715,7 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return fmt.Errorf("Error fetching project for ForwardingRule: %s", err)
 	}
-	billingProject = project
+	billingProject = strings.TrimPrefix(project, "projects/")
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -835,7 +838,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return fmt.Errorf("Error fetching project for ForwardingRule: %s", err)
 	}
-	billingProject = project
+	billingProject = strings.TrimPrefix(project, "projects/")
 
 	d.Partial(true)
 
@@ -853,6 +856,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
+		url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 		// err == nil indicates that the billing_project value was found
 		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -895,6 +899,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
+		url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 		// err == nil indicates that the billing_project value was found
 		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -943,6 +948,7 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
+		url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 		// err == nil indicates that the billing_project value was found
 		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -990,12 +996,13 @@ func resourceComputeForwardingRuleDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return fmt.Errorf("Error fetching project for ForwardingRule: %s", err)
 	}
-	billingProject = project
+	billingProject = strings.TrimPrefix(project, "projects/")
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
 	if err != nil {
 		return err
 	}
+	url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting ForwardingRule %q", d.Id())
@@ -1046,6 +1053,7 @@ func resourceComputeForwardingRuleImport(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
+	id = strings.ReplaceAll(id, "projects/projects/", "projects/")
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
