@@ -60,12 +60,12 @@ func testAccFilestoreSnapshot_filestoreSnapshotBasicExample(context map[string]i
 resource "google_filestore_snapshot" "snapshot" {
   name     = "tf-test-test-snapshot%{random_suffix}"
   instance = google_filestore_instance.instance.name
-  location = "us-central1"
+  location = "us-east1"
 }
 
 resource "google_filestore_instance" "instance" {
   name     = "tf-test-test-instance-for-snapshot%{random_suffix}"
-  location = "us-central1"
+  location = "us-east1"
   tier     = "ENTERPRISE"
 
   file_shares {
@@ -111,7 +111,7 @@ func testAccFilestoreSnapshot_filestoreSnapshotFullExample(context map[string]in
 resource "google_filestore_snapshot" "snapshot" {
   name     = "tf-test-test-snapshot%{random_suffix}"
   instance = google_filestore_instance.instance.name
-  location = "us-central1"
+  location = "us-west1"
 
   description = "Snapshot of tf-test-test-instance-for-snapshot%{random_suffix}"
 
@@ -122,7 +122,7 @@ resource "google_filestore_snapshot" "snapshot" {
 
 resource "google_filestore_instance" "instance" {
   name     = "tf-test-test-instance-for-snapshot%{random_suffix}"
-  location = "us-central1"
+  location = "us-west1"
   tier     = "ENTERPRISE"
 
   file_shares {

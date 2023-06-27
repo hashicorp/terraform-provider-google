@@ -57,31 +57,30 @@ func TestAccFilestoreBackup_filestoreBackupBasicExample(t *testing.T) {
 
 func testAccFilestoreBackup_filestoreBackupBasicExample(context map[string]interface{}) string {
 	return tpgresource.Nprintf(`
-
 resource "google_filestore_instance" "instance" {
-  name = "tf-test-tf-fs-inst%{random_suffix}"
+  name     = "tf-test-tf-fs-inst%{random_suffix}"
   location = "us-central1-b"
-  tier = "BASIC_SSD"
+  tier     = "BASIC_HDD"
 
   file_shares {
-    capacity_gb = 2560
+    capacity_gb = 1024
     name        = "share1"
   }
 
   networks {
-    network = "default"
-    modes   = ["MODE_IPV4"]
+    network      = "default"
+    modes        = ["MODE_IPV4"]
     connect_mode = "DIRECT_PEERING"
   }
 }
 
 resource "google_filestore_backup" "backup" {
-  name        = "tf-test-tf-fs-bkup%{random_suffix}"
-  location    = "us-central1"
+  name              = "tf-test-tf-fs-bkup%{random_suffix}"
+  location          = "us-central1"
+  description       = "This is a filestore backup for the test instance"
   source_instance   = google_filestore_instance.instance.id
   source_file_share = "share1"
 
-  description = "This is a filestore backup for the test instance"
   labels = {
     "files":"label1",
     "other-label": "label2"
