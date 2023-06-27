@@ -2991,6 +2991,84 @@ func TestAccContainerCluster_withGatewayApiConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withSecurityPostureConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", RandString(t, 10))
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_SetSecurityPostureToStandard(clusterName),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_security_posture_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_SetWorkloadVulnerabilityToStandard(clusterName),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_security_posture_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_DisableALL(clusterName),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_security_posture_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_SetSecurityPostureToStandard(resource_name string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_security_posture_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  security_posture_config {
+	mode = "BASIC"
+  }
+}
+`, resource_name)
+}
+
+func testAccContainerCluster_SetWorkloadVulnerabilityToStandard(resource_name string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_security_posture_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  security_posture_config {
+	vulnerability_mode = "VULNERABILITY_BASIC"
+  }
+}
+`, resource_name)
+}
+
+func testAccContainerCluster_DisableALL(resource_name string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_security_posture_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  security_posture_config {
+	mode = "DISABLED"
+	vulnerability_mode = "VULNERABILITY_DISABLED"
+  }
+}
+`, resource_name)
+}
+
 func TestAccContainerCluster_autopilot_minimal(t *testing.T) {
 	t.Parallel()
 
