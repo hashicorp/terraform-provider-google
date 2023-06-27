@@ -81,6 +81,62 @@ resource "google_compute_http_health_check" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=target_http_proxy_http_keep_alive_timeout&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Target Http Proxy Http Keep Alive Timeout
+
+
+```hcl
+resource "google_compute_target_http_proxy" "default" {
+  provider                    = google-beta
+  name                        = "test-http-keep-alive-timeout-proxy"
+  http_keep_alive_timeout_sec = 120
+  url_map                     = google_compute_url_map.default.id
+}
+
+resource "google_compute_url_map" "default" {
+  provider        = google-beta
+  name            = "url-map"
+  default_service = google_compute_backend_service.default.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.default.id
+
+    path_rule {
+      paths   = ["/*"]
+      service = google_compute_backend_service.default.id
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  provider              = google-beta
+  name                  = "backend-service"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_http_health_check" "default" {
+  provider           = google-beta
+  name               = "http-health-check"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=target_http_proxy_https_redirect&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -135,6 +191,15 @@ The following arguments are supported:
   (Optional)
   This field only applies when the forwarding rule that references
   this target proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.
+
+* `http_keep_alive_timeout_sec` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies how long to keep a connection open, after completing a response,
+  while there is no matching traffic (in seconds). If an HTTP keepalive is
+  not specified, a default value (610 seconds) will be used. For Global
+  external HTTP(S) load balancer, the minimum allowed value is 5 seconds and
+  the maximum allowed value is 1200 seconds. For Global external HTTP(S)
+  load balancer (classic), this option is not available publicly.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
