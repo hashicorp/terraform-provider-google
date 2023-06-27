@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added field `httpKeepAliveTimeoutSec` to resource `google_compute_target_http_proxy` (beta)
+```
+```release-note:enhancement
+compute: added field `httpKeepAliveTimeoutSec` to resource `google_compute_target_https_proxy` (beta)
+```
