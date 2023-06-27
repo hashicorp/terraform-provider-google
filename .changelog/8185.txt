@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added field `security_posture_config` to resource `google_container_cluster`
+```

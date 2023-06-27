@@ -360,6 +360,9 @@ subnetwork in which the cluster's instances are launched.
 * `protect_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Enable/Disable Protect API features for the cluster. Structure is [documented below](#nested_protect_config).
 
+* `security_posture_config` - (Optional)
+Enable/Disable Security Posture API features for the cluster. Structure is [documented below](#nested_security_posture_config).
+
 <a name="nested_default_snat_status"></a>The `default_snat_status` block supports
 
 *  `disabled` - (Required) Whether the cluster disables default in-node sNAT rules. In-node sNAT rules will be disabled when defaultSnatStatus is disabled.When disabled is set to false, default IP masquerade rules will be applied to the nodes to prevent sNAT on cluster internal traffic
@@ -1206,6 +1209,14 @@ and all pods running on the nodes. Specified as a map from the key, such as
 <a name="nested_workload_config"></a>The `protect_config.workload_config` block supports:
 
 * `audit_mode` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Sets which mode of auditing should be used for the cluster's workloads. Accepted values are DISABLED, BASIC.
+
+<a name="nested_security_posture_config"></a>The `security_posture_config` block supports:
+
+* `mode` - (Optional) Sets the mode of the Kubernetes security posture API's off-cluster features. Available options include `DISABLED` and `BASIC`.
+
+
+* `vulnerability_mode` - (Optional) Sets the mode of the Kubernetes security posture API's workload vulnerability scanning. Available options include `VULNERABILITY_DISABLED` and `VULNERABILITY_BASIC`.
+
 
 ## Attributes Reference
 
