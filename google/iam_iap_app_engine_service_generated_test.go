@@ -400,6 +400,7 @@ resource "google_app_engine_standard_app_version" "version" {
   service         = "default"
   runtime         = "nodejs10"
   noop_on_destroy = true
+
   entrypoint {
     shell = "node ./app.js"
   }
@@ -465,6 +466,7 @@ resource "google_app_engine_standard_app_version" "version" {
   service         = "default"
   runtime         = "nodejs10"
   noop_on_destroy = true
+
   entrypoint {
     shell = "node ./app.js"
   }
@@ -545,6 +547,7 @@ resource "google_app_engine_standard_app_version" "version" {
   service         = "default"
   runtime         = "nodejs10"
   noop_on_destroy = true
+
   entrypoint {
     shell = "node ./app.js"
   }
@@ -612,6 +615,7 @@ resource "google_app_engine_standard_app_version" "version" {
   service         = "default"
   runtime         = "nodejs10"
   noop_on_destroy = true
+
   entrypoint {
     shell = "node ./app.js"
   }
@@ -677,6 +681,7 @@ resource "google_app_engine_standard_app_version" "version" {
   service         = "default"
   runtime         = "nodejs10"
   noop_on_destroy = true
+
   entrypoint {
     shell = "node ./app.js"
   }
@@ -742,6 +747,7 @@ resource "google_app_engine_standard_app_version" "version" {
   service         = "default"
   runtime         = "nodejs10"
   noop_on_destroy = true
+
   entrypoint {
     shell = "node ./app.js"
   }
@@ -812,6 +818,7 @@ resource "google_app_engine_standard_app_version" "version" {
   service         = "default"
   runtime         = "nodejs10"
   noop_on_destroy = true
+
   entrypoint {
     shell = "node ./app.js"
   }
@@ -904,6 +911,7 @@ resource "google_app_engine_standard_app_version" "version" {
   service         = "default"
   runtime         = "nodejs10"
   noop_on_destroy = true
+
   entrypoint {
     shell = "node ./app.js"
   }
@@ -974,6 +982,7 @@ resource "google_app_engine_standard_app_version" "version" {
   service         = "default"
   runtime         = "nodejs10"
   noop_on_destroy = true
+
   entrypoint {
     shell = "node ./app.js"
   }
@@ -1066,6 +1075,7 @@ resource "google_app_engine_standard_app_version" "version" {
   service         = "default"
   runtime         = "nodejs10"
   noop_on_destroy = true
+
   entrypoint {
     shell = "node ./app.js"
   }
