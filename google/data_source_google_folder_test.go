@@ -8,13 +8,14 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDataSourceGoogleFolder_byFullName(t *testing.T) {
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
 	displayName := "tf-test-" + RandString(t, 10)
@@ -34,7 +35,7 @@ func TestAccDataSourceGoogleFolder_byFullName(t *testing.T) {
 }
 
 func TestAccDataSourceGoogleFolder_byShortName(t *testing.T) {
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
 	displayName := "tf-test-" + RandString(t, 10)
@@ -54,7 +55,7 @@ func TestAccDataSourceGoogleFolder_byShortName(t *testing.T) {
 }
 
 func TestAccDataSourceGoogleFolder_lookupOrganization(t *testing.T) {
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
 	displayName := "tf-test-" + RandString(t, 10)

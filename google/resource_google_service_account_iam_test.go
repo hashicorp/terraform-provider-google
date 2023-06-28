@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -250,11 +251,11 @@ func testAccCheckGoogleServiceAccountIam(t *testing.T, account string, numBindin
 }
 
 func serviceAccountCanonicalId(account string) string {
-	return fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", acctest.GetTestProjectFromEnv(), account, acctest.GetTestProjectFromEnv())
+	return fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", envvar.GetTestProjectFromEnv(), account, envvar.GetTestProjectFromEnv())
 }
 
 func serviceAccountCanonicalEmail(account string) string {
-	return fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, acctest.GetTestProjectFromEnv())
+	return fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, envvar.GetTestProjectFromEnv())
 }
 
 func testAccServiceAccountIamBinding_basic(account string) string {

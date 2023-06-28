@@ -9,10 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccDataSourceGoogleActiveFolder_default(t *testing.T) {
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
 	displayName := "tf-test-" + RandString(t, 10)
@@ -32,7 +33,7 @@ func TestAccDataSourceGoogleActiveFolder_default(t *testing.T) {
 }
 
 func TestAccDataSourceGoogleActiveFolder_space(t *testing.T) {
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
 	displayName := "terraform test " + RandString(t, 10)
@@ -52,7 +53,7 @@ func TestAccDataSourceGoogleActiveFolder_space(t *testing.T) {
 }
 
 func TestAccDataSourceGoogleActiveFolder_dash(t *testing.T) {
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
 	displayName := "terraform - test " + RandString(t, 10)

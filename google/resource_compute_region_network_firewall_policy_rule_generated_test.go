@@ -29,6 +29,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -36,10 +37,10 @@ func TestAccComputeRegionNetworkFirewallPolicyRule_RegionalHandWritten(t *testin
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":        acctest.GetTestOrgFromEnv(t),
-		"project_name":  acctest.GetTestProjectFromEnv(),
-		"region":        acctest.GetTestRegionFromEnv(),
-		"service_acct":  acctest.GetTestServiceAccountFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"region":        envvar.GetTestRegionFromEnv(),
+		"service_acct":  envvar.GetTestServiceAccountFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 

@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccContainerNodePool_basic(t *testing.T) {
@@ -300,7 +301,7 @@ func TestAccContainerNodePool_withReservationAffinitySpecific(t *testing.T) {
 func TestAccContainerNodePool_withWorkloadIdentityConfig(t *testing.T) {
 	t.Parallel()
 
-	pid := acctest.GetTestProjectFromEnv()
+	pid := envvar.GetTestProjectFromEnv()
 	cluster := fmt.Sprintf("tf-test-cluster-%s", RandString(t, 10))
 	np := fmt.Sprintf("tf-test-np-%s", RandString(t, 10))
 

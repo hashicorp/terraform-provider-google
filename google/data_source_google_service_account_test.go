@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccDatasourceGoogleServiceAccount_basic(t *testing.T) {
@@ -24,7 +25,7 @@ func TestAccDatasourceGoogleServiceAccount_basic(t *testing.T) {
 				Config: testAccCheckGoogleServiceAccount_basic(account),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						resourceName, "id", fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", acctest.GetTestProjectFromEnv(), account, acctest.GetTestProjectFromEnv())),
+						resourceName, "id", fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", envvar.GetTestProjectFromEnv(), account, envvar.GetTestProjectFromEnv())),
 					resource.TestCheckResourceAttrSet(resourceName, "email"),
 					resource.TestCheckResourceAttrSet(resourceName, "unique_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "name"),

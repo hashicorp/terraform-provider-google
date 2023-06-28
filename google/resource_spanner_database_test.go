@@ -9,13 +9,14 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/spanner"
 )
 
 func TestAccSpannerDatabase_basic(t *testing.T) {
 	t.Parallel()
 
-	project := acctest.GetTestProjectFromEnv()
+	project := envvar.GetTestProjectFromEnv()
 	rnd := RandString(t, 10)
 	instanceName := fmt.Sprintf("tf-test-%s", rnd)
 	databaseName := fmt.Sprintf("tfgen_%s", rnd)

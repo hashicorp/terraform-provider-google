@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -93,11 +93,37 @@ func setupTestResourceDataFromConfigMap(t *testing.T, s map[string]*schema.Schem
 	return tpgresource.SetupTestResourceDataFromConfigMap(t, s, configValues)
 }
 
+// ProviderConfigEnvNames returns a list of all the environment variables that could be set by a user to configure the provider
+func ProviderConfigEnvNames() []string {
+
+	envs := []string{}
+
+	// Use existing collections of ENV names
+	envVarsSets := [][]string{
+		envvar.CredsEnvVars,   // credentials field
+		envvar.ProjectEnvVars, // project field
+		envvar.RegionEnvVars,  //region field
+		envvar.ZoneEnvVars,    // zone field
+	}
+	for _, set := range envVarsSets {
+		envs = append(envs, set...)
+	}
+
+	// Add remaining ENVs
+	envs = append(envs, "GOOGLE_OAUTH_ACCESS_TOKEN")          // access_token field
+	envs = append(envs, "GOOGLE_BILLING_PROJECT")             // billing_project field
+	envs = append(envs, "GOOGLE_IMPERSONATE_SERVICE_ACCOUNT") // impersonate_service_account field
+	envs = append(envs, "USER_PROJECT_OVERRIDE")              // user_project_override field
+	envs = append(envs, "CLOUDSDK_CORE_REQUEST_REASON")       // request_reason field
+
+	return envs
+}
+
 // unsetProviderConfigEnvs unsets any ENVs in the test environment that
 // configure the provider.
 // The testing package will restore the original values after the test
 func unsetTestProviderConfigEnvs(t *testing.T) {
-	envs := acctest.ProviderConfigEnvNames()
+	envs := ProviderConfigEnvNames()
 	if len(envs) > 0 {
 		for _, k := range envs {
 			t.Setenv(k, "")

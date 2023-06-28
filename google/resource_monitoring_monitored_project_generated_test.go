@@ -29,6 +29,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -36,8 +37,8 @@ func TestAccMonitoringMonitoredProject_BasicMonitoredProject(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":        acctest.GetTestOrgFromEnv(t),
-		"project_name":  acctest.GetTestProjectFromEnv(),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"project_name":  envvar.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 

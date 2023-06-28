@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccDataFusionInstanceIamBindingGenerated(t *testing.T) {
@@ -44,7 +45,7 @@ func TestAccDataFusionInstanceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_fusion_instance_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -54,7 +55,7 @@ func TestAccDataFusionInstanceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_fusion_instance_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -81,7 +82,7 @@ func TestAccDataFusionInstanceIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_fusion_instance_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s roles/viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -108,7 +109,7 @@ func TestAccDataFusionInstanceIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_fusion_instance_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -117,7 +118,7 @@ func TestAccDataFusionInstanceIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_data_fusion_instance_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-my-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

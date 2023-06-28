@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -34,7 +35,7 @@ func TestAccFirestoreField_firestoreFieldBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_id":    acctest.GetTestFirestoreProjectFromEnv(t),
+		"project_id":    envvar.GetTestFirestoreProjectFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -83,7 +84,7 @@ func TestAccFirestoreField_firestoreFieldTimestampExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_id":    acctest.GetTestFirestoreProjectFromEnv(t),
+		"project_id":    envvar.GetTestFirestoreProjectFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -123,7 +124,7 @@ func TestAccFirestoreField_firestoreFieldMatchOverrideExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_id":    acctest.GetTestFirestoreProjectFromEnv(t),
+		"project_id":    envvar.GetTestFirestoreProjectFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 

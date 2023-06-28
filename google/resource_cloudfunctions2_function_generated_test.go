@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -34,7 +35,7 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       acctest.GetTestProjectFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"zip_path":      "./test-fixtures/cloudfunctions2/function-source.zip",
 		"location":      "us-central1",
 		"random_suffix": RandString(t, 10),
@@ -111,7 +112,7 @@ func TestAccCloudfunctions2function_cloudfunctions2FullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":             acctest.GetTestProjectFromEnv(),
+		"project":             envvar.GetTestProjectFromEnv(),
 		"zip_path":            "./test-fixtures/cloudfunctions2/function-source-pubsub.zip",
 		"primary_resource_id": "terraform-test",
 		"location":            "us-central1",
@@ -213,7 +214,7 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicGcsExample(t *testing.T)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":             acctest.GetTestProjectFromEnv(),
+		"project":             envvar.GetTestProjectFromEnv(),
 		"zip_path":            "./test-fixtures/cloudfunctions2/function-source-eventarc-gcs.zip",
 		"primary_resource_id": "terraform-test",
 		"policyChanged":       BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter"),
@@ -353,7 +354,7 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicAuditlogsExample(t *test
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":             acctest.GetTestProjectFromEnv(),
+		"project":             envvar.GetTestProjectFromEnv(),
 		"zip_path":            "./test-fixtures/cloudfunctions2/function-source-eventarc-gcs.zip",
 		"primary_resource_id": "terraform-test",
 		"policyChanged":       BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter"),
@@ -497,7 +498,7 @@ func TestAccCloudfunctions2function_cloudfunctions2SecretEnvExample(t *testing.T
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       acctest.GetTestProjectFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"zip_path":      "./test-fixtures/cloudfunctions2/function-source.zip",
 		"location":      "us-central1",
 		"policyChanged": BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter"),
@@ -596,7 +597,7 @@ func TestAccCloudfunctions2function_cloudfunctions2SecretVolumeExample(t *testin
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       acctest.GetTestProjectFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"zip_path":      "./test-fixtures/cloudfunctions2/function-source.zip",
 		"location":      "us-central1",
 		"policyChanged": BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter"),
@@ -694,7 +695,7 @@ func TestAccCloudfunctions2function_cloudfunctions2PrivateWorkerpoolExample(t *t
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       acctest.GetTestProjectFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"zip_path":      "./test-fixtures/cloudfunctions2/function-source.zip",
 		"location":      "us-central1",
 		"random_suffix": RandString(t, 10),

@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -161,7 +162,7 @@ func TestAccNotebooksInstance_notebookInstanceFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"service_account": acctest.GetTestServiceAccountFromEnv(t),
+		"service_account": envvar.GetTestServiceAccountFromEnv(t),
 		"random_suffix":   RandString(t, 10),
 	}
 

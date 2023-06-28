@@ -7,7 +7,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	cloudresourcemanager "google.golang.org/api/cloudresourcemanager/v1"
 )
@@ -27,7 +27,7 @@ func BootstrapAllPSARoles(t *testing.T, prefix string, agentNames, roles []strin
 	client := config.NewResourceManagerClient(config.UserAgent)
 
 	// Get the project since we need its number, id, and policy.
-	project, err := client.Projects.Get(acctest.GetTestProjectFromEnv()).Do()
+	project, err := client.Projects.Get(envvar.GetTestProjectFromEnv()).Do()
 	if err != nil {
 		t.Fatalf("Error getting project with id %q: %s", project.ProjectId, err)
 	}

@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -34,7 +35,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateBasicExamp
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       acctest.GetTestProjectFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -161,7 +162,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateSkipCharac
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       acctest.GetTestProjectFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -288,7 +289,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateImageTrans
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       acctest.GetTestProjectFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -350,7 +351,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateWithTempla
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       acctest.GetTestProjectFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 

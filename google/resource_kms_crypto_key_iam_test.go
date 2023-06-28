@@ -12,15 +12,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 )
 
 func TestAccKmsCryptoKeyIamBinding(t *testing.T) {
 	t.Parallel()
 
-	orgId := acctest.GetTestOrgFromEnv(t)
+	orgId := envvar.GetTestOrgFromEnv(t)
 	projectId := fmt.Sprintf("tf-test-%d", RandInt(t))
-	billingAccount := acctest.GetTestBillingAccountFromEnv(t)
+	billingAccount := envvar.GetTestBillingAccountFromEnv(t)
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/cloudkms.cryptoKeyDecrypter"
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
@@ -69,9 +70,9 @@ func TestAccKmsCryptoKeyIamBinding(t *testing.T) {
 func TestAccKmsCryptoKeyIamMember(t *testing.T) {
 	t.Parallel()
 
-	orgId := acctest.GetTestOrgFromEnv(t)
+	orgId := envvar.GetTestOrgFromEnv(t)
 	projectId := fmt.Sprintf("tf-test-%d", RandInt(t))
-	billingAccount := acctest.GetTestBillingAccountFromEnv(t)
+	billingAccount := envvar.GetTestBillingAccountFromEnv(t)
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/cloudkms.cryptoKeyEncrypter"
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
@@ -106,9 +107,9 @@ func TestAccKmsCryptoKeyIamMember(t *testing.T) {
 func TestAccKmsCryptoKeyIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	orgId := acctest.GetTestOrgFromEnv(t)
+	orgId := envvar.GetTestOrgFromEnv(t)
 	projectId := fmt.Sprintf("tf-test-%d", RandInt(t))
-	billingAccount := acctest.GetTestBillingAccountFromEnv(t)
+	billingAccount := envvar.GetTestBillingAccountFromEnv(t)
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	roleId := "roles/cloudkms.cryptoKeyEncrypter"
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))

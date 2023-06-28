@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -19,8 +20,8 @@ import (
 // can exist, they need to be run serially. See AccessPolicy for the test runner.
 
 func testAccAccessContextManagerAccessLevelCondition_basicTest(t *testing.T) {
-	org := acctest.GetTestOrgFromEnv(t)
-	project := acctest.GetTestProjectFromEnv()
+	org := envvar.GetTestOrgFromEnv(t)
+	project := envvar.GetTestProjectFromEnv()
 
 	serviceAccountName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 

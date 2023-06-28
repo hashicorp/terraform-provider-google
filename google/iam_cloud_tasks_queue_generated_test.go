@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccCloudTasksQueueIamBindingGenerated(t *testing.T) {
@@ -43,7 +44,7 @@ func TestAccCloudTasksQueueIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloud_tasks_queue_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/queues/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-tasks-queue-test%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/queues/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-tasks-queue-test%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -53,7 +54,7 @@ func TestAccCloudTasksQueueIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloud_tasks_queue_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/queues/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-tasks-queue-test%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/queues/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-tasks-queue-test%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -79,7 +80,7 @@ func TestAccCloudTasksQueueIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloud_tasks_queue_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/queues/%s roles/viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-tasks-queue-test%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/queues/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-tasks-queue-test%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -105,7 +106,7 @@ func TestAccCloudTasksQueueIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloud_tasks_queue_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/queues/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-tasks-queue-test%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/queues/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-tasks-queue-test%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -114,7 +115,7 @@ func TestAccCloudTasksQueueIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloud_tasks_queue_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/queues/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-tasks-queue-test%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/queues/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloud-tasks-queue-test%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

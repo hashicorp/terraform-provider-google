@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccGKEBackupBackupPlanIamBindingGenerated(t *testing.T) {
@@ -32,7 +33,7 @@ func TestAccGKEBackupBackupPlanIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
-		"project":       acctest.GetTestProjectFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
@@ -44,7 +45,7 @@ func TestAccGKEBackupBackupPlanIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -54,7 +55,7 @@ func TestAccGKEBackupBackupPlanIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -68,7 +69,7 @@ func TestAccGKEBackupBackupPlanIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
-		"project":       acctest.GetTestProjectFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
@@ -81,7 +82,7 @@ func TestAccGKEBackupBackupPlanIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -95,7 +96,7 @@ func TestAccGKEBackupBackupPlanIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/viewer",
-		"project":       acctest.GetTestProjectFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
@@ -108,7 +109,7 @@ func TestAccGKEBackupBackupPlanIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -117,7 +118,7 @@ func TestAccGKEBackupBackupPlanIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_backup_backup_plan_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/backupPlans/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-basic-plan%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

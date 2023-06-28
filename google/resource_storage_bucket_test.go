@@ -5,7 +5,6 @@ package google
 import (
 	"bytes"
 	"fmt"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"log"
 	"regexp"
 	"testing"
@@ -13,6 +12,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/storage/v1"
@@ -47,7 +49,7 @@ func TestAccStorageBucket_basic(t *testing.T) {
 			},
 			{
 				ResourceName:            "google_storage_bucket.bucket",
-				ImportStateId:           fmt.Sprintf("%s/%s", acctest.GetTestProjectFromEnv(), bucketName),
+				ImportStateId:           fmt.Sprintf("%s/%s", envvar.GetTestProjectFromEnv(), bucketName),
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"force_destroy"},
@@ -887,8 +889,8 @@ func TestAccStorageBucket_encryption(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"organization":    acctest.GetTestOrgFromEnv(t),
-		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
+		"organization":    envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 		"random_suffix":   RandString(t, 10),
 		"random_int":      RandInt(t),
 	}

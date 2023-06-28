@@ -20,11 +20,6 @@ const TestEnvVar = acctest.TestEnvVar
 var TestAccProviders map[string]*schema.Provider
 var testAccProvider *schema.Provider
 
-// providerConfigEnvNames returns a list of all the environment variables that could be set by a user to configure the provider
-func providerConfigEnvNames() []string {
-	return acctest.ProviderConfigEnvNames()
-}
-
 var CredsEnvVars = acctest.CredsEnvVars
 
 var projectNumberEnvVars = acctest.ProjectNumberEnvVars

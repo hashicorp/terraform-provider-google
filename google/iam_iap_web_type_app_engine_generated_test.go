@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccIapWebTypeAppEngineIamBindingGenerated(t *testing.T) {
@@ -34,7 +35,7 @@ func TestAccIapWebTypeAppEngineIamBindingGenerated(t *testing.T) {
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
 		"project_id":    fmt.Sprintf("tf-test%s", RandString(t, 10)),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -81,7 +82,7 @@ func TestAccIapWebTypeAppEngineIamMemberGenerated(t *testing.T) {
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
 		"project_id":    fmt.Sprintf("tf-test%s", RandString(t, 10)),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -119,7 +120,7 @@ func TestAccIapWebTypeAppEngineIamPolicyGenerated(t *testing.T) {
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
 		"project_id":    fmt.Sprintf("tf-test%s", RandString(t, 10)),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -166,7 +167,7 @@ func TestAccIapWebTypeAppEngineIamBindingGenerated_withCondition(t *testing.T) {
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
 		"project_id":    fmt.Sprintf("tf-test%s", RandString(t, 10)),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -205,7 +206,7 @@ func TestAccIapWebTypeAppEngineIamBindingGenerated_withAndWithoutCondition(t *te
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
 		"project_id":    fmt.Sprintf("tf-test%s", RandString(t, 10)),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -254,7 +255,7 @@ func TestAccIapWebTypeAppEngineIamMemberGenerated_withCondition(t *testing.T) {
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
 		"project_id":    fmt.Sprintf("tf-test%s", RandString(t, 10)),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -293,7 +294,7 @@ func TestAccIapWebTypeAppEngineIamMemberGenerated_withAndWithoutCondition(t *tes
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
 		"project_id":    fmt.Sprintf("tf-test%s", RandString(t, 10)),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -342,7 +343,7 @@ func TestAccIapWebTypeAppEngineIamPolicyGenerated_withCondition(t *testing.T) {
 		"random_suffix": RandString(t, 10),
 		"role":          "roles/iap.httpsResourceAccessor",
 		"project_id":    fmt.Sprintf("tf-test%s", RandString(t, 10)),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,

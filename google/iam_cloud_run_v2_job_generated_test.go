@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccCloudRunV2JobIamBindingGenerated(t *testing.T) {
@@ -43,7 +44,7 @@ func TestAccCloudRunV2JobIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloud_run_v2_job_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/jobs/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudrun-job%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/jobs/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudrun-job%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -53,7 +54,7 @@ func TestAccCloudRunV2JobIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloud_run_v2_job_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/jobs/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudrun-job%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/jobs/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudrun-job%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -79,7 +80,7 @@ func TestAccCloudRunV2JobIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloud_run_v2_job_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/jobs/%s roles/viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudrun-job%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/jobs/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudrun-job%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -105,7 +106,7 @@ func TestAccCloudRunV2JobIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloud_run_v2_job_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/jobs/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudrun-job%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/jobs/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudrun-job%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -114,7 +115,7 @@ func TestAccCloudRunV2JobIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_cloud_run_v2_job_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/jobs/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudrun-job%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/jobs/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("tf-test-cloudrun-job%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccBigqueryAnalyticsHubListingIamBindingGenerated(t *testing.T) {
@@ -43,7 +44,7 @@ func TestAccBigqueryAnalyticsHubListingIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_listing_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s roles/viewer", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"]), fmt.Sprintf("tf_test_my_listing%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s roles/viewer", envvar.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"]), fmt.Sprintf("tf_test_my_listing%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -53,7 +54,7 @@ func TestAccBigqueryAnalyticsHubListingIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_listing_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s roles/viewer", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"]), fmt.Sprintf("tf_test_my_listing%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s roles/viewer", envvar.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"]), fmt.Sprintf("tf_test_my_listing%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -79,7 +80,7 @@ func TestAccBigqueryAnalyticsHubListingIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_listing_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s roles/viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"]), fmt.Sprintf("tf_test_my_listing%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"]), fmt.Sprintf("tf_test_my_listing%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -105,7 +106,7 @@ func TestAccBigqueryAnalyticsHubListingIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_listing_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"]), fmt.Sprintf("tf_test_my_listing%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s", envvar.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"]), fmt.Sprintf("tf_test_my_listing%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -114,7 +115,7 @@ func TestAccBigqueryAnalyticsHubListingIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_listing_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"]), fmt.Sprintf("tf_test_my_listing%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s", envvar.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"]), fmt.Sprintf("tf_test_my_listing%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

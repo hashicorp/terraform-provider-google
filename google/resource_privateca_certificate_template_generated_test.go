@@ -29,6 +29,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -36,8 +37,8 @@ func TestAccPrivatecaCertificateTemplate_BasicCertificateTemplate(t *testing.T) 
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_name":  acctest.GetTestProjectFromEnv(),
-		"region":        acctest.GetTestRegionFromEnv(),
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"region":        envvar.GetTestRegionFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 

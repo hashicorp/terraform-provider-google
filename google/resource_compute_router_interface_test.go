@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccComputeRouterInterface_basic(t *testing.T) {
@@ -19,7 +20,7 @@ func TestAccComputeRouterInterface_basic(t *testing.T) {
 		"name":   name,
 		"region": "us-central1",
 	}
-	importIdFourPart := fmt.Sprintf("%s/%s/%s/%s", acctest.GetTestProjectFromEnv(), context["region"], context["name"], context["name"]) // name reused in config
+	importIdFourPart := fmt.Sprintf("%s/%s/%s/%s", envvar.GetTestProjectFromEnv(), context["region"], context["name"], context["name"]) // name reused in config
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

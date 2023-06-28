@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcloudfunctions "github.com/hashicorp/terraform-provider-google/google/services/cloudfunctions"
 	"google.golang.org/api/cloudfunctions/v1"
 )
@@ -170,7 +171,7 @@ func TestAccCloudFunctionsFunction_buildworkerpool(t *testing.T) {
 	bucketName := fmt.Sprintf("tf-test-bucket-%d", RandInt(t))
 	location := "us-central1"
 	zipFilePath := createZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
-	proj := acctest.GetTestProjectFromEnv()
+	proj := envvar.GetTestProjectFromEnv()
 
 	defer os.Remove(zipFilePath) // clean up
 
@@ -299,7 +300,7 @@ func TestAccCloudFunctionsFunction_sourceRepo(t *testing.T) {
 
 	funcResourceName := "google_cloudfunctions_function.function"
 	functionName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	proj := acctest.GetTestProjectFromEnv()
+	proj := envvar.GetTestProjectFromEnv()
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

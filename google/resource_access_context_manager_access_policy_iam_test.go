@@ -8,12 +8,13 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccAccessContextManagerAccessPolicyIamBinding(t *testing.T) {
 	acctest.SkipIfVcr(t)
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	account := "tf-test-" + RandString(t, 10)
 	role := "roles/accesscontextmanager.policyAdmin"
 	policy := createScopedPolicy(t, org)
@@ -36,7 +37,7 @@ func TestAccAccessContextManagerAccessPolicyIamBinding(t *testing.T) {
 func TestAccAccessContextManagerAccessPolicyIamMember(t *testing.T) {
 	acctest.SkipIfVcr(t)
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	account := "tf-test-" + RandString(t, 10)
 	role := "roles/accesscontextmanager.policyAdmin"
 	policy := createScopedPolicy(t, org)
@@ -61,7 +62,7 @@ func TestAccAccessContextManagerAccessPolicyIamMember(t *testing.T) {
 func TestAccAccessContextManagerAccessPolicyIamPolicy(t *testing.T) {
 	acctest.SkipIfVcr(t)
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	account := "tf-test-" + RandString(t, 10)
 	role := "roles/accesscontextmanager.policyAdmin"
 	policy := createScopedPolicy(t, org)

@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccGKEHubMembershipIamBindingGenerated(t *testing.T) {
@@ -43,7 +44,7 @@ func TestAccGKEHubMembershipIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_membership_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/memberships/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("basic%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/memberships/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("basic%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -53,7 +54,7 @@ func TestAccGKEHubMembershipIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_membership_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/memberships/%s roles/viewer", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("basic%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/memberships/%s roles/viewer", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("basic%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -79,7 +80,7 @@ func TestAccGKEHubMembershipIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_membership_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/memberships/%s roles/viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("basic%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/memberships/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("basic%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -105,7 +106,7 @@ func TestAccGKEHubMembershipIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_membership_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/memberships/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("basic%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/memberships/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("basic%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -114,7 +115,7 @@ func TestAccGKEHubMembershipIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_membership_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/memberships/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), fmt.Sprintf("basic%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/memberships/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), fmt.Sprintf("basic%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

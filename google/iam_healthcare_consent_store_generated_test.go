@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccHealthcareConsentStoreIamBindingGenerated(t *testing.T) {
@@ -43,7 +44,7 @@ func TestAccHealthcareConsentStoreIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_healthcare_consent_store_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s/consentStores/%s roles/viewer", fmt.Sprintf("projects/%s/locations/%s/datasets/tf-test-my-dataset%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), context["random_suffix"]), fmt.Sprintf("tf-test-my-consent-store%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("%s/consentStores/%s roles/viewer", fmt.Sprintf("projects/%s/locations/%s/datasets/tf-test-my-dataset%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), context["random_suffix"]), fmt.Sprintf("tf-test-my-consent-store%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -53,7 +54,7 @@ func TestAccHealthcareConsentStoreIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_healthcare_consent_store_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("%s/consentStores/%s roles/viewer", fmt.Sprintf("projects/%s/locations/%s/datasets/tf-test-my-dataset%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), context["random_suffix"]), fmt.Sprintf("tf-test-my-consent-store%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("%s/consentStores/%s roles/viewer", fmt.Sprintf("projects/%s/locations/%s/datasets/tf-test-my-dataset%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), context["random_suffix"]), fmt.Sprintf("tf-test-my-consent-store%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -79,7 +80,7 @@ func TestAccHealthcareConsentStoreIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_healthcare_consent_store_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("%s/consentStores/%s roles/viewer user:admin@hashicorptest.com", fmt.Sprintf("projects/%s/locations/%s/datasets/tf-test-my-dataset%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), context["random_suffix"]), fmt.Sprintf("tf-test-my-consent-store%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("%s/consentStores/%s roles/viewer user:admin@hashicorptest.com", fmt.Sprintf("projects/%s/locations/%s/datasets/tf-test-my-dataset%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), context["random_suffix"]), fmt.Sprintf("tf-test-my-consent-store%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -105,7 +106,7 @@ func TestAccHealthcareConsentStoreIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_healthcare_consent_store_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("%s/consentStores/%s", fmt.Sprintf("projects/%s/locations/%s/datasets/tf-test-my-dataset%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), context["random_suffix"]), fmt.Sprintf("tf-test-my-consent-store%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("%s/consentStores/%s", fmt.Sprintf("projects/%s/locations/%s/datasets/tf-test-my-dataset%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), context["random_suffix"]), fmt.Sprintf("tf-test-my-consent-store%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -114,7 +115,7 @@ func TestAccHealthcareConsentStoreIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_healthcare_consent_store_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("%s/consentStores/%s", fmt.Sprintf("projects/%s/locations/%s/datasets/tf-test-my-dataset%s", acctest.GetTestProjectFromEnv(), acctest.GetTestRegionFromEnv(), context["random_suffix"]), fmt.Sprintf("tf-test-my-consent-store%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("%s/consentStores/%s", fmt.Sprintf("projects/%s/locations/%s/datasets/tf-test-my-dataset%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), context["random_suffix"]), fmt.Sprintf("tf-test-my-consent-store%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

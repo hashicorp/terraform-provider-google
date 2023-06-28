@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccLoggingProjectSink_basic(t *testing.T) {
@@ -23,7 +24,7 @@ func TestAccLoggingProjectSink_basic(t *testing.T) {
 		CheckDestroy:             testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingProjectSink_basic(sinkName, acctest.GetTestProjectFromEnv(), bucketName),
+				Config: testAccLoggingProjectSink_basic(sinkName, envvar.GetTestProjectFromEnv(), bucketName),
 			},
 			{
 				ResourceName:      "google_logging_project_sink.basic",
@@ -46,7 +47,7 @@ func TestAccLoggingProjectSink_described(t *testing.T) {
 		CheckDestroy:             testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingProjectSink_described(sinkName, acctest.GetTestProjectFromEnv(), bucketName),
+				Config: testAccLoggingProjectSink_described(sinkName, envvar.GetTestProjectFromEnv(), bucketName),
 			},
 			{
 				ResourceName:      "google_logging_project_sink.described",
@@ -69,7 +70,7 @@ func TestAccLoggingProjectSink_described_update(t *testing.T) {
 		CheckDestroy:             testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingProjectSink_described(sinkName, acctest.GetTestProjectFromEnv(), bucketName),
+				Config: testAccLoggingProjectSink_described(sinkName, envvar.GetTestProjectFromEnv(), bucketName),
 			},
 			{
 				ResourceName:      "google_logging_project_sink.described",
@@ -77,7 +78,7 @@ func TestAccLoggingProjectSink_described_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccLoggingProjectSink_described_update(sinkName, acctest.GetTestProjectFromEnv(), bucketName),
+				Config: testAccLoggingProjectSink_described_update(sinkName, envvar.GetTestProjectFromEnv(), bucketName),
 			},
 			{
 				ResourceName:      "google_logging_project_sink.described",
@@ -100,7 +101,7 @@ func TestAccLoggingProjectSink_disabled(t *testing.T) {
 		CheckDestroy:             testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingProjectSink_disabled(sinkName, acctest.GetTestProjectFromEnv(), bucketName),
+				Config: testAccLoggingProjectSink_disabled(sinkName, envvar.GetTestProjectFromEnv(), bucketName),
 			},
 			{
 				ResourceName:      "google_logging_project_sink.disabled",
@@ -186,7 +187,7 @@ func TestAccLoggingProjectSink_heredoc(t *testing.T) {
 		CheckDestroy:             testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingProjectSink_heredoc(sinkName, acctest.GetTestProjectFromEnv(), bucketName),
+				Config: testAccLoggingProjectSink_heredoc(sinkName, envvar.GetTestProjectFromEnv(), bucketName),
 			},
 			{
 				ResourceName:      "google_logging_project_sink.heredoc",
@@ -208,7 +209,7 @@ func TestAccLoggingProjectSink_loggingbucket(t *testing.T) {
 		CheckDestroy:             testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingProjectSink_loggingbucket(sinkName, acctest.GetTestProjectFromEnv()),
+				Config: testAccLoggingProjectSink_loggingbucket(sinkName, envvar.GetTestProjectFromEnv()),
 			},
 			{
 				ResourceName:      "google_logging_project_sink.loggingbucket",
@@ -231,7 +232,7 @@ func TestAccLoggingProjectSink_disabled_update(t *testing.T) {
 		CheckDestroy:             testAccCheckLoggingProjectSinkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingProjectSink_disabled_update(sinkName, acctest.GetTestProjectFromEnv(), bucketName, "true"),
+				Config: testAccLoggingProjectSink_disabled_update(sinkName, envvar.GetTestProjectFromEnv(), bucketName, "true"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_logging_project_sink.disabled", "disabled", "true"),
 				),
@@ -242,7 +243,7 @@ func TestAccLoggingProjectSink_disabled_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccLoggingProjectSink_disabled_update(sinkName, acctest.GetTestProjectFromEnv(), bucketName, "false"),
+				Config: testAccLoggingProjectSink_disabled_update(sinkName, envvar.GetTestProjectFromEnv(), bucketName, "false"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_logging_project_sink.disabled", "disabled", "false"),
 				),
@@ -253,7 +254,7 @@ func TestAccLoggingProjectSink_disabled_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccLoggingProjectSink_disabled_update(sinkName, acctest.GetTestProjectFromEnv(), bucketName, "true"),
+				Config: testAccLoggingProjectSink_disabled_update(sinkName, envvar.GetTestProjectFromEnv(), bucketName, "true"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_logging_project_sink.disabled", "disabled", "true"),
 				),
@@ -396,7 +397,7 @@ resource "google_storage_bucket" "log-bucket" {
   name     = "%s"
   location = "US"
 }
-`, name, acctest.GetTestProjectFromEnv(), bucketName)
+`, name, envvar.GetTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingProjectSink_uniqueWriterUpdated(name, bucketName string) string {
@@ -413,7 +414,7 @@ resource "google_storage_bucket" "log-bucket" {
   name     = "%s"
   location = "US"
 }
-`, name, acctest.GetTestProjectFromEnv(), bucketName)
+`, name, envvar.GetTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingProjectSink_heredoc(name, project, bucketName string) string {
@@ -459,7 +460,7 @@ resource "google_bigquery_dataset" "logging_sink" {
   dataset_id  = "%s"
   description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
 }
-`, sinkName, acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), bqDatasetID)
+`, sinkName, envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), bqDatasetID)
 }
 
 func testAccLoggingProjectSink_bigquery_after(sinkName, bqDatasetID string) string {
@@ -476,7 +477,7 @@ resource "google_bigquery_dataset" "logging_sink" {
   dataset_id  = "%s"
   description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
 }
-`, sinkName, acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), bqDatasetID)
+`, sinkName, envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), bqDatasetID)
 }
 
 func testAccLoggingProjectSink_loggingbucket(name, project string) string {

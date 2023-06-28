@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
@@ -21,14 +22,14 @@ import (
 func TestAccEventarcTrigger_channel(t *testing.T) {
 	t.Parallel()
 
-	region := acctest.GetTestRegionFromEnv()
+	region := envvar.GetTestRegionFromEnv()
 	key1 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-trigger-key1")
 	key2 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-trigger-key2")
 
 	context := map[string]interface{}{
 		"region":          region,
-		"project_name":    acctest.GetTestProjectFromEnv(),
-		"service_account": acctest.GetTestServiceAccountFromEnv(t),
+		"project_name":    envvar.GetTestProjectFromEnv(),
+		"service_account": envvar.GetTestServiceAccountFromEnv(t),
 		"key_ring":        tpgresource.GetResourceNameFromSelfLink(key1.KeyRing.Name),
 		"key1":            tpgresource.GetResourceNameFromSelfLink(key1.CryptoKey.Name),
 		"key2":            tpgresource.GetResourceNameFromSelfLink(key2.CryptoKey.Name),

@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
@@ -22,8 +23,8 @@ func TestAccEventarcChannel_basic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"region":        acctest.GetTestRegionFromEnv(),
-		"project_name":  acctest.GetTestProjectFromEnv(),
+		"region":        envvar.GetTestRegionFromEnv(),
+		"project_name":  envvar.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -47,13 +48,13 @@ func TestAccEventarcChannel_basic(t *testing.T) {
 func TestAccEventarcChannel_cryptoKeyUpdate(t *testing.T) {
 	t.Parallel()
 
-	region := acctest.GetTestRegionFromEnv()
+	region := envvar.GetTestRegionFromEnv()
 	key1 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-channel-key1")
 	key2 := BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", region, "tf-bootstrap-eventarc-channel-key2")
 
 	context := map[string]interface{}{
 		"region":        region,
-		"project_name":  acctest.GetTestProjectFromEnv(),
+		"project_name":  envvar.GetTestProjectFromEnv(),
 		"key_ring":      tpgresource.GetResourceNameFromSelfLink(key1.KeyRing.Name),
 		"key1":          tpgresource.GetResourceNameFromSelfLink(key1.CryptoKey.Name),
 		"key2":          tpgresource.GetResourceNameFromSelfLink(key2.CryptoKey.Name),

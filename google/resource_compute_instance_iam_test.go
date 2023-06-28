@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 // Even though the resource has generated tests, keep this one around until we are able to generate
@@ -15,9 +16,9 @@ import (
 func TestAccComputeInstanceIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	project := acctest.GetTestProjectFromEnv()
+	project := envvar.GetTestProjectFromEnv()
 	role := "roles/compute.osLogin"
-	zone := acctest.GetTestZoneFromEnv()
+	zone := envvar.GetTestZoneFromEnv()
 	instanceName := fmt.Sprintf("tf-test-instance-%s", RandString(t, 10))
 
 	VcrTest(t, resource.TestCase{

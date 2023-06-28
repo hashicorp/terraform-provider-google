@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccComputeGlobalNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
@@ -19,7 +20,7 @@ func TestAccComputeGlobalNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 		"modified_port": 100,
 	}
 	negId := fmt.Sprintf("projects/%s/global/networkEndpointGroups/neg-%s",
-		acctest.GetTestProjectFromEnv(), context["random_suffix"])
+		envvar.GetTestProjectFromEnv(), context["random_suffix"])
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

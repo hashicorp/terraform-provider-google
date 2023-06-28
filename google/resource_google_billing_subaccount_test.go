@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -16,7 +17,7 @@ import (
 func TestAccBillingSubaccount_renameOnDestroy(t *testing.T) {
 	t.Parallel()
 
-	masterBilling := acctest.GetTestMasterBillingAccountFromEnv(t)
+	masterBilling := envvar.GetTestMasterBillingAccountFromEnv(t)
 	resource.Test(t, resource.TestCase{
 
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -35,7 +36,7 @@ func TestAccBillingSubaccount_renameOnDestroy(t *testing.T) {
 func TestAccBillingSubaccount_basic(t *testing.T) {
 	t.Parallel()
 
-	masterBilling := acctest.GetTestMasterBillingAccountFromEnv(t)
+	masterBilling := envvar.GetTestMasterBillingAccountFromEnv(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),

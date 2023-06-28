@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccBigqueryAnalyticsHubDataExchangeIamBindingGenerated(t *testing.T) {
@@ -43,7 +44,7 @@ func TestAccBigqueryAnalyticsHubDataExchangeIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_data_exchange_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s roles/viewer", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s roles/viewer", envvar.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -53,7 +54,7 @@ func TestAccBigqueryAnalyticsHubDataExchangeIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_data_exchange_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s roles/viewer", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s roles/viewer", envvar.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -79,7 +80,7 @@ func TestAccBigqueryAnalyticsHubDataExchangeIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_data_exchange_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s roles/viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -105,7 +106,7 @@ func TestAccBigqueryAnalyticsHubDataExchangeIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_data_exchange_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s", envvar.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -114,7 +115,7 @@ func TestAccBigqueryAnalyticsHubDataExchangeIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_bigquery_analytics_hub_data_exchange_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s", acctest.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s", envvar.GetTestProjectFromEnv(), "US", fmt.Sprintf("tf_test_my_data_exchange%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

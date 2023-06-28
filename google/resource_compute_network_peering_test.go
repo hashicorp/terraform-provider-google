@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccComputeNetworkPeering_basic(t *testing.T) {
@@ -16,7 +17,7 @@ func TestAccComputeNetworkPeering_basic(t *testing.T) {
 
 	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", RandInt(t))
 	peeringName := fmt.Sprintf("peering-test-1-%d", RandInt(t))
-	importId := fmt.Sprintf("%s/%s/%s", acctest.GetTestProjectFromEnv(), primaryNetworkName, peeringName)
+	importId := fmt.Sprintf("%s/%s/%s", envvar.GetTestProjectFromEnv(), primaryNetworkName, peeringName)
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -42,7 +43,7 @@ func TestAccComputeNetworkPeering_subnetRoutes(t *testing.T) {
 
 	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", RandInt(t))
 	peeringName := fmt.Sprintf("peering-test-%d", RandInt(t))
-	importId := fmt.Sprintf("%s/%s/%s", acctest.GetTestProjectFromEnv(), primaryNetworkName, peeringName)
+	importId := fmt.Sprintf("%s/%s/%s", envvar.GetTestProjectFromEnv(), primaryNetworkName, peeringName)
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -67,7 +68,7 @@ func TestAccComputeNetworkPeering_customRoutesUpdate(t *testing.T) {
 
 	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", RandInt(t))
 	peeringName := fmt.Sprintf("peering-test-%d", RandInt(t))
-	importId := fmt.Sprintf("%s/%s/%s", acctest.GetTestProjectFromEnv(), primaryNetworkName, peeringName)
+	importId := fmt.Sprintf("%s/%s/%s", envvar.GetTestProjectFromEnv(), primaryNetworkName, peeringName)
 	suffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{

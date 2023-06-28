@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -46,8 +47,8 @@ func TestAccCloudIdentityGroup(t *testing.T) {
 
 func testAccCloudIdentityGroup_updateTest(t *testing.T) {
 	context := map[string]interface{}{
-		"org_domain":    acctest.GetTestOrgDomainFromEnv(t),
-		"cust_id":       acctest.GetTestCustIdFromEnv(t),
+		"org_domain":    envvar.GetTestOrgDomainFromEnv(t),
+		"cust_id":       envvar.GetTestCustIdFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -88,8 +89,8 @@ resource "google_cloud_identity_group" "cloud_identity_group_basic" {
 
 func testAccCloudIdentityGroup_cloudIdentityGroupsBasicExampleTest(t *testing.T) {
 	context := map[string]interface{}{
-		"org_domain":    acctest.GetTestOrgDomainFromEnv(t),
-		"cust_id":       acctest.GetTestCustIdFromEnv(t),
+		"org_domain":    envvar.GetTestOrgDomainFromEnv(t),
+		"cust_id":       envvar.GetTestCustIdFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 

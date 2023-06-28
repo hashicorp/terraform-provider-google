@@ -5,6 +5,7 @@ package google
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -28,7 +29,7 @@ func TestAccComputePerInstanceConfig_statefulBasic(t *testing.T) {
 		"config_name4":  fmt.Sprintf("instance-%s", RandString(t, 10)),
 	}
 	igmId := fmt.Sprintf("projects/%s/zones/%s/instanceGroupManagers/%s",
-		acctest.GetTestProjectFromEnv(), acctest.GetTestZoneFromEnv(), igmName)
+		envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), igmName)
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

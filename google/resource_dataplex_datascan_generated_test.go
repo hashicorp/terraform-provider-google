@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -34,7 +35,7 @@ func TestAccDataplexDatascan_dataplexDatascanBasicProfileExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_name":  acctest.GetTestProjectFromEnv(),
+		"project_name":  envvar.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -84,7 +85,7 @@ func TestAccDataplexDatascan_dataplexDatascanFullProfileExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_name":  acctest.GetTestProjectFromEnv(),
+		"project_name":  envvar.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -143,7 +144,7 @@ func TestAccDataplexDatascan_dataplexDatascanBasicQualityExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_name":  acctest.GetTestProjectFromEnv(),
+		"project_name":  envvar.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -199,7 +200,7 @@ func TestAccDataplexDatascan_dataplexDatascanFullQualityExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_name":  acctest.GetTestProjectFromEnv(),
+		"project_name":  envvar.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 

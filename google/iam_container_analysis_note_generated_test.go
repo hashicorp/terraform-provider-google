@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccContainerAnalysisNoteIamBindingGenerated(t *testing.T) {
@@ -43,7 +44,7 @@ func TestAccContainerAnalysisNoteIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_container_analysis_note_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/notes/%s roles/containeranalysis.notes.occurrences.viewer", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-attestor-note%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/notes/%s roles/containeranalysis.notes.occurrences.viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-attestor-note%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -53,7 +54,7 @@ func TestAccContainerAnalysisNoteIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_container_analysis_note_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/notes/%s roles/containeranalysis.notes.occurrences.viewer", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-attestor-note%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/notes/%s roles/containeranalysis.notes.occurrences.viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-attestor-note%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -79,7 +80,7 @@ func TestAccContainerAnalysisNoteIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_container_analysis_note_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/notes/%s roles/containeranalysis.notes.occurrences.viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-attestor-note%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/notes/%s roles/containeranalysis.notes.occurrences.viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-attestor-note%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -105,7 +106,7 @@ func TestAccContainerAnalysisNoteIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_container_analysis_note_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/notes/%s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-attestor-note%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/notes/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-attestor-note%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -114,7 +115,7 @@ func TestAccContainerAnalysisNoteIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_container_analysis_note_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/notes/%s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-attestor-note%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/notes/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-attestor-note%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

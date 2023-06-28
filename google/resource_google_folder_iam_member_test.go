@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
@@ -15,7 +16,7 @@ import (
 func TestAccFolderIamMember_basic(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	fname := "tf-test-" + RandString(t, 10)
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -47,7 +48,7 @@ func TestAccFolderIamMember_multiple(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	fname := "tf-test-" + RandString(t, 10)
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -89,7 +90,7 @@ func TestAccFolderIamMember_remove(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	fname := "tf-test-" + RandString(t, 10)
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

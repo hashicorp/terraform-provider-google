@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccLoggingMetric_update(t *testing.T) {
@@ -69,7 +70,7 @@ func TestAccLoggingMetric_loggingBucket(t *testing.T) {
 	t.Parallel()
 
 	filter := "resource.type=gae_app AND severity>=ERROR"
-	project_id := acctest.GetTestProjectFromEnv()
+	project_id := envvar.GetTestProjectFromEnv()
 	suffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{

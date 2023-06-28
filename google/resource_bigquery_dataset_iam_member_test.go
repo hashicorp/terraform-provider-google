@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccBigqueryDatasetIamMember_basic(t *testing.T) {
@@ -18,7 +19,7 @@ func TestAccBigqueryDatasetIamMember_basic(t *testing.T) {
 
 	expected := map[string]interface{}{
 		"role":        "roles/viewer",
-		"userByEmail": fmt.Sprintf("%s@%s.iam.gserviceaccount.com", saID, acctest.GetTestProjectFromEnv()),
+		"userByEmail": fmt.Sprintf("%s@%s.iam.gserviceaccount.com", saID, envvar.GetTestProjectFromEnv()),
 	}
 
 	VcrTest(t, resource.TestCase{

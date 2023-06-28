@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccLoggingBucketConfigFolder_basic(t *testing.T) {
@@ -16,7 +17,7 @@ func TestAccLoggingBucketConfigFolder_basic(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"folder_name":   "tf-test-" + RandString(t, 10),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
@@ -51,7 +52,7 @@ func TestAccLoggingBucketConfigProject_basic(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"project_name":  "tf-test-" + RandString(t, 10),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
@@ -95,7 +96,7 @@ func TestAccLoggingBucketConfigProject_analyticsEnabled(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"project_name":  "tf-test-" + RandString(t, 10),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
@@ -165,8 +166,8 @@ func TestAccLoggingBucketConfigProject_cmekSettings(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project_name":    "tf-test-" + RandString(t, 10),
-		"org_id":          acctest.GetTestOrgFromEnv(t),
-		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 	}
 
 	bucketId := fmt.Sprintf("tf-test-bucket-%s", RandString(t, 10))
@@ -205,8 +206,8 @@ func TestAccLoggingBucketConfigBillingAccount_basic(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix":        RandString(t, 10),
-		"billing_account_name": "billingAccounts/" + acctest.GetTestMasterBillingAccountFromEnv(t),
-		"org_id":               acctest.GetTestOrgFromEnv(t),
+		"billing_account_name": "billingAccounts/" + envvar.GetTestMasterBillingAccountFromEnv(t),
+		"org_id":               envvar.GetTestOrgFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
@@ -240,7 +241,7 @@ func TestAccLoggingBucketConfigOrganization_basic(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
@@ -445,8 +446,8 @@ func TestAccLoggingBucketConfig_CreateBuckets_withCustomId(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix":        RandString(t, 10),
-		"billing_account_name": acctest.GetTestBillingAccountFromEnv(t),
-		"org_id":               acctest.GetTestOrgFromEnv(t),
+		"billing_account_name": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":               envvar.GetTestOrgFromEnv(t),
 		"project_name":         "tf-test-" + RandString(t, 10),
 		"bucket_id":            "tf-test-bucket-" + RandString(t, 10),
 	}

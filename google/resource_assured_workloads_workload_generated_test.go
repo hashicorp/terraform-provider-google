@@ -29,6 +29,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -36,9 +37,9 @@ func TestAccAssuredWorkloadsWorkload_BasicHandWritten(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  acctest.GetTestBillingAccountFromEnv(t),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
-		"region":        acctest.GetTestRegionFromEnv(),
+		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"region":        envvar.GetTestRegionFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -72,9 +73,9 @@ func TestAccAssuredWorkloadsWorkload_FullHandWritten(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  acctest.GetTestBillingAccountFromEnv(t),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
-		"region":        acctest.GetTestRegionFromEnv(),
+		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"region":        envvar.GetTestRegionFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 

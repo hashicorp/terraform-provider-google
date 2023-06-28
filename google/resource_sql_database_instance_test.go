@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -1191,7 +1192,7 @@ func TestAccSqlDatabaseInstance_encryptionKey(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_id":    acctest.GetTestProjectFromEnv(),
+		"project_id":    envvar.GetTestProjectFromEnv(),
 		"key_name":      "tf-test-key-" + RandString(t, 10),
 		"instance_name": "tf-test-sql-" + RandString(t, 10),
 	}
@@ -1225,7 +1226,7 @@ func TestAccSqlDatabaseInstance_encryptionKey_replicaInDifferentRegion(t *testin
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_id":    acctest.GetTestProjectFromEnv(),
+		"project_id":    envvar.GetTestProjectFromEnv(),
 		"key_name":      "tf-test-key-" + RandString(t, 10),
 		"instance_name": "tf-test-sql-" + RandString(t, 10),
 	}

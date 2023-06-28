@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/privateca"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
@@ -79,7 +79,7 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 		}
 	}
 
-	projectID := acctest.GetTestProjectFromEnv()
+	projectID := envvar.GetTestProjectFromEnv()
 	keyRingParent := fmt.Sprintf("projects/%s/locations/%s", projectID, locationID)
 	keyRingName := fmt.Sprintf("%s/keyRings/%s", keyRingParent, SharedKeyRing)
 	keyParent := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s", projectID, locationID, SharedKeyRing)
@@ -228,7 +228,7 @@ func BootstrapServiceAccount(t *testing.T, project, testRunner string) string {
 const SharedTestADDomainPrefix = "tf-bootstrap-ad"
 
 func BootstrapSharedTestADDomain(t *testing.T, testId string, networkName string) string {
-	project := acctest.GetTestProjectFromEnv()
+	project := envvar.GetTestProjectFromEnv()
 	sharedADDomain := fmt.Sprintf("%s.%s.com", SharedTestADDomainPrefix, testId)
 	adDomainName := fmt.Sprintf("projects/%s/locations/global/domains/%s", project, sharedADDomain)
 
@@ -308,7 +308,7 @@ const SharedTestNetworkPrefix = "tf-bootstrap-net-"
 // Returns the name of a network, creating it if it hasn't been created in the
 // test project.
 func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
-	project := acctest.GetTestProjectFromEnv()
+	project := envvar.GetTestProjectFromEnv()
 	networkName := SharedTestNetworkPrefix + testId
 
 	config := BootstrapConfig(t)
@@ -364,7 +364,7 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 		return nil
 	}
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 
 	// The filter endpoint works differently if you provide both the parent id and parent type, and
 	// doesn't seem to allow for prefix matching. Don't change this to include the parent type unless
@@ -482,7 +482,7 @@ func BootstrapProject(t *testing.T, projectIDPrefix, billingAccount string, serv
 		return nil
 	}
 
-	projectIDSuffix := strings.Replace(acctest.GetTestProjectFromEnv(), "ci-test-project-", "", 1)
+	projectIDSuffix := strings.Replace(envvar.GetTestProjectFromEnv(), "ci-test-project-", "", 1)
 	projectID := projectIDPrefix + projectIDSuffix
 
 	crmClient := config.NewResourceManagerClient(config.UserAgent)
@@ -492,7 +492,7 @@ func BootstrapProject(t *testing.T, projectIDPrefix, billingAccount string, serv
 		if !transport_tpg.IsGoogleApiErrorWithCode(err, 403) {
 			t.Fatalf("Error getting bootstrapped project: %s", err)
 		}
-		org := acctest.GetTestOrgFromEnv(t)
+		org := envvar.GetTestOrgFromEnv(t)
 
 		op, err := crmClient.Projects.Create(&cloudresourcemanager.Project{
 			ProjectId: projectID,
@@ -591,10 +591,10 @@ func BootstrapConfig(t *testing.T) *transport_tpg.Config {
 	}
 
 	config := &transport_tpg.Config{
-		Credentials: acctest.GetTestCredsFromEnv(),
-		Project:     acctest.GetTestProjectFromEnv(),
-		Region:      acctest.GetTestRegionFromEnv(),
-		Zone:        acctest.GetTestZoneFromEnv(),
+		Credentials: envvar.GetTestCredsFromEnv(),
+		Project:     envvar.GetTestProjectFromEnv(),
+		Region:      envvar.GetTestRegionFromEnv(),
+		Zone:        envvar.GetTestZoneFromEnv(),
 	}
 
 	transport_tpg.ConfigureBasePaths(config)
@@ -611,7 +611,7 @@ const SharedTestSQLInstanceNamePrefix = "tf-bootstrap-"
 // BootstrapSharedSQLInstanceBackupRun will return a shared SQL db instance that
 // has a backup created for it.
 func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
-	project := acctest.GetTestProjectFromEnv()
+	project := envvar.GetTestProjectFromEnv()
 
 	config := BootstrapConfig(t)
 	if config == nil {
@@ -706,7 +706,7 @@ func BootstrapSharedSQLInstanceBackupRun(t *testing.T) string {
 }
 
 func BootstrapSharedCaPoolInLocation(t *testing.T, location string) string {
-	project := acctest.GetTestProjectFromEnv()
+	project := envvar.GetTestProjectFromEnv()
 	poolName := "static-ca-pool"
 
 	config := BootstrapConfig(t)
@@ -765,8 +765,8 @@ func BootstrapSharedCaPoolInLocation(t *testing.T, location string) string {
 }
 
 func BootstrapSubnet(t *testing.T, subnetName string, networkName string) string {
-	projectID := acctest.GetTestProjectFromEnv()
-	region := acctest.GetTestRegionFromEnv()
+	projectID := envvar.GetTestProjectFromEnv()
+	region := envvar.GetTestRegionFromEnv()
 
 	config := BootstrapConfig(t)
 	if config == nil {
@@ -828,8 +828,8 @@ func BootstrapSubnet(t *testing.T, subnetName string, networkName string) string
 }
 
 func BootstrapNetworkAttachment(t *testing.T, networkAttachmentName string, subnetName string) string {
-	projectID := acctest.GetTestProjectFromEnv()
-	region := acctest.GetTestRegionFromEnv()
+	projectID := envvar.GetTestProjectFromEnv()
+	region := envvar.GetTestRegionFromEnv()
 
 	config := BootstrapConfig(t)
 	if config == nil {

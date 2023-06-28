@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
@@ -54,14 +55,14 @@ func TestAccSqlDatabase_basic(t *testing.T) {
 			},
 			{
 				ResourceName:            resourceName,
-				ImportStateId:           fmt.Sprintf("%s/%s/%s", acctest.GetTestProjectFromEnv(), instanceName, dbName),
+				ImportStateId:           fmt.Sprintf("%s/%s/%s", envvar.GetTestProjectFromEnv(), instanceName, dbName),
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				ResourceName:            resourceName,
-				ImportStateId:           fmt.Sprintf("projects/%s/instances/%s/databases/%s", acctest.GetTestProjectFromEnv(), instanceName, dbName),
+				ImportStateId:           fmt.Sprintf("projects/%s/instances/%s/databases/%s", envvar.GetTestProjectFromEnv(), instanceName, dbName),
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},

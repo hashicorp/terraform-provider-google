@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -139,9 +140,9 @@ func TestAccKmsCryptoKey_basic(t *testing.T) {
 	t.Parallel()
 
 	projectId := fmt.Sprintf("tf-test-%d", RandInt(t))
-	projectOrg := acctest.GetTestOrgFromEnv(t)
-	location := acctest.GetTestRegionFromEnv()
-	projectBillingAccount := acctest.GetTestBillingAccountFromEnv(t)
+	projectOrg := envvar.GetTestOrgFromEnv(t)
+	location := envvar.GetTestRegionFromEnv()
+	projectBillingAccount := envvar.GetTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
@@ -183,9 +184,9 @@ func TestAccKmsCryptoKey_rotation(t *testing.T) {
 	t.Parallel()
 
 	projectId := fmt.Sprintf("tf-test-%d", RandInt(t))
-	projectOrg := acctest.GetTestOrgFromEnv(t)
-	location := acctest.GetTestRegionFromEnv()
-	projectBillingAccount := acctest.GetTestBillingAccountFromEnv(t)
+	projectOrg := envvar.GetTestOrgFromEnv(t)
+	location := envvar.GetTestRegionFromEnv()
+	projectBillingAccount := envvar.GetTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	rotationPeriod := "100000s"
@@ -236,9 +237,9 @@ func TestAccKmsCryptoKey_template(t *testing.T) {
 	t.Parallel()
 
 	projectId := fmt.Sprintf("tf-test-%d", RandInt(t))
-	projectOrg := acctest.GetTestOrgFromEnv(t)
-	location := acctest.GetTestRegionFromEnv()
-	projectBillingAccount := acctest.GetTestBillingAccountFromEnv(t)
+	projectOrg := envvar.GetTestOrgFromEnv(t)
+	location := envvar.GetTestRegionFromEnv()
+	projectBillingAccount := envvar.GetTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	algorithm := "EC_SIGN_P256_SHA256"
@@ -281,9 +282,9 @@ func TestAccKmsCryptoKey_destroyDuration(t *testing.T) {
 	t.Parallel()
 
 	projectId := fmt.Sprintf("tf-test-%d", RandInt(t))
-	projectOrg := acctest.GetTestOrgFromEnv(t)
-	location := acctest.GetTestRegionFromEnv()
-	projectBillingAccount := acctest.GetTestBillingAccountFromEnv(t)
+	projectOrg := envvar.GetTestOrgFromEnv(t)
+	location := envvar.GetTestRegionFromEnv()
+	projectBillingAccount := envvar.GetTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
@@ -316,9 +317,9 @@ func TestAccKmsCryptoKey_importOnly(t *testing.T) {
 	t.Parallel()
 
 	projectId := fmt.Sprintf("tf-test-%d", RandInt(t))
-	projectOrg := acctest.GetTestOrgFromEnv(t)
-	location := acctest.GetTestRegionFromEnv()
-	projectBillingAccount := acctest.GetTestBillingAccountFromEnv(t)
+	projectOrg := envvar.GetTestOrgFromEnv(t)
+	location := envvar.GetTestRegionFromEnv()
+	projectBillingAccount := envvar.GetTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
@@ -414,8 +415,8 @@ func TestAccKmsCryptoKeyVersion_basic(t *testing.T) {
 	t.Parallel()
 
 	projectId := fmt.Sprintf("tf-test-%d", RandInt(t))
-	projectOrg := acctest.GetTestOrgFromEnv(t)
-	projectBillingAccount := acctest.GetTestBillingAccountFromEnv(t)
+	projectOrg := envvar.GetTestOrgFromEnv(t)
+	projectBillingAccount := envvar.GetTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
@@ -442,8 +443,8 @@ func TestAccKmsCryptoKeyVersion_skipInitialVersion(t *testing.T) {
 	t.Parallel()
 
 	projectId := fmt.Sprintf("tf-test-%d", RandInt(t))
-	projectOrg := acctest.GetTestOrgFromEnv(t)
-	projectBillingAccount := acctest.GetTestBillingAccountFromEnv(t)
+	projectOrg := envvar.GetTestOrgFromEnv(t)
+	projectBillingAccount := envvar.GetTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
@@ -467,8 +468,8 @@ func TestAccKmsCryptoKeyVersion_patch(t *testing.T) {
 	t.Parallel()
 
 	projectId := fmt.Sprintf("tf-test-%d", RandInt(t))
-	projectOrg := acctest.GetTestOrgFromEnv(t)
-	projectBillingAccount := acctest.GetTestBillingAccountFromEnv(t)
+	projectOrg := envvar.GetTestOrgFromEnv(t)
+	projectBillingAccount := envvar.GetTestBillingAccountFromEnv(t)
 	keyRingName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	cryptoKeyName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	state := "DISABLED"

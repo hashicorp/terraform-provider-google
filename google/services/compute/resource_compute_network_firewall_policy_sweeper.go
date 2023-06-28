@@ -24,7 +24,7 @@ import (
 	"testing"
 
 	compute "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/compute"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -36,7 +36,7 @@ func init() {
 func testSweepComputeNetworkFirewallPolicy(region string) error {
 	log.Print("[INFO][SWEEPER_LOG] Starting sweeper for ComputeNetworkFirewallPolicy")
 
-	config, err := acctest.SharedConfigForRegion(region)
+	config, err := sweeper.SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -49,7 +49,7 @@ func testSweepComputeNetworkFirewallPolicy(region string) error {
 	}
 
 	t := &testing.T{}
-	billingId := acctest.GetTestBillingAccountFromEnv(t)
+	billingId := envvar.GetTestBillingAccountFromEnv(t)
 
 	// Setup variables to be used for Delete arguments.
 	d := map[string]string{
@@ -69,5 +69,5 @@ func testSweepComputeNetworkFirewallPolicy(region string) error {
 }
 
 func isDeletableComputeNetworkFirewallPolicy(r *compute.NetworkFirewallPolicy) bool {
-	return acctest.IsSweepableTestResource(*r.Name)
+	return sweeper.IsSweepableTestResource(*r.Name)
 }

@@ -4,10 +4,10 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"testing"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"testing"
 )
 
 func TestAccDataSourceRegionInstanceGroup(t *testing.T) {
@@ -23,7 +23,7 @@ func TestAccDataSourceRegionInstanceGroup(t *testing.T) {
 				Config: testAccDataSourceRegionInstanceGroup_basic(fmt.Sprintf("tf-test-rigm--%d", RandInt(t)), name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "name", name),
-					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "project", acctest.GetTestProjectFromEnv()),
+					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "project", envvar.GetTestProjectFromEnv()),
 					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "instances.#", "1")),
 			},
 		},

@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/iam/v1"
@@ -17,9 +18,9 @@ import (
 
 func testAccCloudIdentityGroupMembership_updateTest(t *testing.T) {
 	context := map[string]interface{}{
-		"org_domain":    acctest.GetTestOrgDomainFromEnv(t),
-		"cust_id":       acctest.GetTestCustIdFromEnv(t),
-		"identity_user": acctest.GetTestIdentityUserFromEnv(t),
+		"org_domain":    envvar.GetTestOrgDomainFromEnv(t),
+		"cust_id":       envvar.GetTestCustIdFromEnv(t),
+		"identity_user": envvar.GetTestIdentityUserFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -123,9 +124,9 @@ resource "google_cloud_identity_group_membership" "basic" {
 
 func testAccCloudIdentityGroupMembership_importTest(t *testing.T) {
 	context := map[string]interface{}{
-		"org_domain":    acctest.GetTestOrgDomainFromEnv(t),
-		"cust_id":       acctest.GetTestCustIdFromEnv(t),
-		"identity_user": acctest.GetTestIdentityUserFromEnv(t),
+		"org_domain":    envvar.GetTestOrgDomainFromEnv(t),
+		"cust_id":       envvar.GetTestCustIdFromEnv(t),
+		"identity_user": envvar.GetTestIdentityUserFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -186,13 +187,13 @@ func testAccCloudIdentityGroupMembership_membershipDoesNotExistTest(t *testing.T
 	acctest.SkipIfVcr(t)
 
 	context := map[string]interface{}{
-		"org_domain":    acctest.GetTestOrgDomainFromEnv(t),
-		"cust_id":       acctest.GetTestCustIdFromEnv(t),
+		"org_domain":    envvar.GetTestOrgDomainFromEnv(t),
+		"cust_id":       envvar.GetTestCustIdFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 
 	saId := "tf-test-sa-" + RandString(t, 10)
-	project := acctest.GetTestProjectFromEnv()
+	project := envvar.GetTestProjectFromEnv()
 	config := BootstrapConfig(t)
 
 	r := &iam.CreateServiceAccountRequest{
@@ -265,8 +266,8 @@ resource "google_cloud_identity_group_membership" "basic" {
 
 func testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipExampleTest(t *testing.T) {
 	context := map[string]interface{}{
-		"org_domain":    acctest.GetTestOrgDomainFromEnv(t),
-		"cust_id":       acctest.GetTestCustIdFromEnv(t),
+		"org_domain":    envvar.GetTestOrgDomainFromEnv(t),
+		"cust_id":       envvar.GetTestCustIdFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -334,9 +335,9 @@ resource "google_cloud_identity_group_membership" "cloud_identity_group_membersh
 
 func testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipUserExampleTest(t *testing.T) {
 	context := map[string]interface{}{
-		"org_domain":    acctest.GetTestOrgDomainFromEnv(t),
-		"cust_id":       acctest.GetTestCustIdFromEnv(t),
-		"identity_user": acctest.GetTestIdentityUserFromEnv(t),
+		"org_domain":    envvar.GetTestOrgDomainFromEnv(t),
+		"cust_id":       envvar.GetTestCustIdFromEnv(t),
+		"identity_user": envvar.GetTestIdentityUserFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 

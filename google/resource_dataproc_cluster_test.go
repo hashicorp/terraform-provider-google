@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -110,7 +111,7 @@ func TestAccDataprocVirtualCluster_basic(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := RandString(t, 10)
-	pid := acctest.GetTestProjectFromEnv()
+	pid := envvar.GetTestProjectFromEnv()
 	version := "3.1-dataproc-7"
 
 	VcrTest(t, resource.TestCase{
@@ -148,7 +149,7 @@ func TestAccDataprocCluster_withAccelerators(t *testing.T) {
 	rnd := RandString(t, 10)
 	var cluster dataproc.Cluster
 
-	project := acctest.GetTestProjectFromEnv()
+	project := envvar.GetTestProjectFromEnv()
 	acceleratorType := "nvidia-tesla-k80"
 	zone := "us-central1-c"
 
@@ -545,7 +546,7 @@ func TestAccDataprocCluster_withServiceAcc(t *testing.T) {
 	t.Parallel()
 
 	sa := "a" + RandString(t, 10)
-	saEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", sa, acctest.GetTestProjectFromEnv())
+	saEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", sa, envvar.GetTestProjectFromEnv())
 	rnd := RandString(t, 10)
 
 	var cluster dataproc.Cluster
@@ -824,7 +825,7 @@ func TestAccDataprocCluster_withAutoscalingPolicy(t *testing.T) {
 func TestAccDataprocCluster_withMetastoreConfig(t *testing.T) {
 	t.Parallel()
 
-	pid := acctest.GetTestProjectFromEnv()
+	pid := envvar.GetTestProjectFromEnv()
 	basicServiceId := "tf-test-metastore-srv-" + RandString(t, 10)
 	updateServiceId := "tf-test-metastore-srv-update-" + RandString(t, 10)
 	msName_basic := fmt.Sprintf("projects/%s/locations/us-central1/services/%s", pid, basicServiceId)

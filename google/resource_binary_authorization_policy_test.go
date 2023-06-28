@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/binaryauthorization"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -18,9 +19,9 @@ import (
 func TestAccBinaryAuthorizationPolicy_basic(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	pid := "tf-test-" + RandString(t, 10)
-	billingId := acctest.GetTestBillingAccountFromEnv(t)
+	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
@@ -46,9 +47,9 @@ func TestAccBinaryAuthorizationPolicy_basic(t *testing.T) {
 func TestAccBinaryAuthorizationPolicy_full(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	pid := "tf-test-" + RandString(t, 10)
-	billingId := acctest.GetTestBillingAccountFromEnv(t)
+	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	note := RandString(t, 10)
 	attestor := RandString(t, 10)
 
@@ -78,9 +79,9 @@ func TestAccBinaryAuthorizationPolicy_full(t *testing.T) {
 func TestAccBinaryAuthorizationPolicy_separateProject(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	pid := "tf-test-" + RandString(t, 10)
-	billingId := acctest.GetTestBillingAccountFromEnv(t)
+	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	note := RandString(t, 10)
 	attestor := RandString(t, 10)
 
@@ -109,9 +110,9 @@ func TestAccBinaryAuthorizationPolicy_separateProject(t *testing.T) {
 func TestAccBinaryAuthorizationPolicy_update(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	pid := "tf-test-" + RandString(t, 10)
-	billingId := acctest.GetTestBillingAccountFromEnv(t)
+	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	note := RandString(t, 10)
 	attestor := RandString(t, 10)
 

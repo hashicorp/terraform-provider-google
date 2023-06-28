@@ -29,6 +29,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -36,8 +37,8 @@ func TestAccApikeysKey_AndroidKey(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  acctest.GetTestBillingAccountFromEnv(t),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -69,8 +70,8 @@ func TestAccApikeysKey_BasicKey(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  acctest.GetTestBillingAccountFromEnv(t),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -102,8 +103,8 @@ func TestAccApikeysKey_IosKey(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  acctest.GetTestBillingAccountFromEnv(t),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -135,8 +136,8 @@ func TestAccApikeysKey_MinimalKey(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  acctest.GetTestBillingAccountFromEnv(t),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -160,8 +161,8 @@ func TestAccApikeysKey_ServerKey(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"billing_acct":  acctest.GetTestBillingAccountFromEnv(t),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": RandString(t, 10),
 	}
 
