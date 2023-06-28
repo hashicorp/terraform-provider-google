@@ -17,6 +17,9 @@ import (
 func TestAccComputeNetworkEndpoints_networkEndpointsBasic(t *testing.T) {
 	t.Parallel()
 
+	// detachNetworkEndpoints call ordering is not guaranteed, causing VCR to rerecord
+	acctest.SkipIfVcr(t)
+
 	context := map[string]interface{}{
 		"random_suffix": RandString(t, 10),
 		"default_port":  90,
