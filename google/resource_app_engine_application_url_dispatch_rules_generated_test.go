@@ -88,7 +88,7 @@ resource "google_app_engine_standard_app_version" "admin_v3" {
     port = "8080"
   }
 
-  noop_on_destroy = true
+  delete_service_on_destroy = true
 }
 
 resource "google_storage_bucket" "bucket" {
