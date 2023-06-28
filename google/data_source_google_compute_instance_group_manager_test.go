@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccDataSourceGoogleComputeInstanceGroupManager(t *testing.T) {
@@ -31,14 +32,14 @@ func TestAccDataSourceGoogleComputeInstanceGroupManager(t *testing.T) {
 			{
 				Config: testAccDataSourceGoogleComputeInstanceGroupManager_basic1(context),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "project", acctest.GetTestProjectFromEnv()),
+					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "project", envvar.GetTestProjectFromEnv()),
 					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "zone", zoneName),
 					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "name", igmName)),
 			},
 			{
 				Config: testAccDataSourceGoogleComputeInstanceGroupManager_basic2(context),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "project", acctest.GetTestProjectFromEnv()),
+					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "project", envvar.GetTestProjectFromEnv()),
 					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "zone", zoneName),
 					resource.TestCheckResourceAttr("data.google_compute_instance_group_manager.data_source", "name", igmName)),
 			},

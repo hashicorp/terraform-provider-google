@@ -8,12 +8,13 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccSecurityCenterSource_basic(t *testing.T) {
 	t.Parallel()
 
-	orgId := acctest.GetTestOrgFromEnv(t)
+	orgId := envvar.GetTestOrgFromEnv(t)
 	suffix := RandString(t, 10)
 
 	VcrTest(t, resource.TestCase{

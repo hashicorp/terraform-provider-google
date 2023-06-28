@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -18,7 +19,7 @@ func TestAccResourceManagerLien_basic(t *testing.T) {
 	t.Parallel()
 
 	projectName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	var lien resourceManager.Lien
 
 	VcrTest(t, resource.TestCase{

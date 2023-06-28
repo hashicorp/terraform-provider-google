@@ -7,13 +7,14 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeTransformationsUpdate(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"organization":  acctest.GetTestOrgFromEnv(t),
+		"organization":  envvar.GetTestOrgFromEnv(t),
 		"random_suffix": RandString(t, 10),
 		"kms_key_name":  BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
 	}
@@ -455,7 +456,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_recordTra
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"organization":  acctest.GetTestOrgFromEnv(t),
+		"organization":  envvar.GetTestOrgFromEnv(t),
 		"random_suffix": RandString(t, 10),
 		"kms_key_name":  BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
 	}
@@ -1047,7 +1048,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_imageTran
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"organization":  acctest.GetTestOrgFromEnv(t),
+		"organization":  envvar.GetTestOrgFromEnv(t),
 		"random_suffix": RandString(t, 10),
 		"kms_key_name":  BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
 	}
@@ -1152,7 +1153,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeT
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"organization":  acctest.GetTestOrgFromEnv(t),
+		"organization":  envvar.GetTestOrgFromEnv(t),
 		"random_suffix": RandString(t, 10),
 		"kms_key_name":  BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
 	}
@@ -1484,7 +1485,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeT
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"organization":  acctest.GetTestOrgFromEnv(t),
+		"organization":  envvar.GetTestOrgFromEnv(t),
 		"random_suffix": RandString(t, 10),
 		"kms_key_name":  BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
 	}
@@ -1793,7 +1794,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeT
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"organization":  acctest.GetTestOrgFromEnv(t),
+		"organization":  envvar.GetTestOrgFromEnv(t),
 		"random_suffix": RandString(t, 10),
 		"kms_key_name":  BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
 	}
@@ -1891,7 +1892,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_infoTypeT
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"organization":  acctest.GetTestOrgFromEnv(t),
+		"organization":  envvar.GetTestOrgFromEnv(t),
 		"random_suffix": RandString(t, 10),
 		"kms_key_name":  BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
 	}
@@ -2039,7 +2040,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_recordTra
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"organization": acctest.GetTestOrgFromEnv(t),
+		"organization": envvar.GetTestOrgFromEnv(t),
 		"kms_key_name": BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
 	}
 
@@ -2867,7 +2868,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_recordTra
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project": acctest.GetTestProjectFromEnv(),
+		"project": envvar.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
@@ -3330,7 +3331,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_recordTra
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"organization": acctest.GetTestOrgFromEnv(t),
+		"organization": envvar.GetTestOrgFromEnv(t),
 		"kms_key_name": BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
 	}
 
@@ -3578,7 +3579,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_recordTra
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project": acctest.GetTestProjectFromEnv(),
+		"project": envvar.GetTestProjectFromEnv(),
 	}
 
 	VcrTest(t, resource.TestCase{
@@ -4089,7 +4090,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_recordTra
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"organization": acctest.GetTestOrgFromEnv(t),
+		"organization": envvar.GetTestOrgFromEnv(t),
 		"kms_key_name": BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
 	}
 
@@ -4314,7 +4315,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_recordTra
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"organization": acctest.GetTestOrgFromEnv(t),
+		"organization": envvar.GetTestOrgFromEnv(t),
 		"kms_key_name": BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
 	}
 
@@ -4554,7 +4555,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_recordTra
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"organization": acctest.GetTestOrgFromEnv(t),
+		"organization": envvar.GetTestOrgFromEnv(t),
 		"kms_key_name": BootstrapKMSKey(t).CryptoKey.Name, // global KMS key
 	}
 

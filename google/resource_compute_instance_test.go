@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 
@@ -30,7 +31,7 @@ func computeInstanceImportStep(zone, instanceName string, additionalImportIgnore
 	return resource.TestStep{
 		ResourceName:            "google_compute_instance.foobar",
 		ImportState:             true,
-		ImportStateId:           fmt.Sprintf("%s/%s/%s", acctest.GetTestProjectFromEnv(), zone, instanceName),
+		ImportStateId:           fmt.Sprintf("%s/%s/%s", envvar.GetTestProjectFromEnv(), zone, instanceName),
 		ImportStateVerify:       true,
 		ImportStateVerifyIgnore: append(ignores, additionalImportIgnores...),
 	}
@@ -177,7 +178,7 @@ func TestAccComputeInstance_resourceManagerTags(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	context := map[string]interface{}{
-		"project":       acctest.GetTestProjectFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": RandString(t, 10),
 		"instance_name": instanceName,
 	}
@@ -1169,8 +1170,8 @@ func TestAccComputeInstance_subnet_xpn(t *testing.T) {
 
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	org := acctest.GetTestOrgFromEnv(t)
-	billingId := acctest.GetTestBillingAccountFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
+	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	projectName := fmt.Sprintf("tf-test-xpn-%d", time.Now().Unix())
 
 	VcrTest(t, resource.TestCase{
@@ -2365,7 +2366,7 @@ func testAccCheckComputeInstanceExists(t *testing.T, n string, instance interfac
 		panic("Attempted to check existence of Instance that was nil.")
 	}
 
-	return testAccCheckComputeInstanceExistsInProject(t, n, acctest.GetTestProjectFromEnv(), instance.(*compute.Instance))
+	return testAccCheckComputeInstanceExistsInProject(t, n, envvar.GetTestProjectFromEnv(), instance.(*compute.Instance))
 }
 
 func testAccCheckComputeInstanceExistsInProject(t *testing.T, n, p string, instance *compute.Instance) resource.TestCheckFunc {

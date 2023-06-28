@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -24,7 +24,7 @@ func testSweepFirebaseAppleApp(region string) error {
 	resourceName := "FirebaseAppleApp"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := acctest.SharedConfigForRegion(region)
+	config, err := sweeper.SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -37,7 +37,7 @@ func testSweepFirebaseAppleApp(region string) error {
 	}
 
 	t := &testing.T{}
-	billingId := acctest.GetTestBillingAccountFromEnv(t)
+	billingId := envvar.GetTestBillingAccountFromEnv(t)
 
 	// Setup variables to replace in list template
 	d := &tpgresource.ResourceDataMock{
@@ -88,7 +88,7 @@ func testSweepFirebaseAppleApp(region string) error {
 		}
 
 		// Skip resources that shouldn't be sweeped
-		if !acctest.IsSweepableTestResource(obj["displayName"].(string)) {
+		if !sweeper.IsSweepableTestResource(obj["displayName"].(string)) {
 			nonPrefixCount++
 			continue
 		}

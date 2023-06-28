@@ -8,12 +8,13 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccStorageBucketIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	serviceAcct := acctest.GetTestServiceAccountFromEnv(t)
+	serviceAcct := envvar.GetTestServiceAccountFromEnv(t)
 	bucket := fmt.Sprintf("tf-test-%d", RandInt(t))
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 

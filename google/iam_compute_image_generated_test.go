@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccComputeImageIamBindingGenerated(t *testing.T) {
@@ -49,7 +50,7 @@ func TestAccComputeImageIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_image_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -59,7 +60,7 @@ func TestAccComputeImageIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_image_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -90,7 +91,7 @@ func TestAccComputeImageIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_image_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -121,7 +122,7 @@ func TestAccComputeImageIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_image_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -130,7 +131,7 @@ func TestAccComputeImageIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_image_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -160,7 +161,7 @@ func TestAccComputeImageIamBindingGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_image_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -192,19 +193,19 @@ func TestAccComputeImageIamBindingGenerated_withAndWithoutCondition(t *testing.T
 			},
 			{
 				ResourceName:      "google_compute_image_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_compute_image_iam_binding.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_compute_image_iam_binding.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title_no_desc"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -234,7 +235,7 @@ func TestAccComputeImageIamMemberGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_image_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -266,19 +267,19 @@ func TestAccComputeImageIamMemberGenerated_withAndWithoutCondition(t *testing.T)
 			},
 			{
 				ResourceName:      "google_compute_image_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_compute_image_iam_member.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_compute_image_iam_member.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com %s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title_no_desc"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s roles/compute.imageUser user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"]), context["condition_title_no_desc"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -318,7 +319,7 @@ func TestAccComputeImageIamPolicyGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_compute_image_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s", acctest.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/global/images/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-example-image%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

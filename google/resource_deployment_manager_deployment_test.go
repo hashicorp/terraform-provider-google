@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -386,7 +387,7 @@ func testDeploymentManagerDeploymentVerifyServiceAccountExists(t *testing.T, acc
 
 func testCheckDeploymentServiceAccountExists(accountId string, config *transport_tpg.Config) (exists bool, err error) {
 	_, err = config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.Get(
-		fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", acctest.GetTestProjectFromEnv(), accountId, acctest.GetTestProjectFromEnv())).Do()
+		fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", envvar.GetTestProjectFromEnv(), accountId, envvar.GetTestProjectFromEnv())).Do()
 	if err != nil {
 		if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 			return false, nil
@@ -405,7 +406,7 @@ func testAccCheckDeploymentManagerDestroyInvalidDeployment(t *testing.T, deploym
 		}
 
 		config := GoogleProviderConfig(t)
-		url := fmt.Sprintf("%sprojects/%s/global/deployments/%s", config.DeploymentManagerBasePath, acctest.GetTestProjectFromEnv(), deploymentName)
+		url := fmt.Sprintf("%sprojects/%s/global/deployments/%s", config.DeploymentManagerBasePath, envvar.GetTestProjectFromEnv(), deploymentName)
 		_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "GET",

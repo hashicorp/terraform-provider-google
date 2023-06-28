@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccStorageBucketIamBindingGenerated(t *testing.T) {
@@ -104,7 +105,7 @@ func TestAccStorageBucketIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	// This may skip test, so do it first
-	sa := acctest.GetTestServiceAccountFromEnv(t)
+	sa := envvar.GetTestServiceAccountFromEnv(t)
 	context := map[string]interface{}{
 		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/storage.objectViewer",
@@ -300,7 +301,7 @@ func TestAccStorageBucketIamPolicyGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
 	// This may skip test, so do it first
-	sa := acctest.GetTestServiceAccountFromEnv(t)
+	sa := envvar.GetTestServiceAccountFromEnv(t)
 	context := map[string]interface{}{
 		"random_suffix":           RandString(t, 10),
 		"role":                    "roles/storage.objectViewer",

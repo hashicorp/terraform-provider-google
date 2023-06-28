@@ -8,12 +8,13 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccDataSourceGoogleOrganization_byFullName(t *testing.T) {
-	orgId := acctest.GetTestOrgFromEnv(t)
+	orgId := envvar.GetTestOrgFromEnv(t)
 	name := "organizations/" + orgId
 
 	VcrTest(t, resource.TestCase{
@@ -32,7 +33,7 @@ func TestAccDataSourceGoogleOrganization_byFullName(t *testing.T) {
 }
 
 func TestAccDataSourceGoogleOrganization_byShortName(t *testing.T) {
-	orgId := acctest.GetTestOrgFromEnv(t)
+	orgId := envvar.GetTestOrgFromEnv(t)
 	name := "organizations/" + orgId
 
 	VcrTest(t, resource.TestCase{

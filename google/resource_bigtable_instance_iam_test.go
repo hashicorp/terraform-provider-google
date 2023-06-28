@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccBigtableInstanceIamBinding(t *testing.T) {
@@ -21,7 +22,7 @@ func TestAccBigtableInstanceIamBinding(t *testing.T) {
 	role := "roles/bigtable.user"
 
 	importId := fmt.Sprintf("projects/%s/instances/%s %s",
-		acctest.GetTestProjectFromEnv(), instance, role)
+		envvar.GetTestProjectFromEnv(), instance, role)
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -66,7 +67,7 @@ func TestAccBigtableInstanceIamMember(t *testing.T) {
 	role := "roles/bigtable.user"
 
 	importId := fmt.Sprintf("projects/%s/instances/%s %s serviceAccount:%s",
-		acctest.GetTestProjectFromEnv(),
+		envvar.GetTestProjectFromEnv(),
 		instance,
 		role,
 		serviceAccountCanonicalEmail(account))
@@ -106,7 +107,7 @@ func TestAccBigtableInstanceIamPolicy(t *testing.T) {
 	role := "roles/bigtable.user"
 
 	importId := fmt.Sprintf("projects/%s/instances/%s",
-		acctest.GetTestProjectFromEnv(), instance)
+		envvar.GetTestProjectFromEnv(), instance)
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

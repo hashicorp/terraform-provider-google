@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -24,7 +24,7 @@ func testSweepCloudIdentityGroup(region string) error {
 	resourceName := "CloudIdentityGroup"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := acctest.SharedConfigForRegion(region)
+	config, err := sweeper.SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -37,7 +37,7 @@ func testSweepCloudIdentityGroup(region string) error {
 	}
 
 	t := &testing.T{}
-	custId := acctest.GetTestCustIdFromEnv(t)
+	custId := envvar.GetTestCustIdFromEnv(t)
 
 	// Setup variables to replace in list template
 	d := &tpgresource.ResourceDataMock{
@@ -89,7 +89,7 @@ func testSweepCloudIdentityGroup(region string) error {
 
 		name := obj["name"].(string)
 		// Skip resources that shouldn't be sweeped
-		if !acctest.IsSweepableTestResource(obj["displayName"].(string)) {
+		if !sweeper.IsSweepableTestResource(obj["displayName"].(string)) {
 			nonPrefixCount++
 			continue
 		}

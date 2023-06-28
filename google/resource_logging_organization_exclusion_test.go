@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 // Logging exclusions don't always work when making parallel requests, so run tests serially
@@ -34,7 +35,7 @@ func TestAccLoggingOrganizationExclusion(t *testing.T) {
 }
 
 func testAccLoggingOrganizationExclusion_basic(t *testing.T) {
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	exclusionName := "tf-test-exclusion-" + RandString(t, 10)
 	description := "Description " + RandString(t, 10)
 
@@ -56,7 +57,7 @@ func testAccLoggingOrganizationExclusion_basic(t *testing.T) {
 }
 
 func testAccLoggingOrganizationExclusion_update(t *testing.T) {
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	exclusionName := "tf-test-exclusion-" + RandString(t, 10)
 	descriptionBefore := "Basic Organization Logging Exclusion" + RandString(t, 10)
 	descriptionAfter := "Updated Basic Organization Logging Exclusion" + RandString(t, 10)
@@ -87,7 +88,7 @@ func testAccLoggingOrganizationExclusion_update(t *testing.T) {
 }
 
 func testAccLoggingOrganizationExclusion_multiple(t *testing.T) {
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -145,7 +146,7 @@ resource "google_logging_organization_exclusion" "basic" {
   description = "%s"
   filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
-`, exclusionName, orgId, description, acctest.GetTestProjectFromEnv())
+`, exclusionName, orgId, description, envvar.GetTestProjectFromEnv())
 }
 
 func testAccLoggingOrganizationExclusion_multipleCfg(exclusionName, orgId string) string {
@@ -158,7 +159,7 @@ resource "google_logging_organization_exclusion" "basic%d" {
 	description      = "Basic Organization Logging Exclusion"
 	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
-`, i, exclusionName, i, orgId, acctest.GetTestProjectFromEnv())
+`, i, exclusionName, i, orgId, envvar.GetTestProjectFromEnv())
 	}
 	return s
 }

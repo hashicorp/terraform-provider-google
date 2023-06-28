@@ -5,6 +5,7 @@ package google
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"regexp"
 	"testing"
 
@@ -24,7 +25,7 @@ func projectIamMemberImportStep(resourceName, pid, role, member string) resource
 func TestAccProjectIamMember_basic(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	resourceName := "google_project_iam_member.acceptance"
 	role := "roles/compute.instanceAdmin"
@@ -55,7 +56,7 @@ func TestAccProjectIamMember_multiple(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	acctest.SkipIfEnvNotSet(t, "GOOGLE_ORG")
 
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
@@ -98,7 +99,7 @@ func TestAccProjectIamMember_remove(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	acctest.SkipIfEnvNotSet(t, "GOOGLE_ORG")
 
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
@@ -140,7 +141,7 @@ func TestAccProjectIamMember_remove(t *testing.T) {
 func TestAccProjectIamMember_withCondition(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	resourceName := "google_project_iam_member.acceptance"
 	role := "roles/compute.instanceAdmin"
@@ -174,7 +175,7 @@ func TestAccProjectIamMember_withCondition(t *testing.T) {
 func TestAccProjectIamMember_invalidMembers(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/compute.instanceAdmin"
 

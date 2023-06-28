@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -25,7 +26,7 @@ var (
 func TestAccProject_createWithoutOrg(t *testing.T) {
 	t.Parallel()
 
-	creds := transport_tpg.MultiEnvSearch(acctest.CredsEnvVars)
+	creds := transport_tpg.MultiEnvSearch(envvar.CredsEnvVars)
 	if strings.Contains(creds, "iam.gserviceaccount.com") {
 		t.Skip("Service accounts cannot create projects without a parent. Requires user credentials.")
 	}
@@ -51,7 +52,7 @@ func TestAccProject_createWithoutOrg(t *testing.T) {
 func TestAccProject_create(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -72,12 +73,12 @@ func TestAccProject_create(t *testing.T) {
 // billing account
 func TestAccProject_billing(t *testing.T) {
 	t.Parallel()
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	// This is a second billing account that can be charged, which is used only in this test to
 	// verify that a project can update its billing account.
 	acctest.SkipIfEnvNotSet(t, "GOOGLE_BILLING_ACCOUNT_2")
 	billingId2 := os.Getenv("GOOGLE_BILLING_ACCOUNT_2")
-	billingId := acctest.GetTestBillingAccountFromEnv(t)
+	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -119,7 +120,7 @@ func TestAccProject_billing(t *testing.T) {
 func TestAccProject_labels(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -161,9 +162,9 @@ func TestAccProject_labels(t *testing.T) {
 func TestAccProject_deleteDefaultNetwork(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
-	billingId := acctest.GetTestBillingAccountFromEnv(t)
+	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
@@ -178,7 +179,7 @@ func TestAccProject_deleteDefaultNetwork(t *testing.T) {
 func TestAccProject_parentFolder(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
 	folderDisplayName := TestPrefix + RandString(t, 10)
 	VcrTest(t, resource.TestCase{
@@ -195,7 +196,7 @@ func TestAccProject_parentFolder(t *testing.T) {
 func TestAccProject_migrateParent(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
 	folderDisplayName := TestPrefix + RandString(t, 10)
 	VcrTest(t, resource.TestCase{

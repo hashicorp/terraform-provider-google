@@ -11,13 +11,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"google.golang.org/api/logging/v2"
 )
 
 func TestAccLoggingOrganizationSink_basic(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	sinkName := "tf-test-sink-" + RandString(t, 10)
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 
@@ -46,7 +47,7 @@ func TestAccLoggingOrganizationSink_basic(t *testing.T) {
 func TestAccLoggingOrganizationSink_update(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	sinkName := "tf-test-sink-" + RandString(t, 10)
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 	updatedBucketName := "tf-test-sink-bucket-" + RandString(t, 10)
@@ -91,7 +92,7 @@ func TestAccLoggingOrganizationSink_update(t *testing.T) {
 func TestAccLoggingOrganizationSink_described(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	sinkName := "tf-test-sink-" + RandString(t, 10)
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 
@@ -114,7 +115,7 @@ func TestAccLoggingOrganizationSink_described(t *testing.T) {
 func TestAccLoggingOrganizationSink_disabled(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	sinkName := "tf-test-sink-" + RandString(t, 10)
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 
@@ -137,7 +138,7 @@ func TestAccLoggingOrganizationSink_disabled(t *testing.T) {
 func TestAccLoggingOrganizationSink_updateBigquerySink(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	sinkName := "tf-test-sink-" + RandString(t, 10)
 	bqDatasetID := "tf_test_sink_" + RandString(t, 10)
 
@@ -169,7 +170,7 @@ func TestAccLoggingOrganizationSink_updateBigquerySink(t *testing.T) {
 func TestAccLoggingOrganizationSink_heredoc(t *testing.T) {
 	t.Parallel()
 
-	org := acctest.GetTestOrgFromEnv(t)
+	org := envvar.GetTestOrgFromEnv(t)
 	sinkName := "tf-test-sink-" + RandString(t, 10)
 	bucketName := "tf-test-sink-bucket-" + RandString(t, 10)
 
@@ -282,7 +283,7 @@ resource "google_storage_bucket" "log-bucket" {
   name     = "%s"
   location = "US"
 }
-`, sinkName, orgId, acctest.GetTestProjectFromEnv(), bucketName)
+`, sinkName, orgId, envvar.GetTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingOrganizationSink_update(sinkName, bucketName, orgId string) string {
@@ -299,7 +300,7 @@ resource "google_storage_bucket" "log-bucket" {
   name     = "%s"
   location = "US"
 }
-`, sinkName, orgId, acctest.GetTestProjectFromEnv(), bucketName)
+`, sinkName, orgId, envvar.GetTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingOrganizationSink_described(sinkName, bucketName, orgId string) string {
@@ -316,7 +317,7 @@ resource "google_storage_bucket" "log-bucket" {
   name     = "%s"
   location = "US"
 }
-`, sinkName, orgId, acctest.GetTestProjectFromEnv(), bucketName)
+`, sinkName, orgId, envvar.GetTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingOrganizationSink_disabled(sinkName, bucketName, orgId string) string {
@@ -333,7 +334,7 @@ resource "google_storage_bucket" "log-bucket" {
   name     = "%s"
   location = "US"
 }
-`, sinkName, orgId, acctest.GetTestProjectFromEnv(), bucketName)
+`, sinkName, orgId, envvar.GetTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingOrganizationSink_heredoc(sinkName, bucketName, orgId string) string {
@@ -358,7 +359,7 @@ resource "google_storage_bucket" "log-bucket" {
   name     = "%s"
   location = "US"
 }
-`, sinkName, orgId, acctest.GetTestProjectFromEnv(), bucketName)
+`, sinkName, orgId, envvar.GetTestProjectFromEnv(), bucketName)
 }
 
 func testAccLoggingOrganizationSink_bigquery_before(sinkName, bqDatasetID, orgId string) string {
@@ -378,7 +379,7 @@ resource "google_logging_organization_sink" "bigquery" {
 resource "google_bigquery_dataset" "logging_sink" {
   dataset_id  = "%s"
   description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
-}`, sinkName, orgId, acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), bqDatasetID)
+}`, sinkName, orgId, envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), bqDatasetID)
 }
 
 func testAccLoggingOrganizationSink_bigquery_after(sinkName, bqDatasetID, orgId string) string {
@@ -394,5 +395,5 @@ resource "google_logging_organization_sink" "bigquery" {
 resource "google_bigquery_dataset" "logging_sink" {
   dataset_id  = "%s"
   description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
-}`, sinkName, orgId, acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), bqDatasetID)
+}`, sinkName, orgId, envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), bqDatasetID)
 }

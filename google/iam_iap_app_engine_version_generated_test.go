@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccIapAppEngineVersionIamBindingGenerated(t *testing.T) {
@@ -49,7 +50,7 @@ func TestAccIapAppEngineVersionIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor", acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), "default", context["random_suffix"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor", envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -59,7 +60,7 @@ func TestAccIapAppEngineVersionIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor", acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), "default", context["random_suffix"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor", envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -90,7 +91,7 @@ func TestAccIapAppEngineVersionIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), "default", context["random_suffix"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -121,7 +122,7 @@ func TestAccIapAppEngineVersionIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), "default", context["random_suffix"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -130,7 +131,7 @@ func TestAccIapAppEngineVersionIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), "default", context["random_suffix"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -160,7 +161,7 @@ func TestAccIapAppEngineVersionIamBindingGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor %s", acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor %s", envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -192,19 +193,19 @@ func TestAccIapAppEngineVersionIamBindingGenerated_withAndWithoutCondition(t *te
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor", acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), "default", context["random_suffix"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor", envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_binding.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor %s", acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor %s", envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_binding.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor %s", acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title_no_desc"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor %s", envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title_no_desc"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -234,7 +235,7 @@ func TestAccIapAppEngineVersionIamMemberGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -266,19 +267,19 @@ func TestAccIapAppEngineVersionIamMemberGenerated_withAndWithoutCondition(t *tes
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), "default", context["random_suffix"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_member.foo2",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_member.foo3",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title_no_desc"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s roles/iap.httpsResourceAccessor user:admin@hashicorptest.com %s", envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), "default", context["random_suffix"], context["condition_title_no_desc"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -318,7 +319,7 @@ func TestAccIapAppEngineVersionIamPolicyGenerated_withCondition(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_iap_app_engine_version_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", acctest.GetTestProjectFromEnv(), acctest.GetTestProjectFromEnv(), "default", context["random_suffix"]),
+				ImportStateId:     fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), "default", context["random_suffix"]),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

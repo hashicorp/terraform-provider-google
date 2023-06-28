@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccGKEHub2FeatureIamBindingGenerated(t *testing.T) {
@@ -20,8 +21,8 @@ func TestAccGKEHub2FeatureIamBindingGenerated(t *testing.T) {
 		"random_suffix":   RandString(t, 10),
 		"role":            "roles/viewer",
 		"project_id":      fmt.Sprintf("tf-test-gkehub-%s", RandString(t, 10)),
-		"org_id":          acctest.GetTestOrgFromEnv(t),
-		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
@@ -60,8 +61,8 @@ func TestAccGKEHub2FeatureIamMemberGenerated(t *testing.T) {
 		"random_suffix":   RandString(t, 10),
 		"role":            "roles/viewer",
 		"project_id":      fmt.Sprintf("tf-test-gkehub-%s", RandString(t, 10)),
-		"org_id":          acctest.GetTestOrgFromEnv(t),
-		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
@@ -91,8 +92,8 @@ func TestAccGKEHub2FeatureIamPolicyGenerated(t *testing.T) {
 		"random_suffix":   RandString(t, 10),
 		"role":            "roles/viewer",
 		"project_id":      fmt.Sprintf("tf-test-gkehub-%s", RandString(t, 10)),
-		"org_id":          acctest.GetTestOrgFromEnv(t),
-		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{

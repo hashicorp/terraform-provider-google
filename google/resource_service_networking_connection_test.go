@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccServiceNetworkingConnection_create(t *testing.T) {
@@ -73,10 +74,10 @@ func testServiceNetworkingConnectionDestroy(t *testing.T, parent, network string
 	return func(s *terraform.State) error {
 		config := GoogleProviderConfig(t)
 		parentService := "services/" + parent
-		networkName := fmt.Sprintf("projects/%s/global/networks/%s", acctest.GetTestProjectFromEnv(), network)
+		networkName := fmt.Sprintf("projects/%s/global/networks/%s", envvar.GetTestProjectFromEnv(), network)
 		listCall := config.NewServiceNetworkingClient(config.UserAgent).Services.Connections.List(parentService).Network(networkName)
 		if config.UserProjectOverride {
-			listCall.Header().Add("X-Goog-User-Project", acctest.GetTestProjectFromEnv())
+			listCall.Header().Add("X-Goog-User-Project", envvar.GetTestProjectFromEnv())
 		}
 		response, err := listCall.Do()
 		if err != nil {

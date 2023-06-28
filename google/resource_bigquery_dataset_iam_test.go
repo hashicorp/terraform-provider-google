@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccBigqueryDatasetIamBinding(t *testing.T) {
@@ -18,7 +19,7 @@ func TestAccBigqueryDatasetIamBinding(t *testing.T) {
 	role := "roles/bigquery.dataViewer"
 
 	importId := fmt.Sprintf("projects/%s/datasets/%s %s",
-		acctest.GetTestProjectFromEnv(), dataset, role)
+		envvar.GetTestProjectFromEnv(), dataset, role)
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -60,7 +61,7 @@ func TestAccBigqueryDatasetIamMember(t *testing.T) {
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/datasets/%s %s serviceAccount:%s",
-		acctest.GetTestProjectFromEnv(),
+		envvar.GetTestProjectFromEnv(),
 		dataset,
 		role,
 		serviceAccountCanonicalEmail(account))
@@ -97,7 +98,7 @@ func TestAccBigqueryDatasetIamPolicy(t *testing.T) {
 	role := "roles/bigquery.dataOwner"
 
 	importId := fmt.Sprintf("projects/%s/datasets/%s",
-		acctest.GetTestProjectFromEnv(), dataset)
+		envvar.GetTestProjectFromEnv(), dataset)
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

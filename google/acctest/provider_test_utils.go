@@ -5,126 +5,97 @@ package acctest
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-const TestEnvVar = "TF_ACC"
+// Deprecated: For backward compatibility TestEnvVar is still working,
+// but all new code should use TestEnvVar in the envvar package instead.
+const TestEnvVar = envvar.TestEnvVar
 
-// ProviderConfigEnvNames returns a list of all the environment variables that could be set by a user to configure the provider
-func ProviderConfigEnvNames() []string {
+// Deprecated: For backward compatibility CredsEnvVars is still working,
+// but all new code should use CredsEnvVars in the envvar package instead.
+var CredsEnvVars = envvar.CredsEnvVars
 
-	envs := []string{}
+// Deprecated: For backward compatibility ProjectNumberEnvVars is still working,
+// but all new code should use ProjectNumberEnvVars in the envvar package instead.
+var ProjectNumberEnvVars = envvar.ProjectNumberEnvVars
 
-	// Use existing collections of ENV names
-	envVarsSets := [][]string{
-		CredsEnvVars,   // credentials field
-		ProjectEnvVars, // project field
-		RegionEnvVars,  //region field
-		ZoneEnvVars,    // zone field
-	}
-	for _, set := range envVarsSets {
-		envs = append(envs, set...)
-	}
+// Deprecated: For backward compatibility ProjectEnvVars is still working,
+// but all new code should use ProjectEnvVars in the envvar package instead.
+var ProjectEnvVars = envvar.ProjectEnvVars
 
-	// Add remaining ENVs
-	envs = append(envs, "GOOGLE_OAUTH_ACCESS_TOKEN")          // access_token field
-	envs = append(envs, "GOOGLE_BILLING_PROJECT")             // billing_project field
-	envs = append(envs, "GOOGLE_IMPERSONATE_SERVICE_ACCOUNT") // impersonate_service_account field
-	envs = append(envs, "USER_PROJECT_OVERRIDE")              // user_project_override field
-	envs = append(envs, "CLOUDSDK_CORE_REQUEST_REASON")       // request_reason field
+// Deprecated: For backward compatibility FirestoreProjectEnvVars is still working,
+// but all new code should use FirestoreProjectEnvVars in the envvar package instead.
+var FirestoreProjectEnvVars = envvar.FirestoreProjectEnvVars
 
-	return envs
-}
+// Deprecated: For backward compatibility RegionEnvVars is still working,
+// but all new code should use RegionEnvVars in the envvar package instead.
+var RegionEnvVars = envvar.RegionEnvVars
 
-var CredsEnvVars = []string{
-	"GOOGLE_CREDENTIALS",
-	"GOOGLE_CLOUD_KEYFILE_JSON",
-	"GCLOUD_KEYFILE_JSON",
-	"GOOGLE_APPLICATION_CREDENTIALS",
-	"GOOGLE_USE_DEFAULT_CREDENTIALS",
-}
+// Deprecated: For backward compatibility ZoneEnvVars is still working,
+// but all new code should use ZoneEnvVars in the envvar package instead.
+var ZoneEnvVars = envvar.ZoneEnvVars
 
-var ProjectNumberEnvVars = []string{
-	"GOOGLE_PROJECT_NUMBER",
-}
-
-var ProjectEnvVars = []string{
-	"GOOGLE_PROJECT",
-	"GCLOUD_PROJECT",
-	"CLOUDSDK_CORE_PROJECT",
-}
-
-var FirestoreProjectEnvVars = []string{
-	"GOOGLE_FIRESTORE_PROJECT",
-}
-
-var RegionEnvVars = []string{
-	"GOOGLE_REGION",
-	"GCLOUD_REGION",
-	"CLOUDSDK_COMPUTE_REGION",
-}
-
-var ZoneEnvVars = []string{
-	"GOOGLE_ZONE",
-	"GCLOUD_ZONE",
-	"CLOUDSDK_COMPUTE_ZONE",
-}
-
-var OrgEnvVars = []string{
-	"GOOGLE_ORG",
-}
+// Deprecated: For backward compatibility OrgEnvVars is still working,
+// but all new code should use OrgEnvVars in the envvar package instead.
+var OrgEnvVars = envvar.OrgEnvVars
 
 // This value is the Customer ID of the GOOGLE_ORG_DOMAIN workspace.
 // See https://admin.google.com/ac/accountsettings when logged into an org admin for the value.
-var CustIdEnvVars = []string{
-	"GOOGLE_CUST_ID",
-}
+//
+// Deprecated: For backward compatibility CustIdEnvVars is still working,
+// but all new code should use CustIdEnvVars in the envvar package instead.
+var CustIdEnvVars = envvar.CustIdEnvVars
 
 // This value is the username of an identity account within the GOOGLE_ORG_DOMAIN workspace.
 // For example in the org example.com with a user "foo@example.com", this would be set to "foo".
 // See https://admin.google.com/ac/users when logged into an org admin for a list.
-var IdentityUserEnvVars = []string{
-	"GOOGLE_IDENTITY_USER",
-}
+//
+// Deprecated: For backward compatibility IdentityUserEnvVars is still working,
+// but all new code should use IdentityUserEnvVars in the envvar package instead.
+var IdentityUserEnvVars = envvar.IdentityUserEnvVars
 
-var OrgEnvDomainVars = []string{
-	"GOOGLE_ORG_DOMAIN",
-}
+// Deprecated: For backward compatibility OrgEnvDomainVars is still working,
+// but all new code should use OrgEnvDomainVars in the envvar package instead.
+var OrgEnvDomainVars = envvar.OrgEnvDomainVars
 
-var ServiceAccountEnvVars = []string{
-	"GOOGLE_SERVICE_ACCOUNT",
-}
+// Deprecated: For backward compatibility ServiceAccountEnvVars is still working,
+// but all new code should use ServiceAccountEnvVars in the envvar package instead.
+var ServiceAccountEnvVars = envvar.ServiceAccountEnvVars
 
-var OrgTargetEnvVars = []string{
-	"GOOGLE_ORG_2",
-}
+// Deprecated: For backward compatibility OrgTargetEnvVars is still working,
+// but all new code should use OrgTargetEnvVars in the envvar package instead.
+var OrgTargetEnvVars = envvar.OrgTargetEnvVars
 
 // This is the billing account that will be charged for the infrastructure used during testing. For
 // that reason, it is also the billing account used for creating new projects.
-var BillingAccountEnvVars = []string{
-	"GOOGLE_BILLING_ACCOUNT",
-}
+//
+// Deprecated: For backward compatibility BillingAccountEnvVars is still working,
+// but all new code should use BillingAccountEnvVars in the envvar package instead.
+var BillingAccountEnvVars = envvar.BillingAccountEnvVars
 
 // This is the billing account that will be modified to test billing-related functionality. It is
 // expected to have more permissions granted to the test user and support subaccounts.
-var MasterBillingAccountEnvVars = []string{
-	"GOOGLE_MASTER_BILLING_ACCOUNT",
-}
+//
+// Deprecated: For backward compatibility MasterBillingAccountEnvVars is still working,
+// but all new code should use MasterBillingAccountEnvVars in the envvar package instead.
+var MasterBillingAccountEnvVars = envvar.MasterBillingAccountEnvVars
 
 // This value is the description used for test PublicAdvertisedPrefix setup to avoid required DNS
 // setup. This is only used during integration tests and would be invalid to surface to users
-var PapDescriptionEnvVars = []string{
-	"GOOGLE_PUBLIC_AVERTISED_PREFIX_DESCRIPTION",
-}
+//
+// Deprecated: For backward compatibility PapDescriptionEnvVars is still working,
+// but all new code should use PapDescriptionEnvVars in the envvar package instead.
+var PapDescriptionEnvVars = envvar.PapDescriptionEnvVars
 
 func AccTestPreCheck(t *testing.T) {
 	if v := os.Getenv("GOOGLE_CREDENTIALS_FILE"); v != "" {
@@ -175,95 +146,122 @@ func GetTestProject(is *terraform.InstanceState, config *transport_tpg.Config) (
 }
 
 // AccTestPreCheck ensures at least one of the project env variables is set.
+//
+// Deprecated: For backward compatibility GetTestProjectNumberFromEnv is still working,
+// but all new code should use GetTestProjectNumberFromEnv in the envvar package instead.
 func GetTestProjectNumberFromEnv() string {
-	return transport_tpg.MultiEnvSearch(ProjectNumberEnvVars)
+	return envvar.GetTestProjectNumberFromEnv()
 }
 
 // AccTestPreCheck ensures at least one of the project env variables is set.
+//
+// Deprecated: For backward compatibility GetTestProjectFromEnv is still working,
+// but all new code should use GetTestProjectFromEnv in the envvar package instead.
 func GetTestProjectFromEnv() string {
-	return transport_tpg.MultiEnvSearch(ProjectEnvVars)
+	return envvar.GetTestProjectFromEnv()
 }
 
 // AccTestPreCheck ensures at least one of the credentials env variables is set.
+//
+// Deprecated: For backward compatibility GetTestCredsFromEnv is still working,
+// but all new code should use GetTestCredsFromEnv in the envvar package instead.
 func GetTestCredsFromEnv() string {
-	// Return empty string if GOOGLE_USE_DEFAULT_CREDENTIALS is set to true.
-	if transport_tpg.MultiEnvSearch(CredsEnvVars) == "true" {
-		return ""
-	}
-	return transport_tpg.MultiEnvSearch(CredsEnvVars)
+	return envvar.GetTestCredsFromEnv()
 }
 
 // AccTestPreCheck ensures at least one of the region env variables is set.
+//
+// Deprecated: For backward compatibility GetTestRegionFromEnv is still working,
+// but all new code should use GetTestRegionFromEnv in the envvar package instead.
 func GetTestRegionFromEnv() string {
-	return transport_tpg.MultiEnvSearch(RegionEnvVars)
+	return envvar.GetTestRegionFromEnv()
 }
 
+// Deprecated: For backward compatibility GetTestZoneFromEnv is still working,
+// but all new code should use GetTestZoneFromEnv in the envvar package instead.
 func GetTestZoneFromEnv() string {
-	return transport_tpg.MultiEnvSearch(ZoneEnvVars)
+	return envvar.GetTestZoneFromEnv()
 }
 
+// Deprecated: For backward compatibility GetTestCustIdFromEnv is still working,
+// but all new code should use GetTestCustIdFromEnv in the envvar package instead.
 func GetTestCustIdFromEnv(t *testing.T) string {
-	SkipIfEnvNotSet(t, CustIdEnvVars...)
-	return transport_tpg.MultiEnvSearch(CustIdEnvVars)
+	return envvar.GetTestCustIdFromEnv(t)
 }
 
+// Deprecated: For backward compatibility GetTestIdentityUserFromEnv is still working,
+// but all new code should use GetTestIdentityUserFromEnv in the envvar package instead.
 func GetTestIdentityUserFromEnv(t *testing.T) string {
-	SkipIfEnvNotSet(t, IdentityUserEnvVars...)
-	return transport_tpg.MultiEnvSearch(IdentityUserEnvVars)
+	return envvar.GetTestIdentityUserFromEnv(t)
 }
 
 // Firestore can't be enabled at the same time as Datastore, so we need a new
 // project to manage it until we can enable Firestore programmatically.
+//
+// Deprecated: For backward compatibility GetTestFirestoreProjectFromEnv is still working,
+// but all new code should use GetTestFirestoreProjectFromEnv in the envvar package instead.
 func GetTestFirestoreProjectFromEnv(t *testing.T) string {
-	SkipIfEnvNotSet(t, FirestoreProjectEnvVars...)
-	return transport_tpg.MultiEnvSearch(FirestoreProjectEnvVars)
+	return envvar.GetTestFirestoreProjectFromEnv(t)
 }
 
 // Returns the raw organization id like 1234567890, skipping the test if one is
 // not found.
+//
+// Deprecated: For backward compatibility GetTestOrgFromEnv is still working,
+// but all new code should use GetTestOrgFromEnv in the envvar package instead.
 func GetTestOrgFromEnv(t *testing.T) string {
-	SkipIfEnvNotSet(t, OrgEnvVars...)
-	return transport_tpg.MultiEnvSearch(OrgEnvVars)
+	return envvar.GetTestOrgFromEnv(t)
 }
 
 // Alternative to GetTestOrgFromEnv that doesn't need *testing.T
 // If using this, you need to process unset values at the call site
+//
+// Deprecated: For backward compatibility UnsafeGetTestOrgFromEnv is still working,
+// but all new code should use UnsafeGetTestOrgFromEnv in the envvar package instead.
 func UnsafeGetTestOrgFromEnv() string {
-	return transport_tpg.MultiEnvSearch(OrgEnvVars)
+	return envvar.UnsafeGetTestOrgFromEnv()
 }
 
+// Deprecated: For backward compatibility GetTestOrgDomainFromEnv is still working,
+// but all new code should use GetTestOrgDomainFromEnv in the envvar package instead.
 func GetTestOrgDomainFromEnv(t *testing.T) string {
-	SkipIfEnvNotSet(t, OrgEnvDomainVars...)
-	return transport_tpg.MultiEnvSearch(OrgEnvDomainVars)
+	return envvar.GetTestOrgDomainFromEnv(t)
 }
 
+// Deprecated: For backward compatibility GetTestOrgTargetFromEnv is still working,
+// but all new code should use GetTestOrgTargetFromEnv in the envvar package instead.
 func GetTestOrgTargetFromEnv(t *testing.T) string {
-	SkipIfEnvNotSet(t, OrgTargetEnvVars...)
-	return transport_tpg.MultiEnvSearch(OrgTargetEnvVars)
+	return envvar.GetTestOrgTargetFromEnv(t)
 }
 
 // This is the billing account that will be charged for the infrastructure used during testing. For
 // that reason, it is also the billing account used for creating new projects.
+//
+// Deprecated: For backward compatibility GetTestBillingAccountFromEnv is still working,
+// but all new code should use GetTestBillingAccountFromEnv in the envvar package instead.
 func GetTestBillingAccountFromEnv(t *testing.T) string {
-	SkipIfEnvNotSet(t, BillingAccountEnvVars...)
-	return transport_tpg.MultiEnvSearch(BillingAccountEnvVars)
+	return envvar.GetTestBillingAccountFromEnv(t)
 }
 
 // This is the billing account that will be modified to test billing-related functionality. It is
 // expected to have more permissions granted to the test user and support subaccounts.
+//
+// Deprecated: For backward compatibility GetTestMasterBillingAccountFromEnv is still working,
+// but all new code should use GetTestMasterBillingAccountFromEnv in the envvar package instead.
 func GetTestMasterBillingAccountFromEnv(t *testing.T) string {
-	SkipIfEnvNotSet(t, MasterBillingAccountEnvVars...)
-	return transport_tpg.MultiEnvSearch(MasterBillingAccountEnvVars)
+	return envvar.GetTestMasterBillingAccountFromEnv(t)
 }
 
+// Deprecated: For backward compatibility GetTestServiceAccountFromEnv is still working,
+// but all new code should use GetTestServiceAccountFromEnv in the envvar package instead.
 func GetTestServiceAccountFromEnv(t *testing.T) string {
-	SkipIfEnvNotSet(t, ServiceAccountEnvVars...)
-	return transport_tpg.MultiEnvSearch(ServiceAccountEnvVars)
+	return envvar.GetTestServiceAccountFromEnv(t)
 }
 
+// Deprecated: For backward compatibility GetTestPublicAdvertisedPrefixDescriptionFromEnv is still working,
+// but all new code should use GetTestPublicAdvertisedPrefixDescriptionFromEnv in the envvar package instead.
 func GetTestPublicAdvertisedPrefixDescriptionFromEnv(t *testing.T) string {
-	SkipIfEnvNotSet(t, PapDescriptionEnvVars...)
-	return transport_tpg.MultiEnvSearch(PapDescriptionEnvVars)
+	return envvar.GetTestPublicAdvertisedPrefixDescriptionFromEnv(t)
 }
 
 // Some tests fail during VCR. One common case is race conditions when creating resources.
@@ -282,16 +280,8 @@ func SleepInSecondsForTest(t int) resource.TestCheckFunc {
 	}
 }
 
+// Deprecated: For backward compatibility SkipIfEnvNotSet is still working,
+// but all new code should use SkipIfEnvNotSet in the envvar package instead.
 func SkipIfEnvNotSet(t *testing.T, envs ...string) {
-	if t == nil {
-		log.Printf("[DEBUG] Not running inside of test - skip skipping")
-		return
-	}
-
-	for _, k := range envs {
-		if os.Getenv(k) == "" {
-			log.Printf("[DEBUG] Warning - environment variable %s is not set - skipping test %s", k, t.Name())
-			t.Skipf("Environment variable %s is not set", k)
-		}
-	}
+	envvar.SkipIfEnvNotSet(t, envs...)
 }

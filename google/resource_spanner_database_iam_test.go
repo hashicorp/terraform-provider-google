@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/spanner"
 )
 
@@ -16,7 +17,7 @@ func TestAccSpannerDatabaseIamBinding(t *testing.T) {
 
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/spanner.databaseAdmin"
-	project := acctest.GetTestProjectFromEnv()
+	project := envvar.GetTestProjectFromEnv()
 	database := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	instance := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
@@ -58,7 +59,7 @@ func TestAccSpannerDatabaseIamBinding(t *testing.T) {
 func TestAccSpannerDatabaseIamMember(t *testing.T) {
 	t.Parallel()
 
-	project := acctest.GetTestProjectFromEnv()
+	project := envvar.GetTestProjectFromEnv()
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/spanner.databaseAdmin"
 	database := fmt.Sprintf("tf-test-%s", RandString(t, 10))
@@ -90,7 +91,7 @@ func TestAccSpannerDatabaseIamMember(t *testing.T) {
 func TestAccSpannerDatabaseIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	project := acctest.GetTestProjectFromEnv()
+	project := envvar.GetTestProjectFromEnv()
 	account := fmt.Sprintf("tf-test-%d", RandInt(t))
 	role := "roles/spanner.databaseAdmin"
 	database := fmt.Sprintf("tf-test-%s", RandString(t, 10))

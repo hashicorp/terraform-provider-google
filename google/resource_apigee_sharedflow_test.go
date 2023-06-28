@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -19,11 +20,11 @@ func TestAccApigeeSharedFlow_apigeeSharedflowTestExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	fmt.Printf("from t: org_id %s", acctest.GetTestOrgFromEnv(t))
+	fmt.Printf("from t: org_id %s", envvar.GetTestOrgFromEnv(t))
 
 	context := map[string]interface{}{
-		"org_id":          acctest.GetTestOrgFromEnv(t),
-		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 		"random_suffix":   RandString(t, 10),
 	}
 

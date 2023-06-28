@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccApigeeEnvironmentIamBindingGenerated(t *testing.T) {
@@ -32,8 +33,8 @@ func TestAccApigeeEnvironmentIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":   RandString(t, 10),
 		"role":            "roles/viewer",
-		"org_id":          acctest.GetTestOrgFromEnv(t),
-		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
@@ -69,8 +70,8 @@ func TestAccApigeeEnvironmentIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":   RandString(t, 10),
 		"role":            "roles/viewer",
-		"org_id":          acctest.GetTestOrgFromEnv(t),
-		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{
@@ -97,8 +98,8 @@ func TestAccApigeeEnvironmentIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":   RandString(t, 10),
 		"role":            "roles/viewer",
-		"org_id":          acctest.GetTestOrgFromEnv(t),
-		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{

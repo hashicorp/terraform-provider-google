@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccComputeRouter_basic(t *testing.T) {
@@ -83,7 +84,7 @@ func TestAccComputeRouter_update(t *testing.T) {
 
 	testId := RandString(t, 10)
 	routerName := fmt.Sprintf("tf-test-router-%s", testId)
-	region := acctest.GetTestRegionFromEnv()
+	region := envvar.GetTestRegionFromEnv()
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
@@ -122,7 +123,7 @@ func TestAccComputeRouter_updateAddRemoveBGP(t *testing.T) {
 
 	testId := RandString(t, 10)
 	routerName := fmt.Sprintf("tf-test-router-%s", testId)
-	region := acctest.GetTestRegionFromEnv()
+	region := envvar.GetTestRegionFromEnv()
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),

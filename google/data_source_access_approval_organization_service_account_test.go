@@ -7,13 +7,14 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccDataSourceAccessApprovalOrganizationServiceAccount_basic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id": acctest.GetTestOrgFromEnv(t),
+		"org_id": envvar.GetTestOrgFromEnv(t),
 	}
 
 	resourceName := "data.google_access_approval_organization_service_account.aa_account"

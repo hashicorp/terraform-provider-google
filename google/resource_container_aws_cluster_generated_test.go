@@ -29,6 +29,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -44,9 +45,9 @@ func TestAccContainerAwsCluster_BasicHandWritten(t *testing.T) {
 		"aws_vol_key":    "00000000-0000-0000-0000-17aad2f0f61f",
 		"aws_vpc":        "vpc-0b3f63cb91b247628",
 		"byo_prefix":     "mmv2",
-		"project_name":   acctest.GetTestProjectFromEnv(),
-		"project_number": acctest.GetTestProjectNumberFromEnv(),
-		"service_acct":   acctest.GetTestServiceAccountFromEnv(t),
+		"project_name":   envvar.GetTestProjectFromEnv(),
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"service_acct":   envvar.GetTestServiceAccountFromEnv(t),
 		"random_suffix":  RandString(t, 10),
 	}
 

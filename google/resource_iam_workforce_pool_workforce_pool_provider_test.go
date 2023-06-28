@@ -4,12 +4,15 @@ package google
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-	"testing"
 )
 
 func TestAccIAMWorkforcePoolWorkforcePoolProvider_oidc(t *testing.T) {
@@ -17,7 +20,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_oidc(t *testing.T) {
 
 	random_suffix := RandString(t, 10)
 	context := map[string]interface{}{
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": random_suffix,
 	}
 
@@ -65,7 +68,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_saml(t *testing.T) {
 
 	random_suffix := RandString(t, 10)
 	context := map[string]interface{}{
-		"org_id":        acctest.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": random_suffix,
 	}
 

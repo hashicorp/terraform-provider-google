@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -18,9 +19,9 @@ import (
 // See AccessApprovalOrganizationSettings for the test runner.
 func testAccAccessApprovalFolderSettings(t *testing.T) {
 	context := map[string]interface{}{
-		"project":       acctest.GetTestProjectFromEnv(),
-		"org_id":        acctest.GetTestOrgFromEnv(t),
-		"location":      acctest.GetTestRegionFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"location":      envvar.GetTestRegionFromEnv(),
 		"random_suffix": RandString(t, 10),
 	}
 

@@ -29,6 +29,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -41,8 +42,8 @@ func TestAccContainerAzureNodePool_BasicHandWritten(t *testing.T) {
 		"azure_sub":           "00000000-0000-0000-0000-17aad2f0f61f",
 		"azure_tenant":        "00000000-0000-0000-0000-17aad2f0f61f",
 		"byo_prefix":          "mmv2",
-		"project_name":        acctest.GetTestProjectFromEnv(),
-		"project_number":      acctest.GetTestProjectNumberFromEnv(),
+		"project_name":        envvar.GetTestProjectFromEnv(),
+		"project_number":      envvar.GetTestProjectNumberFromEnv(),
 		"random_suffix":       RandString(t, 10),
 	}
 

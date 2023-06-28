@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccNotebooksInstanceIamBindingGenerated(t *testing.T) {
@@ -43,7 +44,7 @@ func TestAccNotebooksInstanceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_notebooks_instance_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s roles/viewer", acctest.GetTestProjectFromEnv(), "us-west1-a", fmt.Sprintf("tf-test-notebooks-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s roles/viewer", envvar.GetTestProjectFromEnv(), "us-west1-a", fmt.Sprintf("tf-test-notebooks-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -53,7 +54,7 @@ func TestAccNotebooksInstanceIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_notebooks_instance_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s roles/viewer", acctest.GetTestProjectFromEnv(), "us-west1-a", fmt.Sprintf("tf-test-notebooks-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s roles/viewer", envvar.GetTestProjectFromEnv(), "us-west1-a", fmt.Sprintf("tf-test-notebooks-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -79,7 +80,7 @@ func TestAccNotebooksInstanceIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_notebooks_instance_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s roles/viewer user:admin@hashicorptest.com", acctest.GetTestProjectFromEnv(), "us-west1-a", fmt.Sprintf("tf-test-notebooks-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), "us-west1-a", fmt.Sprintf("tf-test-notebooks-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -105,7 +106,7 @@ func TestAccNotebooksInstanceIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_notebooks_instance_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s", acctest.GetTestProjectFromEnv(), "us-west1-a", fmt.Sprintf("tf-test-notebooks-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s", envvar.GetTestProjectFromEnv(), "us-west1-a", fmt.Sprintf("tf-test-notebooks-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -114,7 +115,7 @@ func TestAccNotebooksInstanceIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_notebooks_instance_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s", acctest.GetTestProjectFromEnv(), "us-west1-a", fmt.Sprintf("tf-test-notebooks-instance%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/%s/instances/%s", envvar.GetTestProjectFromEnv(), "us-west1-a", fmt.Sprintf("tf-test-notebooks-instance%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

@@ -26,7 +26,7 @@ func TestAccComputeDiskResourcePolicyAttachment_update(t *testing.T) {
 			},
 			{
 				ResourceName: "google_compute_disk_resource_policy_attachment.foobar",
-				// ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/resourcePolicies/%s", acctest.GetTestProjectFromEnv(), "us-central1", policyName),
+				// ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/resourcePolicies/%s", envvar.GetTestProjectFromEnv(), "us-central1", policyName),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -35,7 +35,7 @@ func TestAccComputeDiskResourcePolicyAttachment_update(t *testing.T) {
 			},
 			{
 				ResourceName: "google_compute_disk_resource_policy_attachment.foobar",
-				// ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/resourcePolicies/%s", acctest.GetTestProjectFromEnv(), "us-central1", policyName),
+				// ImportStateId:     fmt.Sprintf("projects/%s/regions/%s/resourcePolicies/%s", envvar.GetTestProjectFromEnv(), "us-central1", policyName),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

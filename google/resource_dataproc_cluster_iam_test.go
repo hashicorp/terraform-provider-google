@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccDataprocClusterIamBinding(t *testing.T) {
@@ -18,7 +19,7 @@ func TestAccDataprocClusterIamBinding(t *testing.T) {
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s %s",
-		acctest.GetTestProjectFromEnv(), "us-central1", cluster, role)
+		envvar.GetTestProjectFromEnv(), "us-central1", cluster, role)
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -60,7 +61,7 @@ func TestAccDataprocClusterIamMember(t *testing.T) {
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s %s serviceAccount:%s",
-		acctest.GetTestProjectFromEnv(),
+		envvar.GetTestProjectFromEnv(),
 		"us-central1",
 		cluster,
 		role,
@@ -98,7 +99,7 @@ func TestAccDataprocClusterIamPolicy(t *testing.T) {
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s",
-		acctest.GetTestProjectFromEnv(), "us-central1", cluster)
+		envvar.GetTestProjectFromEnv(), "us-central1", cluster)
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
