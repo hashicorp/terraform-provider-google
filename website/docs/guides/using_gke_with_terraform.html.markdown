@@ -227,7 +227,7 @@ resource "google_container_cluster" "demo_cluster" {
   name     = "demo-cluster"
   location = "us-west1-a"
 
-  min_master_version = "1.16"
+  min_master_version = "1.27"
 
   # Enable Alias IPs to allow Windows Server networking.
   ip_allocation_policy {
