@@ -347,13 +347,15 @@ resource "google_workstations_workstation_config" "default" {
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider                = google-beta
+  provider = google-beta
+
   name                    = "workstation-cluster"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
+  provider = google-beta
+
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
@@ -361,7 +363,8 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_workstations_workstation_cluster" "default" {
-  provider               = google-beta
+  provider = google-beta
+
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
@@ -377,25 +380,29 @@ resource "google_workstations_workstation_cluster" "default" {
 }
 
 resource "google_kms_key_ring" "default" {
-  name     = "workstation-cluster"
-  location = "global"
   provider = google-beta
+
+  name     = "workstation-cluster"
+  location = "us-central1"
 }
 
 resource "google_kms_crypto_key" "default" {
+  provider = google-beta
+
   name            = "workstation-cluster"
   key_ring        = google_kms_key_ring.default.id
-  provider        = google-beta
 }
 
 resource "google_service_account" "default" {
+  provider = google-beta
+
   account_id   = "my-account"
   display_name = "Service Account"
-  provider = google-beta
 }
 
 resource "google_workstations_workstation_config" "default" {
   provider               = google-beta
+
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
   location   		         = "us-central1"
