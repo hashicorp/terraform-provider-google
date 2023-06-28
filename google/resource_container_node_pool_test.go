@@ -529,7 +529,7 @@ resource "google_compute_subnetwork" "container_subnetwork" {
 resource "google_container_cluster" "cluster" {
   name               = "%s"
   location           = "us-central1-a"
-  min_master_version = "1.23"
+  min_master_version = "1.27"
   initial_node_count = 1
 
   network    = google_compute_network.container_network.name
@@ -1739,7 +1739,7 @@ resource "google_container_cluster" "cluster" {
   name               = "%s"
   location           = "us-central1"
   initial_node_count = 3
-  min_master_version = "1.24"
+  min_master_version = "1.27"
 }
 
 resource "google_container_node_pool" "np" {
@@ -1762,7 +1762,7 @@ resource "google_container_cluster" "cluster" {
   name               = "%s"
   location           = "us-central1"
   initial_node_count = 3
-  min_master_version = "1.24"
+  min_master_version = "1.27"
 }
 
 resource "google_container_node_pool" "np" {
@@ -1790,7 +1790,7 @@ resource "google_container_cluster" "cluster" {
   name               = "%s"
   location           = "us-central1"
   initial_node_count = 3
-  min_master_version = "1.24"
+  min_master_version = "1.27"
 }
 
 resource "google_container_node_pool" "np" {
@@ -2732,7 +2732,7 @@ resource "google_container_node_pool" "np1" {
   location           = "us-central1-a"
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 2
-  version 		     = "1.23.13-gke.900"
+  version 		       = "1.25.10-gke.1400"
 }
 
 resource "google_container_node_pool" "np2" {
@@ -2740,7 +2740,7 @@ resource "google_container_node_pool" "np2" {
 	location           = "us-central1-a"
 	cluster            = google_container_cluster.cluster.name
 	initial_node_count = 2
-	version 		   = "1.23.13-gke.900"
+	version 		       = "1.25.10-gke.1400"
   }
 `, cluster, np1, np2)
 }
