@@ -3,10 +3,15 @@
 package acctest
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"reflect"
 	"regexp"
 	"strings"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -14,6 +19,24 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/fwtransport"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
+
+func GetFwTestProvider(t *testing.T) *frameworkTestProvider {
+	configsLock.RLock()
+	fwProvider, ok := fwProviders[t.Name()]
+	configsLock.RUnlock()
+	if ok {
+		return fwProvider
+	}
+
+	var diags diag.Diagnostics
+	p := NewFrameworkTestProvider(t.Name())
+	configureApiClient(context.Background(), &p.FrameworkProvider, &diags)
+	if diags.HasError() {
+		log.Fatalf("%d errors when configuring test provider client: first is %s", diags.ErrorsCount(), diags.Errors()[0].Detail())
+	}
+
+	return p
+}
 
 // General test utils
 

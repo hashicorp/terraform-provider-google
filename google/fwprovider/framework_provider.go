@@ -1,6 +1,6 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
-package google
+package fwprovider
 
 import (
 	"context"
@@ -31,20 +31,20 @@ var (
 // New is a helper function to simplify provider server and testing implementation.
 func New(version string) provider.ProviderWithMetaSchema {
 	return &FrameworkProvider{
-		version: version,
+		Version: version,
 	}
 }
 
 // FrameworkProvider is the provider implementation.
 type FrameworkProvider struct {
 	fwtransport.FrameworkProviderConfig
-	version string
+	Version string
 }
 
 // Metadata returns the provider type name.
 func (p *FrameworkProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
 	resp.TypeName = "google"
-	resp.Version = p.version
+	resp.Version = p.Version
 }
 
 // MetaSchema returns the provider meta schema.
@@ -751,7 +751,7 @@ func (p *FrameworkProvider) Configure(ctx context.Context, req provider.Configur
 	}
 
 	// Configuration values are now available.
-	p.LoadAndValidateFramework(ctx, data, req.TerraformVersion, &resp.Diagnostics, p.version)
+	p.LoadAndValidateFramework(ctx, data, req.TerraformVersion, &resp.Diagnostics, p.Version)
 	if resp.Diagnostics.HasError() {
 		return
 	}

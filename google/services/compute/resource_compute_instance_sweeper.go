@@ -6,7 +6,6 @@ import (
 	"context"
 	"log"
 
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
@@ -21,7 +20,7 @@ func testSweepComputeInstance(region string) error {
 	resourceName := "ComputeInstance"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := acctest.SharedConfigForRegion(region)
+	config, err := sweeper.SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -43,7 +42,7 @@ func testSweepComputeInstance(region string) error {
 	nonPrefixCount := 0
 	for zone, itemList := range found.Items {
 		for _, instance := range itemList.Instances {
-			if !acctest.IsSweepableTestResource(instance.Name) {
+			if !sweeper.IsSweepableTestResource(instance.Name) {
 				nonPrefixCount++
 				continue
 			}

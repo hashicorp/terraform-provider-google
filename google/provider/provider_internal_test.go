@@ -12,8 +12,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func TestProvider_validateCredentials(t *testing.T) {
@@ -84,13 +82,6 @@ func TestProvider_validateCredentials(t *testing.T) {
 			}
 		})
 	}
-}
-
-// Used to create populated schema.ResourceData structs in tests.
-// Pass in a schema and a config map containing the fields and values you wish to set
-// The returned schema.ResourceData can represent a configured resource, data source or provider.
-func setupTestResourceDataFromConfigMap(t *testing.T, s map[string]*schema.Schema, configValues map[string]interface{}) *schema.ResourceData {
-	return tpgresource.SetupTestResourceDataFromConfigMap(t, s, configValues)
 }
 
 // ProviderConfigEnvNames returns a list of all the environment variables that could be set by a user to configure the provider
