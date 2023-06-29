@@ -11,7 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5/tf5server"
 	"github.com/hashicorp/terraform-plugin-mux/tf5muxserver"
-	"github.com/hashicorp/terraform-provider-google/google"
+
+	"github.com/hashicorp/terraform-provider-google/google/fwprovider"
 	"github.com/hashicorp/terraform-provider-google/google/provider"
 	ver "github.com/hashicorp/terraform-provider-google/version"
 )
@@ -33,8 +34,8 @@ func main() {
 
 	// concat with sdkv2 provider
 	providers := []func() tfprotov5.ProviderServer{
-		providerserver.NewProtocol5(google.New(version)), // framework provider
-		provider.Provider().GRPCProvider,                 // sdk provider
+		providerserver.NewProtocol5(fwprovider.New(version)), // framework provider
+		provider.Provider().GRPCProvider,                     // sdk provider
 	}
 
 	// use the muxer

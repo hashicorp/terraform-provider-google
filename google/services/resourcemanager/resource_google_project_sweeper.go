@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
 )
 
@@ -30,7 +30,7 @@ func init() {
 }
 
 func testSweepProject(region string) error {
-	config, err := acctest.SharedConfigForRegion(region)
+	config, err := sweeper.SharedConfigForRegion(region)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
 		return err
@@ -42,7 +42,7 @@ func testSweepProject(region string) error {
 		return err
 	}
 
-	org := acctest.UnsafeGetTestOrgFromEnv()
+	org := envvar.UnsafeGetTestOrgFromEnv()
 	if org == "" {
 		log.Printf("[INFO][SWEEPER_LOG] no organization set, failing project sweeper")
 		return fmt.Errorf("no organization set")

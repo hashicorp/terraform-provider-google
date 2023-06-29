@@ -131,8 +131,8 @@ func TestAccLoggingBucketConfigProject_locked(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":   RandString(t, 10),
 		"project_name":    "tf-test-" + RandString(t, 10),
-		"org_id":          acctest.GetTestOrgFromEnv(t),
-		"billing_account": acctest.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 	}
 
 	VcrTest(t, resource.TestCase{

@@ -3,11 +3,9 @@
 package google
 
 import (
-	"context"
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"github.com/hashicorp/terraform-provider-google/google/provider"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -18,7 +16,6 @@ import (
 const TestEnvVar = acctest.TestEnvVar
 
 var TestAccProviders map[string]*schema.Provider
-var testAccProvider *schema.Provider
 
 var CredsEnvVars = acctest.CredsEnvVars
 
@@ -62,27 +59,11 @@ var masterBillingAccountEnvVars = acctest.MasterBillingAccountEnvVars
 var papDescriptionEnvVars = acctest.PapDescriptionEnvVars
 
 func init() {
-	configs = make(map[string]*transport_tpg.Config)
-	fwProviders = make(map[string]*frameworkTestProvider)
-	sources = make(map[string]VcrSource)
-	testAccProvider = provider.Provider()
-	TestAccProviders = map[string]*schema.Provider{
-		"google": testAccProvider,
-	}
+	TestAccProviders = acctest.TestAccProviders
 }
 
 func GoogleProviderConfig(t *testing.T) *transport_tpg.Config {
-	configsLock.RLock()
-	config, ok := configs[t.Name()]
-	configsLock.RUnlock()
-	if ok {
-		return config
-	}
-
-	sdkProvider := provider.Provider()
-	rc := terraform.ResourceConfig{}
-	sdkProvider.Configure(context.Background(), &rc)
-	return sdkProvider.Meta().(*transport_tpg.Config)
+	return acctest.GoogleProviderConfig(t)
 }
 
 func AccTestPreCheck(t *testing.T) {

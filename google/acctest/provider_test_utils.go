@@ -3,6 +3,7 @@
 package acctest
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -11,9 +12,11 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/provider"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
@@ -96,6 +99,33 @@ var MasterBillingAccountEnvVars = envvar.MasterBillingAccountEnvVars
 // Deprecated: For backward compatibility PapDescriptionEnvVars is still working,
 // but all new code should use PapDescriptionEnvVars in the envvar package instead.
 var PapDescriptionEnvVars = envvar.PapDescriptionEnvVars
+
+var TestAccProviders map[string]*schema.Provider
+var testAccProvider *schema.Provider
+
+func init() {
+	configs = make(map[string]*transport_tpg.Config)
+	fwProviders = make(map[string]*frameworkTestProvider)
+	sources = make(map[string]VcrSource)
+	testAccProvider = provider.Provider()
+	TestAccProviders = map[string]*schema.Provider{
+		"google": testAccProvider,
+	}
+}
+
+func GoogleProviderConfig(t *testing.T) *transport_tpg.Config {
+	configsLock.RLock()
+	config, ok := configs[t.Name()]
+	configsLock.RUnlock()
+	if ok {
+		return config
+	}
+
+	sdkProvider := provider.Provider()
+	rc := terraform.ResourceConfig{}
+	sdkProvider.Configure(context.Background(), &rc)
+	return sdkProvider.Meta().(*transport_tpg.Config)
+}
 
 func AccTestPreCheck(t *testing.T) {
 	if v := os.Getenv("GOOGLE_CREDENTIALS_FILE"); v != "" {
