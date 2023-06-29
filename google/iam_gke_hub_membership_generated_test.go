@@ -124,7 +124,7 @@ func TestAccGKEHubMembershipIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccGKEHubMembershipIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"
@@ -150,7 +150,7 @@ resource "google_gke_hub_membership_iam_member" "foo" {
 }
 
 func testAccGKEHubMembershipIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"
@@ -190,7 +190,7 @@ data "google_gke_hub_membership_iam_policy" "foo" {
 }
 
 func testAccGKEHubMembershipIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"
@@ -218,7 +218,7 @@ resource "google_gke_hub_membership_iam_policy" "foo" {
 }
 
 func testAccGKEHubMembershipIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"
@@ -244,7 +244,7 @@ resource "google_gke_hub_membership_iam_binding" "foo" {
 }
 
 func testAccGKEHubMembershipIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"

@@ -56,7 +56,7 @@ func TestAccDataCatalogTaxonomy_dataCatalogTaxonomyBasicExample(t *testing.T) {
 }
 
 func testAccDataCatalogTaxonomy_dataCatalogTaxonomyBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_taxonomy" "basic_taxonomy" {
   display_name =  "tf_test_my_taxonomy%{random_suffix}"
   description = "A collection of policy tags"

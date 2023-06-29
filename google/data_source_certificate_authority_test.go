@@ -34,7 +34,7 @@ func TestAccDataSourcePrivatecaCertificateAuthority_privatecaCertificateAuthorit
 }
 
 func testAccDataSourcePrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_certificate_authority" "default" {
   // This example assumes this pool already exists.
   // Pools cannot be deleted in normal test circumstances, so we depend on static pools

@@ -32,7 +32,7 @@ func TestAccDataSourceSecretManagerSecret_basic(t *testing.T) {
 }
 
 func testAccDataSourceSecretManagerSecret_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "bar" {
   secret_id = "tf-test-secret-%{random_suffix}"
   

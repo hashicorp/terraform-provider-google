@@ -34,7 +34,7 @@ func TestAccKmsKeyRingImportJob_basic(t *testing.T) {
 }
 
 func testGoogleKmsKeyRingImportJob_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_kms_key_ring" "keyring" {
   name     = "tf-test-import-job-%{random_suffix}"
   location = "global"

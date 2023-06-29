@@ -301,7 +301,7 @@ func TestAccBigQueryTableIamPolicyGenerated_withCondition(t *testing.T) {
 	}
 
 	// Test should have 2 bindings: one with a description and one without. Any < chars are converted to a unicode character by the API.
-	expectedPolicyData := Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
+	expectedPolicyData := acctest.Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
 	VcrTest(t, resource.TestCase{
@@ -328,7 +328,7 @@ func TestAccBigQueryTableIamPolicyGenerated_withCondition(t *testing.T) {
 }
 
 func testAccBigQueryTableIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
   dataset_id = "tf_test_dataset_id%{random_suffix}"
 }
@@ -395,7 +395,7 @@ resource "google_bigquery_table_iam_member" "foo" {
 }
 
 func testAccBigQueryTableIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
   dataset_id = "tf_test_dataset_id%{random_suffix}"
 }
@@ -477,7 +477,7 @@ data "google_bigquery_table_iam_policy" "foo" {
 }
 
 func testAccBigQueryTableIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
   dataset_id = "tf_test_dataset_id%{random_suffix}"
 }
@@ -546,7 +546,7 @@ resource "google_bigquery_table_iam_policy" "foo" {
 }
 
 func testAccBigQueryTableIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
   dataset_id = "tf_test_dataset_id%{random_suffix}"
 }
@@ -613,7 +613,7 @@ resource "google_bigquery_table_iam_binding" "foo" {
 }
 
 func testAccBigQueryTableIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
   dataset_id = "tf_test_dataset_id%{random_suffix}"
 }
@@ -680,7 +680,7 @@ resource "google_bigquery_table_iam_binding" "foo" {
 }
 
 func testAccBigQueryTableIamBinding_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
   dataset_id = "tf_test_dataset_id%{random_suffix}"
 }
@@ -752,7 +752,7 @@ resource "google_bigquery_table_iam_binding" "foo" {
 }
 
 func testAccBigQueryTableIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
   dataset_id = "tf_test_dataset_id%{random_suffix}"
 }
@@ -846,7 +846,7 @@ resource "google_bigquery_table_iam_binding" "foo3" {
 }
 
 func testAccBigQueryTableIamMember_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
   dataset_id = "tf_test_dataset_id%{random_suffix}"
 }
@@ -918,7 +918,7 @@ resource "google_bigquery_table_iam_member" "foo" {
 }
 
 func testAccBigQueryTableIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
   dataset_id = "tf_test_dataset_id%{random_suffix}"
 }
@@ -1012,7 +1012,7 @@ resource "google_bigquery_table_iam_member" "foo3" {
 }
 
 func testAccBigQueryTableIamPolicy_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
   dataset_id = "tf_test_dataset_id%{random_suffix}"
 }

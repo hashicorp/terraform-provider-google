@@ -99,7 +99,7 @@ func TestAccInstanceTemplateDatasource_self_link_unique(t *testing.T) {
 }
 
 func testAccInstanceTemplate_name(project, suffix string) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_instance_template" "default" {
   name        = "tf-test-template-%{suffix}"
   description = "Example template."
@@ -127,7 +127,7 @@ data "google_compute_instance_template" "default" {
 }
 
 func testAccInstanceTemplate_filter(project, suffix string) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_instance_template" "a" {
   name        = "tf-test-template-a-%{suffix}"
   description = "Example template."
@@ -193,7 +193,7 @@ data "google_compute_instance_template" "default" {
 }
 
 func testAccInstanceTemplate_filter_mostRecent(project, suffix string) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_instance_template" "a" {
   name        = "tf-test-template-%{suffix}-a"
   description = "tf-test-instance-template"
@@ -269,7 +269,7 @@ data "google_compute_instance_template" "default" {
 }
 
 func testAccInstanceTemplate_self_link_unique(project, suffix string) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_instance_template" "default" {
   name        = "tf-test-template-%{suffix}"
   description = "Example template."

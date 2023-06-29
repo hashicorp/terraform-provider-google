@@ -56,7 +56,7 @@ func TestAccEssentialContactsContact_essentialContactExample(t *testing.T) {
 }
 
 func testAccEssentialContactsContact_essentialContactExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 data "google_project" "project" {
 }
 

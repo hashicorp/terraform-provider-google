@@ -27,7 +27,7 @@ func TestAccActiveDirectoryDomain_update(t *testing.T) {
 		"resource_name": "ad-domain",
 	}
 
-	resourceName := Nprintf("google_active_directory_domain.%{resource_name}", context)
+	resourceName := acctest.Nprintf("google_active_directory_domain.%{resource_name}", context)
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -67,7 +67,7 @@ func TestAccActiveDirectoryDomain_update(t *testing.T) {
 
 func testAccADDomainBasic(context map[string]interface{}) string {
 
-	return Nprintf(`
+	return acctest.Nprintf(`
 	resource "google_active_directory_domain" "%{resource_name}" {
 	  domain_name       = "%{domain}"
 	  locations         = ["us-central1"]
@@ -77,7 +77,7 @@ func testAccADDomainBasic(context map[string]interface{}) string {
 }
 
 func testAccADDomainUpdate(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	resource "google_active_directory_domain" "%{resource_name}" {
 	  domain_name       = "%{domain}"	
 	  locations         = ["us-central1", "us-west1"]

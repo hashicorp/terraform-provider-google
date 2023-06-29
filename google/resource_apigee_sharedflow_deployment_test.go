@@ -56,7 +56,7 @@ func TestAccApigeeSharedflowDeployment_apigeeSharedflowDeploymentTestExample(t *
 func testAccApigeeSharedflowDeployment_apigeeSharedflowDeploymentTestExample(context map[string]interface{}, configBundle string) string {
 	context["config_bundle"] = configBundle
 
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"

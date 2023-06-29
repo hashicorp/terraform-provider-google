@@ -56,7 +56,7 @@ func TestAccGameServicesGameServerConfig_gameServiceConfigBasicExample(t *testin
 }
 
 func testAccGameServicesGameServerConfig_gameServiceConfigBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_game_services_game_server_deployment" "default" {
   deployment_id  = "tf-test-tf-test-deployment%{random_suffix}"
   description = "a deployment description"

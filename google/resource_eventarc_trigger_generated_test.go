@@ -76,7 +76,7 @@ func TestAccEventarcTrigger_BasicHandWritten(t *testing.T) {
 }
 
 func testAccEventarcTrigger_BasicHandWritten(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_eventarc_trigger" "primary" {
 	name = "tf-test-name%{random_suffix}"
 	location = "europe-west1"
@@ -130,7 +130,7 @@ resource "google_cloud_run_service" "default" {
 }
 
 func testAccEventarcTrigger_BasicHandWrittenUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_eventarc_trigger" "primary" {
 	name = "tf-test-name%{random_suffix}"
 	location = "europe-west1"
@@ -213,7 +213,7 @@ resource "google_cloud_run_service" "default2" {
 }
 
 func testAccEventarcTrigger_BasicHandWrittenUpdate1(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_eventarc_trigger" "primary" {
 	name = "tf-test-name%{random_suffix}"
 	location = "europe-west1"

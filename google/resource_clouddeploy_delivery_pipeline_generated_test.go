@@ -68,7 +68,7 @@ func TestAccClouddeployDeliveryPipeline_DeliveryPipeline(t *testing.T) {
 }
 
 func testAccClouddeployDeliveryPipeline_DeliveryPipeline(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_clouddeploy_delivery_pipeline" "primary" {
   location = "%{region}"
   name     = "tf-test-pipeline%{random_suffix}"
@@ -107,7 +107,7 @@ resource "google_clouddeploy_delivery_pipeline" "primary" {
 }
 
 func testAccClouddeployDeliveryPipeline_DeliveryPipelineUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_clouddeploy_delivery_pipeline" "primary" {
   location = "%{region}"
   name     = "tf-test-pipeline%{random_suffix}"

@@ -57,7 +57,7 @@ func TestAccCloudbuildWorkerPool_basic(t *testing.T) {
 }
 
 func testAccCloudbuildWorkerPool_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloudbuild_worker_pool" "pool" {
 	name = "pool%{random_suffix}"
 	location = "europe-west1"
@@ -71,7 +71,7 @@ resource "google_cloudbuild_worker_pool" "pool" {
 }
 
 func testAccCloudbuildWorkerPool_updated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloudbuild_worker_pool" "pool" {
 	name = "pool%{random_suffix}"
 	location = "europe-west1"
@@ -85,7 +85,7 @@ resource "google_cloudbuild_worker_pool" "pool" {
 }
 
 func testAccCloudbuildWorkerPool_noWorkerConfig(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloudbuild_worker_pool" "pool" {
 	name = "pool%{random_suffix}"
 	location = "europe-west1"
@@ -119,7 +119,7 @@ func TestAccCloudbuildWorkerPool_withNetwork(t *testing.T) {
 }
 
 func testAccCloudbuildWorkerPool_withNetwork(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project_service" "servicenetworking" {
   service = "servicenetworking.googleapis.com"
   disable_on_destroy = false

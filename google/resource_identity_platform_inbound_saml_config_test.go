@@ -42,7 +42,7 @@ func TestAccIdentityPlatformInboundSamlConfig_inboundSamlConfigUpdate(t *testing
 }
 
 func testAccIdentityPlatformInboundSamlConfig_inboundSamlConfigBasic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_identity_platform_inbound_saml_config" "saml_config" {
   name = "saml.tf-config%{random_suffix}"
   display_name = "Display Name"
@@ -63,7 +63,7 @@ resource "google_identity_platform_inbound_saml_config" "saml_config" {
 }
 
 func testAccIdentityPlatformInboundSamlConfig_inboundSamlConfigUpdate(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_identity_platform_inbound_saml_config" "saml_config" {
   name = "saml.tf-config%{random_suffix}"
   display_name = "Display Name2"

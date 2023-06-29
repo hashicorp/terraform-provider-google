@@ -56,7 +56,7 @@ func TestAccBigqueryDatapolicyDataPolicy_bigqueryDatapolicyDataPolicyBasicExampl
 }
 
 func testAccBigqueryDatapolicyDataPolicy_bigqueryDatapolicyDataPolicyBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_datapolicy_data_policy" "data_policy" {
     location         = "us-central1"
     data_policy_id   = "tf_test_data_policy%{random_suffix}"

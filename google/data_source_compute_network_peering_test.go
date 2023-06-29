@@ -32,7 +32,7 @@ func TestAccDataSourceComputeNetworkPeering_basic(t *testing.T) {
 }
 
 func testAccDataSourceComputeNetworkPeering_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network_peering" "peering1" {
   name         = "peering1-%{random_suffix}"
   network      = google_compute_network.default.self_link

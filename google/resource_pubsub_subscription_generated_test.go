@@ -56,7 +56,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushExample(t *testing.T) {
 }
 
 func testAccPubsubSubscription_pubsubSubscriptionPushExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
   name = "tf-test-example-topic%{random_suffix}"
 }
@@ -108,7 +108,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionPullExample(t *testing.T) {
 }
 
 func testAccPubsubSubscription_pubsubSubscriptionPullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
   name = "tf-test-example-topic%{random_suffix}"
 }
@@ -165,7 +165,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(t *testing.T)
 }
 
 func testAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
   name = "tf-test-example-topic%{random_suffix}"
 }
@@ -212,7 +212,7 @@ func TestAccPubsubSubscription_pubsubSubscriptionPushBqExample(t *testing.T) {
 }
 
 func testAccPubsubSubscription_pubsubSubscriptionPushBqExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_pubsub_topic" "example" {
   name = "tf-test-example-topic%{random_suffix}"
 }

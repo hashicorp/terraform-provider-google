@@ -127,7 +127,7 @@ func TestAccDataplexZoneIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccDataplexZoneIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataplex_lake" "example" {
   location     = "us-central1"
   name         = "tf-test-lake%{random_suffix}"
@@ -174,7 +174,7 @@ resource "google_dataplex_zone_iam_member" "foo" {
 }
 
 func testAccDataplexZoneIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataplex_lake" "example" {
   location     = "us-central1"
   name         = "tf-test-lake%{random_suffix}"
@@ -237,7 +237,7 @@ data "google_dataplex_zone_iam_policy" "foo" {
 }
 
 func testAccDataplexZoneIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataplex_lake" "example" {
   location     = "us-central1"
   name         = "tf-test-lake%{random_suffix}"
@@ -286,7 +286,7 @@ resource "google_dataplex_zone_iam_policy" "foo" {
 }
 
 func testAccDataplexZoneIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataplex_lake" "example" {
   location     = "us-central1"
   name         = "tf-test-lake%{random_suffix}"
@@ -333,7 +333,7 @@ resource "google_dataplex_zone_iam_binding" "foo" {
 }
 
 func testAccDataplexZoneIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataplex_lake" "example" {
   location     = "us-central1"
   name         = "tf-test-lake%{random_suffix}"

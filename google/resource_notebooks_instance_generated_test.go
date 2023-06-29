@@ -57,7 +57,7 @@ func TestAccNotebooksInstance_notebookInstanceBasicExample(t *testing.T) {
 }
 
 func testAccNotebooksInstance_notebookInstanceBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_notebooks_instance" "instance" {
   name = "tf-test-notebooks-instance%{random_suffix}"
   location = "us-west1-a"
@@ -96,7 +96,7 @@ func TestAccNotebooksInstance_notebookInstanceBasicContainerExample(t *testing.T
 }
 
 func testAccNotebooksInstance_notebookInstanceBasicContainerExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_notebooks_instance" "instance" {
   name = "tf-test-notebooks-instance%{random_suffix}"
   location = "us-west1-a"
@@ -139,7 +139,7 @@ func TestAccNotebooksInstance_notebookInstanceBasicGpuExample(t *testing.T) {
 }
 
 func testAccNotebooksInstance_notebookInstanceBasicGpuExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_notebooks_instance" "instance" {
   name = "tf-test-notebooks-instance%{random_suffix}"
   location = "us-west1-a"
@@ -185,7 +185,7 @@ func TestAccNotebooksInstance_notebookInstanceFullExample(t *testing.T) {
 }
 
 func testAccNotebooksInstance_notebookInstanceFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_notebooks_instance" "instance" {
   name = "tf-test-notebooks-instance%{random_suffix}"
   location = "us-central1-a"

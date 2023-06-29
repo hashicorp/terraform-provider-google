@@ -58,7 +58,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlBa
 }
 
 func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
   workforce_pool_id = "tf-test-example-pool%{random_suffix}"
   parent            = "organizations/%{org_id}"
@@ -106,7 +106,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlFu
 }
 
 func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
   workforce_pool_id = "tf-test-example-pool%{random_suffix}"
   parent            = "organizations/%{org_id}"
@@ -158,7 +158,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcBa
 }
 
 func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
   workforce_pool_id = "tf-test-example-pool%{random_suffix}"
   parent            = "organizations/%{org_id}"
@@ -211,7 +211,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcFu
 }
 
 func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "pool" {
   workforce_pool_id = "tf-test-example-pool%{random_suffix}"
   parent            = "organizations/%{org_id}"

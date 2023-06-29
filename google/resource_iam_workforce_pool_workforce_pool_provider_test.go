@@ -145,7 +145,7 @@ func testAccCheckIAMWorkforcePoolWorkforcePoolProviderAccess(t *testing.T, rando
 }
 
 func testAccIAMWorkforcePoolWorkforcePoolProvider_oidc_full(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "my_pool" {
   workforce_pool_id = "my-pool-%{random_suffix}"
   parent            = "organizations/%{org_id}"
@@ -176,7 +176,7 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
 }
 
 func testAccIAMWorkforcePoolWorkforcePoolProvider_oidc_update(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "my_pool" {
   workforce_pool_id = "my-pool-%{random_suffix}"
   parent            = "organizations/%{org_id}"
@@ -207,7 +207,7 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
 }
 
 func testAccIAMWorkforcePoolWorkforcePoolProvider_oidc_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "my_pool" {
   workforce_pool_id = "my-pool-%{random_suffix}"
   parent            = "organizations/%{org_id}"
@@ -234,7 +234,7 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
 }
 
 func testAccIAMWorkforcePoolWorkforcePoolProvider_saml_full(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "my_pool" {
   workforce_pool_id = "my-pool-%{random_suffix}"
   parent            = "organizations/%{org_id}"
@@ -260,7 +260,7 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
 }
 
 func testAccIAMWorkforcePoolWorkforcePoolProvider_saml_update(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "my_pool" {
   workforce_pool_id = "my-pool-%{random_suffix}"
   parent            = "organizations/%{org_id}"
@@ -286,7 +286,7 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
 }
 
 func testAccIAMWorkforcePoolWorkforcePoolProvider_saml_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "my_pool" {
   workforce_pool_id = "my-pool-%{random_suffix}"
   parent            = "organizations/%{org_id}"
@@ -308,7 +308,7 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
 }
 
 func testAccIAMWorkforcePoolWorkforcePoolProvider_destroy(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "my_pool" {
   workforce_pool_id = "my-pool-%{random_suffix}"
   parent            = "organizations/%{org_id}"

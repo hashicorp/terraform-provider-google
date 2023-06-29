@@ -57,7 +57,7 @@ func TestAccAlloydbBackup_alloydbBackupBasicExample(t *testing.T) {
 }
 
 func testAccAlloydbBackup_alloydbBackupBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_alloydb_backup" "default" {
   location     = "us-central1"
   backup_id    = "tf-test-alloydb-backup%{random_suffix}"
@@ -127,7 +127,7 @@ func TestAccAlloydbBackup_alloydbBackupFullExample(t *testing.T) {
 }
 
 func testAccAlloydbBackup_alloydbBackupFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_alloydb_backup" "default" {
   location     = "us-central1"
   backup_id    = "tf-test-alloydb-backup%{random_suffix}"

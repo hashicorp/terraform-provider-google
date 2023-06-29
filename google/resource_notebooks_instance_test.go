@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccNotebooksInstance_create_vm_image(t *testing.T) {
@@ -98,7 +99,7 @@ resource "google_notebooks_instance" "test" {
 }
 
 func testAccNotebooksInstance_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_notebooks_instance" "instance" {
   name = "tf-test-notebooks-instance%{random_suffix}"
   location = "us-central1-a"
@@ -124,7 +125,7 @@ resource "google_notebooks_instance" "instance" {
 func testAccNotebooksInstance_update(context map[string]interface{}, preventDestroy bool) string {
 	context["prevent_destroy"] = strconv.FormatBool(preventDestroy)
 
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_notebooks_instance" "instance" {
   name = "tf-test-notebooks-instance%{random_suffix}"
   location = "us-central1-a"

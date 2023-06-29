@@ -56,7 +56,7 @@ func TestAccVPCAccessConnector_vpcAccessConnectorExample(t *testing.T) {
 }
 
 func testAccVPCAccessConnector_vpcAccessConnectorExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_vpc_access_connector" "connector" {
   name          = "tf-test-vpc-con%{random_suffix}"
   ip_cidr_range = "10.8.0.0/28"
@@ -91,7 +91,7 @@ func TestAccVPCAccessConnector_vpcAccessConnectorSharedVpcExample(t *testing.T) 
 }
 
 func testAccVPCAccessConnector_vpcAccessConnectorSharedVpcExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_vpc_access_connector" "connector" {
   name          = "tf-test-vpc-con%{random_suffix}"
   subnet {

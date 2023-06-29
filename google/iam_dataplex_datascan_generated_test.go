@@ -127,7 +127,7 @@ func TestAccDataplexDatascanIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccDataplexDatascanIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataplex_datascan" "basic_profile" {
   location     = "us-central1"
   data_scan_id = "tf-test-datascan%{random_suffix}"
@@ -159,7 +159,7 @@ resource "google_dataplex_datascan_iam_member" "foo" {
 }
 
 func testAccDataplexDatascanIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataplex_datascan" "basic_profile" {
   location     = "us-central1"
   data_scan_id = "tf-test-datascan%{random_suffix}"
@@ -206,7 +206,7 @@ data "google_dataplex_datascan_iam_policy" "foo" {
 }
 
 func testAccDataplexDatascanIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataplex_datascan" "basic_profile" {
   location     = "us-central1"
   data_scan_id = "tf-test-datascan%{random_suffix}"
@@ -240,7 +240,7 @@ resource "google_dataplex_datascan_iam_policy" "foo" {
 }
 
 func testAccDataplexDatascanIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataplex_datascan" "basic_profile" {
   location     = "us-central1"
   data_scan_id = "tf-test-datascan%{random_suffix}"
@@ -272,7 +272,7 @@ resource "google_dataplex_datascan_iam_binding" "foo" {
 }
 
 func testAccDataplexDatascanIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataplex_datascan" "basic_profile" {
   location     = "us-central1"
   data_scan_id = "tf-test-datascan%{random_suffix}"

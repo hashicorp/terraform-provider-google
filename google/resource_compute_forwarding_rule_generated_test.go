@@ -56,7 +56,7 @@ func TestAccComputeForwardingRule_forwardingRuleGlobalInternallbExample(t *testi
 }
 
 func testAccComputeForwardingRule_forwardingRuleGlobalInternallbExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 // Forwarding rule for Internal Load Balancing
 resource "google_compute_forwarding_rule" "default" {
   name                  = "tf-test-website-forwarding-rule%{random_suffix}"
@@ -120,7 +120,7 @@ func TestAccComputeForwardingRule_forwardingRuleBasicExample(t *testing.T) {
 }
 
 func testAccComputeForwardingRule_forwardingRuleBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_forwarding_rule" "default" {
   name       = "tf-test-website-forwarding-rule%{random_suffix}"
   target     = google_compute_target_pool.default.id
@@ -159,7 +159,7 @@ func TestAccComputeForwardingRule_forwardingRuleInternallbExample(t *testing.T) 
 }
 
 func testAccComputeForwardingRule_forwardingRuleInternallbExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 // Forwarding rule for Internal Load Balancing
 resource "google_compute_forwarding_rule" "default" {
   name   = "tf-test-website-forwarding-rule%{random_suffix}"
@@ -228,7 +228,7 @@ func TestAccComputeForwardingRule_forwardingRuleVpcPscExample(t *testing.T) {
 }
 
 func testAccComputeForwardingRule_forwardingRuleVpcPscExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 // Forwarding rule for VPC private service connect
 resource "google_compute_forwarding_rule" "default" {
   name                    = "tf-test-psc-endpoint%{random_suffix}"
@@ -352,7 +352,7 @@ func TestAccComputeForwardingRule_forwardingRuleRegionalSteeringExample(t *testi
 }
 
 func testAccComputeForwardingRule_forwardingRuleRegionalSteeringExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_forwarding_rule" "steering" {
   name = "tf-test-steering-rule%{random_suffix}"
   region = "us-central1"

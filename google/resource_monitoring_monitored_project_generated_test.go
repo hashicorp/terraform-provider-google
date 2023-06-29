@@ -60,7 +60,7 @@ func TestAccMonitoringMonitoredProject_BasicMonitoredProject(t *testing.T) {
 }
 
 func testAccMonitoringMonitoredProject_BasicMonitoredProject(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_monitoring_monitored_project" "primary" {
   metrics_scope = "%{project_name}"
   name          = google_project.basic.name

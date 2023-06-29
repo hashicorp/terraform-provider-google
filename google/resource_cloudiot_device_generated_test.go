@@ -59,7 +59,7 @@ func TestAccCloudIotDevice_cloudiotDeviceBasicExample(t *testing.T) {
 }
 
 func testAccCloudIotDevice_cloudiotDeviceBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloudiot_registry" "registry" {
   name     = "tf-test-cloudiot-device-registry%{random_suffix}"
 }
@@ -99,7 +99,7 @@ func TestAccCloudIotDevice_cloudiotDeviceFullExample(t *testing.T) {
 }
 
 func testAccCloudIotDevice_cloudiotDeviceFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloudiot_registry" "registry" {
   name     = "tf-test-cloudiot-device-registry%{random_suffix}"
 }

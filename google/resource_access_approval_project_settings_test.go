@@ -62,7 +62,7 @@ func testAccAccessApprovalProjectSettings(t *testing.T) {
 }
 
 func testAccAccessApprovalProjectSettings_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project_access_approval_settings" "project_access_approval" {
   project_id          = "%{project}"
 
@@ -75,7 +75,7 @@ resource "google_project_access_approval_settings" "project_access_approval" {
 }
 
 func testAccAccessApprovalProjectSettings_update(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project_access_approval_settings" "project_access_approval" {
   project_id          = "%{project}"
   notification_emails = ["testuser@example.com", "example.user@example.com"]
@@ -89,7 +89,7 @@ resource "google_project_access_approval_settings" "project_access_approval" {
 }
 
 func testAccAccessApprovalProjectSettings_activeKeyVersion(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_kms_key_ring" "key_ring" {
   name     = "tf-test-%{random_suffix}"
   project  = "%{project}"

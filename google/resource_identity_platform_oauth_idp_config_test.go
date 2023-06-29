@@ -42,7 +42,7 @@ func TestAccIdentityPlatformOauthIdpConfig_identityPlatformOauthIdpConfigUpdate(
 }
 
 func testAccIdentityPlatformOauthIdpConfig_identityPlatformOauthIdpConfigBasic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_identity_platform_oauth_idp_config" "oauth_idp_config" {
   name          = "oidc.oauth-idp-config%{random_suffix}"
   display_name  = "Display Name"
@@ -55,7 +55,7 @@ resource "google_identity_platform_oauth_idp_config" "oauth_idp_config" {
 }
 
 func testAccIdentityPlatformOauthIdpConfig_identityPlatformOauthIdpConfigUpdate(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_identity_platform_oauth_idp_config" "oauth_idp_config" {
   name          = "oidc.oauth-idp-config%{random_suffix}"
   display_name  = "Another display name"

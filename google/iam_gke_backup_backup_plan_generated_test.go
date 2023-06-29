@@ -127,7 +127,7 @@ func TestAccGKEBackupBackupPlanIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccGKEBackupBackupPlanIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "tf-test-basic-cluster%{random_suffix}"
   location           = "us-central1"
@@ -164,7 +164,7 @@ resource "google_gke_backup_backup_plan_iam_member" "foo" {
 }
 
 func testAccGKEBackupBackupPlanIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "tf-test-basic-cluster%{random_suffix}"
   location           = "us-central1"
@@ -216,7 +216,7 @@ data "google_gke_backup_backup_plan_iam_policy" "foo" {
 }
 
 func testAccGKEBackupBackupPlanIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "tf-test-basic-cluster%{random_suffix}"
   location           = "us-central1"
@@ -255,7 +255,7 @@ resource "google_gke_backup_backup_plan_iam_policy" "foo" {
 }
 
 func testAccGKEBackupBackupPlanIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "tf-test-basic-cluster%{random_suffix}"
   location           = "us-central1"
@@ -292,7 +292,7 @@ resource "google_gke_backup_backup_plan_iam_binding" "foo" {
 }
 
 func testAccGKEBackupBackupPlanIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "tf-test-basic-cluster%{random_suffix}"
   location           = "us-central1"

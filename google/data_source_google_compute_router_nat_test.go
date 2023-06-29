@@ -32,7 +32,7 @@ func TestAccDataSourceGoogleComputeRouterNat_basic(t *testing.T) {
 }
 
 func testAccDataSourceGoogleComputeRouterNat_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network" "net" {
   name = "my-network%{random_suffix}"
 }

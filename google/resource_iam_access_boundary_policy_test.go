@@ -71,7 +71,7 @@ func testAccIAM2AccessBoundaryPolicy_iamAccessBoundaryPolicyBasic(t *testing.T) 
 }
 
 func testAccIAM2AccessBoundaryPolicy_iamAccessBoundaryPolicyBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"
@@ -125,7 +125,7 @@ resource "google_iam_access_boundary_policy" "example" {
 }
 
 func testAccIAM2AccessBoundaryPolicy_iamAccessBoundaryPolicyBasicExampleUpdate(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"

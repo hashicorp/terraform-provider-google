@@ -65,7 +65,7 @@ func testAccAccessApprovalFolderSettings(t *testing.T) {
 }
 
 func testAccAccessApprovalFolderSettings_full(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_folder" "my_folder" {
   display_name = "tf-test-my-folder%{random_suffix}"
   parent       = "organizations/%{org_id}"
@@ -92,7 +92,7 @@ resource "google_folder_access_approval_settings" "folder_access_approval" {
 }
 
 func testAccAccessApprovalFolderSettings_update(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_folder" "my_folder" {
   display_name = "tf-test-my-folder%{random_suffix}"
   parent       = "organizations/%{org_id}"
@@ -119,7 +119,7 @@ resource "google_folder_access_approval_settings" "folder_access_approval" {
 }
 
 func testAccAccessApprovalFolderSettings_activeKeyVersion(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_folder" "my_folder" {
   display_name = "tf-test-my-folder%{random_suffix}"
   parent       = "organizations/%{org_id}"

@@ -40,7 +40,7 @@ func TestAccLoggingProjectCmekSettings_basic(t *testing.T) {
 }
 
 func testAccLoggingProjectCmekSettings_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "default" {
 	project_id      = "%{project_name}"
 	name            = "%{project_name}"

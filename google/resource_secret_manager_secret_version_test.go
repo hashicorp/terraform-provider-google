@@ -53,7 +53,7 @@ func TestAccSecretManagerSecretVersion_update(t *testing.T) {
 }
 
 func testAccSecretManagerSecretVersion_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
   secret_id = "tf-test-secret-version-%{random_suffix}"
   
@@ -76,7 +76,7 @@ resource "google_secret_manager_secret_version" "secret-version-basic" {
 }
 
 func testAccSecretManagerSecretVersion_disable(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
   secret_id = "tf-test-secret-version-%{random_suffix}"
 

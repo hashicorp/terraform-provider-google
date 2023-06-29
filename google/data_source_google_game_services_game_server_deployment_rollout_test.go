@@ -32,7 +32,7 @@ func TestAccDataSourceGameServicesGameServerDeploymentRollout_basic(t *testing.T
 }
 
 func testAccDataSourceGameServicesGameServerDeploymentRollout_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_game_services_game_server_deployment" "default" {
   deployment_id  = "tf-test-deployment-%{random_suffix}"
   description = "a deployment description"

@@ -57,7 +57,7 @@ func TestAccDialogflowIntent_dialogflowIntentFullExample(t *testing.T) {
 }
 
 func testAccDialogflowIntent_dialogflowIntentFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "agent_project" {
   project_id = "tf-test-my-project%{random_suffix}"
   name = "tf-test-my-project%{random_suffix}"

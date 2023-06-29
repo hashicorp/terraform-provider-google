@@ -46,7 +46,7 @@ func TestAccSecurityCenterNotificationConfig_updateStreamingConfigFilter(t *test
 }
 
 func testAccSecurityCenterNotificationConfig_updateStreamingConfigFilter(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_pubsub_topic" "scc_notification" {
   name = "tf-test-my-topic%{random_suffix}"
 }

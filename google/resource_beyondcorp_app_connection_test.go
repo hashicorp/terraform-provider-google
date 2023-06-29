@@ -47,7 +47,7 @@ func TestAccBeyondcorpAppConnection_beyondcorpAppConnectionUpdateExample(t *test
 }
 
 func testAccBeyondcorpAppConnection_beyondcorpAppConnectionUpdateExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_service_account" "service_account" {
   account_id   = "tf-test-my-account%{random_suffix}"
   display_name = "Test Service Account"

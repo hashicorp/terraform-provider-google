@@ -24,7 +24,6 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 func TestAccPublicCAExternalAccountKey_publicCaExternalAccountKeyExample(t *testing.T) {
@@ -47,7 +46,7 @@ func TestAccPublicCAExternalAccountKey_publicCaExternalAccountKeyExample(t *test
 }
 
 func testAccPublicCAExternalAccountKey_publicCaExternalAccountKeyExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_public_ca_external_account_key" "prod" {
   project = "%{project}"
 }

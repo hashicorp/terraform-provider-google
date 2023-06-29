@@ -27,7 +27,6 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *testing.T) {
@@ -57,7 +56,7 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *te
 }
 
 func testAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_service_account" "custom_service_account" {
   account_id   = "tf-test-my-account%{random_suffix}"
   display_name = "Custom Service Account"

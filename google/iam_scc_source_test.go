@@ -130,7 +130,7 @@ func TestAccSecurityCenterSourceIamPolicy(t *testing.T) {
 }
 
 func testAccSecurityCenterSourceIamMember_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_scc_source" "custom_source" {
   display_name = "tf-test-source%{random_suffix}"
   organization = "%{org_id}"
@@ -147,7 +147,7 @@ resource "google_scc_source_iam_member" "foo" {
 }
 
 func testAccSecurityCenterSourceIamPolicy_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_scc_source" "custom_source" {
   display_name = "tf-test-source%{random_suffix}"
   organization = "%{org_id}"
@@ -170,7 +170,7 @@ resource "google_scc_source_iam_policy" "foo" {
 }
 
 func testAccSecurityCenterSourceIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_scc_source" "custom_source" {
   display_name = "tf-test-source%{random_suffix}"
   organization = "%{org_id}"
@@ -189,7 +189,7 @@ resource "google_scc_source_iam_policy" "foo" {
 }
 
 func testAccSecurityCenterSourceIamBinding_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_scc_source" "custom_source" {
   display_name = "tf-test-source%{random_suffix}"
   organization = "%{org_id}"
@@ -206,7 +206,7 @@ resource "google_scc_source_iam_binding" "foo" {
 }
 
 func testAccSecurityCenterSourceIamBinding_update(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_scc_source" "custom_source" {
   display_name = "tf-test-source%{random_suffix}"
   organization = "%{org_id}"

@@ -69,7 +69,7 @@ func TestAccComputeFirewallPolicyRule_BasicFirSecRuleHandWritten(t *testing.T) {
 }
 
 func testAccComputeFirewallPolicyRule_BasicFirSecRuleHandWritten(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_folder" "folder" {
   display_name = "tf-test-policy%{random_suffix}"
   parent       = "organizations/%{org_id}"
@@ -110,7 +110,7 @@ resource "google_compute_firewall_policy_rule" "primary" {
 }
 
 func testAccComputeFirewallPolicyRule_BasicFirSecRuleHandWrittenUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_folder" "folder" {
   display_name = "tf-test-policy%{random_suffix}"
   parent       = "organizations/%{org_id}"

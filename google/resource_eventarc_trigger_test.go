@@ -54,7 +54,7 @@ func TestAccEventarcTrigger_channel(t *testing.T) {
 }
 
 func testAccEventarcTrigger_createTriggerWithChannelName(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 data "google_project" "test_project" {
 	project_id  = "%{project_name}"
 }

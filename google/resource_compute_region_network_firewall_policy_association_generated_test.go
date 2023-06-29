@@ -68,7 +68,7 @@ func TestAccComputeRegionNetworkFirewallPolicyAssociation_RegionalHandWritten(t 
 }
 
 func testAccComputeRegionNetworkFirewallPolicyAssociation_RegionalHandWritten(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
   name = "tf-test-policy%{random_suffix}"
   project = "%{project_name}"
@@ -92,7 +92,7 @@ resource "google_compute_region_network_firewall_policy_association" "primary" {
 }
 
 func testAccComputeRegionNetworkFirewallPolicyAssociation_RegionalHandWrittenUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
   name = "tf-test-policy%{random_suffix}"
   project = "%{project_name}"

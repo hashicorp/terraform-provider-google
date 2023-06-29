@@ -41,7 +41,7 @@ func TestAccBigQueryJob_withLocation(t *testing.T) {
 }
 
 func testAccBigQueryJob_withLocation(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_table" "foo" {
   deletion_protection = false
   dataset_id = google_bigquery_dataset.bar.dataset_id

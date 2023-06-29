@@ -68,7 +68,7 @@ func TestAccDataplexZone_BasicZone(t *testing.T) {
 }
 
 func testAccDataplexZone_BasicZone(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataplex_zone" "primary" {
   discovery_spec {
     enabled = false
@@ -107,7 +107,7 @@ resource "google_dataplex_lake" "basic" {
 }
 
 func testAccDataplexZone_BasicZoneUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataplex_zone" "primary" {
   discovery_spec {
     enabled = false

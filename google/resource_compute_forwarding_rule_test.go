@@ -252,7 +252,7 @@ resource "google_compute_forwarding_rule" "foobar" {
 }
 
 func testAccComputeForwardingRule_forwardingRuleVpcPscExampleUpdate(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 // Forwarding rule for VPC private service connect
 resource "google_compute_forwarding_rule" "default" {
   name                    = "tf-test-psc-endpoint%{random_suffix}"
@@ -351,7 +351,7 @@ resource "google_compute_health_check" "producer_service_health_check" {
 }
 
 func testAccComputeForwardingRule_forwardingRuleRegionalSteeringExampleUpdate(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_forwarding_rule" "steering" {
   name = "tf-test-steering-rule%{random_suffix}"
   region = "us-central1"

@@ -124,7 +124,7 @@ func TestAccCloudTasksQueueIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccCloudTasksQueueIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_tasks_queue" "default" {
   name = "tf-test-cloud-tasks-queue-test%{random_suffix}"
   location = "us-central1"
@@ -141,7 +141,7 @@ resource "google_cloud_tasks_queue_iam_member" "foo" {
 }
 
 func testAccCloudTasksQueueIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_tasks_queue" "default" {
   name = "tf-test-cloud-tasks-queue-test%{random_suffix}"
   location = "us-central1"
@@ -173,7 +173,7 @@ data "google_cloud_tasks_queue_iam_policy" "foo" {
 }
 
 func testAccCloudTasksQueueIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_tasks_queue" "default" {
   name = "tf-test-cloud-tasks-queue-test%{random_suffix}"
   location = "us-central1"
@@ -192,7 +192,7 @@ resource "google_cloud_tasks_queue_iam_policy" "foo" {
 }
 
 func testAccCloudTasksQueueIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_tasks_queue" "default" {
   name = "tf-test-cloud-tasks-queue-test%{random_suffix}"
   location = "us-central1"
@@ -209,7 +209,7 @@ resource "google_cloud_tasks_queue_iam_binding" "foo" {
 }
 
 func testAccCloudTasksQueueIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_tasks_queue" "default" {
   name = "tf-test-cloud-tasks-queue-test%{random_suffix}"
   location = "us-central1"

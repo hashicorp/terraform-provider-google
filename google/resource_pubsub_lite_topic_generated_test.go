@@ -56,7 +56,7 @@ func TestAccPubsubLiteTopic_pubsubLiteTopicBasicExample(t *testing.T) {
 }
 
 func testAccPubsubLiteTopic_pubsubLiteTopicBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_pubsub_lite_reservation" "example" {
   name = "tf-test-example-reservation%{random_suffix}"
   project = data.google_project.project.number

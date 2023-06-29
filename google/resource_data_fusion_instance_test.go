@@ -192,7 +192,7 @@ func TestAccDataFusionInstanceVersion_dataFusionInstanceUpdate(t *testing.T) {
 }
 
 func testAccDataFusionInstanceVersion_dataFusionInstanceUpdate(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_fusion_instance" "basic_instance" {
   name   = "tf-test-my-instance%{random_suffix}"
   region = "us-central1"

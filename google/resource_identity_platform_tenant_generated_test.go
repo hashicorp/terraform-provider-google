@@ -55,7 +55,7 @@ func TestAccIdentityPlatformTenant_identityPlatformTenantBasicExample(t *testing
 }
 
 func testAccIdentityPlatformTenant_identityPlatformTenantBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_identity_platform_tenant" "tenant" {
   display_name          = "tenant"
   allow_password_signup = true

@@ -45,7 +45,7 @@ func TestAccDialogflowFulfillment_update(t *testing.T) {
 }
 
 func testAccDialogflowFulfillment_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	resource "google_project" "agent_project" {
 		name = "tf-test-dialogflow-%{random_suffix}"
 		project_id = "tf-test-dialogflow-%{random_suffix}"
@@ -87,7 +87,7 @@ func testAccDialogflowFulfillment_basic(context map[string]interface{}) string {
 }
 
 func testAccDialogflowEntityType_full(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	resource "google_project" "agent_project" {
 		name = "tf-test-dialogflow-%{random_suffix}"
 		project_id = "tf-test-dialogflow-%{random_suffix}"

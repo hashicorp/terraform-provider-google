@@ -56,7 +56,7 @@ func TestAccFilestoreInstance_filestoreInstanceBasicExample(t *testing.T) {
 }
 
 func testAccFilestoreInstance_filestoreInstanceBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_filestore_instance" "instance" {
   name     = "tf-test-test-instance%{random_suffix}"
   location = "us-central1-b"
@@ -101,7 +101,7 @@ func TestAccFilestoreInstance_filestoreInstanceFullExample(t *testing.T) {
 }
 
 func testAccFilestoreInstance_filestoreInstanceFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_filestore_instance" "instance" {
   name     = "tf-test-test-instance%{random_suffix}"
   location = "us-central1-b"

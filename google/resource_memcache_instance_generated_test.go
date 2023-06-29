@@ -58,7 +58,7 @@ func TestAccMemcacheInstance_memcacheInstanceBasicExample(t *testing.T) {
 }
 
 func testAccMemcacheInstance_memcacheInstanceBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 // This example assumes this network already exists.
 // The API creates a tenant network per network authorized for a
 // Memcache instance and that network is not deleted when the user-created

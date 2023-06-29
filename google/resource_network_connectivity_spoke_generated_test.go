@@ -69,7 +69,7 @@ func TestAccNetworkConnectivitySpoke_RouterApplianceHandWritten(t *testing.T) {
 }
 
 func testAccNetworkConnectivitySpoke_RouterApplianceHandWritten(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 
 resource "google_compute_network" "network" {
   name                    = "tf-test-network%{random_suffix}"
@@ -132,7 +132,7 @@ resource "google_network_connectivity_spoke" "primary" {
 }
 
 func testAccNetworkConnectivitySpoke_RouterApplianceHandWrittenUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 
 resource "google_compute_network" "network" {
   name                    = "tf-test-network%{random_suffix}"

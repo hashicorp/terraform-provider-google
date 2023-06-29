@@ -124,7 +124,7 @@ func TestAccCloudRunV2JobIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccCloudRunV2JobIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_run_v2_job" "default" {
   name     = "tf-test-cloudrun-job%{random_suffix}"
   location = "us-central1"
@@ -155,7 +155,7 @@ resource "google_cloud_run_v2_job_iam_member" "foo" {
 }
 
 func testAccCloudRunV2JobIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_run_v2_job" "default" {
   name     = "tf-test-cloudrun-job%{random_suffix}"
   location = "us-central1"
@@ -201,7 +201,7 @@ data "google_cloud_run_v2_job_iam_policy" "foo" {
 }
 
 func testAccCloudRunV2JobIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_run_v2_job" "default" {
   name     = "tf-test-cloudrun-job%{random_suffix}"
   location = "us-central1"
@@ -234,7 +234,7 @@ resource "google_cloud_run_v2_job_iam_policy" "foo" {
 }
 
 func testAccCloudRunV2JobIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_run_v2_job" "default" {
   name     = "tf-test-cloudrun-job%{random_suffix}"
   location = "us-central1"
@@ -265,7 +265,7 @@ resource "google_cloud_run_v2_job_iam_binding" "foo" {
 }
 
 func testAccCloudRunV2JobIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_run_v2_job" "default" {
   name     = "tf-test-cloudrun-job%{random_suffix}"
   location = "us-central1"

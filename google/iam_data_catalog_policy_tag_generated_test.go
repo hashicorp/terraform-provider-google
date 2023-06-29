@@ -92,7 +92,7 @@ func TestAccDataCatalogPolicyTagIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccDataCatalogPolicyTagIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_policy_tag" "basic_policy_tag" {
   taxonomy = google_data_catalog_taxonomy.my_taxonomy.id
   display_name = "Low security"
@@ -114,7 +114,7 @@ resource "google_data_catalog_policy_tag_iam_member" "foo" {
 }
 
 func testAccDataCatalogPolicyTagIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_policy_tag" "basic_policy_tag" {
   taxonomy = google_data_catalog_taxonomy.my_taxonomy.id
   display_name = "Low security"
@@ -149,7 +149,7 @@ data "google_data_catalog_policy_tag_iam_policy" "foo" {
 }
 
 func testAccDataCatalogPolicyTagIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_policy_tag" "basic_policy_tag" {
   taxonomy = google_data_catalog_taxonomy.my_taxonomy.id
   display_name = "Low security"
@@ -173,7 +173,7 @@ resource "google_data_catalog_policy_tag_iam_policy" "foo" {
 }
 
 func testAccDataCatalogPolicyTagIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_policy_tag" "basic_policy_tag" {
   taxonomy = google_data_catalog_taxonomy.my_taxonomy.id
   display_name = "Low security"
@@ -195,7 +195,7 @@ resource "google_data_catalog_policy_tag_iam_binding" "foo" {
 }
 
 func testAccDataCatalogPolicyTagIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_policy_tag" "basic_policy_tag" {
   taxonomy = google_data_catalog_taxonomy.my_taxonomy.id
   display_name = "Low security"

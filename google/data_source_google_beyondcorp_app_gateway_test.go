@@ -98,7 +98,7 @@ func TestAccDataSourceGoogleBeyondcorpAppGateway_optionalProjectRegion(t *testin
 }
 
 func testAccDataSourceGoogleBeyondcorpAppGateway_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_beyondcorp_app_gateway" "foo" {
 	name      = "tf-test-appgateway-%{random_suffix}"
 	type      = "TCP_PROXY"
@@ -114,7 +114,7 @@ data "google_beyondcorp_app_gateway" "foo" {
 }
 
 func testAccDataSourceGoogleBeyondcorpAppGateway_optionalProject(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_beyondcorp_app_gateway" "foo" {
 	name      = "tf-test-appgateway-%{random_suffix}"
 	type      = "TCP_PROXY"
@@ -129,7 +129,7 @@ data "google_beyondcorp_app_gateway" "foo" {
 }
 
 func testAccDataSourceGoogleBeyondcorpAppGateway_optionalRegion(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_beyondcorp_app_gateway" "foo" {
 	name      = "tf-test-appgateway-%{random_suffix}"
 	type      = "TCP_PROXY"
@@ -144,7 +144,7 @@ data "google_beyondcorp_app_gateway" "foo" {
 }
 
 func testAccDataSourceGoogleBeyondcorpAppGateway_optionalProjectRegion(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_beyondcorp_app_gateway" "foo" {
 	name      = "tf-test-appgateway-%{random_suffix}"
 	type      = "TCP_PROXY"

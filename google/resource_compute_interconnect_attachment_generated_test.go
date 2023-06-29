@@ -56,7 +56,7 @@ func TestAccComputeInterconnectAttachment_interconnectAttachmentBasicExample(t *
 }
 
 func testAccComputeInterconnectAttachment_interconnectAttachmentBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_interconnect_attachment" "on_prem" {
   name                     = "tf-test-on-prem-attachment%{random_suffix}"
   edge_availability_domain = "AVAILABILITY_DOMAIN_1"
@@ -106,7 +106,7 @@ func TestAccComputeInterconnectAttachment_computeInterconnectAttachmentIpsecEncr
 }
 
 func testAccComputeInterconnectAttachment_computeInterconnectAttachmentIpsecEncryptionExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_interconnect_attachment" "ipsec-encrypted-interconnect-attachment" {
   name                     = "tf-test-test-interconnect-attachment%{random_suffix}"
   edge_availability_domain = "AVAILABILITY_DOMAIN_1"

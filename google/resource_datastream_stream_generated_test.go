@@ -62,7 +62,7 @@ func TestAccDatastreamStream_datastreamStreamBasicExample(t *testing.T) {
 }
 
 func testAccDatastreamStream_datastreamStreamBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 data "google_project" "project" {
 }
 
@@ -225,7 +225,7 @@ func TestAccDatastreamStream_datastreamStreamFullExample(t *testing.T) {
 }
 
 func testAccDatastreamStream_datastreamStreamFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 data "google_project" "project" {
 }
 
@@ -455,7 +455,7 @@ func TestAccDatastreamStream_datastreamStreamPostgresqlBigqueryDatasetIdExample(
 }
 
 func testAccDatastreamStream_datastreamStreamPostgresqlBigqueryDatasetIdExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 
 resource "google_bigquery_dataset" "postgres" {
   dataset_id    = "postgres%{random_suffix}"
@@ -598,7 +598,7 @@ func TestAccDatastreamStream_datastreamStreamBigqueryExample(t *testing.T) {
 }
 
 func testAccDatastreamStream_datastreamStreamBigqueryExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 data "google_project" "project" {
 }
 

@@ -56,7 +56,7 @@ func TestAccAlloydbCluster_alloydbClusterBasicExample(t *testing.T) {
 }
 
 func testAccAlloydbCluster_alloydbClusterBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
   location   = "us-central1"
@@ -97,7 +97,7 @@ func TestAccAlloydbCluster_alloydbClusterFullExample(t *testing.T) {
 }
 
 func testAccAlloydbCluster_alloydbClusterFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "full" {
   cluster_id   = "tf-test-alloydb-cluster-full%{random_suffix}"
   location     = "us-central1"

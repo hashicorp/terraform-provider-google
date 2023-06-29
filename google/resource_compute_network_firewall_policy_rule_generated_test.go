@@ -69,7 +69,7 @@ func TestAccComputeNetworkFirewallPolicyRule_GlobalHandWritten(t *testing.T) {
 }
 
 func testAccComputeNetworkFirewallPolicyRule_GlobalHandWritten(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network_firewall_policy" "basic_network_firewall_policy" {
   name        = "tf-test-policy%{random_suffix}"
   description = "Sample global network firewall policy"
@@ -127,7 +127,7 @@ resource "google_tags_tag_value" "basic_value" {
 }
 
 func testAccComputeNetworkFirewallPolicyRule_GlobalHandWrittenUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
   provider = google-beta
 

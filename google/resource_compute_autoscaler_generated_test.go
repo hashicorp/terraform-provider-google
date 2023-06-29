@@ -56,7 +56,7 @@ func TestAccComputeAutoscaler_autoscalerBasicExample(t *testing.T) {
 }
 
 func testAccComputeAutoscaler_autoscalerBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_autoscaler" "foobar" {
   name   = "tf-test-my-autoscaler%{random_suffix}"
   zone   = "us-central1-f"

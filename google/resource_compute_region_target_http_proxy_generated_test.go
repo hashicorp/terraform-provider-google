@@ -56,7 +56,7 @@ func TestAccComputeRegionTargetHttpProxy_regionTargetHttpProxyBasicExample(t *te
 }
 
 func testAccComputeRegionTargetHttpProxy_regionTargetHttpProxyBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_region_target_http_proxy" "default" {
   region  = "us-central1"
   name    = "tf-test-test-proxy%{random_suffix}"
@@ -130,7 +130,7 @@ func TestAccComputeRegionTargetHttpProxy_regionTargetHttpProxyHttpsRedirectExamp
 }
 
 func testAccComputeRegionTargetHttpProxy_regionTargetHttpProxyHttpsRedirectExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_region_target_http_proxy" "default" {
   region  = "us-central1"
   name    = "tf-test-test-https-redirect-proxy%{random_suffix}"

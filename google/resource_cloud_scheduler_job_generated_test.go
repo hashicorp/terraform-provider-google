@@ -57,7 +57,7 @@ func TestAccCloudSchedulerJob_schedulerJobPubsubExample(t *testing.T) {
 }
 
 func testAccCloudSchedulerJob_schedulerJobPubsubExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_pubsub_topic" "topic" {
   name = "tf-test-job-topic%{random_suffix}"
 }
@@ -102,7 +102,7 @@ func TestAccCloudSchedulerJob_schedulerJobHttpExample(t *testing.T) {
 }
 
 func testAccCloudSchedulerJob_schedulerJobHttpExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
   name             = "tf-test-test-job%{random_suffix}"
   description      = "test http job"
@@ -149,7 +149,7 @@ func TestAccCloudSchedulerJob_schedulerJobPausedExample(t *testing.T) {
 }
 
 func testAccCloudSchedulerJob_schedulerJobPausedExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
   paused           = true
   name             = "tf-test-test-job%{random_suffix}"
@@ -197,7 +197,7 @@ func TestAccCloudSchedulerJob_schedulerJobAppEngineExample(t *testing.T) {
 }
 
 func testAccCloudSchedulerJob_schedulerJobAppEngineExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
   name             = "tf-test-test-job%{random_suffix}"
   schedule         = "*/4 * * * *"
@@ -255,7 +255,7 @@ func TestAccCloudSchedulerJob_schedulerJobOauthExample(t *testing.T) {
 }
 
 func testAccCloudSchedulerJob_schedulerJobOauthExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 data "google_compute_default_service_account" "default" {
 }
 
@@ -304,7 +304,7 @@ func TestAccCloudSchedulerJob_schedulerJobOidcExample(t *testing.T) {
 }
 
 func testAccCloudSchedulerJob_schedulerJobOidcExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 data "google_compute_default_service_account" "default" {
 }
 

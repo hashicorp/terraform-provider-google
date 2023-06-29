@@ -56,7 +56,7 @@ func TestAccDialogflowCXPage_dialogflowcxPageFullExample(t *testing.T) {
 }
 
 func testAccDialogflowCXPage_dialogflowcxPageFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
   display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
   location = "global"

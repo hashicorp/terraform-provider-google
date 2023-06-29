@@ -59,7 +59,7 @@ func TestAccComputeGlobalNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 }
 
 func testAccComputeGlobalNetworkEndpoint_networkEndpointsBasic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_global_network_endpoint" "default" {
   global_network_endpoint_group = google_compute_global_network_endpoint_group.neg.id
 
@@ -70,7 +70,7 @@ resource "google_compute_global_network_endpoint" "default" {
 }
 
 func testAccComputeGlobalNetworkEndpoint_networkEndpointsModified(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_global_network_endpoint" "default" {
   global_network_endpoint_group = google_compute_global_network_endpoint_group.neg.name
 
@@ -81,7 +81,7 @@ resource "google_compute_global_network_endpoint" "default" {
 }
 
 func testAccComputeGlobalNetworkEndpoint_noNetworkEndpoints(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_global_network_endpoint_group" "neg" {
   name                  = "neg-%{random_suffix}"
   default_port          = "%{default_port}"

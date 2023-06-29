@@ -66,7 +66,7 @@ func TestAccSecretManagerSecret_cmek(t *testing.T) {
 }
 
 func testAccSecretManagerSecret_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
   secret_id = "tf-test-secret-%{random_suffix}"
   
@@ -92,7 +92,7 @@ resource "google_secret_manager_secret" "secret-basic" {
 }
 
 func testAccSecretMangerSecret_cmek(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 data "google_project" "project" {
   project_id = "%{pid}"
 }

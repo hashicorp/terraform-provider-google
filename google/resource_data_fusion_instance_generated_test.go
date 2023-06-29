@@ -57,7 +57,7 @@ func TestAccDataFusionInstance_dataFusionInstanceBasicExample(t *testing.T) {
 }
 
 func testAccDataFusionInstance_dataFusionInstanceBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_fusion_instance" "basic_instance" {
   name   = "tf-test-my-instance%{random_suffix}"
   region = "us-central1"
@@ -94,7 +94,7 @@ func TestAccDataFusionInstance_dataFusionInstanceFullExample(t *testing.T) {
 }
 
 func testAccDataFusionInstance_dataFusionInstanceFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_fusion_instance" "extended_instance" {
   name                          = "tf-test-my-instance%{random_suffix}"
   description                   = "My Data Fusion instance"
@@ -165,7 +165,7 @@ func TestAccDataFusionInstance_dataFusionInstanceCmekExample(t *testing.T) {
 }
 
 func testAccDataFusionInstance_dataFusionInstanceCmekExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_fusion_instance" "cmek" {
   name   = "tf-test-my-instance%{random_suffix}"
   region = "us-central1"
@@ -228,7 +228,7 @@ func TestAccDataFusionInstance_dataFusionInstanceEnterpriseExample(t *testing.T)
 }
 
 func testAccDataFusionInstance_dataFusionInstanceEnterpriseExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_fusion_instance" "enterprise_instance" {
   name = "tf-test-my-instance%{random_suffix}"
   region = "us-central1"
@@ -265,7 +265,7 @@ func TestAccDataFusionInstance_dataFusionInstanceEventExample(t *testing.T) {
 }
 
 func testAccDataFusionInstance_dataFusionInstanceEventExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_fusion_instance" "event" {
   name    = "tf-test-my-instance%{random_suffix}"
   region  = "us-central1"
@@ -309,7 +309,7 @@ func TestAccDataFusionInstance_dataFusionInstanceZoneExample(t *testing.T) {
 }
 
 func testAccDataFusionInstance_dataFusionInstanceZoneExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_fusion_instance" "zone" {
   name   = "tf-test-my-instance%{random_suffix}"
   region = "us-central1"

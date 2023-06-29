@@ -57,7 +57,7 @@ func TestAccSpannerDatabase_spannerDatabaseBasicExample(t *testing.T) {
 }
 
 func testAccSpannerDatabase_spannerDatabaseBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_spanner_instance" "main" {
   config       = "regional-europe-west1"
   display_name = "main-instance"

@@ -47,7 +47,7 @@ func TestAccAlloydbCluster_update(t *testing.T) {
 }
 
 func testAccAlloydbCluster_update(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
   location   = "us-central1"
@@ -152,7 +152,7 @@ func TestAccAlloydbCluster_deleteAutomatedBackupPolicyAndInitialUser(t *testing.
 }
 
 func testAccAlloydbCluster_withInitialUserAndAutomatedBackupPolicy(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "default" {
   cluster_id   = "tf-test-alloydb-cluster%{random_suffix}"
   location     = "us-central1"
@@ -202,7 +202,7 @@ resource "google_compute_network" "default" {
 }
 
 func testAccAlloydbCluster_withoutInitialUserAndAutomatedBackupPolicy(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
   location   = "us-central1"
@@ -247,7 +247,7 @@ func TestAccAlloydbCluster_missingWeeklySchedule(t *testing.T) {
 }
 
 func testAccAlloydbCluster_missingWeeklySchedule(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
   location   = "us-central1"
@@ -348,7 +348,7 @@ func TestAccAlloydbCluster_deleteTimeBasedRetentionPolicy(t *testing.T) {
 }
 
 func testAccAlloydbCluster_withTimeBasedRetentionPolicy(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
   location   = "us-central1"
@@ -389,7 +389,7 @@ resource "google_compute_network" "default" {
 }
 
 func testAccAlloydbCluster_withoutTimeBasedRetentionPolicy(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
   location   = "us-central1"
@@ -452,7 +452,7 @@ func TestAccAlloydbCluster_usingCMEK(t *testing.T) {
 }
 
 func testAccAlloydbCluster_usingCMEK(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
   location   = "us-central1"
@@ -529,7 +529,7 @@ func TestAccAlloydbCluster_CMEKInAutomatedBackupIsUpdatable(t *testing.T) {
 }
 
 func testAccAlloydbCluster_usingCMEKInClusterAndAutomatedBackup(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
   location   = "us-central1"
@@ -581,7 +581,7 @@ resource "google_kms_crypto_key_iam_binding" "crypto_key" {
 }
 
 func testAccAlloydbCluster_updateCMEKInAutomatedBackup(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
   location   = "us-central1"
@@ -646,7 +646,7 @@ resource "google_kms_crypto_key_iam_binding" "crypto_key2" {
 }
 
 func testAccAlloydbCluster_usingCMEKallowDeletion(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
   location   = "us-central1"

@@ -127,7 +127,7 @@ func TestAccServiceManagementServiceIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccServiceManagementServiceIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_endpoints_service" "endpoints_service" {
   service_name = "endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog"
   project = "%{project_name}"
@@ -152,7 +152,7 @@ resource "google_endpoints_service_iam_member" "foo" {
 }
 
 func testAccServiceManagementServiceIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_endpoints_service" "endpoints_service" {
   service_name = "endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog"
   project = "%{project_name}"
@@ -190,7 +190,7 @@ data "google_endpoints_service_iam_policy" "foo" {
 }
 
 func testAccServiceManagementServiceIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_endpoints_service" "endpoints_service" {
   service_name = "endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog"
   project = "%{project_name}"
@@ -217,7 +217,7 @@ resource "google_endpoints_service_iam_policy" "foo" {
 }
 
 func testAccServiceManagementServiceIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_endpoints_service" "endpoints_service" {
   service_name = "endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog"
   project = "%{project_name}"
@@ -242,7 +242,7 @@ resource "google_endpoints_service_iam_binding" "foo" {
 }
 
 func testAccServiceManagementServiceIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_endpoints_service" "endpoints_service" {
   service_name = "endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog"
   project = "%{project_name}"

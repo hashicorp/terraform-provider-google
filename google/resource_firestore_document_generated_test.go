@@ -58,7 +58,7 @@ func TestAccFirestoreDocument_firestoreDocumentBasicExample(t *testing.T) {
 }
 
 func testAccFirestoreDocument_firestoreDocumentBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_firestore_document" "mydoc" {
   project     = "%{project_id}"
   collection  = "somenewcollection"
@@ -95,7 +95,7 @@ func TestAccFirestoreDocument_firestoreDocumentNestedDocumentExample(t *testing.
 }
 
 func testAccFirestoreDocument_firestoreDocumentNestedDocumentExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_firestore_document" "mydoc" {
   project     = "%{project_id}"
   collection  = "somenewcollection"

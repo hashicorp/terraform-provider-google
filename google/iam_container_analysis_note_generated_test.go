@@ -124,7 +124,7 @@ func TestAccContainerAnalysisNoteIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccContainerAnalysisNoteIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_container_analysis_note" "note" {
   name = "tf-test-attestor-note%{random_suffix}"
   attestation_authority {
@@ -144,7 +144,7 @@ resource "google_container_analysis_note_iam_member" "foo" {
 }
 
 func testAccContainerAnalysisNoteIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_container_analysis_note" "note" {
   name = "tf-test-attestor-note%{random_suffix}"
   attestation_authority {
@@ -178,7 +178,7 @@ data "google_container_analysis_note_iam_policy" "foo" {
 }
 
 func testAccContainerAnalysisNoteIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_container_analysis_note" "note" {
   name = "tf-test-attestor-note%{random_suffix}"
   attestation_authority {
@@ -200,7 +200,7 @@ resource "google_container_analysis_note_iam_policy" "foo" {
 }
 
 func testAccContainerAnalysisNoteIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_container_analysis_note" "note" {
   name = "tf-test-attestor-note%{random_suffix}"
   attestation_authority {
@@ -220,7 +220,7 @@ resource "google_container_analysis_note_iam_binding" "foo" {
 }
 
 func testAccContainerAnalysisNoteIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_container_analysis_note" "note" {
   name = "tf-test-attestor-note%{random_suffix}"
   attestation_authority {

@@ -41,7 +41,7 @@ func TestAccDataSourceGoogleLoggingSink_basic(t *testing.T) {
 }
 
 func testAccDataSourceGoogleLoggingSink_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_logging_project_sink" "basic" {
   name        = "%{sink_name}"
   project     = "%{project_name}"

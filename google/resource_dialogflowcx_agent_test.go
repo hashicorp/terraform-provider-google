@@ -45,7 +45,7 @@ func TestAccDialogflowCXAgent_update(t *testing.T) {
 }
 
 func testAccDialogflowCXAgent_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	data "google_project" "project" {}
 
 	resource "google_service_account" "dialogflowcx_service_account" {
@@ -72,7 +72,7 @@ func testAccDialogflowCXAgent_basic(context map[string]interface{}) string {
 }
 
 func testAccDialogflowCXAgent_full(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	data "google_project" "project" {}
 
 	resource "google_service_account" "dialogflowcx_service_account" {

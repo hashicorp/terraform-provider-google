@@ -127,7 +127,7 @@ func TestAccDataCatalogTagTemplateIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccDataCatalogTagTemplateIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_tag_template" "basic_tag_template" {
   tag_template_id = "tf_test_my_template%{random_suffix}"
   region = "us-central1"
@@ -180,7 +180,7 @@ resource "google_data_catalog_tag_template_iam_member" "foo" {
 }
 
 func testAccDataCatalogTagTemplateIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_tag_template" "basic_tag_template" {
   tag_template_id = "tf_test_my_template%{random_suffix}"
   region = "us-central1"
@@ -246,7 +246,7 @@ data "google_data_catalog_tag_template_iam_policy" "foo" {
 }
 
 func testAccDataCatalogTagTemplateIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_tag_template" "basic_tag_template" {
   tag_template_id = "tf_test_my_template%{random_suffix}"
   region = "us-central1"
@@ -301,7 +301,7 @@ resource "google_data_catalog_tag_template_iam_policy" "foo" {
 }
 
 func testAccDataCatalogTagTemplateIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_tag_template" "basic_tag_template" {
   tag_template_id = "tf_test_my_template%{random_suffix}"
   region = "us-central1"
@@ -354,7 +354,7 @@ resource "google_data_catalog_tag_template_iam_binding" "foo" {
 }
 
 func testAccDataCatalogTagTemplateIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_tag_template" "basic_tag_template" {
   tag_template_id = "tf_test_my_template%{random_suffix}"
   region = "us-central1"

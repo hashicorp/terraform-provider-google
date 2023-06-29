@@ -56,7 +56,7 @@ func TestAccComputeRouterBgpPeer_routerPeerRouterApplianceExample(t *testing.T) 
 }
 
 func testAccComputeRouterBgpPeer_routerPeerRouterApplianceExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network" "network" {
   name                    = "tf-test-my-router%{random_suffix}-net"
   auto_create_subnetworks = false

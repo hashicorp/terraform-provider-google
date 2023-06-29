@@ -84,7 +84,7 @@ func TestAccComputeNetworkEndpoint_networkEndpointsBasic(t *testing.T) {
 }
 
 func testAccComputeNetworkEndpoint_networkEndpointsBasic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network_endpoint" "default" {
   zone                   = "us-central1-a"
   network_endpoint_group = google_compute_network_endpoint_group.neg.id
@@ -97,7 +97,7 @@ resource "google_compute_network_endpoint" "default" {
 }
 
 func testAccComputeNetworkEndpoint_networkEndpointsModified(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network_endpoint" "default" {
   zone                   = "us-central1-a"
   network_endpoint_group = google_compute_network_endpoint_group.neg.name
@@ -110,7 +110,7 @@ resource "google_compute_network_endpoint" "default" {
 }
 
 func testAccComputeNetworkEndpoint_networkEndpointsAdditional(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network_endpoint" "default" {
   zone                   = "us-central1-a"
   network_endpoint_group = google_compute_network_endpoint_group.neg.id
@@ -141,7 +141,7 @@ resource "google_compute_network_endpoint" "add2" {
 }
 
 func testAccComputeNetworkEndpoint_noNetworkEndpoints(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network_endpoint_group" "neg" {
   name         = "tf-test-neg-%{random_suffix}"
   zone         = "us-central1-a"

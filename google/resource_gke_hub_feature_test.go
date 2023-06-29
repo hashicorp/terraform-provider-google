@@ -55,7 +55,7 @@ func TestAccGKEHubFeature_gkehubFeatureMciUpdate(t *testing.T) {
 }
 
 func testAccGKEHubFeature_gkehubFeatureMciUpdateStart(context map[string]interface{}) string {
-	return gkeHubFeatureProjectSetupForGA(context) + Nprintf(`
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
 
 resource "google_container_cluster" "primary" {
   name               = "tf-test%{random_suffix}"
@@ -107,7 +107,7 @@ resource "google_gke_hub_feature" "feature" {
 }
 
 func testAccGKEHubFeature_gkehubFeatureMciChangeMembership(context map[string]interface{}) string {
-	return gkeHubFeatureProjectSetupForGA(context) + Nprintf(`
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "tf-test%{random_suffix}"
   location           = "us-central1-a"
@@ -198,7 +198,7 @@ func TestAccGKEHubFeature_gkehubFeatureMcsd(t *testing.T) {
 }
 
 func testAccGKEHubFeature_gkehubFeatureMcsd(context map[string]interface{}) string {
-	return gkeHubFeatureProjectSetupForGA(context) + Nprintf(`
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
 resource "google_gke_hub_feature" "feature" {
   name = "multiclusterservicediscovery"
   location = "global"
@@ -212,7 +212,7 @@ resource "google_gke_hub_feature" "feature" {
 }
 
 func testAccGKEHubFeature_gkehubFeatureMcsdUpdate(context map[string]interface{}) string {
-	return gkeHubFeatureProjectSetupForGA(context) + Nprintf(`
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
 resource "google_gke_hub_feature" "feature" {
   name = "multiclusterservicediscovery"
   location = "global"
@@ -227,7 +227,7 @@ resource "google_gke_hub_feature" "feature" {
 }
 
 func gkeHubFeatureProjectSetupForGA(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   name            = "tf-test-gkehub%{random_suffix}"
   project_id      = "tf-test-gkehub%{random_suffix}"

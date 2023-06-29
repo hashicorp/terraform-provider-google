@@ -124,7 +124,7 @@ func TestAccDataCatalogEntryGroupIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccDataCatalogEntryGroupIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_entry_group" "basic_entry_group" {
   entry_group_id = "tf_test_my_group%{random_suffix}"
 }
@@ -138,7 +138,7 @@ resource "google_data_catalog_entry_group_iam_member" "foo" {
 }
 
 func testAccDataCatalogEntryGroupIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_entry_group" "basic_entry_group" {
   entry_group_id = "tf_test_my_group%{random_suffix}"
 }
@@ -165,7 +165,7 @@ data "google_data_catalog_entry_group_iam_policy" "foo" {
 }
 
 func testAccDataCatalogEntryGroupIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_entry_group" "basic_entry_group" {
   entry_group_id = "tf_test_my_group%{random_suffix}"
 }
@@ -181,7 +181,7 @@ resource "google_data_catalog_entry_group_iam_policy" "foo" {
 }
 
 func testAccDataCatalogEntryGroupIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_entry_group" "basic_entry_group" {
   entry_group_id = "tf_test_my_group%{random_suffix}"
 }
@@ -195,7 +195,7 @@ resource "google_data_catalog_entry_group_iam_binding" "foo" {
 }
 
 func testAccDataCatalogEntryGroupIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_entry_group" "basic_entry_group" {
   entry_group_id = "tf_test_my_group%{random_suffix}"
 }

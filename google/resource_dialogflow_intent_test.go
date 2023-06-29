@@ -70,7 +70,7 @@ func TestAccDialogflowIntent_update(t *testing.T) {
 }
 
 func testAccDialogflowIntent_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	resource "google_project" "agent_project" {
 		name = "tf-test-dialogflow-%{random_suffix}"
 		project_id = "tf-test-dialogflow-%{random_suffix}"
@@ -111,7 +111,7 @@ func testAccDialogflowIntent_basic(context map[string]interface{}) string {
 }
 
 func testAccDialogflowIntent_full1(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	resource "google_project" "agent_project" {
 		name = "tf-test-dialogflow-%{random_suffix}"
 		project_id = "tf-test-dialogflow-%{random_suffix}"
@@ -161,7 +161,7 @@ func testAccDialogflowIntent_full1(context map[string]interface{}) string {
 }
 
 func testAccDialogflowIntent_full2(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	resource "google_project" "agent_project" {
 		name = "tf-test-dialogflow-%{random_suffix}"
 		project_id = "tf-test-dialogflow-%{random_suffix}"

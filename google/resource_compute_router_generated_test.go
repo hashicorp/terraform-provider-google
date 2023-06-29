@@ -56,7 +56,7 @@ func TestAccComputeRouter_routerBasicExample(t *testing.T) {
 }
 
 func testAccComputeRouter_routerBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_router" "foobar" {
   name    = "tf-test-my-router%{random_suffix}"
   network = google_compute_network.foobar.name
@@ -106,7 +106,7 @@ func TestAccComputeRouter_computeRouterEncryptedInterconnectExample(t *testing.T
 }
 
 func testAccComputeRouter_computeRouterEncryptedInterconnectExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_router" "encrypted-interconnect-router" {
   name                          = "tf-test-test-router%{random_suffix}"
   network                       = google_compute_network.network.name

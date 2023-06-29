@@ -32,7 +32,7 @@ func TestAccDataSourceGoogleComputeDisk_basic(t *testing.T) {
 }
 
 func testAccDataSourceGoogleComputeDisk_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_disk" "foo" {
   name     = "tf-test-compute-disk-%{random_suffix}"
 }

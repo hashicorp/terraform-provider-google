@@ -48,7 +48,7 @@ func TestAccDataSourceGoogleComputeInstanceGroupManager(t *testing.T) {
 }
 
 func testAccDataSourceGoogleComputeInstanceGroupManager_basic1(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
     resource "google_compute_health_check" "autohealing" {
         name                = "%{autoHealName}"
         check_interval_sec  = 5
@@ -124,7 +124,7 @@ func testAccDataSourceGoogleComputeInstanceGroupManager_basic1(context map[strin
 }
 
 func testAccDataSourceGoogleComputeInstanceGroupManager_basic2(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
     resource "google_compute_health_check" "autohealing" {
         name                = "%{autoHealName}"
         check_interval_sec  = 5

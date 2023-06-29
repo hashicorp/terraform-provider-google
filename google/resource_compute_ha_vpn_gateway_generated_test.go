@@ -56,7 +56,7 @@ func TestAccComputeHaVpnGateway_haVpnGatewayBasicExample(t *testing.T) {
 }
 
 func testAccComputeHaVpnGateway_haVpnGatewayBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_ha_vpn_gateway" "ha_gateway1" {
   region   = "us-central1"
   name     = "tf-test-ha-vpn-1%{random_suffix}"
@@ -96,7 +96,7 @@ func TestAccComputeHaVpnGateway_haVpnGatewayIpv6Example(t *testing.T) {
 }
 
 func testAccComputeHaVpnGateway_haVpnGatewayIpv6Example(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_ha_vpn_gateway" "ha_gateway1" {
   region   = "us-central1"
   name     = "tf-test-ha-vpn-1%{random_suffix}"

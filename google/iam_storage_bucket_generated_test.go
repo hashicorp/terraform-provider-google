@@ -315,7 +315,7 @@ func TestAccStorageBucketIamPolicyGenerated_withCondition(t *testing.T) {
 	context["service_account"] = sa
 
 	// Test should have 3 bindings: one with a description and one without, and a third for an admin role. Any < chars are converted to a unicode character by the API.
-	expectedPolicyData := Nprintf(`{"bindings":[{"members":["serviceAccount:%{service_account}"],"role":"%{admin_role}"},{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
+	expectedPolicyData := acctest.Nprintf(`{"bindings":[{"members":["serviceAccount:%{service_account}"],"role":"%{admin_role}"},{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
 	VcrTest(t, resource.TestCase{
@@ -342,7 +342,7 @@ func TestAccStorageBucketIamPolicyGenerated_withCondition(t *testing.T) {
 }
 
 func testAccStorageBucketIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "default" {
   name                        = "tf-test-my-bucket%{random_suffix}"
   location                    = "US"
@@ -358,7 +358,7 @@ resource "google_storage_bucket_iam_member" "foo" {
 }
 
 func testAccStorageBucketIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "default" {
   name                        = "tf-test-my-bucket%{random_suffix}"
   location                    = "US"
@@ -391,7 +391,7 @@ data "google_storage_bucket_iam_policy" "foo" {
 }
 
 func testAccStorageBucketIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "default" {
   name                        = "tf-test-my-bucket%{random_suffix}"
   location                    = "US"
@@ -409,7 +409,7 @@ resource "google_storage_bucket_iam_policy" "foo" {
 }
 
 func testAccStorageBucketIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "default" {
   name                        = "tf-test-my-bucket%{random_suffix}"
   location                    = "US"
@@ -425,7 +425,7 @@ resource "google_storage_bucket_iam_binding" "foo" {
 }
 
 func testAccStorageBucketIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "default" {
   name                        = "tf-test-my-bucket%{random_suffix}"
   location                    = "US"
@@ -441,7 +441,7 @@ resource "google_storage_bucket_iam_binding" "foo" {
 }
 
 func testAccStorageBucketIamBinding_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "default" {
   name                        = "tf-test-my-bucket%{random_suffix}"
   location                    = "US"
@@ -462,7 +462,7 @@ resource "google_storage_bucket_iam_binding" "foo" {
 }
 
 func testAccStorageBucketIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "default" {
   name                        = "tf-test-my-bucket%{random_suffix}"
   location                    = "US"
@@ -501,7 +501,7 @@ resource "google_storage_bucket_iam_binding" "foo3" {
 }
 
 func testAccStorageBucketIamMember_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "default" {
   name                        = "tf-test-my-bucket%{random_suffix}"
   location                    = "US"
@@ -522,7 +522,7 @@ resource "google_storage_bucket_iam_member" "foo" {
 }
 
 func testAccStorageBucketIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "default" {
   name                        = "tf-test-my-bucket%{random_suffix}"
   location                    = "US"
@@ -561,7 +561,7 @@ resource "google_storage_bucket_iam_member" "foo3" {
 }
 
 func testAccStorageBucketIamPolicy_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "default" {
   name                        = "tf-test-my-bucket%{random_suffix}"
   location                    = "US"

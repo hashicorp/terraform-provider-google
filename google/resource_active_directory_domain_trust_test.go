@@ -56,7 +56,7 @@ func TestAccActiveDirectoryDomainTrust_activeDirectoryDomainTrustBasicExample(t 
 }
 
 func testAccActiveDirectoryDomainTrust_activeDirectoryDomainTrustBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_active_directory_domain_trust" "ad-domain-trust" {
     domain     = "ci-managed-ad.com"
     target_domain_name = "example-gcp.com"
@@ -69,7 +69,7 @@ resource "google_active_directory_domain_trust" "ad-domain-trust" {
 }
 
 func testAccActiveDirectoryDomainTrust_activeDirectoryDomainTrustUpdate(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_active_directory_domain_trust" "ad-domain-trust" {
     domain     = "ci-managed-ad.com"
     target_domain_name = "example-gcp.com"

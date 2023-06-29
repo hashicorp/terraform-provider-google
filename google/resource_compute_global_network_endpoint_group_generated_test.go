@@ -55,7 +55,7 @@ func TestAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupExample(
 }
 
 func testAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_global_network_endpoint_group" "neg" {
   name                  = "tf-test-my-lb-neg%{random_suffix}"
   default_port          = "90"
@@ -89,7 +89,7 @@ func TestAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupIpAddres
 }
 
 func testAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupIpAddressExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_global_network_endpoint_group" "neg" {
   name                  = "tf-test-my-lb-neg%{random_suffix}"
   network_endpoint_type = "INTERNET_IP_PORT"

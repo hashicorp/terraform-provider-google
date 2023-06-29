@@ -58,7 +58,7 @@ func testAccCloudIdentityGroupMembership_updateTest(t *testing.T) {
 }
 
 func testAccCloudIdentityGroupMembership_update1(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_identity_group" "group" {
   display_name = "tf-test-my-identity-group%{random_suffix}"
 
@@ -89,7 +89,7 @@ resource "google_cloud_identity_group_membership" "basic" {
 }
 
 func testAccCloudIdentityGroupMembership_update2(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_identity_group" "group" {
   display_name = "tf-test-my-identity-group%{random_suffix}"
 
@@ -148,7 +148,7 @@ func testAccCloudIdentityGroupMembership_importTest(t *testing.T) {
 }
 
 func testAccCloudIdentityGroupMembership_import(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_identity_group" "group" {
   display_name = "tf-test-my-identity-group%{random_suffix}"
 
@@ -235,7 +235,7 @@ func testAccCloudIdentityGroupMembership_membershipDoesNotExistTest(t *testing.T
 }
 
 func testAccCloudIdentityGroupMembership_dne(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_identity_group" "group" {
   display_name = "tf-test-my-identity-group-%{random_suffix}"
 
@@ -290,7 +290,7 @@ func testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipExampleTest
 }
 
 func testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_identity_group" "group" {
   display_name = "tf-test-my-identity-group%{random_suffix}"
 
@@ -360,7 +360,7 @@ func testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipUserExample
 }
 
 func testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipUserExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_identity_group" "group" {
   display_name = "tf-test-my-identity-group%{random_suffix}"
 

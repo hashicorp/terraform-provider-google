@@ -56,7 +56,7 @@ func TestAccDocumentAIProcessor_documentaiProcessorExample(t *testing.T) {
 }
 
 func testAccDocumentAIProcessor_documentaiProcessorExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_document_ai_processor" "processor" {
   location = "us"
   display_name = "tf-test-test-processor%{random_suffix}"
@@ -91,7 +91,7 @@ func TestAccDocumentAIProcessor_documentaiProcessorEuExample(t *testing.T) {
 }
 
 func testAccDocumentAIProcessor_documentaiProcessorEuExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_document_ai_processor" "processor" {
   location = "eu"
   display_name = "tf-test-test-processor%{random_suffix}"

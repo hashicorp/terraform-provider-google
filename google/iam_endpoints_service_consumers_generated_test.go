@@ -130,7 +130,7 @@ func TestAccServiceManagementServiceConsumersIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccServiceManagementServiceConsumersIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_endpoints_service" "endpoints_service" {
   service_name = "endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog"
   project = "%{project_name}"
@@ -156,7 +156,7 @@ resource "google_endpoints_service_consumers_iam_member" "foo" {
 }
 
 func testAccServiceManagementServiceConsumersIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_endpoints_service" "endpoints_service" {
   service_name = "endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog"
   project = "%{project_name}"
@@ -196,7 +196,7 @@ data "google_endpoints_service_consumers_iam_policy" "foo" {
 }
 
 func testAccServiceManagementServiceConsumersIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_endpoints_service" "endpoints_service" {
   service_name = "endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog"
   project = "%{project_name}"
@@ -224,7 +224,7 @@ resource "google_endpoints_service_consumers_iam_policy" "foo" {
 }
 
 func testAccServiceManagementServiceConsumersIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_endpoints_service" "endpoints_service" {
   service_name = "endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog"
   project = "%{project_name}"
@@ -250,7 +250,7 @@ resource "google_endpoints_service_consumers_iam_binding" "foo" {
 }
 
 func testAccServiceManagementServiceConsumersIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_endpoints_service" "endpoints_service" {
   service_name = "endpoint%{random_suffix}.endpoints.%{project_name}.cloud.goog"
   project = "%{project_name}"

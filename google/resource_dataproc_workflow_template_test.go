@@ -74,7 +74,7 @@ func TestAccDataprocWorkflowTemplate_withShieldedVMs(t *testing.T) {
 }
 
 func testAccDataprocWorkflowTemplate_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataproc_workflow_template" "template" {
   name = "template%{random_suffix}"
   location = "us-central1"
@@ -130,7 +130,7 @@ resource "google_dataproc_workflow_template" "template" {
 }
 
 func testAccDataprocWorkflowTemplate_withShieldedVMs(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataproc_workflow_template" "shielded_vms_template" {
   name = "template%{random_suffix}"
   location = "us-central1"

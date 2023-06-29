@@ -130,7 +130,7 @@ func TestAccApigeeEnvironmentIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccApigeeEnvironmentIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"
@@ -204,7 +204,7 @@ resource "google_apigee_environment_iam_member" "foo" {
 }
 
 func testAccApigeeEnvironmentIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"
@@ -292,7 +292,7 @@ data "google_apigee_environment_iam_policy" "foo" {
 }
 
 func testAccApigeeEnvironmentIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"
@@ -368,7 +368,7 @@ resource "google_apigee_environment_iam_policy" "foo" {
 }
 
 func testAccApigeeEnvironmentIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"
@@ -442,7 +442,7 @@ resource "google_apigee_environment_iam_binding" "foo" {
 }
 
 func testAccApigeeEnvironmentIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"

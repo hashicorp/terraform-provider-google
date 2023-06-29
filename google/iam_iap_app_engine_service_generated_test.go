@@ -333,7 +333,7 @@ func TestAccIapAppEngineServiceIamPolicyGenerated_withCondition(t *testing.T) {
 	}
 
 	// Test should have 2 bindings: one with a description and one without. Any < chars are converted to a unicode character by the API.
-	expectedPolicyData := Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
+	expectedPolicyData := acctest.Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
 	VcrTest(t, resource.TestCase{
@@ -360,7 +360,7 @@ func TestAccIapAppEngineServiceIamPolicyGenerated_withCondition(t *testing.T) {
 }
 
 func testAccIapAppEngineServiceIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "my_project" {
   name            = "%{project_id}"
   project_id      = "%{project_id}"
@@ -426,7 +426,7 @@ resource "google_iap_app_engine_service_iam_member" "foo" {
 }
 
 func testAccIapAppEngineServiceIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "my_project" {
   name            = "%{project_id}"
   project_id      = "%{project_id}"
@@ -507,7 +507,7 @@ data "google_iap_app_engine_service_iam_policy" "foo" {
 }
 
 func testAccIapAppEngineServiceIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "my_project" {
   name            = "%{project_id}"
   project_id      = "%{project_id}"
@@ -575,7 +575,7 @@ resource "google_iap_app_engine_service_iam_policy" "foo" {
 }
 
 func testAccIapAppEngineServiceIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "my_project" {
   name            = "%{project_id}"
   project_id      = "%{project_id}"
@@ -641,7 +641,7 @@ resource "google_iap_app_engine_service_iam_binding" "foo" {
 }
 
 func testAccIapAppEngineServiceIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "my_project" {
   name            = "%{project_id}"
   project_id      = "%{project_id}"
@@ -707,7 +707,7 @@ resource "google_iap_app_engine_service_iam_binding" "foo" {
 }
 
 func testAccIapAppEngineServiceIamBinding_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "my_project" {
   name            = "%{project_id}"
   project_id      = "%{project_id}"
@@ -778,7 +778,7 @@ resource "google_iap_app_engine_service_iam_binding" "foo" {
 }
 
 func testAccIapAppEngineServiceIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "my_project" {
   name            = "%{project_id}"
   project_id      = "%{project_id}"
@@ -871,7 +871,7 @@ resource "google_iap_app_engine_service_iam_binding" "foo3" {
 }
 
 func testAccIapAppEngineServiceIamMember_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "my_project" {
   name            = "%{project_id}"
   project_id      = "%{project_id}"
@@ -942,7 +942,7 @@ resource "google_iap_app_engine_service_iam_member" "foo" {
 }
 
 func testAccIapAppEngineServiceIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "my_project" {
   name            = "%{project_id}"
   project_id      = "%{project_id}"
@@ -1035,7 +1035,7 @@ resource "google_iap_app_engine_service_iam_member" "foo3" {
 }
 
 func testAccIapAppEngineServiceIamPolicy_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "my_project" {
   name            = "%{project_id}"
   project_id      = "%{project_id}"

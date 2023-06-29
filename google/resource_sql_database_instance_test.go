@@ -1203,7 +1203,7 @@ func TestAccSqlDatabaseInstance_encryptionKey(t *testing.T) {
 		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: Nprintf(
+				Config: acctest.Nprintf(
 					testGoogleSqlDatabaseInstance_encryptionKey, context),
 			},
 			{
@@ -1237,7 +1237,7 @@ func TestAccSqlDatabaseInstance_encryptionKey_replicaInDifferentRegion(t *testin
 		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: Nprintf(
+				Config: acctest.Nprintf(
 					testGoogleSqlDatabaseInstance_encryptionKey_replicaInDifferentRegion, context),
 			},
 			{
@@ -1824,7 +1824,7 @@ func TestAccSqlDatabaseInstance_ReplicaPromoteSkippedWithNoMasterInstanceNameAnd
 }
 
 func testAccSqlDatabaseInstance_sqlMysqlInstancePvpExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_sql_database_instance" "mysql_pvp_instance_name" {
   name             = "tf-test-mysql-pvp-instance-name%{random_suffix}"
   region           = "asia-northeast1"
@@ -3165,7 +3165,7 @@ resource "google_sql_database_instance" "instance" {
 }
 
 func testAccSqlDatabaseInstance_beforeBackup(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_sql_database_instance" "instance" {
   name             = "tf-test-%{random_suffix}"
   database_version = "POSTGRES_11"
@@ -3184,7 +3184,7 @@ resource "google_sql_database_instance" "instance" {
 }
 
 func testAccSqlDatabaseInstance_restoreFromBackup(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_sql_database_instance" "instance" {
   name             = "tf-test-%{random_suffix}"
   database_version = "POSTGRES_11"
@@ -3218,7 +3218,7 @@ data "google_sql_backup_run" "backup" {
 }
 
 func testAccSqlDatabaseInstance_basicClone(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_sql_database_instance" "instance" {
   name             = "tf-test-%{random_suffix}"
   database_version = "POSTGRES_11"
@@ -3245,7 +3245,7 @@ data "google_sql_backup_run" "backup" {
 }
 
 func testAccSqlDatabaseInstance_cloneWithSettings(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_sql_database_instance" "instance" {
   name             = "tf-test-%{random_suffix}"
   database_version = "POSTGRES_11"
@@ -3279,7 +3279,7 @@ data "google_sql_backup_run" "backup" {
 }
 
 func testAccSqlDatabaseInstance_cloneWithDatabaseNames(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_sql_database_instance" "instance" {
   name             = "tf-test-%{random_suffix}"
   database_version = "POSTGRES_11"

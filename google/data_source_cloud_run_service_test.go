@@ -54,7 +54,7 @@ func TestAccDataSourceGoogleCloudRunService_optionalProject(t *testing.T) {
 }
 
 func testAccDataSourceGoogleCloudRunService_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_run_service" "foo" {
   name     = "tf-test-cloudrun-srv%{random_suffix}"
   location = "us-central1"
@@ -82,7 +82,7 @@ data "google_cloud_run_service" "foo" {
 }
 
 func testAccDataSourceGoogleCloudRunService_optionalProject(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_run_service" "foo" {
   name     = "tf-test-cloudrun-srv%{random_suffix}"
   location = "us-central1"

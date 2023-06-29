@@ -301,7 +301,7 @@ func TestAccComputeSubnetworkIamPolicyGenerated_withCondition(t *testing.T) {
 	}
 
 	// Test should have 2 bindings: one with a description and one without. Any < chars are converted to a unicode character by the API.
-	expectedPolicyData := Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
+	expectedPolicyData := acctest.Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
 	VcrTest(t, resource.TestCase{
@@ -328,7 +328,7 @@ func TestAccComputeSubnetworkIamPolicyGenerated_withCondition(t *testing.T) {
 }
 
 func testAccComputeSubnetworkIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
   name          = "tf-test-test-subnetwork%{random_suffix}"
   ip_cidr_range = "10.2.0.0/16"
@@ -356,7 +356,7 @@ resource "google_compute_subnetwork_iam_member" "foo" {
 }
 
 func testAccComputeSubnetworkIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
   name          = "tf-test-test-subnetwork%{random_suffix}"
   ip_cidr_range = "10.2.0.0/16"
@@ -399,7 +399,7 @@ data "google_compute_subnetwork_iam_policy" "foo" {
 }
 
 func testAccComputeSubnetworkIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
   name          = "tf-test-test-subnetwork%{random_suffix}"
   ip_cidr_range = "10.2.0.0/16"
@@ -429,7 +429,7 @@ resource "google_compute_subnetwork_iam_policy" "foo" {
 }
 
 func testAccComputeSubnetworkIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
   name          = "tf-test-test-subnetwork%{random_suffix}"
   ip_cidr_range = "10.2.0.0/16"
@@ -457,7 +457,7 @@ resource "google_compute_subnetwork_iam_binding" "foo" {
 }
 
 func testAccComputeSubnetworkIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
   name          = "tf-test-test-subnetwork%{random_suffix}"
   ip_cidr_range = "10.2.0.0/16"
@@ -485,7 +485,7 @@ resource "google_compute_subnetwork_iam_binding" "foo" {
 }
 
 func testAccComputeSubnetworkIamBinding_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
   name          = "tf-test-test-subnetwork%{random_suffix}"
   ip_cidr_range = "10.2.0.0/16"
@@ -518,7 +518,7 @@ resource "google_compute_subnetwork_iam_binding" "foo" {
 }
 
 func testAccComputeSubnetworkIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
   name          = "tf-test-test-subnetwork%{random_suffix}"
   ip_cidr_range = "10.2.0.0/16"
@@ -573,7 +573,7 @@ resource "google_compute_subnetwork_iam_binding" "foo3" {
 }
 
 func testAccComputeSubnetworkIamMember_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
   name          = "tf-test-test-subnetwork%{random_suffix}"
   ip_cidr_range = "10.2.0.0/16"
@@ -606,7 +606,7 @@ resource "google_compute_subnetwork_iam_member" "foo" {
 }
 
 func testAccComputeSubnetworkIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
   name          = "tf-test-test-subnetwork%{random_suffix}"
   ip_cidr_range = "10.2.0.0/16"
@@ -661,7 +661,7 @@ resource "google_compute_subnetwork_iam_member" "foo3" {
 }
 
 func testAccComputeSubnetworkIamPolicy_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
   name          = "tf-test-test-subnetwork%{random_suffix}"
   ip_cidr_range = "10.2.0.0/16"

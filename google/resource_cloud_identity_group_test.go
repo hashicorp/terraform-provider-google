@@ -68,7 +68,7 @@ func testAccCloudIdentityGroup_updateTest(t *testing.T) {
 }
 
 func testAccCloudIdentityGroup_update(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_identity_group" "cloud_identity_group_basic" {
   display_name = "tf-test-my-identity-group%{random_suffix}-update"
   description  = "my-description"
@@ -113,7 +113,7 @@ func testAccCloudIdentityGroup_cloudIdentityGroupsBasicExampleTest(t *testing.T)
 }
 
 func testAccCloudIdentityGroup_cloudIdentityGroupsBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_identity_group" "cloud_identity_group_basic" {
   display_name         = "tf-test-my-identity-group%{random_suffix}"
   initial_group_config = "WITH_INITIAL_OWNER"

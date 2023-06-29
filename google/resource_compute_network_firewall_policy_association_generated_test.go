@@ -67,7 +67,7 @@ func TestAccComputeNetworkFirewallPolicyAssociation_GlobalHandWritten(t *testing
 }
 
 func testAccComputeNetworkFirewallPolicyAssociation_GlobalHandWritten(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network_firewall_policy" "network_firewall_policy" {
   name = "tf-test-policy%{random_suffix}"
   project = "%{project_name}"
@@ -89,7 +89,7 @@ resource "google_compute_network_firewall_policy_association" "primary" {
 }
 
 func testAccComputeNetworkFirewallPolicyAssociation_GlobalHandWrittenUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network_firewall_policy" "network_firewall_policy" {
   name = "tf-test-policy%{random_suffix}"
   project = "%{project_name}"

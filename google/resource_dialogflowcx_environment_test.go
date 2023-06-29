@@ -50,7 +50,7 @@ func TestAccDialogflowCXEnvironment_update(t *testing.T) {
 }
 
 func testAccDialogflowCXEnvironment_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	data "google_project" "project" {}
 
 	resource "google_service_account" "dialogflowcx_service_account" {
@@ -91,7 +91,7 @@ func testAccDialogflowCXEnvironment_basic(context map[string]interface{}) string
 }
 
 func testAccDialogflowCXEnvironment_full(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	data "google_project" "project" {}
 
 	resource "google_service_account" "dialogflowcx_service_account" {
@@ -163,7 +163,7 @@ func TestAccDialogflowCXEnvironment_dialogflowcxEnvironmentFullExample(t *testin
 }
 
 func testAccDialogflowCXEnvironment_dialogflowcxEnvironmentFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
   display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
   location = "global"
@@ -222,7 +222,7 @@ func TestAccDialogflowCXEnvironment_dialogflowcxEnvironmentRegional(t *testing.T
 }
 
 func testAccDialogflowCXEnvironment_dialogflowcxEnvironmentFRegional(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
 	display_name = "issue12880"
 	location = "europe-west2"

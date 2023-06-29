@@ -34,7 +34,7 @@ func TestAccDataSourceGoogleArtifactRegistryRepositoryConfig(t *testing.T) {
 }
 
 func testAccDataSourceGoogleArtifactRegistryRepositoryConfig(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
   repository_id = "tf-test-my-repository%{random_suffix}"

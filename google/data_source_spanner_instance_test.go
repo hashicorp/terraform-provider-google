@@ -34,7 +34,7 @@ func TestAccDataSourceSpannerInstance_basic(t *testing.T) {
 }
 
 func testAccDataSourceSpannerInstanceBasic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_spanner_instance" "bar" {
 	config       = "regional-us-central1"
 	display_name = "Test Spanner Instance"

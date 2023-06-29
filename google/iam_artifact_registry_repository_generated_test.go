@@ -124,7 +124,7 @@ func TestAccArtifactRegistryRepositoryIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccArtifactRegistryRepositoryIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
   repository_id = "tf-test-my-repository%{random_suffix}"
@@ -143,7 +143,7 @@ resource "google_artifact_registry_repository_iam_member" "foo" {
 }
 
 func testAccArtifactRegistryRepositoryIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
   repository_id = "tf-test-my-repository%{random_suffix}"
@@ -177,7 +177,7 @@ data "google_artifact_registry_repository_iam_policy" "foo" {
 }
 
 func testAccArtifactRegistryRepositoryIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
   repository_id = "tf-test-my-repository%{random_suffix}"
@@ -198,7 +198,7 @@ resource "google_artifact_registry_repository_iam_policy" "foo" {
 }
 
 func testAccArtifactRegistryRepositoryIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
   repository_id = "tf-test-my-repository%{random_suffix}"
@@ -217,7 +217,7 @@ resource "google_artifact_registry_repository_iam_binding" "foo" {
 }
 
 func testAccArtifactRegistryRepositoryIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
   repository_id = "tf-test-my-repository%{random_suffix}"

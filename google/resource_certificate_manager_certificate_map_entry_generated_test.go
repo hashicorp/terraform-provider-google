@@ -56,7 +56,7 @@ func TestAccCertificateManagerCertificateMapEntry_certificateManagerCertificateM
 }
 
 func testAccCertificateManagerCertificateMapEntry_certificateManagerCertificateMapEntryFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate_map" "certificate_map" {
   name        = "tf-test-cert-map-entry%{random_suffix}"
   description = "My acceptance test certificate map"
