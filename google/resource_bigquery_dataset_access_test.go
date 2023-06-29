@@ -407,7 +407,7 @@ resource "google_bigquery_dataset" "public" {
 }
 
 func testAccBigQueryDatasetAccess_authorizedRoutine(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "public" {
   dataset_id  = "%{public_dataset}"
   description = "This dataset is public"

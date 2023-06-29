@@ -154,7 +154,7 @@ func TestAccContainerAnalysisOccurrence_multipleSignatures(t *testing.T) {
 }
 
 func testAccContainerAnalysisOccurence_basic(params map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
   name = "test-attestor%{random_suffix}"
   attestation_authority_note {
@@ -208,7 +208,7 @@ resource "google_container_analysis_occurrence" "occurrence" {
 }
 
 func testAccContainerAnalysisOccurence_multipleSignatures(params map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
   name = "test-attestor%{random_suffix}"
   attestation_authority_note {

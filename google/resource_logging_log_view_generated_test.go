@@ -58,7 +58,7 @@ func TestAccLoggingLogView_loggingLogViewBasicExample(t *testing.T) {
 }
 
 func testAccLoggingLogView_loggingLogViewBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_logging_project_bucket_config" "logging_log_view" {
     project        = "%{project}"
     location       = "global"
@@ -102,7 +102,7 @@ func TestAccLoggingLogView_loggingLogViewLongNameExample(t *testing.T) {
 }
 
 func testAccLoggingLogView_loggingLogViewLongNameExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_logging_project_bucket_config" "logging_log_view" {
     project        = "%{project}"
     location       = "global"

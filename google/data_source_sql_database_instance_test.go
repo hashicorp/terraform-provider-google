@@ -38,7 +38,7 @@ func TestAccDataSourceSqlDatabaseInstance_basic(t *testing.T) {
 }
 
 func testAccDataSourceSqlDatabaseInstance_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_sql_database_instance" "main" {
   name             = "tf-test-instance-%{random_suffix}"
   database_version = "POSTGRES_11"

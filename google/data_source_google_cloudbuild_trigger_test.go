@@ -32,7 +32,7 @@ func TestAccDataSourceGoogleCloudBuildTrigger_basic(t *testing.T) {
 }
 
 func testAccDataSourceGoogleCloudBuildTrigger_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloudbuild_trigger" "test-trigger" {
 	location = "us-central1"
 	name        = "manual-build%{random_suffix}"

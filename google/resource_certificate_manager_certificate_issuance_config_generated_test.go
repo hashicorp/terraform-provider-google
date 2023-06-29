@@ -56,7 +56,7 @@ func TestAccCertificateManagerCertificateIssuanceConfig_certificateManagerCertif
 }
 
 func testAccCertificateManagerCertificateIssuanceConfig_certificateManagerCertificateIssuanceConfigExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate_issuance_config" "default" {
   name    = "issuanceconfigtestterraform"
   description = "sample description for the certificate issuanceConfigs"

@@ -46,7 +46,7 @@ func TestAccApigeeKeystoresAliasesPkcs12_ApigeeKeystoresAliasesPkcs12Example(t *
 }
 
 func testAccApigeeKeystoresAliasesPkcs12_ApigeeKeystoresAliasesPkcs12Example(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"

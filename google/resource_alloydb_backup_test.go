@@ -46,7 +46,7 @@ func TestAccAlloydbBackup_update(t *testing.T) {
 
 // Updates "label" field from testAccAlloydbBackup_alloydbBackupFullExample
 func testAccAlloydbBackup_update(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_alloydb_backup" "default" {
   location     = "us-central1"
   backup_id    = "tf-test-alloydb-backup%{random_suffix}"
@@ -115,7 +115,7 @@ func TestAccAlloydbBackup_createBackupWithMandatoryFields(t *testing.T) {
 }
 
 func testAccAlloydbBackup_createBackupWithMandatoryFields(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_alloydb_backup" "default" {
   backup_id    = "tf-test-alloydb-backup%{random_suffix}"
   location = "us-central1"
@@ -197,7 +197,7 @@ func TestAccAlloydbBackup_usingCMEK(t *testing.T) {
 }
 
 func testAccAlloydbBackup_usingCMEK(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_alloydb_backup" "default" {
 	location     = "us-central1"
 	backup_id    = "tf-test-alloydb-backup%{random_suffix}"

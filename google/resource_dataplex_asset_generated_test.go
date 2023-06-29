@@ -70,7 +70,7 @@ func TestAccDataplexAsset_BasicAssetHandWritten(t *testing.T) {
 }
 
 func testAccDataplexAsset_BasicAssetHandWritten(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "basic_bucket" {
   name          = "tf-test-bucket%{random_suffix}"
   location      = "%{region}"
@@ -135,7 +135,7 @@ resource "google_dataplex_asset" "primary" {
 }
 
 func testAccDataplexAsset_BasicAssetHandWrittenUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "basic_bucket" {
   name          = "tf-test-bucket%{random_suffix}"
   location      = "%{region}"

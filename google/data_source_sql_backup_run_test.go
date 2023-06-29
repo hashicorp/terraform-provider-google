@@ -64,7 +64,7 @@ data "google_sql_backup_run" "backup" {
 }
 
 func testAccDataSourceSqlBackupRun_notFound(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_sql_database_instance" "instance" {
   name             = "tf-test-instance-%{random_suffix}"
   database_version = "POSTGRES_11"

@@ -56,7 +56,7 @@ func TestAccContainerAttachedCluster_containerAttachedClusterBasicExample(t *tes
 }
 
 func testAccContainerAttachedCluster_containerAttachedClusterBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 data "google_project" "project" {
 }
 
@@ -108,7 +108,7 @@ func TestAccContainerAttachedCluster_containerAttachedClusterFullExample(t *test
 }
 
 func testAccContainerAttachedCluster_containerAttachedClusterFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 data "google_project" "project" {
 }
 
@@ -177,7 +177,7 @@ func TestAccContainerAttachedCluster_containerAttachedClusterIgnoreErrorsExample
 }
 
 func testAccContainerAttachedCluster_containerAttachedClusterIgnoreErrorsExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 data "google_project" "project" {
 }
 

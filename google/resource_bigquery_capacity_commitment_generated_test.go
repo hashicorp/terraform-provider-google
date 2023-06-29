@@ -60,7 +60,7 @@ func TestAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCom
 }
 
 func testAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCommitmentBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_capacity_commitment" "commitment" {
 	capacity_commitment_id = "capacity-tf-test%{random_suffix}"
 

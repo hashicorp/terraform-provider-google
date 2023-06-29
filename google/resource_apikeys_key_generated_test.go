@@ -192,7 +192,7 @@ func TestAccApikeysKey_ServerKey(t *testing.T) {
 }
 
 func testAccApikeysKey_AndroidKey(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key"
@@ -224,7 +224,7 @@ resource "google_project" "basic" {
 }
 
 func testAccApikeysKey_AndroidKeyUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key"
@@ -256,7 +256,7 @@ resource "google_project" "basic" {
 }
 
 func testAccApikeysKey_BasicKey(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key"
@@ -285,7 +285,7 @@ resource "google_project" "basic" {
 }
 
 func testAccApikeysKey_BasicKeyUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key-update"
@@ -314,7 +314,7 @@ resource "google_project" "basic" {
 }
 
 func testAccApikeysKey_IosKey(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key"
@@ -343,7 +343,7 @@ resource "google_project" "basic" {
 }
 
 func testAccApikeysKey_IosKeyUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key"
@@ -372,7 +372,7 @@ resource "google_project" "basic" {
 }
 
 func testAccApikeysKey_MinimalKey(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key"
@@ -390,7 +390,7 @@ resource "google_project" "basic" {
 }
 
 func testAccApikeysKey_ServerKey(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key"
@@ -419,7 +419,7 @@ resource "google_project" "basic" {
 }
 
 func testAccApikeysKey_ServerKeyUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key"

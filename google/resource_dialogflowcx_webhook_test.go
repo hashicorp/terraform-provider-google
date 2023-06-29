@@ -44,7 +44,7 @@ func TestAccDialogflowCXWebhook_update(t *testing.T) {
 }
 
 func testAccDialogflowCXWebhook_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	data "google_project" "project" {}
 
 	resource "google_dialogflow_cx_agent" "agent_entity" {
@@ -68,7 +68,7 @@ func testAccDialogflowCXWebhook_basic(context map[string]interface{}) string {
 }
 
 func testAccDialogflowCXWebhook_full(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	data "google_project" "project" {}
 
 	resource "google_dialogflow_cx_agent" "agent_entity" {

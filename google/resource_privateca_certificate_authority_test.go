@@ -123,7 +123,7 @@ func TestAccPrivatecaCertificateAuthority_rootCaManageDesiredState(t *testing.T)
 }
 
 func testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicRoot(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_certificate_authority" "default" {
 	// This example assumes this pool already exists.
 	// Pools cannot be deleted in normal test circumstances, so we depend on static pools
@@ -177,7 +177,7 @@ resource "google_privateca_certificate_authority" "default" {
 }
 
 func testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityEnd(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_certificate_authority" "default" {
 	// This example assumes this pool already exists.
 	// Pools cannot be deleted in normal test circumstances, so we depend on static pools
@@ -234,7 +234,7 @@ resource "google_privateca_certificate_authority" "default" {
 }
 
 func testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityWithDesiredState(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_certificate_authority" "default" {
 	// This example assumes this pool already exists.
 	// Pools cannot be deleted in normal test circumstances, so we depend on static pools

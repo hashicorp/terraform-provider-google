@@ -60,7 +60,7 @@ func TestAccApigeeEnvgroupAttachment_apigeeEnvironmentGroupAttachmentBasicTestEx
 }
 
 func testAccApigeeEnvgroupAttachment_apigeeEnvironmentGroupAttachmentBasicTestExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"

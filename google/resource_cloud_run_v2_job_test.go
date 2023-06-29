@@ -44,7 +44,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobFullUpdate(t *testing.T) {
 }
 
 func testAccCloudRunV2Job_cloudrunv2JobFull(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
   resource "google_cloud_run_v2_job" "default" {
     name     = "tf-test-cloudrun-job%{random_suffix}"
     location = "us-central1"
@@ -112,7 +112,7 @@ func testAccCloudRunV2Job_cloudrunv2JobFull(context map[string]interface{}) stri
 }
 
 func testAccCloudRunV2Job_cloudrunv2JobFullUpdate(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_run_v2_job" "default" {
   name     = "tf-test-cloudrun-job%{random_suffix}"
   location = "us-central1"

@@ -55,7 +55,7 @@ func TestAccComputeSslPolicy_sslPolicyBasicExample(t *testing.T) {
 }
 
 func testAccComputeSslPolicy_sslPolicyBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_ssl_policy" "prod-ssl-policy" {
   name    = "tf-test-production-ssl-policy%{random_suffix}"
   profile = "MODERN"

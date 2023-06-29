@@ -55,7 +55,7 @@ func TestAccDatastoreIndex_datastoreIndexExample(t *testing.T) {
 }
 
 func testAccDatastoreIndex_datastoreIndexExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_datastore_index" "default" {
   kind = "foo"
   properties {

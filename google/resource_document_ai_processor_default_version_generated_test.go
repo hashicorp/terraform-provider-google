@@ -23,7 +23,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 func TestAccDocumentAIProcessorDefaultVersion_documentaiDefaultVersionExample(t *testing.T) {
@@ -51,7 +50,7 @@ func TestAccDocumentAIProcessorDefaultVersion_documentaiDefaultVersionExample(t 
 }
 
 func testAccDocumentAIProcessorDefaultVersion_documentaiDefaultVersionExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_document_ai_processor" "processor" {
   location = "us"
   display_name = "tf-test-test-processor%{random_suffix}"

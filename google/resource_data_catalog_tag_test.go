@@ -51,7 +51,7 @@ func TestAccDataCatalogTag_update(t *testing.T) {
 }
 
 func testAccDataCatalogTag_dataCatalogEntryTag_update(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_entry" "entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
   entry_id = "tf_test_my_entry%{random_suffix}"

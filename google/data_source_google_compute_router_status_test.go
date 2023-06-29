@@ -42,7 +42,7 @@ func TestAccDataSourceComputeRouterStatus(t *testing.T) {
 }
 
 func testAccDataSourceComputeRouterStatusConfig(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network" "network1" {
   name                    = "network1-%{suffix}"
   routing_mode            = "GLOBAL"

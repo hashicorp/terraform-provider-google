@@ -61,7 +61,7 @@ func TestAccContainerAzureClient_BasicHandWritten(t *testing.T) {
 }
 
 func testAccContainerAzureClient_BasicHandWritten(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_container_azure_client" "primary" {
   application_id = "%{azure_app}"
   location       = "us-west1"

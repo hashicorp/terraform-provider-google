@@ -98,7 +98,7 @@ func TestAccAssuredWorkloadsWorkload_FullHandWritten(t *testing.T) {
 }
 
 func testAccAssuredWorkloadsWorkload_BasicHandWritten(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_assured_workloads_workload" "primary" {
   display_name = "tf-test-name%{random_suffix}"
   labels = {
@@ -119,7 +119,7 @@ resource "google_folder" "folder1" {
 }
 
 func testAccAssuredWorkloadsWorkload_BasicHandWrittenUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_assured_workloads_workload" "primary" {
   display_name = "tf-test-name%{random_suffix}"
   labels = {
@@ -140,7 +140,7 @@ resource "google_folder" "folder1" {
 }
 
 func testAccAssuredWorkloadsWorkload_FullHandWritten(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_assured_workloads_workload" "primary" {
   display_name = "tf-test-name%{random_suffix}"
   billing_account = "billingAccounts/%{billing_acct}"

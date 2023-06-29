@@ -24,7 +24,6 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 func TestAccFirestoreDatabase_firestoreDatabaseExample(t *testing.T) {
@@ -57,7 +56,7 @@ func TestAccFirestoreDatabase_firestoreDatabaseExample(t *testing.T) {
 }
 
 func testAccFirestoreDatabase_firestoreDatabaseExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   project_id = "tf-test-my-project%{random_suffix}"
   name       = "tf-test-my-project%{random_suffix}"
@@ -121,7 +120,7 @@ func TestAccFirestoreDatabase_firestoreDatabaseDatastoreModeExample(t *testing.T
 }
 
 func testAccFirestoreDatabase_firestoreDatabaseDatastoreModeExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   project_id = "tf-test-my-project%{random_suffix}"
   name       = "tf-test-my-project%{random_suffix}"

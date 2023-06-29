@@ -48,7 +48,7 @@ func TestAccCloudIdsEndpoint_basic(t *testing.T) {
 }
 
 func testCloudIds_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
 	name = "tf-test-my-network%{random_suffix}"
 }
@@ -77,7 +77,7 @@ resource "google_cloud_ids_endpoint" "endpoint" {
 }
 
 func testCloudIds_basicUpdate(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
 	name = "tf-test-my-network%{random_suffix}"
 }

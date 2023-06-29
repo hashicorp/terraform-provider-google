@@ -56,7 +56,7 @@ func TestAccComputeExternalVpnGateway_externalVpnGatewayExample(t *testing.T) {
 }
 
 func testAccComputeExternalVpnGateway_externalVpnGatewayExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_ha_vpn_gateway" "ha_gateway" {
   region   = "us-central1"
   name     = "tf-test-ha-vpn%{random_suffix}"
@@ -186,7 +186,7 @@ func TestAccComputeExternalVpnGateway_onlyExternalVpnGatewayFullExample(t *testi
 }
 
 func testAccComputeExternalVpnGateway_onlyExternalVpnGatewayFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_external_vpn_gateway" "external_gateway" {
   name            = "tf-test-external-gateway%{random_suffix}"
   redundancy_type = "SINGLE_IP_INTERNALLY_REDUNDANT"

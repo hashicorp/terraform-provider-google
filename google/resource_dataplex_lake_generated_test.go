@@ -68,7 +68,7 @@ func TestAccDataplexLake_BasicLake(t *testing.T) {
 }
 
 func testAccDataplexLake_BasicLake(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataplex_lake" "primary" {
   location     = "%{region}"
   name         = "tf-test-lake%{random_suffix}"
@@ -87,7 +87,7 @@ resource "google_dataplex_lake" "primary" {
 }
 
 func testAccDataplexLake_BasicLakeUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataplex_lake" "primary" {
   location     = "%{region}"
   name         = "tf-test-lake%{random_suffix}"

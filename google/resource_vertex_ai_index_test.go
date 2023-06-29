@@ -52,7 +52,7 @@ func TestAccVertexAIIndex_updated(t *testing.T) {
 }
 
 func testAccVertexAIIndex_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "tf-test-%{random_suffix}"
   location = "us-central1"
@@ -106,7 +106,7 @@ resource "google_vertex_ai_index" "index" {
 }
 
 func testAccVertexAIIndex_updated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "tf-test-%{random_suffix}"
   location = "us-central1"

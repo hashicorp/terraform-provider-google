@@ -56,7 +56,7 @@ func TestAccIdentityPlatformOauthIdpConfig_identityPlatformOauthIdpConfigBasicEx
 }
 
 func testAccIdentityPlatformOauthIdpConfig_identityPlatformOauthIdpConfigBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_identity_platform_oauth_idp_config" "oauth_idp_config" {
   name          = "%{name}"
   display_name  = "Display Name"

@@ -56,7 +56,7 @@ func TestAccPubsubSchema_pubsubSchemaBasicExample(t *testing.T) {
 }
 
 func testAccPubsubSchema_pubsubSchemaBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_pubsub_schema" "example" {
   name = "example%{random_suffix}"
   type = "AVRO"
@@ -91,7 +91,7 @@ func TestAccPubsubSchema_pubsubSchemaProtobufExample(t *testing.T) {
 }
 
 func testAccPubsubSchema_pubsubSchemaProtobufExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_pubsub_schema" "example" {
   name = "example%{random_suffix}"
   type = "PROTOCOL_BUFFER"

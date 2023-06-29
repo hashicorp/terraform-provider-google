@@ -58,7 +58,7 @@ func TestAccFirestoreField_firestoreFieldBasicExample(t *testing.T) {
 }
 
 func testAccFirestoreField_firestoreFieldBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_firestore_field" "basic" {
   project = "%{project_id}"
   database = "(default)"
@@ -107,7 +107,7 @@ func TestAccFirestoreField_firestoreFieldTimestampExample(t *testing.T) {
 }
 
 func testAccFirestoreField_firestoreFieldTimestampExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_firestore_field" "timestamp" {
   project = "%{project_id}"
   collection = "chatrooms_%{random_suffix}"
@@ -147,7 +147,7 @@ func TestAccFirestoreField_firestoreFieldMatchOverrideExample(t *testing.T) {
 }
 
 func testAccFirestoreField_firestoreFieldMatchOverrideExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_firestore_field" "match_override" {
   project = "%{project_id}"
   collection = "chatrooms_%{random_suffix}"

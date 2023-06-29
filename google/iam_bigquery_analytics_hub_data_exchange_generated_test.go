@@ -124,7 +124,7 @@ func TestAccBigqueryAnalyticsHubDataExchangeIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccBigqueryAnalyticsHubDataExchangeIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
   location         = "US"
   data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
@@ -143,7 +143,7 @@ resource "google_bigquery_analytics_hub_data_exchange_iam_member" "foo" {
 }
 
 func testAccBigqueryAnalyticsHubDataExchangeIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
   location         = "US"
   data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
@@ -177,7 +177,7 @@ data "google_bigquery_analytics_hub_data_exchange_iam_policy" "foo" {
 }
 
 func testAccBigqueryAnalyticsHubDataExchangeIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
   location         = "US"
   data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
@@ -198,7 +198,7 @@ resource "google_bigquery_analytics_hub_data_exchange_iam_policy" "foo" {
 }
 
 func testAccBigqueryAnalyticsHubDataExchangeIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
   location         = "US"
   data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
@@ -217,7 +217,7 @@ resource "google_bigquery_analytics_hub_data_exchange_iam_binding" "foo" {
 }
 
 func testAccBigqueryAnalyticsHubDataExchangeIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
   location         = "US"
   data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"

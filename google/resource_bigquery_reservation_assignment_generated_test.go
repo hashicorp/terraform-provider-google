@@ -60,7 +60,7 @@ func TestAccBigqueryReservationAssignment_BasicHandWritten(t *testing.T) {
 }
 
 func testAccBigqueryReservationAssignment_BasicHandWritten(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_reservation" "basic" {
   name  = "tf-test-my-reservation%{random_suffix}"
   project = "%{project_name}"

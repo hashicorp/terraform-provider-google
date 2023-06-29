@@ -36,7 +36,7 @@ func TestAccComputeBackendServiceSignedUrlKey_basic(t *testing.T) {
 }
 
 func testAccComputeBackendServiceSignedUrlKey_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_backend_service_signed_url_key" "backend_key" {
   name            = "testkey-%{random_suffix}"
   key_value       = "iAmAFakeKeyRandomBytes=="

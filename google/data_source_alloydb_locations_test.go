@@ -38,7 +38,7 @@ func TestAccDataSourceAlloydbLocations_basic(t *testing.T) {
 }
 
 func testAccDataSourceAlloydbLocations_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 data "google_alloydb_locations" "qa" {
 }
 `, context)

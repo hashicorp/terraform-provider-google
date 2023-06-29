@@ -57,7 +57,7 @@ func TestAccIdentityPlatformTenantInboundSamlConfig_identityPlatformTenantInboun
 }
 
 func testAccIdentityPlatformTenantInboundSamlConfig_identityPlatformTenantInboundSamlConfigBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_identity_platform_tenant" "tenant" {
   display_name  = "tenant"
 }

@@ -48,7 +48,7 @@ func TestAccOSConfigOSPolicyAssignment_basic(t *testing.T) {
 }
 
 func testAccOSConfigOSPolicyAssignment_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_os_config_os_policy_assignment" "primary" {
   instance_filter {
     all = false
@@ -138,7 +138,7 @@ resource "google_os_config_os_policy_assignment" "primary" {
 }
 
 func testAccOSConfigOSPolicyAssignment_update(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_os_config_os_policy_assignment" "primary" {
   instance_filter {
     all = false

@@ -56,7 +56,7 @@ func TestAccLoggingMetric_loggingMetricBasicExample(t *testing.T) {
 }
 
 func testAccLoggingMetric_loggingMetricBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_logging_metric" "logging_metric" {
   name   = "tf-test-my-(custom)/metric%{random_suffix}"
   filter = "resource.type=gae_app AND severity>=ERROR"
@@ -117,7 +117,7 @@ func TestAccLoggingMetric_loggingMetricCounterBasicExample(t *testing.T) {
 }
 
 func testAccLoggingMetric_loggingMetricCounterBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_logging_metric" "logging_metric" {
   name   = "tf-test-my-(custom)/metric%{random_suffix}"
   filter = "resource.type=gae_app AND severity>=ERROR"
@@ -154,7 +154,7 @@ func TestAccLoggingMetric_loggingMetricCounterLabelsExample(t *testing.T) {
 }
 
 func testAccLoggingMetric_loggingMetricCounterLabelsExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_logging_metric" "logging_metric" {
   name   = "tf-test-my-(custom)/metric%{random_suffix}"
   filter = "resource.type=gae_app AND severity>=ERROR"
@@ -200,7 +200,7 @@ func TestAccLoggingMetric_loggingMetricLoggingBucketExample(t *testing.T) {
 }
 
 func testAccLoggingMetric_loggingMetricLoggingBucketExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_logging_project_bucket_config" "logging_metric" {
     location  = "global"
     project   = "%{project}"
@@ -240,7 +240,7 @@ func TestAccLoggingMetric_loggingMetricDisabledExample(t *testing.T) {
 }
 
 func testAccLoggingMetric_loggingMetricDisabledExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_logging_metric" "logging_metric" {
   name   = "tf-test-my-(custom)/metric%{random_suffix}"
   filter = "resource.type=gae_app AND severity>=ERROR"

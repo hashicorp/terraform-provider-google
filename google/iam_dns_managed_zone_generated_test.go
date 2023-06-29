@@ -124,7 +124,7 @@ func TestAccDNSManagedZoneIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccDNSManagedZoneIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 # to setup a web-server
 resource "google_compute_instance" "default" {
   name         = "tf-test-dns-compute-instance%{random_suffix}"
@@ -190,7 +190,7 @@ resource "google_dns_managed_zone_iam_member" "foo" {
 }
 
 func testAccDNSManagedZoneIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 # to setup a web-server
 resource "google_compute_instance" "default" {
   name         = "tf-test-dns-compute-instance%{random_suffix}"
@@ -270,7 +270,7 @@ data "google_dns_managed_zone_iam_policy" "foo" {
 }
 
 func testAccDNSManagedZoneIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 # to setup a web-server
 resource "google_compute_instance" "default" {
   name         = "tf-test-dns-compute-instance%{random_suffix}"
@@ -338,7 +338,7 @@ resource "google_dns_managed_zone_iam_policy" "foo" {
 }
 
 func testAccDNSManagedZoneIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 # to setup a web-server
 resource "google_compute_instance" "default" {
   name         = "tf-test-dns-compute-instance%{random_suffix}"
@@ -404,7 +404,7 @@ resource "google_dns_managed_zone_iam_binding" "foo" {
 }
 
 func testAccDNSManagedZoneIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 # to setup a web-server
 resource "google_compute_instance" "default" {
   name         = "tf-test-dns-compute-instance%{random_suffix}"

@@ -462,7 +462,7 @@ func createYamlConfigFileForTest(t *testing.T, sourcePath string, context map[st
 	}
 	// Create a buffer to write our archive to.
 	buf := new(bytes.Buffer)
-	buf.WriteString(Nprintf(string(source), context))
+	buf.WriteString(acctest.Nprintf(string(source), context))
 	// Create temp file to write zip to
 	tmpfile, err := ioutil.TempFile("", "*.yml")
 	if err != nil {

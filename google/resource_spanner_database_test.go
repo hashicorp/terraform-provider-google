@@ -497,7 +497,7 @@ func TestAccSpannerDatabase_deletionProtection(t *testing.T) {
 }
 
 func testAccSpannerDatabase_deletionProtection(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_spanner_instance" "main" {
   config       = "regional-europe-west1"
   display_name = "main-instance"

@@ -355,7 +355,7 @@ resource "google_redis_instance" "test" {
 }
 
 func testAccRedisInstance_redisInstanceAuthEnabled(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_redis_instance" "cache" {
   name           = "tf-test-memory-cache%{random_suffix}"
   memory_size_gb = 1
@@ -365,7 +365,7 @@ resource "google_redis_instance" "cache" {
 }
 
 func testAccRedisInstance_redisInstanceAuthDisabled(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_redis_instance" "cache" {
   name           = "tf-test-memory-cache%{random_suffix}"
   memory_size_gb = 1

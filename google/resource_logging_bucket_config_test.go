@@ -271,7 +271,7 @@ func TestAccLoggingBucketConfigOrganization_basic(t *testing.T) {
 }
 
 func testAccLoggingBucketConfigFolder_basic(context map[string]interface{}, retention int) string {
-	return fmt.Sprintf(Nprintf(`
+	return fmt.Sprintf(acctest.Nprintf(`
 resource "google_folder" "default" {
 	display_name = "%{folder_name}"
 	parent       = "organizations/%{org_id}"
@@ -288,7 +288,7 @@ resource "google_logging_folder_bucket_config" "basic" {
 }
 
 func testAccLoggingBucketConfigProject_basic(context map[string]interface{}, retention int) string {
-	return fmt.Sprintf(Nprintf(`
+	return fmt.Sprintf(acctest.Nprintf(`
 resource "google_project" "default" {
 	project_id = "%{project_name}"
 	name       = "%{project_name}"
@@ -306,7 +306,7 @@ resource "google_logging_project_bucket_config" "basic" {
 }
 
 func testAccLoggingBucketConfigProject_analyticsEnabled(context map[string]interface{}, analytics bool) string {
-	return fmt.Sprintf(Nprintf(`
+	return fmt.Sprintf(acctest.Nprintf(`
 resource "google_project" "default" {
 	project_id = "%{project_name}"
 	name       = "%{project_name}"
@@ -323,7 +323,7 @@ resource "google_logging_project_bucket_config" "basic" {
 }
 
 func testAccLoggingBucketConfigProject_locked(context map[string]interface{}, locked bool) string {
-	return fmt.Sprintf(Nprintf(`
+	return fmt.Sprintf(acctest.Nprintf(`
 resource "google_project" "default" {
 	project_id = "%{project_name}"
 	name       = "%{project_name}"
@@ -349,7 +349,7 @@ resource "google_logging_project_bucket_config" "variable_locked" {
 }
 
 func testAccLoggingBucketConfigProject_preCmekSettings(context map[string]interface{}, keyRingName, cryptoKeyName, cryptoKeyNameUpdate string) string {
-	return fmt.Sprintf(Nprintf(`
+	return fmt.Sprintf(acctest.Nprintf(`
 resource "google_project" "default" {
 	project_id      = "%{project_name}"
 	name            = "%{project_name}"
@@ -474,7 +474,7 @@ func TestAccLoggingBucketConfig_CreateBuckets_withCustomId(t *testing.T) {
 }
 
 func testAccLoggingBucketConfigBillingAccount_basic(context map[string]interface{}, retention int) string {
-	return fmt.Sprintf(Nprintf(`
+	return fmt.Sprintf(acctest.Nprintf(`
 
 data "google_billing_account" "default" {
 	billing_account = "%{billing_account_name}"
@@ -491,7 +491,7 @@ resource "google_logging_billing_account_bucket_config" "basic" {
 }
 
 func testAccLoggingBucketConfigOrganization_basic(context map[string]interface{}, retention int) string {
-	return fmt.Sprintf(Nprintf(`
+	return fmt.Sprintf(acctest.Nprintf(`
 data "google_organization" "default" {
 	organization = "%{org_id}"
 }
@@ -508,7 +508,7 @@ resource "google_logging_organization_bucket_config" "basic" {
 
 func getLoggingBucketConfigs(context map[string]interface{}) map[string]string {
 	return map[string]string{
-		"project": Nprintf(`resource "google_project" "default" {
+		"project": acctest.Nprintf(`resource "google_project" "default" {
 				project_id = "%{project_name}"
 				name       = "%{project_name}"
 				org_id     = "%{org_id}"

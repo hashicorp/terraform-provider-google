@@ -56,7 +56,7 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 }
 
 func testAccCertificateManagerCertificate_certificateManagerGoogleManagedCertificateExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate" "default" {
   name        = "tf-test-dns-cert%{random_suffix}"
   description = "The default cert"
@@ -114,7 +114,7 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 }
 
 func testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate" "default" {
   name        = "tf-test-self-managed-cert%{random_suffix}"
   description = "Global cert"
@@ -153,7 +153,7 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 }
 
 func testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateRegionalExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate" "default" {
   name        = "tf-test-self-managed-cert%{random_suffix}"
   description = "Regional cert"

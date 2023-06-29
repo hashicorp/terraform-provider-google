@@ -78,7 +78,7 @@ func testAccCheckGoogleComposerEnvironmentMeta(n string) resource.TestCheckFunc 
 }
 
 func testAccDataSourceComposerEnvironment_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_composer_environment" "test" {
 	name   = "tf-test-composer-env-%{random_suffix}"
 	region = "us-central1"

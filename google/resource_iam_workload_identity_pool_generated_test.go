@@ -56,7 +56,7 @@ func TestAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolBasicExample(t *t
 }
 
 func testAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "example" {
   workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
 }
@@ -89,7 +89,7 @@ func TestAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolFullExample(t *te
 }
 
 func testAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_iam_workload_identity_pool" "example" {
   workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
   display_name              = "Name of pool"

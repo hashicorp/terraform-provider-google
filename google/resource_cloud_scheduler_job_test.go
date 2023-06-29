@@ -40,7 +40,7 @@ func TestAccCloudSchedulerJob_schedulerPausedExample(t *testing.T) {
 }
 
 func testAccCloudSchedulerJob_schedulerPaused(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
   paused           = true
   name             = "tf-test-test-job%{random_suffix}"
@@ -63,7 +63,7 @@ resource "google_cloud_scheduler_job" "job" {
 }
 
 func testAccCloudSchedulerJob_schedulerUnPaused(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
   paused           = false # Has been flipped 
   name             = "tf-test-test-job%{random_suffix}"

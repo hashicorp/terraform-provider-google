@@ -124,7 +124,7 @@ func TestAccComputeSnapshotIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccComputeSnapshotIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
   name        = "tf-test-my-snapshot%{random_suffix}"
   source_disk = google_compute_disk.persistent.id
@@ -158,7 +158,7 @@ resource "google_compute_snapshot_iam_member" "foo" {
 }
 
 func testAccComputeSnapshotIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
   name        = "tf-test-my-snapshot%{random_suffix}"
   source_disk = google_compute_disk.persistent.id
@@ -206,7 +206,7 @@ data "google_compute_snapshot_iam_policy" "foo" {
 }
 
 func testAccComputeSnapshotIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
   name        = "tf-test-my-snapshot%{random_suffix}"
   source_disk = google_compute_disk.persistent.id
@@ -242,7 +242,7 @@ resource "google_compute_snapshot_iam_policy" "foo" {
 }
 
 func testAccComputeSnapshotIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
   name        = "tf-test-my-snapshot%{random_suffix}"
   source_disk = google_compute_disk.persistent.id
@@ -276,7 +276,7 @@ resource "google_compute_snapshot_iam_binding" "foo" {
 }
 
 func testAccComputeSnapshotIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_snapshot" "snapshot" {
   name        = "tf-test-my-snapshot%{random_suffix}"
   source_disk = google_compute_disk.persistent.id

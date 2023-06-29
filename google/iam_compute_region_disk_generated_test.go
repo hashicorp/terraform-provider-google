@@ -124,7 +124,7 @@ func TestAccComputeRegionDiskIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccComputeRegionDiskIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_region_disk" "regiondisk" {
   name                      = "tf-test-my-region-disk%{random_suffix}"
   snapshot                  = google_compute_snapshot.snapdisk.id
@@ -160,7 +160,7 @@ resource "google_compute_region_disk_iam_member" "foo" {
 }
 
 func testAccComputeRegionDiskIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_region_disk" "regiondisk" {
   name                      = "tf-test-my-region-disk%{random_suffix}"
   snapshot                  = google_compute_snapshot.snapdisk.id
@@ -211,7 +211,7 @@ data "google_compute_region_disk_iam_policy" "foo" {
 }
 
 func testAccComputeRegionDiskIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_region_disk" "regiondisk" {
   name                      = "tf-test-my-region-disk%{random_suffix}"
   snapshot                  = google_compute_snapshot.snapdisk.id
@@ -249,7 +249,7 @@ resource "google_compute_region_disk_iam_policy" "foo" {
 }
 
 func testAccComputeRegionDiskIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_region_disk" "regiondisk" {
   name                      = "tf-test-my-region-disk%{random_suffix}"
   snapshot                  = google_compute_snapshot.snapdisk.id
@@ -285,7 +285,7 @@ resource "google_compute_region_disk_iam_binding" "foo" {
 }
 
 func testAccComputeRegionDiskIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_region_disk" "regiondisk" {
   name                      = "tf-test-my-region-disk%{random_suffix}"
   snapshot                  = google_compute_snapshot.snapdisk.id

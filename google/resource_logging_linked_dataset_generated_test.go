@@ -58,7 +58,7 @@ func TestAccLoggingLinkedDataset_loggingLinkedDatasetBasicExample(t *testing.T) 
 }
 
 func testAccLoggingLinkedDataset_loggingLinkedDatasetBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_logging_project_bucket_config" "logging_linked_dataset" {
   location         = "global"
   project          = "%{project}"
@@ -101,7 +101,7 @@ func TestAccLoggingLinkedDataset_loggingLinkedDatasetAllParamsExample(t *testing
 }
 
 func testAccLoggingLinkedDataset_loggingLinkedDatasetAllParamsExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_logging_project_bucket_config" "logging_linked_dataset" {
   location         = "global"
   project          = "%{project}"

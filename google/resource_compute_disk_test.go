@@ -974,7 +974,7 @@ resource "google_compute_instance_group_manager" "manager" {
 }
 
 func testAccComputeDisk_pdHyperDiskProvisionedIopsLifeCycle(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	resource "google_compute_disk" "foobar" {
 		name                    = "tf-test-hyperdisk-%{random_suffix}"
 		type                    = "hyperdisk-extreme"
@@ -988,7 +988,7 @@ func testAccComputeDisk_pdHyperDiskProvisionedIopsLifeCycle(context map[string]i
 }
 
 func testAccComputeDisk_pdHyperDiskProvisionedThroughputLifeCycle(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	resource "google_compute_disk" "foobar" {
 		name                   = "tf-test-hyperdisk-%{random_suffix}"
 		type                   = "hyperdisk-throughput"

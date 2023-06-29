@@ -37,7 +37,7 @@ func testAccDataSourceCloudIdentityGroups_basicTest(t *testing.T) {
 }
 
 func testAccCloudIdentityGroupConfig(context map[string]interface{}) string {
-	return testAccCloudIdentityGroup_cloudIdentityGroupsBasicExample(context) + Nprintf(`
+	return testAccCloudIdentityGroup_cloudIdentityGroupsBasicExample(context) + acctest.Nprintf(`
 
 data "google_cloud_identity_groups" "groups" {
   parent = google_cloud_identity_group.cloud_identity_group_basic.parent

@@ -124,7 +124,7 @@ func TestAccBigqueryAnalyticsHubListingIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccBigqueryAnalyticsHubListingIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "listing" {
   location         = "US"
   data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
@@ -163,7 +163,7 @@ resource "google_bigquery_analytics_hub_listing_iam_member" "foo" {
 }
 
 func testAccBigqueryAnalyticsHubListingIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "listing" {
   location         = "US"
   data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
@@ -218,7 +218,7 @@ data "google_bigquery_analytics_hub_listing_iam_policy" "foo" {
 }
 
 func testAccBigqueryAnalyticsHubListingIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "listing" {
   location         = "US"
   data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
@@ -259,7 +259,7 @@ resource "google_bigquery_analytics_hub_listing_iam_policy" "foo" {
 }
 
 func testAccBigqueryAnalyticsHubListingIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "listing" {
   location         = "US"
   data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
@@ -298,7 +298,7 @@ resource "google_bigquery_analytics_hub_listing_iam_binding" "foo" {
 }
 
 func testAccBigqueryAnalyticsHubListingIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_analytics_hub_data_exchange" "listing" {
   location         = "US"
   data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"

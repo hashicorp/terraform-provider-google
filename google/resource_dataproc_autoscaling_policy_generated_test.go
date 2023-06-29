@@ -56,7 +56,7 @@ func TestAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyBasicExample(t *t
 }
 
 func testAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataproc_autoscaling_policy" "basic" {
   policy_id = "tf-test-dataproc-policy%{random_suffix}"
   location  = "us-central1"
@@ -103,7 +103,7 @@ func TestAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyExample(t *testin
 }
 
 func testAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dataproc_cluster" "basic" {
   name     = "tf-test-dataproc-policy%{random_suffix}"
   region   = "us-central1"

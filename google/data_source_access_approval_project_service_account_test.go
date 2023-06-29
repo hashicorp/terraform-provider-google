@@ -34,7 +34,7 @@ func TestAccDataSourceAccessApprovalProjectServiceAccount_basic(t *testing.T) {
 }
 
 func testAccDataSourceAccessApprovalProjectServiceAccount_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 data "google_access_approval_project_service_account" "aa_account" {
   project_id = "%{project_id}"
 }

@@ -56,7 +56,7 @@ func TestAccStorageDefaultObjectAccessControl_storageDefaultObjectAccessControlP
 }
 
 func testAccStorageDefaultObjectAccessControl_storageDefaultObjectAccessControlPublicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_default_object_access_control" "public_rule" {
   bucket = google_storage_bucket.bucket.name
   role   = "READER"

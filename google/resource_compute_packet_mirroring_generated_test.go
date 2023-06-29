@@ -55,7 +55,7 @@ func TestAccComputePacketMirroring_computePacketMirroringFullExample(t *testing.
 }
 
 func testAccComputePacketMirroring_computePacketMirroringFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_instance" "mirror" {
   name = "tf-test-my-instance%{random_suffix}"
   machine_type = "e2-medium"

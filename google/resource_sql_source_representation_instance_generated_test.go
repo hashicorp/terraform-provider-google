@@ -56,7 +56,7 @@ func TestAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstanceBasic
 }
 
 func testAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstanceBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_sql_source_representation_instance" "instance" {
   name               = "tf-test-my-instance%{random_suffix}"
   region             = "us-central1"
@@ -96,7 +96,7 @@ func TestAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstancePostg
 }
 
 func testAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstancePostgresExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_sql_source_representation_instance" "instance" {
   name               = "tf-test-my-instance%{random_suffix}"
   region             = "us-central1"

@@ -124,7 +124,7 @@ func TestAccBinaryAuthorizationAttestorIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccBinaryAuthorizationAttestorIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
   name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {
@@ -171,7 +171,7 @@ resource "google_binary_authorization_attestor_iam_member" "foo" {
 }
 
 func testAccBinaryAuthorizationAttestorIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
   name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {
@@ -232,7 +232,7 @@ data "google_binary_authorization_attestor_iam_policy" "foo" {
 }
 
 func testAccBinaryAuthorizationAttestorIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
   name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {
@@ -281,7 +281,7 @@ resource "google_binary_authorization_attestor_iam_policy" "foo" {
 }
 
 func testAccBinaryAuthorizationAttestorIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
   name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {
@@ -328,7 +328,7 @@ resource "google_binary_authorization_attestor_iam_binding" "foo" {
 }
 
 func testAccBinaryAuthorizationAttestorIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_binary_authorization_attestor" "attestor" {
   name = "tf-test-test-attestor%{random_suffix}"
   attestation_authority_note {

@@ -44,7 +44,7 @@ func TestAccDialogflowCXEntityType_update(t *testing.T) {
 }
 
 func testAccDialogflowCXEntityType_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	data "google_project" "project" {}
 
 	resource "google_service_account" "dialogflowcx_service_account" {
@@ -86,7 +86,7 @@ func testAccDialogflowCXEntityType_basic(context map[string]interface{}) string 
 }
 
 func testAccDialogflowCXEntityType_full(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	data "google_project" "project" {}
 
 	resource "google_service_account" "dialogflowcx_service_account" {

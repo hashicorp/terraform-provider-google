@@ -57,7 +57,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupFunction
 }
 
 func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupFunctionsExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 // Cloud Functions Example
 resource "google_compute_region_network_endpoint_group" "function_neg" {
   name                  = "tf-test-function-neg%{random_suffix}"
@@ -120,7 +120,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupCloudrun
 }
 
 func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupCloudrunExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 // Cloud Run Example
 resource "google_compute_region_network_endpoint_group" "cloudrun_neg" {
   name                  = "tf-test-cloudrun-neg%{random_suffix}"
@@ -177,7 +177,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengin
 }
 
 func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengineExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 // App Engine Example
 resource "google_compute_region_network_endpoint_group" "appengine_neg" {
   name                  = "tf-test-appengine-neg%{random_suffix}"
@@ -277,7 +277,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscExamp
 }
 
 func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_region_network_endpoint_group" "psc_neg" {
   name                  = "tf-test-psc-neg%{random_suffix}"
   region                = "asia-northeast3"
@@ -314,7 +314,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscServi
 }
 
 func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscServiceAttachmentExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
   name = "tf-test-psc-network%{random_suffix}"
 }

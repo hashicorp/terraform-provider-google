@@ -134,7 +134,7 @@ func TestAccDataSourceSqlDatabaseInstances_tierFilter(t *testing.T) {
 }
 
 func testAccDataSourceSqlDatabaseInstances_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_sql_database_instance" "main" {
   name             = "tf-test-instance-%{random_suffix}"
   database_version = "POSTGRES_14"
@@ -174,7 +174,7 @@ data "google_sql_database_instances" "qa" {
 }
 
 func testAccDataSourceSqlDatabaseInstances_databaseVersionFilter(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_sql_database_instance" "main" {
   name             = "tf-test-instance-%{random_suffix}"
   database_version = "POSTGRES_14"
@@ -215,7 +215,7 @@ data "google_sql_database_instances" "qa" {
 }
 
 func testAccDataSourceSqlDatabaseInstances_regionFilter(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_sql_database_instance" "main" {
   name             = "tf-test-instance-%{random_suffix}"
   database_version = "POSTGRES_14"
@@ -256,7 +256,7 @@ data "google_sql_database_instances" "qa" {
 }
 
 func testAccDataSourceSqlDatabaseInstances_tierFilter(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_sql_database_instance" "main" {
   name             = "tf-test-instance-%{random_suffix}"
   database_version = "POSTGRES_14"

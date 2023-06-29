@@ -58,7 +58,7 @@ func TestAccSecurityCenterMuteConfig_sccMuteConfigExample(t *testing.T) {
 }
 
 func testAccSecurityCenterMuteConfig_sccMuteConfigExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_scc_mute_config" "default" {
   mute_config_id = "tf-test-my-config%{random_suffix}"
   parent         = "organizations/%{org_id}"

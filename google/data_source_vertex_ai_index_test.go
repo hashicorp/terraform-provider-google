@@ -42,7 +42,7 @@ func TestAccDataSourceVertexAIIndex_basic(t *testing.T) {
 }
 
 func testAccDataSourceVertexAIIndex_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "tf-test-%{project}-vertex-ai-index-%{random_suffix}"  # Every bucket name must be globally unique
   location = "us-central1"

@@ -56,7 +56,7 @@ func TestAccComputeNetwork_networkBasicExample(t *testing.T) {
 }
 
 func testAccComputeNetwork_networkBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network" "vpc_network" {
   name = "tf-test-vpc-network%{random_suffix}"
 }
@@ -89,7 +89,7 @@ func TestAccComputeNetwork_networkCustomMtuExample(t *testing.T) {
 }
 
 func testAccComputeNetwork_networkCustomMtuExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network" "vpc_network" {
   project                 = "%{project}"
   name                    = "tf-test-vpc-network%{random_suffix}"
@@ -125,7 +125,7 @@ func TestAccComputeNetwork_networkCustomFirewallEnforcementOrderExample(t *testi
 }
 
 func testAccComputeNetwork_networkCustomFirewallEnforcementOrderExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network" "vpc_network" {
   project                                   = "%{project}"
   name                                      = "tf-test-vpc-network%{random_suffix}"

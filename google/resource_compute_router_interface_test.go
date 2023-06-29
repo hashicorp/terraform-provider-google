@@ -244,7 +244,7 @@ func testAccCheckComputeRouterInterfaceExists(t *testing.T, n string) resource.T
 }
 
 func testAccComputeRouterInterfaceBasic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network" "foobar" {
   name = "%{name}-net"
 }

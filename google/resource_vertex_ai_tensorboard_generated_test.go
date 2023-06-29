@@ -56,7 +56,7 @@ func TestAccVertexAITensorboard_vertexAiTensorboardExample(t *testing.T) {
 }
 
 func testAccVertexAITensorboard_vertexAiTensorboardExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_vertex_ai_tensorboard" "tensorboard" {
   display_name = "terraform%{random_suffix}"
   description  = "sample description"
@@ -96,7 +96,7 @@ func TestAccVertexAITensorboard_vertexAiTensorboardFullExample(t *testing.T) {
 }
 
 func testAccVertexAITensorboard_vertexAiTensorboardFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_vertex_ai_tensorboard" "tensorboard" {
   display_name = "terraform%{random_suffix}"
   description  = "sample description"

@@ -90,7 +90,7 @@ func TestAccEventarcGoogleChannelConfig_cryptoKeyUpdate(t *testing.T) {
 }
 
 func testAccEventarcGoogleChannelConfig_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_eventarc_google_channel_config" "primary" {
 	location = "%{region}"
 	name     = "projects/%{project_name}/locations/%{region}/googleChannelConfig"
@@ -99,7 +99,7 @@ resource "google_eventarc_google_channel_config" "primary" {
 }
 
 func testAccEventarcGoogleChannelConfig_setCryptoKey(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 data "google_project" "test_project" {
 	project_id  = "%{project_name}"
 }
@@ -131,7 +131,7 @@ resource "google_eventarc_google_channel_config" "primary" {
 }
 
 func testAccEventarcGoogleChannelConfig_cryptoKeyUpdate(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 data "google_project" "test_project" {
 	project_id  = "%{project_name}"
 }
@@ -163,7 +163,7 @@ resource "google_eventarc_google_channel_config" "primary" {
 }
 
 func testAccEventarcGoogleChannelConfig_deleteCryptoKey(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_eventarc_google_channel_config" "primary" {
 	location = "%{region}"
 	name     = "projects/%{project_name}/locations/%{region}/googleChannelConfig"

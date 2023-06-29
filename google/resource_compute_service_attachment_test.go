@@ -44,7 +44,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(t *test
 }
 
 func testAccComputeServiceAttachment_serviceAttachmentBasicExampleFork(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
   name        = "tf-test-my-psc-ilb%{random_suffix}"
   region      = "us-west2"
@@ -127,7 +127,7 @@ resource "google_compute_subnetwork" "psc_ilb_nat" {
 }
 
 func testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
   name        = "tf-test-my-psc-ilb%{random_suffix}"
   region      = "us-west2"

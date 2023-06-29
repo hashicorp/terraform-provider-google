@@ -97,7 +97,7 @@ func TestAccComputeNetworkEndpoints_networkEndpointsBasic(t *testing.T) {
 }
 
 func testAccComputeNetworkEndpoints_networkEndpointsBase(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network_endpoints" "default" {
   zone                   = "us-central1-a"
   network_endpoint_group = google_compute_network_endpoint_group.neg.id
@@ -112,7 +112,7 @@ resource "google_compute_network_endpoints" "default" {
 }
 
 func testAccComputeNetworkEndpoints_networkEndpointsModified(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network_endpoints" "default" {
   zone                   = "us-central1-a"
   network_endpoint_group = google_compute_network_endpoint_group.neg.name
@@ -127,7 +127,7 @@ resource "google_compute_network_endpoints" "default" {
 }
 
 func testAccComputeNetworkEndpoints_networkEndpointsAdditional(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network_endpoints" "default" {
   zone                   = "us-central1-a"
   network_endpoint_group = google_compute_network_endpoint_group.neg.id
@@ -168,7 +168,7 @@ resource "google_compute_network_endpoints" "default" {
 
 func testAccComputeNetworkEndpoints_networkEndpointsPaginated(context map[string]interface{}, lower, upper int) string {
 	context["for_each"] = networkEndpointsGenerateRanges(lower, upper)
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network_endpoints" "default" {
   zone                   = "us-central1-a"
   network_endpoint_group = google_compute_network_endpoint_group.neg.name
@@ -202,7 +202,7 @@ func networkEndpointsGenerateRanges(lower, upper int) string {
 }
 
 func testAccComputeNetworkEndpoints_noNetworkEndpoints(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network_endpoint_group" "neg" {
   name         = "tf-test-neg-%{random_suffix}"
   zone         = "us-central1-a"

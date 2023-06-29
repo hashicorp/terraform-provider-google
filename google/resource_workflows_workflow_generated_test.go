@@ -50,7 +50,7 @@ func TestAccWorkflowsWorkflow_workflowBasicExample(t *testing.T) {
 }
 
 func testAccWorkflowsWorkflow_workflowBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_service_account" "test_account" {
   account_id   = "tf-test-my-account%{random_suffix}"
   display_name = "Test Service Account"

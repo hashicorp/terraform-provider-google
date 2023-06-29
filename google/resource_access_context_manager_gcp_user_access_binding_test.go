@@ -48,7 +48,7 @@ func testAccAccessContextManagerGcpUserAccessBinding_basicTest(t *testing.T) {
 }
 
 func testAccAccessContextManagerGcpUserAccessBinding_accessContextManagerGcpUserAccessBindingBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloud_identity_group" "group" {
   display_name = "tf-test-my-identity-group%{random_suffix}"
 

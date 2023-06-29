@@ -56,7 +56,7 @@ func TestAccDataCatalogEntry_dataCatalogEntryBasicExample(t *testing.T) {
 }
 
 func testAccDataCatalogEntry_dataCatalogEntryBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_entry" "basic_entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
   entry_id = "tf_test_my_entry%{random_suffix}"
@@ -97,7 +97,7 @@ func TestAccDataCatalogEntry_dataCatalogEntryFilesetExample(t *testing.T) {
 }
 
 func testAccDataCatalogEntry_dataCatalogEntryFilesetExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_entry" "basic_entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
   entry_id = "tf_test_my_entry%{random_suffix}"
@@ -141,7 +141,7 @@ func TestAccDataCatalogEntry_dataCatalogEntryFullExample(t *testing.T) {
 }
 
 func testAccDataCatalogEntry_dataCatalogEntryFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_entry" "basic_entry" {
   entry_group = google_data_catalog_entry_group.entry_group.id
   entry_id = "tf_test_my_entry%{random_suffix}"

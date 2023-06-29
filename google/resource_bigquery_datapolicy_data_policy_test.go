@@ -38,7 +38,7 @@ func TestAccBigqueryDatapolicyDataPolicy_bigqueryDatapolicyDataPolicyUpdate(t *t
 }
 
 func testAccBigqueryDatapolicyDataPolicy_bigqueryDatapolicyDataPolicyUpdate(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_datapolicy_data_policy" "data_policy" {
     location         = "us-central1"
     data_policy_id   = "tf_test_data_policy%{random_suffix}"

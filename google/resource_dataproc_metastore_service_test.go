@@ -82,7 +82,7 @@ func TestAccDataprocMetastoreService_PrivateServiceConnect(t *testing.T) {
 }
 
 func testAccDataprocMetastoreService_PrivateServiceConnect(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 // Use data source instead of creating a subnetwork due to a bug on API side.
 // With the bug, the new created subnetwork cannot be deleted when deleting the dataproc metastore service.
 data "google_compute_subnetwork" "subnet" {

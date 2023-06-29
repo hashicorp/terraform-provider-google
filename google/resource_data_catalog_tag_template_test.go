@@ -59,7 +59,7 @@ func TestAccDataCatalogTagTemplate_dataCatalogTagTemplate_updateFields(t *testin
 }
 
 func testAccDataCatalogTagTemplate_dataCatalogTagTemplateUpdateFields(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_tag_template" "basic_tag_template" {
   tag_template_id = "tf_test_my_template%{random_suffix}"
   region = "us-central1"
@@ -98,7 +98,7 @@ resource "google_data_catalog_tag_template" "basic_tag_template" {
 }
 
 func testAccDataCatalogTagTemplate_dataCatalogTagTemplateUpdatePrimitiveTypeOfFieldsWithRequired(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_tag_template" "basic_tag_template" {
   tag_template_id = "tf_test_my_template%{random_suffix}"
   region = "us-central1"
@@ -137,7 +137,7 @@ resource "google_data_catalog_tag_template" "basic_tag_template" {
 }
 
 func testAccDataCatalogTagTemplate_dataCatalogTagTemplateUpdatePrimitiveTypeOfFieldsWithOptional(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_catalog_tag_template" "basic_tag_template" {
   tag_template_id = "tf_test_my_template%{random_suffix}"
   region = "us-central1"

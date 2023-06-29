@@ -127,7 +127,7 @@ func TestAccCloudFunctionsCloudFunctionIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccCloudFunctionsCloudFunctionIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "tf-test-cloudfunctions-function-example-bucket%{random_suffix}"
   location = "US"
@@ -163,7 +163,7 @@ resource "google_cloudfunctions_function_iam_member" "foo" {
 }
 
 func testAccCloudFunctionsCloudFunctionIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "tf-test-cloudfunctions-function-example-bucket%{random_suffix}"
   location = "US"
@@ -214,7 +214,7 @@ data "google_cloudfunctions_function_iam_policy" "foo" {
 }
 
 func testAccCloudFunctionsCloudFunctionIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "tf-test-cloudfunctions-function-example-bucket%{random_suffix}"
   location = "US"
@@ -252,7 +252,7 @@ resource "google_cloudfunctions_function_iam_policy" "foo" {
 }
 
 func testAccCloudFunctionsCloudFunctionIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "tf-test-cloudfunctions-function-example-bucket%{random_suffix}"
   location = "US"
@@ -288,7 +288,7 @@ resource "google_cloudfunctions_function_iam_binding" "foo" {
 }
 
 func testAccCloudFunctionsCloudFunctionIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "tf-test-cloudfunctions-function-example-bucket%{random_suffix}"
   location = "US"

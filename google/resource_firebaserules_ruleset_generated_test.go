@@ -83,7 +83,7 @@ func TestAccFirebaserulesRuleset_MinimalRuleset(t *testing.T) {
 }
 
 func testAccFirebaserulesRuleset_BasicRuleset(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_firebaserules_ruleset" "primary" {
   source {
     files {
@@ -103,7 +103,7 @@ resource "google_firebaserules_ruleset" "primary" {
 }
 
 func testAccFirebaserulesRuleset_MinimalRuleset(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_firebaserules_ruleset" "primary" {
   source {
     files {

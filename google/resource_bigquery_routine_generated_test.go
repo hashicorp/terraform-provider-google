@@ -55,7 +55,7 @@ func TestAccBigQueryRoutine_bigQueryRoutineBasicExample(t *testing.T) {
 }
 
 func testAccBigQueryRoutine_bigQueryRoutineBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
 	dataset_id = "tf_test_dataset_id%{random_suffix}"
 }
@@ -95,7 +95,7 @@ func TestAccBigQueryRoutine_bigQueryRoutineJsonExample(t *testing.T) {
 }
 
 func testAccBigQueryRoutine_bigQueryRoutineJsonExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
 	dataset_id = "tf_test_dataset_id%{random_suffix}"
 }
@@ -145,7 +145,7 @@ func TestAccBigQueryRoutine_bigQueryRoutineTvfExample(t *testing.T) {
 }
 
 func testAccBigQueryRoutine_bigQueryRoutineTvfExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "test" {
 	dataset_id = "tf_test_dataset_id%{random_suffix}"
 }

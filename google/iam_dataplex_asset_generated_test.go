@@ -127,7 +127,7 @@ func TestAccDataplexAssetIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccDataplexAssetIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "primary_bucket" {
   name          = "dataplex-bucket-%{random_suffix}"
   location      = "us-central1"
@@ -202,7 +202,7 @@ resource "google_dataplex_asset_iam_member" "foo" {
 }
 
 func testAccDataplexAssetIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "primary_bucket" {
   name          = "dataplex-bucket-%{random_suffix}"
   location      = "us-central1"
@@ -294,7 +294,7 @@ data "google_dataplex_asset_iam_policy" "foo" {
 }
 
 func testAccDataplexAssetIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "primary_bucket" {
   name          = "dataplex-bucket-%{random_suffix}"
   location      = "us-central1"
@@ -371,7 +371,7 @@ resource "google_dataplex_asset_iam_policy" "foo" {
 }
 
 func testAccDataplexAssetIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "primary_bucket" {
   name          = "dataplex-bucket-%{random_suffix}"
   location      = "us-central1"
@@ -446,7 +446,7 @@ resource "google_dataplex_asset_iam_binding" "foo" {
 }
 
 func testAccDataplexAssetIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "primary_bucket" {
   name          = "dataplex-bucket-%{random_suffix}"
   location      = "us-central1"

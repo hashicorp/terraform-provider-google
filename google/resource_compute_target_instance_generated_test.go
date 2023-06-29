@@ -56,7 +56,7 @@ func TestAccComputeTargetInstance_targetInstanceBasicExample(t *testing.T) {
 }
 
 func testAccComputeTargetInstance_targetInstanceBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_target_instance" "default" {
   name     = "target%{random_suffix}"
   instance = google_compute_instance.target-vm.id

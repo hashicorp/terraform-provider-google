@@ -56,7 +56,7 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfileBasicExample(
 }
 
 func testAccDatastreamConnectionProfile_datastreamConnectionProfileBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_datastream_connection_profile" "default" {
 	display_name          = "Connection profile"
 	location              = "us-central1"
@@ -96,7 +96,7 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryPriva
 }
 
 func testAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryPrivateConnectionExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_datastream_private_connection" "private_connection" {
 	display_name          = "Connection profile"
 	location              = "us-central1"
@@ -156,7 +156,7 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfileFullExample(t
 }
 
 func testAccDatastreamConnectionProfile_datastreamConnectionProfileFullExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_datastream_connection_profile" "default" {
 	display_name          = "Connection profile"
 	location              = "us-central1"

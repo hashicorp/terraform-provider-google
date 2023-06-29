@@ -301,7 +301,7 @@ func TestAccPrivatecaCertificateTemplateIamPolicyGenerated_withCondition(t *test
 	}
 
 	// Test should have 2 bindings: one with a description and one without. Any < chars are converted to a unicode character by the API.
-	expectedPolicyData := Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
+	expectedPolicyData := acctest.Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
 	VcrTest(t, resource.TestCase{
@@ -328,7 +328,7 @@ func TestAccPrivatecaCertificateTemplateIamPolicyGenerated_withCondition(t *test
 }
 
 func testAccPrivatecaCertificateTemplateIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_certificate_template" "default" {
   name = "tf-test-my-template%{random_suffix}"
   location = "us-central1"
@@ -355,7 +355,7 @@ resource "google_privateca_certificate_template_iam_member" "foo" {
 }
 
 func testAccPrivatecaCertificateTemplateIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_certificate_template" "default" {
   name = "tf-test-my-template%{random_suffix}"
   location = "us-central1"
@@ -395,7 +395,7 @@ data "google_privateca_certificate_template_iam_policy" "foo" {
 }
 
 func testAccPrivatecaCertificateTemplateIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_certificate_template" "default" {
   name = "tf-test-my-template%{random_suffix}"
   location = "us-central1"
@@ -424,7 +424,7 @@ resource "google_privateca_certificate_template_iam_policy" "foo" {
 }
 
 func testAccPrivatecaCertificateTemplateIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_certificate_template" "default" {
   name = "tf-test-my-template%{random_suffix}"
   location = "us-central1"
@@ -451,7 +451,7 @@ resource "google_privateca_certificate_template_iam_binding" "foo" {
 }
 
 func testAccPrivatecaCertificateTemplateIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_certificate_template" "default" {
   name = "tf-test-my-template%{random_suffix}"
   location = "us-central1"
@@ -478,7 +478,7 @@ resource "google_privateca_certificate_template_iam_binding" "foo" {
 }
 
 func testAccPrivatecaCertificateTemplateIamBinding_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_certificate_template" "default" {
   name = "tf-test-my-template%{random_suffix}"
   location = "us-central1"
@@ -510,7 +510,7 @@ resource "google_privateca_certificate_template_iam_binding" "foo" {
 }
 
 func testAccPrivatecaCertificateTemplateIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_certificate_template" "default" {
   name = "tf-test-my-template%{random_suffix}"
   location = "us-central1"
@@ -560,7 +560,7 @@ resource "google_privateca_certificate_template_iam_binding" "foo3" {
 }
 
 func testAccPrivatecaCertificateTemplateIamMember_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_certificate_template" "default" {
   name = "tf-test-my-template%{random_suffix}"
   location = "us-central1"
@@ -592,7 +592,7 @@ resource "google_privateca_certificate_template_iam_member" "foo" {
 }
 
 func testAccPrivatecaCertificateTemplateIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_certificate_template" "default" {
   name = "tf-test-my-template%{random_suffix}"
   location = "us-central1"
@@ -642,7 +642,7 @@ resource "google_privateca_certificate_template_iam_member" "foo3" {
 }
 
 func testAccPrivatecaCertificateTemplateIamPolicy_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_certificate_template" "default" {
   name = "tf-test-my-template%{random_suffix}"
   location = "us-central1"

@@ -79,7 +79,7 @@ func TestAccContainerAwsCluster_BasicHandWritten(t *testing.T) {
 }
 
 func testAccContainerAwsCluster_BasicHandWritten(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 data "google_container_aws_versions" "versions" {
   project = "%{project_name}"
   location = "us-west1"
@@ -169,7 +169,7 @@ resource "google_container_aws_cluster" "primary" {
 }
 
 func testAccContainerAwsCluster_BasicHandWrittenUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 data "google_container_aws_versions" "versions" {
   project = "%{project_name}"
   location = "us-west1"

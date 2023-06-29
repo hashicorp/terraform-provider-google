@@ -130,7 +130,7 @@ func TestAccCloudIotDeviceRegistryIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccCloudIotDeviceRegistryIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloudiot_registry" "test-registry" {
   name     = "tf-test-cloudiot-registry%{random_suffix}"
 }
@@ -146,7 +146,7 @@ resource "google_cloudiot_registry_iam_member" "foo" {
 }
 
 func testAccCloudIotDeviceRegistryIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloudiot_registry" "test-registry" {
   name     = "tf-test-cloudiot-registry%{random_suffix}"
 }
@@ -177,7 +177,7 @@ data "google_cloudiot_registry_iam_policy" "foo" {
 }
 
 func testAccCloudIotDeviceRegistryIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloudiot_registry" "test-registry" {
   name     = "tf-test-cloudiot-registry%{random_suffix}"
 }
@@ -195,7 +195,7 @@ resource "google_cloudiot_registry_iam_policy" "foo" {
 }
 
 func testAccCloudIotDeviceRegistryIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloudiot_registry" "test-registry" {
   name     = "tf-test-cloudiot-registry%{random_suffix}"
 }
@@ -211,7 +211,7 @@ resource "google_cloudiot_registry_iam_binding" "foo" {
 }
 
 func testAccCloudIotDeviceRegistryIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_cloudiot_registry" "test-registry" {
   name     = "tf-test-cloudiot-registry%{random_suffix}"
 }

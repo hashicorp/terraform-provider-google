@@ -56,7 +56,7 @@ func TestAccComputeTargetTcpProxy_targetTcpProxyBasicExample(t *testing.T) {
 }
 
 func testAccComputeTargetTcpProxy_targetTcpProxyBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_target_tcp_proxy" "default" {
   name            = "tf-test-test-proxy%{random_suffix}"
   backend_service = google_compute_backend_service.default.id

@@ -124,7 +124,7 @@ func TestAccNotebooksRuntimeIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccNotebooksRuntimeIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_notebooks_runtime" "runtime" {
   name = "tf-test-notebooks-runtime%{random_suffix}"
   location = "us-central1"
@@ -156,7 +156,7 @@ resource "google_notebooks_runtime_iam_member" "foo" {
 }
 
 func testAccNotebooksRuntimeIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_notebooks_runtime" "runtime" {
   name = "tf-test-notebooks-runtime%{random_suffix}"
   location = "us-central1"
@@ -203,7 +203,7 @@ data "google_notebooks_runtime_iam_policy" "foo" {
 }
 
 func testAccNotebooksRuntimeIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_notebooks_runtime" "runtime" {
   name = "tf-test-notebooks-runtime%{random_suffix}"
   location = "us-central1"
@@ -237,7 +237,7 @@ resource "google_notebooks_runtime_iam_policy" "foo" {
 }
 
 func testAccNotebooksRuntimeIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_notebooks_runtime" "runtime" {
   name = "tf-test-notebooks-runtime%{random_suffix}"
   location = "us-central1"
@@ -269,7 +269,7 @@ resource "google_notebooks_runtime_iam_binding" "foo" {
 }
 
 func testAccNotebooksRuntimeIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_notebooks_runtime" "runtime" {
   name = "tf-test-notebooks-runtime%{random_suffix}"
   location = "us-central1"

@@ -55,7 +55,7 @@ func TestAccApigeeSyncAuthorization_update(t *testing.T) {
 }
 
 func testAccApigeeSyncAuthorization_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test-my-project%{random_suffix}"
   name            = "tf-test-my-project%{random_suffix}"
@@ -100,7 +100,7 @@ resource "google_apigee_sync_authorization" "apigee_sync_authorization" {
 }
 
 func testAccApigeeSyncAuthorization_multipleIdentities(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test-my-project%{random_suffix}"
   name            = "tf-test-my-project%{random_suffix}"
@@ -159,7 +159,7 @@ resource "google_apigee_sync_authorization" "apigee_sync_authorization" {
 }
 
 func testAccApigeeSyncAuthorization_emptyIdentities(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   project_id      = "tf-test-my-project%{random_suffix}"
   name            = "tf-test-my-project%{random_suffix}"

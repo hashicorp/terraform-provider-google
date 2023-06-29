@@ -301,7 +301,7 @@ func TestAccComputeImageIamPolicyGenerated_withCondition(t *testing.T) {
 	}
 
 	// Test should have 2 bindings: one with a description and one without. Any < chars are converted to a unicode character by the API.
-	expectedPolicyData := Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
+	expectedPolicyData := acctest.Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
 	VcrTest(t, resource.TestCase{
@@ -328,7 +328,7 @@ func TestAccComputeImageIamPolicyGenerated_withCondition(t *testing.T) {
 }
 
 func testAccComputeImageIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
@@ -347,7 +347,7 @@ resource "google_compute_image_iam_member" "foo" {
 }
 
 func testAccComputeImageIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
@@ -380,7 +380,7 @@ data "google_compute_image_iam_policy" "foo" {
 }
 
 func testAccComputeImageIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
@@ -401,7 +401,7 @@ resource "google_compute_image_iam_policy" "foo" {
 }
 
 func testAccComputeImageIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
@@ -420,7 +420,7 @@ resource "google_compute_image_iam_binding" "foo" {
 }
 
 func testAccComputeImageIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
@@ -439,7 +439,7 @@ resource "google_compute_image_iam_binding" "foo" {
 }
 
 func testAccComputeImageIamBinding_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
@@ -463,7 +463,7 @@ resource "google_compute_image_iam_binding" "foo" {
 }
 
 func testAccComputeImageIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
@@ -507,7 +507,7 @@ resource "google_compute_image_iam_binding" "foo3" {
 }
 
 func testAccComputeImageIamMember_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
@@ -531,7 +531,7 @@ resource "google_compute_image_iam_member" "foo" {
 }
 
 func testAccComputeImageIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 
@@ -575,7 +575,7 @@ resource "google_compute_image_iam_member" "foo3" {
 }
 
 func testAccComputeImageIamPolicy_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_image" "example" {
   name = "tf-test-example-image%{random_suffix}"
 

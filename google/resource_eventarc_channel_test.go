@@ -87,7 +87,7 @@ func TestAccEventarcChannel_cryptoKeyUpdate(t *testing.T) {
 }
 
 func testAccEventarcChannel_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 data "google_project" "test_project" {
 	project_id  = "%{project_name}"
 }
@@ -101,7 +101,7 @@ resource "google_eventarc_channel" "primary" {
 }
 
 func testAccEventarcChannel_setCryptoKey(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 data "google_project" "test_project" {
 	project_id  = "%{project_name}"
 }
@@ -135,7 +135,7 @@ resource "google_eventarc_channel" "primary" {
 }
 
 func testAccEventarcChannel_cryptoKeyUpdate(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 data "google_project" "test_project" {
 	project_id  = "%{project_name}"
 }

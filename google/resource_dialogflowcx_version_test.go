@@ -49,7 +49,7 @@ func TestAccDialogflowCXVersion_update(t *testing.T) {
 }
 
 func testAccDialogflowCXVersion_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	data "google_project" "project" {}
 
 	resource "google_service_account" "dialogflowcx_service_account" {
@@ -82,7 +82,7 @@ func testAccDialogflowCXVersion_basic(context map[string]interface{}) string {
 }
 
 func testAccDialogflowCXVersion_full(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 	data "google_project" "project" {}
 
 	resource "google_service_account" "dialogflowcx_service_account" {
@@ -144,7 +144,7 @@ func TestAccDialogflowCXVersion_dialogflowcxVersionFullExample(t *testing.T) {
 }
 
 func testAccDialogflowCXVersion_dialogflowcxVersionFullExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_dialogflow_cx_agent" "agent" {
   display_name = "tf-test-dialogflowcx-agent%{random_suffix}"
   location = "global"

@@ -124,7 +124,7 @@ func TestAccHealthcareConsentStoreIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccHealthcareConsentStoreIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_healthcare_dataset" "dataset" {
   location = "us-central1"
   name     = "tf-test-my-dataset%{random_suffix}"
@@ -145,7 +145,7 @@ resource "google_healthcare_consent_store_iam_member" "foo" {
 }
 
 func testAccHealthcareConsentStoreIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_healthcare_dataset" "dataset" {
   location = "us-central1"
   name     = "tf-test-my-dataset%{random_suffix}"
@@ -180,7 +180,7 @@ data "google_healthcare_consent_store_iam_policy" "foo" {
 }
 
 func testAccHealthcareConsentStoreIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_healthcare_dataset" "dataset" {
   location = "us-central1"
   name     = "tf-test-my-dataset%{random_suffix}"
@@ -203,7 +203,7 @@ resource "google_healthcare_consent_store_iam_policy" "foo" {
 }
 
 func testAccHealthcareConsentStoreIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_healthcare_dataset" "dataset" {
   location = "us-central1"
   name     = "tf-test-my-dataset%{random_suffix}"
@@ -224,7 +224,7 @@ resource "google_healthcare_consent_store_iam_binding" "foo" {
 }
 
 func testAccHealthcareConsentStoreIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_healthcare_dataset" "dataset" {
   location = "us-central1"
   name     = "tf-test-my-dataset%{random_suffix}"

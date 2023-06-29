@@ -70,7 +70,7 @@ func TestAccPrivatecaCertificateTemplate_BasicCertificateTemplate(t *testing.T) 
 }
 
 func testAccPrivatecaCertificateTemplate_BasicCertificateTemplate(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_certificate_template" "primary" {
   location    = "%{region}"
   name        = "tf-test-template%{random_suffix}"
@@ -157,7 +157,7 @@ resource "google_privateca_certificate_template" "primary" {
 }
 
 func testAccPrivatecaCertificateTemplate_BasicCertificateTemplateUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_certificate_template" "primary" {
   location    = "%{region}"
   name        = "tf-test-template%{random_suffix}"

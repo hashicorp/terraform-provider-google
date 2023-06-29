@@ -46,7 +46,7 @@ func TestAccLoggingLogView_loggingLogViewBasicExampleUpdate(t *testing.T) {
 }
 
 func testAccLoggingLogView_loggingLogViewBasicExampleUpdate(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_logging_project_bucket_config" "logging_log_view" {
     project        = "%{project}"
     location       = "global"

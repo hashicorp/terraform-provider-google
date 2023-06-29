@@ -58,7 +58,7 @@ func TestAccSecurityCenterNotificationConfig_sccNotificationConfigBasicExample(t
 }
 
 func testAccSecurityCenterNotificationConfig_sccNotificationConfigBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_pubsub_topic" "scc_notification" {
   name = "tf-test-my-topic%{random_suffix}"
 }

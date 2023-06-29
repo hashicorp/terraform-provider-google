@@ -70,7 +70,7 @@ func TestAccComputeRegionNetworkFirewallPolicyRule_RegionalHandWritten(t *testin
 }
 
 func testAccComputeRegionNetworkFirewallPolicyRule_RegionalHandWritten(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
   name        = "tf-test-policy%{random_suffix}"
   description = "Sample regional network firewall policy"
@@ -131,7 +131,7 @@ resource "google_tags_tag_value" "basic_value" {
 }
 
 func testAccComputeRegionNetworkFirewallPolicyRule_RegionalHandWrittenUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_network_security_address_group" "basic_regional_networksecurity_address_group" {
   provider = google-beta
 

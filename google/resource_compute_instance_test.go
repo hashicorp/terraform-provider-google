@@ -3161,7 +3161,7 @@ resource "google_compute_instance" "foobar" {
 }
 
 func testAccComputeInstance_resourceManagerTags(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_tags_tag_key" "key" {
   parent = "projects/%{project}"
   short_name = "foobarbaz%{random_suffix}"

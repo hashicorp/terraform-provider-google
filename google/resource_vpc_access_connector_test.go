@@ -34,7 +34,7 @@ func TestAccVPCAccessConnector_vpcAccessConnectorThroughput(t *testing.T) {
 }
 
 func testAccVPCAccessConnector_vpcAccessConnectorThroughput(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_vpc_access_connector" "connector" {
   name          = "tf-test-vpc-con%{random_suffix}"
   subnet {

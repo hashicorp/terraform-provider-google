@@ -56,7 +56,7 @@ func TestAccStorageBucketAccessControl_storageBucketAccessControlPublicBucketExa
 }
 
 func testAccStorageBucketAccessControl_storageBucketAccessControlPublicBucketExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket_access_control" "public_rule" {
   bucket = google_storage_bucket.bucket.name
   role   = "READER"

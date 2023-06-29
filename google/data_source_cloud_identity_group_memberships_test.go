@@ -19,7 +19,7 @@ func testAccDataSourceCloudIdentityGroupMemberships_basicTest(t *testing.T) {
 		"random_suffix": RandString(t, 10),
 	}
 
-	memberId := Nprintf("%{identity_user}@%{org_domain}", context)
+	memberId := acctest.Nprintf("%{identity_user}@%{org_domain}", context)
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -41,7 +41,7 @@ func testAccDataSourceCloudIdentityGroupMemberships_basicTest(t *testing.T) {
 }
 
 func testAccCloudIdentityGroupMembershipConfig(context map[string]interface{}) string {
-	return testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipUserExample(context) + Nprintf(`
+	return testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipUserExample(context) + acctest.Nprintf(`
 
 data "google_cloud_identity_group_memberships" "members" {
   group = google_cloud_identity_group_membership.cloud_identity_group_membership_basic.group

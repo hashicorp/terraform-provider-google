@@ -60,7 +60,7 @@ func testAccComputePublicAdvertisedPrefix_publicAdvertisedPrefixesBasicTest(t *t
 }
 
 func testAccComputePublicAdvertisedPrefix_publicAdvertisedPrefixesBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_public_advertised_prefix" "prefix" {
   name = "tf-test-my-prefix%{random_suffix}"
   description = "%{description}"
@@ -95,7 +95,7 @@ func testAccComputePublicDelegatedPrefix_publicDelegatedPrefixesBasicTest(t *tes
 }
 
 func testAccComputePublicDelegatedPrefix_publicDelegatedPrefixesBasicExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_public_advertised_prefix" "advertised" {
   name = "tf-test-my-prefix%{random_suffix}"
   description = "%{description}"

@@ -136,7 +136,7 @@ func TestAccCloudfunctions2functionIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccCloudfunctions2functionIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 # [START functions_v2_basic]
 locals {
   project = "%{project}" # Google Cloud Platform Project ID
@@ -193,7 +193,7 @@ resource "google_cloudfunctions2_function_iam_member" "foo" {
 }
 
 func testAccCloudfunctions2functionIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 # [START functions_v2_basic]
 locals {
   project = "%{project}" # Google Cloud Platform Project ID
@@ -265,7 +265,7 @@ data "google_cloudfunctions2_function_iam_policy" "foo" {
 }
 
 func testAccCloudfunctions2functionIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 # [START functions_v2_basic]
 locals {
   project = "%{project}" # Google Cloud Platform Project ID
@@ -324,7 +324,7 @@ resource "google_cloudfunctions2_function_iam_policy" "foo" {
 }
 
 func testAccCloudfunctions2functionIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 # [START functions_v2_basic]
 locals {
   project = "%{project}" # Google Cloud Platform Project ID
@@ -381,7 +381,7 @@ resource "google_cloudfunctions2_function_iam_binding" "foo" {
 }
 
 func testAccCloudfunctions2functionIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 # [START functions_v2_basic]
 locals {
   project = "%{project}" # Google Cloud Platform Project ID

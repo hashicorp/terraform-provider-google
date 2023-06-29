@@ -27,7 +27,6 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 func TestAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(t *testing.T) {
@@ -58,7 +57,7 @@ func TestAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(t *te
 }
 
 func testAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "my_project" {
   name = "tf-test-appeng-flex%{random_suffix}"
   project_id = "tf-test-appeng-flex%{random_suffix}"

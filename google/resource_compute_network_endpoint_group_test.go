@@ -60,7 +60,7 @@ func TestAccComputeNetworkEndpointGroup_internalEndpoint(t *testing.T) {
 }
 
 func testAccComputeNetworkEndpointGroup_networkEndpointGroup(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network_endpoint_group" "neg" {
   name         = "tf-test-my-lb-neg%{random_suffix}"
   network      = google_compute_network.default.id
@@ -76,7 +76,7 @@ resource "google_compute_network" "default" {
 }
 
 func testAccComputeNetworkEndpointGroup_internalEndpoint(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_compute_network_endpoint_group" "neg" {
   name                  = "tf-test-my-lb-neg%{random_suffix}"
   network               = google_compute_network.internal.id

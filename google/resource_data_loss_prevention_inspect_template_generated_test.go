@@ -58,7 +58,7 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateBasicExample(t *
 }
 
 func testAccDataLossPreventionInspectTemplate_dlpInspectTemplateBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_loss_prevention_inspect_template" "basic" {
 	parent = "projects/%{project}"
 	description = "My description"
@@ -193,7 +193,7 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeExampl
 }
 
 func testAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_loss_prevention_inspect_template" "custom" {
 	parent = "projects/%{project}"
 	description = "My description"
@@ -286,7 +286,7 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeSurrog
 }
 
 func testAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeSurrogateExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_loss_prevention_inspect_template" "custom_type_surrogate" {
   parent = "projects/%{project}"
   description = "My description"
@@ -377,7 +377,7 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateWithTemplateIdEx
 }
 
 func testAccDataLossPreventionInspectTemplate_dlpInspectTemplateWithTemplateIdExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_data_loss_prevention_inspect_template" "with_template_id" {
   parent = "projects/%{project}"
   template_id = "tf-test-my-template%{random_suffix}"

@@ -52,7 +52,7 @@ func TestAccVertexAIEndpoint_vertexAiEndpointNetwork(t *testing.T) {
 }
 
 func testAccVertexAIEndpoint_vertexAiEndpointNetwork(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_vertex_ai_endpoint" "endpoint" {
   name         = "%{endpoint_name}"
   display_name = "sample-endpoint"
@@ -100,7 +100,7 @@ data "google_project" "project" {}
 }
 
 func testAccVertexAIEndpoint_vertexAiEndpointNetworkUpdate(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_vertex_ai_endpoint" "endpoint" {
   name         = "%{endpoint_name}"
   display_name = "new-sample-endpoint"

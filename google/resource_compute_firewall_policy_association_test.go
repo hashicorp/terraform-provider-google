@@ -38,7 +38,7 @@ func TestAccComputeFirewallPolicyAssociation_basic(t *testing.T) {
 }
 
 func testAccComputeFirewallPolicyAssociation_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_folder" "folder" {
   display_name = "tf-test-folder-%{random_suffix}"
   parent       = "%{org_name}"

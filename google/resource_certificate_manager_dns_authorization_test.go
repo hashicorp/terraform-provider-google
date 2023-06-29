@@ -44,7 +44,7 @@ func TestAccCertificateManagerDnsAuthorization_update(t *testing.T) {
 }
 
 func testAccCertificateManagerDnsAuthorization_update0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_certificate_manager_dns_authorization" "default" {
   name        = "tf-test-dns-auth%{random_suffix}"
   description = "The default dnss"
@@ -57,7 +57,7 @@ resource "google_certificate_manager_dns_authorization" "default" {
 }
 
 func testAccCertificateManagerDnsAuthorization_update1(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_certificate_manager_dns_authorization" "default" {
   name        = "tf-test-dns-auth%{random_suffix}"
   description = "The default dnss2"

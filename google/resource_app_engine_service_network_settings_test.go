@@ -41,7 +41,7 @@ func TestAccAppEngineServiceNetworkSettings_update(t *testing.T) {
 }
 
 func testAccAppEngineServiceNetworkSettings_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "tf-test-%{random_suffix}-ae-networksettings"
   location = "US"
@@ -81,7 +81,7 @@ resource "google_app_engine_service_network_settings" "main" {
 }
 
 func testAccAppEngineServiceNetworkSettings_update(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "tf-test-%{random_suffix}-ae-networksettings"
   location = "US"

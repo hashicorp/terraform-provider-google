@@ -57,7 +57,7 @@ func TestAccVertexAIIndexEndpoint_vertexAiIndexEndpointExample(t *testing.T) {
 }
 
 func testAccVertexAIIndexEndpoint_vertexAiIndexEndpointExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_vertex_ai_index_endpoint" "index_endpoint" {
   display_name = "sample-endpoint"
   description  = "A sample vertex endpoint"

@@ -124,7 +124,7 @@ func TestAccGKEHub2FeatureIamPolicyGenerated(t *testing.T) {
 }
 
 func testAccGKEHub2FeatureIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   name            = "%{project_id}"
   project_id      = "%{project_id}"
@@ -160,7 +160,7 @@ resource "google_gke_hub_feature_iam_member" "foo" {
 }
 
 func testAccGKEHub2FeatureIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   name            = "%{project_id}"
   project_id      = "%{project_id}"
@@ -209,7 +209,7 @@ data "google_gke_hub_feature_iam_policy" "foo" {
 }
 
 func testAccGKEHub2FeatureIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   name            = "%{project_id}"
   project_id      = "%{project_id}"
@@ -246,7 +246,7 @@ resource "google_gke_hub_feature_iam_policy" "foo" {
 }
 
 func testAccGKEHub2FeatureIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   name            = "%{project_id}"
   project_id      = "%{project_id}"
@@ -282,7 +282,7 @@ resource "google_gke_hub_feature_iam_binding" "foo" {
 }
 
 func testAccGKEHub2FeatureIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_project" "project" {
   name            = "%{project_id}"
   project_id      = "%{project_id}"

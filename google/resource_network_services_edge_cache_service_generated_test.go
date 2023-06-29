@@ -56,7 +56,7 @@ func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceBasic
 }
 
 func testAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceBasicExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "dest" {
   name          = "tf-test-my-bucket%{random_suffix}"
   location      = "US"
@@ -136,7 +136,7 @@ func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceAdvan
 }
 
 func testAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceAdvancedExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "dest" {
   name          = "tf-test-my-bucket%{random_suffix}"
   location      = "US"
@@ -350,7 +350,7 @@ func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceDualT
 }
 
 func testAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceDualTokenExample(context map[string]interface{}) string {
-	return tpgresource.Nprintf(`
+	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
   secret_id = "tf-test-secret-name%{random_suffix}"
 

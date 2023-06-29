@@ -301,7 +301,7 @@ func TestAccIapAppEngineVersionIamPolicyGenerated_withCondition(t *testing.T) {
 	}
 
 	// Test should have 2 bindings: one with a description and one without. Any < chars are converted to a unicode character by the API.
-	expectedPolicyData := Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
+	expectedPolicyData := acctest.Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
 	VcrTest(t, resource.TestCase{
@@ -328,7 +328,7 @@ func TestAccIapAppEngineVersionIamPolicyGenerated_withCondition(t *testing.T) {
 }
 
 func testAccIapAppEngineVersionIamMember_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "appengine-static-content-%{random_suffix}"
   location = "US"
@@ -371,7 +371,7 @@ resource "google_iap_app_engine_version_iam_member" "foo" {
 }
 
 func testAccIapAppEngineVersionIamPolicy_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "appengine-static-content-%{random_suffix}"
   location = "US"
@@ -430,7 +430,7 @@ data "google_iap_app_engine_version_iam_policy" "foo" {
 }
 
 func testAccIapAppEngineVersionIamPolicy_emptyBinding(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "appengine-static-content-%{random_suffix}"
   location = "US"
@@ -475,7 +475,7 @@ resource "google_iap_app_engine_version_iam_policy" "foo" {
 }
 
 func testAccIapAppEngineVersionIamBinding_basicGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "appengine-static-content-%{random_suffix}"
   location = "US"
@@ -518,7 +518,7 @@ resource "google_iap_app_engine_version_iam_binding" "foo" {
 }
 
 func testAccIapAppEngineVersionIamBinding_updateGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "appengine-static-content-%{random_suffix}"
   location = "US"
@@ -561,7 +561,7 @@ resource "google_iap_app_engine_version_iam_binding" "foo" {
 }
 
 func testAccIapAppEngineVersionIamBinding_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "appengine-static-content-%{random_suffix}"
   location = "US"
@@ -609,7 +609,7 @@ resource "google_iap_app_engine_version_iam_binding" "foo" {
 }
 
 func testAccIapAppEngineVersionIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "appengine-static-content-%{random_suffix}"
   location = "US"
@@ -681,7 +681,7 @@ resource "google_iap_app_engine_version_iam_binding" "foo3" {
 }
 
 func testAccIapAppEngineVersionIamMember_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "appengine-static-content-%{random_suffix}"
   location = "US"
@@ -729,7 +729,7 @@ resource "google_iap_app_engine_version_iam_member" "foo" {
 }
 
 func testAccIapAppEngineVersionIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "appengine-static-content-%{random_suffix}"
   location = "US"
@@ -801,7 +801,7 @@ resource "google_iap_app_engine_version_iam_member" "foo3" {
 }
 
 func testAccIapAppEngineVersionIamPolicy_withConditionGenerated(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "appengine-static-content-%{random_suffix}"
   location = "US"

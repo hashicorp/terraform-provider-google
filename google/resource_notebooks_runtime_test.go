@@ -48,7 +48,7 @@ func TestAccNotebooksRuntime_update(t *testing.T) {
 }
 
 func testAccNotebooksRuntime_basic(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_notebooks_runtime" "runtime" {
   name = "tf-test-notebooks-runtime%{random_suffix}"
   location = "us-central1"
@@ -74,7 +74,7 @@ resource "google_notebooks_runtime" "runtime" {
 }
 
 func testAccNotebooksRuntime_update(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_notebooks_runtime" "runtime" {
   name = "tf-test-notebooks-runtime%{random_suffix}"
   location = "us-central1"

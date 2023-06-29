@@ -53,7 +53,7 @@ func TestAccPrivatecaCaPool_privatecaCapoolUpdate(t *testing.T) {
 }
 
 func testAccPrivatecaCaPool_privatecaCapoolStart(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   name = "tf-test-my-capool%{random_suffix}"
   location = "us-central1"
@@ -135,7 +135,7 @@ resource "google_privateca_ca_pool" "default" {
 }
 
 func testAccPrivatecaCaPool_privatecaCapoolEnd(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   name = "tf-test-my-capool%{random_suffix}"
   location = "us-central1"
@@ -242,7 +242,7 @@ func TestAccPrivatecaCaPool_privatecaCapoolEmptyBaseline(t *testing.T) {
 }
 
 func testAccPrivatecaCaPool_privatecaCapoolEmptyBaseline(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   name = "tf-test-my-capool%{random_suffix}"
   location = "us-central1"
@@ -306,7 +306,7 @@ func TestAccPrivatecaCaPool_privatecaCapoolEmptyPublishingOptions(t *testing.T) 
 }
 
 func testAccPrivatecaCaPool_privatecaCapoolEmptyPublishingOptions(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   name = "tf-test-my-capool%{random_suffix}"
   location = "us-central1"
@@ -366,7 +366,7 @@ func TestAccPrivatecaCaPool_updateCaOption(t *testing.T) {
 }
 
 func testAccPrivatecaCaPool_privatecaCapoolCaOptionIsCaIsTrueAndMaxPathIsPositive(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   name = "tf-test-my-capool%{random_suffix}"
   location = "us-central1"
@@ -393,7 +393,7 @@ resource "google_privateca_ca_pool" "default" {
 }
 
 func testAccPrivatecaCaPool_privatecaCapoolCaOptionIsCaIsFalse(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   name = "tf-test-my-capool%{random_suffix}"
   location = "us-central1"
@@ -420,7 +420,7 @@ resource "google_privateca_ca_pool" "default" {
 }
 
 func testAccPrivatecaCaPool_privatecaCapoolCaOptionMaxIssuerPathLenghIsZero(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_privateca_ca_pool" "default" {
   name = "tf-test-my-capool%{random_suffix}"
   location = "us-central1"

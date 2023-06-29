@@ -73,7 +73,7 @@ func TestAccContainerAzureNodePool_BasicHandWritten(t *testing.T) {
 }
 
 func testAccContainerAzureNodePool_BasicHandWritten(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 data "google_container_azure_versions" "versions" {
   project = "%{project_name}"
   location = "us-west1"
@@ -174,7 +174,7 @@ resource "google_container_azure_node_pool" "primary" {
 }
 
 func testAccContainerAzureNodePool_BasicHandWrittenUpdate0(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 data "google_container_azure_versions" "versions" {
   project = "%{project_name}"
   location = "us-west1"

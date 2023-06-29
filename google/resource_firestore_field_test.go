@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
 func TestAccFirestoreField_firestoreFieldUpdateAddIndexExample(t *testing.T) {
@@ -71,7 +72,7 @@ func testAccFirestoreField_runUpdateTest(updateConfig string, t *testing.T, cont
 }
 
 func testAccFirestoreField_firestoreFieldUpdateInitialExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_firestore_field" "%{resource_name}" {
 	project = "%{project_id}"
 	collection = "chatrooms_%{random_suffix}"
@@ -91,7 +92,7 @@ resource "google_firestore_field" "%{resource_name}" {
 }
 
 func testAccFirestoreField_firestoreFieldUpdateAddTTLExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_firestore_field" "%{resource_name}" {
 	project = "%{project_id}"
 	collection = "chatrooms_%{random_suffix}"
@@ -113,7 +114,7 @@ resource "google_firestore_field" "%{resource_name}" {
 }
 
 func testAccFirestoreField_firestoreFieldUpdateAddIndexExample(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_firestore_field" "%{resource_name}" {
 	project = "%{project_id}"
 	collection = "chatrooms_%{random_suffix}"

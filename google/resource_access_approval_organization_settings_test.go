@@ -80,7 +80,7 @@ func testAccAccessApprovalOrganizationSettings(t *testing.T) {
 }
 
 func testAccAccessApprovalOrganizationSettings_full(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_organization_access_approval_settings" "organization_access_approval" {
   organization_id     = "%{org_id}"
   notification_emails = ["testuser@example.com"]
@@ -98,7 +98,7 @@ resource "google_organization_access_approval_settings" "organization_access_app
 }
 
 func testAccAccessApprovalOrganizationSettings_update(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_organization_access_approval_settings" "organization_access_approval" {
   organization_id     = "%{org_id}"
   notification_emails = ["testuser@example.com", "example.user@example.com"]
@@ -112,7 +112,7 @@ resource "google_organization_access_approval_settings" "organization_access_app
 }
 
 func testAccAccessApprovalOrganizationSettings_activeKeyVersion(context map[string]interface{}) string {
-	return Nprintf(`
+	return acctest.Nprintf(`
 resource "google_kms_key_ring" "key_ring" {
   name     = "tf-test-%{random_suffix}"
   project  = "%{project}"
