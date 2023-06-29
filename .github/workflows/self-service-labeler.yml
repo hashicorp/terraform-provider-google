@@ -1,0 +1,40 @@
+name: Issue Opened Self-Service Labeler
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+    - name: Checkout magic modules
+      uses: actions/checkout@v2
+      with:
+        repository: GoogleCloudPlatform/magic-modules
+        ref: main
+        path: magic-modules
+    - name: Setup go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '>=1.19.0'
+    - name: Pick labels
+      id: pick_labels
+      env:
+        ISSUE_BODY: ${{ github.event.issue.body }}
+      run: |
+        cd magic-modules/tools/issue-labeler
+        echo "labels=$(go run .)" >> $GITHUB_OUTPUT
+    - name: Apply labels
+      uses: actions/github-script@v6
+      if: ${{ steps.pick_labels.outputs.labels != '' }}
+      with:
+        script: |
+          github.rest.issues.addLabels({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: ${{ steps.pick_labels.outputs.labels }}
+          })
