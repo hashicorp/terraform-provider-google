@@ -1,0 +1,3 @@
+```release-note:note
+Updating documentation update_policy block to working value
+```
