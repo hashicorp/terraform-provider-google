@@ -2,18 +2,14 @@
 
 FEATURES:
 * **New Resource:** `google_certificate_manager_public_ca_external_account_key` ([#14983](https://github.com/hashicorp/terraform-provider-google/pull/14983))
-* **New Resource:** `google_compute_network_edge_security_service` (beta) ([#14971](https://github.com/hashicorp/terraform-provider-google/pull/14971))
-* **New Resource:** `google_compute_region_security_policy` (beta) ([#14971](https://github.com/hashicorp/terraform-provider-google/pull/14971))
 
 IMPROVEMENTS:
 * compute: added `provisioned_throughput` field to `google_compute_disk` used by `hyperdisk-throughput` pd type ([#14985](https://github.com/hashicorp/terraform-provider-google/pull/14985))
-* compute: added field `httpKeepAliveTimeoutSec` to resource `google_compute_target_http_proxy` (beta) ([#14992](https://github.com/hashicorp/terraform-provider-google/pull/14992))
-* compute: added field `httpKeepAliveTimeoutSec` to resource `google_compute_target_https_proxy` (beta) ([#14992](https://github.com/hashicorp/terraform-provider-google/pull/14992))
 * container: added field `security_posture_config` to resource `google_container_cluster` ([#14999](https://github.com/hashicorp/terraform-provider-google/pull/14999))
 * logging: added support for `locked` to `google_logging_project_bucket_config` ([#14977](https://github.com/hashicorp/terraform-provider-google/pull/14977))
 
 BUG FIXES:
-* Fixed incorrect code block in the description of container_cluster resource. ([#14969](https://github.com/hashicorp/terraform-provider-google/pull/14969))
+* container: fixed incorrect code block in the description of `google_container_cluster` ([#14969](https://github.com/hashicorp/terraform-provider-google/pull/14969))
 * bigquery: fixed an issue where api default value for `edition` field of `google_bigquery_reservation` was not handled ([#14961](https://github.com/hashicorp/terraform-provider-google/pull/14961))
 * cloudfunction2: fixed permadiffs of some fields of `service_config` in `google_cloudfunctions2_function` resource ([#14975](https://github.com/hashicorp/terraform-provider-google/pull/14975))
 * compute: fixed an issue with setting project field to long form in `google_compute_forwarding_rule` and `google_compute_global_forwarding_rule` ([#14996](https://github.com/hashicorp/terraform-provider-google/pull/14996))
