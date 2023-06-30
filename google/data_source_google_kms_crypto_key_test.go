@@ -13,7 +13,7 @@ import (
 )
 
 func TestAccDataSourceGoogleKmsCryptoKey_basic(t *testing.T) {
-	kms := BootstrapKMSKey(t)
+	kms := acctest.BootstrapKMSKey(t)
 
 	// Name in the KMS client is in the format projects/<project>/locations/<location>/keyRings/<keyRingName>/cryptoKeys/<keyId>
 	keyParts := strings.Split(kms.CryptoKey.Name, "/")

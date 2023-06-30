@@ -13,7 +13,7 @@ import (
 )
 
 func TestAccDataSourceGoogleKmsKeyRing_basic(t *testing.T) {
-	kms := BootstrapKMSKey(t)
+	kms := acctest.BootstrapKMSKey(t)
 
 	keyParts := strings.Split(kms.KeyRing.Name, "/")
 	keyRingId := keyParts[len(keyParts)-1]

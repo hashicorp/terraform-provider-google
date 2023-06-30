@@ -15,7 +15,7 @@ import (
 func TestAccServiceNetworkingConnection_create(t *testing.T) {
 	t.Parallel()
 
-	network := BootstrapSharedTestNetwork(t, "service-networking-connection-create")
+	network := acctest.BootstrapSharedTestNetwork(t, "service-networking-connection-create")
 	addr := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	service := "servicenetworking.googleapis.com"
 
@@ -39,7 +39,7 @@ func TestAccServiceNetworkingConnection_create(t *testing.T) {
 func TestAccServiceNetworkingConnection_update(t *testing.T) {
 	t.Parallel()
 
-	network := BootstrapSharedTestNetwork(t, "service-networking-connection-update")
+	network := acctest.BootstrapSharedTestNetwork(t, "service-networking-connection-update")
 	addr1 := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	addr2 := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 	service := "servicenetworking.googleapis.com"

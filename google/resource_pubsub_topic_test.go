@@ -45,10 +45,10 @@ func TestAccPubsubTopic_update(t *testing.T) {
 func TestAccPubsubTopic_cmek(t *testing.T) {
 	t.Parallel()
 
-	kms := BootstrapKMSKey(t)
+	kms := acctest.BootstrapKMSKey(t)
 	topicName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
-	if BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
+	if acctest.BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
 		t.Fatal("Stopping the test because a role was added to the policy.")
 	}
 

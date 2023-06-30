@@ -314,7 +314,7 @@ func TestAccStorageObject_metadata(t *testing.T) {
 func TestAccStorageObjectKms(t *testing.T) {
 	t.Parallel()
 
-	kms := BootstrapKMSKeyInLocation(t, "us")
+	kms := acctest.BootstrapKMSKeyInLocation(t, "us")
 	bucketName := testBucketName(t)
 	data := []byte("data data data")
 	h := md5.New()

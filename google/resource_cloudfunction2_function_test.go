@@ -185,7 +185,7 @@ func TestAccCloudFunctions2Function_fullUpdate(t *testing.T) {
 		"random_suffix": RandString(t, 10),
 	}
 
-	if BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
+	if acctest.BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
 		t.Fatal("Stopping the test because a binding was added.")
 	}
 

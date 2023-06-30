@@ -35,7 +35,7 @@ func TestAccMemcacheInstance_memcacheInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  BootstrapSharedTestNetwork(t, "memcache-private"),
+		"network_name":  acctest.BootstrapSharedTestNetwork(t, "memcache-private"),
 		"random_suffix": RandString(t, 10),
 	}
 

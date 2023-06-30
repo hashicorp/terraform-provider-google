@@ -106,8 +106,8 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 	pid := "tf-test-" + RandString(t, 10)
 	topicName := "tf-test-topic-" + RandString(t, 10)
 
-	config := BootstrapConfig(t)
-	accessToken, err := setupProjectsAndGetAccessToken(org, billing, pid, "pubsub", config)
+	config := acctest.BootstrapConfig(t)
+	accessToken, err := acctest.SetupProjectsAndGetAccessToken(org, billing, pid, "pubsub", config)
 	if err != nil {
 		t.Error(err)
 	}
@@ -147,7 +147,7 @@ func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 	billing := envvar.GetTestBillingAccountFromEnv(t)
 	pid := "tf-test-" + RandString(t, 10)
 
-	config := BootstrapConfig(t)
+	config := acctest.BootstrapConfig(t)
 	accessToken, err := setupProjectsAndGetAccessToken(org, billing, pid, "cloudkms", config)
 	if err != nil {
 		t.Error(err)

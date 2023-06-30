@@ -13,7 +13,7 @@ func TestAccDataSourcePrivatecaCertificateAuthority_privatecaCertificateAuthorit
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"pool_name":     BootstrapSharedCaPoolInLocation(t, "us-central1"),
+		"pool_name":     acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
 		"pool_location": "us-central1",
 		"random_suffix": RandString(t, 10),
 	}

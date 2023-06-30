@@ -102,7 +102,7 @@ func TestAccDataSourceGoogleServiceAccountJwt(t *testing.T) {
 
 	resourceName := "data.google_service_account_jwt.default"
 	serviceAccount := envvar.GetTestServiceAccountFromEnv(t)
-	targetServiceAccountEmail := BootstrapServiceAccount(t, envvar.GetTestProjectFromEnv(), serviceAccount)
+	targetServiceAccountEmail := acctest.BootstrapServiceAccount(t, envvar.GetTestProjectFromEnv(), serviceAccount)
 
 	staticTime := time.Now()
 

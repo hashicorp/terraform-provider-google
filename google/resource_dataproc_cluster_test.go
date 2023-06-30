@@ -749,9 +749,9 @@ func TestAccDataprocCluster_KMS(t *testing.T) {
 	t.Parallel()
 
 	rnd := RandString(t, 10)
-	kms := BootstrapKMSKey(t)
+	kms := acctest.BootstrapKMSKey(t)
 
-	if BootstrapPSARole(t, "service-", "compute-system", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
+	if acctest.BootstrapPSARole(t, "service-", "compute-system", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
 		t.Fatal("Stopping the test because a role was added to the policy.")
 	}
 
@@ -775,7 +775,7 @@ func TestAccDataprocCluster_withKerberos(t *testing.T) {
 	t.Parallel()
 
 	rnd := RandString(t, 10)
-	kms := BootstrapKMSKey(t)
+	kms := acctest.BootstrapKMSKey(t)
 
 	var cluster dataproc.Cluster
 	VcrTest(t, resource.TestCase{

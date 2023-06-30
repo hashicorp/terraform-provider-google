@@ -198,7 +198,7 @@ func TestAccDatastreamStream_datastreamStreamFullExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"deletion_protection": false,
-		"stream_cmek":         BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"stream_cmek":         acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"random_suffix":       RandString(t, 10),
 	}
 
@@ -571,7 +571,7 @@ func TestAccDatastreamStream_datastreamStreamBigqueryExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"deletion_protection":                     false,
-		"bigquery_destination_table_kms_key_name": BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"bigquery_destination_table_kms_key_name": acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"random_suffix":                           RandString(t, 10),
 	}
 

@@ -68,7 +68,7 @@ func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  BootstrapSharedTestNetwork(t, "redis-full"),
+		"network_name":  acctest.BootstrapSharedTestNetwork(t, "redis-full"),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -142,7 +142,7 @@ func TestAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(t *testi
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  BootstrapSharedTestNetwork(t, "redis-full-persis"),
+		"network_name":  acctest.BootstrapSharedTestNetwork(t, "redis-full-persis"),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -186,7 +186,7 @@ func TestAccRedisInstance_redisInstancePrivateServiceExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  BootstrapSharedTestNetwork(t, "redis-private"),
+		"network_name":  acctest.BootstrapSharedTestNetwork(t, "redis-private"),
 		"random_suffix": RandString(t, 10),
 	}
 
@@ -260,7 +260,7 @@ func TestAccRedisInstance_redisInstanceMrrExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  BootstrapSharedTestNetwork(t, "redis-mrr"),
+		"network_name":  acctest.BootstrapSharedTestNetwork(t, "redis-mrr"),
 		"random_suffix": RandString(t, 10),
 	}
 

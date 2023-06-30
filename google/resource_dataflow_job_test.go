@@ -298,7 +298,7 @@ func TestAccDataflowJob_withKmsKey(t *testing.T) {
 	job := "tf-test-dataflow-job-" + randStr
 	zone := "us-central1-f"
 
-	if BootstrapPSARole(t, "service-", "compute-system", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
+	if acctest.BootstrapPSARole(t, "service-", "compute-system", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
 		t.Fatal("Stopping the test because a role was added to the policy.")
 	}
 

@@ -179,8 +179,8 @@ func TestAccBigtableInstance_kms(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	kms1 := BootstrapKMSKeyInLocation(t, "us-central1")
-	kms2 := BootstrapKMSKeyInLocation(t, "us-east1")
+	kms1 := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
+	kms2 := acctest.BootstrapKMSKeyInLocation(t, "us-east1")
 	pid := envvar.GetTestProjectFromEnv()
 	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
 
