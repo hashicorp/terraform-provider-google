@@ -39,8 +39,8 @@ func TestAccSecretManagerSecret_import(t *testing.T) {
 func TestAccSecretManagerSecret_cmek(t *testing.T) {
 	t.Parallel()
 
-	kmscentral := BootstrapKMSKeyInLocation(t, "us-central1")
-	kmseast := BootstrapKMSKeyInLocation(t, "us-east1")
+	kmscentral := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
+	kmseast := acctest.BootstrapKMSKeyInLocation(t, "us-east1")
 	context1 := map[string]interface{}{
 		"pid":                  envvar.GetTestProjectFromEnv(),
 		"random_suffix":        RandString(t, 10),

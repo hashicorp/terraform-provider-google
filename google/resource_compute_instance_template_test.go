@@ -530,7 +530,7 @@ func TestAccComputeInstanceTemplate_EncryptKMS(t *testing.T) {
 	t.Parallel()
 
 	var instanceTemplate compute.InstanceTemplate
-	kms := BootstrapKMSKey(t)
+	kms := acctest.BootstrapKMSKey(t)
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -970,7 +970,7 @@ func TestAccComputeInstanceTemplate_sourceSnapshotEncryptionKey(t *testing.T) {
 	t.Parallel()
 
 	var instanceTemplate compute.InstanceTemplate
-	kmsKey := BootstrapKMSKeyInLocation(t, "us-central1")
+	kmsKey := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
 
 	context := map[string]interface{}{
 		"kms_ring_name": tpgresource.GetResourceNameFromSelfLink(kmsKey.KeyRing.Name),
@@ -1004,7 +1004,7 @@ func TestAccComputeInstanceTemplate_sourceImageEncryptionKey(t *testing.T) {
 	t.Parallel()
 
 	var instanceTemplate compute.InstanceTemplate
-	kmsKey := BootstrapKMSKeyInLocation(t, "us-central1")
+	kmsKey := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
 
 	context := map[string]interface{}{
 		"kms_ring_name": tpgresource.GetResourceNameFromSelfLink(kmsKey.KeyRing.Name),

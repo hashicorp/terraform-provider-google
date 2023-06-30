@@ -194,7 +194,7 @@ func testAccCloudIdentityGroupMembership_membershipDoesNotExistTest(t *testing.T
 
 	saId := "tf-test-sa-" + RandString(t, 10)
 	project := envvar.GetTestProjectFromEnv()
-	config := BootstrapConfig(t)
+	config := acctest.BootstrapConfig(t)
 
 	r := &iam.CreateServiceAccountRequest{
 		AccountId:      saId,

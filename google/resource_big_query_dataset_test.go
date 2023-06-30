@@ -149,7 +149,7 @@ func TestAccBigQueryDataset_regionalLocation(t *testing.T) {
 func TestAccBigQueryDataset_cmek(t *testing.T) {
 	t.Parallel()
 
-	kms := BootstrapKMSKeyInLocation(t, "us")
+	kms := acctest.BootstrapKMSKeyInLocation(t, "us")
 	pid := envvar.GetTestProjectFromEnv()
 	datasetID1 := fmt.Sprintf("tf_test_%s", RandString(t, 10))
 

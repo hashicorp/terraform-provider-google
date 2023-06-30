@@ -317,7 +317,7 @@ func TestAccComposerEnvironment_withWebServerConfig(t *testing.T) {
 func TestAccComposerEnvironment_withEncryptionConfigComposer1(t *testing.T) {
 	t.Parallel()
 
-	kms := BootstrapKMSKeyInLocation(t, "us-central1")
+	kms := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
 	pid := envvar.GetTestProjectFromEnv()
 	grantServiceAgentsRole(t, "service-", allComposerServiceAgents(), "roles/cloudkms.cryptoKeyEncrypterDecrypter")
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, RandInt(t))
@@ -353,7 +353,7 @@ func TestAccComposerEnvironment_withEncryptionConfigComposer1(t *testing.T) {
 func TestAccComposerEnvironment_withEncryptionConfigComposer2(t *testing.T) {
 	t.Parallel()
 
-	kms := BootstrapKMSKeyInLocation(t, "us-central1")
+	kms := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
 	pid := envvar.GetTestProjectFromEnv()
 	grantServiceAgentsRole(t, "service-", allComposerServiceAgents(), "roles/cloudkms.cryptoKeyEncrypterDecrypter")
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, RandInt(t))
@@ -969,7 +969,7 @@ func TestAccComposerEnvironment_fixPyPiPackages(t *testing.T) {
 
 // This bootstraps the IAM roles needed for the service agents.
 func grantServiceAgentsRole(t *testing.T, prefix string, agentNames []string, role string) {
-	if BootstrapAllPSARole(t, prefix, agentNames, role) {
+	if acctest.BootstrapAllPSARole(t, prefix, agentNames, role) {
 		// Fail this test run because the policy needs time to reconcile.
 		t.Fatal("Stopping test because permissions were added.")
 	}

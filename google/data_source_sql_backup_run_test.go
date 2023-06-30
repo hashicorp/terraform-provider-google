@@ -17,7 +17,7 @@ func TestAccDataSourceSqlBackupRun_basic(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	instance := BootstrapSharedSQLInstanceBackupRun(t)
+	instance := acctest.BootstrapSharedSQLInstanceBackupRun(t)
 
 	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

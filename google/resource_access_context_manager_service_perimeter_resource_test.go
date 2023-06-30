@@ -21,7 +21,7 @@ func testAccAccessContextManagerServicePerimeterResource_basicTest(t *testing.T)
 	// Multiple fine-grained resources
 	acctest.SkipIfVcr(t)
 	org := envvar.GetTestOrgFromEnv(t)
-	projects := BootstrapServicePerimeterProjects(t, 2)
+	projects := acctest.BootstrapServicePerimeterProjects(t, 2)
 	policyTitle := "my policy"
 	perimeterTitle := "perimeter"
 

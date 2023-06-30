@@ -393,7 +393,7 @@ func TestAccComputeInstance_kmsDiskEncryption(t *testing.T) {
 
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	kms := BootstrapKMSKey(t)
+	kms := acctest.BootstrapKMSKey(t)
 
 	bootKmsKeyName := kms.CryptoKey.Name
 	diskNameToEncryptionKey := map[string]*compute.CustomerEncryptionKey{
@@ -408,7 +408,7 @@ func TestAccComputeInstance_kmsDiskEncryption(t *testing.T) {
 		},
 	}
 
-	if BootstrapPSARole(t, "service-", "compute-system", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
+	if acctest.BootstrapPSARole(t, "service-", "compute-system", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
 		t.Fatal("Stopping the test because a role was added to the policy.")
 	}
 

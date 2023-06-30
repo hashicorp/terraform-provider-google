@@ -220,7 +220,7 @@ func TestAccComputeImage_resolveImage(t *testing.T) {
 func TestAccComputeImage_imageEncryptionKey(t *testing.T) {
 	t.Parallel()
 
-	kmsKey := BootstrapKMSKeyInLocation(t, "us-central1")
+	kmsKey := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
 	kmsKeyName := tpgresource.GetResourceNameFromSelfLink(kmsKey.CryptoKey.Name)
 	kmsRingName := tpgresource.GetResourceNameFromSelfLink(kmsKey.KeyRing.Name)
 

@@ -18,7 +18,7 @@ import (
 func TestAccKmsSecretCiphertext_basic(t *testing.T) {
 	t.Parallel()
 
-	kms := BootstrapKMSKey(t)
+	kms := acctest.BootstrapKMSKey(t)
 
 	plaintext := fmt.Sprintf("secret-%s", RandString(t, 10))
 	aad := "plainaad"

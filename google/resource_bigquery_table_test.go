@@ -52,7 +52,7 @@ func TestAccBigQueryTable_Kms(t *testing.T) {
 	resourceName := "google_bigquery_table.test"
 	datasetID := fmt.Sprintf("tf_test_%s", RandString(t, 10))
 	tableID := fmt.Sprintf("tf_test_%s", RandString(t, 10))
-	kms := BootstrapKMSKey(t)
+	kms := acctest.BootstrapKMSKey(t)
 	cryptoKeyName := kms.CryptoKey.Name
 
 	VcrTest(t, resource.TestCase{
