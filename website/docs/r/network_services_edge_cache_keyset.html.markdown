@@ -22,6 +22,11 @@ description: |-
 EdgeCacheKeyset represents a collection of public keys used for validating signed requests.
 
 
+To get more information about EdgeCacheKeyset, see:
+
+* [API documentation](https://cloud.google.com/media-cdn/docs/reference/rest/v1/projects.locations.edgeCacheKeysets)
+* How-to Guides
+    * [Create keysets](https://cloud.google.com/media-cdn/docs/create-keyset)
 
 ~> **Warning:** All arguments including the following potentially sensitive
 values will be stored in the raw state as plain text: `public_key.public_key.value`.
@@ -172,9 +177,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
-- `create` - Default is 60 minutes.
-- `update` - Default is 60 minutes.
-- `delete` - Default is 60 minutes.
+- `create` - Default is 90 minutes.
+- `update` - Default is 90 minutes.
+- `delete` - Default is 90 minutes.
 
 ## Import
 
