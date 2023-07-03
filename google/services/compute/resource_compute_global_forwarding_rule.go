@@ -266,6 +266,12 @@ be used.
 For Private Service Connect forwarding rules that forward traffic to Google
 APIs, a network must be provided.`,
 			},
+			"no_automate_dns_zone": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `This is used in PSC consumer ForwardingRule to control whether it should try to auto-generate a DNS zone or not. Non-PSC forwarding rules do not use this field.`,
+			},
 			"port_range": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -420,6 +426,12 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("source_ip_ranges"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceIpRangesProp)) && (ok || !reflect.DeepEqual(v, sourceIpRangesProp)) {
 		obj["sourceIpRanges"] = sourceIpRangesProp
+	}
+	noAutomateDnsZoneProp, err := expandComputeGlobalForwardingRuleNoAutomateDnsZone(d.Get("no_automate_dns_zone"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("no_automate_dns_zone"); ok || !reflect.DeepEqual(v, noAutomateDnsZoneProp) {
+		obj["noAutomateDnsZone"] = noAutomateDnsZoneProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/forwardingRules")
@@ -1046,5 +1058,9 @@ func expandComputeGlobalForwardingRuleTarget(v interface{}, d tpgresource.Terraf
 }
 
 func expandComputeGlobalForwardingRuleSourceIpRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeGlobalForwardingRuleNoAutomateDnsZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

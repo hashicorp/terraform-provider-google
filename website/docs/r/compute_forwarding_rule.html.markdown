@@ -1111,6 +1111,106 @@ resource "google_compute_health_check" "producer_service_health_check" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=forwarding_rule_vpc_psc_no_automate_dns&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Forwarding Rule Vpc Psc No Automate Dns
+
+
+```hcl
+resource "google_compute_forwarding_rule" "default" {
+  name                    = "psc-endpoint"
+  region                  = "us-central1"
+  load_balancing_scheme   = ""
+  target                  = google_compute_service_attachment.producer_service_attachment.id
+  network                 = google_compute_network.consumer_net.name
+  ip_address              = google_compute_address.consumer_address.id
+  allow_psc_global_access = true
+  no_automate_dns_zone    = true
+}
+
+resource "google_compute_network" "consumer_net" {
+  name                    = "consumer-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "consumer_subnet" {
+  name          = "consumer-net"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.consumer_net.id
+}
+
+resource "google_compute_address" "consumer_address" {
+  name         = "website-ip-1"
+  region       = "us-central1"
+  subnetwork   = google_compute_subnetwork.consumer_subnet.id
+  address_type = "INTERNAL"
+}
+
+
+resource "google_compute_network" "producer_net" {
+  name                    = "producer-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "producer_subnet" {
+  name          = "producer-net"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.producer_net.id
+}
+
+resource "google_compute_subnetwork" "psc_producer_subnet" {
+  name          = "producer-psc-net"
+  ip_cidr_range = "10.1.0.0/16"
+  region        = "us-central1"
+
+  purpose       = "PRIVATE_SERVICE_CONNECT"
+  network       = google_compute_network.producer_net.id
+}
+
+resource "google_compute_service_attachment" "producer_service_attachment" {
+  name        = "producer-service"
+  region      = "us-central1"
+  description = "A service attachment configured with Terraform"
+
+  enable_proxy_protocol = true
+  connection_preference = "ACCEPT_AUTOMATIC"
+  nat_subnets           = [google_compute_subnetwork.psc_producer_subnet.name]
+  target_service        = google_compute_forwarding_rule.producer_target_service.id
+}
+
+resource "google_compute_forwarding_rule" "producer_target_service" {
+  name     = "producer-forwarding-rule"
+  region   = "us-central1"
+
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.producer_service_backend.id
+  all_ports             = true
+  network               = google_compute_network.producer_net.name
+  subnetwork            = google_compute_subnetwork.producer_subnet.name
+}
+
+resource "google_compute_region_backend_service" "producer_service_backend" {
+  name     = "producer-service-backend"
+  region   = "us-central1"
+
+  health_checks = [google_compute_health_check.producer_service_health_check.id]
+}
+
+resource "google_compute_health_check" "producer_service_health_check" {
+  name     = "producer-service-health-check"
+
+  check_interval_sec = 1
+  timeout_sec        = 1
+  tcp_health_check {
+    port = "80"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=forwarding_rule_regional_steering&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -1389,6 +1489,10 @@ The following arguments are supported:
 * `allow_psc_global_access` -
   (Optional)
   This is used in PSC consumer ForwardingRule to control whether the PSC endpoint can be accessed from another region.
+
+* `no_automate_dns_zone` -
+  (Optional)
+  This is used in PSC consumer ForwardingRule to control whether it should try to auto-generate a DNS zone or not. Non-PSC forwarding rules do not use this field.
 
 * `region` -
   (Optional)
