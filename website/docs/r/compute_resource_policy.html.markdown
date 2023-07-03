@@ -185,8 +185,6 @@ resource "google_compute_resource_policy" "hourly" {
 
 ```hcl
 resource "google_compute_resource_policy" "cgroup" {
-  provider = google-beta
-
   name   = "gce-policy"
   region = "europe-west1"
   disk_consistency_group_policy {
@@ -234,7 +232,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_instance_schedule_policy).
 
 * `disk_consistency_group_policy` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Replication consistency group for asynchronous disk replication.
   Structure is [documented below](#nested_disk_consistency_group_policy).
 

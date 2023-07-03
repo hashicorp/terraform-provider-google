@@ -8,7 +8,7 @@ description: |-
 
 Starts and stops asynchronous persistent disk replication. For more information
 see [the official documentation](https://cloud.google.com/compute/docs/disks/async-pd/about)
-and the [API](https://cloud.google.com/compute/docs/reference/rest/beta/disks).
+and the [API](https://cloud.google.com/compute/docs/reference/rest/v1/disks).
 
 ## Example Usage
 

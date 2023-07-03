@@ -77,8 +77,6 @@ resource "google_compute_disk" "default" {
 
 ```hcl
 resource "google_compute_disk" "primary" {
-  provider = google-beta
-
   name  = "async-test-disk"
   type  = "pd-ssd"
   zone  = "us-central1-a"
@@ -87,8 +85,6 @@ resource "google_compute_disk" "primary" {
 }
 
 resource "google_compute_disk" "secondary" {
-  provider = google-beta
-
   name  = "async-secondary-test-disk"
   type  = "pd-ssd"
   zone  = "us-east1-c"
@@ -243,7 +239,7 @@ The following arguments are supported:
   allows for an update of Throughput every 4 hours. To update your hyperdisk more frequently, you'll need to manually delete and recreate it
 
 * `async_primary_disk` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   A nested object resource
   Structure is [documented below](#nested_async_primary_disk).
 

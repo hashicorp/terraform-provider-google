@@ -83,6 +83,57 @@ resource "google_compute_snapshot" "snapdisk" {
 `, context)
 }
 
+func TestAccComputeRegionDisk_regionDiskAsyncExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": RandString(t, 10),
+	}
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionDisk_regionDiskAsyncExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_disk.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"type", "region", "snapshot"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionDisk_regionDiskAsyncExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_disk" "primary" {
+  name                      = "tf-test-primary-region-disk%{random_suffix}"
+  type                      = "pd-ssd"
+  region                    = "us-central1"
+  physical_block_size_bytes = 4096
+
+  replica_zones = ["us-central1-a", "us-central1-f"]
+}
+
+resource "google_compute_region_disk" "secondary" {
+  name                      = "tf-test-secondary-region-disk%{random_suffix}"
+  type                      = "pd-ssd"
+  region                    = "us-east1"
+  physical_block_size_bytes = 4096
+
+  async_primary_disk {
+    disk = google_compute_region_disk.primary.id
+  }
+
+  replica_zones = ["us-east1-b", "us-east1-c"]
+}
+`, context)
+}
+
 func TestAccComputeRegionDisk_regionDiskFeaturesExample(t *testing.T) {
 	t.Parallel()
 

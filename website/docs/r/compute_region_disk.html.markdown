@@ -90,8 +90,6 @@ resource "google_compute_snapshot" "snapdisk" {
 
 ```hcl
 resource "google_compute_region_disk" "primary" {
-  provider = google-beta
-
   name                      = "primary-region-disk"
   type                      = "pd-ssd"
   region                    = "us-central1"
@@ -101,8 +99,6 @@ resource "google_compute_region_disk" "primary" {
 }
 
 resource "google_compute_region_disk" "secondary" {
-  provider = google-beta
-
   name                      = "secondary-region-disk"
   type                      = "pd-ssd"
   region                    = "us-east1"
@@ -219,7 +215,7 @@ The following arguments are supported:
   * regions/{region}/disks/{disk}
 
 * `async_primary_disk` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   A nested object resource
   Structure is [documented below](#nested_async_primary_disk).
 

@@ -1428,6 +1428,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_composer_environment":                   composer.ResourceComposerEnvironment(),
 			"google_compute_attached_disk":                  compute.ResourceComputeAttachedDisk(),
 			"google_compute_instance":                       compute.ResourceComputeInstance(),
+			"google_compute_disk_async_replication":         compute.ResourceComputeDiskAsyncReplication(),
 			"google_compute_instance_from_template":         compute.ResourceComputeInstanceFromTemplate(),
 			"google_compute_instance_group":                 compute.ResourceComputeInstanceGroup(),
 			"google_compute_instance_group_manager":         compute.ResourceComputeInstanceGroupManager(),
