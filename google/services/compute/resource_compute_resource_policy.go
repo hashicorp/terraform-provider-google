@@ -64,6 +64,24 @@ which cannot be a dash.`,
 				ForceNew:    true,
 				Description: `An optional description of this resource. Provide this property when you create the resource.`,
 			},
+			"disk_consistency_group_policy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Replication consistency group for asynchronous disk replication.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Enable disk consistency on the resource policy.`,
+						},
+					},
+				},
+				ConflictsWith: []string{"snapshot_schedule_policy", "group_placement_policy", "instance_schedule_policy"},
+			},
 			"group_placement_policy": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -99,7 +117,7 @@ exact number of VMs.`,
 						},
 					},
 				},
-				ConflictsWith: []string{"instance_schedule_policy", "snapshot_schedule_policy"},
+				ConflictsWith: []string{"instance_schedule_policy", "snapshot_schedule_policy", "disk_consistency_group_policy"},
 			},
 			"instance_schedule_policy": {
 				Type:        schema.TypeList,
@@ -166,7 +184,7 @@ from the tz database: http://en.wikipedia.org/wiki/Tz_database.`,
 						},
 					},
 				},
-				ConflictsWith: []string{"snapshot_schedule_policy", "group_placement_policy"},
+				ConflictsWith: []string{"snapshot_schedule_policy", "group_placement_policy", "disk_consistency_group_policy"},
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -347,7 +365,7 @@ with RFC1035.`,
 						},
 					},
 				},
-				ConflictsWith: []string{"group_placement_policy", "instance_schedule_policy"},
+				ConflictsWith: []string{"group_placement_policy", "instance_schedule_policy", "disk_consistency_group_policy"},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -422,6 +440,12 @@ func resourceComputeResourcePolicyCreate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("instance_schedule_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(instanceSchedulePolicyProp)) && (ok || !reflect.DeepEqual(v, instanceSchedulePolicyProp)) {
 		obj["instanceSchedulePolicy"] = instanceSchedulePolicyProp
+	}
+	diskConsistencyGroupPolicyProp, err := expandComputeResourcePolicyDiskConsistencyGroupPolicy(d.Get("disk_consistency_group_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disk_consistency_group_policy"); ok || !reflect.DeepEqual(v, diskConsistencyGroupPolicyProp) {
+		obj["diskConsistencyGroupPolicy"] = diskConsistencyGroupPolicyProp
 	}
 	regionProp, err := expandComputeResourcePolicyRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -537,6 +561,9 @@ func resourceComputeResourcePolicyRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
 	}
 	if err := d.Set("instance_schedule_policy", flattenComputeResourcePolicyInstanceSchedulePolicy(res["instanceSchedulePolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
+	}
+	if err := d.Set("disk_consistency_group_policy", flattenComputeResourcePolicyDiskConsistencyGroupPolicy(res["diskConsistencyGroupPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
 	}
 	if err := d.Set("region", flattenComputeResourcePolicyRegion(res["region"], d, config)); err != nil {
@@ -971,6 +998,15 @@ func flattenComputeResourcePolicyInstanceSchedulePolicyStartTime(v interface{}, 
 
 func flattenComputeResourcePolicyInstanceSchedulePolicyExpirationTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenComputeResourcePolicyDiskConsistencyGroupPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] = true
+	return []interface{}{transformed}
 }
 
 func flattenComputeResourcePolicyRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1425,6 +1461,23 @@ func expandComputeResourcePolicyInstanceSchedulePolicyStartTime(v interface{}, d
 
 func expandComputeResourcePolicyInstanceSchedulePolicyExpirationTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandComputeResourcePolicyDiskConsistencyGroupPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	if isEnabled, ok := original["enabled"]; ok {
+		if !isEnabled.(bool) {
+			return nil, nil
+		}
+	}
+	transformed := make(map[string]interface{})
+	return transformed, nil
 }
 
 func expandComputeResourcePolicyRegion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

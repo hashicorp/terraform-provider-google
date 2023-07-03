@@ -1,0 +1,12 @@
+```release-note:note
+compute: promoted `google_compute_disk_async_replication` resource to GA.
+```
+```release-note:note
+compute: promoted `async_primary_disk` field in `google_compute_disk` resource to GA.
+```
+```release-note:note
+compute: promoted `async_primary_disk` field in `google_compute_region_disk` resource to GA.
+```
+```release-note:note
+compute: promoted `disk_consistency_group_policy` field in `google_compute_resource_policy` resource to GA.
+```
