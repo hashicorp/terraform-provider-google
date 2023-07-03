@@ -1,4 +1,20 @@
-## 4.72.0 (Unreleased)
+## 4.73.0 (Unreleased)
+
+## 4.72.0 (July 3, 2023)
+
+FEATURES:
+* **New Resource:** `google_certificate_manager_public_ca_external_account_key` ([#14983](https://github.com/hashicorp/terraform-provider-google/pull/14983))
+
+IMPROVEMENTS:
+* compute: added `provisioned_throughput` field to `google_compute_disk` used by `hyperdisk-throughput` pd type ([#14985](https://github.com/hashicorp/terraform-provider-google/pull/14985))
+* container: added field `security_posture_config` to resource `google_container_cluster` ([#14999](https://github.com/hashicorp/terraform-provider-google/pull/14999))
+* logging: added support for `locked` to `google_logging_project_bucket_config` ([#14977](https://github.com/hashicorp/terraform-provider-google/pull/14977))
+
+BUG FIXES:
+* bigquery: fixed an issue where api default value for `edition` field of `google_bigquery_reservation` was not handled ([#14961](https://github.com/hashicorp/terraform-provider-google/pull/14961))
+* cloudfunction2: fixed permadiffs of some fields of `service_config` in `google_cloudfunctions2_function` resource ([#14975](https://github.com/hashicorp/terraform-provider-google/pull/14975))
+* compute: fixed an issue with setting project field to long form in `google_compute_forwarding_rule` and `google_compute_global_forwarding_rule` ([#14996](https://github.com/hashicorp/terraform-provider-google/pull/14996))
+* gkehub: fixed an issue with setting project field to long form in `google_gke_hub_feature` ([#14996](https://github.com/hashicorp/terraform-provider-google/pull/14996))
 
 ## 4.71.0 (June 27, 2023)
 
