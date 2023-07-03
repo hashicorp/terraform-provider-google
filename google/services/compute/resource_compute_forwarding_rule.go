@@ -250,6 +250,12 @@ If this field is not specified, it is assumed to be 'PREMIUM'.
 If 'IPAddress' is specified, this value must be equal to the
 networkTier of the Address. Possible values: ["PREMIUM", "STANDARD"]`,
 			},
+			"no_automate_dns_zone": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `This is used in PSC consumer ForwardingRule to control whether it should try to auto-generate a DNS zone or not. Non-PSC forwarding rules do not use this field.`,
+			},
 			"port_range": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -589,6 +595,12 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("allow_psc_global_access"); ok || !reflect.DeepEqual(v, allowPscGlobalAccessProp) {
 		obj["allowPscGlobalAccess"] = allowPscGlobalAccessProp
+	}
+	noAutomateDnsZoneProp, err := expandComputeForwardingRuleNoAutomateDnsZone(d.Get("no_automate_dns_zone"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("no_automate_dns_zone"); ok || !reflect.DeepEqual(v, noAutomateDnsZoneProp) {
+		obj["noAutomateDnsZone"] = noAutomateDnsZoneProp
 	}
 	regionProp, err := expandComputeForwardingRuleRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -1392,6 +1404,10 @@ func expandComputeForwardingRuleSourceIpRanges(v interface{}, d tpgresource.Terr
 }
 
 func expandComputeForwardingRuleAllowPscGlobalAccess(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeForwardingRuleNoAutomateDnsZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

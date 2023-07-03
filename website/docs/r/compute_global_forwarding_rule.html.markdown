@@ -944,6 +944,48 @@ resource "google_compute_global_forwarding_rule" "default" {
   load_balancing_scheme = ""
 }
 ```
+## Example Usage - Private Service Connect Google Apis No Automate Dns
+
+
+```hcl
+resource "google_compute_network" "network" {
+  provider      = google-beta
+  project       = "my-project-name"
+  name          = "my-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "vpc_subnetwork" {
+  provider                 = google-beta
+  project                  = google_compute_network.network.project
+  name                     = "my-subnetwork"
+  ip_cidr_range            = "10.2.0.0/16"
+  region                   = "us-central1"
+  network                  = google_compute_network.network.id
+  private_ip_google_access = true
+}
+
+resource "google_compute_global_address" "default" {
+  provider      = google-beta
+  project       = google_compute_network.network.project
+  name          = "global-psconnect-ip"
+  address_type  = "INTERNAL"
+  purpose       = "PRIVATE_SERVICE_CONNECT"
+  network       = google_compute_network.network.id
+  address       = "100.100.100.106"
+}
+
+resource "google_compute_global_forwarding_rule" "default" {
+  provider      = google-beta
+  project       = google_compute_network.network.project
+  name          = "globalrule"
+  target        = "all-apis"
+  network       = google_compute_network.network.id
+  ip_address    = google_compute_global_address.default.id
+  load_balancing_scheme = ""
+  no_automate_dns_zone  = false
+}
+```
 
 ## Argument Reference
 
@@ -1107,6 +1149,10 @@ The following arguments are supported:
 * `allow_psc_global_access` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   This is used in PSC consumer ForwardingRule to control whether the PSC endpoint can be accessed from another region.
+
+* `no_automate_dns_zone` -
+  (Optional)
+  This is used in PSC consumer ForwardingRule to control whether it should try to auto-generate a DNS zone or not. Non-PSC forwarding rules do not use this field.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
