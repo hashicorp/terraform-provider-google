@@ -68,7 +68,7 @@ after the Secret has been created.`,
 							Type:        schema.TypeList,
 							Optional:    true,
 							ForceNew:    true,
-							Description: `The Secret will automatically be replicated without any restrictions.`,
+							Description: `The Secret will be replicated to the regions specified by the user.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{

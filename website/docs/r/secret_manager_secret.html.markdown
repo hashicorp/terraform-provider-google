@@ -79,7 +79,7 @@ The following arguments are supported:
 
 * `user_managed` -
   (Optional)
-  The Secret will automatically be replicated without any restrictions.
+  The Secret will be replicated to the regions specified by the user.
   Structure is [documented below](#nested_user_managed).
 
 
