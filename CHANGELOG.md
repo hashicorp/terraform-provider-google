@@ -1,4 +1,39 @@
-## 4.71.0 (Unreleased)
+## 4.72.0 (Unreleased)
+
+FEATURES:
+* **New Resource:** `google_certificate_manager_public_ca_external_account_key` ([#14983](https://github.com/hashicorp/terraform-provider-google/pull/14983))
+
+IMPROVEMENTS:
+* compute: added `provisioned_throughput` field to `google_compute_disk` used by `hyperdisk-throughput` pd type ([#14985](https://github.com/hashicorp/terraform-provider-google/pull/14985))
+* container: added field `security_posture_config` to resource `google_container_cluster` ([#14999](https://github.com/hashicorp/terraform-provider-google/pull/14999))
+* logging: added support for `locked` to `google_logging_project_bucket_config` ([#14977](https://github.com/hashicorp/terraform-provider-google/pull/14977))
+
+BUG FIXES:
+* bigquery: fixed an issue where api default value for `edition` field of `google_bigquery_reservation` was not handled ([#14961](https://github.com/hashicorp/terraform-provider-google/pull/14961))
+* cloudfunction2: fixed permadiffs of some fields of `service_config` in `google_cloudfunctions2_function` resource ([#14975](https://github.com/hashicorp/terraform-provider-google/pull/14975))
+* compute: fixed an issue with setting project field to long form in `google_compute_forwarding_rule` and `google_compute_global_forwarding_rule` ([#14996](https://github.com/hashicorp/terraform-provider-google/pull/14996))
+* gkehub: fixed an issue with setting project field to long form in `google_gke_hub_feature` ([#14996](https://github.com/hashicorp/terraform-provider-google/pull/14996))
+
+## 4.71.0 (June 27, 2023)
+
+FEATURES:
+* **New Resource:** `google_gke_hub_feature_iam_*` ([#14912](https://github.com/hashicorp/terraform-provider-google/pull/14912))
+* **New Resource:** `google_gke_hub_feature` ([#14912](https://github.com/hashicorp/terraform-provider-google/pull/14912))
+* **New Resource:** `google_vmwareengine_cluster` ([#14917](https://github.com/hashicorp/terraform-provider-google/pull/14917))
+* **New Resource:** `google_vmwareengine_private_cloud` ([#14917](https://github.com/hashicorp/terraform-provider-google/pull/14917))
+
+IMPROVEMENTS:
+* apigee: added output-only field `apigee_project_id` to resource `google_apigee_organization` ([#14911](https://github.com/hashicorp/terraform-provider-google/pull/14911))
+* bigtable: increased default timeout for instance operations to 1 hour in resoure `google_bigtable_instance` ([#14909](https://github.com/hashicorp/terraform-provider-google/pull/14909))
+* cloudrunv2: added fields `annotations` and `template.annotations` to resource `google_cloud_run_v2_job` ([#14948](https://github.com/hashicorp/terraform-provider-google/pull/14948))
+* composer: added field `resilience_mode` to resource `google_composer_environment` ([#14939](https://github.com/hashicorp/terraform-provider-google/pull/14939))
+* compute: added support for `params.resource_manager_tags` and `boot_disk.initialize_params.resource_manager_tags` to resource `google_compute_instance` ([#14924](https://github.com/hashicorp/terraform-provider-google/pull/14924))
+* bigquerydatatransfer: made field `service_account_name` mutable in resource `google_bigquery_data_transfer_config` ([#14907](https://github.com/hashicorp/terraform-provider-google/pull/14907))
+* iambeta: added field `jwks_json` to resource `google_iam_workload_identity_pool_provider` ([#14938](https://github.com/hashicorp/terraform-provider-google/pull/14938))
+
+BUG FIXES:
+* bigtable: validated that `cluster_id` values are unique within resource `google_bigtable_instance` ([#14908](https://github.com/hashicorp/terraform-provider-google/pull/14908))
+* storage: fixed a bug that caused a permadiff when the `autoclass.enabled` field was explicitly set to false in resource `google_storage_bucket` ([#14902](https://github.com/hashicorp/terraform-provider-google/pull/14902))
 
 ## 4.70.0 (June 20, 2023)
 
