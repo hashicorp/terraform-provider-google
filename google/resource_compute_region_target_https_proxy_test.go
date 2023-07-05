@@ -13,11 +13,11 @@ import (
 func TestAccComputeRegionTargetHttpsProxy_update(t *testing.T) {
 	t.Parallel()
 
-	resourceSuffix := RandString(t, 10)
+	resourceSuffix := acctest.RandString(t, 10)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeTargetHttpsProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

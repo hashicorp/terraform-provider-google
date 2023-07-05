@@ -13,12 +13,12 @@ import (
 func TestAccContainerClusterDatasource_zonal(t *testing.T) {
 	t.Parallel()
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerClusterDatasource_zonal(RandString(t, 10)),
+				Config: testAccContainerClusterDatasource_zonal(acctest.RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_container_cluster.kubes",
@@ -39,12 +39,12 @@ func TestAccContainerClusterDatasource_zonal(t *testing.T) {
 func TestAccContainerClusterDatasource_regional(t *testing.T) {
 	t.Parallel()
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerClusterDatasource_regional(RandString(t, 10)),
+				Config: testAccContainerClusterDatasource_regional(acctest.RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_container_cluster.kubes",

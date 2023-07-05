@@ -34,12 +34,12 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckHealthcareFhirStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -92,12 +92,12 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreStreamingConfigExample(t *tes
 
 	context := map[string]interface{}{
 		"policyChanged": acctest.BootstrapPSARoles(t, "service-", "gcp-sa-healthcare", []string{"roles/bigquery.dataEditor", "roles/bigquery.jobUser"}),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckHealthcareFhirStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -163,12 +163,12 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreNotificationConfigExample(t *
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckHealthcareFhirStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -226,7 +226,7 @@ func testAccCheckHealthcareFhirStoreDestroyProducer(t *testing.T) func(s *terraf
 				continue
 			}
 
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 
 			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{HealthcareBasePath}}{{dataset}}/fhirStores/{{name}}")
 			if err != nil {

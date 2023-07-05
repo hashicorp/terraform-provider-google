@@ -21,11 +21,11 @@ func TestAccBillingAccountIam(t *testing.T) {
 	t.Parallel()
 
 	billing := envvar.GetTestMasterBillingAccountFromEnv(t)
-	account := fmt.Sprintf("tf-test-%d", RandInt(t))
+	account := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 	role := "roles/billing.viewer"
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
@@ -84,7 +84,7 @@ func testAccCheckGoogleBillingAccountIamBindingExists(t *testing.T, bindingResou
 			return fmt.Errorf("Not found: %s", bindingResourceName)
 		}
 
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		p, err := config.NewBillingClient(config.UserAgent).BillingAccounts.GetIamPolicy("billingAccounts/" + bindingRs.Primary.Attributes["billing_account_id"]).Do()
 		if err != nil {
 			return err
@@ -114,7 +114,7 @@ func testAccCheckGoogleBillingAccountIamMemberExists(t *testing.T, n, role, memb
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		p, err := config.NewBillingClient(config.UserAgent).BillingAccounts.GetIamPolicy("billingAccounts/" + rs.Primary.Attributes["billing_account_id"]).Do()
 		if err != nil {
 			return err

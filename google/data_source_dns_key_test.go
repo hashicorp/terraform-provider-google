@@ -16,11 +16,11 @@ func TestAccDataSourceDNSKeys_basic(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	dnsZoneName := fmt.Sprintf("tf-test-dnskey-test-%s", RandString(t, 10))
+	dnsZoneName := fmt.Sprintf("tf-test-dnskey-test-%s", acctest.RandString(t, 10))
 
 	var kskDigest1, kskDigest2, zskPubKey1, zskPubKey2, kskAlg1, kskAlg2 string
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:     func() { acctest.AccTestPreCheck(t) },
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducerFramework(t),
 		Steps: []resource.TestStep{
@@ -44,7 +44,7 @@ func TestAccDataSourceDNSKeys_basic(t *testing.T) {
 				),
 			},
 			{
-				ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 				Config:                   testAccDataSourceDNSKeysConfigWithOutputs(dnsZoneName, "on"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceDNSKeysDSRecordCheck("data.google_dns_keys.foo_dns_key"),
@@ -67,9 +67,9 @@ func TestAccDataSourceDNSKeys_noDnsSec(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	dnsZoneName := fmt.Sprintf("tf-test-dnskey-test-%s", RandString(t, 10))
+	dnsZoneName := fmt.Sprintf("tf-test-dnskey-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:     func() { acctest.AccTestPreCheck(t) },
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducerFramework(t),
 		Steps: []resource.TestStep{
@@ -87,7 +87,7 @@ func TestAccDataSourceDNSKeys_noDnsSec(t *testing.T) {
 				),
 			},
 			{
-				ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 				Config:                   testAccDataSourceDNSKeysConfig(dnsZoneName, "off"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key", "key_signing_keys.#", "0"),

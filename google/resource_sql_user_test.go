@@ -17,10 +17,10 @@ func TestAccSqlUser_mysql(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	instance := fmt.Sprintf("tf-test-%d", RandInt(t))
-	VcrTest(t, resource.TestCase{
+	instance := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -54,10 +54,10 @@ func TestAccSqlUser_iamUser(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	instance := fmt.Sprintf("tf-test-%d", RandInt(t))
-	VcrTest(t, resource.TestCase{
+	instance := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -79,10 +79,10 @@ func TestAccSqlUser_iamUser(t *testing.T) {
 func TestAccSqlUser_postgres(t *testing.T) {
 	t.Parallel()
 
-	instance := fmt.Sprintf("tf-test-%d", RandInt(t))
-	VcrTest(t, resource.TestCase{
+	instance := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -112,10 +112,10 @@ func TestAccSqlUser_postgres(t *testing.T) {
 func TestAccSqlUser_postgresIAM(t *testing.T) {
 	t.Parallel()
 
-	instance := fmt.Sprintf("tf-test-%d", RandInt(t))
-	VcrTest(t, resource.TestCase{
+	instance := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"time": {},
 		},
@@ -141,11 +141,11 @@ func TestAccSqlUser_postgresIAM(t *testing.T) {
 func TestAccSqlUser_postgresAbandon(t *testing.T) {
 	t.Parallel()
 
-	instance := fmt.Sprintf("tf-test-%d", RandInt(t))
+	instance := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 	userName := "admin"
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -174,7 +174,7 @@ func TestAccSqlUser_postgresAbandon(t *testing.T) {
 
 func testAccCheckGoogleSqlUserExists(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
 			return fmt.Errorf("Resource not found: %s", n)
@@ -202,7 +202,7 @@ func testAccCheckGoogleSqlUserExists(t *testing.T, n string) resource.TestCheckF
 
 func testAccCheckGoogleSqlUserExistsWithName(t *testing.T, instance, name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		users, err := config.NewSqlAdminClient(config.UserAgent).Users.List(config.Project,
 			instance).Do()
@@ -224,7 +224,7 @@ func testAccCheckGoogleSqlUserExistsWithName(t *testing.T, instance, name string
 func testAccSqlUserDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for _, rs := range s.RootModule().Resources {
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 			if rs.Type != "google_sql_database" {
 				continue
 			}
@@ -257,10 +257,10 @@ func TestAccSqlUser_mysqlPasswordPolicy(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	instance := fmt.Sprintf("tf-test-i%d", RandInt(t))
-	VcrTest(t, resource.TestCase{
+	instance := fmt.Sprintf("tf-test-i%d", acctest.RandInt(t))
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccSqlUserDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

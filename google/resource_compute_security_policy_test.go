@@ -16,11 +16,11 @@ import (
 func TestAccComputeSecurityPolicy_basic(t *testing.T) {
 	t.Parallel()
 
-	spName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -38,11 +38,11 @@ func TestAccComputeSecurityPolicy_basic(t *testing.T) {
 func TestAccComputeSecurityPolicy_withRule(t *testing.T) {
 	t.Parallel()
 
-	spName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -60,11 +60,11 @@ func TestAccComputeSecurityPolicy_withRule(t *testing.T) {
 func TestAccComputeSecurityPolicy_withRuleExpr(t *testing.T) {
 	t.Parallel()
 
-	spName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -82,11 +82,11 @@ func TestAccComputeSecurityPolicy_withRuleExpr(t *testing.T) {
 func TestAccComputeSecurityPolicy_update(t *testing.T) {
 	t.Parallel()
 
-	spName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -127,11 +127,11 @@ func TestAccComputeSecurityPolicy_update(t *testing.T) {
 func TestAccComputeSecurityPolicy_withAdvancedOptionsConfig(t *testing.T) {
 	t.Parallel()
 
-	spName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -165,11 +165,11 @@ func TestAccComputeSecurityPolicy_withAdvancedOptionsConfig(t *testing.T) {
 func TestAccComputeSecurityPolicy_withAdaptiveProtection(t *testing.T) {
 	t.Parallel()
 
-	spName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -195,11 +195,11 @@ func TestAccComputeSecurityPolicy_withAdaptiveProtection(t *testing.T) {
 func TestAccComputeSecurityPolicy_withRateLimitOptions(t *testing.T) {
 	t.Parallel()
 
-	spName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -217,11 +217,11 @@ func TestAccComputeSecurityPolicy_withRateLimitOptions(t *testing.T) {
 func TestAccComputeSecurityPolicy_withRateLimitWithRedirectOptions(t *testing.T) {
 	t.Parallel()
 
-	spName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -240,11 +240,11 @@ func TestAccComputeSecurityPolicy_withRecaptchaOptionsConfig(t *testing.T) {
 	t.Parallel()
 
 	project := envvar.GetTestProjectFromEnv()
-	spName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -286,15 +286,15 @@ func TestAccComputeSecurityPolicy_withRecaptchaOptionsConfig(t *testing.T) {
 func TestAccComputeSecurityPolicy_withHeadAction(t *testing.T) {
 	t.Parallel()
 
-	spName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	headerName := fmt.Sprintf("tf-test-header-name-%s", RandString(t, 10))
-	headerNameUpdate := fmt.Sprintf("tf-test-header-name-update-%s", RandString(t, 10))
-	headerValue := fmt.Sprintf("tf-test-header-value-%s", RandString(t, 10))
-	headerValueUpdate := fmt.Sprintf("tf-test-header-value-update-%s", RandString(t, 10))
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	headerName := fmt.Sprintf("tf-test-header-name-%s", acctest.RandString(t, 10))
+	headerNameUpdate := fmt.Sprintf("tf-test-header-name-update-%s", acctest.RandString(t, 10))
+	headerValue := fmt.Sprintf("tf-test-header-value-%s", acctest.RandString(t, 10))
+	headerValueUpdate := fmt.Sprintf("tf-test-header-value-update-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -416,7 +416,7 @@ resource "google_compute_security_policy" "policy" {
 
 func testAccCheckComputeSecurityPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_security_policy" {
@@ -866,11 +866,11 @@ resource "google_compute_security_policy" "policy" {
 func TestAccComputeSecurityPolicy_withRedirectOptionsRecaptcha(t *testing.T) {
 	t.Parallel()
 
-	spName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -888,11 +888,11 @@ func TestAccComputeSecurityPolicy_withRedirectOptionsRecaptcha(t *testing.T) {
 func TestAccComputeSecurityPolicy_withRedirectOptionsUpdate(t *testing.T) {
 	t.Parallel()
 
-	spName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -918,11 +918,11 @@ func TestAccComputeSecurityPolicy_withRedirectOptionsUpdate(t *testing.T) {
 func TestAccComputeSecurityPolicy_withRedirectOptionsExternal(t *testing.T) {
 	t.Parallel()
 
-	spName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

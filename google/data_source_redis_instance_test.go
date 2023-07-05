@@ -13,12 +13,12 @@ import (
 func TestAccRedisInstanceDatasource_basic(t *testing.T) {
 	t.Parallel()
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRedisInstanceDatasourceConfig(RandString(t, 10)),
+				Config: testAccRedisInstanceDatasourceConfig(acctest.RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					acctest.CheckDataSourceStateMatchesResourceState("data.google_redis_instance.redis", "google_redis_instance.redis"),
 				),

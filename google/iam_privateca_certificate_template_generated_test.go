@@ -32,7 +32,7 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           RandString(t, 10),
+		"random_suffix":           acctest.RandString(t, 10),
 		"role":                    "roles/privateca.templateUser",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -41,9 +41,9 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateTemplateIamBinding_basicGenerated(context),
@@ -72,7 +72,7 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           RandString(t, 10),
+		"random_suffix":           acctest.RandString(t, 10),
 		"role":                    "roles/privateca.templateUser",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -81,9 +81,9 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -103,7 +103,7 @@ func TestAccPrivatecaCertificateTemplateIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           RandString(t, 10),
+		"random_suffix":           acctest.RandString(t, 10),
 		"role":                    "roles/privateca.templateUser",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -112,9 +112,9 @@ func TestAccPrivatecaCertificateTemplateIamPolicyGenerated(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateTemplateIamPolicy_basicGenerated(context),
@@ -143,7 +143,7 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated_withCondition(t *tes
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           RandString(t, 10),
+		"random_suffix":           acctest.RandString(t, 10),
 		"role":                    "roles/privateca.templateUser",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -152,9 +152,9 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated_withCondition(t *tes
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateTemplateIamBinding_withConditionGenerated(context),
@@ -175,7 +175,7 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated_withAndWithoutCondit
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           RandString(t, 10),
+		"random_suffix":           acctest.RandString(t, 10),
 		"role":                    "roles/privateca.templateUser",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -184,9 +184,9 @@ func TestAccPrivatecaCertificateTemplateIamBindingGenerated_withAndWithoutCondit
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateTemplateIamBinding_withAndWithoutConditionGenerated(context),
@@ -217,7 +217,7 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated_withCondition(t *test
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           RandString(t, 10),
+		"random_suffix":           acctest.RandString(t, 10),
 		"role":                    "roles/privateca.templateUser",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -226,9 +226,9 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated_withCondition(t *test
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateTemplateIamMember_withConditionGenerated(context),
@@ -249,7 +249,7 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated_withAndWithoutConditi
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           RandString(t, 10),
+		"random_suffix":           acctest.RandString(t, 10),
 		"role":                    "roles/privateca.templateUser",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -258,9 +258,9 @@ func TestAccPrivatecaCertificateTemplateIamMemberGenerated_withAndWithoutConditi
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateTemplateIamMember_withAndWithoutConditionGenerated(context),
@@ -291,7 +291,7 @@ func TestAccPrivatecaCertificateTemplateIamPolicyGenerated_withCondition(t *test
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":           RandString(t, 10),
+		"random_suffix":           acctest.RandString(t, 10),
 		"role":                    "roles/privateca.templateUser",
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
@@ -304,9 +304,9 @@ func TestAccPrivatecaCertificateTemplateIamPolicyGenerated_withCondition(t *test
 	expectedPolicyData := acctest.Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPrivatecaCertificateTemplateIamPolicy_withConditionGenerated(context),

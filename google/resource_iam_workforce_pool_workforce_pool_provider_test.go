@@ -18,15 +18,15 @@ import (
 func TestAccIAMWorkforcePoolWorkforcePoolProvider_oidc(t *testing.T) {
 	t.Parallel()
 
-	random_suffix := RandString(t, 10)
+	random_suffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": random_suffix,
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckIAMWorkforcePoolWorkforcePoolDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -66,15 +66,15 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_oidc(t *testing.T) {
 func TestAccIAMWorkforcePoolWorkforcePoolProvider_saml(t *testing.T) {
 	t.Parallel()
 
-	random_suffix := RandString(t, 10)
+	random_suffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": random_suffix,
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckIAMWorkforcePoolWorkforcePoolDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -118,7 +118,7 @@ func testAccCheckIAMWorkforcePoolWorkforcePoolProviderAccess(t *testing.T, rando
 		if !ok {
 			return fmt.Errorf("Resource %s Not found", pool_resource_name)
 		}
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		pool_url, err := tpgresource.ReplaceVarsForTest(config, pool_rs, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}")
 		if err != nil {

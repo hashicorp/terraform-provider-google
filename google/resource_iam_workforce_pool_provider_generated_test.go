@@ -36,12 +36,12 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlBa
 
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckIAMWorkforcePoolWorkforcePoolProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -84,12 +84,12 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderSamlFu
 
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckIAMWorkforcePoolWorkforcePoolProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -136,12 +136,12 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcBa
 
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckIAMWorkforcePoolWorkforcePoolProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -189,12 +189,12 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcFu
 
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckIAMWorkforcePoolWorkforcePoolProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -251,7 +251,7 @@ func testAccCheckIAMWorkforcePoolWorkforcePoolProviderDestroyProducer(t *testing
 				continue
 			}
 
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 
 			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{IAMWorkforcePoolBasePath}}locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}")
 			if err != nil {

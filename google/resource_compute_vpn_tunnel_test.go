@@ -21,13 +21,13 @@ func TestAccComputeVpnTunnel_regionFromGateway(t *testing.T) {
 		region = "us-west1"
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeVpnTunnelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeVpnTunnel_regionFromGateway(RandString(t, 10), region),
+				Config: testAccComputeVpnTunnel_regionFromGateway(acctest.RandString(t, 10), region),
 			},
 			{
 				ResourceName:            "google_compute_vpn_tunnel.foobar",
@@ -43,14 +43,14 @@ func TestAccComputeVpnTunnel_regionFromGateway(t *testing.T) {
 func TestAccComputeVpnTunnel_router(t *testing.T) {
 	t.Parallel()
 
-	router := fmt.Sprintf("tf-test-tunnel-%s", RandString(t, 10))
-	VcrTest(t, resource.TestCase{
+	router := fmt.Sprintf("tf-test-tunnel-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeVpnTunnelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeVpnTunnelRouter(RandString(t, 10), router),
+				Config: testAccComputeVpnTunnelRouter(acctest.RandString(t, 10), router),
 			},
 			{
 				ResourceName:            "google_compute_vpn_tunnel.foobar",
@@ -65,13 +65,13 @@ func TestAccComputeVpnTunnel_router(t *testing.T) {
 func TestAccComputeVpnTunnel_defaultTrafficSelectors(t *testing.T) {
 	t.Parallel()
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeVpnTunnelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeVpnTunnelDefaultTrafficSelectors(RandString(t, 10)),
+				Config: testAccComputeVpnTunnelDefaultTrafficSelectors(acctest.RandString(t, 10)),
 			},
 			{
 				ResourceName:            "google_compute_vpn_tunnel.foobar",

@@ -34,13 +34,13 @@ func TestAccIdentityPlatformTenantInboundSamlConfig_identityPlatformTenantInboun
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"name":          "saml.tf-config-" + RandString(t, 10),
-		"random_suffix": RandString(t, 10),
+		"name":          "saml.tf-config-" + acctest.RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckIdentityPlatformTenantInboundSamlConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -93,7 +93,7 @@ func testAccCheckIdentityPlatformTenantInboundSamlConfigDestroyProducer(t *testi
 				continue
 			}
 
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 
 			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{IdentityPlatformBasePath}}projects/{{project}}/tenants/{{tenant}}/inboundSamlConfigs/{{name}}")
 			if err != nil {

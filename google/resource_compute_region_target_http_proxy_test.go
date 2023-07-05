@@ -13,15 +13,15 @@ import (
 func TestAccComputeRegionTargetHttpProxy_update(t *testing.T) {
 	t.Parallel()
 
-	target := fmt.Sprintf("thttp-test-%s", RandString(t, 10))
-	backend := fmt.Sprintf("thttp-test-%s", RandString(t, 10))
-	hc := fmt.Sprintf("thttp-test-%s", RandString(t, 10))
-	urlmap1 := fmt.Sprintf("thttp-test-%s", RandString(t, 10))
-	urlmap2 := fmt.Sprintf("thttp-test-%s", RandString(t, 10))
+	target := fmt.Sprintf("thttp-test-%s", acctest.RandString(t, 10))
+	backend := fmt.Sprintf("thttp-test-%s", acctest.RandString(t, 10))
+	hc := fmt.Sprintf("thttp-test-%s", acctest.RandString(t, 10))
+	urlmap1 := fmt.Sprintf("thttp-test-%s", acctest.RandString(t, 10))
+	urlmap2 := fmt.Sprintf("thttp-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeTargetHttpProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

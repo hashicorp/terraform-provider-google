@@ -17,13 +17,13 @@ func TestAccSpannerDatabase_basic(t *testing.T) {
 	t.Parallel()
 
 	project := envvar.GetTestProjectFromEnv()
-	rnd := RandString(t, 10)
+	rnd := acctest.RandString(t, 10)
 	instanceName := fmt.Sprintf("tf-test-%s", rnd)
 	databaseName := fmt.Sprintf("tfgen_%s", rnd)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckSpannerDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -155,13 +155,13 @@ resource "google_spanner_database" "basic" {
 func TestAccSpannerDatabase_postgres(t *testing.T) {
 	t.Parallel()
 
-	rnd := RandString(t, 10)
+	rnd := acctest.RandString(t, 10)
 	instanceName := fmt.Sprintf("tf-test-%s", rnd)
 	databaseName := fmt.Sprintf("tfgen_%s", rnd)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckSpannerDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -244,13 +244,13 @@ resource "google_spanner_database" "basic_spangres" {
 func TestAccSpannerDatabase_versionRetentionPeriod(t *testing.T) {
 	t.Parallel()
 
-	rnd := RandString(t, 10)
+	rnd := acctest.RandString(t, 10)
 	instanceName := fmt.Sprintf("tf-test-%s", rnd)
 	databaseName := fmt.Sprintf("tfgen_%s", rnd)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckSpannerDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -467,12 +467,12 @@ func TestAccSpannerDatabase_deletionProtection(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckSpannerDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

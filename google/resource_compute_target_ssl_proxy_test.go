@@ -16,20 +16,20 @@ import (
 )
 
 func TestAccComputeTargetSslProxy_update(t *testing.T) {
-	target := fmt.Sprintf("tf-test-tssl-%s", RandString(t, 10))
-	sslPolicy := fmt.Sprintf("tf-test-tssl-%s", RandString(t, 10))
-	cert1 := fmt.Sprintf("tf-test-tssl-%s", RandString(t, 10))
-	cert2 := fmt.Sprintf("tf-test-tssl-%s", RandString(t, 10))
-	backend1 := fmt.Sprintf("tf-test-tssl-%s", RandString(t, 10))
-	backend2 := fmt.Sprintf("tf-test-tssl-%s", RandString(t, 10))
-	hc := fmt.Sprintf("tf-test-tssl-%s", RandString(t, 10))
+	target := fmt.Sprintf("tf-test-tssl-%s", acctest.RandString(t, 10))
+	sslPolicy := fmt.Sprintf("tf-test-tssl-%s", acctest.RandString(t, 10))
+	cert1 := fmt.Sprintf("tf-test-tssl-%s", acctest.RandString(t, 10))
+	cert2 := fmt.Sprintf("tf-test-tssl-%s", acctest.RandString(t, 10))
+	backend1 := fmt.Sprintf("tf-test-tssl-%s", acctest.RandString(t, 10))
+	backend2 := fmt.Sprintf("tf-test-tssl-%s", acctest.RandString(t, 10))
+	hc := fmt.Sprintf("tf-test-tssl-%s", acctest.RandString(t, 10))
 
-	resourceSuffix := RandString(t, 10)
+	resourceSuffix := acctest.RandString(t, 10)
 	var proxy compute.TargetSslProxy
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeTargetSslProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -81,7 +81,7 @@ func testAccCheckComputeTargetSslProxyExists(t *testing.T, n string, proxy *comp
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		name := rs.Primary.Attributes["name"]
 
 		found, err := config.NewComputeClient(config.UserAgent).TargetSslProxies.Get(
@@ -111,7 +111,7 @@ func testAccCheckComputeTargetSslProxyHeader(t *testing.T, proxyHeader string, p
 
 func testAccCheckComputeTargetSslProxyHasSslCertificate(t *testing.T, cert string, proxy *compute.TargetSslProxy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		certURL := fmt.Sprintf(canonicalSslCertificateTemplate, config.Project, cert)
 
 		for _, sslCertificate := range proxy.SslCertificates {
@@ -126,7 +126,7 @@ func testAccCheckComputeTargetSslProxyHasSslCertificate(t *testing.T, cert strin
 
 func testAccCheckComputeTargetSslProxyHasCertificateMap(t *testing.T, certificateMap string, proxy *compute.TargetSslProxy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		wantCertMapURL := fmt.Sprintf(canonicalCertificateMapTemplate, config.Project, certificateMap)
 		gotCertMapURL := tpgresource.ConvertSelfLinkToV1(proxy.CertificateMap)
 		if wantCertMapURL != gotCertMapURL {

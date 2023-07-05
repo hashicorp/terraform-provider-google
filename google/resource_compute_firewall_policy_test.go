@@ -15,12 +15,12 @@ func TestAccComputeFirewallPolicy_update(t *testing.T) {
 	t.Parallel()
 
 	org := envvar.GetTestOrgFromEnv(t)
-	policyName := fmt.Sprintf("tf-test-firewall-policy-%s", RandString(t, 10))
-	folderName := fmt.Sprintf("tf-test-folder-%s", RandString(t, 10))
+	policyName := fmt.Sprintf("tf-test-firewall-policy-%s", acctest.RandString(t, 10))
+	folderName := fmt.Sprintf("tf-test-folder-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

@@ -31,10 +31,10 @@ func TestAccProject_createWithoutOrg(t *testing.T) {
 		t.Skip("Service accounts cannot create projects without a parent. Requires user credentials.")
 	}
 
-	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
-	VcrTest(t, resource.TestCase{
+	pid := fmt.Sprintf("%s-%d", TestPrefix, acctest.RandInt(t))
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// This step creates a new project
 			{
@@ -53,10 +53,10 @@ func TestAccProject_create(t *testing.T) {
 	t.Parallel()
 
 	org := envvar.GetTestOrgFromEnv(t)
-	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
-	VcrTest(t, resource.TestCase{
+	pid := fmt.Sprintf("%s-%d", TestPrefix, acctest.RandInt(t))
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// This step creates a new project
 			{
@@ -79,10 +79,10 @@ func TestAccProject_billing(t *testing.T) {
 	acctest.SkipIfEnvNotSet(t, "GOOGLE_BILLING_ACCOUNT_2")
 	billingId2 := os.Getenv("GOOGLE_BILLING_ACCOUNT_2")
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
-	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
-	VcrTest(t, resource.TestCase{
+	pid := fmt.Sprintf("%s-%d", TestPrefix, acctest.RandInt(t))
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			// This step creates a new project with a billing account
 			{
@@ -121,10 +121,10 @@ func TestAccProject_labels(t *testing.T) {
 	t.Parallel()
 
 	org := envvar.GetTestOrgFromEnv(t)
-	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
-	VcrTest(t, resource.TestCase{
+	pid := fmt.Sprintf("%s-%d", TestPrefix, acctest.RandInt(t))
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProject_labels(pid, org, map[string]string{"test": "that"}),
@@ -163,11 +163,11 @@ func TestAccProject_deleteDefaultNetwork(t *testing.T) {
 	t.Parallel()
 
 	org := envvar.GetTestOrgFromEnv(t)
-	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
+	pid := fmt.Sprintf("%s-%d", TestPrefix, acctest.RandInt(t))
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProject_deleteDefaultNetwork(pid, org, billingId),
@@ -180,11 +180,11 @@ func TestAccProject_parentFolder(t *testing.T) {
 	t.Parallel()
 
 	org := envvar.GetTestOrgFromEnv(t)
-	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
-	folderDisplayName := TestPrefix + RandString(t, 10)
-	VcrTest(t, resource.TestCase{
+	pid := fmt.Sprintf("%s-%d", TestPrefix, acctest.RandInt(t))
+	folderDisplayName := TestPrefix + acctest.RandString(t, 10)
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProject_parentFolder(pid, folderDisplayName, org),
@@ -197,11 +197,11 @@ func TestAccProject_migrateParent(t *testing.T) {
 	t.Parallel()
 
 	org := envvar.GetTestOrgFromEnv(t)
-	pid := fmt.Sprintf("%s-%d", TestPrefix, RandInt(t))
-	folderDisplayName := TestPrefix + RandString(t, 10)
-	VcrTest(t, resource.TestCase{
+	pid := fmt.Sprintf("%s-%d", TestPrefix, acctest.RandInt(t))
+	folderDisplayName := TestPrefix + acctest.RandString(t, 10)
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProject_migrateParentFolder(pid, folderDisplayName, org),
@@ -268,7 +268,7 @@ func testAccCheckGoogleProjectHasBillingAccount(t *testing.T, r, pid, billingId 
 
 		// Actual value in API should match state and expected
 		// Read the billing account
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		ba, err := config.NewBillingClient(config.UserAgent).Projects.GetBillingInfo(PrefixedProject(pid)).Do()
 		if err != nil {
 			return fmt.Errorf("Error reading billing account for project %q: %v", PrefixedProject(pid), err)
@@ -293,7 +293,7 @@ func testAccCheckGoogleProjectHasLabels(t *testing.T, r, pid string, expected ma
 		}
 
 		// Actual value in API should match state and expected
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		found, err := config.NewResourceManagerClient(config.UserAgent).Projects.Get(pid).Do()
 		if err != nil {
@@ -335,7 +335,7 @@ func testAccCheckGoogleProjectHasNoLabels(t *testing.T, r, pid string) resource.
 		}
 
 		// Actual value in API should match state and expected
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		found, err := config.NewResourceManagerClient(config.UserAgent).Projects.Get(pid).Do()
 		if err != nil {

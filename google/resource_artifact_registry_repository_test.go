@@ -13,11 +13,11 @@ import (
 func TestAccArtifactRegistryRepository_update(t *testing.T) {
 	t.Parallel()
 
-	repositoryID := fmt.Sprintf("tf-test-%d", RandInt(t))
+	repositoryID := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -43,11 +43,11 @@ func TestAccArtifactRegistryRepository_update(t *testing.T) {
 func TestAccArtifactRegistryRepository_createMvnSnapshot(t *testing.T) {
 	t.Parallel()
 
-	repositoryID := fmt.Sprintf("tf-test-%d", RandInt(t))
+	repositoryID := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -65,11 +65,11 @@ func TestAccArtifactRegistryRepository_createMvnSnapshot(t *testing.T) {
 func TestAccArtifactRegistryRepository_createMvnRelease(t *testing.T) {
 	t.Parallel()
 
-	repositoryID := fmt.Sprintf("tf-test-%d", RandInt(t))
+	repositoryID := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -87,11 +87,11 @@ func TestAccArtifactRegistryRepository_createMvnRelease(t *testing.T) {
 func TestAccArtifactRegistryRepository_kfp(t *testing.T) {
 	t.Parallel()
 
-	repositoryID := fmt.Sprintf("tf-test-%d", RandInt(t))
+	repositoryID := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

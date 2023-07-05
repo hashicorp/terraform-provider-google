@@ -14,9 +14,9 @@ import (
 // Tests schema version migration by creating a certificate with an old version of the provider (4.59.0)
 // and then updating it with the current version the provider.
 func TestAccCertificateManagerCertificate_migration(t *testing.T) {
-	SkipIfVcr(t)
+	acctest.SkipIfVcr(t)
 	t.Parallel()
-	name := fmt.Sprintf("tf-test-%d", RandInt(t))
+	name := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 
 	oldVersion := map[string]resource.ExternalProvider{
 		"google": {
@@ -28,8 +28,8 @@ func TestAccCertificateManagerCertificate_migration(t *testing.T) {
 		"mynewprovider": func() (*schema.Provider, error) { return acctest.TestAccProviders["google"], nil },
 	}
 
-	VcrTest(t, resource.TestCase{
-		PreCheck:     func() { AccTestPreCheck(t) },
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:     func() { acctest.AccTestPreCheck(t) },
 		CheckDestroy: testAccCheckCertificateManagerCertificateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

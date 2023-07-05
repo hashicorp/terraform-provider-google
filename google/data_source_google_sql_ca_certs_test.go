@@ -14,11 +14,11 @@ import (
 func TestAccDataSourceGoogleSQLCaCerts_basic(t *testing.T) {
 	t.Parallel()
 
-	instanceName := fmt.Sprintf("data-ssl-ca-cert-test-%s", RandString(t, 10))
+	instanceName := fmt.Sprintf("data-ssl-ca-cert-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

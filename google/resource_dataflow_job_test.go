@@ -31,14 +31,14 @@ func TestAccDataflowJob_basic(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	randStr := RandString(t, 10)
+	randStr := acctest.RandString(t, 10)
 	bucket := "tf-test-dataflow-gcs-" + randStr
 	job := "tf-test-dataflow-job-" + randStr
 	zone := "us-central1-f"
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -63,14 +63,14 @@ func TestAccDataflowJobSkipWait_basic(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	randStr := RandString(t, 10)
+	randStr := acctest.RandString(t, 10)
 	bucket := "tf-test-dataflow-gcs-" + randStr
 	job := "tf-test-dataflow-job-" + randStr
 	zone := "us-central1-f"
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -95,13 +95,13 @@ func TestAccDataflowJob_withRegion(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	randStr := RandString(t, 10)
+	randStr := acctest.RandString(t, 10)
 	bucket := "tf-test-dataflow-gcs-" + randStr
 	job := "tf-test-dataflow-job-" + randStr
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataflowJobRegionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -126,14 +126,14 @@ func TestAccDataflowJob_withServiceAccount(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	randStr := RandString(t, 10)
+	randStr := acctest.RandString(t, 10)
 	bucket := "tf-test-dataflow-gcs-" + randStr
 	job := "tf-test-dataflow-job-" + randStr
 	accountId := "tf-test-dataflow-sa" + randStr
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -159,14 +159,14 @@ func TestAccDataflowJob_withNetwork(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	randStr := RandString(t, 10)
+	randStr := acctest.RandString(t, 10)
 	bucket := "tf-test-dataflow-gcs-" + randStr
 	job := "tf-test-dataflow-job-" + randStr
 	network := "tf-test-dataflow-net" + randStr
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -192,15 +192,15 @@ func TestAccDataflowJob_withSubnetwork(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	randStr := RandString(t, 10)
+	randStr := acctest.RandString(t, 10)
 	bucket := "tf-test-dataflow-gcs-" + randStr
 	job := "tf-test-dataflow-job-" + randStr
 	network := "tf-test-dataflow-net" + randStr
 	subnetwork := "tf-test-dataflow-subnet" + randStr
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -226,15 +226,15 @@ func TestAccDataflowJob_withLabels(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	randStr := RandString(t, 10)
+	randStr := acctest.RandString(t, 10)
 	bucket := "tf-test-dataflow-gcs-" + randStr
 	job := "tf-test-dataflow-job-" + randStr
 	key := "my-label"
 	value := "my-value"
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -260,13 +260,13 @@ func TestAccDataflowJob_withIpConfig(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	randStr := RandString(t, 10)
+	randStr := acctest.RandString(t, 10)
 	bucket := "tf-test-dataflow-gcs-" + randStr
 	job := "tf-test-dataflow-job-" + randStr
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -291,7 +291,7 @@ func TestAccDataflowJob_withKmsKey(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	randStr := RandString(t, 10)
+	randStr := acctest.RandString(t, 10)
 	key_ring := "tf-test-dataflow-kms-ring-" + randStr
 	crypto_key := "tf-test-dataflow-kms-key-" + randStr
 	bucket := "tf-test-dataflow-gcs-" + randStr
@@ -302,9 +302,9 @@ func TestAccDataflowJob_withKmsKey(t *testing.T) {
 		t.Fatal("Stopping the test because a role was added to the policy.")
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -328,14 +328,14 @@ func TestAccDataflowJobWithAdditionalExperiments(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	randStr := RandString(t, 10)
+	randStr := acctest.RandString(t, 10)
 	bucket := "tf-test-dataflow-gcs-" + randStr
 	job := "tf-test-dataflow-job-" + randStr
 	additionalExperiments := []string{"enable_stackdriver_agent_metrics", "shuffle_mode=service"}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -361,10 +361,10 @@ func TestAccDataflowJob_streamUpdate(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	suffix := RandString(t, 10)
-	VcrTest(t, resource.TestCase{
+	suffix := acctest.RandString(t, 10)
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -395,13 +395,13 @@ func TestAccDataflowJob_virtualUpdate(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	suffix := RandString(t, 10)
+	suffix := acctest.RandString(t, 10)
 
 	// If the update is virtual-only, the ID should remain the same after updating.
 	var id string
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -435,7 +435,7 @@ func testAccCheckDataflowJobDestroyProducer(t *testing.T) func(s *terraform.Stat
 				continue
 			}
 
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 			job, err := config.NewDataflowClient(config.UserAgent).Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
 			if job != nil {
 				var ok bool
@@ -465,7 +465,7 @@ func testAccCheckDataflowJobRegionDestroyProducer(t *testing.T) func(s *terrafor
 			if rs.Type != "google_dataflow_job" {
 				continue
 			}
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 			job, err := config.NewDataflowClient(config.UserAgent).Projects.Locations.Jobs.Get(config.Project, "us-central1", rs.Primary.ID).Do()
 			if job != nil {
 				var ok bool
@@ -499,7 +499,7 @@ func testAccDataflowJobExists(t *testing.T, resource string) resource.TestCheckF
 			return fmt.Errorf("no ID is set")
 		}
 
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		_, err := config.NewDataflowClient(config.UserAgent).Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
 		if err != nil {
 			return fmt.Errorf("could not confirm Dataflow Job %q exists: %v", rs.Primary.ID, err)
@@ -597,7 +597,7 @@ func testAccDataflowJobGetGeneratedInstanceTemplate(t *testing.T, s *terraform.S
 	}
 	filter := fmt.Sprintf("properties.labels.dataflow_job_id = %s", rs.Primary.ID)
 
-	config := GoogleProviderConfig(t)
+	config := acctest.GoogleProviderConfig(t)
 
 	var instanceTemplate *compute.InstanceTemplate
 
@@ -638,7 +638,7 @@ func testAccRegionalDataflowJobExists(t *testing.T, res, region string) resource
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		_, err := config.NewDataflowClient(config.UserAgent).Projects.Locations.Jobs.Get(config.Project, region, rs.Primary.ID).Do()
 		if err != nil {
 			return fmt.Errorf("Job does not exist")
@@ -658,7 +658,7 @@ func testAccDataflowJobHasLabels(t *testing.T, res, key string) resource.TestChe
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		job, err := config.NewDataflowClient(config.UserAgent).Projects.Jobs.Get(config.Project, rs.Primary.ID).Do()
 		if err != nil {
@@ -683,7 +683,7 @@ func testAccDataflowJobHasExperiments(t *testing.T, res string, experiments []st
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		job, err := config.NewDataflowClient(config.UserAgent).Projects.Jobs.Get(config.Project, rs.Primary.ID).View("JOB_VIEW_ALL").Do()
 		if err != nil {
@@ -716,7 +716,7 @@ func testAccDataflowJobHasTempLocation(t *testing.T, res, targetLocation string)
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		job, err := config.NewDataflowClient(config.UserAgent).Projects.Jobs.Get(config.Project, rs.Primary.ID).View("JOB_VIEW_ALL").Do()
 		if err != nil {

@@ -36,12 +36,12 @@ func TestAccLoggingOrganizationExclusion(t *testing.T) {
 
 func testAccLoggingOrganizationExclusion_basic(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
-	exclusionName := "tf-test-exclusion-" + RandString(t, 10)
-	description := "Description " + RandString(t, 10)
+	exclusionName := "tf-test-exclusion-" + acctest.RandString(t, 10)
+	description := "Description " + acctest.RandString(t, 10)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingOrganizationExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -58,13 +58,13 @@ func testAccLoggingOrganizationExclusion_basic(t *testing.T) {
 
 func testAccLoggingOrganizationExclusion_update(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
-	exclusionName := "tf-test-exclusion-" + RandString(t, 10)
-	descriptionBefore := "Basic Organization Logging Exclusion" + RandString(t, 10)
-	descriptionAfter := "Updated Basic Organization Logging Exclusion" + RandString(t, 10)
+	exclusionName := "tf-test-exclusion-" + acctest.RandString(t, 10)
+	descriptionBefore := "Basic Organization Logging Exclusion" + acctest.RandString(t, 10)
+	descriptionAfter := "Updated Basic Organization Logging Exclusion" + acctest.RandString(t, 10)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingOrganizationExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -90,13 +90,13 @@ func testAccLoggingOrganizationExclusion_update(t *testing.T) {
 func testAccLoggingOrganizationExclusion_multiple(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLoggingOrganizationExclusionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLoggingOrganizationExclusion_multipleCfg("tf-test-exclusion-"+RandString(t, 10), org),
+				Config: testAccLoggingOrganizationExclusion_multipleCfg("tf-test-exclusion-"+acctest.RandString(t, 10), org),
 			},
 			{
 				ResourceName:      "google_logging_organization_exclusion.basic0",
@@ -119,7 +119,7 @@ func testAccLoggingOrganizationExclusion_multiple(t *testing.T) {
 
 func testAccCheckLoggingOrganizationExclusionDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_logging_organization_exclusion" {

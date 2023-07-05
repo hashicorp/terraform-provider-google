@@ -20,19 +20,19 @@ func TestAccHealthcareFhirStoreIamBinding(t *testing.T) {
 	t.Parallel()
 
 	projectId := envvar.GetTestProjectFromEnv()
-	account := fmt.Sprintf("tf-test-%d", RandInt(t))
+	account := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 	roleId := "roles/healthcare.fhirStoreAdmin"
-	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	datasetName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	datasetId := &healthcare.HealthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
 	}
-	fhirStoreName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	fhirStoreName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
@@ -69,19 +69,19 @@ func TestAccHealthcareFhirStoreIamMember(t *testing.T) {
 	t.Parallel()
 
 	projectId := envvar.GetTestProjectFromEnv()
-	account := fmt.Sprintf("tf-test-%d", RandInt(t))
+	account := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 	roleId := "roles/healthcare.fhirResourceEditor"
-	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	datasetName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	datasetId := &healthcare.HealthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
 	}
-	fhirStoreName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	fhirStoreName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -104,19 +104,19 @@ func TestAccHealthcareFhirStoreIamPolicy(t *testing.T) {
 	t.Parallel()
 
 	projectId := envvar.GetTestProjectFromEnv()
-	account := fmt.Sprintf("tf-test-%d", RandInt(t))
+	account := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 	roleId := "roles/healthcare.fhirResourceEditor"
-	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	datasetName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	datasetId := &healthcare.HealthcareDatasetId{
 		Project:  projectId,
 		Location: DEFAULT_HEALTHCARE_TEST_LOCATION,
 		Name:     datasetName,
 	}
-	fhirStoreName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	fhirStoreName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Policy creation (no update for policy, no need to test)
@@ -145,7 +145,7 @@ func testAccCheckGoogleHealthcareFhirStoreIamBindingExists(t *testing.T, binding
 			return fmt.Errorf("Not found: %s", bindingResourceName)
 		}
 
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		fhirStoreId, err := healthcare.ParseHealthcareFhirStoreId(bindingRs.Primary.Attributes["fhir_store_id"], config)
 
 		if err != nil {
@@ -181,7 +181,7 @@ func testAccCheckGoogleHealthcareFhirStoreIamMemberExists(t *testing.T, n, role,
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		fhirStoreId, err := healthcare.ParseHealthcareFhirStoreId(rs.Primary.Attributes["fhir_store_id"], config)
 
 		if err != nil {
@@ -216,7 +216,7 @@ func testAccCheckGoogleHealthcareFhirStoreIamPolicyExists(t *testing.T, n, role,
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		fhirStoreId, err := healthcare.ParseHealthcareFhirStoreId(rs.Primary.Attributes["fhir_store_id"], config)
 
 		if err != nil {

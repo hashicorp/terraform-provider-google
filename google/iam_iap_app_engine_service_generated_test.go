@@ -32,9 +32,9 @@ func TestAccIapAppEngineServiceIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":   RandString(t, 10),
+		"random_suffix":   acctest.RandString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
-		"project_id":      fmt.Sprintf("tf-test%s", RandString(t, 10)),
+		"project_id":      fmt.Sprintf("tf-test%s", acctest.RandString(t, 10)),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 
@@ -45,9 +45,9 @@ func TestAccIapAppEngineServiceIamBindingGenerated(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineServiceIamBinding_basicGenerated(context),
@@ -76,9 +76,9 @@ func TestAccIapAppEngineServiceIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":   RandString(t, 10),
+		"random_suffix":   acctest.RandString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
-		"project_id":      fmt.Sprintf("tf-test%s", RandString(t, 10)),
+		"project_id":      fmt.Sprintf("tf-test%s", acctest.RandString(t, 10)),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 
@@ -89,9 +89,9 @@ func TestAccIapAppEngineServiceIamMemberGenerated(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -111,9 +111,9 @@ func TestAccIapAppEngineServiceIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":   RandString(t, 10),
+		"random_suffix":   acctest.RandString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
-		"project_id":      fmt.Sprintf("tf-test%s", RandString(t, 10)),
+		"project_id":      fmt.Sprintf("tf-test%s", acctest.RandString(t, 10)),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 
@@ -124,9 +124,9 @@ func TestAccIapAppEngineServiceIamPolicyGenerated(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineServiceIamPolicy_basicGenerated(context),
@@ -155,9 +155,9 @@ func TestAccIapAppEngineServiceIamBindingGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":   RandString(t, 10),
+		"random_suffix":   acctest.RandString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
-		"project_id":      fmt.Sprintf("tf-test%s", RandString(t, 10)),
+		"project_id":      fmt.Sprintf("tf-test%s", acctest.RandString(t, 10)),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 
@@ -168,9 +168,9 @@ func TestAccIapAppEngineServiceIamBindingGenerated_withCondition(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineServiceIamBinding_withConditionGenerated(context),
@@ -191,9 +191,9 @@ func TestAccIapAppEngineServiceIamBindingGenerated_withAndWithoutCondition(t *te
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":   RandString(t, 10),
+		"random_suffix":   acctest.RandString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
-		"project_id":      fmt.Sprintf("tf-test%s", RandString(t, 10)),
+		"project_id":      fmt.Sprintf("tf-test%s", acctest.RandString(t, 10)),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 
@@ -204,9 +204,9 @@ func TestAccIapAppEngineServiceIamBindingGenerated_withAndWithoutCondition(t *te
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineServiceIamBinding_withAndWithoutConditionGenerated(context),
@@ -237,9 +237,9 @@ func TestAccIapAppEngineServiceIamMemberGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":   RandString(t, 10),
+		"random_suffix":   acctest.RandString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
-		"project_id":      fmt.Sprintf("tf-test%s", RandString(t, 10)),
+		"project_id":      fmt.Sprintf("tf-test%s", acctest.RandString(t, 10)),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 
@@ -250,9 +250,9 @@ func TestAccIapAppEngineServiceIamMemberGenerated_withCondition(t *testing.T) {
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineServiceIamMember_withConditionGenerated(context),
@@ -273,9 +273,9 @@ func TestAccIapAppEngineServiceIamMemberGenerated_withAndWithoutCondition(t *tes
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":   RandString(t, 10),
+		"random_suffix":   acctest.RandString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
-		"project_id":      fmt.Sprintf("tf-test%s", RandString(t, 10)),
+		"project_id":      fmt.Sprintf("tf-test%s", acctest.RandString(t, 10)),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 
@@ -286,9 +286,9 @@ func TestAccIapAppEngineServiceIamMemberGenerated_withAndWithoutCondition(t *tes
 		"condition_expr_no_desc":  `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineServiceIamMember_withAndWithoutConditionGenerated(context),
@@ -319,9 +319,9 @@ func TestAccIapAppEngineServiceIamPolicyGenerated_withCondition(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":   RandString(t, 10),
+		"random_suffix":   acctest.RandString(t, 10),
 		"role":            "roles/iap.httpsResourceAccessor",
-		"project_id":      fmt.Sprintf("tf-test%s", RandString(t, 10)),
+		"project_id":      fmt.Sprintf("tf-test%s", acctest.RandString(t, 10)),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 
@@ -336,9 +336,9 @@ func TestAccIapAppEngineServiceIamPolicyGenerated_withCondition(t *testing.T) {
 	expectedPolicyData := acctest.Nprintf(`{"bindings":[{"condition":{"description":"%{condition_desc}","expression":"%{condition_expr}","title":"%{condition_title}"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"},{"condition":{"expression":"%{condition_expr}","title":"%{condition_title}-no-description"},"members":["user:admin@hashicorptest.com"],"role":"%{role}"}]}`, context)
 	expectedPolicyData = strings.Replace(expectedPolicyData, "<", "\\u003c", -1)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIapAppEngineServiceIamPolicy_withConditionGenerated(context),

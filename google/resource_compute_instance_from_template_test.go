@@ -18,13 +18,13 @@ func TestAccComputeInstanceFromTemplate_basic(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	templateName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	resourceName := "google_compute_instance_from_template.foobar"
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -46,13 +46,13 @@ func TestAccComputeInstanceFromTemplate_self_link_unique(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	templateName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	resourceName := "google_compute_instance_from_template.foobar"
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -74,15 +74,15 @@ func TestAccComputeInstanceFromTemplate_overrideBootDisk(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	templateName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	templateDisk := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	overrideDisk := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	templateDisk := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	overrideDisk := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	resourceName := "google_compute_instance_from_template.inst"
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -103,15 +103,15 @@ func TestAccComputeInstanceFromTemplate_overrideAttachedDisk(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	templateName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	templateDisk := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	overrideDisk := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	templateDisk := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	overrideDisk := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	resourceName := "google_compute_instance_from_template.inst"
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -132,15 +132,15 @@ func TestAccComputeInstanceFromTemplate_overrideScratchDisk(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	templateName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	templateDisk := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	overrideDisk := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	templateDisk := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	overrideDisk := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	resourceName := "google_compute_instance_from_template.inst"
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -161,14 +161,14 @@ func TestAccComputeInstanceFromTemplate_overrideScheduling(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	templateName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	templateDisk := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	templateDisk := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	resourceName := "google_compute_instance_from_template.inst"
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -185,8 +185,8 @@ func TestAccComputeInstanceFromTemplate_012_removableFields(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	templateName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	resourceName := "google_compute_instance_from_template.inst"
 
 	// First config is a basic instance from template, second tests the empty list syntax
@@ -195,9 +195,9 @@ func TestAccComputeInstanceFromTemplate_012_removableFields(t *testing.T) {
 	config2 := testAccComputeInstanceFromTemplate_012_removableFieldsTpl(templateName) +
 		testAccComputeInstanceFromTemplate_012_removableFields2(instanceName)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -226,13 +226,13 @@ func TestAccComputeInstanceFromTemplate_012_removableFields(t *testing.T) {
 
 func TestAccComputeInstanceFromTemplate_overrideMetadataDotStartupScript(t *testing.T) {
 	var instance compute.Instance
-	instanceName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	templateName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	resourceName := "google_compute_instance_from_template.inst"
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -249,7 +249,7 @@ func TestAccComputeInstanceFromTemplate_overrideMetadataDotStartupScript(t *test
 
 func testAccCheckComputeInstanceFromTemplateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_instance_from_template" {

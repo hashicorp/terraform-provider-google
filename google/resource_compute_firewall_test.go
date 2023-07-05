@@ -14,12 +14,12 @@ import (
 func TestAccComputeFirewall_update(t *testing.T) {
 	t.Parallel()
 
-	networkName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
-	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
+	networkName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
+	firewallName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -53,12 +53,12 @@ func TestAccComputeFirewall_update(t *testing.T) {
 func TestAccComputeFirewall_localRanges(t *testing.T) {
 	t.Parallel()
 
-	networkName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
-	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
+	networkName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
+	firewallName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -92,12 +92,12 @@ func TestAccComputeFirewall_localRanges(t *testing.T) {
 func TestAccComputeFirewall_priority(t *testing.T) {
 	t.Parallel()
 
-	networkName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
-	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
+	networkName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
+	firewallName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -115,12 +115,12 @@ func TestAccComputeFirewall_priority(t *testing.T) {
 func TestAccComputeFirewall_noSource(t *testing.T) {
 	t.Parallel()
 
-	networkName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
-	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
+	networkName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
+	firewallName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -134,12 +134,12 @@ func TestAccComputeFirewall_noSource(t *testing.T) {
 func TestAccComputeFirewall_denied(t *testing.T) {
 	t.Parallel()
 
-	networkName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
-	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
+	networkName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
+	firewallName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -157,12 +157,12 @@ func TestAccComputeFirewall_denied(t *testing.T) {
 func TestAccComputeFirewall_egress(t *testing.T) {
 	t.Parallel()
 
-	networkName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
-	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
+	networkName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
+	firewallName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -180,15 +180,15 @@ func TestAccComputeFirewall_egress(t *testing.T) {
 func TestAccComputeFirewall_serviceAccounts(t *testing.T) {
 	t.Parallel()
 
-	networkName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
-	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
+	networkName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
+	firewallName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
 
-	sourceSa := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
-	targetSa := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
+	sourceSa := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
+	targetSa := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -206,12 +206,12 @@ func TestAccComputeFirewall_serviceAccounts(t *testing.T) {
 func TestAccComputeFirewall_disabled(t *testing.T) {
 	t.Parallel()
 
-	networkName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
-	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
+	networkName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
+	firewallName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -237,12 +237,12 @@ func TestAccComputeFirewall_disabled(t *testing.T) {
 func TestAccComputeFirewall_enableLogging(t *testing.T) {
 	t.Parallel()
 
-	networkName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
-	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
+	networkName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
+	firewallName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -284,12 +284,12 @@ func TestAccComputeFirewall_enableLogging(t *testing.T) {
 func TestAccComputeFirewall_moduleOutput(t *testing.T) {
 	t.Parallel()
 
-	networkName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
-	firewallName := fmt.Sprintf("tf-test-firewall-%s", RandString(t, 10))
+	networkName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
+	firewallName := fmt.Sprintf("tf-test-firewall-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeFirewallDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

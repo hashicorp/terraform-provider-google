@@ -35,12 +35,12 @@ func TestAccVertexAIIndexEndpoint_vertexAiIndexEndpointExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"network_name":  acctest.BootstrapSharedTestNetwork(t, "vertex-ai-index-endpoint"),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckVertexAIIndexEndpointDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -103,7 +103,7 @@ func testAccCheckVertexAIIndexEndpointDestroyProducer(t *testing.T) func(s *terr
 				continue
 			}
 
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 
 			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexEndpoints/{{name}}")
 			if err != nil {

@@ -13,12 +13,12 @@ import (
 func TestAccDataprocMetastoreService_updateAndImport(t *testing.T) {
 	t.Parallel()
 
-	name := "tf-test-metastore-" + RandString(t, 10)
+	name := "tf-test-metastore-" + acctest.RandString(t, 10)
 	tier := [2]string{"DEVELOPER", "ENTERPRISE"}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigqueryReservationReservationDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -60,12 +60,12 @@ func TestAccDataprocMetastoreService_PrivateServiceConnect(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocMetastoreServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

@@ -14,13 +14,13 @@ func TestAccDataSourceRegionInstanceGroup(t *testing.T) {
 	// Randomness in instance template
 	acctest.SkipIfVcr(t)
 	t.Parallel()
-	name := "tf-test-" + RandString(t, 6)
-	VcrTest(t, resource.TestCase{
+	name := "tf-test-" + acctest.RandString(t, 6)
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceRegionInstanceGroup_basic(fmt.Sprintf("tf-test-rigm--%d", RandInt(t)), name),
+				Config: testAccDataSourceRegionInstanceGroup_basic(fmt.Sprintf("tf-test-rigm--%d", acctest.RandInt(t)), name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "name", name),
 					resource.TestCheckResourceAttr("data.google_compute_region_instance_group.data_source", "project", envvar.GetTestProjectFromEnv()),

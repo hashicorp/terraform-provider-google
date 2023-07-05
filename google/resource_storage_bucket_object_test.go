@@ -40,9 +40,9 @@ func TestAccStorageObject_basic(t *testing.T) {
 	if err := ioutil.WriteFile(testFile.Name(), data, 0644); err != nil {
 		t.Errorf("error writing file: %v", err)
 	}
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -75,9 +75,9 @@ func TestAccStorageObject_recreate(t *testing.T) {
 	updatedName := testFile.Name() + ".update"
 	updatedDataMd5 := writeFile(updatedName, []byte("datum"))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -113,9 +113,9 @@ func TestAccStorageObject_content(t *testing.T) {
 	if err := ioutil.WriteFile(testFile.Name(), data, 0644); err != nil {
 		t.Errorf("error writing file: %v", err)
 	}
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -137,9 +137,9 @@ func TestAccStorageObject_folder(t *testing.T) {
 
 	bucketName := testBucketName(t)
 	folderName := "tf-gce-folder-test/"
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -168,9 +168,9 @@ func TestAccStorageObject_withContentCharacteristics(t *testing.T) {
 	}
 
 	disposition, encoding, language, content_type := "inline", "compress", "en", "binary/octet-stream"
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -195,9 +195,9 @@ func TestAccStorageObject_withContentCharacteristics(t *testing.T) {
 func TestAccStorageObject_dynamicContent(t *testing.T) {
 	t.Parallel()
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -229,9 +229,9 @@ func TestAccStorageObject_cacheControl(t *testing.T) {
 	}
 
 	cacheControl := "private"
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -262,9 +262,9 @@ func TestAccStorageObject_storageClass(t *testing.T) {
 	}
 
 	storageClass := "MULTI_REGIONAL"
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -294,9 +294,9 @@ func TestAccStorageObject_metadata(t *testing.T) {
 		t.Errorf("error writing file: %v", err)
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -327,9 +327,9 @@ func TestAccStorageObjectKms(t *testing.T) {
 	if err := ioutil.WriteFile(testFile.Name(), data, 0644); err != nil {
 		t.Errorf("error writing file: %v", err)
 	}
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -356,9 +356,9 @@ func TestAccStorageObject_customerEncryption(t *testing.T) {
 	}
 
 	customerEncryptionKey := "qI6+xvCZE9jUm94nJWIulFc8rthN64ybkGCsLUY9Do4="
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -388,9 +388,9 @@ func TestAccStorageObject_holds(t *testing.T) {
 		t.Errorf("error writing file: %v", err)
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageObjectDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -423,7 +423,7 @@ func testAccCheckGoogleStorageObject(t *testing.T, bucket, object, md5 string) r
 
 func testAccCheckGoogleStorageObjectWithEncryption(t *testing.T, bucket, object, md5 string, customerEncryptionKey string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		objectsService := storage.NewObjectsService(config.NewStorageClient(config.UserAgent))
 
@@ -452,7 +452,7 @@ func testAccCheckGoogleStorageObjectWithEncryption(t *testing.T, bucket, object,
 
 func testAccCheckGoogleStorageFolder(t *testing.T, bucket, folderName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		objectsService := storage.NewObjectsService(config.NewStorageClient(config.UserAgent))
 
@@ -473,7 +473,7 @@ func testAccCheckGoogleStorageFolder(t *testing.T, bucket, folderName string) re
 
 func testAccStorageObjectDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_storage_bucket_object" {

@@ -31,7 +31,7 @@ func TestAccCloudfunctions2functionIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 
@@ -39,9 +39,9 @@ func TestAccCloudfunctions2functionIamBindingGenerated(t *testing.T) {
 		"location": "us-central1",
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudfunctions2functionIamBinding_basicGenerated(context),
@@ -70,7 +70,7 @@ func TestAccCloudfunctions2functionIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 
@@ -78,9 +78,9 @@ func TestAccCloudfunctions2functionIamMemberGenerated(t *testing.T) {
 		"location": "us-central1",
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -100,7 +100,7 @@ func TestAccCloudfunctions2functionIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 
@@ -108,9 +108,9 @@ func TestAccCloudfunctions2functionIamPolicyGenerated(t *testing.T) {
 		"location": "us-central1",
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudfunctions2functionIamPolicy_basicGenerated(context),

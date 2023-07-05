@@ -78,13 +78,13 @@ func TestAccHealthcareDataset_basic(t *testing.T) {
 	t.Parallel()
 
 	location := "us-central1"
-	datasetName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	datasetName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	timeZone := "America/New_York"
 	resourceName := "google_healthcare_dataset.dataset"
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckHealthcareDatasetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -117,7 +117,7 @@ func testAccCheckGoogleHealthcareDatasetUpdate(t *testing.T, timeZone string) re
 				continue
 			}
 
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 
 			gcpResourceUri, err := tpgresource.ReplaceVarsForTest(config, rs, "projects/{{project}}/locations/{{location}}/datasets/{{name}}")
 			if err != nil {

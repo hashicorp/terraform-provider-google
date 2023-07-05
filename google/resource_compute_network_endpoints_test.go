@@ -21,7 +21,7 @@ func TestAccComputeNetworkEndpoints_networkEndpointsBasic(t *testing.T) {
 	acctest.SkipIfVcr(t)
 
 	context := map[string]interface{}{
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 		"default_port":  90,
 		"modified_port": 100,
 		"add1_port":     101,
@@ -33,9 +33,9 @@ func TestAccComputeNetworkEndpoints_networkEndpointsBasic(t *testing.T) {
 	negId := fmt.Sprintf("projects/%s/zones/%s/networkEndpointGroups/tf-test-neg-%s",
 		envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), context["random_suffix"])
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Create one endpoint
@@ -280,7 +280,7 @@ func testAccCheckComputeNetworkEndpointsWithAllEndpointsDestroyed(t *testing.T, 
 }
 
 func testAccComputeNetworkEndpointsListEndpoints(t *testing.T, negId string) ([]interface{}, error) {
-	config := GoogleProviderConfig(t)
+	config := acctest.GoogleProviderConfig(t)
 
 	url := fmt.Sprintf("https://www.googleapis.com/compute/v1/%s/listNetworkEndpoints", negId)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

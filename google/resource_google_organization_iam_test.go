@@ -51,11 +51,11 @@ func TestAccOrganizationIamMembersAndBindings(t *testing.T) {
 
 func testAccOrganizationIamBinding_basic(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
-	account := fmt.Sprintf("tf-test-%d", RandInt(t))
-	roleId := "tfIamTest" + RandString(t, 10)
-	VcrTest(t, resource.TestCase{
+	account := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	roleId := "tfIamTest" + acctest.RandString(t, 10)
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
@@ -90,12 +90,12 @@ func testAccOrganizationIamBinding_basic(t *testing.T) {
 
 func testAccOrganizationIamBinding_condition(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
-	account := fmt.Sprintf("tf-test-%d", RandInt(t))
-	roleId := "tfIamTest" + RandString(t, 10)
+	account := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	roleId := "tfIamTest" + acctest.RandString(t, 10)
 	conditionTitle := "expires_after_2019_12_31"
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Binding creation
@@ -116,10 +116,10 @@ func testAccOrganizationIamBinding_condition(t *testing.T) {
 
 func testAccOrganizationIamMember_basic(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
-	account := fmt.Sprintf("tf-test-%d", RandInt(t))
-	VcrTest(t, resource.TestCase{
+	account := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -140,11 +140,11 @@ func testAccOrganizationIamMember_basic(t *testing.T) {
 
 func testAccOrganizationIamMember_condition(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
-	account := fmt.Sprintf("tf-test-%d", RandInt(t))
+	account := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 	conditionTitle := "expires_after_2019_12_31"
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -181,7 +181,7 @@ func testAccCheckGoogleOrganizationIamBindingExists(t *testing.T, bindingResourc
 			return fmt.Errorf("Not found: %s", roleResourceName)
 		}
 
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		p, err := config.NewResourceManagerClient(config.UserAgent).Organizations.GetIamPolicy(
 			"organizations/"+bindingRs.Primary.Attributes["org_id"],
 			&cloudresourcemanager.GetIamPolicyRequest{
@@ -218,7 +218,7 @@ func testAccCheckGoogleOrganizationIamMemberExists(t *testing.T, n, role, member
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		p, err := config.NewResourceManagerClient(config.UserAgent).Organizations.GetIamPolicy(
 			"organizations/"+rs.Primary.Attributes["org_id"],
 			&cloudresourcemanager.GetIamPolicyRequest{

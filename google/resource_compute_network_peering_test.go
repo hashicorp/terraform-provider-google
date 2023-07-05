@@ -15,17 +15,17 @@ import (
 func TestAccComputeNetworkPeering_basic(t *testing.T) {
 	t.Parallel()
 
-	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", RandInt(t))
-	peeringName := fmt.Sprintf("peering-test-1-%d", RandInt(t))
+	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", acctest.RandInt(t))
+	peeringName := fmt.Sprintf("peering-test-1-%d", acctest.RandInt(t))
 	importId := fmt.Sprintf("%s/%s/%s", envvar.GetTestProjectFromEnv(), primaryNetworkName, peeringName)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComputeNetworkPeeringDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNetworkPeering_basic(primaryNetworkName, peeringName, RandString(t, 10)),
+				Config: testAccComputeNetworkPeering_basic(primaryNetworkName, peeringName, acctest.RandString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_network_peering.foo",
@@ -41,17 +41,17 @@ func TestAccComputeNetworkPeering_basic(t *testing.T) {
 func TestAccComputeNetworkPeering_subnetRoutes(t *testing.T) {
 	t.Parallel()
 
-	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", RandInt(t))
-	peeringName := fmt.Sprintf("peering-test-%d", RandInt(t))
+	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", acctest.RandInt(t))
+	peeringName := fmt.Sprintf("peering-test-%d", acctest.RandInt(t))
 	importId := fmt.Sprintf("%s/%s/%s", envvar.GetTestProjectFromEnv(), primaryNetworkName, peeringName)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComputeNetworkPeeringDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNetworkPeering_subnetRoutes(primaryNetworkName, peeringName, RandString(t, 10)),
+				Config: testAccComputeNetworkPeering_subnetRoutes(primaryNetworkName, peeringName, acctest.RandString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_network_peering.bar",
@@ -66,14 +66,14 @@ func TestAccComputeNetworkPeering_subnetRoutes(t *testing.T) {
 func TestAccComputeNetworkPeering_customRoutesUpdate(t *testing.T) {
 	t.Parallel()
 
-	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", RandInt(t))
-	peeringName := fmt.Sprintf("peering-test-%d", RandInt(t))
+	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", acctest.RandInt(t))
+	peeringName := fmt.Sprintf("peering-test-%d", acctest.RandInt(t))
 	importId := fmt.Sprintf("%s/%s/%s", envvar.GetTestProjectFromEnv(), primaryNetworkName, peeringName)
-	suffix := RandString(t, 10)
+	suffix := acctest.RandString(t, 10)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComputeNetworkPeeringDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -110,14 +110,14 @@ func TestAccComputeNetworkPeering_customRoutesUpdate(t *testing.T) {
 func TestAccComputeNetworkPeering_stackType(t *testing.T) {
 	t.Parallel()
 
-	primaryNetworkName := fmt.Sprintf("tf-test-network-1-%d", RandInt(t))
-	peeringNetworkName := fmt.Sprintf("tf-test-network-2-%d", RandInt(t))
-	peeringName := fmt.Sprintf("tf-test-peering-%d", RandInt(t))
+	primaryNetworkName := fmt.Sprintf("tf-test-network-1-%d", acctest.RandInt(t))
+	peeringNetworkName := fmt.Sprintf("tf-test-network-2-%d", acctest.RandInt(t))
+	peeringName := fmt.Sprintf("tf-test-peering-%d", acctest.RandInt(t))
 	importId := fmt.Sprintf("%s/%s/%s", GetTestProjectFromEnv(), primaryNetworkName, peeringName)
 
-	VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComputeNetworkPeeringDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -145,7 +145,7 @@ func TestAccComputeNetworkPeering_stackType(t *testing.T) {
 
 func testAccComputeNetworkPeeringDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_network_peering" {

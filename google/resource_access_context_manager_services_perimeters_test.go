@@ -19,9 +19,9 @@ import (
 func testAccAccessContextManagerServicePerimeters_basicTest(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckAccessContextManagerServicePerimetersDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -59,7 +59,7 @@ func testAccCheckAccessContextManagerServicePerimetersDestroyProducer(t *testing
 				continue
 			}
 
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 
 			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{AccessContextManagerBasePath}}{{parent}}/servicePerimeters")
 			if err != nil {

@@ -35,12 +35,12 @@ func TestAccBigtableAppProfile_bigtableAppProfileAnyclusterExample(t *testing.T)
 
 	context := map[string]interface{}{
 		"deletion_protection": false,
-		"random_suffix":       RandString(t, 10),
+		"random_suffix":       acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigtableAppProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -99,12 +99,12 @@ func TestAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(t *testing
 
 	context := map[string]interface{}{
 		"deletion_protection": false,
-		"random_suffix":       RandString(t, 10),
+		"random_suffix":       acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigtableAppProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -154,12 +154,12 @@ func TestAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(t *testing.
 
 	context := map[string]interface{}{
 		"deletion_protection": false,
-		"random_suffix":       RandString(t, 10),
+		"random_suffix":       acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigtableAppProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -224,7 +224,7 @@ func testAccCheckBigtableAppProfileDestroyProducer(t *testing.T) func(s *terrafo
 				continue
 			}
 
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 
 			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{BigtableBasePath}}projects/{{project}}/instances/{{instance}}/appProfiles/{{app_profile_id}}")
 			if err != nil {

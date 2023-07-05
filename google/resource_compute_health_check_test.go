@@ -14,11 +14,11 @@ import (
 func TestAccComputeHealthCheck_tcp_update(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -44,11 +44,11 @@ func TestAccComputeHealthCheck_tcp_update(t *testing.T) {
 func TestAccComputeHealthCheck_ssl_port_spec(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -66,11 +66,11 @@ func TestAccComputeHealthCheck_ssl_port_spec(t *testing.T) {
 func TestAccComputeHealthCheck_http_port_spec(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -87,11 +87,11 @@ func TestAccComputeHealthCheck_http_port_spec(t *testing.T) {
 func TestAccComputeHealthCheck_https_serving_port(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -109,11 +109,11 @@ func TestAccComputeHealthCheck_https_serving_port(t *testing.T) {
 func TestAccComputeHealthCheck_typeTransition(t *testing.T) {
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -143,11 +143,11 @@ func TestAccComputeHealthCheck_tcpAndSsl_shouldFail(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	hckName := fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

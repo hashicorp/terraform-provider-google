@@ -13,13 +13,13 @@ import (
 func TestAccComputeResourcePolicy_attached(t *testing.T) {
 	t.Parallel()
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeResourcePolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeResourcePolicy_attached(RandString(t, 10)),
+				Config: testAccComputeResourcePolicy_attached(acctest.RandString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_resource_policy.foo",

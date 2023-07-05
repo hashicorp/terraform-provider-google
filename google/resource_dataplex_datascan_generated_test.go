@@ -36,12 +36,12 @@ func TestAccDataplexDatascan_dataplexDatascanBasicProfileExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataplexDatascanDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -86,12 +86,12 @@ func TestAccDataplexDatascan_dataplexDatascanFullProfileExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataplexDatascanDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -145,12 +145,12 @@ func TestAccDataplexDatascan_dataplexDatascanBasicQualityExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataplexDatascanDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -201,12 +201,12 @@ func TestAccDataplexDatascan_dataplexDatascanFullQualityExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataplexDatascanDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -338,7 +338,7 @@ func testAccCheckDataplexDatascanDestroyProducer(t *testing.T) func(s *terraform
 				continue
 			}
 
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 
 			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/dataScans/{{data_scan_id}}")
 			if err != nil {
