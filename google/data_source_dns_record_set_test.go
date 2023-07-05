@@ -20,9 +20,9 @@ func TestAccDataSourceDnsRecordSet_basic(t *testing.T) {
 
 	var ttl1, ttl2 string // ttl is a computed string-type attribute that is easy to compare in the test
 
-	managedZoneName := fmt.Sprintf("tf-test-zone-%s", RandString(t, 10))
+	managedZoneName := fmt.Sprintf("tf-test-zone-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:     func() { acctest.AccTestPreCheck(t) },
 		CheckDestroy: testAccCheckDnsRecordSetDestroyProducerFramework(t),
 		Steps: []resource.TestStep{
@@ -33,15 +33,15 @@ func TestAccDataSourceDnsRecordSet_basic(t *testing.T) {
 						Source:            "hashicorp/google",
 					},
 				},
-				Config: testAccDataSourceDnsRecordSet_basic(managedZoneName, RandString(t, 10)),
+				Config: testAccDataSourceDnsRecordSet_basic(managedZoneName, acctest.RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					acctest.CheckDataSourceStateMatchesResourceState("data.google_dns_record_set.rs", "google_dns_record_set.rs"),
 					acctest.TestExtractResourceAttr("data.google_dns_record_set.rs", "ttl", &ttl1),
 				),
 			},
 			{
-				ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
-				Config:                   testAccDataSourceDnsRecordSet_basic(managedZoneName, RandString(t, 10)),
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+				Config:                   testAccDataSourceDnsRecordSet_basic(managedZoneName, acctest.RandString(t, 10)),
 				Check: resource.ComposeTestCheckFunc(
 					acctest.CheckDataSourceStateMatchesResourceState("data.google_dns_record_set.rs", "google_dns_record_set.rs"),
 					acctest.TestExtractResourceAttr("data.google_dns_record_set.rs", "ttl", &ttl2),

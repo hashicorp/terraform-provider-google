@@ -19,12 +19,12 @@ import (
 func TestAccPubsubTopicIamBinding(t *testing.T) {
 	t.Parallel()
 
-	topic := "tf-test-topic-iam-" + RandString(t, 10)
-	account := "tf-test-topic-iam-" + RandString(t, 10)
+	topic := "tf-test-topic-iam-" + acctest.RandString(t, 10)
+	account := "tf-test-topic-iam-" + acctest.RandString(t, 10)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
@@ -60,12 +60,12 @@ func TestAccPubsubTopicIamBinding(t *testing.T) {
 func TestAccPubsubTopicIamBinding_topicName(t *testing.T) {
 	t.Parallel()
 
-	topic := "tf-test-topic-iam-" + RandString(t, 10)
-	account := "tf-test-topic-iam-" + RandString(t, 10)
+	topic := "tf-test-topic-iam-" + acctest.RandString(t, 10)
+	account := "tf-test-topic-iam-" + acctest.RandString(t, 10)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
@@ -82,13 +82,13 @@ func TestAccPubsubTopicIamBinding_topicName(t *testing.T) {
 func TestAccPubsubTopicIamMember(t *testing.T) {
 	t.Parallel()
 
-	topic := "tf-test-topic-iam-" + RandString(t, 10)
-	account := "tf-test-topic-iam-" + RandString(t, 10)
+	topic := "tf-test-topic-iam-" + acctest.RandString(t, 10)
+	account := "tf-test-topic-iam-" + acctest.RandString(t, 10)
 	accountEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, envvar.GetTestProjectFromEnv())
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -110,12 +110,12 @@ func TestAccPubsubTopicIamMember(t *testing.T) {
 func TestAccPubsubTopicIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	topic := "tf-test-topic-iam-" + RandString(t, 10)
-	account := "tf-test-topic-iam-" + RandString(t, 10)
+	topic := "tf-test-topic-iam-" + acctest.RandString(t, 10)
+	account := "tf-test-topic-iam-" + acctest.RandString(t, 10)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubTopicIamPolicy_basic(topic, account, "roles/pubsub.publisher"),
@@ -141,7 +141,7 @@ func TestAccPubsubTopicIamPolicy(t *testing.T) {
 
 func testAccCheckPubsubTopicIam(t *testing.T, topic, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		p, err := config.NewPubsubClient(config.UserAgent).Projects.Topics.GetIamPolicy(pubsub.GetComputedTopicName(envvar.GetTestProjectFromEnv(), topic)).Do()
 		if err != nil {
 			return err

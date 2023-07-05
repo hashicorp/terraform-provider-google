@@ -19,13 +19,13 @@ import (
 func TestAccPubsubSubscriptionIamBinding(t *testing.T) {
 	t.Parallel()
 
-	topic := "tf-test-topic-iam-" + RandString(t, 10)
-	subscription := "tf-test-sub-iam-" + RandString(t, 10)
-	account := "tf-test-iam-" + RandString(t, 10)
+	topic := "tf-test-topic-iam-" + acctest.RandString(t, 10)
+	subscription := "tf-test-sub-iam-" + acctest.RandString(t, 10)
+	account := "tf-test-iam-" + acctest.RandString(t, 10)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
@@ -55,14 +55,14 @@ func TestAccPubsubSubscriptionIamBinding(t *testing.T) {
 func TestAccPubsubSubscriptionIamMember(t *testing.T) {
 	t.Parallel()
 
-	topic := "tf-test-topic-iam-" + RandString(t, 10)
-	subscription := "tf-test-sub-iam-" + RandString(t, 10)
-	account := "tf-test-iam-" + RandString(t, 10)
+	topic := "tf-test-topic-iam-" + acctest.RandString(t, 10)
+	subscription := "tf-test-sub-iam-" + acctest.RandString(t, 10)
+	account := "tf-test-iam-" + acctest.RandString(t, 10)
 	accountEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, envvar.GetTestProjectFromEnv())
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -84,13 +84,13 @@ func TestAccPubsubSubscriptionIamMember(t *testing.T) {
 func TestAccPubsubSubscriptionIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	topic := "tf-test-topic-iam-" + RandString(t, 10)
-	subscription := "tf-test-sub-iam-" + RandString(t, 10)
-	account := "tf-test-iam-" + RandString(t, 10)
+	topic := "tf-test-topic-iam-" + acctest.RandString(t, 10)
+	subscription := "tf-test-sub-iam-" + acctest.RandString(t, 10)
+	account := "tf-test-iam-" + acctest.RandString(t, 10)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPubsubSubscriptionIamPolicy_basic(subscription, topic, account, "roles/pubsub.subscriber"),
@@ -119,7 +119,7 @@ func TestAccPubsubSubscriptionIamPolicy(t *testing.T) {
 
 func testAccCheckPubsubSubscriptionIam(t *testing.T, subscription, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		p, err := config.NewPubsubClient(config.UserAgent).Projects.Subscriptions.GetIamPolicy(pubsub.GetComputedSubscriptionName(envvar.GetTestProjectFromEnv(), subscription)).Do()
 		if err != nil {
 			return err

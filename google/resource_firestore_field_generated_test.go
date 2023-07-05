@@ -36,12 +36,12 @@ func TestAccFirestoreField_firestoreFieldBasicExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestFirestoreProjectFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckFirestoreFieldDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -85,12 +85,12 @@ func TestAccFirestoreField_firestoreFieldTimestampExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestFirestoreProjectFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckFirestoreFieldDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -125,12 +125,12 @@ func TestAccFirestoreField_firestoreFieldMatchOverrideExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestFirestoreProjectFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckFirestoreFieldDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -182,7 +182,7 @@ func testAccCheckFirestoreFieldDestroyProducer(t *testing.T) func(s *terraform.S
 			// 1) the index configuration has no overrides and matches the ancestor configuration.
 			// 2) the ttl configuration is unset.
 
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 
 			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{FirestoreBasePath}}projects/{{project}}/databases/{{database}}/collectionGroups/{{collection}}/fields/{{field}}")
 			if err != nil {

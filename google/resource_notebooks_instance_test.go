@@ -14,11 +14,11 @@ import (
 func TestAccNotebooksInstance_create_vm_image(t *testing.T) {
 	t.Parallel()
 
-	prefix := fmt.Sprintf("%d", RandInt(t))
+	prefix := fmt.Sprintf("%d", acctest.RandInt(t))
 	name := fmt.Sprintf("tf-%s", prefix)
 
-	VcrTest(t, resource.TestCase{
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+	acctest.VcrTest(t, resource.TestCase{
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNotebooksInstance_create_vm_image(name),
@@ -35,11 +35,11 @@ func TestAccNotebooksInstance_create_vm_image(t *testing.T) {
 
 func TestAccNotebooksInstance_update(t *testing.T) {
 	context := map[string]interface{}{
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+	acctest.VcrTest(t, resource.TestCase{
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNotebooksInstance_basic(context),

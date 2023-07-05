@@ -19,12 +19,12 @@ func TestAccComputeInstanceGroup_basic(t *testing.T) {
 
 	var instanceGroup compute.InstanceGroup
 	var resourceName = "google_compute_instance_group.basic"
-	var instanceName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var zone = "us-central1-c"
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComputeInstanceGroup_destroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -54,14 +54,14 @@ func TestAccComputeInstanceGroup_basic(t *testing.T) {
 func TestAccComputeInstanceGroup_rename(t *testing.T) {
 	t.Parallel()
 
-	var instanceName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	var instanceGroupName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	var backendName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
-	var healthName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	var instanceGroupName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	var backendName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	var healthName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComputeInstanceGroup_destroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -88,11 +88,11 @@ func TestAccComputeInstanceGroup_update(t *testing.T) {
 	t.Parallel()
 
 	var instanceGroup compute.InstanceGroup
-	var instanceName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComputeInstanceGroup_destroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -129,11 +129,11 @@ func TestAccComputeInstanceGroup_outOfOrderInstances(t *testing.T) {
 	t.Parallel()
 
 	var instanceGroup compute.InstanceGroup
-	var instanceName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComputeInstanceGroup_destroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -151,11 +151,11 @@ func TestAccComputeInstanceGroup_network(t *testing.T) {
 	t.Parallel()
 
 	var instanceGroup compute.InstanceGroup
-	var instanceName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccComputeInstanceGroup_destroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -177,7 +177,7 @@ func TestAccComputeInstanceGroup_network(t *testing.T) {
 
 func testAccComputeInstanceGroup_destroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_instance_group" {
@@ -205,7 +205,7 @@ func testAccComputeInstanceGroup_exists(t *testing.T, n string, instanceGroup *c
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		found, err := config.NewComputeClient(config.UserAgent).InstanceGroups.Get(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
@@ -230,7 +230,7 @@ func testAccComputeInstanceGroup_updated(t *testing.T, n string, size int64, ins
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		instanceGroup, err := config.NewComputeClient(config.UserAgent).InstanceGroups.Get(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
@@ -259,7 +259,7 @@ func testAccComputeInstanceGroup_named_ports(t *testing.T, n string, np map[stri
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		instanceGroup, err := config.NewComputeClient(config.UserAgent).InstanceGroups.Get(
 			config.Project, rs.Primary.Attributes["zone"], rs.Primary.Attributes["name"]).Do()
@@ -286,7 +286,7 @@ func testAccComputeInstanceGroup_named_ports(t *testing.T, n string, np map[stri
 
 func testAccComputeInstanceGroup_hasCorrectNetwork(t *testing.T, nInstanceGroup string, nNetwork string, instanceGroup *compute.InstanceGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		rsInstanceGroup, ok := s.RootModule().Resources[nInstanceGroup]
 		if !ok {

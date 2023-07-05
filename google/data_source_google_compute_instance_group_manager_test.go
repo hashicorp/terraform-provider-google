@@ -14,20 +14,20 @@ func TestAccDataSourceGoogleComputeInstanceGroupManager(t *testing.T) {
 	t.Parallel()
 
 	zoneName := "us-central1-a"
-	igmName := "tf-test-igm" + RandString(t, 6)
+	igmName := "tf-test-igm" + acctest.RandString(t, 6)
 
 	context := map[string]interface{}{
 		"zoneName":     zoneName,
 		"igmName":      igmName,
-		"baseName":     "tf-test-igm-base" + RandString(t, 6),
-		"poolName":     "tf-test-pool" + RandString(t, 6),
-		"templateName": "tf-test-templt" + RandString(t, 6),
-		"autoHealName": "tf-test-ah-name" + RandString(t, 6),
+		"baseName":     "tf-test-igm-base" + acctest.RandString(t, 6),
+		"poolName":     "tf-test-pool" + acctest.RandString(t, 6),
+		"templateName": "tf-test-templt" + acctest.RandString(t, 6),
+		"autoHealName": "tf-test-ah-name" + acctest.RandString(t, 6),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleComputeInstanceGroupManager_basic1(context),

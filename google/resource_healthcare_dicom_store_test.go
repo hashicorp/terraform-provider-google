@@ -79,14 +79,14 @@ func TestAccHealthcareDicomStoreIdParsing(t *testing.T) {
 func TestAccHealthcareDicomStore_basic(t *testing.T) {
 	t.Parallel()
 
-	datasetName := fmt.Sprintf("tf-test-dataset-%s", RandString(t, 10))
-	dicomStoreName := fmt.Sprintf("tf-test-dicom-store-%s", RandString(t, 10))
-	pubsubTopic := fmt.Sprintf("tf-test-topic-%s", RandString(t, 10))
+	datasetName := fmt.Sprintf("tf-test-dataset-%s", acctest.RandString(t, 10))
+	dicomStoreName := fmt.Sprintf("tf-test-dicom-store-%s", acctest.RandString(t, 10))
+	pubsubTopic := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10))
 	resourceName := "google_healthcare_dicom_store.default"
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckHealthcareDicomStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -169,7 +169,7 @@ func testAccCheckGoogleHealthcareDicomStoreUpdate(t *testing.T, pubsubTopic stri
 			}
 			foundResource = true
 
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 
 			gcpResourceUri, err := tpgresource.ReplaceVarsForTest(config, rs, "{{dataset}}/dicomStores/{{name}}")
 			if err != nil {

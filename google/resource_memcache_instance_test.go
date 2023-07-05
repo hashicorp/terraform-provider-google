@@ -15,13 +15,13 @@ func TestAccMemcacheInstance_update(t *testing.T) {
 	// Temporary as CI has used up servicenetworking quota
 	acctest.SkipIfVcr(t)
 
-	prefix := fmt.Sprintf("%d", RandInt(t))
+	prefix := fmt.Sprintf("%d", acctest.RandInt(t))
 	name := fmt.Sprintf("tf-test-%s", prefix)
 	network := acctest.BootstrapSharedTestNetwork(t, "memcache-update")
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckMemcacheInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

@@ -14,16 +14,16 @@ import (
 func TestAccDataprocClusterIamBinding(t *testing.T) {
 	t.Parallel()
 
-	cluster := "tf-dataproc-iam-" + RandString(t, 10)
-	account := "tf-dataproc-iam-" + RandString(t, 10)
+	cluster := "tf-dataproc-iam-" + acctest.RandString(t, 10)
+	account := "tf-dataproc-iam-" + acctest.RandString(t, 10)
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s %s",
 		envvar.GetTestProjectFromEnv(), "us-central1", cluster, role)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
@@ -56,8 +56,8 @@ func TestAccDataprocClusterIamBinding(t *testing.T) {
 func TestAccDataprocClusterIamMember(t *testing.T) {
 	t.Parallel()
 
-	cluster := "tf-dataproc-iam-" + RandString(t, 10)
-	account := "tf-dataproc-iam-" + RandString(t, 10)
+	cluster := "tf-dataproc-iam-" + acctest.RandString(t, 10)
+	account := "tf-dataproc-iam-" + acctest.RandString(t, 10)
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s %s serviceAccount:%s",
@@ -67,9 +67,9 @@ func TestAccDataprocClusterIamMember(t *testing.T) {
 		role,
 		serviceAccountCanonicalEmail(account))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
@@ -94,16 +94,16 @@ func TestAccDataprocClusterIamMember(t *testing.T) {
 func TestAccDataprocClusterIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	cluster := "tf-dataproc-iam-" + RandString(t, 10)
-	account := "tf-dataproc-iam-" + RandString(t, 10)
+	cluster := "tf-dataproc-iam-" + acctest.RandString(t, 10)
+	account := "tf-dataproc-iam-" + acctest.RandString(t, 10)
 	role := "roles/editor"
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s",
 		envvar.GetTestProjectFromEnv(), "us-central1", cluster)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation

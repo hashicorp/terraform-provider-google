@@ -16,11 +16,11 @@ import (
 func TestAccBigQueryDataset_basic(t *testing.T) {
 	t.Parallel()
 
-	datasetID := fmt.Sprintf("tf_test_%s", RandString(t, 10))
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -54,12 +54,12 @@ func TestAccBigQueryDataset_basic(t *testing.T) {
 func TestAccBigQueryDataset_datasetWithContents(t *testing.T) {
 	t.Parallel()
 
-	datasetID := fmt.Sprintf("tf_test_%s", RandString(t, 10))
-	tableID := fmt.Sprintf("tf_test_%s", RandString(t, 10))
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -79,13 +79,13 @@ func TestAccBigQueryDataset_datasetWithContents(t *testing.T) {
 func TestAccBigQueryDataset_access(t *testing.T) {
 	t.Parallel()
 
-	datasetID := fmt.Sprintf("tf_test_access_%s", RandString(t, 10))
-	otherDatasetID := fmt.Sprintf("tf_test_other_%s", RandString(t, 10))
-	otherTableID := fmt.Sprintf("tf_test_other_%s", RandString(t, 10))
+	datasetID := fmt.Sprintf("tf_test_access_%s", acctest.RandString(t, 10))
+	otherDatasetID := fmt.Sprintf("tf_test_other_%s", acctest.RandString(t, 10))
+	otherTableID := fmt.Sprintf("tf_test_other_%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -127,11 +127,11 @@ func TestAccBigQueryDataset_access(t *testing.T) {
 func TestAccBigQueryDataset_regionalLocation(t *testing.T) {
 	t.Parallel()
 
-	datasetID1 := fmt.Sprintf("tf_test_%s", RandString(t, 10))
+	datasetID1 := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -151,11 +151,11 @@ func TestAccBigQueryDataset_cmek(t *testing.T) {
 
 	kms := acctest.BootstrapKMSKeyInLocation(t, "us")
 	pid := envvar.GetTestProjectFromEnv()
-	datasetID1 := fmt.Sprintf("tf_test_%s", RandString(t, 10))
+	datasetID1 := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigQueryDataset_cmek(pid, datasetID1, kms.CryptoKey.Name),
@@ -172,7 +172,7 @@ func TestAccBigQueryDataset_cmek(t *testing.T) {
 func testAccAddTable(t *testing.T, datasetID string, tableID string) resource.TestCheckFunc {
 	// Not actually a check, but adds a table independently of terraform
 	return func(s *terraform.State) error {
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		table := &bigquery.Table{
 			TableReference: &bigquery.TableReference{
 				DatasetId: datasetID,

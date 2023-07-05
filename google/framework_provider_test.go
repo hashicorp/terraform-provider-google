@@ -17,15 +17,15 @@ func TestAccFrameworkProviderMeta_setModuleName(t *testing.T) {
 	t.Parallel()
 
 	moduleName := "my-module"
-	managedZoneName := fmt.Sprintf("tf-test-zone-%s", RandString(t, 10))
+	managedZoneName := fmt.Sprintf("tf-test-zone-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducerFramework(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFrameworkProviderMeta_setModuleName(moduleName, managedZoneName, RandString(t, 10)),
+				Config: testAccFrameworkProviderMeta_setModuleName(moduleName, managedZoneName, acctest.RandString(t, 10)),
 			},
 		},
 	})
@@ -34,7 +34,7 @@ func TestAccFrameworkProviderMeta_setModuleName(t *testing.T) {
 func TestAccFrameworkProviderBasePath_setInvalidBasePath(t *testing.T) {
 	t.Parallel()
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:     func() { acctest.AccTestPreCheck(t) },
 		CheckDestroy: testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
@@ -45,12 +45,12 @@ func TestAccFrameworkProviderBasePath_setInvalidBasePath(t *testing.T) {
 						Source:            "hashicorp/google",
 					},
 				},
-				Config:      testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", RandString(t, 10)),
+				Config:      testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", acctest.RandString(t, 10)),
 				ExpectError: regexp.MustCompile("got HTTP response code 404 with body"),
 			},
 			{
-				ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
-				Config:                   testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", RandString(t, 10)),
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+				Config:                   testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", acctest.RandString(t, 10)),
 				ExpectError:              regexp.MustCompile("got HTTP response code 404 with body"),
 			},
 		},
@@ -62,7 +62,7 @@ func TestAccFrameworkProviderBasePath_setBasePath(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:     func() { acctest.AccTestPreCheck(t) },
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducerFramework(t),
 		Steps: []resource.TestStep{
@@ -73,7 +73,7 @@ func TestAccFrameworkProviderBasePath_setBasePath(t *testing.T) {
 						Source:            "hashicorp/google",
 					},
 				},
-				Config: testAccFrameworkProviderBasePath_setBasePath("https://www.googleapis.com/dns/v1beta2/", RandString(t, 10)),
+				Config: testAccFrameworkProviderBasePath_setBasePath("https://www.googleapis.com/dns/v1beta2/", acctest.RandString(t, 10)),
 			},
 			{
 				ExternalProviders: map[string]resource.ExternalProvider{
@@ -87,18 +87,18 @@ func TestAccFrameworkProviderBasePath_setBasePath(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
-				Config:                   testAccFrameworkProviderBasePath_setBasePath("https://www.googleapis.com/dns/v1beta2/", RandString(t, 10)),
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+				Config:                   testAccFrameworkProviderBasePath_setBasePath("https://www.googleapis.com/dns/v1beta2/", acctest.RandString(t, 10)),
 			},
 			{
-				ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 				ResourceName:             "google_dns_managed_zone.foo",
 				ImportState:              true,
 				ImportStateVerify:        true,
 			},
 			{
-				ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
-				Config:                   testAccFrameworkProviderBasePath_setBasePathstep3("https://www.googleapis.com/dns/v1beta2/", RandString(t, 10)),
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+				Config:                   testAccFrameworkProviderBasePath_setBasePathstep3("https://www.googleapis.com/dns/v1beta2/", acctest.RandString(t, 10)),
 			},
 		},
 	})

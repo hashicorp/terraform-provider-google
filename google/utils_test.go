@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
 func TestCheckGCSName(t *testing.T) {
-	valid63 := RandString(t, 63)
+	valid63 := acctest.RandString(t, 63)
 	cases := map[string]bool{
 		// Valid
 		"foobar":       true,
@@ -27,16 +28,16 @@ func TestCheckGCSName(t *testing.T) {
 		fmt.Sprintf("%s.%s.%s", valid63, valid63, valid63): true,
 
 		// Invalid
-		"goog-foobar":     false,
-		"foobar-google":   false,
-		"-foobar":         false,
-		"foobar-":         false,
-		"_foobar":         false,
-		"foobar_":         false,
-		"fo":              false,
-		"foo$bar":         false,
-		"foo..bar":        false,
-		RandString(t, 64): false,
+		"goog-foobar":             false,
+		"foobar-google":           false,
+		"-foobar":                 false,
+		"foobar-":                 false,
+		"_foobar":                 false,
+		"foobar_":                 false,
+		"fo":                      false,
+		"foo$bar":                 false,
+		"foo..bar":                false,
+		acctest.RandString(t, 64): false,
 		fmt.Sprintf("%s.%s.%s.%s", valid63, valid63, valid63, valid63): false,
 	}
 

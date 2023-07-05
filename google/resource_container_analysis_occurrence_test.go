@@ -57,7 +57,7 @@ func getSignedTestOccurrenceAttestationPayload(
 
 func TestAccContainerAnalysisOccurrence_basic(t *testing.T) {
 	t.Parallel()
-	randSuffix := RandString(t, 10)
+	randSuffix := acctest.RandString(t, 10)
 
 	config := acctest.BootstrapConfig(t)
 	if config == nil {
@@ -76,9 +76,9 @@ func TestAccContainerAnalysisOccurrence_basic(t *testing.T) {
 		"signature":     base64.StdEncoding.EncodeToString([]byte(signed)),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckContainerAnalysisNoteDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -95,7 +95,7 @@ func TestAccContainerAnalysisOccurrence_basic(t *testing.T) {
 
 func TestAccContainerAnalysisOccurrence_multipleSignatures(t *testing.T) {
 	t.Parallel()
-	randSuffix := RandString(t, 10)
+	randSuffix := acctest.RandString(t, 10)
 
 	config := acctest.BootstrapConfig(t)
 	if config == nil {
@@ -128,9 +128,9 @@ func TestAccContainerAnalysisOccurrence_multipleSignatures(t *testing.T) {
 		"signature":     base64.StdEncoding.EncodeToString([]byte(signature1)),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckContainerAnalysisNoteDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

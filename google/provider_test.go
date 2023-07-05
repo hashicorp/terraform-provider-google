@@ -42,13 +42,13 @@ func TestProvider_noDuplicatesInDatasourceMap(t *testing.T) {
 func TestAccProviderBasePath_setBasePath(t *testing.T) {
 	t.Parallel()
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProviderBasePath_setBasePath("https://www.googleapis.com/compute/beta/", RandString(t, 10)),
+				Config: testAccProviderBasePath_setBasePath("https://www.googleapis.com/compute/beta/", acctest.RandString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_address.default",
@@ -62,13 +62,13 @@ func TestAccProviderBasePath_setBasePath(t *testing.T) {
 func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
 	t.Parallel()
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", RandString(t, 10)),
+				Config:      testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", acctest.RandString(t, 10)),
 				ExpectError: regexp.MustCompile("got HTTP response code 404 with body"),
 			},
 		},
@@ -79,13 +79,13 @@ func TestAccProviderMeta_setModuleName(t *testing.T) {
 	t.Parallel()
 
 	moduleName := "my-module"
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccProviderMeta_setModuleName(moduleName, RandString(t, 10)),
+				Config: testAccProviderMeta_setModuleName(moduleName, acctest.RandString(t, 10)),
 			},
 			{
 				ResourceName:      "google_compute_address.default",
@@ -103,8 +103,8 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 
 	org := envvar.GetTestOrgFromEnv(t)
 	billing := envvar.GetTestBillingAccountFromEnv(t)
-	pid := "tf-test-" + RandString(t, 10)
-	topicName := "tf-test-topic-" + RandString(t, 10)
+	pid := "tf-test-" + acctest.RandString(t, 10)
+	topicName := "tf-test-topic-" + acctest.RandString(t, 10)
 
 	config := acctest.BootstrapConfig(t)
 	accessToken, err := acctest.SetupProjectsAndGetAccessToken(org, billing, pid, "pubsub", config)
@@ -112,9 +112,9 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 		t.Error(err)
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		// No TestDestroy since that's not really the point of this test
 		Steps: []resource.TestStep{
 			{
@@ -145,7 +145,7 @@ func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 
 	org := envvar.GetTestOrgFromEnv(t)
 	billing := envvar.GetTestBillingAccountFromEnv(t)
-	pid := "tf-test-" + RandString(t, 10)
+	pid := "tf-test-" + acctest.RandString(t, 10)
 
 	config := acctest.BootstrapConfig(t)
 	accessToken, err := setupProjectsAndGetAccessToken(org, billing, pid, "cloudkms", config)
@@ -153,9 +153,9 @@ func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 		t.Error(err)
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		// No TestDestroy since that's not really the point of this test
 		Steps: []resource.TestStep{
 			{

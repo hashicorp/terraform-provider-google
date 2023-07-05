@@ -21,12 +21,12 @@ func testAccCloudIdentityGroupMembership_updateTest(t *testing.T) {
 		"org_domain":    envvar.GetTestOrgDomainFromEnv(t),
 		"cust_id":       envvar.GetTestCustIdFromEnv(t),
 		"identity_user": envvar.GetTestIdentityUserFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudIdentityGroupMembershipDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -127,12 +127,12 @@ func testAccCloudIdentityGroupMembership_importTest(t *testing.T) {
 		"org_domain":    envvar.GetTestOrgDomainFromEnv(t),
 		"cust_id":       envvar.GetTestCustIdFromEnv(t),
 		"identity_user": envvar.GetTestIdentityUserFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudIdentityGroupMembershipDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -189,10 +189,10 @@ func testAccCloudIdentityGroupMembership_membershipDoesNotExistTest(t *testing.T
 	context := map[string]interface{}{
 		"org_domain":    envvar.GetTestOrgDomainFromEnv(t),
 		"cust_id":       envvar.GetTestCustIdFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	saId := "tf-test-sa-" + RandString(t, 10)
+	saId := "tf-test-sa-" + acctest.RandString(t, 10)
 	project := envvar.GetTestProjectFromEnv()
 	config := acctest.BootstrapConfig(t)
 
@@ -208,9 +208,9 @@ func testAccCloudIdentityGroupMembership_membershipDoesNotExistTest(t *testing.T
 
 	context["member_id"] = sa.Email
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudIdentityGroupMembershipDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -218,7 +218,7 @@ func testAccCloudIdentityGroupMembership_membershipDoesNotExistTest(t *testing.T
 			},
 			{
 				PreConfig: func() {
-					config := GoogleProviderConfig(t)
+					config := acctest.GoogleProviderConfig(t)
 
 					_, err := config.NewIamClient(config.UserAgent).Projects.ServiceAccounts.Delete(sa.Name).Do()
 					if err != nil {
@@ -268,12 +268,12 @@ func testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipExampleTest
 	context := map[string]interface{}{
 		"org_domain":    envvar.GetTestOrgDomainFromEnv(t),
 		"cust_id":       envvar.GetTestCustIdFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudIdentityGroupMembershipDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -338,12 +338,12 @@ func testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipUserExample
 		"org_domain":    envvar.GetTestOrgDomainFromEnv(t),
 		"cust_id":       envvar.GetTestCustIdFromEnv(t),
 		"identity_user": envvar.GetTestIdentityUserFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudIdentityGroupMembershipDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -403,7 +403,7 @@ func testAccCheckCloudIdentityGroupMembershipDestroyProducer(t *testing.T) func(
 				continue
 			}
 
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 
 			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{CloudIdentityBasePath}}{{name}}")
 			if err != nil {

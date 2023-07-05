@@ -19,13 +19,13 @@ import (
 func TestAccStorageTransferAgentPool_agentPoolUpdate(t *testing.T) {
 	t.Parallel()
 
-	agentPoolName := fmt.Sprintf("tf-test-agent-pool-%s", RandString(t, 10))
-	displayName := fmt.Sprintf("tf-test-display-name-%s", RandString(t, 10))
-	displayNameUpdate := fmt.Sprintf("tf-test-display-name-%s", RandString(t, 10))
+	agentPoolName := fmt.Sprintf("tf-test-agent-pool-%s", acctest.RandString(t, 10))
+	displayName := fmt.Sprintf("tf-test-display-name-%s", acctest.RandString(t, 10))
+	displayNameUpdate := fmt.Sprintf("tf-test-display-name-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckStorageTransferAgentPoolDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -174,7 +174,7 @@ func testAccCheckStorageTransferAgentPoolDestroyProducer(t *testing.T) func(s *t
 				continue
 			}
 
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 
 			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{StorageTransferBasePath}}projects/{{project}}/agentPools/{{name}}")
 			if err != nil {

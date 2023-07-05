@@ -15,17 +15,17 @@ import (
 func TestAccStorageTransferJob_basic(t *testing.T) {
 	t.Parallel()
 
-	testDataSourceBucketName := RandString(t, 10)
-	testDataSinkName := RandString(t, 10)
-	testTransferJobDescription := RandString(t, 10)
-	testUpdatedDataSourceBucketName := RandString(t, 10)
-	testUpdatedDataSinkBucketName := RandString(t, 10)
-	testUpdatedTransferJobDescription := RandString(t, 10)
-	testPubSubTopicName := fmt.Sprintf("tf-test-topic-%s", RandString(t, 10))
+	testDataSourceBucketName := acctest.RandString(t, 10)
+	testDataSinkName := acctest.RandString(t, 10)
+	testTransferJobDescription := acctest.RandString(t, 10)
+	testUpdatedDataSourceBucketName := acctest.RandString(t, 10)
+	testUpdatedDataSinkBucketName := acctest.RandString(t, 10)
+	testUpdatedTransferJobDescription := acctest.RandString(t, 10)
+	testPubSubTopicName := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -83,13 +83,13 @@ func TestAccStorageTransferJob_basic(t *testing.T) {
 func TestAccStorageTransferJob_omitScheduleEndDate(t *testing.T) {
 	t.Parallel()
 
-	testDataSourceBucketName := RandString(t, 10)
-	testDataSinkName := RandString(t, 10)
-	testTransferJobDescription := RandString(t, 10)
+	testDataSourceBucketName := acctest.RandString(t, 10)
+	testDataSinkName := acctest.RandString(t, 10)
+	testTransferJobDescription := acctest.RandString(t, 10)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -107,13 +107,13 @@ func TestAccStorageTransferJob_omitScheduleEndDate(t *testing.T) {
 func TestAccStorageTransferJob_posixSource(t *testing.T) {
 	t.Parallel()
 
-	testDataSinkName := RandString(t, 10)
-	testTransferJobDescription := RandString(t, 10)
-	testSourceAgentPoolName := fmt.Sprintf("tf-test-source-agent-pool-%s", RandString(t, 10))
+	testDataSinkName := acctest.RandString(t, 10)
+	testTransferJobDescription := acctest.RandString(t, 10)
+	testSourceAgentPoolName := fmt.Sprintf("tf-test-source-agent-pool-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -130,13 +130,13 @@ func TestAccStorageTransferJob_posixSource(t *testing.T) {
 func TestAccStorageTransferJob_posixSink(t *testing.T) {
 	t.Parallel()
 
-	testDataSourceName := RandString(t, 10)
-	testTransferJobDescription := RandString(t, 10)
-	testSinkAgentPoolName := fmt.Sprintf("tf-test-sink-agent-pool-%s", RandString(t, 10))
+	testDataSourceName := acctest.RandString(t, 10)
+	testTransferJobDescription := acctest.RandString(t, 10)
+	testSinkAgentPoolName := fmt.Sprintf("tf-test-sink-agent-pool-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -154,15 +154,15 @@ func TestAccStorageTransferJob_posixSink(t *testing.T) {
 func TestAccStorageTransferJob_transferOptions(t *testing.T) {
 	t.Parallel()
 
-	testDataSourceBucketName := RandString(t, 10)
-	testDataSinkName := RandString(t, 10)
-	testTransferJobDescription := RandString(t, 10)
+	testDataSourceBucketName := acctest.RandString(t, 10)
+	testDataSinkName := acctest.RandString(t, 10)
+	testTransferJobDescription := acctest.RandString(t, 10)
 	testOverwriteWhen := []string{"ALWAYS", "NEVER", "DIFFERENT"}
-	testPubSubTopicName := fmt.Sprintf("tf-test-topic-%s", RandString(t, 10))
+	testPubSubTopicName := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -204,14 +204,14 @@ func TestAccStorageTransferJob_transferOptions(t *testing.T) {
 func TestAccStorageTransferJob_objectConditions(t *testing.T) {
 	t.Parallel()
 
-	testDataSourceBucketName := RandString(t, 10)
-	testDataSinkName := RandString(t, 10)
-	testTransferJobDescription := RandString(t, 10)
-	testPubSubTopicName := fmt.Sprintf("tf-test-topic-%s", RandString(t, 10))
+	testDataSourceBucketName := acctest.RandString(t, 10)
+	testDataSinkName := acctest.RandString(t, 10)
+	testTransferJobDescription := acctest.RandString(t, 10)
+	testPubSubTopicName := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -237,16 +237,16 @@ func TestAccStorageTransferJob_objectConditions(t *testing.T) {
 func TestAccStorageTransferJob_notificationConfig(t *testing.T) {
 	t.Parallel()
 
-	testDataSourceBucketName := RandString(t, 10)
-	testDataSinkName := RandString(t, 10)
-	testTransferJobDescription := RandString(t, 10)
+	testDataSourceBucketName := acctest.RandString(t, 10)
+	testDataSinkName := acctest.RandString(t, 10)
+	testTransferJobDescription := acctest.RandString(t, 10)
 	noneNotificationConfigPayloadFormat := "NONE"
-	testPubSubTopicName := fmt.Sprintf("tf-test-topic-%s", RandString(t, 10))
-	testPubSubTopicNameUpdate := fmt.Sprintf("tf-test-topic-%s", RandString(t, 10))
+	testPubSubTopicName := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10))
+	testPubSubTopicNameUpdate := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccStorageTransferJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -295,7 +295,7 @@ func TestAccStorageTransferJob_notificationConfig(t *testing.T) {
 
 func testAccStorageTransferJobDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_storage_transfer_job" {

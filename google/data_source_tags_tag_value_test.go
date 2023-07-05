@@ -16,12 +16,12 @@ func TestAccDataSourceGoogleTagsTagValue_default(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
-	keyShortName := "tf-testkey-" + RandString(t, 10)
-	shortName := "tf-test-" + RandString(t, 10)
+	keyShortName := "tf-testkey-" + acctest.RandString(t, 10)
+	shortName := "tf-test-" + acctest.RandString(t, 10)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleTagsTagValueConfig(parent, keyShortName, shortName),
@@ -37,12 +37,12 @@ func TestAccDataSourceGoogleTagsTagValue_dot(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
 
 	parent := fmt.Sprintf("organizations/%s", org)
-	keyShortName := "tf-testkey-" + RandString(t, 10)
-	shortName := "terraform.test." + RandString(t, 10)
+	keyShortName := "tf-testkey-" + acctest.RandString(t, 10)
+	shortName := "terraform.test." + acctest.RandString(t, 10)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceGoogleTagsTagValueConfig(parent, keyShortName, shortName),

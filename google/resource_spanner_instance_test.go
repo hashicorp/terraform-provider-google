@@ -17,10 +17,10 @@ import (
 func TestAccSpannerInstance_basic(t *testing.T) {
 	t.Parallel()
 
-	idName := fmt.Sprintf("spanner-test-%s", RandString(t, 10))
-	VcrTest(t, resource.TestCase{
+	idName := fmt.Sprintf("spanner-test-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -41,10 +41,10 @@ func TestAccSpannerInstance_basic(t *testing.T) {
 func TestAccSpannerInstance_noNodeCountSpecified(t *testing.T) {
 	t.Parallel()
 
-	idName := fmt.Sprintf("spanner-test-%s", RandString(t, 10))
-	VcrTest(t, resource.TestCase{
+	idName := fmt.Sprintf("spanner-test-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -60,10 +60,10 @@ func TestAccSpannerInstance_basicWithAutogenName(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	displayName := fmt.Sprintf("spanner-test-%s-dname", RandString(t, 10))
-	VcrTest(t, resource.TestCase{
+	displayName := fmt.Sprintf("spanner-test-%s-dname", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -86,11 +86,11 @@ func TestAccSpannerInstance_update(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	dName1 := fmt.Sprintf("spanner-dname1-%s", RandString(t, 10))
-	dName2 := fmt.Sprintf("spanner-dname2-%s", RandString(t, 10))
-	VcrTest(t, resource.TestCase{
+	dName1 := fmt.Sprintf("spanner-dname1-%s", acctest.RandString(t, 10))
+	dName2 := fmt.Sprintf("spanner-dname2-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -118,10 +118,10 @@ func TestAccSpannerInstance_virtualUpdate(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	dName := fmt.Sprintf("spanner-dname1-%s", RandString(t, 10))
-	VcrTest(t, resource.TestCase{
+	dName := fmt.Sprintf("spanner-dname1-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckSpannerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{

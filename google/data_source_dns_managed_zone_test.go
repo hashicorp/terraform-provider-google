@@ -18,7 +18,7 @@ func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:     func() { acctest.AccTestPreCheck(t) },
 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducerFramework(t),
 		Steps: []resource.TestStep{
@@ -29,7 +29,7 @@ func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 						Source:            "hashicorp/google",
 					},
 				},
-				Config: testAccDataSourceDnsManagedZone_basic(RandString(t, 10)),
+				Config: testAccDataSourceDnsManagedZone_basic(acctest.RandString(t, 10)),
 				Check: acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 					"data.google_dns_managed_zone.qa",
 					"google_dns_managed_zone.foo",
@@ -48,8 +48,8 @@ func TestAccDataSourceDnsManagedZone_basic(t *testing.T) {
 				),
 			},
 			{
-				ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
-				Config:                   testAccDataSourceDnsManagedZone_basic(RandString(t, 10)),
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+				Config:                   testAccDataSourceDnsManagedZone_basic(acctest.RandString(t, 10)),
 				Check: acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 					"data.google_dns_managed_zone.qa",
 					"google_dns_managed_zone.foo",

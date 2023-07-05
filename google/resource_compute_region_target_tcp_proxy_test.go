@@ -14,13 +14,13 @@ import (
 func TestAccComputeRegionTargetTcpProxy_update(t *testing.T) {
 	t.Parallel()
 
-	target := fmt.Sprintf("trtcp-test-%s", RandString(t, 10))
-	backend := fmt.Sprintf("trtcp-test-%s", RandString(t, 10))
-	hc := fmt.Sprintf("trtcp-test-%s", RandString(t, 10))
+	target := fmt.Sprintf("trtcp-test-%s", acctest.RandString(t, 10))
+	backend := fmt.Sprintf("trtcp-test-%s", acctest.RandString(t, 10))
+	hc := fmt.Sprintf("trtcp-test-%s", acctest.RandString(t, 10))
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeRegionTargetTcpProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -67,7 +67,7 @@ func testAccCheckComputeRegionTargetTcpProxyExists(t *testing.T, n string) resou
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := GoogleProviderConfig(t)
+		config := acctest.GoogleProviderConfig(t)
 		name := rs.Primary.Attributes["name"]
 		region := rs.Primary.Attributes["region"]
 

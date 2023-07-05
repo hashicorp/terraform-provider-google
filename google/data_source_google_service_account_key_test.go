@@ -17,7 +17,7 @@ func TestAccDatasourceGoogleServiceAccountKey_basic(t *testing.T) {
 	t.Parallel()
 
 	resourceName := "data.google_service_account_key.acceptance"
-	account := fmt.Sprintf("tf-test-%d", RandInt(t))
+	account := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 	serviceAccountName := fmt.Sprintf(
 		"projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com",
 		envvar.GetTestProjectFromEnv(),
@@ -25,9 +25,9 @@ func TestAccDatasourceGoogleServiceAccountKey_basic(t *testing.T) {
 		envvar.GetTestProjectFromEnv(),
 	)
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDatasourceGoogleServiceAccountKey(account),
