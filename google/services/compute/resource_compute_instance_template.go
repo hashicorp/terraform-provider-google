@@ -999,7 +999,10 @@ func buildDisks(d *schema.ResourceData, config *transport_tpg.Config) ([]*comput
 				disk.DiskEncryptionKey.KmsKeyName = v.(string)
 			}
 		}
-
+		// Assign disk.DiskSizeGb and disk.InitializeParams.DiskSizeGb the same value
+		if v, ok := d.GetOk(prefix + ".disk_size_gb"); ok {
+			disk.DiskSizeGb = int64(v.(int))
+		}
 		if v, ok := d.GetOk(prefix + ".source"); ok {
 			disk.Source = v.(string)
 			conflicts := []string{"disk_size_gb", "disk_name", "disk_type", "source_image", "source_snapshot", "labels"}
@@ -1014,6 +1017,7 @@ func buildDisks(d *schema.ResourceData, config *transport_tpg.Config) ([]*comput
 			if v, ok := d.GetOk(prefix + ".disk_name"); ok {
 				disk.InitializeParams.DiskName = v.(string)
 			}
+			// Assign disk.DiskSizeGb and disk.InitializeParams.DiskSizeGb the same value
 			if v, ok := d.GetOk(prefix + ".disk_size_gb"); ok {
 				disk.InitializeParams.DiskSizeGb = int64(v.(int))
 			}
@@ -1274,10 +1278,13 @@ func flattenDisk(disk *compute.AttachedDisk, configDisk map[string]any, defaultP
 		diskMap["disk_type"] = disk.InitializeParams.DiskType
 		diskMap["disk_name"] = disk.InitializeParams.DiskName
 		diskMap["labels"] = disk.InitializeParams.Labels
-		// The API does not return a disk size value for scratch disks. They can only be one size,
-		// so we can assume that size here.
-		if disk.InitializeParams.DiskSizeGb == 0 && disk.Type == "SCRATCH" {
+		// The API does not return a disk size value for scratch disks. They are largely only one size,
+		// so we can assume that size here. Prefer disk.DiskSizeGb over the deprecated
+		// disk.InitializeParams.DiskSizeGb.
+		if disk.DiskSizeGb == 0 && disk.InitializeParams.DiskSizeGb == 0 && disk.Type == "SCRATCH" {
 			diskMap["disk_size_gb"] = DEFAULT_SCRATCH_DISK_SIZE_GB
+		} else if disk.DiskSizeGb != 0 {
+			diskMap["disk_size_gb"] = disk.DiskSizeGb
 		} else {
 			diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
 		}
