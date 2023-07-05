@@ -158,6 +158,24 @@ The following arguments are supported:
   
 
 
+The `authorizer_credential` block supports:
+    
+* `user_token_secret_version` -
+  (Required)
+  Required. A SecretManager resource containing the user token that authorizes the Cloud Build connection. Format: `projects/*/secrets/*/versions/*`.
+    
+* `username` -
+  Output only. The username associated to this token.
+    
+The `read_authorizer_credential` block supports:
+    
+* `user_token_secret_version` -
+  (Required)
+  Required. A SecretManager resource containing the user token that authorizes the Cloud Build connection. Format: `projects/*/secrets/*/versions/*`.
+    
+* `username` -
+  Output only. The username associated to this token.
+    
 - - -
 
 * `annotations` -
@@ -175,6 +193,10 @@ The following arguments are supported:
 * `github_enterprise_config` -
   (Optional)
   Configuration for connections to an instance of GitHub Enterprise.
+  
+* `gitlab_config` -
+  (Optional)
+  Configuration for connections to gitlab.com or an instance of GitLab Enterprise.
   
 * `project` -
   (Optional)
@@ -234,6 +256,41 @@ The `github_enterprise_config` block supports:
 * `webhook_secret_secret_version` -
   (Optional)
   SecretManager resource containing the webhook secret of the GitHub App, formatted as `projects/*/secrets/*/versions/*`.
+    
+The `service_directory_config` block supports:
+    
+* `service` -
+  (Required)
+  Required. The Service Directory service name. Format: projects/{project}/locations/{location}/namespaces/{namespace}/services/{service}.
+    
+The `gitlab_config` block supports:
+    
+* `authorizer_credential` -
+  (Required)
+  Required. A GitLab personal access token with the `api` scope access.
+    
+* `read_authorizer_credential` -
+  (Required)
+  Required. A GitLab personal access token with the minimum `read_api` scope access.
+    
+* `webhook_secret_secret_version` -
+  (Required)
+  Required. Immutable. SecretManager resource containing the webhook secret of a GitLab Enterprise project, formatted as `projects/*/secrets/*/versions/*`.
+    
+* `host_uri` -
+  (Optional)
+  The URI of the GitLab Enterprise host this connection is for. If not specified, the default value is https://gitlab.com.
+    
+* `service_directory_config` -
+  (Optional)
+  Configuration for using Service Directory to privately connect to a GitLab Enterprise server. This should only be set if the GitLab Enterprise server is hosted on-premises and not reachable by public internet. If this field is left empty, calls to the GitLab Enterprise server will be made over the public internet.
+    
+* `ssl_ca` -
+  (Optional)
+  SSL certificate to use for requests to GitLab Enterprise.
+    
+* `server_version` -
+  Output only. Version of the GitLab Enterprise server running on the `host_uri`.
     
 The `service_directory_config` block supports:
     

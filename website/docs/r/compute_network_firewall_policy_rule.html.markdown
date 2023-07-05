@@ -109,7 +109,7 @@ The following arguments are supported:
 
 * `action` -
   (Required)
-  The Action to perform when the client connection triggers the rule. Can currently be either "allow" or "deny()" where valid values for status are 403, 404, and 502.
+  The Action to perform when the client connection triggers the rule. Valid actions are "allow", "deny" and "goto_next".
   
 * `direction` -
   (Required)

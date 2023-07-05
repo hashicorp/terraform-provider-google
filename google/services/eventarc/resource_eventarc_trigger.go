@@ -90,6 +90,12 @@ func ResourceEventarcTrigger() *schema.Resource {
 				Description:      "Optional. The name of the channel associated with the trigger in `projects/{project}/locations/{location}/channels/{channel}` format. You must provide a channel to receive events from Eventarc SaaS partners.",
 			},
 
+			"event_data_content_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Optional. EventDataContentType specifies the type of payload in MIME format that is expected from the CloudEvent data field. This is set to `application/json` if the value is not defined.",
+			},
+
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -323,15 +329,16 @@ func resourceEventarcTriggerCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	obj := &eventarc.Trigger{
-		Destination:      expandEventarcTriggerDestination(d.Get("destination")),
-		Location:         dcl.String(d.Get("location").(string)),
-		MatchingCriteria: expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
-		Name:             dcl.String(d.Get("name").(string)),
-		Channel:          dcl.String(d.Get("channel").(string)),
-		Labels:           tpgresource.CheckStringMap(d.Get("labels")),
-		Project:          dcl.String(project),
-		ServiceAccount:   dcl.String(d.Get("service_account").(string)),
-		Transport:        expandEventarcTriggerTransport(d.Get("transport")),
+		Destination:          expandEventarcTriggerDestination(d.Get("destination")),
+		Location:             dcl.String(d.Get("location").(string)),
+		MatchingCriteria:     expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
+		Name:                 dcl.String(d.Get("name").(string)),
+		Channel:              dcl.String(d.Get("channel").(string)),
+		EventDataContentType: dcl.String(d.Get("event_data_content_type").(string)),
+		Labels:               tpgresource.CheckStringMap(d.Get("labels")),
+		Project:              dcl.String(project),
+		ServiceAccount:       dcl.String(d.Get("service_account").(string)),
+		Transport:            expandEventarcTriggerTransport(d.Get("transport")),
 	}
 
 	id, err := obj.ID()
@@ -379,15 +386,16 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	obj := &eventarc.Trigger{
-		Destination:      expandEventarcTriggerDestination(d.Get("destination")),
-		Location:         dcl.String(d.Get("location").(string)),
-		MatchingCriteria: expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
-		Name:             dcl.String(d.Get("name").(string)),
-		Channel:          dcl.String(d.Get("channel").(string)),
-		Labels:           tpgresource.CheckStringMap(d.Get("labels")),
-		Project:          dcl.String(project),
-		ServiceAccount:   dcl.String(d.Get("service_account").(string)),
-		Transport:        expandEventarcTriggerTransport(d.Get("transport")),
+		Destination:          expandEventarcTriggerDestination(d.Get("destination")),
+		Location:             dcl.String(d.Get("location").(string)),
+		MatchingCriteria:     expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
+		Name:                 dcl.String(d.Get("name").(string)),
+		Channel:              dcl.String(d.Get("channel").(string)),
+		EventDataContentType: dcl.String(d.Get("event_data_content_type").(string)),
+		Labels:               tpgresource.CheckStringMap(d.Get("labels")),
+		Project:              dcl.String(project),
+		ServiceAccount:       dcl.String(d.Get("service_account").(string)),
+		Transport:            expandEventarcTriggerTransport(d.Get("transport")),
 	}
 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -427,6 +435,9 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 	if err = d.Set("channel", res.Channel); err != nil {
 		return fmt.Errorf("error setting channel in state: %s", err)
 	}
+	if err = d.Set("event_data_content_type", res.EventDataContentType); err != nil {
+		return fmt.Errorf("error setting event_data_content_type in state: %s", err)
+	}
 	if err = d.Set("labels", res.Labels); err != nil {
 		return fmt.Errorf("error setting labels in state: %s", err)
 	}
@@ -465,15 +476,16 @@ func resourceEventarcTriggerUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	obj := &eventarc.Trigger{
-		Destination:      expandEventarcTriggerDestination(d.Get("destination")),
-		Location:         dcl.String(d.Get("location").(string)),
-		MatchingCriteria: expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
-		Name:             dcl.String(d.Get("name").(string)),
-		Channel:          dcl.String(d.Get("channel").(string)),
-		Labels:           tpgresource.CheckStringMap(d.Get("labels")),
-		Project:          dcl.String(project),
-		ServiceAccount:   dcl.String(d.Get("service_account").(string)),
-		Transport:        expandEventarcTriggerTransport(d.Get("transport")),
+		Destination:          expandEventarcTriggerDestination(d.Get("destination")),
+		Location:             dcl.String(d.Get("location").(string)),
+		MatchingCriteria:     expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
+		Name:                 dcl.String(d.Get("name").(string)),
+		Channel:              dcl.String(d.Get("channel").(string)),
+		EventDataContentType: dcl.String(d.Get("event_data_content_type").(string)),
+		Labels:               tpgresource.CheckStringMap(d.Get("labels")),
+		Project:              dcl.String(project),
+		ServiceAccount:       dcl.String(d.Get("service_account").(string)),
+		Transport:            expandEventarcTriggerTransport(d.Get("transport")),
 	}
 	directive := tpgdclresource.UpdateDirective
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -516,15 +528,16 @@ func resourceEventarcTriggerDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	obj := &eventarc.Trigger{
-		Destination:      expandEventarcTriggerDestination(d.Get("destination")),
-		Location:         dcl.String(d.Get("location").(string)),
-		MatchingCriteria: expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
-		Name:             dcl.String(d.Get("name").(string)),
-		Channel:          dcl.String(d.Get("channel").(string)),
-		Labels:           tpgresource.CheckStringMap(d.Get("labels")),
-		Project:          dcl.String(project),
-		ServiceAccount:   dcl.String(d.Get("service_account").(string)),
-		Transport:        expandEventarcTriggerTransport(d.Get("transport")),
+		Destination:          expandEventarcTriggerDestination(d.Get("destination")),
+		Location:             dcl.String(d.Get("location").(string)),
+		MatchingCriteria:     expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
+		Name:                 dcl.String(d.Get("name").(string)),
+		Channel:              dcl.String(d.Get("channel").(string)),
+		EventDataContentType: dcl.String(d.Get("event_data_content_type").(string)),
+		Labels:               tpgresource.CheckStringMap(d.Get("labels")),
+		Project:              dcl.String(project),
+		ServiceAccount:       dcl.String(d.Get("service_account").(string)),
+		Transport:            expandEventarcTriggerTransport(d.Get("transport")),
 	}
 
 	log.Printf("[DEBUG] Deleting Trigger %q", d.Id())
