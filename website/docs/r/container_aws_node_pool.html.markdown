@@ -351,6 +351,10 @@ The `root_volume` block supports:
   (Optional)
   Optional. The size of the volume, in GiBs. When unspecified, a default value is provided. See the specific reference in the parent resource.
     
+* `throughput` -
+  (Optional)
+  Optional. The throughput to provision for the volume, in MiB/s. Only valid if the volume type is GP3.
+    
 * `volume_type` -
   (Optional)
   Optional. Type of the EBS volume. When unspecified, it defaults to GP2 volume. Possible values: VOLUME_TYPE_UNSPECIFIED, GP2, GP3

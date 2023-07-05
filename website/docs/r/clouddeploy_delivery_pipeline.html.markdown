@@ -281,6 +281,10 @@ The `serial_pipeline` block supports:
     
 The `stages` block supports:
     
+* `deploy_parameters` -
+  (Optional)
+  Optional. The deploy parameters to use for the target in this stage.
+    
 * `profiles` -
   (Optional)
   Skaffold profiles to use when rendering the manifest for this stage's `Target`.
@@ -293,11 +297,21 @@ The `stages` block supports:
   (Optional)
   The target_id to which this stage points. This field refers exclusively to the last segment of a target name. For example, this field would just be `my-target` (rather than `projects/project/locations/location/targets/my-target`). The location of the `Target` is inferred to be the same as the location of the `DeliveryPipeline` that contains this `Stage`.
     
+The `deploy_parameters` block supports:
+    
+* `match_target_labels` -
+  (Optional)
+  Optional. Deploy parameters are applied to targets with match labels. If unspecified, deploy parameters are applied to all targets (including child targets of a multi-target).
+    
+* `values` -
+  (Required)
+  Required. Values are deploy parameters in key-value pairs.
+    
 The `strategy` block supports:
     
 * `canary` -
   (Optional)
-  (Beta only) Canary deployment strategy provides progressive percentage based deployments to a Target.
+  Canary deployment strategy provides progressive percentage based deployments to a Target.
     
 * `standard` -
   (Optional)
@@ -378,6 +392,10 @@ The `service_networking` block supports:
 * `deployment` -
   (Required)
   Required. Name of the Kubernetes Deployment whose traffic is managed by the specified Service.
+    
+* `disable_pod_overprovisioning` -
+  (Optional)
+  Optional. Whether to disable Pod overprovisioning. If Pod overprovisioning is disabled then Cloud Deploy will limit the number of total Pods used for the deployment strategy to the number of Pods the Deployment has on the cluster.
     
 * `service` -
   (Required)

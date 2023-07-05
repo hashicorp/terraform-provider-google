@@ -322,15 +322,16 @@ func testAccCheckEventarcTriggerDestroyProducer(t *testing.T) func(s *terraform.
 			}
 
 			obj := &eventarc.Trigger{
-				Location:       dcl.String(rs.Primary.Attributes["location"]),
-				Name:           dcl.String(rs.Primary.Attributes["name"]),
-				Channel:        dcl.String(rs.Primary.Attributes["channel"]),
-				Project:        dcl.StringOrNil(rs.Primary.Attributes["project"]),
-				ServiceAccount: dcl.String(rs.Primary.Attributes["service_account"]),
-				CreateTime:     dcl.StringOrNil(rs.Primary.Attributes["create_time"]),
-				Etag:           dcl.StringOrNil(rs.Primary.Attributes["etag"]),
-				Uid:            dcl.StringOrNil(rs.Primary.Attributes["uid"]),
-				UpdateTime:     dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
+				Location:             dcl.String(rs.Primary.Attributes["location"]),
+				Name:                 dcl.String(rs.Primary.Attributes["name"]),
+				Channel:              dcl.String(rs.Primary.Attributes["channel"]),
+				EventDataContentType: dcl.String(rs.Primary.Attributes["event_data_content_type"]),
+				Project:              dcl.StringOrNil(rs.Primary.Attributes["project"]),
+				ServiceAccount:       dcl.String(rs.Primary.Attributes["service_account"]),
+				CreateTime:           dcl.StringOrNil(rs.Primary.Attributes["create_time"]),
+				Etag:                 dcl.StringOrNil(rs.Primary.Attributes["etag"]),
+				Uid:                  dcl.StringOrNil(rs.Primary.Attributes["uid"]),
+				UpdateTime:           dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
 			client := transport_tpg.NewDCLEventarcClient(config, config.UserAgent, billingProject, 0)

@@ -348,6 +348,13 @@ func ContainerAwsNodePoolConfigRootVolumeSchema() *schema.Resource {
 				Description: "Optional. The size of the volume, in GiBs. When unspecified, a default value is provided. See the specific reference in the parent resource.",
 			},
 
+			"throughput": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				Description: "Optional. The throughput to provision for the volume, in MiB/s. Only valid if the volume type is GP3.",
+			},
+
 			"volume_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -847,6 +854,7 @@ func expandContainerAwsNodePoolConfigRootVolume(o interface{}) *containeraws.Nod
 		Iops:       dcl.Int64OrNil(int64(obj["iops"].(int))),
 		KmsKeyArn:  dcl.String(obj["kms_key_arn"].(string)),
 		SizeGib:    dcl.Int64OrNil(int64(obj["size_gib"].(int))),
+		Throughput: dcl.Int64OrNil(int64(obj["throughput"].(int))),
 		VolumeType: containeraws.NodePoolConfigRootVolumeVolumeTypeEnumRef(obj["volume_type"].(string)),
 	}
 }
@@ -859,6 +867,7 @@ func flattenContainerAwsNodePoolConfigRootVolume(obj *containeraws.NodePoolConfi
 		"iops":        obj.Iops,
 		"kms_key_arn": obj.KmsKeyArn,
 		"size_gib":    obj.SizeGib,
+		"throughput":  obj.Throughput,
 		"volume_type": obj.VolumeType,
 	}
 

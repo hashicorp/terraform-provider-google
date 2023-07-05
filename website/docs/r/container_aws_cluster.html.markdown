@@ -251,6 +251,10 @@ The `fleet` block supports:
     
 The `networking` block supports:
     
+* `per_node_pool_sg_rules_disabled` -
+  (Optional)
+  Disable the per node pool subnet security group rules on the control plane security group. When set to true, you must also provide one or more security groups that ensure node pools are able to send requests to the control plane on TCP/443 and TCP/8132. Failure to do so may result in unavailable node pools.
+    
 * `pod_address_cidr_blocks` -
   (Required)
   All pods in the cluster are assigned an RFC1918 IPv4 address from these ranges. Only a single range is supported. This field cannot be changed after creation.
@@ -303,6 +307,10 @@ The `main_volume` block supports:
   (Optional)
   Optional. The size of the volume, in GiBs. When unspecified, a default value is provided. See the specific reference in the parent resource.
     
+* `throughput` -
+  (Optional)
+  Optional. The throughput to provision for the volume, in MiB/s. Only valid if the volume type is GP3.
+    
 * `volume_type` -
   (Optional)
   Optional. Type of the EBS volume. When unspecified, it defaults to GP2 volume. Possible values: VOLUME_TYPE_UNSPECIFIED, GP2, GP3
@@ -330,6 +338,10 @@ The `root_volume` block supports:
 * `size_gib` -
   (Optional)
   Optional. The size of the volume, in GiBs. When unspecified, a default value is provided. See the specific reference in the parent resource.
+    
+* `throughput` -
+  (Optional)
+  Optional. The throughput to provision for the volume, in MiB/s. Only valid if the volume type is GP3.
     
 * `volume_type` -
   (Optional)
