@@ -253,11 +253,11 @@ data "google_project" "project" {
 }
 
 resource "google_compute_network" "default" {
-  name = "tf-test-alloydb-cp%{random_suffix}"
+  name = "tf-test-vpc-network%{random_suffix}"
 }
 
 resource "google_compute_global_address" "private_ip_alloc" {
-  name          =  "private-ip-alloc%{random_suffix}"
+  name          =  "tf-test-private-ip-alloc%{random_suffix}"
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 16

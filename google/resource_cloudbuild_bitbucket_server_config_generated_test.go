@@ -113,7 +113,7 @@ data "google_compute_network" "vpc_network" {
 }
 
 resource "google_compute_global_address" "private_ip_alloc" {
-  name          = "private-ip-alloc"
+  name          = "tf-test-private-ip-alloc%{random_suffix}"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
