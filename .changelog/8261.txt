@@ -1,0 +1,3 @@
+```release-note:bug
+fixed issue with `google_redis_instance` populating output-only field `maintenance_schedule`. 
+```

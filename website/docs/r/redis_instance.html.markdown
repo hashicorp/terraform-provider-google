@@ -335,11 +335,6 @@ The following arguments are supported:
   Maintenance policy for an instance.
   Structure is [documented below](#nested_maintenance_policy).
 
-* `maintenance_schedule` -
-  (Optional)
-  Upcoming maintenance schedule.
-  Structure is [documented below](#nested_maintenance_schedule).
-
 * `redis_version` -
   (Optional)
   The version of Redis software. If not provided, latest supported
@@ -516,27 +511,6 @@ The following arguments are supported:
   (Optional)
   Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
-<a name="nested_maintenance_schedule"></a>The `maintenance_schedule` block supports:
-
-* `start_time` -
-  (Output)
-  Output only. The start time of any upcoming scheduled maintenance for this instance.
-  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
-  resolution and up to nine fractional digits.
-
-* `end_time` -
-  (Output)
-  Output only. The end time of any upcoming scheduled maintenance for this instance.
-  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
-  resolution and up to nine fractional digits.
-
-* `schedule_deadline_time` -
-  (Output)
-  Output only. The deadline that the maintenance schedule start time
-  can not go beyond, including reschedule.
-  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
-  resolution and up to nine fractional digits.
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -557,6 +531,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `host` -
   Hostname or IP address of the exposed Redis endpoint used by clients
   to connect to the service.
+
+* `maintenance_schedule` -
+  Upcoming maintenance schedule.
+  Structure is [documented below](#nested_maintenance_schedule).
 
 * `port` -
   The port number of the exposed Redis endpoint.
@@ -584,6 +562,27 @@ In addition to the arguments listed above, the following computed attributes are
   Output only. The port number of the exposed readonly redis endpoint. Standard tier only.
   Write requests should target 'port'.
 
+
+<a name="nested_maintenance_schedule"></a>The `maintenance_schedule` block contains:
+
+* `start_time` -
+  (Output)
+  Output only. The start time of any upcoming scheduled maintenance for this instance.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `end_time` -
+  (Output)
+  Output only. The end time of any upcoming scheduled maintenance for this instance.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `schedule_deadline_time` -
+  (Output)
+  Output only. The deadline that the maintenance schedule start time
+  can not go beyond, including reschedule.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
 
 <a name="nested_server_ca_certs"></a>The `server_ca_certs` block contains:
 
