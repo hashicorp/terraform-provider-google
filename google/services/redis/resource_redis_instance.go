@@ -274,38 +274,6 @@ resolution and up to nine fractional digits.`,
 					},
 				},
 			},
-			"maintenance_schedule": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `Upcoming maintenance schedule.`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"end_time": {
-							Type:     schema.TypeString,
-							Computed: true,
-							Description: `Output only. The end time of any upcoming scheduled maintenance for this instance.
-A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
-resolution and up to nine fractional digits.`,
-						},
-						"schedule_deadline_time": {
-							Type:     schema.TypeString,
-							Computed: true,
-							Description: `Output only. The deadline that the maintenance schedule start time
-can not go beyond, including reschedule.
-A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
-resolution and up to nine fractional digits.`,
-						},
-						"start_time": {
-							Type:     schema.TypeString,
-							Computed: true,
-							Description: `Output only. The start time of any upcoming scheduled maintenance for this instance.
-A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
-resolution and up to nine fractional digits.`,
-						},
-					},
-				},
-			},
 			"persistence_config": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -463,6 +431,37 @@ and can change after a failover event.`,
 				Computed: true,
 				Description: `Hostname or IP address of the exposed Redis endpoint used by clients
 to connect to the service.`,
+			},
+			"maintenance_schedule": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Upcoming maintenance schedule.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"end_time": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `Output only. The end time of any upcoming scheduled maintenance for this instance.
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+resolution and up to nine fractional digits.`,
+						},
+						"schedule_deadline_time": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `Output only. The deadline that the maintenance schedule start time
+can not go beyond, including reschedule.
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+resolution and up to nine fractional digits.`,
+						},
+						"start_time": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `Output only. The start time of any upcoming scheduled maintenance for this instance.
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+resolution and up to nine fractional digits.`,
+						},
+					},
+				},
 			},
 			"nodes": {
 				Type:        schema.TypeList,
@@ -633,12 +632,6 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("maintenance_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(maintenancePolicyProp)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
 		obj["maintenancePolicy"] = maintenancePolicyProp
-	}
-	maintenanceScheduleProp, err := expandRedisInstanceMaintenanceSchedule(d.Get("maintenance_schedule"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("maintenance_schedule"); !tpgresource.IsEmptyValue(reflect.ValueOf(maintenanceScheduleProp)) && (ok || !reflect.DeepEqual(v, maintenanceScheduleProp)) {
-		obj["maintenanceSchedule"] = maintenanceScheduleProp
 	}
 	memorySizeGbProp, err := expandRedisInstanceMemorySizeGb(d.Get("memory_size_gb"), d, config)
 	if err != nil {
@@ -979,12 +972,6 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("maintenance_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
 		obj["maintenancePolicy"] = maintenancePolicyProp
 	}
-	maintenanceScheduleProp, err := expandRedisInstanceMaintenanceSchedule(d.Get("maintenance_schedule"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("maintenance_schedule"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maintenanceScheduleProp)) {
-		obj["maintenanceSchedule"] = maintenanceScheduleProp
-	}
 	memorySizeGbProp, err := expandRedisInstanceMemorySizeGb(d.Get("memory_size_gb"), d, config)
 	if err != nil {
 		return err
@@ -1045,10 +1032,6 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 
 	if d.HasChange("maintenance_policy") {
 		updateMask = append(updateMask, "maintenancePolicy")
-	}
-
-	if d.HasChange("maintenance_schedule") {
-		updateMask = append(updateMask, "maintenanceSchedule")
 	}
 
 	if d.HasChange("memory_size_gb") {
@@ -1919,51 +1902,6 @@ func expandRedisInstanceMaintenancePolicyWeeklyMaintenanceWindowStartTimeSeconds
 }
 
 func expandRedisInstanceMaintenancePolicyWeeklyMaintenanceWindowStartTimeNanos(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandRedisInstanceMaintenanceSchedule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedStartTime, err := expandRedisInstanceMaintenanceScheduleStartTime(original["start_time"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedStartTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["startTime"] = transformedStartTime
-	}
-
-	transformedEndTime, err := expandRedisInstanceMaintenanceScheduleEndTime(original["end_time"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedEndTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["endTime"] = transformedEndTime
-	}
-
-	transformedScheduleDeadlineTime, err := expandRedisInstanceMaintenanceScheduleScheduleDeadlineTime(original["schedule_deadline_time"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedScheduleDeadlineTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["scheduleDeadlineTime"] = transformedScheduleDeadlineTime
-	}
-
-	return transformed, nil
-}
-
-func expandRedisInstanceMaintenanceScheduleStartTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandRedisInstanceMaintenanceScheduleEndTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandRedisInstanceMaintenanceScheduleScheduleDeadlineTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
