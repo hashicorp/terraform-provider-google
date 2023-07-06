@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -205,6 +206,39 @@ However, existing tokens still grant access.`,
 							Required:    true,
 							Description: `The OIDC issuer URI. Must be a valid URI using the 'https' scheme.`,
 						},
+						"client_secret": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The optional client secret. Required to enable Authorization Code flow for web sign-in.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"value": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `The value of the client secret.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"plain_text": {
+													Type:         schema.TypeString,
+													Required:     true,
+													ValidateFunc: validation.StringIsNotEmpty,
+													Description:  `The plain text of the client secret value.`,
+													Sensitive:    true,
+												},
+												"thumbprint": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `A thumbprint to represent the current client secret value.`,
+												},
+											},
+										},
+										ExactlyOneOf: []string{"oidc.0.client_secret.0.value"},
+									},
+								},
+							},
+						},
 						"web_sso_config": {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -216,16 +250,20 @@ However, existing tokens still grant access.`,
 									"assertion_claims_behavior": {
 										Type:         schema.TypeString,
 										Required:     true,
-										ValidateFunc: verify.ValidateEnum([]string{"ONLY_ID_TOKEN_CLAIMS"}),
+										ValidateFunc: verify.ValidateEnum([]string{"MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS", "ONLY_ID_TOKEN_CLAIMS"}),
 										Description: `The behavior for how OIDC Claims are included in the 'assertion' object used for attribute mapping and attribute condition.
-* ONLY_ID_TOKEN_CLAIMS: Only include ID Token Claims. Possible values: ["ONLY_ID_TOKEN_CLAIMS"]`,
+* MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS: Merge the UserInfo Endpoint Claims with ID Token Claims, preferring UserInfo Claim Values for the same Claim Name. This option is available only for the Authorization Code Flow.
+* ONLY_ID_TOKEN_CLAIMS: Only include ID Token Claims. Possible values: ["MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS", "ONLY_ID_TOKEN_CLAIMS"]`,
 									},
 									"response_type": {
 										Type:         schema.TypeString,
 										Required:     true,
-										ValidateFunc: verify.ValidateEnum([]string{"ID_TOKEN"}),
+										ValidateFunc: verify.ValidateEnum([]string{"CODE", "ID_TOKEN"}),
 										Description: `The Response Type to request for in the OIDC Authorization Request for web sign-in.
-* ID_TOKEN: The 'response_type=id_token' selection uses the Implicit Flow for web sign-in. Possible values: ["ID_TOKEN"]`,
+
+The 'CODE' Response Type is recommended to avoid the Implicit Flow, for security reasons.
+* CODE: The 'response_type=code' selection uses the Authorization Code Flow for web sign-in. Requires a configured client secret.
+* ID_TOKEN: The 'response_type=id_token' selection uses the Implicit Flow for web sign-in. Possible values: ["CODE", "ID_TOKEN"]`,
 									},
 								},
 							},
@@ -377,6 +415,24 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderCreate(d *schema.ResourceData,
 		// The resource didn't actually create
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create WorkforcePoolProvider: %s", err)
+	}
+
+	createdClientSecret := d.Get("oidc.0.client_secret.0.value.0.plain_text")
+	if createdClientSecret != nil && createdClientSecret != "" {
+		// After the create, reading from the API returns a new thumbprint
+		// for the client secret value, which clears the plain_text. We set the plain_text since
+		// this case should not warrant a diff.
+		if err := resourceIAMWorkforcePoolWorkforcePoolProviderRead(d, meta); err != nil {
+			return err
+		}
+		oidc := d.Get("oidc")
+		clientSecret := oidc.([]interface{})[0].(map[string]interface{})["client_secret"]
+		clientSecretValue := clientSecret.([]interface{})[0].(map[string]interface{})["value"]
+		clientSecretValue.([]interface{})[0].(map[string]interface{})["plain_text"] = createdClientSecret
+		if err := d.Set("oidc", oidc); err != nil {
+			return err
+		}
+		return nil
 	}
 
 	log.Printf("[DEBUG] Finished creating WorkforcePoolProvider %q: %#v", d.Id(), res)
@@ -581,6 +637,25 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderUpdate(d *schema.ResourceData,
 		return err
 	}
 
+	if d.HasChange("oidc") {
+		updatedClientSecret := d.Get("oidc.0.client_secret.0.value.0.plain_text")
+		if updatedClientSecret != nil && updatedClientSecret != "" {
+			// After the update, reading from the API returns a different thumbprint
+			// for the client secret value, which clears the plain_text. We set the plain_text since
+			// this case should not warrant a diff.
+			if err := resourceIAMWorkforcePoolWorkforcePoolProviderRead(d, meta); err != nil {
+				return err
+			}
+			oidc := d.Get("oidc")
+			clientSecret := oidc.([]interface{})[0].(map[string]interface{})["client_secret"]
+			clientSecretValue := clientSecret.([]interface{})[0].(map[string]interface{})["value"]
+			clientSecretValue.([]interface{})[0].(map[string]interface{})["plain_text"] = updatedClientSecret
+			if err := d.Set("oidc", oidc); err != nil {
+				return err
+			}
+			return nil
+		}
+	}
 	return resourceIAMWorkforcePoolWorkforcePoolProviderRead(d, meta)
 }
 
@@ -708,6 +783,8 @@ func flattenIAMWorkforcePoolWorkforcePoolProviderOidc(v interface{}, d *schema.R
 		flattenIAMWorkforcePoolWorkforcePoolProviderOidcIssuerUri(original["issuerUri"], d, config)
 	transformed["client_id"] =
 		flattenIAMWorkforcePoolWorkforcePoolProviderOidcClientId(original["clientId"], d, config)
+	transformed["client_secret"] =
+		flattenIAMWorkforcePoolWorkforcePoolProviderOidcClientSecret(original["clientSecret"], d, config)
 	transformed["web_sso_config"] =
 		flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfig(original["webSsoConfig"], d, config)
 	return []interface{}{transformed}
@@ -718,6 +795,37 @@ func flattenIAMWorkforcePoolWorkforcePoolProviderOidcIssuerUri(v interface{}, d 
 
 func flattenIAMWorkforcePoolWorkforcePoolProviderOidcClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenIAMWorkforcePoolWorkforcePoolProviderOidcClientSecret(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["value"] =
+		flattenIAMWorkforcePoolWorkforcePoolProviderOidcClientSecretValue(original["value"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIAMWorkforcePoolWorkforcePoolProviderOidcClientSecretValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["thumbprint"] = original["thumbprint"]
+	// Trigger a diff based on the plain_text if there is no change in the thumbprint,
+	// otherwise leave plain_text empty to always trigger a diff.
+	if original["thumbprint"].(string) == d.Get("oidc.0.client_secret.0.value.0.thumbprint").(string) {
+		transformed["plain_text"] = d.Get("oidc.0.client_secret.0.value.0.plain_text")
+	}
+	return []interface{}{transformed}
 }
 
 func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -816,6 +924,13 @@ func expandIAMWorkforcePoolWorkforcePoolProviderOidc(v interface{}, d tpgresourc
 		transformed["clientId"] = transformedClientId
 	}
 
+	transformedClientSecret, err := expandIAMWorkforcePoolWorkforcePoolProviderOidcClientSecret(original["client_secret"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedClientSecret); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["clientSecret"] = transformedClientSecret
+	}
+
 	transformedWebSsoConfig, err := expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfig(original["web_sso_config"], d, config)
 	if err != nil {
 		return nil, err
@@ -831,6 +946,59 @@ func expandIAMWorkforcePoolWorkforcePoolProviderOidcIssuerUri(v interface{}, d t
 }
 
 func expandIAMWorkforcePoolWorkforcePoolProviderOidcClientId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMWorkforcePoolWorkforcePoolProviderOidcClientSecret(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedValue, err := expandIAMWorkforcePoolWorkforcePoolProviderOidcClientSecretValue(original["value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["value"] = transformedValue
+	}
+
+	return transformed, nil
+}
+
+func expandIAMWorkforcePoolWorkforcePoolProviderOidcClientSecretValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPlainText, err := expandIAMWorkforcePoolWorkforcePoolProviderOidcClientSecretValuePlainText(original["plain_text"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPlainText); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["plainText"] = transformedPlainText
+	}
+
+	transformedThumbprint, err := expandIAMWorkforcePoolWorkforcePoolProviderOidcClientSecretValueThumbprint(original["thumbprint"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedThumbprint); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["thumbprint"] = transformedThumbprint
+	}
+
+	return transformed, nil
+}
+
+func expandIAMWorkforcePoolWorkforcePoolProviderOidcClientSecretValuePlainText(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMWorkforcePoolWorkforcePoolProviderOidcClientSecretValueThumbprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
