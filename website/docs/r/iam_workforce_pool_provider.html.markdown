@@ -31,6 +31,10 @@ To get more information about WorkforcePoolProvider, see:
 ~> **Note:** Ask your Google Cloud account team to request access to workforce identity federation for your
 billing/quota project. The account team notifies you when the project is granted access.
 
+~> **Warning:** All arguments including the following potentially sensitive
+values will be stored in the raw state as plain text: `oidc.client_secret.value.plain_text`.
+[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
+
 ## Example Usage - Iam Workforce Pool Provider Saml Basic
 
 
@@ -99,9 +103,14 @@ resource "google_iam_workforce_pool_provider" "example" {
   oidc {
     issuer_uri       = "https://accounts.thirdparty.com"
     client_id        = "client-id"
+    client_secret {
+      value {
+        plain_text = "client-secret"
+      }
+    }
     web_sso_config {
-      response_type             = "ID_TOKEN"
-      assertion_claims_behavior = "ONLY_ID_TOKEN_CLAIMS"
+      response_type             = "CODE"
+      assertion_claims_behavior = "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS"
     }
   }
 }
@@ -126,9 +135,14 @@ resource "google_iam_workforce_pool_provider" "example" {
   oidc {
     issuer_uri        = "https://accounts.thirdparty.com"
     client_id         = "client-id"
+    client_secret {
+      value {
+        plain_text = "client-secret"
+      }
+    }
     web_sso_config {
-      response_type             = "ID_TOKEN"
-      assertion_claims_behavior = "ONLY_ID_TOKEN_CLAIMS"
+      response_type             = "CODE"
+      assertion_claims_behavior = "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS"
     }
   }
   display_name        = "Display name"
@@ -279,25 +293,52 @@ The following arguments are supported:
   (Required)
   The client ID. Must match the audience claim of the JWT issued by the identity provider.
 
+* `client_secret` -
+  (Optional)
+  The optional client secret. Required to enable Authorization Code flow for web sign-in.
+  Structure is [documented below](#nested_client_secret).
+
 * `web_sso_config` -
   (Optional)
   Configuration for web single sign-on for the OIDC provider. Here, web sign-in refers to console sign-in and gcloud sign-in through the browser.
   Structure is [documented below](#nested_web_sso_config).
 
 
+<a name="nested_client_secret"></a>The `client_secret` block supports:
+
+* `value` -
+  (Optional)
+  The value of the client secret.
+  Structure is [documented below](#nested_value).
+
+
+<a name="nested_value"></a>The `value` block supports:
+
+* `plain_text` -
+  (Required)
+  The plain text of the client secret value.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `thumbprint` -
+  (Output)
+  A thumbprint to represent the current client secret value.
+
 <a name="nested_web_sso_config"></a>The `web_sso_config` block supports:
 
 * `response_type` -
   (Required)
   The Response Type to request for in the OIDC Authorization Request for web sign-in.
+  The `CODE` Response Type is recommended to avoid the Implicit Flow, for security reasons.
+  * CODE: The `response_type=code` selection uses the Authorization Code Flow for web sign-in. Requires a configured client secret.
   * ID_TOKEN: The `response_type=id_token` selection uses the Implicit Flow for web sign-in.
-  Possible values are: `ID_TOKEN`.
+  Possible values are: `CODE`, `ID_TOKEN`.
 
 * `assertion_claims_behavior` -
   (Required)
   The behavior for how OIDC Claims are included in the `assertion` object used for attribute mapping and attribute condition.
+  * MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS: Merge the UserInfo Endpoint Claims with ID Token Claims, preferring UserInfo Claim Values for the same Claim Name. This option is available only for the Authorization Code Flow.
   * ONLY_ID_TOKEN_CLAIMS: Only include ID Token Claims.
-  Possible values are: `ONLY_ID_TOKEN_CLAIMS`.
+  Possible values are: `MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS`, `ONLY_ID_TOKEN_CLAIMS`.
 
 ## Attributes Reference
 
