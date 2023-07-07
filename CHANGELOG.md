@@ -116,7 +116,7 @@ FEATURES:
 * **New Resource:** `google_container_analysis_note_iam_*` ([#14706](https://github.com/hashicorp/terraform-provider-google/pull/14706))
 
 IMPROVEMENTS:
-* compute:  `allow_psc_global_access` field in `google_compute_forwarding_rule` to GA ([#14754](https://github.com/hashicorp/terraform-provider-google/pull/14754))
+* compute: promoted `allow_psc_global_access` field in `google_compute_forwarding_rule` to GA ([#14754](https://github.com/hashicorp/terraform-provider-google/pull/14754))
 * dlp: added `included_fields` and `excluded_fields` fields to `google_data_loss_prevention_job_trigger` ([#14736](https://github.com/hashicorp/terraform-provider-google/pull/14736))
 * dns: added `regionalL7ilb` enum support to the `routing_policy.load_balancer_type` field in `google_dns_record_set` ([#14710](https://github.com/hashicorp/terraform-provider-google/pull/14710))
 
@@ -217,7 +217,7 @@ IMPROVEMENTS:
 * alloydb: added support for CMEK in `google_alloydb_backup` resource ([#14421](https://github.com/hashicorp/terraform-provider-google/pull/14421))
 * alloydb: added the `encryption_config` field inside the `automated_backup_policy` block in`google_alloydb_cluster`, to allow CMEK encryption of automated backups. ([#14426](https://github.com/hashicorp/terraform-provider-google/pull/14426))
 * certificatemanager: added `location` field to `certificatemanager` certificate resource ([#14432](https://github.com/hashicorp/terraform-provider-google/pull/14432))
-* cloudrun:  `startup_probe` and `liveness_probe` in resource `google_cloud_run_service` to GA. ([#14363](https://github.com/hashicorp/terraform-provider-google/pull/14363))
+* cloudrun: promoted `startup_probe` and `liveness_probe` in resource `google_cloud_run_service` to GA. ([#14363](https://github.com/hashicorp/terraform-provider-google/pull/14363))
 * cloudrunv2: added field `port` to `http_get` to resource `google_cloud_run_v2_service` ([#14358](https://github.com/hashicorp/terraform-provider-google/pull/14358))
 * cloudrunv2: added field `startupCpuBoost` to resource `service` ([#14372](https://github.com/hashicorp/terraform-provider-google/pull/14372))
 * cloudrunv2: added support for `session_affinity` to `google_cloud_run_v2_service` ([#14367](https://github.com/hashicorp/terraform-provider-google/pull/14367))
@@ -315,7 +315,7 @@ FEATURES:
 IMPROVEMENTS:
 * alloydb: added update support for `initial_user` and `automated_backup_policy.weekly_schedule` to `google_alloydb_cluster` ([#14187](https://github.com/hashicorp/terraform-provider-google/pull/14187))
 * artifactregistry: added support for tag immutability ([#14206](https://github.com/hashicorp/terraform-provider-google/pull/14206))
-* artifactregistry:  `mode`, `virtual_repository_config`, and `remote_repository_config` to GA ([#14204](https://github.com/hashicorp/terraform-provider-google/pull/14204))
+* artifactregistry: promoted `mode`, `virtual_repository_config`, and `remote_repository_config` to GA ([#14204](https://github.com/hashicorp/terraform-provider-google/pull/14204))
 * bigqueryreservation: added `edition` and `autoscale` to `google_bigquery_reservation` and `edition` to `bigquery_capacity_commitment` ([#14148](https://github.com/hashicorp/terraform-provider-google/pull/14148))
 * compute: added support for `SEV_LIVE_MIGRATABLE` to `guest_os_features.type` in `google_compute_image` ([#14200](https://github.com/hashicorp/terraform-provider-google/pull/14200))
 * compute: added support for `stack_type` to `google_compute_ha_vpn_gateway` ([#14141](https://github.com/hashicorp/terraform-provider-google/pull/14141))
@@ -376,7 +376,7 @@ FEATURES:
 IMPROVEMENTS:
 * auth: added support for oauth2 token exchange over mTLS ([#14032](https://github.com/hashicorp/terraform-provider-google/pull/14032))
 * bigquery: added `is_case_insensitive` and `default_collation` fields to `google_bigquery_dataset` resource ([#14031](https://github.com/hashicorp/terraform-provider-google/pull/14031))
-* bigquerydatapolicy:  `google_bigquery_datapolicy_data_policy` to GA ([#13991](https://github.com/hashicorp/terraform-provider-google/pull/13991))
+* bigquerydatapolicy: promoted `google_bigquery_datapolicy_data_policy` to GA ([#13991](https://github.com/hashicorp/terraform-provider-google/pull/13991))
 * compute: added `scratch_disk.size` field on `google_compute_instance` ([#14061](https://github.com/hashicorp/terraform-provider-google/pull/14061))
 * compute: added 3000 as allowable value for `disk_size_gb` for SCRATCH disks in `google_compute_instance_template` ([#14061](https://github.com/hashicorp/terraform-provider-google/pull/14061))
 * compute: added `WEIGHED_MAGLEV` to `locality_lb_policy` enum for backend service resources ([#14055](https://github.com/hashicorp/terraform-provider-google/pull/14055))
@@ -652,7 +652,7 @@ IMPROVEMENTS:
 * compute: added support for `generated_id` field in `google_compute_backend_service` to get the value of `id` defined by the server ([#13242](https://github.com/hashicorp/terraform-provider-google/pull/13242))
 * compute: added support for `image_encryption_key` to `google_compute_image` ([#13253](https://github.com/hashicorp/terraform-provider-google/pull/13253))
 * compute: added support for `source_snapshot`, `source_snapshot_encyption_key`, and `source_image_encryption_key` to `google_compute_instance_template` ([#13253](https://github.com/hashicorp/terraform-provider-google/pull/13253))
-* container:  `google_container_node_pool.placement_policy` to GA ([#13372](https://github.com/hashicorp/terraform-provider-google/pull/13372))
+* container: promoted `google_container_node_pool.placement_policy` to GA ([#13372](https://github.com/hashicorp/terraform-provider-google/pull/13372))
 * container: added `gateway_api_config` block to `google_container_cluster` resource for supporting the gke gateway api controller ([#13233](https://github.com/hashicorp/terraform-provider-google/pull/13233))
 * container: supported in-place update for `labels` in `google_container_node_pool` ([#13284](https://github.com/hashicorp/terraform-provider-google/pull/13284))
 * dataproc: added support for `SPOT` option for `preemptibility` in `google_dataproc_cluster` ([#13335](https://github.com/hashicorp/terraform-provider-google/pull/13335))
@@ -687,8 +687,8 @@ IMPROVEMENTS:
 * compute: made `google_compute_subnetwork.ipv6_access_type` field updatable in-place ([#13211](https://github.com/hashicorp/terraform-provider-google/pull/13211))
 * container: added `auto_provisioning_defaults.cluster_autoscaling.upgrade_settings` in `google_container_cluster` ([#13199](https://github.com/hashicorp/terraform-provider-google/pull/13199))
 * container: added `gateway_api_config` block to `google_container_cluster` resource for supporting the gke gateway api controller ([#13233](https://github.com/hashicorp/terraform-provider-google/pull/13233))
-* container:  `gke_backup_agent_config` in `google_container_cluster` to GA ([#13223](https://github.com/hashicorp/terraform-provider-google/pull/13223))
-* container:  `min_cpu_platform` in `google_container_cluster` to GA ([#13199](https://github.com/hashicorp/terraform-provider-google/pull/13199))
+* container: promoted `gke_backup_agent_config` in `google_container_cluster` to GA ([#13223](https://github.com/hashicorp/terraform-provider-google/pull/13223))
+* container: promoted `min_cpu_platform` in `google_container_cluster` to GA ([#13199](https://github.com/hashicorp/terraform-provider-google/pull/13199))
 * datacatalog: added update support for `fields` in `google_data_catalog_tag_template` ([#13216](https://github.com/hashicorp/terraform-provider-google/pull/13216))
 * iam: Added plan-time validation for IAM members ([#13203](https://github.com/hashicorp/terraform-provider-google/pull/13203))
 * logging: added `bucket_name` field to `google_logging_metric` ([#13210](https://github.com/hashicorp/terraform-provider-google/pull/13210))
