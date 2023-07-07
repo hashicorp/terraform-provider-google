@@ -1,0 +1,6 @@
+```release-note:enhancement
+bigquery: table - add `external_data_configuration.metadata_cache_mode` and `external_data_configuration.object_metadata`
+```
+```release-note:enhancement
+bigquery: table - make `external_data_configuration.source_fomat` optional
+```

@@ -444,7 +444,7 @@ func ResourceBigQueryTable() *schema.Resource {
 						// SourceFormat [Required] The data format.
 						"source_format": {
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
 							Description: ` Please see sourceFormat under ExternalDataConfiguration in Bigquery's public API documentation (https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#externaldataconfiguration) for supported formats. To use "GOOGLE_SHEETS" the scopes must include "googleapis.com/auth/drive.readonly".`,
 							ValidateFunc: validation.StringInSlice([]string{
 								"CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO", "ICEBERG", "DATASTORE_BACKUP", "PARQUET", "ORC", "BIGTABLE",
@@ -659,6 +659,18 @@ func ResourceBigQueryTable() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `When creating an external table, the user can provide a reference file with the table schema. This is enabled for the following formats: AVRO, PARQUET, ORC.`,
+						},
+						"metadata_cache_mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Metadata Cache Mode for the table. Set this to enable caching of metadata from external data source.`,
+							ValidateFunc: validation.StringInSlice([]string{"AUTOMATIC", "MANUAL"}, false),
+						},
+						"object_metadata": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							Description:   `Object Metadata is used to create Object Tables. Object Tables contain a listing of objects (with their metadata) found at the sourceUris. If ObjectMetadata is set, sourceFormat should be omitted.`,
+							ConflictsWith: []string{"external_data_configuration.0.source_format"},
 						},
 					},
 				},
@@ -1394,6 +1406,12 @@ func expandExternalDataConfiguration(cfg interface{}) (*bigquery.ExternalDataCon
 	if v, ok := raw["reference_file_schema_uri"]; ok {
 		edc.ReferenceFileSchemaUri = v.(string)
 	}
+	if v, ok := raw["metadata_cache_mode"]; ok {
+		edc.MetadataCacheMode = v.(string)
+	}
+	if v, ok := raw["object_metadata"]; ok {
+		edc.ObjectMetadata = v.(string)
+	}
 
 	return edc, nil
 
@@ -1442,6 +1460,13 @@ func flattenExternalDataConfiguration(edc *bigquery.ExternalDataConfiguration) (
 
 	if edc.ReferenceFileSchemaUri != "" {
 		result["reference_file_schema_uri"] = edc.ReferenceFileSchemaUri
+	}
+	if edc.MetadataCacheMode != "" {
+		result["metadata_cache_mode"] = edc.MetadataCacheMode
+	}
+
+	if edc.ObjectMetadata != "" {
+		result["object_metadata"] = edc.ObjectMetadata
 	}
 
 	return []map[string]interface{}{result}, nil
