@@ -40,7 +40,6 @@ resource "google_compute_router_peer" "peer" {
   name                      = "my-router-peer"
   router                    = "my-router"
   region                    = "us-central1"
-  peer_ip_address           = "169.254.1.2"
   peer_asn                  = 65513
   advertised_route_priority = 100
   interface                 = "interface-1"
@@ -215,11 +214,6 @@ The following arguments are supported:
   (Required)
   Name of the interface the BGP peer is associated with.
 
-* `peer_ip_address` -
-  (Required)
-  IP address of the BGP interface outside Google Cloud Platform.
-  Only IPv4 is supported.
-
 * `peer_asn` -
   (Required)
   Peer BGP Autonomous System Number (ASN).
@@ -237,6 +231,11 @@ The following arguments are supported:
   (Optional)
   IP address of the interface inside Google Cloud Platform.
   Only IPv4 is supported.
+
+* `peer_ip_address` -
+  (Optional)
+  IP address of the BGP interface outside Google Cloud Platform.
+  Only IPv4 is supported. Required if `ip_address` is set.
 
 * `advertised_route_priority` -
   (Optional)
