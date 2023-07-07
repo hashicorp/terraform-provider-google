@@ -43,6 +43,7 @@ func configureTestBasePaths(c *transport_tpg.Config, url string) {
 	c.CertificateManagerBasePath = url
 	c.CloudAssetBasePath = url
 	c.CloudBuildBasePath = url
+	c.Cloudbuildv2BasePath = url
 	c.CloudFunctionsBasePath = url
 	c.Cloudfunctions2BasePath = url
 	c.CloudIdentityBasePath = url

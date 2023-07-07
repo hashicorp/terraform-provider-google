@@ -33,15 +33,12 @@ A data source can be used to retrieve policy data in advent you do not need crea
 ~> **Note:** `google_cloudbuildv2_connection_iam_binding` resources **can be** used in conjunction with `google_cloudbuildv2_connection_iam_member` resources **only if** they do not grant privilege to the same role.
 
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## google\_cloudbuildv2\_connection\_iam\_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
-  provider = google-beta
   binding {
     role = "roles/cloudbuild.connectionViewer"
     members = [
@@ -51,7 +48,6 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_cloudbuildv2_connection_iam_policy" "policy" {
-  provider = google-beta
   project = google_cloudbuildv2_connection.my-connection.project
   location = google_cloudbuildv2_connection.my-connection.location
   name = google_cloudbuildv2_connection.my-connection.name
@@ -63,7 +59,6 @@ resource "google_cloudbuildv2_connection_iam_policy" "policy" {
 
 ```hcl
 resource "google_cloudbuildv2_connection_iam_binding" "binding" {
-  provider = google-beta
   project = google_cloudbuildv2_connection.my-connection.project
   location = google_cloudbuildv2_connection.my-connection.location
   name = google_cloudbuildv2_connection.my-connection.name
@@ -78,7 +73,6 @@ resource "google_cloudbuildv2_connection_iam_binding" "binding" {
 
 ```hcl
 resource "google_cloudbuildv2_connection_iam_member" "member" {
-  provider = google-beta
   project = google_cloudbuildv2_connection.my-connection.project
   location = google_cloudbuildv2_connection.my-connection.location
   name = google_cloudbuildv2_connection.my-connection.name

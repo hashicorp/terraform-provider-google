@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/certificatemanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudasset"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudbuild"
+	"github.com/hashicorp/terraform-provider-google/google/services/cloudbuildv2"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudfunctions"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudfunctions2"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudidentity"
@@ -311,6 +312,11 @@ func Provider() *schema.Provider {
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"cloud_build_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
+			"cloudbuildv2_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
@@ -848,6 +854,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_bigquery_connection_iam_policy":                  tpgiamresource.DataSourceIamPolicy(bigqueryconnection.BigqueryConnectionConnectionIamSchema, bigqueryconnection.BigqueryConnectionConnectionIamUpdaterProducer),
 			"google_bigquery_datapolicy_data_policy_iam_policy":      tpgiamresource.DataSourceIamPolicy(bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamSchema, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamUpdaterProducer),
 			"google_binary_authorization_attestor_iam_policy":        tpgiamresource.DataSourceIamPolicy(binaryauthorization.BinaryAuthorizationAttestorIamSchema, binaryauthorization.BinaryAuthorizationAttestorIamUpdaterProducer),
+			"google_cloudbuildv2_connection_iam_policy":              tpgiamresource.DataSourceIamPolicy(cloudbuildv2.Cloudbuildv2ConnectionIamSchema, cloudbuildv2.Cloudbuildv2ConnectionIamUpdaterProducer),
 			"google_cloudfunctions_function_iam_policy":              tpgiamresource.DataSourceIamPolicy(cloudfunctions.CloudFunctionsCloudFunctionIamSchema, cloudfunctions.CloudFunctionsCloudFunctionIamUpdaterProducer),
 			"google_cloudfunctions2_function_iam_policy":             tpgiamresource.DataSourceIamPolicy(cloudfunctions2.Cloudfunctions2functionIamSchema, cloudfunctions2.Cloudfunctions2functionIamUpdaterProducer),
 			"google_cloudiot_registry_iam_policy":                    tpgiamresource.DataSourceIamPolicy(cloudiot.CloudIotDeviceRegistryIamSchema, cloudiot.CloudIotDeviceRegistryIamUpdaterProducer),
@@ -927,8 +934,8 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 }
 
 // Generated resources: 293
-// Generated IAM resources: 195
-// Total generated resources: 488
+// Generated IAM resources: 198
+// Total generated resources: 491
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1034,6 +1041,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_cloud_asset_project_feed":                                cloudasset.ResourceCloudAssetProjectFeed(),
 			"google_cloudbuild_bitbucket_server_config":                      cloudbuild.ResourceCloudBuildBitbucketServerConfig(),
 			"google_cloudbuild_trigger":                                      cloudbuild.ResourceCloudBuildTrigger(),
+			"google_cloudbuildv2_connection_iam_binding":                     tpgiamresource.ResourceIamBinding(cloudbuildv2.Cloudbuildv2ConnectionIamSchema, cloudbuildv2.Cloudbuildv2ConnectionIamUpdaterProducer, cloudbuildv2.Cloudbuildv2ConnectionIdParseFunc),
+			"google_cloudbuildv2_connection_iam_member":                      tpgiamresource.ResourceIamMember(cloudbuildv2.Cloudbuildv2ConnectionIamSchema, cloudbuildv2.Cloudbuildv2ConnectionIamUpdaterProducer, cloudbuildv2.Cloudbuildv2ConnectionIdParseFunc),
+			"google_cloudbuildv2_connection_iam_policy":                      tpgiamresource.ResourceIamPolicy(cloudbuildv2.Cloudbuildv2ConnectionIamSchema, cloudbuildv2.Cloudbuildv2ConnectionIamUpdaterProducer, cloudbuildv2.Cloudbuildv2ConnectionIdParseFunc),
 			"google_cloudfunctions_function_iam_binding":                     tpgiamresource.ResourceIamBinding(cloudfunctions.CloudFunctionsCloudFunctionIamSchema, cloudfunctions.CloudFunctionsCloudFunctionIamUpdaterProducer, cloudfunctions.CloudFunctionsCloudFunctionIdParseFunc),
 			"google_cloudfunctions_function_iam_member":                      tpgiamresource.ResourceIamMember(cloudfunctions.CloudFunctionsCloudFunctionIamSchema, cloudfunctions.CloudFunctionsCloudFunctionIamUpdaterProducer, cloudfunctions.CloudFunctionsCloudFunctionIdParseFunc),
 			"google_cloudfunctions_function_iam_policy":                      tpgiamresource.ResourceIamPolicy(cloudfunctions.CloudFunctionsCloudFunctionIamSchema, cloudfunctions.CloudFunctionsCloudFunctionIamUpdaterProducer, cloudfunctions.CloudFunctionsCloudFunctionIdParseFunc),
@@ -1669,6 +1679,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.CertificateManagerBasePath = d.Get("certificate_manager_custom_endpoint").(string)
 	config.CloudAssetBasePath = d.Get("cloud_asset_custom_endpoint").(string)
 	config.CloudBuildBasePath = d.Get("cloud_build_custom_endpoint").(string)
+	config.Cloudbuildv2BasePath = d.Get("cloudbuildv2_custom_endpoint").(string)
 	config.CloudFunctionsBasePath = d.Get("cloud_functions_custom_endpoint").(string)
 	config.Cloudfunctions2BasePath = d.Get("cloudfunctions2_custom_endpoint").(string)
 	config.CloudIdentityBasePath = d.Get("cloud_identity_custom_endpoint").(string)

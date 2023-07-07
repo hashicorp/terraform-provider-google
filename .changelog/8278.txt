@@ -1,0 +1,9 @@
+```release-note:new-resource
+`google_cloudbuildv2_connection` (ga)
+```
+```release-note:new-resource
+`google_cloudbuildv2_repository` (ga)
+```
+```release-note:enhancement
+cloudbuild: added `repository_event_config` field to `google_cloudbuild_trigger` resource (ga)
+```

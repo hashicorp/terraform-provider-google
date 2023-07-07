@@ -15,17 +15,16 @@
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Build v2"
 description: |-
-  Beta only: The Cloudbuildv2 Repository resource
+  The Cloudbuildv2 Repository resource
 ---
 
 # google_cloudbuildv2_repository
 
-Beta only: The Cloudbuildv2 Repository resource
+The Cloudbuildv2 Repository resource
 
 ## Example Usage - ghe
 ```hcl
 resource "google_secret_manager_secret" "private-key-secret" {
-  provider = google-beta
   secret_id = "ghe-pk-secret"
 
   replication {
@@ -34,13 +33,11 @@ resource "google_secret_manager_secret" "private-key-secret" {
 }
 
 resource "google_secret_manager_secret_version" "private-key-secret-version" {
-  provider = google-beta
   secret = google_secret_manager_secret.private-key-secret.id
   secret_data = file("private-key.pem")
 }
 
 resource "google_secret_manager_secret" "webhook-secret-secret" {
-  provider = google-beta
   secret_id = "github-token-secret"
 
   replication {
@@ -49,13 +46,11 @@ resource "google_secret_manager_secret" "webhook-secret-secret" {
 }
 
 resource "google_secret_manager_secret_version" "webhook-secret-secret-version" {
-  provider = google-beta
   secret = google_secret_manager_secret.webhook-secret-secret.id
   secret_data = "<webhook-secret-data>"
 }
 
 data "google_iam_policy" "p4sa-secretAccessor" {
-  provider = google-beta
   binding {
     role = "roles/secretmanager.secretAccessor"
     // Here, 123456789 is the Google Cloud project number for the project that contains the connection.
@@ -64,19 +59,16 @@ data "google_iam_policy" "p4sa-secretAccessor" {
 }
 
 resource "google_secret_manager_secret_iam_policy" "policy-pk" {
-  provider = google-beta
   secret_id = google_secret_manager_secret.private-key-secret.secret_id
   policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
 }
 
 resource "google_secret_manager_secret_iam_policy" "policy-whs" {
-  provider = google-beta
   secret_id = google_secret_manager_secret.webhook-secret-secret.secret_id
   policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
 }
 
 resource "google_cloudbuildv2_connection" "my-connection" {
-  provider = google-beta
   location = "us-central1"
   name = "my-terraform-ghe-connection"
 
@@ -96,7 +88,6 @@ resource "google_cloudbuildv2_connection" "my-connection" {
 }
 
 resource "google_cloudbuildv2_repository" "my-repository" {
-  provider = google-beta
   name = "my-terraform-ghe-repo"
   location = "us-central1"
   parent_connection = google_cloudbuildv2_connection.my-connection.id
@@ -108,7 +99,6 @@ resource "google_cloudbuildv2_repository" "my-repository" {
 Creates a Repository resource inside a Connection to github.com
 ```hcl
 resource "google_secret_manager_secret" "github-token-secret" {
-  provider = google-beta
   secret_id = "github-token-secret"
 
   replication {
@@ -117,13 +107,11 @@ resource "google_secret_manager_secret" "github-token-secret" {
 }
 
 resource "google_secret_manager_secret_version" "github-token-secret-version" {
-  provider = google-beta
   secret = google_secret_manager_secret.github-token-secret.id
   secret_data = file("my-github-token.txt")
 }
 
 data "google_iam_policy" "p4sa-secretAccessor" {
-  provider = google-beta
   binding {
     role = "roles/secretmanager.secretAccessor"
     // Here, 123456789 is the Google Cloud project number for my-project-name.
@@ -132,13 +120,11 @@ data "google_iam_policy" "p4sa-secretAccessor" {
 }
 
 resource "google_secret_manager_secret_iam_policy" "policy" {
-  provider = google-beta
   secret_id = google_secret_manager_secret.github-token-secret.secret_id
   policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
 }
 
 resource "google_cloudbuildv2_connection" "my-connection" {
-  provider = google-beta
   location = "us-west1"
   name = "my-connection"
 
@@ -151,7 +137,6 @@ resource "google_cloudbuildv2_connection" "my-connection" {
 }
 
 resource "google_cloudbuildv2_repository" "my-repository" {
-  provider = google-beta
   location = "us-west1"
   name = "my-repo"
   parent_connection = google_cloudbuildv2_connection.my-connection.name
@@ -164,13 +149,13 @@ resource "google_cloudbuildv2_repository" "my-repository" {
 
 The following arguments are supported:
 
-* `name` -
-  (Required)
-  Name of the repository.
-  
 * `parent_connection` -
   (Required)
   The connection for the resource
+  
+* `name` -
+  (Required)
+  Name of the repository.
   
 * `remote_uri` -
   (Required)
