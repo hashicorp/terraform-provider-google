@@ -195,7 +195,7 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
     datasource, after creation the computed schema will be stored in
     `google_bigquery_table.schema`
 
-* `source_format` (Required) - The data format. Please see sourceFormat under
+* `source_format` (Optional) - The data format. Please see sourceFormat under
     [ExternalDataConfiguration](https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#externaldataconfiguration)
     in Bigquery's public API documentation for supported formats. To use "GOOGLE_SHEETS"
     the `scopes` must include "https://www.googleapis.com/auth/drive.readonly".
@@ -204,6 +204,10 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
     your data in Google Cloud.
 
 * `reference_file_schema_uri` - (Optional) When creating an external table, the user can provide a reference file with the table schema. This is enabled for the following formats: AVRO, PARQUET, ORC.
+
+* `metadata_cache_mode` - (Optional) Metadata Cache Mode for the table. Set this to enable caching of metadata from external data source. Valid values are `AUTOMATIC` and `MANUAL`.
+
+* `object_metadata` - (Optional) Object Metadata is used to create Object Tables. Object Tables contain a listing of objects (with their metadata) found at the sourceUris. If `object_metadata` is set, `source_format` should be omitted.
 
 <a name="nested_csv_options"></a>The `csv_options` block supports:
 
