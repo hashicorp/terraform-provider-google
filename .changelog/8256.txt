@@ -1,0 +1,3 @@
+```release-note:bug
+compute: made `google_compute_router_peer.peer_ip_address` optional
+```

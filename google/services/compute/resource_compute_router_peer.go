@@ -89,12 +89,6 @@ except the last character, which cannot be a dash.`,
 				Description: `Peer BGP Autonomous System Number (ASN).
 Each BGP interface may use a different value.`,
 			},
-			"peer_ip_address": {
-				Type:     schema.TypeString,
-				Required: true,
-				Description: `IP address of the BGP interface outside Google Cloud Platform.
-Only IPv4 is supported.`,
-			},
 			"router": {
 				Type:             schema.TypeString,
 				Required:         true,
@@ -241,6 +235,13 @@ Only IPv4 is supported.`,
 The address must be in the range 2600:2d00:0:2::/64 or 2600:2d00:0:3::/64.
 If you do not specify the next hop addresses, Google Cloud automatically
 assigns unused addresses from the 2600:2d00:0:2::/64 or 2600:2d00:0:3::/64 range for you.`,
+			},
+			"peer_ip_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				Description: `IP address of the BGP interface outside Google Cloud Platform.
+Only IPv4 is supported. Required if 'ip_address' is set.`,
 			},
 			"peer_ipv6_nexthop_address": {
 				Type:             schema.TypeString,
