@@ -68,6 +68,7 @@ type FrameworkProviderConfig struct {
 	CertificateManagerBasePath       string
 	CloudAssetBasePath               string
 	CloudBuildBasePath               string
+	Cloudbuildv2BasePath             string
 	CloudFunctionsBasePath           string
 	Cloudfunctions2BasePath          string
 	CloudIdentityBasePath            string
@@ -200,6 +201,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.CertificateManagerBasePath = data.CertificateManagerCustomEndpoint.ValueString()
 	p.CloudAssetBasePath = data.CloudAssetCustomEndpoint.ValueString()
 	p.CloudBuildBasePath = data.CloudBuildCustomEndpoint.ValueString()
+	p.Cloudbuildv2BasePath = data.Cloudbuildv2CustomEndpoint.ValueString()
 	p.CloudFunctionsBasePath = data.CloudFunctionsCustomEndpoint.ValueString()
 	p.Cloudfunctions2BasePath = data.Cloudfunctions2CustomEndpoint.ValueString()
 	p.CloudIdentityBasePath = data.CloudIdentityCustomEndpoint.ValueString()
@@ -549,6 +551,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.CloudBuildBasePathKey])
 		if customEndpoint != nil {
 			data.CloudBuildCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.Cloudbuildv2CustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_CLOUDBUILDV2_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.Cloudbuildv2BasePathKey])
+		if customEndpoint != nil {
+			data.Cloudbuildv2CustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.CloudFunctionsCustomEndpoint.IsNull() {

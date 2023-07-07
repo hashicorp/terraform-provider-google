@@ -378,7 +378,6 @@ git_file_source {
 
 ```hcl
 resource "google_cloudbuildv2_connection" "my-connection" {
-  provider = google-beta
   location = "us-central1"
   name = "my-connection"
 
@@ -391,14 +390,12 @@ resource "google_cloudbuildv2_connection" "my-connection" {
 }
 
 resource "google_cloudbuildv2_repository" "my-repository" {
-  provider = google-beta
   name = "my-repo"
   parent_connection = google_cloudbuildv2_connection.my-connection.id
   remote_uri = "https://github.com/myuser/my-repo.git"
 }
 
 resource "google_cloudbuild_trigger" "repo-trigger" {
-  provider = google-beta
   location = "us-central1"
 
   repository_event_config {
@@ -646,7 +643,6 @@ resource "google_cloudbuild_trigger" "allow-exit-codes-trigger" {
 
 ```hcl
 resource "google_cloudbuildv2_connection" "my-connection" {
-  provider = google-beta
   location = "us-central1"
   name = "my-connection"
 
@@ -659,19 +655,16 @@ resource "google_cloudbuildv2_connection" "my-connection" {
 }
 
 resource "google_cloudbuildv2_repository" "my-repository" {
-  provider = google-beta
   name = "my-repo"
   parent_connection = google_cloudbuildv2_connection.my-connection.id
   remote_uri = "https://github.com/myuser/my-repo.git"
 }
 
 resource "google_pubsub_topic" "mytopic" {
-  provider = google-beta
   name = "mytopic"
 }
 
 resource "google_cloudbuild_trigger" "pubsub-with-repo-trigger" {
-  provider = google-beta
   name = "pubsub-with-repo-trigger"
   location = "us-central1"
 
@@ -752,7 +745,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_git_file_source).
 
 * `repository_event_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The configuration of a trigger that creates a build whenever an event from Repo API is received.
   Structure is [documented below](#nested_repository_event_config).
 
@@ -854,7 +847,7 @@ The following arguments are supported:
   invocation originated is assumed to be the repo from which to read the specified path.
 
 * `repository` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The fully qualified resource name of the Repo API repository. The fully qualified resource name of the Repo API repository.
   If unspecified, the repo from which the trigger invocation originated is assumed to be the repo from which to read the specified path.
 
@@ -934,7 +927,7 @@ The following arguments are supported:
   The URI of the repo.
 
 * `repository` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The qualified resource name of the Repo API repository.
   Either uri or repository can be specified and is required.
 

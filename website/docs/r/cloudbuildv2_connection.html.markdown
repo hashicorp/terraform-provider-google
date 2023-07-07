@@ -15,17 +15,16 @@
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Build v2"
 description: |-
-  Beta only: The Cloudbuildv2 Connection resource
+  The Cloudbuildv2 Connection resource
 ---
 
 # google_cloudbuildv2_connection
 
-Beta only: The Cloudbuildv2 Connection resource
+The Cloudbuildv2 Connection resource
 
 ## Example Usage - ghe
 ```hcl
 resource "google_secret_manager_secret" "private-key-secret" {
-  provider = google-beta
   secret_id = "ghe-pk-secret"
 
   replication {
@@ -34,13 +33,11 @@ resource "google_secret_manager_secret" "private-key-secret" {
 }
 
 resource "google_secret_manager_secret_version" "private-key-secret-version" {
-  provider = google-beta
   secret = google_secret_manager_secret.private-key-secret.id
   secret_data = file("private-key.pem")
 }
 
 resource "google_secret_manager_secret" "webhook-secret-secret" {
-  provider = google-beta
   secret_id = "github-token-secret"
 
   replication {
@@ -49,13 +46,11 @@ resource "google_secret_manager_secret" "webhook-secret-secret" {
 }
 
 resource "google_secret_manager_secret_version" "webhook-secret-secret-version" {
-  provider = google-beta
   secret = google_secret_manager_secret.webhook-secret-secret.id
   secret_data = "<webhook-secret-data>"
 }
 
 data "google_iam_policy" "p4sa-secretAccessor" {
-  provider = google-beta
   binding {
     role = "roles/secretmanager.secretAccessor"
     // Here, 123456789 is the Google Cloud project number for the project that contains the connection.
@@ -64,19 +59,16 @@ data "google_iam_policy" "p4sa-secretAccessor" {
 }
 
 resource "google_secret_manager_secret_iam_policy" "policy-pk" {
-  provider = google-beta
   secret_id = google_secret_manager_secret.private-key-secret.secret_id
   policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
 }
 
 resource "google_secret_manager_secret_iam_policy" "policy-whs" {
-  provider = google-beta
   secret_id = google_secret_manager_secret.webhook-secret-secret.secret_id
   policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
 }
 
 resource "google_cloudbuildv2_connection" "my-connection" {
-  provider = google-beta
   location = "us-central1"
   name = "my-terraform-ghe-connection"
 
@@ -100,7 +92,6 @@ resource "google_cloudbuildv2_connection" "my-connection" {
 Creates a Connection to github.com
 ```hcl
 resource "google_secret_manager_secret" "github-token-secret" {
-  provider = google-beta
   secret_id = "github-token-secret"
 
   replication {
@@ -109,13 +100,11 @@ resource "google_secret_manager_secret" "github-token-secret" {
 }
 
 resource "google_secret_manager_secret_version" "github-token-secret-version" {
-  provider = google-beta
   secret = google_secret_manager_secret.github-token-secret.id
   secret_data = file("my-github-token.txt")
 }
 
 data "google_iam_policy" "p4sa-secretAccessor" {
-  provider = google-beta
   binding {
     role = "roles/secretmanager.secretAccessor"
     // Here, 123456789 is the Google Cloud project number for my-project-name.
@@ -124,13 +113,11 @@ data "google_iam_policy" "p4sa-secretAccessor" {
 }
 
 resource "google_secret_manager_secret_iam_policy" "policy" {
-  provider = google-beta
   secret_id = google_secret_manager_secret.github-token-secret.secret_id
   policy_data = data.google_iam_policy.p4sa-secretAccessor.policy_data
 }
 
 resource "google_cloudbuildv2_connection" "my-connection" {
-  provider = google-beta
   location = "us-west1"
   name = "my-connection"
 
@@ -225,10 +212,6 @@ The `authorizer_credential` block supports:
     
 The `github_enterprise_config` block supports:
     
-* `host_uri` -
-  (Required)
-  Required. The URI of the GitHub Enterprise host this connection is for.
-    
 * `app_id` -
   (Optional)
   Id of the GitHub App created from the manifest.
@@ -240,6 +223,10 @@ The `github_enterprise_config` block supports:
 * `app_slug` -
   (Optional)
   The URL-friendly name of the GitHub App.
+    
+* `host_uri` -
+  (Required)
+  Required. The URI of the GitHub Enterprise host this connection is for.
     
 * `private_key_secret_version` -
   (Optional)
@@ -269,17 +256,16 @@ The `gitlab_config` block supports:
   (Required)
   Required. A GitLab personal access token with the `api` scope access.
     
+* `host_uri` -
+  (Optional)
+  The URI of the GitLab Enterprise host this connection is for. If not specified, the default value is https://gitlab.com.
+    
 * `read_authorizer_credential` -
   (Required)
   Required. A GitLab personal access token with the minimum `read_api` scope access.
     
-* `webhook_secret_secret_version` -
-  (Required)
-  Required. Immutable. SecretManager resource containing the webhook secret of a GitLab Enterprise project, formatted as `projects/*/secrets/*/versions/*`.
-    
-* `host_uri` -
-  (Optional)
-  The URI of the GitLab Enterprise host this connection is for. If not specified, the default value is https://gitlab.com.
+* `server_version` -
+  Output only. Version of the GitLab Enterprise server running on the `host_uri`.
     
 * `service_directory_config` -
   (Optional)
@@ -289,8 +275,9 @@ The `gitlab_config` block supports:
   (Optional)
   SSL certificate to use for requests to GitLab Enterprise.
     
-* `server_version` -
-  Output only. Version of the GitLab Enterprise server running on the `host_uri`.
+* `webhook_secret_secret_version` -
+  (Required)
+  Required. Immutable. SecretManager resource containing the webhook secret of a GitLab Enterprise project, formatted as `projects/*/secrets/*/versions/*`.
     
 The `service_directory_config` block supports:
     
