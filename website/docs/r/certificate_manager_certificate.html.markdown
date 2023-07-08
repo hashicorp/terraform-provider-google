@@ -28,11 +28,11 @@ values will be stored in the raw state as plain text: `self_managed.certificate_
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=certificate_manager_google_managed_certificate&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=certificate_manager_google_managed_certificate_dns&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Certificate Manager Google Managed Certificate
+## Example Usage - Certificate Manager Google Managed Certificate Dns
 
 
 ```hcl
@@ -63,6 +63,89 @@ resource "google_certificate_manager_dns_authorization" "instance2" {
   name        = "dns-auth2"
   description = "The default dnss"
   domain      = "subdomain2.hashicorptest.com"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=certificate_manager_google_managed_certificate_issuance_config&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Certificate Manager Google Managed Certificate Issuance Config
+
+
+```hcl
+resource "google_certificate_manager_certificate" "default" {
+  name        = "issuance-config-cert"
+  description = "The default cert"
+  scope       = "EDGE_CACHE"
+  managed {
+    domains = [
+        "terraform.subdomain1.com"
+      ]
+    issuance_config = google_certificate_manager_certificate_issuance_config.issuanceconfig.id
+  }
+}
+
+
+
+# creating certificate_issuance_config to use it in the managed certificate
+resource "google_certificate_manager_certificate_issuance_config" "issuanceconfig" {
+  name    = "issuanceconfigtestterraform"
+  description = "sample description for the certificate issuanceConfigs"
+  certificate_authority_config {
+    certificate_authority_service_config {
+        ca_pool = google_privateca_ca_pool.pool.id
+    }
+  }
+  lifetime = "1814400s"
+  rotation_window_percentage = 34
+  key_algorithm = "ECDSA_P256"
+  depends_on=[google_privateca_certificate_authority.ca_authority]
+}
+  
+resource "google_privateca_ca_pool" "pool" {
+  name     = "my-ca-pool"
+  location = "us-central1"
+  tier     = "ENTERPRISE"
+}
+
+resource "google_privateca_certificate_authority" "ca_authority" {
+  location = "us-central1"
+  pool = google_privateca_ca_pool.pool.name
+  certificate_authority_id = "my-ca"
+  config {
+    subject_config {
+      subject {
+        organization = "HashiCorp"
+        common_name = "my-certificate-authority"
+      }
+      subject_alt_name {
+        dns_names = ["hashicorp.com"]
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = true
+        }
+      }
+    }
+  }
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+
+  // Disable CA deletion related safe checks for easier cleanup.
+  deletion_protection                    = false
+  skip_grace_period                      = true
+  ignore_active_certificates_on_deletion = true
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -190,7 +273,13 @@ The following arguments are supported:
 
 * `dns_authorizations` -
   (Optional)
-  Authorizations that will be used for performing domain authorization
+  Authorizations that will be used for performing domain authorization. Either issuanceConfig or dnsAuthorizations should be specificed, but not both.
+
+* `issuance_config` -
+  (Optional)
+  The resource name for a CertificateIssuanceConfig used to configure private PKI certificates in the format projects/*/locations/*/certificateIssuanceConfigs/*.
+  If this field is not set, the certificates will instead be publicly signed as documented at https://cloud.google.com/load-balancing/docs/ssl-certificates/google-managed-certs#caa.
+  Either issuanceConfig or dnsAuthorizations should be specificed, but not both.
 
 * `state` -
   (Output)

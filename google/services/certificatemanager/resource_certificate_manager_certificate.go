@@ -106,7 +106,7 @@ automatically, for as long as it's authorized to do so.`,
 							Optional:         true,
 							ForceNew:         true,
 							DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
-							Description:      `Authorizations that will be used for performing domain authorization`,
+							Description:      `Authorizations that will be used for performing domain authorization. Either issuanceConfig or dnsAuthorizations should be specificed, but not both.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -120,6 +120,15 @@ Wildcard domains are only supported with DNS challenge resolution`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+						},
+						"issuance_config": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: tpgresource.CompareResourceNames,
+							Description: `The resource name for a CertificateIssuanceConfig used to configure private PKI certificates in the format projects/*/locations/*/certificateIssuanceConfigs/*.
+If this field is not set, the certificates will instead be publicly signed as documented at https://cloud.google.com/load-balancing/docs/ssl-certificates/google-managed-certs#caa.
+Either issuanceConfig or dnsAuthorizations should be specificed, but not both.`,
 						},
 						"authorization_attempt_info": {
 							Type:     schema.TypeList,
@@ -590,6 +599,8 @@ func flattenCertificateManagerCertificateManaged(v interface{}, d *schema.Resour
 		flattenCertificateManagerCertificateManagedDomains(original["domains"], d, config)
 	transformed["dns_authorizations"] =
 		flattenCertificateManagerCertificateManagedDnsAuthorizations(original["dnsAuthorizations"], d, config)
+	transformed["issuance_config"] =
+		flattenCertificateManagerCertificateManagedIssuanceConfig(original["issuanceConfig"], d, config)
 	transformed["state"] =
 		flattenCertificateManagerCertificateManagedState(original["state"], d, config)
 	transformed["provisioning_issue"] =
@@ -603,6 +614,10 @@ func flattenCertificateManagerCertificateManagedDomains(v interface{}, d *schema
 }
 
 func flattenCertificateManagerCertificateManagedDnsAuthorizations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCertificateManagerCertificateManagedIssuanceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -768,6 +783,13 @@ func expandCertificateManagerCertificateManaged(v interface{}, d tpgresource.Ter
 		transformed["dnsAuthorizations"] = transformedDnsAuthorizations
 	}
 
+	transformedIssuanceConfig, err := expandCertificateManagerCertificateManagedIssuanceConfig(original["issuance_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIssuanceConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["issuanceConfig"] = transformedIssuanceConfig
+	}
+
 	transformedState, err := expandCertificateManagerCertificateManagedState(original["state"], d, config)
 	if err != nil {
 		return nil, err
@@ -797,6 +819,10 @@ func expandCertificateManagerCertificateManagedDomains(v interface{}, d tpgresou
 }
 
 func expandCertificateManagerCertificateManagedDnsAuthorizations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCertificateManagerCertificateManagedIssuanceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
