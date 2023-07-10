@@ -1,0 +1,12 @@
+```release-note:enhancement
+NetworkServices: added `google_network_services_gateway` resource(ga)
+```
+```release-note:enhancement
+NetworkSecurity: added `google_network_security_url_lists` resource(ga)
+```
+```release-note:enhancement
+NetworkSecurity: added `google_network_security_gateway_security_policy` resource(ga)
+```
+```release-note:enhancement
+NetworkSecurity: added `google_network_security_gateway_security_policy_rule` resource(ga)
+```

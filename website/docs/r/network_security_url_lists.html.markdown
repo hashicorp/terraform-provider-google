@@ -21,12 +21,10 @@ description: |-
 
 UrlList proto helps users to set reusable, independently manageable lists of hosts, host patterns, URLs, URL patterns.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about UrlLists, see:
 
-* [API documentation](https://cloud.google.com/secure-web-proxy/docs/reference/network-security/rest/v1alpha1/projects.locations.urlLists)
+* [API documentation](https://cloud.google.com/secure-web-proxy/docs/reference/network-security/rest/v1/projects.locations.urlLists)
 * How-to Guides
     * [Use UrlLists]( https://cloud.google.com/secure-web-proxy/docs/use-url-list)
 
@@ -40,7 +38,6 @@ To get more information about UrlLists, see:
 
 ```hcl
 resource "google_network_security_url_lists" "default" {
-  provider    = google-beta
   name        = "my-url-lists"
   location    = "us-central1"
   values = ["www.example.com"]
@@ -56,7 +53,6 @@ resource "google_network_security_url_lists" "default" {
 
 ```hcl
 resource "google_network_security_url_lists" "default" {
-  provider    = google-beta
   name        = "my-url-lists"
   location    = "us-central1"
   description = "my description"

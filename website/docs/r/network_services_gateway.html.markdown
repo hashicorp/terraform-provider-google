@@ -24,12 +24,10 @@ It captures the ip:port over which the services are exposed by the proxy,
 along with any policy configurations. Routes have reference to to Gateways
 to dictate how requests should be routed by this Gateway.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Gateway, see:
 
-* [API documentation](https://cloud.google.com/traffic-director/docs/reference/network-services/rest/v1beta1/projects.locations.gateways)
+* [API documentation](https://cloud.google.com/traffic-director/docs/reference/network-services/rest/v1/projects.locations.gateways)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_services_gateway_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -41,7 +39,6 @@ To get more information about Gateway, see:
 
 ```hcl
 resource "google_network_services_gateway" "default" {
-  provider = google-beta
   name     = "my-gateway"
   scope    = "default-scope-basic"
   type     = "OPEN_MESH"
@@ -58,7 +55,6 @@ resource "google_network_services_gateway" "default" {
 
 ```hcl
 resource "google_network_services_gateway" "default" {
-  provider    = google-beta
   name        = "my-gateway"
   labels      = {
     foo = "bar"
@@ -79,7 +75,6 @@ resource "google_network_services_gateway" "default" {
 
 ```hcl
 resource "google_certificate_manager_certificate" "default" {
-  provider    = google-beta
   name        = "my-certificate"
   location    = "us-central1"
   self_managed {
@@ -89,14 +84,12 @@ resource "google_certificate_manager_certificate" "default" {
 }
 
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "my-network"
   routing_mode            = "REGIONAL"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "my-subnetwork-name"
   purpose       = "PRIVATE"
   ip_cidr_range = "10.128.0.0/20"
@@ -106,7 +99,6 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_compute_subnetwork" "proxyonlysubnet" {
-  provider      = google-beta
   name          = "my-proxy-only-subnetwork"
   purpose       = "REGIONAL_MANAGED_PROXY"
   ip_cidr_range = "192.168.0.0/23"
@@ -116,13 +108,11 @@ resource "google_compute_subnetwork" "proxyonlysubnet" {
 }
 
 resource "google_network_security_gateway_security_policy" "default" {
-  provider    = google-beta
   name        = "my-policy-name"
   location    = "us-central1"
 }
 
 resource "google_network_security_gateway_security_policy_rule" "default" {
-  provider                = google-beta
   name                    = "my-policyrule-name"
   location                = "us-central1"
   gateway_security_policy = google_network_security_gateway_security_policy.default.name
@@ -133,7 +123,6 @@ resource "google_network_security_gateway_security_policy_rule" "default" {
 }
 
 resource "google_network_services_gateway" "default" {
-  provider                             = google-beta
   name                                 = "my-gateway1"
   location                             = "us-central1"
   addresses                            = ["10.128.0.99"]
@@ -158,7 +147,6 @@ resource "google_network_services_gateway" "default" {
 
 ```hcl
 resource "google_certificate_manager_certificate" "default" {
-  provider    = google-beta
   name        = "my-certificate"
   location    = "us-south1"
   self_managed {
@@ -168,14 +156,12 @@ resource "google_certificate_manager_certificate" "default" {
 }
 
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "my-network"
   routing_mode            = "REGIONAL"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "my-subnetwork-name"
   purpose       = "PRIVATE"
   ip_cidr_range = "10.128.0.0/20"
@@ -185,7 +171,6 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_compute_subnetwork" "proxyonlysubnet" {
-  provider      = google-beta
   name          = "my-proxy-only-subnetwork"
   purpose       = "REGIONAL_MANAGED_PROXY"
   ip_cidr_range = "192.168.0.0/23"
@@ -195,13 +180,11 @@ resource "google_compute_subnetwork" "proxyonlysubnet" {
 }
 
 resource "google_network_security_gateway_security_policy" "default" {
-  provider    = google-beta
   name        = "my-policy-name"
   location    = "us-south1"
 }
 
 resource "google_network_security_gateway_security_policy_rule" "default" {
-  provider                = google-beta
   name                    = "my-policyrule-name"
   location                = "us-south1"
   gateway_security_policy = google_network_security_gateway_security_policy.default.name
@@ -212,7 +195,6 @@ resource "google_network_security_gateway_security_policy_rule" "default" {
 }
 
 resource "google_network_services_gateway" "default" {
-  provider                             = google-beta
   name                                 = "my-gateway1"
   location                             = "us-south1"
   addresses                            = ["10.128.0.99"]
@@ -228,7 +210,6 @@ resource "google_network_services_gateway" "default" {
 }
 
 resource "google_network_services_gateway" "gateway2" {
-  provider                             = google-beta
   name                                 = "my-gateway2"
   location                             = "us-south1"
   addresses                            = ["10.128.0.98"]
