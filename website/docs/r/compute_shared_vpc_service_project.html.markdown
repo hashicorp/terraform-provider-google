@@ -37,6 +37,8 @@ The following arguments are expected:
 
 * `service_project` - (Required) The ID of the project that will serve as a Shared VPC service project.
 
+* `deletion_policy` - (Optional) The deletion policy for the shared VPC service. Setting ABANDON allows the resource to be abandoned rather than deleted. Possible values are: "ABANDON".
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
