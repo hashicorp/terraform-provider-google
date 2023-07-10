@@ -132,6 +132,13 @@ func ApikeysKeyRestrictionsSchema() *schema.Resource {
 				Elem:        ApikeysKeyRestrictionsIosKeyRestrictionsSchema(),
 			},
 
+			"keepers": {
+				Description: "Arbitrary map of values that, when changed, will trigger recreation of resource.",
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+			},
+
 			"server_key_restrictions": {
 				Type:        schema.TypeList,
 				Optional:    true,
