@@ -21,12 +21,10 @@ description: |-
 
 The GatewaySecurityPolicy resource contains a collection of GatewaySecurityPolicyRules and associated metadata.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about GatewaySecurityPolicy, see:
 
-* [API documentation](https://cloud.google.com/secure-web-proxy/docs/reference/network-security/rest/v1beta1/projects.locations.gatewaySecurityPolicies)
+* [API documentation](https://cloud.google.com/secure-web-proxy/docs/reference/network-security/rest/v1/projects.locations.gatewaySecurityPolicies)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_security_gateway_security_policy_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -38,7 +36,6 @@ To get more information about GatewaySecurityPolicy, see:
 
 ```hcl
 resource "google_network_security_gateway_security_policy" "default" {
-  provider    = google-beta
   name        = "my-gateway-security-policy"
   location    = "us-central1"
   description = "my description"
@@ -167,7 +164,7 @@ The following arguments are supported:
   A free-text description of the resource. Max length 1024 characters.
 
 * `tls_inspection_policy` -
-  (Optional)
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Name of a TlsInspectionPolicy resource that defines how TLS inspection is performed for any rule that enables it.
 
 * `location` -

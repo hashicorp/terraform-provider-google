@@ -939,9 +939,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 294
+// Generated resources: 298
 // Generated IAM resources: 198
-// Total generated resources: 492
+// Total generated resources: 496
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1338,9 +1338,13 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_monitoring_uptime_check_config":                          monitoring.ResourceMonitoringUptimeCheckConfig(),
 			"google_network_management_connectivity_test":                    networkmanagement.ResourceNetworkManagementConnectivityTest(),
 			"google_network_security_address_group":                          networksecurity.ResourceNetworkSecurityAddressGroup(),
+			"google_network_security_gateway_security_policy":                networksecurity.ResourceNetworkSecurityGatewaySecurityPolicy(),
+			"google_network_security_gateway_security_policy_rule":           networksecurity.ResourceNetworkSecurityGatewaySecurityPolicyRule(),
+			"google_network_security_url_lists":                              networksecurity.ResourceNetworkSecurityUrlLists(),
 			"google_network_services_edge_cache_keyset":                      networkservices.ResourceNetworkServicesEdgeCacheKeyset(),
 			"google_network_services_edge_cache_origin":                      networkservices.ResourceNetworkServicesEdgeCacheOrigin(),
 			"google_network_services_edge_cache_service":                     networkservices.ResourceNetworkServicesEdgeCacheService(),
+			"google_network_services_gateway":                                networkservices.ResourceNetworkServicesGateway(),
 			"google_notebooks_environment":                                   notebooks.ResourceNotebooksEnvironment(),
 			"google_notebooks_instance":                                      notebooks.ResourceNotebooksInstance(),
 			"google_notebooks_instance_iam_binding":                          tpgiamresource.ResourceIamBinding(notebooks.NotebooksInstanceIamSchema, notebooks.NotebooksInstanceIamUpdaterProducer, notebooks.NotebooksInstanceIdParseFunc),

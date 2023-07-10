@@ -23,12 +23,10 @@ description: |-
 The GatewaySecurityPolicyRule resource is in a nested collection within a GatewaySecurityPolicy and represents
 a traffic matching condition and associated action to perform.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about GatewaySecurityPolicyRule, see:
 
-* [API documentation](https://cloud.google.com/secure-web-proxy/docs/reference/network-security/rest/v1alpha1/projects.locations.gatewaySecurityPolicies.rules)
+* [API documentation](https://cloud.google.com/secure-web-proxy/docs/reference/network-security/rest/v1/projects.locations.gatewaySecurityPolicies.rules)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_security_gateway_security_policy_rules_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -40,14 +38,12 @@ To get more information about GatewaySecurityPolicyRule, see:
 
 ```hcl
 resource "google_network_security_gateway_security_policy" "default" {
-  provider    = google-beta
   name        = "my-gateway-security-policy"
   location    = "us-central1"
   description = "gateway security policy created to be used as reference by the rule."
 }
 
 resource "google_network_security_gateway_security_policy_rule" "default" {
-  provider                = google-beta
   name                    = "my-gateway-security-policy-rule"
   location                = "us-central1"
   gateway_security_policy = google_network_security_gateway_security_policy.default.name
@@ -68,14 +64,12 @@ resource "google_network_security_gateway_security_policy_rule" "default" {
 
 ```hcl
 resource "google_network_security_gateway_security_policy" "default" {
-  provider    = google-beta
   name        = "my-gateway-security-policy"
   location    = "us-central1"
   description = "gateway security policy created to be used as reference by the rule."
 }
 
 resource "google_network_security_gateway_security_policy_rule" "default" {
-  provider                = google-beta
   name                    = "my-gateway-security-policy-rule"
   location                = "us-central1"
   gateway_security_policy = google_network_security_gateway_security_policy.default.name
