@@ -16,6 +16,131 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
+func TestAccGKEHubFeature_gkehubFeatureFleetObservability(t *testing.T) {
+	// VCR fails to handle batched project services
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEHubFeatureDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEHubFeature_gkehubFeatureFleetObservability(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature.feature",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccGKEHubFeature_gkehubFeatureFleetObservabilityUpdate1(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature.feature",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccGKEHubFeature_gkehubFeatureFleetObservabilityUpdate2(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature.feature",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccGKEHubFeature_gkehubFeatureFleetObservability(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "time_sleep" "wait_for_gkehub_enablement" {
+  create_duration = "150s"
+  depends_on = [google_project_service.gkehub]
+}
+
+resource "google_gke_hub_feature" "feature" {
+  name = "fleetobservability"
+  location = "global"
+  project = google_project.project.project_id
+  spec {
+    fleetobservability {
+      logging_config {
+        default_config {
+    mode = "MOVE"
+        }
+        fleet_scope_logs_config {
+          mode = "COPY"
+        }
+      }
+    }
+  }
+  depends_on = [time_sleep.wait_for_gkehub_enablement]
+}
+`, context)
+}
+
+func testAccGKEHubFeature_gkehubFeatureFleetObservabilityUpdate1(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "time_sleep" "wait_for_gkehub_enablement" {
+  create_duration = "150s"
+  depends_on = [google_project_service.gkehub]
+}
+
+resource "google_gke_hub_feature" "feature" {
+  name = "fleetobservability"
+  location = "global"
+  project = google_project.project.project_id
+  spec {
+    fleetobservability {
+      logging_config {
+        default_config {
+    mode = "MOVE"
+        }
+      }
+    }
+  }
+  depends_on = [time_sleep.wait_for_gkehub_enablement]
+}
+`, context)
+}
+
+func testAccGKEHubFeature_gkehubFeatureFleetObservabilityUpdate2(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "time_sleep" "wait_for_gkehub_enablement" {
+  create_duration = "150s"
+  depends_on = [google_project_service.gkehub]
+}
+
+resource "google_gke_hub_feature" "feature" {
+  name = "fleetobservability"
+  location = "global"
+  project = google_project.project.project_id
+  spec {
+    fleetobservability {
+      logging_config {
+        fleet_scope_logs_config {
+          mode = "COPY"
+        }
+      }
+    }
+  }
+  depends_on = [time_sleep.wait_for_gkehub_enablement]
+}
+`, context)
+}
+
 func TestAccGKEHubFeature_gkehubFeatureMciUpdate(t *testing.T) {
 	// VCR fails to handle batched project services
 	acctest.SkipIfVcr(t)
