@@ -90,6 +90,7 @@ type ProviderModel struct {
 	MLEngineCustomEndpoint                 types.String `tfsdk:"ml_engine_custom_endpoint"`
 	MonitoringCustomEndpoint               types.String `tfsdk:"monitoring_custom_endpoint"`
 	NetworkManagementCustomEndpoint        types.String `tfsdk:"network_management_custom_endpoint"`
+	NetworkSecurityCustomEndpoint          types.String `tfsdk:"network_security_custom_endpoint"`
 	NetworkServicesCustomEndpoint          types.String `tfsdk:"network_services_custom_endpoint"`
 	NotebooksCustomEndpoint                types.String `tfsdk:"notebooks_custom_endpoint"`
 	OSConfigCustomEndpoint                 types.String `tfsdk:"os_config_custom_endpoint"`

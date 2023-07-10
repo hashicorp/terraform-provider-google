@@ -248,6 +248,7 @@ type Config struct {
 	MLEngineBasePath                 string
 	MonitoringBasePath               string
 	NetworkManagementBasePath        string
+	NetworkSecurityBasePath          string
 	NetworkServicesBasePath          string
 	NotebooksBasePath                string
 	OSConfigBasePath                 string
@@ -359,6 +360,7 @@ const MemcacheBasePathKey = "Memcache"
 const MLEngineBasePathKey = "MLEngine"
 const MonitoringBasePathKey = "Monitoring"
 const NetworkManagementBasePathKey = "NetworkManagement"
+const NetworkSecurityBasePathKey = "NetworkSecurity"
 const NetworkServicesBasePathKey = "NetworkServices"
 const NotebooksBasePathKey = "Notebooks"
 const OSConfigBasePathKey = "OSConfig"
@@ -464,6 +466,7 @@ var DefaultBasePaths = map[string]string{
 	MLEngineBasePathKey:                 "https://ml.googleapis.com/v1/",
 	MonitoringBasePathKey:               "https://monitoring.googleapis.com/",
 	NetworkManagementBasePathKey:        "https://networkmanagement.googleapis.com/v1/",
+	NetworkSecurityBasePathKey:          "https://networksecurity.googleapis.com/v1/",
 	NetworkServicesBasePathKey:          "https://networkservices.googleapis.com/v1/",
 	NotebooksBasePathKey:                "https://notebooks.googleapis.com/v1/",
 	OSConfigBasePathKey:                 "https://osconfig.googleapis.com/v1/",
@@ -895,6 +898,11 @@ func HandleSDKDefaults(d *schema.ResourceData) error {
 		d.Set("network_management_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_NETWORK_MANAGEMENT_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[NetworkManagementBasePathKey]))
+	}
+	if d.Get("network_security_custom_endpoint") == "" {
+		d.Set("network_security_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_NETWORK_SECURITY_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[NetworkSecurityBasePathKey]))
 	}
 	if d.Get("network_services_custom_endpoint") == "" {
 		d.Set("network_services_custom_endpoint", MultiEnvDefault([]string{
@@ -1922,6 +1930,7 @@ func ConfigureBasePaths(c *Config) {
 	c.MLEngineBasePath = DefaultBasePaths[MLEngineBasePathKey]
 	c.MonitoringBasePath = DefaultBasePaths[MonitoringBasePathKey]
 	c.NetworkManagementBasePath = DefaultBasePaths[NetworkManagementBasePathKey]
+	c.NetworkSecurityBasePath = DefaultBasePaths[NetworkSecurityBasePathKey]
 	c.NetworkServicesBasePath = DefaultBasePaths[NetworkServicesBasePathKey]
 	c.NotebooksBasePath = DefaultBasePaths[NotebooksBasePathKey]
 	c.OSConfigBasePath = DefaultBasePaths[OSConfigBasePathKey]

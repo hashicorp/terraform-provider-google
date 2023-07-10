@@ -89,6 +89,7 @@ func configureTestBasePaths(c *transport_tpg.Config, url string) {
 	c.MLEngineBasePath = url
 	c.MonitoringBasePath = url
 	c.NetworkManagementBasePath = url
+	c.NetworkSecurityBasePath = url
 	c.NetworkServicesBasePath = url
 	c.NotebooksBasePath = url
 	c.OSConfigBasePath = url

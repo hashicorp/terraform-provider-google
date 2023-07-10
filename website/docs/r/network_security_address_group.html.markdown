@@ -21,8 +21,6 @@ description: |-
 
 AddressGroup is a resource that specifies how a collection of IP/DNS used in Firewall Policy.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about AddressGroup, see:
 
@@ -35,7 +33,6 @@ To get more information about AddressGroup, see:
 
 ```hcl
 resource "google_network_security_address_group" "default" {
-  provider    = google-beta
   name        = "my-address-groups"
   parent      = "projects/my-project-name"
   location    = "us-central1"
@@ -49,7 +46,6 @@ resource "google_network_security_address_group" "default" {
 
 ```hcl
 resource "google_network_security_address_group" "default" {
-  provider    = google-beta
   name        = "my-address-groups"
   parent      = "organizations/123456789"
   location    = "us-central1"
@@ -63,7 +59,6 @@ resource "google_network_security_address_group" "default" {
 
 ```hcl
 resource "google_network_security_address_group" "default" {
-  provider    = google-beta
   name        = "my-address-groups"
   parent      = "projects/my-project-name"
   location    = "us-central1"
