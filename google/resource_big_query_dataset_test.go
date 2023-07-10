@@ -169,6 +169,28 @@ func TestAccBigQueryDataset_cmek(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryDataset_storageBillModel(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", RandString(t, 10))
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDatasetStorageBillingModel(datasetID),
+			},
+			{
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccAddTable(t *testing.T, datasetID string, tableID string) resource.TestCheckFunc {
 	// Not actually a check, but adds a table independently of terraform
 	return func(s *terraform.State) error {
@@ -390,4 +412,23 @@ resource "google_bigquery_dataset" "test" {
   project = google_project_iam_member.kms-project-binding.project
 }
 `, pid, datasetID, kmsKey)
+}
+
+func testAccBigQueryDatasetStorageBillingModel(datasetID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id                      = "%s"
+  friendly_name                   = "foo"
+  description                     = "This is a foo description"
+  location                        = "EU"
+  default_partition_expiration_ms = 3600000
+  default_table_expiration_ms     = 3600000
+  storage_billing_model           = "PHYSICAL"
+
+  labels = {
+    env                         = "foo"
+    default_table_expiration_ms = 3600000
+  }
+}
+`, datasetID)
 }

@@ -311,6 +311,13 @@ The following arguments are supported:
   - 'und:ci': undetermined locale, case insensitive.
   - '': empty string. Default to case-sensitive behavior.
 
+* `storage_billing_model` -
+  (Optional)
+  Specifies the storage billing model for the dataset.
+  Set this flag value to LOGICAL to use logical bytes for storage billing,
+  or to PHYSICAL to use physical bytes instead.
+  LOGICAL is the default if this flag isn't specified.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
