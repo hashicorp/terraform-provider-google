@@ -44,8 +44,8 @@ To get more information about ProjectLocation, see:
 resource "google_project" "default" {
   provider = google-beta
 
-  project_id = "tf-test%{random_suffix}"
-  name       = "tf-test%{random_suffix}"
+  project_id = "my-project"
+  name       = "my-project"
   org_id     = "123456789"
 
   labels = {
