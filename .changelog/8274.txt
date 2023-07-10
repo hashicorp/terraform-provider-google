@@ -1,0 +1,3 @@
+```release-note:bug
+osconfig: fixed validation of file resource `state` fields in `google_os_config_os_policy_assignment`
+```
