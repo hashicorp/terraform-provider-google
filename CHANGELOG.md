@@ -8,7 +8,7 @@ BUG FIXES:
 ## 4.72.0 (July 3, 2023)
 
 FEATURES:
-* **New Resource:** `google_certificate_manager_public_ca_external_account_key` ([#14983](https://github.com/hashicorp/terraform-provider-google/pull/14983))
+* **New Resource:** `google_public_ca_external_account_key` ([#14983](https://github.com/hashicorp/terraform-provider-google/pull/14983))
 
 IMPROVEMENTS:
 * compute: added `provisioned_throughput` field to `google_compute_disk` used by `hyperdisk-throughput` pd type ([#14985](https://github.com/hashicorp/terraform-provider-google/pull/14985))
