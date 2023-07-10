@@ -381,8 +381,8 @@ Remote: A checksum must be specified. Cloud Storage: An object generation number
 															"state": {
 																Type:         schema.TypeString,
 																Required:     true,
-																ValidateFunc: verify.ValidateEnum([]string{"OS_POLICY_COMPLIANCE_STATE_UNSPECIFIED", "COMPLIANT", "NON_COMPLIANT", "UNKNOWN", "NO_OS_POLICIES_APPLICABLE"}),
-																Description:  `Desired state of the file. Possible values: ["OS_POLICY_COMPLIANCE_STATE_UNSPECIFIED", "COMPLIANT", "NON_COMPLIANT", "UNKNOWN", "NO_OS_POLICIES_APPLICABLE"]`,
+																ValidateFunc: verify.ValidateEnum([]string{"DESIRED_STATE_UNSPECIFIED", "PRESENT", "ABSENT", "CONTENTS_MATCH"}),
+																Description:  `Desired state of the file. Possible values: ["DESIRED_STATE_UNSPECIFIED", "PRESENT", "ABSENT", "CONTENTS_MATCH"]`,
 															},
 															"content": {
 																Type:        schema.TypeString,

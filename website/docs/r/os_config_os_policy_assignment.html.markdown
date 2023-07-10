@@ -550,8 +550,8 @@ The following arguments are supported:
 *   `path` - (Required) The absolute path of the file within the VM.
 
 *   `state` - (Required) Desired state of the file. Possible values are:
-    `OS_POLICY_COMPLIANCE_STATE_UNSPECIFIED`, `COMPLIANT`, `NON_COMPLIANT`,
-    `UNKNOWN`, `NO_OS_POLICIES_APPLICABLE`.
+    `DESIRED_STATE_UNSPECIFIED`, `PRESENT`, `ABSENT`,
+    `CONTENTS_MATCH`.
 
 *   `permissions` - (Output) Consists of three octal digits which represent, in
     order, the permissions of the owner, group, and other users for the file
