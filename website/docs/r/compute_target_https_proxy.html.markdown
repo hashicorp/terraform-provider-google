@@ -99,22 +99,19 @@ resource "google_compute_http_health_check" "default" {
 
 ```hcl
 resource "google_compute_target_https_proxy" "default" {
-  provider                    = google-beta
   name                        = "test-http-keep-alive-timeout-proxy"
-  http_keep_alive_timeout_sec = 120
+  http_keep_alive_timeout_sec = 610
   url_map                     = google_compute_url_map.default.id
   ssl_certificates            = [google_compute_ssl_certificate.default.id]
 }
 
 resource "google_compute_ssl_certificate" "default" {
-  provider    = google-beta
   name        = "my-certificate"
   private_key = file("path/to/private.key")
   certificate = file("path/to/certificate.crt")
 }
 
 resource "google_compute_url_map" "default" {
-  provider   = google-beta
   name        = "url-map"
   description = "a description"
 
@@ -137,7 +134,6 @@ resource "google_compute_url_map" "default" {
 }
 
 resource "google_compute_backend_service" "default" {
-  provider              = google-beta
   name                  = "backend-service"
   port_name             = "http"
   protocol              = "HTTP"
@@ -148,7 +144,6 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  provider           = google-beta
   name               = "http-health-check"
   request_path       = "/"
   check_interval_sec = 1
@@ -217,7 +212,7 @@ The following arguments are supported:
   this target proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.
 
 * `http_keep_alive_timeout_sec` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Specifies how long to keep a connection open, after completing a response,
   while there is no matching traffic (in seconds). If an HTTP keepalive is
   not specified, a default value (610 seconds) will be used. For Global
