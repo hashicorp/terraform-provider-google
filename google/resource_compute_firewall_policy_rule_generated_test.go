@@ -70,6 +70,16 @@ func TestAccComputeFirewallPolicyRule_BasicFirSecRuleHandWritten(t *testing.T) {
 
 func testAccComputeFirewallPolicyRule_BasicFirSecRuleHandWritten(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
+  name        = "tf-test-policy%{random_suffix}"
+  parent      = "organizations/%{org_id}"
+  description = "Sample global networksecurity_address_group"
+  location    = "global"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
+}
+
 resource "google_folder" "folder" {
   display_name = "tf-test-policy%{random_suffix}"
   parent       = "organizations/%{org_id}"
@@ -83,12 +93,12 @@ resource "google_compute_firewall_policy" "default" {
 
 resource "google_compute_firewall_policy_rule" "primary" {
   firewall_policy = google_compute_firewall_policy.default.name
-  description = "Resource created for Terraform acceptance testing"
-  priority = 9000
-  enable_logging = true
-  action = "allow"
-  direction = "EGRESS"
-  disabled = false
+  description     = "Resource created for Terraform acceptance testing"
+  priority        = 9000
+  enable_logging  = true
+  action          = "allow"
+  direction       = "EGRESS"
+  disabled        = false
   match {
     layer4_configs {
       ip_protocol = "tcp"
@@ -100,8 +110,10 @@ resource "google_compute_firewall_policy_rule" "primary" {
     }
     dest_ip_ranges = ["11.100.0.1/32"]
     dest_fqdns = []
-    dest_region_codes = []
+    dest_region_codes = ["US"]
     dest_threat_intelligences = ["iplist-known-malicious-ips"]
+    src_address_groups = []
+    dest_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
   }
   target_service_accounts = ["%{service_acct}"]
 }
@@ -111,6 +123,16 @@ resource "google_compute_firewall_policy_rule" "primary" {
 
 func testAccComputeFirewallPolicyRule_BasicFirSecRuleHandWrittenUpdate0(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_network_security_address_group" "basic_global_networksecurity_address_group" {
+  name        = "tf-test-policy%{random_suffix}"
+  parent      = "organizations/%{org_id}"
+  description = "Sample global networksecurity_address_group"
+  location    = "global"
+  items       = ["208.80.154.224/32"]
+  type        = "IPV4"
+  capacity    = 100
+}
+
 resource "google_folder" "folder" {
   display_name = "tf-test-policy%{random_suffix}"
   parent       = "organizations/%{org_id}"
@@ -124,12 +146,12 @@ resource "google_compute_firewall_policy" "default" {
 
 resource "google_compute_firewall_policy_rule" "primary" {
   firewall_policy = google_compute_firewall_policy.default.name
-  description = "Resource created for Terraform acceptance testing - Updated"
-  priority = 9000
-  enable_logging = true
-  action = "allow"
-  direction = "EGRESS"
-  disabled = false
+  description     = "Resource created for Terraform acceptance testing - Updated"
+  priority        = 9000
+  enable_logging  = true
+  action          = "allow"
+  direction       = "EGRESS"
+  disabled        = false
   match {
     layer4_configs {
       ip_protocol = "tcp"
@@ -143,6 +165,8 @@ resource "google_compute_firewall_policy_rule" "primary" {
     dest_fqdns = ["google.com"]
     dest_region_codes = ["US"]
     dest_threat_intelligences = ["iplist-known-malicious-ips"]
+    src_address_groups = []
+    dest_address_groups = [google_network_security_address_group.basic_global_networksecurity_address_group.id]
   }
   target_service_accounts = ["%{service_acct}"]
 }

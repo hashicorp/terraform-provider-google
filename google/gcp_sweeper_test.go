@@ -73,6 +73,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/mlengine"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/monitoring"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/networkmanagement"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/networksecurity"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/networkservices"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/notebooks"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/osconfig"
