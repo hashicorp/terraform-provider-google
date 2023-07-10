@@ -95,7 +95,6 @@ resource "google_gke_hub_feature" "feature" {
       }
     }
   }
-  provider = google-beta
 }
 ```
 ## Example Usage - Enable Fleet Observability For Scope Logs With Move
@@ -114,7 +113,6 @@ resource "google_gke_hub_feature" "feature" {
       }
     }
   }
-  provider = google-beta
 }
 ```
 ## Example Usage - Enable Fleet Observability For Both Default And Scope Logs
@@ -136,7 +134,6 @@ resource "google_gke_hub_feature" "feature" {
       }
     }
   }
-  provider = google-beta
 }
 ```
 
@@ -178,7 +175,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_multiclusteringress).
 
 * `fleetobservability` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Fleet Observability feature spec.
   Structure is [documented below](#nested_fleetobservability).
 
