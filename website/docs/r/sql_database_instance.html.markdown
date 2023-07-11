@@ -228,6 +228,8 @@ The `settings` block supports:
     for more details and supported versions. Postgres supports only shared-core machine types,
     and custom machine types such as `db-custom-2-13312`. See the [Custom Machine Type Documentation](https://cloud.google.com/compute/docs/instances/creating-instance-with-custom-machine-type#create) to learn about specifying custom machine types.
 
+* `user_labels` - (Optional) A set of key/value user label pairs to assign to the instance.
+
 The optional `settings.advanced_machine_features` subblock supports:
 
 * `threads_per_core` - (Optional) The number of threads per core. The value of this flag can be 1 or 2. To disable SMT, set this flag to 1. Only available in Cloud SQL for SQL Server instances. See [smt](https://cloud.google.com/sql/docs/sqlserver/create-instance#smt-create-instance) for more details.
@@ -259,8 +261,6 @@ The optional `settings.advanced_machine_features` subblock supports:
 * `pricing_plan` - (Optional) Pricing plan for this instance, can only be `PER_USE`.
 
 * `time_zone` - (Optional) The time_zone to be used by the database engine (supported only for SQL Server), in SQL Server timezone format.
-
-* `user_labels` - (Optional) A set of key/value user label pairs to assign to the instance.
 
 The optional `settings.database_flags` sublist supports:
 
