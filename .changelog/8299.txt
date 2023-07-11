@@ -1,0 +1,4 @@
+```release-note:bug
+container: made `monitoring_config.enable_components` optional on `google_container_cluster` (GA)
+
+```

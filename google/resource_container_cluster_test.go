@@ -2406,6 +2406,15 @@ func TestAccContainerCluster_withMonitoringConfig(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"min_master_version"},
 			},
 			{
+				Config: testAccContainerCluster_withMonitoringConfigPrometheusOnly2(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+			{
 				Config: testAccContainerCluster_basic(clusterName),
 			},
 			{
@@ -6413,6 +6422,21 @@ resource "google_container_cluster" "primary" {
   initial_node_count = 1
   monitoring_config {
 	     enable_components = []
+         managed_prometheus {
+                enabled = true
+         }
+  }
+}
+`, name)
+}
+
+func testAccContainerCluster_withMonitoringConfigPrometheusOnly2(name string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  monitoring_config {
          managed_prometheus {
                 enabled = true
          }
