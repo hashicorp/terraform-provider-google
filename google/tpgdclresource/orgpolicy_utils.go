@@ -26,6 +26,11 @@ func ResourceOrgPolicyPolicyCustomImport(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
+
+	// reset name to match the one from resourceOrgPolicyPolicyRead
+	if err := d.Set("name", id); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
 	d.SetId(id)
 
 	return nil

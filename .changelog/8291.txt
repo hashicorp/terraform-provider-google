@@ -1,0 +1,3 @@
+```release-note:bug
+org policy: fixed forcing recreation on imported state for `google_org_policy_policy`
+```
