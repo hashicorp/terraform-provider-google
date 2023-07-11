@@ -1,0 +1,3 @@
+```release-note:bug
+monitoring: fixed an issue causing `google_monitoring_monitored_project` to appear to be deleted
+```

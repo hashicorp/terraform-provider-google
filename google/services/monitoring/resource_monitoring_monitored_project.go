@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -91,6 +92,7 @@ func resourceMonitoringMonitoredProjectCreate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
+	url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 	log.Printf("[DEBUG] Creating new MonitoredProject: %#v", obj)
 	billingProject := ""
@@ -118,6 +120,7 @@ func resourceMonitoringMonitoredProjectCreate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
+	id = strings.ReplaceAll(id, "projects/projects/", "projects/")
 	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating MonitoredProject %q: %#v", d.Id(), res)
@@ -136,6 +139,7 @@ func resourceMonitoringMonitoredProjectRead(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
+	url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 	billingProject := ""
 
@@ -202,6 +206,7 @@ func resourceMonitoringMonitoredProjectDelete(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
+	url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting MonitoredProject %q", d.Id())
@@ -242,6 +247,7 @@ func resourceMonitoringMonitoredProjectImport(d *schema.ResourceData, meta inter
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
+	id = strings.ReplaceAll(id, "projects/projects/", "projects/")
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
@@ -334,7 +340,7 @@ func resourceMonitoringMonitoredProjectDecoder(d *schema.ResourceData, meta inte
 		if err != nil {
 			return nil, err
 		}
-		res["name"] = project.Name
+		res["name"] = project.ProjectId
 	}
 	return res, nil
 }
