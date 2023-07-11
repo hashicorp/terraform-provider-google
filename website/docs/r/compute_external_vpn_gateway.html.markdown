@@ -201,6 +201,10 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/global/externalVpnGateways/{{name}}`
+
+* `label_fingerprint` -
+  The fingerprint used for optimistic locking of this resource.  Used
+  internally during updates.
 * `self_link` - The URI of the created resource.
 
 
@@ -210,6 +214,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import
