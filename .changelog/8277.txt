@@ -1,0 +1,6 @@
+```release-note:enhancement
+sql: added 'settings.edition' field to 'sql_database_instance' resource.
+```
+```release-note:enhancement
+sql: added 'settings.data_cache_config' to 'sql_database_instance' resource.
+```
