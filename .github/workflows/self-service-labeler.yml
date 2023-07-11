@@ -5,7 +5,7 @@ on:
     types: [opened]
 
 jobs:
-  triage:
+  add-labels:
     runs-on: ubuntu-latest
     permissions:
       issues: write
