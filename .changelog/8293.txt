@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertexai: supported`shard_size` in `google_vertex_ai_index`
+```

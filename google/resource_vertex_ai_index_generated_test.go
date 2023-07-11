@@ -88,6 +88,7 @@ resource "google_vertex_ai_index" "index" {
     config {
       dimensions = 2
       approximate_neighbors_count = 150
+      shard_size = "SHARD_SIZE_SMALL"
       distance_measure_type = "DOT_PRODUCT_DISTANCE"
       algorithm_config {
         tree_ah_config {
@@ -158,6 +159,7 @@ resource "google_vertex_ai_index" "index" {
     contents_delta_uri = "gs://${google_storage_bucket.bucket.name}/contents"
     config {
       dimensions = 2
+      shard_size = "SHARD_SIZE_LARGE"
       distance_measure_type = "COSINE_DISTANCE"
       feature_norm_type = "UNIT_L2_NORM"
       algorithm_config {
