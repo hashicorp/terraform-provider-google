@@ -59,6 +59,7 @@ resource "google_vertex_ai_index" "index" {
     config {
       dimensions = 2
       approximate_neighbors_count = 150
+      shard_size = "SHARD_SIZE_SMALL"
       distance_measure_type = "DOT_PRODUCT_DISTANCE"
       algorithm_config {
         tree_ah_config {
@@ -103,6 +104,7 @@ resource "google_vertex_ai_index" "index" {
     contents_delta_uri = "gs://${google_storage_bucket.bucket.name}/contents"
     config {
       dimensions = 2
+      shard_size = "SHARD_SIZE_LARGE"
       distance_measure_type = "COSINE_DISTANCE"
       feature_norm_type = "UNIT_L2_NORM"
       algorithm_config {
@@ -188,6 +190,14 @@ The following arguments are supported:
   performed. Exact reordering is a procedure where results returned by an
   approximate search algorithm are reordered via a more expensive distance computation.
   Required if tree-AH algorithm is used.
+
+* `shard_size` -
+  (Optional)
+  Index data is split into equal parts to be processed. These are called "shards".
+  The shard size must be specified when creating an index. The value must be one of the followings:
+  * SHARD_SIZE_SMALL: Small (2GB)
+  * SHARD_SIZE_MEDIUM: Medium (20GB)
+  * SHARD_SIZE_LARGE: Large (50GB)
 
 * `distance_measure_type` -
   (Optional)

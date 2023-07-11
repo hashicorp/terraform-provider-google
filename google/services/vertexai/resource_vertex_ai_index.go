@@ -165,6 +165,17 @@ Required if tree-AH algorithm is used.`,
 * NONE: No normalization type is specified.`,
 										Default: "NONE",
 									},
+									"shard_size": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Optional: true,
+										ForceNew: true,
+										Description: `Index data is split into equal parts to be processed. These are called "shards".
+The shard size must be specified when creating an index. The value must be one of the followings:
+* SHARD_SIZE_SMALL: Small (2GB)
+* SHARD_SIZE_MEDIUM: Medium (20GB)
+* SHARD_SIZE_LARGE: Large (50GB)`,
+									},
 								},
 							},
 						},
@@ -706,6 +717,8 @@ func flattenVertexAIIndexMetadataConfig(v interface{}, d *schema.ResourceData, c
 		flattenVertexAIIndexMetadataConfigDimensions(original["dimensions"], d, config)
 	transformed["approximate_neighbors_count"] =
 		flattenVertexAIIndexMetadataConfigApproximateNeighborsCount(original["approximateNeighborsCount"], d, config)
+	transformed["shard_size"] =
+		flattenVertexAIIndexMetadataConfigShardSize(original["shardSize"], d, config)
 	transformed["distance_measure_type"] =
 		flattenVertexAIIndexMetadataConfigDistanceMeasureType(original["distanceMeasureType"], d, config)
 	transformed["feature_norm_type"] =
@@ -746,6 +759,10 @@ func flattenVertexAIIndexMetadataConfigApproximateNeighborsCount(v interface{}, 
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenVertexAIIndexMetadataConfigShardSize(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenVertexAIIndexMetadataConfigDistanceMeasureType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -983,6 +1000,13 @@ func expandVertexAIIndexMetadataConfig(v interface{}, d tpgresource.TerraformRes
 		transformed["approximateNeighborsCount"] = transformedApproximateNeighborsCount
 	}
 
+	transformedShardSize, err := expandVertexAIIndexMetadataConfigShardSize(original["shard_size"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedShardSize); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["shardSize"] = transformedShardSize
+	}
+
 	transformedDistanceMeasureType, err := expandVertexAIIndexMetadataConfigDistanceMeasureType(original["distance_measure_type"], d, config)
 	if err != nil {
 		return nil, err
@@ -1012,6 +1036,10 @@ func expandVertexAIIndexMetadataConfigDimensions(v interface{}, d tpgresource.Te
 }
 
 func expandVertexAIIndexMetadataConfigApproximateNeighborsCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIIndexMetadataConfigShardSize(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
