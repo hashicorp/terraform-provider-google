@@ -157,6 +157,12 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 							Required:    true,
 							Description: `The machine type to use. See tiers for more details and supported versions. Postgres supports only shared-core machine types, and custom machine types such as db-custom-2-13312. See the Custom Machine Type Documentation to learn about specifying custom machine types.`,
 						},
+						"edition": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"ENTERPRISE", "ENTERPRISE_PLUS"}, false),
+							Description:  `The edition of the instance, can be ENTERPRISE or ENTERPRISE_PLUS.`,
+						},
 						"advanced_machine_features": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -167,6 +173,22 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 										Type:        schema.TypeInt,
 										Optional:    true,
 										Description: `The number of threads per physical core. Can be 1 or 2.`,
+									},
+								},
+							},
+						},
+						"data_cache_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: `Data cache configurations.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"data_cache_enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: `Whether data cache is enabled for the instance.`,
 									},
 								},
 							},
@@ -1185,7 +1207,9 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 	settings := &sqladmin.Settings{
 		// Version is unset in Create but is set during update
 		SettingsVersion:           int64(_settings["version"].(int)),
+		DataCacheConfig:           expandDataCacheConfig(_settings["data_cache_config"].([]interface{})),
 		Tier:                      _settings["tier"].(string),
+		Edition:                   _settings["edition"].(string),
 		AdvancedMachineFeatures:   expandSqlServerAdvancedMachineFeatures(_settings["advanced_machine_features"].([]interface{})),
 		ForceSendFields:           []string{"StorageAutoResize"},
 		ActivationPolicy:          _settings["activation_policy"].(string),
@@ -1342,6 +1366,17 @@ func expandDatabaseFlags(configured []interface{}) []*sqladmin.DatabaseFlags {
 		})
 	}
 	return databaseFlags
+}
+
+func expandDataCacheConfig(configured interface{}) *sqladmin.DataCacheConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &sqladmin.DataCacheConfig{
+		DataCacheEnabled: config["data_cache_enabled"].(bool),
+	}
 }
 
 func expandBackupConfiguration(configured []interface{}) *sqladmin.BackupConfiguration {
@@ -1905,6 +1940,7 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 	data := map[string]interface{}{
 		"version":                     settings.SettingsVersion,
 		"tier":                        settings.Tier,
+		"edition":                     settings.Edition,
 		"activation_policy":           settings.ActivationPolicy,
 		"availability_type":           settings.AvailabilityType,
 		"collation":                   settings.Collation,
@@ -1965,11 +2001,26 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 		data["password_validation_policy"] = flattenPasswordValidationPolicy(settings.PasswordValidationPolicy)
 	}
 
+	if settings.DataCacheConfig != nil {
+		data["data_cache_config"] = flattenDataCacheConfig(settings.DataCacheConfig)
+	}
+
 	if settings.AdvancedMachineFeatures != nil {
 		data["advanced_machine_features"] = flattenSqlServerAdvancedMachineFeatures(settings.AdvancedMachineFeatures)
 	}
 
 	return []map[string]interface{}{data}
+}
+
+func flattenDataCacheConfig(d *sqladmin.DataCacheConfig) []map[string]interface{} {
+	if d == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"data_cache_enabled": d.DataCacheEnabled,
+		},
+	}
 }
 
 func flattenBackupConfiguration(backupConfiguration *sqladmin.BackupConfiguration) []map[string]interface{} {

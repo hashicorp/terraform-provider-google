@@ -157,6 +157,22 @@ provider "google-beta" {
 }
 ```
 
+### ENTERPRISE_PLUS Instance with data_cache_config
+
+```hcl
+resource "google_sql_database_instance" "main" {
+  name             = "enterprise-plus-main-instance"
+  database_version = "MYSQL_8_0_31"
+  settings {
+    tier    = "db-perf-optimized-N-2"
+    edition = "ENTERPRISE_PLUS"
+    data_cache_config {
+        data_cache_enabled = true
+    }
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -228,6 +244,8 @@ The `settings` block supports:
     for more details and supported versions. Postgres supports only shared-core machine types,
     and custom machine types such as `db-custom-2-13312`. See the [Custom Machine Type Documentation](https://cloud.google.com/compute/docs/instances/creating-instance-with-custom-machine-type#create) to learn about specifying custom machine types.
 
+* `edition` - (Optional) The edition of the instance, can be `ENTERPRISE` or `ENTERPRISE_PLUS`.
+
 The optional `settings.advanced_machine_features` subblock supports:
 
 * `threads_per_core` - (Optional) The number of threads per core. The value of this flag can be 1 or 2. To disable SMT, set this flag to 1. Only available in Cloud SQL for SQL Server instances. See [smt](https://cloud.google.com/sql/docs/sqlserver/create-instance#smt-create-instance) for more details.
@@ -272,6 +290,11 @@ The optional `settings.active_directory_config` subblock supports:
 
 * `domain` - (Required) The domain name for the active directory (e.g., mydomain.com).
     Can only be used with SQL Server.
+
+The optional `settings.data_cache_config` subblock supports:
+
+* `data_cache_enabled` - (Optional) Whether data cache is enabled for the instance. Defaults to `false`
+    Can only be used with MYSQL.
 
 The optional `settings.deny_maintenance_period` subblock supports:
 
