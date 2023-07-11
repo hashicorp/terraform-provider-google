@@ -34,6 +34,7 @@ func ResourceComputeExternalVpnGateway() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeExternalVpnGatewayCreate,
 		Read:   resourceComputeExternalVpnGatewayRead,
+		Update: resourceComputeExternalVpnGatewayUpdate,
 		Delete: resourceComputeExternalVpnGatewayDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -42,6 +43,7 @@ func ResourceComputeExternalVpnGateway() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -96,7 +98,6 @@ it cannot be an IP address from Google Compute Engine.`,
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Labels for the external VPN gateway resource.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
@@ -106,6 +107,12 @@ it cannot be an IP address from Google Compute Engine.`,
 				ForceNew:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"FOUR_IPS_REDUNDANCY", "SINGLE_IP_INTERNALLY_REDUNDANT", "TWO_IPS_REDUNDANCY", ""}),
 				Description:  `Indicates the redundancy type of this external VPN gateway Possible values: ["FOUR_IPS_REDUNDANCY", "SINGLE_IP_INTERNALLY_REDUNDANT", "TWO_IPS_REDUNDANCY"]`,
+			},
+			"label_fingerprint": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The fingerprint used for optimistic locking of this resource.  Used
+internally during updates.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -141,6 +148,12 @@ func resourceComputeExternalVpnGatewayCreate(d *schema.ResourceData, meta interf
 		return err
 	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
+	}
+	labelFingerprintProp, err := expandComputeExternalVpnGatewayLabelFingerprint(d.Get("label_fingerprint"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("label_fingerprint"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelFingerprintProp)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
+		obj["labelFingerprint"] = labelFingerprintProp
 	}
 	nameProp, err := expandComputeExternalVpnGatewayName(d.Get("name"), d, config)
 	if err != nil {
@@ -261,6 +274,9 @@ func resourceComputeExternalVpnGatewayRead(d *schema.ResourceData, meta interfac
 	if err := d.Set("labels", flattenComputeExternalVpnGatewayLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
 	}
+	if err := d.Set("label_fingerprint", flattenComputeExternalVpnGatewayLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
+	}
 	if err := d.Set("name", flattenComputeExternalVpnGatewayName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ExternalVpnGateway: %s", err)
 	}
@@ -275,6 +291,77 @@ func resourceComputeExternalVpnGatewayRead(d *schema.ResourceData, meta interfac
 	}
 
 	return nil
+}
+
+func resourceComputeExternalVpnGatewayUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for ExternalVpnGateway: %s", err)
+	}
+	billingProject = project
+
+	d.Partial(true)
+
+	if d.HasChange("labels") || d.HasChange("label_fingerprint") {
+		obj := make(map[string]interface{})
+
+		labelsProp, err := expandComputeExternalVpnGatewayLabels(d.Get("labels"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+			obj["labels"] = labelsProp
+		}
+		labelFingerprintProp, err := expandComputeExternalVpnGatewayLabelFingerprint(d.Get("label_fingerprint"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("label_fingerprint"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
+			obj["labelFingerprint"] = labelFingerprintProp
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/externalVpnGateways/{{name}}/setLabels")
+		if err != nil {
+			return err
+		}
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating ExternalVpnGateway %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating ExternalVpnGateway %q: %#v", d.Id(), res)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Updating ExternalVpnGateway", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+
+	d.Partial(false)
+
+	return resourceComputeExternalVpnGatewayRead(d, meta)
 }
 
 func resourceComputeExternalVpnGatewayDelete(d *schema.ResourceData, meta interface{}) error {
@@ -358,6 +445,10 @@ func flattenComputeExternalVpnGatewayLabels(v interface{}, d *schema.ResourceDat
 	return v
 }
 
+func flattenComputeExternalVpnGatewayLabelFingerprint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeExternalVpnGatewayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -419,6 +510,10 @@ func expandComputeExternalVpnGatewayLabels(v interface{}, d tpgresource.Terrafor
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandComputeExternalVpnGatewayLabelFingerprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeExternalVpnGatewayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
