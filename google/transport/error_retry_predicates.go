@@ -273,6 +273,16 @@ func IsMonitoringConcurrentEditError(err error) (bool, string) {
 	return false, ""
 }
 
+// Retry if Monitoring operation returns a 403
+func IsMonitoringPermissionError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 403 {
+			return true, "Waiting for project to be ready for metrics scope"
+		}
+	}
+	return false, ""
+}
+
 // Retry if KMS CryptoKeyVersions returns a 400 for PENDING_GENERATION
 func IsCryptoKeyVersionsPendingGeneration(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 400 {
