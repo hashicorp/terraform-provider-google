@@ -939,9 +939,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 298
+// Generated resources: 300
 // Generated IAM resources: 198
-// Total generated resources: 496
+// Total generated resources: 498
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1242,6 +1242,8 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dns_managed_zone_iam_member":                             tpgiamresource.ResourceIamMember(dns.DNSManagedZoneIamSchema, dns.DNSManagedZoneIamUpdaterProducer, dns.DNSManagedZoneIdParseFunc),
 			"google_dns_managed_zone_iam_policy":                             tpgiamresource.ResourceIamPolicy(dns.DNSManagedZoneIamSchema, dns.DNSManagedZoneIamUpdaterProducer, dns.DNSManagedZoneIdParseFunc),
 			"google_dns_policy":                                              dns.ResourceDNSPolicy(),
+			"google_dns_response_policy":                                     dns.ResourceDNSResponsePolicy(),
+			"google_dns_response_policy_rule":                                dns.ResourceDNSResponsePolicyRule(),
 			"google_document_ai_processor":                                   documentai.ResourceDocumentAIProcessor(),
 			"google_document_ai_processor_default_version":                   documentai.ResourceDocumentAIProcessorDefaultVersion(),
 			"google_essential_contacts_contact":                              essentialcontacts.ResourceEssentialContactsContact(),
