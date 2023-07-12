@@ -30,7 +30,6 @@ To get more information about function, see:
 
 
 ```hcl
-# [START functions_v2_basic]
 locals {
   project = "my-project-name" # Google Cloud Platform Project ID
 }
@@ -73,13 +72,11 @@ resource "google_cloudfunctions2_function" "function" {
 output "function_uri" { 
   value = google_cloudfunctions2_function.function.service_config[0].uri
 }
-# [END functions_v2_basic]
 ```
 ## Example Usage - Cloudfunctions2 Full
 
 
 ```hcl
-# [START functions_v2_full]
 locals {
   project = "my-project-name" # Google Cloud Platform Project ID
 }
@@ -146,13 +143,11 @@ resource "google_cloudfunctions2_function" "function" {
     retry_policy = "RETRY_POLICY_RETRY"
   }
 }
-# [END functions_v2_full]
 ```
 ## Example Usage - Cloudfunctions2 Scheduler Auth
 
 
 ```hcl
-# [START function_v2_scheduler_auth]
 locals {
   project = "my-project-name" # Google Cloud Platform Project ID
 }
@@ -230,15 +225,11 @@ resource "google_cloud_scheduler_job" "invoke_cloud_function" {
     }
   }
 }
-
-# [END function_v2_scheduler_auth]
 ```
 ## Example Usage - Cloudfunctions2 Basic Gcs
 
 
 ```hcl
-# [START functions_v2_basic_gcs]
-
 resource "google_storage_bucket" "source-bucket" {
   name     = "gcf-source-bucket"
   location = "US"
@@ -342,13 +333,11 @@ resource "google_cloudfunctions2_function" "function" {
     }
   }
 }
-# [END functions_v2_basic_gcs]
 ```
 ## Example Usage - Cloudfunctions2 Basic Auditlogs
 
 
 ```hcl
-# [START functions_v2_basic_auditlogs]
 # This example follows the examples shown in this Google Cloud Community blog post
 # https://medium.com/google-cloud/applying-a-path-pattern-when-filtering-in-eventarc-f06b937b4c34
 # and the docs:
@@ -457,7 +446,6 @@ resource "google_cloudfunctions2_function" "function" {
     }
   }
 }
-# [END functions_v2_basic_auditlogs]
 ```
 ## Example Usage - Cloudfunctions2 Secret Env
 

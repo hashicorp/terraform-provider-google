@@ -137,7 +137,6 @@ func TestAccCloudfunctions2functionIamPolicyGenerated(t *testing.T) {
 
 func testAccCloudfunctions2functionIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-# [START functions_v2_basic]
 locals {
   project = "%{project}" # Google Cloud Platform Project ID
 }
@@ -180,7 +179,6 @@ resource "google_cloudfunctions2_function" "function" {
 output "function_uri" { 
   value = google_cloudfunctions2_function.function.service_config[0].uri
 }
-# [END functions_v2_basic]
 
 resource "google_cloudfunctions2_function_iam_member" "foo" {
   project = google_cloudfunctions2_function.function.project
@@ -194,7 +192,6 @@ resource "google_cloudfunctions2_function_iam_member" "foo" {
 
 func testAccCloudfunctions2functionIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-# [START functions_v2_basic]
 locals {
   project = "%{project}" # Google Cloud Platform Project ID
 }
@@ -237,7 +234,6 @@ resource "google_cloudfunctions2_function" "function" {
 output "function_uri" { 
   value = google_cloudfunctions2_function.function.service_config[0].uri
 }
-# [END functions_v2_basic]
 
 data "google_iam_policy" "foo" {
   binding {
@@ -266,7 +262,6 @@ data "google_cloudfunctions2_function_iam_policy" "foo" {
 
 func testAccCloudfunctions2functionIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-# [START functions_v2_basic]
 locals {
   project = "%{project}" # Google Cloud Platform Project ID
 }
@@ -309,7 +304,6 @@ resource "google_cloudfunctions2_function" "function" {
 output "function_uri" { 
   value = google_cloudfunctions2_function.function.service_config[0].uri
 }
-# [END functions_v2_basic]
 
 data "google_iam_policy" "foo" {
 }
@@ -325,7 +319,6 @@ resource "google_cloudfunctions2_function_iam_policy" "foo" {
 
 func testAccCloudfunctions2functionIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-# [START functions_v2_basic]
 locals {
   project = "%{project}" # Google Cloud Platform Project ID
 }
@@ -368,7 +361,6 @@ resource "google_cloudfunctions2_function" "function" {
 output "function_uri" { 
   value = google_cloudfunctions2_function.function.service_config[0].uri
 }
-# [END functions_v2_basic]
 
 resource "google_cloudfunctions2_function_iam_binding" "foo" {
   project = google_cloudfunctions2_function.function.project
@@ -382,7 +374,6 @@ resource "google_cloudfunctions2_function_iam_binding" "foo" {
 
 func testAccCloudfunctions2functionIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-# [START functions_v2_basic]
 locals {
   project = "%{project}" # Google Cloud Platform Project ID
 }
@@ -425,7 +416,6 @@ resource "google_cloudfunctions2_function" "function" {
 output "function_uri" { 
   value = google_cloudfunctions2_function.function.service_config[0].uri
 }
-# [END functions_v2_basic]
 
 resource "google_cloudfunctions2_function_iam_binding" "foo" {
   project = google_cloudfunctions2_function.function.project
