@@ -63,12 +63,12 @@ func testAccMonitoringMonitoredProject_monitoringMonitoredProjectBasicExample(co
 	return acctest.Nprintf(`
 resource "google_monitoring_monitored_project" "primary" {
   metrics_scope = "%{project_id}"
-  name          = google_project.basic.name
+  name          = google_project.basic.project_id
 }
 
 resource "google_project" "basic" {
   project_id = "tf-test-m-id%{random_suffix}"
-  name       = "tf-test-m-id%{random_suffix}"
+  name       = "tf-test-m-id%{random_suffix}-display"
   org_id     = "%{org_id}"
 }
 `, context)
