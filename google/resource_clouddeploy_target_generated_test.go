@@ -103,8 +103,11 @@ resource "google_clouddeploy_target" "primary" {
     my_second_annotation = "example-annotation-2"
   }
 
-  deploy_parameters = {}
-  description       = "basic description"
+  deploy_parameters = {
+    deployParameterKey = "deployParameterValue"
+  }
+
+  description = "basic description"
 
   gke {
     cluster = "projects/%{project_name}/locations/%{region}/clusters/example-cluster-name"
