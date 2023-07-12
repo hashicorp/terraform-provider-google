@@ -14,6 +14,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceBigtableTable() *schema.Resource {
@@ -92,6 +93,14 @@ func ResourceBigtableTable() *schema.Resource {
 				Elem:         &schema.Schema{Type: schema.TypeString},
 				Description:  `A field to make the table protected against data loss i.e. when set to PROTECTED, deleting the table, the column families in the table, and the instance containing the table would be prohibited. If not provided, currently deletion protection will be set to UNPROTECTED as it is the API default value.`,
 			},
+
+			"change_stream_retention": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: verify.ValidateDuration(),
+				Description:  `Duration to retain change stream data for the table. Set to 0 to disable.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -132,6 +141,13 @@ func resourceBigtableTableCreate(d *schema.ResourceData, meta interface{}) error
 		tblConf.DeletionProtection = bigtable.Protected
 	} else if deletionProtection == "UNPROTECTED" {
 		tblConf.DeletionProtection = bigtable.Unprotected
+	}
+
+	if changeStreamRetention, ok := d.GetOk("change_stream_retention"); ok {
+		tblConf.ChangeStreamRetention, err = time.ParseDuration(changeStreamRetention.(string))
+		if err != nil {
+			return fmt.Errorf("Error parsing change stream retention: %s", err)
+		}
 	}
 
 	// Set the split keys if given.
@@ -225,6 +241,14 @@ func resourceBigtableTableRead(d *schema.ResourceData, meta interface{}) error {
 	} else {
 		return fmt.Errorf("Error setting deletion_protection, it should be either PROTECTED or UNPROTECTED")
 	}
+
+	changeStreamRetention := table.ChangeStreamRetention
+	if changeStreamRetention != nil {
+		if err := d.Set("change_stream_retention", changeStreamRetention.(time.Duration).String()); err != nil {
+			return fmt.Errorf("Error setting change_stream_retention: %s", err)
+		}
+	}
+
 	return nil
 }
 
@@ -288,6 +312,23 @@ func resourceBigtableTableUpdate(d *schema.ResourceData, meta interface{}) error
 		} else if deletionProtection == "UNPROTECTED" {
 			if err := c.UpdateTableWithDeletionProtection(ctxWithTimeout, name, bigtable.Unprotected); err != nil {
 				return fmt.Errorf("Error updating deletion protection in table %v: %s", name, err)
+			}
+		}
+	}
+
+	if d.HasChange("change_stream_retention") {
+		changeStreamRetention := d.Get("change_stream_retention")
+		changeStream, err := time.ParseDuration(changeStreamRetention.(string))
+		if err != nil {
+			return fmt.Errorf("Error parsing change stream retention: %s", err)
+		}
+		if changeStream == 0 {
+			if err := c.UpdateTableDisableChangeStream(ctxWithTimeout, name); err != nil {
+				return fmt.Errorf("Error disabling change stream retention in table %v: %s", name, err)
+			}
+		} else {
+			if err := c.UpdateTableWithChangeStream(ctxWithTimeout, name, changeStream); err != nil {
+				return fmt.Errorf("Error updating change stream retention in table %v: %s", name, err)
 			}
 		}
 	}
