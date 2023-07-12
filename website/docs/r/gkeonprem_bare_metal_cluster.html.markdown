@@ -31,7 +31,7 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 ```hcl
 resource "google_gkeonprem_bare_metal_cluster" "cluster-basic" {
   provider = google-beta
-  name = "cluster-basic"
+  name = "my-cluster"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
   bare_metal_version = "1.12.3"

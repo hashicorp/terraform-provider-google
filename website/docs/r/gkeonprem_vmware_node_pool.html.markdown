@@ -31,8 +31,8 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 ```hcl
 resource "google_gkeonprem_vmware_cluster" "default-basic" {
   provider = google-beta
+  name = "my-cluster"
   location = "us-west1"
-  name = "default-basic"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
   description = "test cluster"
   on_prem_version = "1.13.1-gke.35"
@@ -70,8 +70,8 @@ resource "google_gkeonprem_vmware_cluster" "default-basic" {
 
 resource "google_gkeonprem_vmware_node_pool" "nodepool-basic" {
   provider = google-beta
+  name = "my-nodepool"
   location = "us-west1"
-  name = "np-nodepool"
   vmware_cluster = google_gkeonprem_vmware_cluster.default-basic.name
   config {
     replicas = 3
@@ -86,8 +86,8 @@ resource "google_gkeonprem_vmware_node_pool" "nodepool-basic" {
 ```hcl
 resource "google_gkeonprem_vmware_cluster" "default-full" {
   provider = google-beta
+  name = "my-cluster"
   location = "us-west1"
-  name = "default-full"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
   description = "test cluster"
   on_prem_version = "1.13.1-gke.35"
@@ -125,8 +125,8 @@ resource "google_gkeonprem_vmware_cluster" "default-full" {
 
 resource "google_gkeonprem_vmware_node_pool" "nodepool-full" {
   provider = google-beta
+  name = "my-nodepool"
   location = "us-west1"
-  name = "np-nodepool"
   vmware_cluster = google_gkeonprem_vmware_cluster.default-full.name
   annotations = {}
   config {

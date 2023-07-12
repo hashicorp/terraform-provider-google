@@ -31,7 +31,7 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 ```hcl
 resource "google_gkeonprem_bare_metal_admin_cluster" "admin-cluster-basic" {
   provider = google-beta
-  name = "basic"
+  name = "my-cluster"
   location = "us-west1"
   bare_metal_version = "1.13.4"
   network_config {
@@ -95,7 +95,7 @@ resource "google_gkeonprem_bare_metal_admin_cluster" "admin-cluster-basic" {
 ```hcl
 resource "google_gkeonprem_bare_metal_admin_cluster" "admin-cluster-basic" {
   provider = google-beta
-  name = "basic"
+  name = "my-cluster"
   location = "us-west1"
   description = "test description"
   bare_metal_version = "1.13.4"
