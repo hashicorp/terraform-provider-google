@@ -56,7 +56,6 @@ var services = mapOf(
         "essentialcontacts" to "Essentialcontacts",
         "filestore" to "Filestore",
         "firebase" to "Firebase",
-        "firebasehosting" to "Firebasehosting",
         "firestore" to "Firestore",
         "gameservices" to "Gameservices",
         "gkebackup" to "Gkebackup",
