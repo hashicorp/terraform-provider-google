@@ -1,0 +1,3 @@
+```release-note:none
+ remove unused doc region tags from serverless samples
+```
