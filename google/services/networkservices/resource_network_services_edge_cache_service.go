@@ -496,7 +496,7 @@ included.`,
 																						Description: `Names of query string parameters to exclude from cache keys. All other parameters will be included.
 
 Either specify includedQueryParameters or excludedQueryParameters, not both. '&' and '=' will be percent encoded and not treated as delimiters.`,
-																						MaxItems: 10,
+																						MaxItems: 20,
 																						Elem: &schema.Schema{
 																							Type: schema.TypeString,
 																						},
@@ -546,7 +546,7 @@ Note that specifying several headers, and/or headers that have a large range of 
 																						Description: `Names of query string parameters to include in cache keys. All other parameters will be excluded.
 
 Either specify includedQueryParameters or excludedQueryParameters, not both. '&' and '=' will be percent encoded and not treated as delimiters.`,
-																						MaxItems: 10,
+																						MaxItems: 20,
 																						Elem: &schema.Schema{
 																							Type: schema.TypeString,
 																						},
