@@ -2,6 +2,8 @@
 
 var packages = mapOf(
         "acctest" to "AccTest",
+        "provider" to "SDK Provider",
+        "fwprovider" to "Framework Plugin Provider",
         "services" to "Services",
         "tpgdclresource" to "TPG DCL Resource",
         "tpgiamresource" to "TPG IAM Resource",
