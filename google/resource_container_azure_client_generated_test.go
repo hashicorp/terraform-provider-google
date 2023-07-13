@@ -16,7 +16,7 @@
 //
 // ----------------------------------------------------------------------------
 
-package containerazure_test
+package google
 
 import (
 	"context"
@@ -40,12 +40,12 @@ func TestAccContainerAzureClient_BasicHandWritten(t *testing.T) {
 		"azure_app":     "00000000-0000-0000-0000-17aad2f0f61f",
 		"azure_tenant":  "00000000-0000-0000-0000-17aad2f0f61f",
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	acctest.VcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckContainerAzureClientDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -83,7 +83,7 @@ func testAccCheckContainerAzureClientDestroyProducer(t *testing.T) func(s *terra
 				continue
 			}
 
-			config := acctest.GoogleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			billingProject := ""
 			if config.BillingProject != "" {
