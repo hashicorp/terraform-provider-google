@@ -16,7 +16,7 @@
 //
 // ----------------------------------------------------------------------------
 
-package google
+package apikeys_test
 
 import (
 	"context"
@@ -39,12 +39,12 @@ func TestAccApikeysKey_AndroidKey(t *testing.T) {
 	context := map[string]interface{}{
 		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApikeysKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -72,12 +72,12 @@ func TestAccApikeysKey_BasicKey(t *testing.T) {
 	context := map[string]interface{}{
 		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApikeysKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -105,12 +105,12 @@ func TestAccApikeysKey_IosKey(t *testing.T) {
 	context := map[string]interface{}{
 		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApikeysKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -138,12 +138,12 @@ func TestAccApikeysKey_MinimalKey(t *testing.T) {
 	context := map[string]interface{}{
 		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApikeysKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -163,12 +163,12 @@ func TestAccApikeysKey_ServerKey(t *testing.T) {
 	context := map[string]interface{}{
 		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckApikeysKeyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -457,7 +457,7 @@ func testAccCheckApikeysKeyDestroyProducer(t *testing.T) func(s *terraform.State
 				continue
 			}
 
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 
 			billingProject := ""
 			if config.BillingProject != "" {

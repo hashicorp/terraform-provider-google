@@ -16,7 +16,7 @@
 //
 // ----------------------------------------------------------------------------
 
-package google
+package compute_test
 
 import (
 	"context"
@@ -40,12 +40,12 @@ func TestAccComputeFirewallPolicyRule_BasicFirSecRuleHandWritten(t *testing.T) {
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"project_name":  envvar.GetTestProjectFromEnv(),
 		"service_acct":  envvar.GetTestServiceAccountFromEnv(t),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckComputeFirewallPolicyRuleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -184,7 +184,7 @@ func testAccCheckComputeFirewallPolicyRuleDestroyProducer(t *testing.T) func(s *
 				continue
 			}
 
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 
 			billingProject := ""
 			if config.BillingProject != "" {
