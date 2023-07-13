@@ -61,6 +61,7 @@ resource "google_healthcare_fhir_store" "default" {
   name    = "tf-test-example-fhir-store%{random_suffix}"
   dataset = google_healthcare_dataset.dataset.id
   version = "R4"
+  complex_data_type_reference_parsing = "DISABLED"
 
   enable_update_create          = false
   disable_referential_integrity = false

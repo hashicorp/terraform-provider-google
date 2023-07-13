@@ -1,0 +1,3 @@
+```release-note:enhancement
+healthcare: added `complex_data_type_reference_parsing ` field to `google_healthcare_fhir_store` resource
+```
