@@ -16,7 +16,7 @@
 //
 // ----------------------------------------------------------------------------
 
-package compute_test
+package google
 
 import (
 	"context"
@@ -33,32 +33,33 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccComputeNetworkFirewallPolicyAssociation_GlobalHandWritten(t *testing.T) {
+func TestAccComputeRegionNetworkFirewallPolicyAssociation_RegionalHandWritten(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"region":        envvar.GetTestRegionFromEnv(),
+		"random_suffix": RandString(t, 10),
 	}
 
-	acctest.VcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeNetworkFirewallPolicyAssociationDestroyProducer(t),
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionNetworkFirewallPolicyAssociationDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNetworkFirewallPolicyAssociation_GlobalHandWritten(context),
+				Config: testAccComputeRegionNetworkFirewallPolicyAssociation_RegionalHandWritten(context),
 			},
 			{
-				ResourceName:      "google_compute_network_firewall_policy_association.primary",
+				ResourceName:      "google_compute_region_network_firewall_policy_association.primary",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeNetworkFirewallPolicyAssociation_GlobalHandWrittenUpdate0(context),
+				Config: testAccComputeRegionNetworkFirewallPolicyAssociation_RegionalHandWrittenUpdate0(context),
 			},
 			{
-				ResourceName:      "google_compute_network_firewall_policy_association.primary",
+				ResourceName:      "google_compute_region_network_firewall_policy_association.primary",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -66,65 +67,69 @@ func TestAccComputeNetworkFirewallPolicyAssociation_GlobalHandWritten(t *testing
 	})
 }
 
-func testAccComputeNetworkFirewallPolicyAssociation_GlobalHandWritten(context map[string]interface{}) string {
+func testAccComputeRegionNetworkFirewallPolicyAssociation_RegionalHandWritten(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_compute_network_firewall_policy" "network_firewall_policy" {
+resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
   name = "tf-test-policy%{random_suffix}"
   project = "%{project_name}"
   description = "Sample global network firewall policy"
+  region = "%{region}"
 }
 
-resource "google_compute_network" "network" {
+resource "google_compute_network" "basic_network" {
   name = "tf-test-network%{random_suffix}"
 }
 
-resource "google_compute_network_firewall_policy_association" "primary" {
+resource "google_compute_region_network_firewall_policy_association" "primary" {
   name = "tf-test-association%{random_suffix}"
-  attachment_target = google_compute_network.network.id
-  firewall_policy =  google_compute_network_firewall_policy.network_firewall_policy.name
+  attachment_target = google_compute_network.basic_network.id
+  firewall_policy =  google_compute_region_network_firewall_policy.basic_regional_network_firewall_policy.name
   project =  "%{project_name}"
+  region = "%{region}"
 }
 
 `, context)
 }
 
-func testAccComputeNetworkFirewallPolicyAssociation_GlobalHandWrittenUpdate0(context map[string]interface{}) string {
+func testAccComputeRegionNetworkFirewallPolicyAssociation_RegionalHandWrittenUpdate0(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_compute_network_firewall_policy" "network_firewall_policy" {
+resource "google_compute_region_network_firewall_policy" "basic_regional_network_firewall_policy" {
   name = "tf-test-policy%{random_suffix}"
   project = "%{project_name}"
   description = "Sample global network firewall policy"
+  region = "%{region}"
 }
 
-resource "google_compute_network" "network" {
+resource "google_compute_network" "basic_network" {
   name = "tf-test-network%{random_suffix}"
 }
 
-resource "google_compute_network" "network2" {
+resource "google_compute_network" "basic_network2" {
   name = "update-tf-test-network%{random_suffix}"
 }
 
-resource "google_compute_network_firewall_policy_association" "primary" {
+resource "google_compute_region_network_firewall_policy_association" "primary" {
   name = "tf-test-association%{random_suffix}"
-  attachment_target = google_compute_network.network2.id
-  firewall_policy =  google_compute_network_firewall_policy.network_firewall_policy.name
+  attachment_target = google_compute_network.basic_network2.id
+  firewall_policy =  google_compute_region_network_firewall_policy.basic_regional_network_firewall_policy.name
   project =  "%{project_name}"
+  region = "%{region}"
 }
 
 `, context)
 }
 
-func testAccCheckComputeNetworkFirewallPolicyAssociationDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckComputeRegionNetworkFirewallPolicyAssociationDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "rs.google_compute_network_firewall_policy_association" {
+			if rs.Type != "rs.google_compute_region_network_firewall_policy_association" {
 				continue
 			}
 			if strings.HasPrefix(name, "data.") {
 				continue
 			}
 
-			config := acctest.GoogleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			billingProject := ""
 			if config.BillingProject != "" {
@@ -136,13 +141,14 @@ func testAccCheckComputeNetworkFirewallPolicyAssociationDestroyProducer(t *testi
 				FirewallPolicy:   dcl.String(rs.Primary.Attributes["firewall_policy"]),
 				Name:             dcl.String(rs.Primary.Attributes["name"]),
 				Project:          dcl.StringOrNil(rs.Primary.Attributes["project"]),
+				Location:         dcl.StringOrNil(rs.Primary.Attributes["region"]),
 				ShortName:        dcl.StringOrNil(rs.Primary.Attributes["short_name"]),
 			}
 
 			client := transport_tpg.NewDCLComputeClient(config, config.UserAgent, billingProject, 0)
 			_, err := client.GetNetworkFirewallPolicyAssociation(context.Background(), obj)
 			if err == nil {
-				return fmt.Errorf("google_compute_network_firewall_policy_association still exists %v", obj)
+				return fmt.Errorf("google_compute_region_network_firewall_policy_association still exists %v", obj)
 			}
 		}
 		return nil
