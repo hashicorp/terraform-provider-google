@@ -50,6 +50,8 @@ resource "google_bigtable_table" "table" {
   column_family {
     family = "family-second"
   }
+
+  change_stream_retention = "24h0m0s"
 }
 ```
 
@@ -71,6 +73,8 @@ to delete/recreate the entire `google_bigtable_table` resource.
     is not provided, the provider project is used.
 
 * `deletion_protection` - (Optional) A field to make the table protected against data loss i.e. when set to PROTECTED, deleting the table, the column families in the table, and the instance containing the table would be prohibited. If not provided, deletion protection will be set to UNPROTECTED.
+
+* `change_stream_retention` - (Optional) Duration to retain change stream data for the table. Set to 0 to disable. Must be between 1 and 7 days.
 
 -----
 

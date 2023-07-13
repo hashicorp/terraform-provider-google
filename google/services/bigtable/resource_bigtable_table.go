@@ -99,7 +99,7 @@ func ResourceBigtableTable() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: verify.ValidateDuration(),
-				Description:  `Duration to retain change stream data for the table. Set to 0 to disable.`,
+				Description:  `Duration to retain change stream data for the table. Set to 0 to disable. Must be between 1 and 7 days.`,
 			},
 		},
 		UseJSONNumber: true,
