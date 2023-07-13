@@ -34,12 +34,12 @@ To get more information about MonitoredProject, see:
 ```hcl
 resource "google_monitoring_monitored_project" "primary" {
   metrics_scope = "my-project-name"
-  name          = google_project.basic.name
+  name          = google_project.basic.project_id
 }
 
 resource "google_project" "basic" {
   project_id = "m-id"
-  name       = "m-id"
+  name       = "m-id-display"
   org_id     = "123456789"
 }
 ```
