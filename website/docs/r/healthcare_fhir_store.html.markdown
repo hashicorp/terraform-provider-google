@@ -42,6 +42,7 @@ resource "google_healthcare_fhir_store" "default" {
   name    = "example-fhir-store"
   dataset = google_healthcare_dataset.dataset.id
   version = "R4"
+  complex_data_type_reference_parsing = "DISABLED"
 
   enable_update_create          = false
   disable_referential_integrity = false
@@ -220,6 +221,11 @@ The following arguments are supported:
   The FHIR specification version.
   Default value is `STU3`.
   Possible values are: `DSTU2`, `STU3`, `R4`.
+
+* `complex_data_type_reference_parsing` -
+  (Optional)
+  Enable parsing of references within complex FHIR data types such as Extensions. If this value is set to ENABLED, then features like referential integrity and Bundle reference rewriting apply to all references. If this flag has not been specified the behavior of the FHIR store will not change, references in complex data types will not be parsed. New stores will have this value set to ENABLED by default after a notification period. Warning: turning on this flag causes processing existing resources to fail if they contain references to non-existent resources.
+  Possible values are: `COMPLEX_DATA_TYPE_REFERENCE_PARSING_UNSPECIFIED`, `DISABLED`, `ENABLED`.
 
 * `enable_update_create` -
   (Optional)
