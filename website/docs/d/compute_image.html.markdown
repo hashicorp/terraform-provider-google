@@ -36,13 +36,17 @@ The following arguments are supported:
 Exactly one of `name`, `family` or `filter` must be specified. If `name` is specified, it will fetch
 the corresponding image. If `family` is specified, it will return the latest image
 that is part of an image family and is not deprecated. If you specify `filter`, your 
-filter must return exactly one image. Filter syntax can be found [here](https://cloud.google.com/compute/docs/reference/rest/v1/images/list) in the filter section.
+filter must return exactly one image unless you use `most_recent`. 
+Filter syntax can be found [here](https://cloud.google.com/compute/docs/reference/rest/v1/images/list) in the filter section.
 
 - - -
 
 * `project` - (Optional) The project in which the resource belongs. If it is not
   provided, the provider project is used. If you are using a
   [public base image][pubimg], be sure to specify the correct Image Project.
+
+* `most_recent` - (Optional) A boolean to indicate either to take to most recent image if your filter
+  returns more than one image.
 
 ## Attributes Reference
 

@@ -72,6 +72,19 @@ func TestAccDataSourceComputeImageFilter(t *testing.T) {
 						"self_link"),
 				),
 			},
+			{
+				Config: testAccDataSourceCustomImageFilterWithMostRecent(family, name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.google_compute_image.from_filter",
+						"name", name+"-latest"),
+					resource.TestCheckResourceAttr("data.google_compute_image.from_filter",
+						"family", family),
+					resource.TestCheckResourceAttr("data.google_compute_image.from_filter",
+						"most_recent", "true"),
+					resource.TestCheckResourceAttrSet("data.google_compute_image.from_filter",
+						"self_link"),
+				),
+			},
 		},
 	})
 }
@@ -164,4 +177,39 @@ data "google_compute_image" "from_filter" {
 }
 
 `, family, name, name, name, name)
+}
+
+func testAccDataSourceCustomImageFilterWithMostRecent(family, name string) string {
+	return fmt.Sprintf(`
+resource "google_compute_image" "image-first" {
+  family      = "%s"
+  name        = "%s-first"
+  source_disk = google_compute_disk.disk.self_link
+  labels = {
+	test = "%s"
+  }
+}
+
+resource "google_compute_image" "image-latest" {
+  depends_on  = [ google_compute_image.image-first ]
+  family      = "%s"
+  name        = "%s-latest"
+  source_disk = google_compute_disk.disk.self_link
+  labels = {
+	test = "%s"
+  }
+}
+
+resource "google_compute_disk" "disk" {
+  name = "%s-disk"
+  zone = "us-central1-b"
+}
+
+data "google_compute_image" "from_filter" {
+  project     = google_compute_image.image-latest.project
+  filter      = "labels.test = %s"
+  most_recent = true
+}
+
+`, family, name, name, family, name, name, name, name)
 }

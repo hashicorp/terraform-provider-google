@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -111,6 +112,11 @@ func DataSourceGoogleComputeImage() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"most_recent": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 	}
 }
@@ -145,6 +151,19 @@ func dataSourceGoogleComputeImageRead(d *schema.ResourceData, meta interface{}) 
 		if len(images.Items) == 1 {
 			for _, im := range images.Items {
 				image = im
+			}
+		} else if mr, ok := d.GetOk("most_recent"); len(images.Items) >= 1 && ok && mr.(bool) {
+			most_recent := time.UnixMicro(0)
+			for _, im := range images.Items {
+				parsedTS, err := time.Parse(time.RFC3339, im.CreationTimestamp)
+				if err != nil {
+					return fmt.Errorf("error parsing creation timestamp: %w", err)
+				}
+
+				if parsedTS.After(most_recent) {
+					most_recent = parsedTS
+					image = im
+				}
 			}
 		} else {
 			return fmt.Errorf("your filter has returned more than one image or no image. Please refine your filter to return exactly one image")
