@@ -117,6 +117,60 @@ resource "google_apigee_organization" "org" {
 `, context)
 }
 
+func TestAccApigeeOrganization_apigeeOrganizationCloudBasicDisableVpcPeeringTestExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"random_suffix":   acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckApigeeOrganizationDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccApigeeOrganization_apigeeOrganizationCloudBasicDisableVpcPeeringTestExample(context),
+			},
+			{
+				ResourceName:            "google_apigee_organization.org",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project_id", "retention"},
+			},
+		},
+	})
+}
+
+func testAccApigeeOrganization_apigeeOrganizationCloudBasicDisableVpcPeeringTestExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_project" "project" {
+  project_id      = "tf-test%{random_suffix}"
+  name            = "tf-test%{random_suffix}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_account}"
+}
+
+resource "google_project_service" "apigee" {
+  project = google_project.project.project_id
+  service = "apigee.googleapis.com"
+}
+
+resource "google_apigee_organization" "org" {
+  description         = "Terraform-provisioned basic Apigee Org without VPC Peering."
+  analytics_region    = "us-central1"
+  project_id          = google_project.project.project_id
+  disable_vpc_peering = true
+  depends_on          = [
+    google_project_service.apigee,
+  ]
+}
+`, context)
+}
+
 func testAccCheckApigeeOrganizationDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

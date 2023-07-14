@@ -80,6 +80,15 @@ Valid only when 'RuntimeType' is set to CLOUD. The value can be updated only whe
 				Optional:    true,
 				Description: `Description of the Apigee organization.`,
 			},
+			"disable_vpc_peering": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Flag that specifies whether the VPC Peering through Private Google Access should be
+disabled between the consumer network and Apigee. Required if an 'authorizedNetwork'
+on the consumer project is not provided, in which case the flag should be set to 'true'.
+Valid only when 'RuntimeType' is set to CLOUD. The value must be set before the creation
+of any Apigee runtime instance and can be updated only when there are no runtime instances.`,
+			},
 			"display_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -200,6 +209,12 @@ func resourceApigeeOrganizationCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("authorized_network"); !tpgresource.IsEmptyValue(reflect.ValueOf(authorizedNetworkProp)) && (ok || !reflect.DeepEqual(v, authorizedNetworkProp)) {
 		obj["authorizedNetwork"] = authorizedNetworkProp
+	}
+	disableVpcPeeringProp, err := expandApigeeOrganizationDisableVpcPeering(d.Get("disable_vpc_peering"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disable_vpc_peering"); !tpgresource.IsEmptyValue(reflect.ValueOf(disableVpcPeeringProp)) && (ok || !reflect.DeepEqual(v, disableVpcPeeringProp)) {
+		obj["disableVpcPeering"] = disableVpcPeeringProp
 	}
 	runtimeTypeProp, err := expandApigeeOrganizationRuntimeType(d.Get("runtime_type"), d, config)
 	if err != nil {
@@ -338,6 +353,9 @@ func resourceApigeeOrganizationRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("authorized_network", flattenApigeeOrganizationAuthorizedNetwork(res["authorizedNetwork"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Organization: %s", err)
 	}
+	if err := d.Set("disable_vpc_peering", flattenApigeeOrganizationDisableVpcPeering(res["disableVpcPeering"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Organization: %s", err)
+	}
 	if err := d.Set("runtime_type", flattenApigeeOrganizationRuntimeType(res["runtimeType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Organization: %s", err)
 	}
@@ -396,6 +414,12 @@ func resourceApigeeOrganizationUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("authorized_network"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, authorizedNetworkProp)) {
 		obj["authorizedNetwork"] = authorizedNetworkProp
+	}
+	disableVpcPeeringProp, err := expandApigeeOrganizationDisableVpcPeering(d.Get("disable_vpc_peering"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disable_vpc_peering"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disableVpcPeeringProp)) {
+		obj["disableVpcPeering"] = disableVpcPeeringProp
 	}
 	runtimeTypeProp, err := expandApigeeOrganizationRuntimeType(d.Get("runtime_type"), d, config)
 	if err != nil {
@@ -568,6 +592,10 @@ func flattenApigeeOrganizationAuthorizedNetwork(v interface{}, d *schema.Resourc
 	return v
 }
 
+func flattenApigeeOrganizationDisableVpcPeering(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenApigeeOrganizationRuntimeType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -645,6 +673,10 @@ func expandApigeeOrganizationAnalyticsRegion(v interface{}, d tpgresource.Terraf
 }
 
 func expandApigeeOrganizationAuthorizedNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeOrganizationDisableVpcPeering(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
