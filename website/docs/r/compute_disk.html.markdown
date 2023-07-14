@@ -222,6 +222,11 @@ The following arguments are supported:
   [`google_compute_disk_resource_policy_attachment`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_disk_resource_policy_attachment)
   to allow for updating the resource policy attached to the disk.
 
+* `enable_confidential_compute` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Whether this disk is using confidential compute mode.
+  Note: Only supported on hyperdisk skus, disk_encryption_key is required when setting to true
+
 * `multi_writer` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Indicates whether or not the disk can be read/write attached to more than one instance.
