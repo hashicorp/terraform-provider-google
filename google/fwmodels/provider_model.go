@@ -86,6 +86,7 @@ type ProviderModel struct {
 	IdentityPlatformCustomEndpoint         types.String `tfsdk:"identity_platform_custom_endpoint"`
 	KMSCustomEndpoint                      types.String `tfsdk:"kms_custom_endpoint"`
 	LoggingCustomEndpoint                  types.String `tfsdk:"logging_custom_endpoint"`
+	LookerCustomEndpoint                   types.String `tfsdk:"looker_custom_endpoint"`
 	MemcacheCustomEndpoint                 types.String `tfsdk:"memcache_custom_endpoint"`
 	MLEngineCustomEndpoint                 types.String `tfsdk:"ml_engine_custom_endpoint"`
 	MonitoringCustomEndpoint               types.String `tfsdk:"monitoring_custom_endpoint"`
