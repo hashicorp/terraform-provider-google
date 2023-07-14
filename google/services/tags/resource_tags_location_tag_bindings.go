@@ -81,6 +81,13 @@ func resourceTagsLocationTagBindingCreate(d *schema.ResourceData, meta interface
 		obj["tagValue"] = tagValueProp
 	}
 
+	lockName, err := tpgresource.ReplaceVars(d, config, "tagBindings/{{parent}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{TagsLocationBasePath}}tagBindings")
 	log.Printf("url for TagsLocation: %s", url)
 	if err != nil {
@@ -248,6 +255,13 @@ func resourceTagsLocationTagBindingDelete(d *schema.ResourceData, meta interface
 	}
 
 	billingProject := ""
+
+	lockName, err := tpgresource.ReplaceVars(d, config, "tagBindings/{{parent}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{TagsLocationBasePath}}{{name}}")
 	if err != nil {
