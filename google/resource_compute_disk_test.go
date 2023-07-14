@@ -973,6 +973,23 @@ resource "google_compute_instance_group_manager" "manager" {
 `, diskName, mgrName)
 }
 
+func testAccComputeDisk_pdHyperDiskEnableConfidentialCompute(context map[string]interface{}) string {
+	return Nprintf(`
+	resource "google_compute_disk" "foobar" {
+		name                        = "tf-test-ecc-%{random_suffix}"
+		size                        = %{disk_size}
+		type                        = "hyperdisk-balanced"
+		zone                        = "us-central1-a"
+		enable_confidential_compute = %{confidential_compute}
+
+		disk_encryption_key {
+			kms_key_self_link       = "%{kms}"
+		}
+
+	}
+`, context)
+}
+
 func testAccComputeDisk_pdHyperDiskProvisionedIopsLifeCycle(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 	resource "google_compute_disk" "foobar" {
