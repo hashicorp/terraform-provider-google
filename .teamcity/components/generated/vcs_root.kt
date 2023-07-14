@@ -8,6 +8,6 @@ object providerRepository : GitVcsRoot({
     agentCleanPolicy = AgentCleanPolicy.ON_BRANCH_CHANGE
     agentCleanFilesPolicy = AgentCleanFilesPolicy.ALL_UNTRACKED
     branchSpec = "+:*"
-    branch = "refs/heads/main"
+    branch = "refs/heads/sarah-test-dcl-migration-teamcity"
     authMethod = anonymous()
 })
