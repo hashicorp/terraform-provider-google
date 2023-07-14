@@ -59,6 +59,19 @@ resource "google_apigee_organization" "org" {
   depends_on         = [google_service_networking_connection.apigee_vpc_connection]
 }
 ```
+## Example Usage - Apigee Organization Cloud Basic Disable Vpc Peering
+
+
+```hcl
+data "google_client_config" "current" {}
+
+resource "google_apigee_organization" "org" {
+  description         = "Terraform-provisioned basic Apigee Org without VPC Peering."
+  analytics_region    = "us-central1"
+  project_id          = data.google_client_config.current.project
+  disable_vpc_peering = true
+}
+```
 ## Example Usage - Apigee Organization Cloud Full
 
 
@@ -126,6 +139,54 @@ resource "google_apigee_organization" "org" {
   ]
 }
 ```
+## Example Usage - Apigee Organization Cloud Full Disable Vpc Peering
+
+
+```hcl
+data "google_client_config" "current" {}
+
+resource "google_kms_key_ring" "apigee_keyring" {
+  name     = "apigee-keyring"
+  location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "apigee_key" {
+  name            = "apigee-key"
+  key_ring        = google_kms_key_ring.apigee_keyring.id
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "google_project_service_identity" "apigee_sa" {
+  provider = google-beta
+  project  = google_project.project.project_id
+  service  = google_project_service.apigee.service
+}
+
+resource "google_kms_crypto_key_iam_binding" "apigee_sa_keyuser" {
+  crypto_key_id = google_kms_crypto_key.apigee_key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  members = [
+    "serviceAccount:${google_project_service_identity.apigee_sa.email}",
+  ]
+}
+
+resource "google_apigee_organization" "org" {
+  analytics_region                     = "us-central1"
+  display_name                         = "apigee-org"
+  description                          = "Terraform-provisioned Apigee Org without VPC Peering."
+  project_id                           = data.google_client_config.current.project
+  disable_vpc_peering                  = true
+  runtime_database_encryption_key_name = google_kms_crypto_key.apigee_key.id
+
+  depends_on = [
+    google_kms_crypto_key_iam_binding.apigee_sa_keyuser,
+  ]
+}
+```
 
 ## Argument Reference
 
@@ -157,6 +218,14 @@ The following arguments are supported:
   Compute Engine network used for Service Networking to be peered with Apigee runtime instances.
   See [Getting started with the Service Networking API](https://cloud.google.com/service-infrastructure/docs/service-networking/getting-started).
   Valid only when `RuntimeType` is set to CLOUD. The value can be updated only when there are no runtime instances. For example: "default".
+
+* `disable_vpc_peering` -
+  (Optional)
+  Flag that specifies whether the VPC Peering through Private Google Access should be
+  disabled between the consumer network and Apigee. Required if an `authorizedNetwork`
+  on the consumer project is not provided, in which case the flag should be set to `true`.
+  Valid only when `RuntimeType` is set to CLOUD. The value must be set before the creation
+  of any Apigee runtime instance and can be updated only when there are no runtime instances.
 
 * `runtime_type` -
   (Optional)

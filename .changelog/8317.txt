@@ -1,0 +1,3 @@
+```release-note:enhancement
+apigee: added `disable_vpc_peering` field to `google_apigee_organization` resource
+```
