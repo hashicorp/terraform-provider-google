@@ -66,6 +66,6 @@ This resource provides the following
 Flowhook can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_apigee_flowhook.default organizations/{{org_id}}/environments/{{environment}}/flowhooks/{{test2}}{{test}}
+$ terraform import google_apigee_flowhook.default organizations/{{org_id}}/environments/{{test3}}/flowhooks/{{test2}}{{test}}
 $ terraform import google_apigee_flowhook.default {{org_id}}/{{environment}}/{{flow_hook_point}}
 ```
