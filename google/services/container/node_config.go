@@ -102,6 +102,25 @@ func schemaNodeConfig() *schema.Schema {
 								DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 								Description:      `The accelerator type resource name.`,
 							},
+							"gpu_driver_installation_config": {
+								Type:        schema.TypeList,
+								MaxItems:    1,
+								Optional:    true,
+								ForceNew:    true,
+								ConfigMode:  schema.SchemaConfigModeAttr,
+								Description: `Configuration for auto installation of GPU driver.`,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"gpu_driver_version": {
+											Type:         schema.TypeString,
+											Required:     true,
+											ForceNew:     true,
+											Description:  `Mode for how the GPU driver is installed.`,
+											ValidateFunc: validation.StringInSlice([]string{"GPU_DRIVER_VERSION_UNSPECIFIED", "INSTALLATION_DISABLED", "DEFAULT", "LATEST"}, false),
+										},
+									},
+								},
+							},
 							"gpu_partition_size": {
 								Type:        schema.TypeString,
 								Optional:    true,
@@ -587,6 +606,13 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 				GpuPartitionSize: data["gpu_partition_size"].(string),
 			}
 
+			if v, ok := data["gpu_driver_installation_config"]; ok && len(v.([]interface{})) > 0 {
+				gpuDriverInstallationConfig := data["gpu_driver_installation_config"].([]interface{})[0].(map[string]interface{})
+				guestAcceleratorConfig.GpuDriverInstallationConfig = &container.GPUDriverInstallationConfig{
+					GpuDriverVersion: gpuDriverInstallationConfig["gpu_driver_version"].(string),
+				}
+			}
+
 			if v, ok := data["gpu_sharing_config"]; ok && len(v.([]interface{})) > 0 {
 				gpuSharingConfig := data["gpu_sharing_config"].([]interface{})[0].(map[string]interface{})
 				guestAcceleratorConfig.GpuSharingConfig = &container.GPUSharingConfig{
@@ -955,6 +981,13 @@ func flattenContainerGuestAccelerators(c []*container.AcceleratorConfig) []map[s
 			"count":              accel.AcceleratorCount,
 			"type":               accel.AcceleratorType,
 			"gpu_partition_size": accel.GpuPartitionSize,
+		}
+		if accel.GpuDriverInstallationConfig != nil {
+			accelerator["gpu_driver_installation_config"] = []map[string]interface{}{
+				{
+					"gpu_driver_version": accel.GpuDriverInstallationConfig.GpuDriverVersion,
+				},
+			}
 		}
 		if accel.GpuSharingConfig != nil {
 			accelerator["gpu_sharing_config"] = []map[string]interface{}{

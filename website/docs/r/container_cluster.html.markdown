@@ -948,6 +948,17 @@ sole_tenant_config {
 
 * `count` (Required) - The number of the guest accelerator cards exposed to this instance.
 
+* `gpu_driver_installation_config` (Optional) - Configuration for auto installation of GPU driver. Structure is [documented below](#nested_gpu_driver_installation_config).
+
+<a name="nested_gpu_driver_installation_config"></a>The `gpu_driver_installation_config` block supports:
+
+* `gpu_driver_version` (Required) - Mode for how the GPU driver is installed.
+    Accepted values are:
+    * `"GPU_DRIVER_VERSION_UNSPECIFIED"`: Default value is to not install any GPU driver.
+    * `"INSTALLATION_DISABLED"`: Disable GPU driver auto installation and needs manual installation.
+    * `"DEFAULT"`: "Default" GPU driver in COS and Ubuntu.
+    * `"LATEST"`: "Latest" GPU driver in COS.
+
 * `gpu_partition_size` (Optional) - Size of partitions to create on the GPU. Valid values are described in the NVIDIA mig [user guide](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/#partitioning).
 
 * `gpu_sharing_config` (Optional) - Configuration for GPU sharing. Structure is [documented below](#nested_gpu_sharing_config).
