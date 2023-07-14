@@ -59,8 +59,10 @@ func testAccVPCAccessConnector_vpcAccessConnectorExample(context map[string]inte
 	return acctest.Nprintf(`
 resource "google_vpc_access_connector" "connector" {
   name          = "tf-test-vpc-con%{random_suffix}"
-  ip_cidr_range = "10.8.0.0/28"
+  ip_cidr_range = "10.18.0.0/28"
   network       = "default"
+  min_instances  = 2
+  max_instances  = 3
 }
 `, context)
 }
@@ -98,6 +100,8 @@ resource "google_vpc_access_connector" "connector" {
     name = google_compute_subnetwork.custom_test.name
   }
   machine_type = "e2-standard-4"
+  min_instances = 2
+  max_instances = 3
 }
 
 resource "google_compute_subnetwork" "custom_test" {
