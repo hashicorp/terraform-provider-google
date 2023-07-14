@@ -110,6 +110,7 @@ type FrameworkProviderConfig struct {
 	IdentityPlatformBasePath         string
 	KMSBasePath                      string
 	LoggingBasePath                  string
+	LookerBasePath                   string
 	MemcacheBasePath                 string
 	MLEngineBasePath                 string
 	MonitoringBasePath               string
@@ -244,6 +245,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.IdentityPlatformBasePath = data.IdentityPlatformCustomEndpoint.ValueString()
 	p.KMSBasePath = data.KMSCustomEndpoint.ValueString()
 	p.LoggingBasePath = data.LoggingCustomEndpoint.ValueString()
+	p.LookerBasePath = data.LookerCustomEndpoint.ValueString()
 	p.MemcacheBasePath = data.MemcacheCustomEndpoint.ValueString()
 	p.MLEngineBasePath = data.MLEngineCustomEndpoint.ValueString()
 	p.MonitoringBasePath = data.MonitoringCustomEndpoint.ValueString()
@@ -889,6 +891,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.LoggingBasePathKey])
 		if customEndpoint != nil {
 			data.LoggingCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.LookerCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_LOOKER_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.LookerBasePathKey])
+		if customEndpoint != nil {
+			data.LookerCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.MemcacheCustomEndpoint.IsNull() {
