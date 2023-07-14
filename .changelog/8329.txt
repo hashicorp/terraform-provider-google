@@ -1,0 +1,3 @@
+```release-note:bug
+tags:  Add mutex to `google_tags_location_tag_binding`
+```
