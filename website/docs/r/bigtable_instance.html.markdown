@@ -113,8 +113,8 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
 specified, the provider zone is used. Each cluster must have a different zone in the same region. Zones that support
 Bigtable instances are noted on the [Cloud Bigtable locations page](https://cloud.google.com/bigtable/docs/locations).
 
-* `num_nodes` - (Optional) The number of nodes in your Cloud Bigtable cluster.
-Required, with a minimum of `1` for each cluster in an instance.
+* `num_nodes` - (Optional) The number of nodes in the cluster.
+If no value is set, Cloud Bigtable automatically allocates nodes based on your data footprint and optimized for 50% storage utilization.
 
 * `autoscaling_config` - (Optional) [Autoscaling](https://cloud.google.com/bigtable/docs/autoscaling#parameters) config for the cluster, contains the following arguments:
 
