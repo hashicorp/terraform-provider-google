@@ -19,8 +19,7 @@ description: |-
 
 # google\_firestore\_database
 
-A Cloud Firestore Database. Currently only one database is allowed per
-Cloud project; this database must have a `database_id` of '(default)'.
+A Cloud Firestore Database.
 
 If you wish to use Firestore with App Engine, use the
 [`google_app_engine_application`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/app_engine_application)
@@ -33,7 +32,7 @@ To get more information about Database, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/firestore/docs/)
 
-## Example Usage - Firestore Database
+## Example Usage - Firestore Default Database
 
 
 ```hcl
@@ -41,6 +40,39 @@ resource "google_project" "project" {
   project_id = "my-project"
   name       = "my-project"
   org_id     = "123456789"
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [google_project.project]
+
+  create_duration = "60s"
+}
+
+resource "google_project_service" "firestore" {
+  project = google_project.project.project_id
+  service = "firestore.googleapis.com"
+  # Needed for CI tests for permissions to propagate, should not be needed for actual usage
+  depends_on = [time_sleep.wait_60_seconds]
+}
+
+resource "google_firestore_database" "database" {
+  project     = google_project.project.project_id
+  name        = "(default)"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  depends_on = [google_project_service.firestore]
+}
+```
+## Example Usage - Firestore Database
+
+
+```hcl
+resource "google_project" "project" {
+  project_id      = "my-project"
+  name            = "my-project"
+  org_id          = "123456789"
+  billing_account = "000000-0000000-0000000-000000"
 }
 
 resource "time_sleep" "wait_60_seconds" {
@@ -59,7 +91,7 @@ resource "google_project_service" "firestore" {
 
 resource "google_firestore_database" "database" {
   project                     = google_project.project.project_id
-  name                        = "(default)"
+  name                        = "my-database"
   location_id                 = "nam5"
   type                        = "FIRESTORE_NATIVE"
   concurrency_mode            = "OPTIMISTIC"
@@ -68,19 +100,52 @@ resource "google_firestore_database" "database" {
   depends_on = [google_project_service.firestore]
 }
 ```
-## Example Usage - Firestore Database Datastore Mode
+## Example Usage - Firestore Default Database In Datastore Mode
 
 
 ```hcl
 resource "google_project" "project" {
-  project_id = "my-project"
-  name       = "my-project"
-  org_id     = "123456789"
+	project_id = "tf-test%{random_suffix}"
+	name       = "tf-test%{random_suffix}"
+	org_id     = "123456789"
 }
 
 resource "time_sleep" "wait_60_seconds" {
   depends_on = [google_project.project]
+  create_duration = "60s"
+}
 
+resource "google_project_service" "firestore" {
+  project = google_project.project.project_id
+  service = "firestore.googleapis.com"
+  # Needed for CI tests for permissions to propagate, should not be needed for actual usage
+  depends_on = [time_sleep.wait_60_seconds]
+}
+
+resource "google_firestore_database" "datastore_mode_database" {
+    project = google_project.project.project_id
+
+    name = "(default)"
+
+    location_id = "nam5"
+    type        = "DATASTORE_MODE"
+
+    depends_on = [google_project_service.firestore]
+}
+```
+## Example Usage - Firestore Database In Datastore Mode
+
+
+```hcl
+resource "google_project" "project" {
+  project_id      = "my-project"
+  name            = "my-project"
+  org_id          = "123456789"
+  billing_account = "000000-0000000-0000000-000000"
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [google_project.project]
   create_duration = "60s"
 }
 
@@ -92,13 +157,13 @@ resource "google_project_service" "firestore" {
   depends_on = [time_sleep.wait_60_seconds]
 }
 
-resource "google_firestore_database" "datastore_mode_database" {
-  project = google_project.project.project_id
-
-  name = "(default)"
-
-  location_id = "nam5"
-  type        = "DATASTORE_MODE"
+resource "google_firestore_database" "database" {
+  project                     = google_project.project.project_id
+  name                        = "datastore-mode-database"
+  location_id                 = "nam5"
+  type                        = "DATASTORE_MODE"
+  concurrency_mode            = "OPTIMISTIC"
+  app_engine_integration_mode = "DISABLED"
 
   depends_on = [google_project_service.firestore]
 }
