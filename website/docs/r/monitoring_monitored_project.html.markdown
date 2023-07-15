@@ -66,7 +66,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `v1/locations/global/metricsScopes/{{metrics_scope}}/projects/{{name}}`
+* `id` - an identifier for the resource with format `locations/global/metricsScopes/{{metrics_scope}}/projects/{{name}}`
 
 * `create_time` -
   Output only. The time when this `MonitoredProject` was created.
@@ -86,6 +86,6 @@ This resource provides the following
 MonitoredProject can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_monitoring_monitored_project.default v1/locations/global/metricsScopes/{{metrics_scope}}/projects/{{name}}
-$ terraform import google_monitoring_monitored_project.default {{metrics_scope}}/{{name}}
+$ terraform import google_monitoring_monitored_project.default v1/locations/global/metricsScopes/{{name}}
+$ terraform import google_monitoring_monitored_project.default {{name}}
 ```
