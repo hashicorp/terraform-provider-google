@@ -74,6 +74,48 @@ resource "google_project" "basic" {
 `, context)
 }
 
+func TestAccMonitoringMonitoredProject_monitoringMonitoredProjectLongFormExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"project_id":    envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringMonitoredProjectDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringMonitoredProject_monitoringMonitoredProjectLongFormExample(context),
+			},
+			{
+				ResourceName:            "google_monitoring_monitored_project.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metrics_scope"},
+			},
+		},
+	})
+}
+
+func testAccMonitoringMonitoredProject_monitoringMonitoredProjectLongFormExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_monitoring_monitored_project" "primary" {
+  metrics_scope = "%{project_id}"
+  name          = "locations/global/metricsScopes/%{project_id}/projects/${google_project.basic.project_id}"
+}
+
+resource "google_project" "basic" {
+  project_id = "tf-test-m-id%{random_suffix}"
+  name       = "tf-test-m-id%{random_suffix}-display"
+  org_id     = "%{org_id}"
+}
+`, context)
+}
+
 func testAccCheckMonitoringMonitoredProjectDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
