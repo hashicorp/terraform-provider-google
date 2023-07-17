@@ -1,0 +1,3 @@
+```release-note:enhancement
+gkebackup: added `state` and `state_reason` output-only fields to `google_gkebackup_backupplan` resource
+```

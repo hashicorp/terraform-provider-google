@@ -265,6 +265,16 @@ backupPlans.delete to ensure that their change will be applied to the same versi
 				Computed:    true,
 				Description: `The number of Kubernetes Pods backed up in the last successful Backup created via this BackupPlan.`,
 			},
+			"state": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The State of the BackupPlan.`,
+			},
+			"state_reason": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Detailed description of why BackupPlan is in its current state.`,
+			},
 			"uid": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -477,6 +487,12 @@ func resourceGKEBackupBackupPlanRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading BackupPlan: %s", err)
 	}
 	if err := d.Set("protected_pod_count", flattenGKEBackupBackupPlanProtectedPodCount(res["protectedPodCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err := d.Set("state", flattenGKEBackupBackupPlanState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err := d.Set("state_reason", flattenGKEBackupBackupPlanStateReason(res["stateReason"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackupPlan: %s", err)
 	}
 
@@ -912,6 +928,14 @@ func flattenGKEBackupBackupPlanProtectedPodCount(v interface{}, d *schema.Resour
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenGKEBackupBackupPlanState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEBackupBackupPlanStateReason(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandGKEBackupBackupPlanName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
