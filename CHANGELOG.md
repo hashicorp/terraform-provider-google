@@ -1,5 +1,10 @@
 ## 4.74.0 (Unreleased)
 
+## 4.73.2 (July 17, 2023)
+
+BUG FIXES:
+* monitoring: fixed an issue which occurred when `name` field of `google_monitoring_monitored_project` was long-form
+
 ## 4.73.1 (July 13, 2023)
 
 BUG FIXES:
