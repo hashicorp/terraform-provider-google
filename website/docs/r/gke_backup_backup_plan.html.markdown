@@ -365,6 +365,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `protected_pod_count` -
   The number of Kubernetes Pods backed up in the last successful Backup created via this BackupPlan.
 
+* `state` -
+  The State of the BackupPlan.
+
+* `state_reason` -
+  Detailed description of why BackupPlan is in its current state.
+
 
 ## Timeouts
 
