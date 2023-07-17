@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `external_data_configuration.json_options` and `external_data_configuration.parquet_options` fields to `google_bigquery_table`
+```
