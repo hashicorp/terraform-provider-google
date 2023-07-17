@@ -540,6 +540,45 @@ func ResourceBigQueryTable() *schema.Resource {
 								},
 							},
 						},
+						// jsonOptions: [Optional] Additional properties to set if sourceFormat is set to JSON.
+						"json_options": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: `Additional properties to set if sourceFormat is set to JSON."`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"encoding": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Default:      "UTF-8",
+										ValidateFunc: validation.StringInSlice([]string{"UTF-8", "UTF-16BE", "UTF-16LE", "UTF-32BE", "UTF-32LE"}, false),
+										Description:  `The character encoding of the data. The supported values are UTF-8, UTF-16BE, UTF-16LE, UTF-32BE, and UTF-32LE. The default value is UTF-8.`,
+									},
+								},
+							},
+						},
+
+						"parquet_options": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: `Additional properties to set if sourceFormat is set to PARQUET."`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enum_as_string": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Indicates whether to infer Parquet ENUM logical type as STRING instead of BYTES by default.`,
+									},
+									"enable_list_inference": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Indicates whether to use schema inference specifically for Parquet LIST logical type.`,
+									},
+								},
+							},
+						},
 						// GoogleSheetsOptions: [Optional] Additional options if sourceFormat is set to GOOGLE_SHEETS.
 						"google_sheets_options": {
 							Type:        schema.TypeList,
@@ -1372,8 +1411,12 @@ func expandExternalDataConfiguration(cfg interface{}) (*bigquery.ExternalDataCon
 	if v, ok := raw["compression"]; ok {
 		edc.Compression = v.(string)
 	}
+
 	if v, ok := raw["csv_options"]; ok {
 		edc.CsvOptions = expandCsvOptions(v)
+	}
+	if v, ok := raw["json_options"]; ok {
+		edc.JsonOptions = expandJsonOptions(v)
 	}
 	if v, ok := raw["google_sheets_options"]; ok {
 		edc.GoogleSheetsOptions = expandGoogleSheetsOptions(v)
@@ -1384,6 +1427,10 @@ func expandExternalDataConfiguration(cfg interface{}) (*bigquery.ExternalDataCon
 	if v, ok := raw["avro_options"]; ok {
 		edc.AvroOptions = expandAvroOptions(v)
 	}
+	if v, ok := raw["parquet_options"]; ok {
+		edc.ParquetOptions = expandParquetOptions(v)
+	}
+
 	if v, ok := raw["ignore_unknown_values"]; ok {
 		edc.IgnoreUnknownValues = v.(bool)
 	}
@@ -1441,6 +1488,14 @@ func flattenExternalDataConfiguration(edc *bigquery.ExternalDataConfiguration) (
 
 	if edc.AvroOptions != nil {
 		result["avro_options"] = flattenAvroOptions(edc.AvroOptions)
+	}
+
+	if edc.ParquetOptions != nil {
+		result["parquet_options"] = flattenParquetOptions(edc.ParquetOptions)
+	}
+
+	if edc.JsonOptions != nil {
+		result["json_options"] = flattenJsonOptions(edc.JsonOptions)
 	}
 
 	if edc.IgnoreUnknownValues {
@@ -1635,6 +1690,64 @@ func flattenAvroOptions(opts *bigquery.AvroOptions) []map[string]interface{} {
 
 	if opts.UseAvroLogicalTypes {
 		result["use_avro_logical_types"] = opts.UseAvroLogicalTypes
+	}
+
+	return []map[string]interface{}{result}
+}
+
+func expandParquetOptions(configured interface{}) *bigquery.ParquetOptions {
+	if len(configured.([]interface{})) == 0 {
+		return nil
+	}
+
+	raw := configured.([]interface{})[0].(map[string]interface{})
+	opts := &bigquery.ParquetOptions{}
+
+	if v, ok := raw["enum_as_string"]; ok {
+		opts.EnumAsString = v.(bool)
+	}
+
+	if v, ok := raw["enable_list_inference"]; ok {
+		opts.EnableListInference = v.(bool)
+	}
+
+	return opts
+}
+
+func flattenParquetOptions(opts *bigquery.ParquetOptions) []map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if opts.EnumAsString {
+		result["enum_as_string"] = opts.EnumAsString
+	}
+
+	if opts.EnableListInference {
+		result["enable_list_inference"] = opts.EnableListInference
+	}
+
+	return []map[string]interface{}{result}
+}
+
+func expandJsonOptions(configured interface{}) *bigquery.JsonOptions {
+	if len(configured.([]interface{})) == 0 {
+		return nil
+	}
+
+	raw := configured.([]interface{})[0].(map[string]interface{})
+	opts := &bigquery.JsonOptions{}
+
+	if v, ok := raw["encoding"]; ok {
+		opts.Encoding = v.(string)
+	}
+
+	return opts
+}
+
+func flattenJsonOptions(opts *bigquery.JsonOptions) []map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if opts.Encoding != "" {
+		result["encoding"] = opts.Encoding
 	}
 
 	return []map[string]interface{}{result}
