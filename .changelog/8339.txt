@@ -1,0 +1,3 @@
+```release-note:none
+docs: modify the doc for the field `daily_schedule. days_in_schedule` in the resource `google_compute_resource_policy `
+```
