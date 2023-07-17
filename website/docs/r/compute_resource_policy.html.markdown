@@ -22,6 +22,9 @@ description: |-
 A policy that can be attached to a resource to specify or schedule actions on that resource.
 
 
+To get more information about ResourcePolicy, see:
+
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/resourcePolicies)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=resource_policy_basic&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -297,7 +300,7 @@ The following arguments are supported:
 
 * `days_in_cycle` -
   (Required)
-  The number of days between snapshots.
+  Defines a schedule with units measured in days. The value determines how many days pass between the start of each cycle. Days in cycle for snapshot schedule policy must be 1.
 
 * `start_time` -
   (Required)
