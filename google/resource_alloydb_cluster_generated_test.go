@@ -60,7 +60,7 @@ func testAccAlloydbCluster_alloydbClusterBasicExample(context map[string]interfa
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
   location   = "us-central1"
-  network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+  network    = google_compute_network.default.id
 }
 
 data "google_project" "project" {}
@@ -101,7 +101,7 @@ func testAccAlloydbCluster_alloydbClusterFullExample(context map[string]interfac
 resource "google_alloydb_cluster" "full" {
   cluster_id   = "tf-test-alloydb-cluster-full%{random_suffix}"
   location     = "us-central1"
-  network      = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+  network      = google_compute_network.default.id
 
   initial_user {
     user     = "tf-test-alloydb-cluster-full%{random_suffix}"
