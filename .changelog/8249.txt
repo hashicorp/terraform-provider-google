@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed logic when unsetting `google_compute_instance.min_cpu_platform` and switching to a `machine_type` that does not support `min_cpu_platform` at the same time
+```

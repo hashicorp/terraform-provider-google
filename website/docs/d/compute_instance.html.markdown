@@ -61,7 +61,7 @@ The following arguments are supported:
 
 * `metadata` - Metadata key/value pairs made available within the instance.
 
-* `min_cpu_platform` - The minimum CPU platform specified for the VM instance.
+* `min_cpu_platform` - The minimum CPU platform specified for the VM instance. Set to "AUTOMATIC" to remove a previously-set value.
 
 * `scheduling` - The scheduling strategy being used by the instance. Structure is [documented below](#nested_scheduling)
 
