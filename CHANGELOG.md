@@ -1,14 +1,14 @@
 ## 4.74.0 (Unreleased)
 
 FEATURES:
-* **New Resource:** `google_cloudbuildv2_connection` (ga) ([#15098](https://github.com/hashicorp/terraform-provider-google/pull/15098))
-* **New Resource:** `google_cloudbuildv2_repository` (ga) ([#15098](https://github.com/hashicorp/terraform-provider-google/pull/15098))
-* **New Resource:** `google_gkeonprem_bare_metal_admin_cluster` (ga) ([#15099](https://github.com/hashicorp/terraform-provider-google/pull/15099))
-* **New Resource:** `google_network_security_address_group` (ga) ([#15111](https://github.com/hashicorp/terraform-provider-google/pull/15111))
-* **New Resource:** `google_network_security_gateway_security_policy_rule` (ga) ([#15112](https://github.com/hashicorp/terraform-provider-google/pull/15112))
-* **New Resource:** `google_network_security_gateway_security_policy` (ga) ([#15112](https://github.com/hashicorp/terraform-provider-google/pull/15112))
-* **New Resource:** `google_network_security_url_lists` (ga) ([#15112](https://github.com/hashicorp/terraform-provider-google/pull/15112))
-* **New Resource:** `google_network_services_gateway` (ga) ([#15112](https://github.com/hashicorp/terraform-provider-google/pull/15112))
+* **New Resource:** `google_cloudbuildv2_connection` ([#15098](https://github.com/hashicorp/terraform-provider-google/pull/15098))
+* **New Resource:** `google_cloudbuildv2_repository` ([#15098](https://github.com/hashicorp/terraform-provider-google/pull/15098))
+* **New Resource:** `google_gkeonprem_bare_metal_admin_cluster` ([#15099](https://github.com/hashicorp/terraform-provider-google/pull/15099))
+* **New Resource:** `google_network_security_address_group` ([#15111](https://github.com/hashicorp/terraform-provider-google/pull/15111))
+* **New Resource:** `google_network_security_gateway_security_policy_rule` ([#15112](https://github.com/hashicorp/terraform-provider-google/pull/15112))
+* **New Resource:** `google_network_security_gateway_security_policy` ([#15112](https://github.com/hashicorp/terraform-provider-google/pull/15112))
+* **New Resource:** `google_network_security_url_lists` ([#15112](https://github.com/hashicorp/terraform-provider-google/pull/15112))
+* **New Resource:** `google_network_services_gateway` ([#15112](https://github.com/hashicorp/terraform-provider-google/pull/15112))
 
 IMPROVEMENTS:
 * bigquery: added `storage_billing_model` argument to `google_bigquery_dataset` ([#15115](https://github.com/hashicorp/terraform-provider-google/pull/15115))
