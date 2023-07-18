@@ -79,6 +79,7 @@ func TestAccAlloydbCluster_addAutomatedBackupPolicyAndInitialUser(t *testing.T) 
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
+		"hour":          23,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -119,6 +120,7 @@ func TestAccAlloydbCluster_deleteAutomatedBackupPolicyAndInitialUser(t *testing.
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
+		"hour":          23,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -137,6 +139,37 @@ func TestAccAlloydbCluster_deleteAutomatedBackupPolicyAndInitialUser(t *testing.
 			},
 			{
 				Config: testAccAlloydbCluster_withoutInitialUserAndAutomatedBackupPolicy(context),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"initial_user", "cluster_id", "location"},
+			},
+			{
+				Config: testAccAlloydbCluster_alloydbClusterBasicExample(context),
+			},
+		},
+	})
+}
+
+// Test if automatedBackupPolicy properly handles a startTime of 0 (aka midnight). Calling terraform plan
+// after creating the cluster should not bring anything up.
+func TestAccAlloydbCluster_AutomatedBackupPolicyHandlesMidnight(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"hour":          0,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbCluster_withInitialUserAndAutomatedBackupPolicy(context),
 			},
 			{
 				ResourceName:            "google_alloydb_cluster.default",
@@ -172,7 +205,7 @@ resource "google_alloydb_cluster" "default" {
       days_of_week = ["MONDAY"]
 
       start_times {
-        hours   = 23
+        hours   = %{hour}
         minutes = 0
         seconds = 0
         nanos   = 0

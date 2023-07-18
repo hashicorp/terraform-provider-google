@@ -860,8 +860,8 @@ func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimes(v interf
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
+			// If no start times exist, that means we take backups at midnight. This is represented as 0's all around.
+			return append(transformed, map[string]interface{}{})
 		}
 		transformed = append(transformed, map[string]interface{}{
 			"hours":   flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesHours(original["hours"], d, config),
@@ -872,6 +872,7 @@ func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimes(v interf
 	}
 	return transformed
 }
+
 func flattenAlloydbClusterAutomatedBackupPolicyWeeklyScheduleStartTimesHours(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
