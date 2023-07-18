@@ -22,6 +22,74 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
+func TestMinCpuPlatformDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"state: empty, conf: AUTOMATIC": {
+			Old:                "",
+			New:                "AUTOMATIC",
+			ExpectDiffSuppress: true,
+		},
+		"state: empty, conf: automatic": {
+			Old:                "",
+			New:                "automatic",
+			ExpectDiffSuppress: true,
+		},
+		"state: empty, conf: AuToMaTiC": {
+			Old:                "",
+			New:                "AuToMaTiC",
+			ExpectDiffSuppress: true,
+		},
+		"state: empty, conf: Intel Haswell": {
+			Old:                "",
+			New:                "Intel Haswell",
+			ExpectDiffSuppress: false,
+		},
+		// This case should never happen due to the field being
+		// Optional + Computed; however, including for completeness.
+		"state: Intel Haswell, conf: empty": {
+			Old:                "Intel Haswell",
+			New:                "",
+			ExpectDiffSuppress: false,
+		},
+		// These cases should never happen given current API behavior; testing
+		// in case API behavior changes in the future.
+		"state: AUTOMATIC, conf: Intel Haswell": {
+			Old:                "AUTOMATIC",
+			New:                "Intel Haswell",
+			ExpectDiffSuppress: false,
+		},
+		"state: Intel Haswell, conf: AUTOMATIC": {
+			Old:                "Intel Haswell",
+			New:                "AUTOMATIC",
+			ExpectDiffSuppress: false,
+		},
+		"state: AUTOMATIC, conf: empty": {
+			Old:                "AUTOMATIC",
+			New:                "",
+			ExpectDiffSuppress: true,
+		},
+		"state: automatic, conf: empty": {
+			Old:                "automatic",
+			New:                "",
+			ExpectDiffSuppress: true,
+		},
+		"state: AuToMaTiC, conf: empty": {
+			Old:                "AuToMaTiC",
+			New:                "",
+			ExpectDiffSuppress: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		if tpgcompute.ComputeInstanceMinCpuPlatformEmptyOrAutomaticDiffSuppress("min_cpu_platform", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Errorf("bad: %s, %q => %q expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
+
 func computeInstanceImportStep(zone, instanceName string, additionalImportIgnores []string) resource.TestStep {
 	// metadata is only read into state if set in the config
 	// importing doesn't know whether metadata.startup_script vs metadata_startup_script is set in the config,
@@ -1430,7 +1498,15 @@ func TestAccComputeInstance_minCpuPlatform(t *testing.T) {
 					testAccCheckComputeInstanceHasMinCpuPlatform(&instance, "Intel Haswell"),
 				),
 			},
-			computeInstanceImportStep("us-east1-d", instanceName, []string{}),
+			computeInstanceImportStep("us-east1-d", instanceName, []string{"allow_stopping_for_update"}),
+			{
+				Config: testAccComputeInstance_minCpuPlatform_remove(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasMinCpuPlatform(&instance, ""),
+				),
+			},
+			computeInstanceImportStep("us-east1-d", instanceName, []string{"allow_stopping_for_update"}),
 		},
 	})
 }
@@ -5212,6 +5288,35 @@ resource "google_compute_instance" "foobar" {
   }
 
   min_cpu_platform = "Intel Haswell"
+  allow_stopping_for_update = true
+}
+`, instance)
+}
+
+func testAccComputeInstance_minCpuPlatform_remove(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-micro"
+  zone         = "us-east1-d"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  min_cpu_platform = "AuToMaTiC"
+  allow_stopping_for_update = true
 }
 `, instance)
 }

@@ -94,6 +94,14 @@ func forceNewIfNetworkIPNotUpdatableFunc(d tpgresource.TerraformResourceDiff) er
 	return nil
 }
 
+// User may specify AUTOMATIC using any case; the API will accept it and return an empty string.
+func ComputeInstanceMinCpuPlatformEmptyOrAutomaticDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	old = strings.ToLower(old)
+	new = strings.ToLower(new)
+	defaultVal := "automatic"
+	return (old == "" && new == defaultVal) || (new == "" && old == defaultVal)
+}
+
 func ResourceComputeInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInstanceCreate,
@@ -588,10 +596,11 @@ func ResourceComputeInstance() *schema.Resource {
 			},
 
 			"min_cpu_platform": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `The minimum CPU platform specified for the VM instance.`,
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				Description:      `The minimum CPU platform specified for the VM instance.`,
+				DiffSuppressFunc: ComputeInstanceMinCpuPlatformEmptyOrAutomaticDiffSuppress,
 			},
 
 			"project": {
@@ -1965,6 +1974,21 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			}
 		}
 
+		if d.HasChange("min_cpu_platform") {
+			minCpuPlatform := d.Get("min_cpu_platform")
+			req := &compute.InstancesSetMinCpuPlatformRequest{
+				MinCpuPlatform: minCpuPlatform.(string),
+			}
+			op, err := config.NewComputeClient(userAgent).Instances.SetMinCpuPlatform(project, zone, instance.Name, req).Do()
+			if err != nil {
+				return err
+			}
+			opErr := ComputeOperationWaitTime(config, op, project, "updating min cpu platform", userAgent, d.Timeout(schema.TimeoutUpdate))
+			if opErr != nil {
+				return opErr
+			}
+		}
+
 		if d.HasChange("machine_type") {
 			mt, err := tpgresource.ParseMachineTypesFieldValue(d.Get("machine_type").(string), d, config)
 			if err != nil {
@@ -1978,27 +2002,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				return err
 			}
 			opErr := ComputeOperationWaitTime(config, op, project, "updating machinetype", userAgent, d.Timeout(schema.TimeoutUpdate))
-			if opErr != nil {
-				return opErr
-			}
-		}
-
-		if d.HasChange("min_cpu_platform") {
-			minCpuPlatform, ok := d.GetOk("min_cpu_platform")
-			// Even though you don't have to set minCpuPlatform on create, you do have to set it to an
-			// actual value on update. "Automatic" is the default. This will be read back from the API as empty,
-			// so we don't need to worry about diffs.
-			if !ok {
-				minCpuPlatform = "Automatic"
-			}
-			req := &compute.InstancesSetMinCpuPlatformRequest{
-				MinCpuPlatform: minCpuPlatform.(string),
-			}
-			op, err := config.NewComputeClient(userAgent).Instances.SetMinCpuPlatform(project, zone, instance.Name, req).Do()
-			if err != nil {
-				return err
-			}
-			opErr := ComputeOperationWaitTime(config, op, project, "updating min cpu platform", userAgent, d.Timeout(schema.TimeoutUpdate))
 			if opErr != nil {
 				return opErr
 			}
