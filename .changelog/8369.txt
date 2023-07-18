@@ -1,0 +1,5 @@
+```release-note:none
+
+docs: Update the example for `google_workflows_workflow`
+
+```
