@@ -30,7 +30,6 @@ IMPROVEMENTS:
 BUG FIXES:
 * compute: made `google_compute_router_peer.peer_ip_address` optional ([#15095](https://github.com/hashicorp/terraform-provider-google/pull/15095))
 * redis: fixed issue with `google_redis_instance` populating output-only field `maintenance_schedule`. ([#15063](https://github.com/hashicorp/terraform-provider-google/pull/15063))
-* monitoring: fixed an issue causing `google_monitoring_monitored_project` to appear to be deleted ([#15140](https://github.com/hashicorp/terraform-provider-google/pull/15140))
 * orgpolicy: fixed forcing recreation on imported state for `google_org_policy_policy` ([#15132](https://github.com/hashicorp/terraform-provider-google/pull/15132))
 * osconfig: fixed validation of file resource `state` fields in `google_os_config_os_policy_assignment` ([#15107](https://github.com/hashicorp/terraform-provider-google/pull/15107))
 
