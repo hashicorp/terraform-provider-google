@@ -1,0 +1,3 @@
+```release-note:bug
+monitoring: fixed an issue which occurred when `name` field of `google_monitoring_monitored_project` was long-form
+```

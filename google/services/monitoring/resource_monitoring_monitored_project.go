@@ -18,6 +18,7 @@
 package monitoring
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -45,6 +46,16 @@ func ResourceMonitoringMonitoredProject() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		SchemaVersion: 1,
+
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceMonitoringMonitoredProjectResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceMonitoringMonitoredProjectUpgradeV0,
+				Version: 0,
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			"metrics_scope": {
 				Type:             schema.TypeString,
@@ -54,10 +65,11 @@ func ResourceMonitoringMonitoredProject() *schema.Resource {
 				Description:      `Required. The resource name of the existing Metrics Scope that will monitor this project. Example: locations/global/metricsScopes/{SCOPING_PROJECT_ID_OR_NUMBER}`,
 			},
 			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Immutable. The resource name of the 'MonitoredProject'. On input, the resource name includes the scoping project ID and monitored project ID. On output, it contains the equivalent project numbers. Example: 'locations/global/metricsScopes/{SCOPING_PROJECT_ID_OR_NUMBER}/projects/{MONITORED_PROJECT_ID_OR_NUMBER}'`,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareResourceNames,
+				Description:      `Immutable. The resource name of the 'MonitoredProject'. On input, the resource name includes the scoping project ID and monitored project ID. On output, it contains the equivalent project numbers. Example: 'locations/global/metricsScopes/{SCOPING_PROJECT_ID_OR_NUMBER}/projects/{MONITORED_PROJECT_ID_OR_NUMBER}'`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -118,7 +130,7 @@ func resourceMonitoringMonitoredProjectCreate(d *schema.ResourceData, meta inter
 	}
 
 	// Store the ID now
-	id, err := tpgresource.ReplaceVars(d, config, "v1/locations/global/metricsScopes/{{metrics_scope}}/projects/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "locations/global/metricsScopes/{{metrics_scope}}/projects/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -150,6 +162,9 @@ func resourceMonitoringMonitoredProjectRead(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 
+	name := d.Get("name").(string)
+	name = tpgresource.GetResourceNameFromSelfLink(name)
+	d.Set("name", name)
 	metricsScope := d.Get("metrics_scope").(string)
 	metricsScope = tpgresource.GetResourceNameFromSelfLink(metricsScope)
 	d.Set("metrics_scope", metricsScope)
@@ -245,8 +260,15 @@ func resourceMonitoringMonitoredProjectDelete(d *schema.ResourceData, meta inter
 }
 
 func resourceMonitoringMonitoredProjectImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	name := d.Get("name").(string)
+	name = tpgresource.GetResourceNameFromSelfLink(name)
+	d.Set("name", name)
+	metricsScope := d.Get("metrics_scope").(string)
+	metricsScope = tpgresource.GetResourceNameFromSelfLink(metricsScope)
+	d.Set("metrics_scope", metricsScope)
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
+		"locations/global/metricsScopes/(?P<metrics_scope>[^/]+)/projects/(?P<name>[^/]+)",
 		"v1/locations/global/metricsScopes/(?P<metrics_scope>[^/]+)/projects/(?P<name>[^/]+)",
 		"(?P<metrics_scope>[^/]+)/(?P<name>[^/]+)",
 	}, d, config); err != nil {
@@ -254,7 +276,7 @@ func resourceMonitoringMonitoredProjectImport(d *schema.ResourceData, meta inter
 	}
 
 	// Replace import id for the resource id
-	id, err := tpgresource.ReplaceVars(d, config, "v1/locations/global/metricsScopes/{{metrics_scope}}/projects/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "locations/global/metricsScopes/{{metrics_scope}}/projects/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -279,6 +301,7 @@ func expandNestedMonitoringMonitoredProjectName(v interface{}, d tpgresource.Ter
 func resourceMonitoringMonitoredProjectEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	name := d.Get("name").(string)
 	name = tpgresource.GetResourceNameFromSelfLink(name)
+	d.Set("name", name)
 	metricsScope := d.Get("metrics_scope").(string)
 	metricsScope = tpgresource.GetResourceNameFromSelfLink(metricsScope)
 	d.Set("metrics_scope", metricsScope)
@@ -355,4 +378,40 @@ func resourceMonitoringMonitoredProjectDecoder(d *schema.ResourceData, meta inte
 		res["name"] = project.ProjectId
 	}
 	return res, nil
+}
+
+func resourceMonitoringMonitoredProjectResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"metrics_scope": {
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareResourceNames,
+				Description:      `Required. The resource name of the existing Metrics Scope that will monitor this project. Example: locations/global/metricsScopes/{SCOPING_PROJECT_ID_OR_NUMBER}`,
+			},
+			"name": {
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareResourceNames,
+				Description:      `Immutable. The resource name of the 'MonitoredProject'. On input, the resource name includes the scoping project ID and monitored project ID. On output, it contains the equivalent project numbers. Example: 'locations/global/metricsScopes/{SCOPING_PROJECT_ID_OR_NUMBER}/projects/{MONITORED_PROJECT_ID_OR_NUMBER}'`,
+			},
+			"create_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. The time when this 'MonitoredProject' was created.`,
+			},
+		},
+		UseJSONNumber: true,
+	}
+}
+
+func ResourceMonitoringMonitoredProjectUpgradeV0(_ context.Context, rawState map[string]any, meta any) (map[string]any, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
+
+	rawState["id"] = strings.TrimPrefix(rawState["id"].(string), "v1/")
+
+	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
+	return rawState, nil
 }
