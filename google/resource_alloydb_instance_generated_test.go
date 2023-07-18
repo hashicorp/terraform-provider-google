@@ -72,7 +72,7 @@ resource "google_alloydb_instance" "default" {
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
   location   = "us-central1"
-  network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+  network    = google_compute_network.default.id
 
   initial_user {
     password = "tf-test-alloydb-cluster%{random_suffix}"
