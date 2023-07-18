@@ -20,7 +20,7 @@ IMPROVEMENTS:
 * compute: added field `http_keep_alive_timeout_sec` to resource `google_compute_target_http_proxy` ([#15109](https://github.com/hashicorp/terraform-provider-google/pull/15109))
 * compute: added field `http_keep_alive_timeout_sec` to resource `google_compute_target_https_proxy` ([#15109](https://github.com/hashicorp/terraform-provider-google/pull/15109))
 * compute: added support for updating labels in `google_compute_external_vpn_gateway` ([#15134](https://github.com/hashicorp/terraform-provider-google/pull/15134))
-* container: made `monitoring_config.enable_components` optional on `google_container_cluster`(ga) ([#15131](https://github.com/hashicorp/terraform-provider-google/pull/15131))
+* container: made `monitoring_config.enable_components` optional on `google_container_cluster` ([#15131](https://github.com/hashicorp/terraform-provider-google/pull/15131))
 * container: added field `tpu_topology` under `placement_policy` in resource `google_container_node_pool` ([#15130](https://github.com/hashicorp/terraform-provider-google/pull/15130))
 * gkehub: promoted the `google_gke_hub_feature` resource's `fleetobservability` block to GA. ([#15105](https://github.com/hashicorp/terraform-provider-google/pull/15105))
 * iamworkforcepool: added `oidc.client_secret` field to `google_iam_workforce_pool_provider` and new enum values `CODE` and `MERGE_ID_TOKEN_OVER_USER_INFO_CLAIMS` to `oidc.web_sso_config.response_type` and `oidc.web_sso_config.assertion_claims_behavior` respectively ([#15069](https://github.com/hashicorp/terraform-provider-google/pull/15069))
