@@ -1,0 +1,3 @@
+```release-note:bug
+Fix automated backup policy handling of 0 start time (midnight)
+```
