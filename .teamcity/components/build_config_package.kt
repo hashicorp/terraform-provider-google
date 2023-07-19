@@ -1,13 +1,14 @@
 // this file is copied from mmv1, any changes made here will be overwritten
 
 import jetbrains.buildServer.configs.kotlin.*
+import jetbrains.buildServer.configs.kotlin.AbsoluteId
 
 class packageDetails(name: String, displayName: String, environment: String) {
     val packageName = name
     val displayName = displayName
     val environment = environment
 
-    fun buildConfiguration(providerName : String, path : String, nightlyTestsEnabled: Boolean, startHour: Int, parallelism: Int, daysOfWeek: String, daysOfMonth: String) : BuildType {
+    fun buildConfiguration(providerName : String, path : String, manualVcsRoot: AbsoluteId, nightlyTestsEnabled: Boolean, startHour: Int, parallelism: Int, daysOfWeek: String, daysOfMonth: String) : BuildType {
         return BuildType {
             // TC needs a consistent ID for dynamically generated packages
             id(uniqueID(providerName))
@@ -15,7 +16,7 @@ class packageDetails(name: String, displayName: String, environment: String) {
             name = "%s - Acceptance Tests".format(displayName)
 
             vcs {
-                root(providerRepository)
+                root(rootId = manualVcsRoot)
                 cleanCheckout = true
             }
 
