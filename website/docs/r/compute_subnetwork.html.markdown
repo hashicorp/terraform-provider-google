@@ -356,7 +356,7 @@ In addition to the arguments listed above, the following computed attributes are
   The gateway address for default routes to reach destination addresses
   outside this subnetwork.
 
-* `ipv6_cidr_range` -
+* `internal_ipv6_prefix` -
   The range of internal IPv6 addresses that are owned by this subnetwork.
 
 * `external_ipv6_prefix` -
