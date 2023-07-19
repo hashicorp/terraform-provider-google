@@ -23,6 +23,10 @@ var environment = DslContext.getParameter("environment", "public")
 var firestoreProject = DslContext.getParameter("firestoreProject", "")
 var identityUser = DslContext.getParameter("identityUser", "")
 
+// Get details of the VCS Root that's manually made when VCS is first
+// connected to the Project in TeamCity
+var manualVcsRoot = DslContext.settingsRootId
+
 var clientConfig = ClientConfiguration(custId, org, org2, billingAccount, billingAccount2, masterBillingAccount, credentials, project, orgDomain, projectNumber, region, serviceAccount, zone, firestoreProject, identityUser)
 
-project(Google(environment, clientConfig))
+project(Google(environment, manualVcsRoot, clientConfig))
