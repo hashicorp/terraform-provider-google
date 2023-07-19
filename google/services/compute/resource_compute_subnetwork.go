@@ -292,7 +292,7 @@ If not specified IPV4_ONLY will be used. Possible values: ["IPV4_ONLY", "IPV4_IP
 				Description: `The gateway address for default routes to reach destination addresses
 outside this subnetwork.`,
 			},
-			"ipv6_cidr_range": {
+			"internal_ipv6_prefix": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The range of internal IPv6 addresses that are owned by this subnetwork.`,
@@ -586,7 +586,7 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("ipv6_access_type", flattenComputeSubnetworkIpv6AccessType(res["ipv6AccessType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
-	if err := d.Set("ipv6_cidr_range", flattenComputeSubnetworkIpv6CidrRange(res["ipv6CidrRange"], d, config)); err != nil {
+	if err := d.Set("internal_ipv6_prefix", flattenComputeSubnetworkInternalIpv6Prefix(res["internalIpv6Prefix"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
 	if err := d.Set("external_ipv6_prefix", flattenComputeSubnetworkExternalIpv6Prefix(res["externalIpv6Prefix"], d, config)); err != nil {
@@ -1170,7 +1170,7 @@ func flattenComputeSubnetworkIpv6AccessType(v interface{}, d *schema.ResourceDat
 	return v
 }
 
-func flattenComputeSubnetworkIpv6CidrRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenComputeSubnetworkInternalIpv6Prefix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: replaced `ipv6CidrRange` with `internalIpv6Prefix` to `Subnetwork` resource
+```
