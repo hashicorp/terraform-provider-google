@@ -1,0 +1,3 @@
+```release-note:enhancement
+composer: added support for updating `resilience_mode` in `google_composer_environment`
+```
