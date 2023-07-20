@@ -512,6 +512,10 @@ The following arguments are supported:
   types and may result in errors if used with the GA API.
   Possible values are: `HTTP`, `HTTPS`, `HTTP2`, `SSL`, `TCP`, `UDP`, `GRPC`, `UNSPECIFIED`.
 
+* `security_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The security policy associated with this backend service.
+
 * `session_affinity` -
   (Optional)
   Type of session affinity to use. The default is NONE. Session affinity is
