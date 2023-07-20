@@ -1,0 +1,3 @@
+```release-note:bug
+cloud_tasks: suppressed time-unit permadiffs on `google_cloud_tasks_queue` min and max backoff settings
+```
