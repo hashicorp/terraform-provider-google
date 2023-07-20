@@ -16,7 +16,7 @@
 //
 // ----------------------------------------------------------------------------
 
-package google
+package cloudbuildv2_test
 
 import (
 	"context"
@@ -39,12 +39,12 @@ func TestAccCloudbuildv2Repository_GheRepository(t *testing.T) {
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
 		"region":        envvar.GetTestRegionFromEnv(),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudbuildv2RepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -64,12 +64,12 @@ func TestAccCloudbuildv2Repository_GithubRepository(t *testing.T) {
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
 		"region":        envvar.GetTestRegionFromEnv(),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudbuildv2RepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -88,12 +88,12 @@ func TestAccCloudbuildv2Repository_GitlabRepository(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudbuildv2RepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -112,12 +112,12 @@ func TestAccCloudbuildv2Repository_GleRepository(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": RandString(t, 10),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
-	VcrTest(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckCloudbuildv2RepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -295,7 +295,7 @@ func testAccCheckCloudbuildv2RepositoryDestroyProducer(t *testing.T) func(s *ter
 				continue
 			}
 
-			config := GoogleProviderConfig(t)
+			config := acctest.GoogleProviderConfig(t)
 
 			billingProject := ""
 			if config.BillingProject != "" {
