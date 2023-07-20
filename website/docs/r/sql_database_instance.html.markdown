@@ -434,6 +434,7 @@ to work, cannot be updated, and supports:
     If the field is set to true the replica will be designated as a failover replica.
     If the master instance fails, the replica instance will be promoted as
     the new master instance.
+  ~> **NOTE:** Not supported for Postgres database.
 
 * `master_heartbeat_period` - (Optional) Time in ms between replication
     heartbeats.
