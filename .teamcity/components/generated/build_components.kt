@@ -51,7 +51,7 @@ fun servicePath(path : String, packageName: String) : String {
     return "./%s/%s".format(path, packageName)
 }
 
-fun BuildSteps.RunAcceptanceTests(path : String, packageName: String) {
+fun BuildSteps.RunAcceptanceTests(providerName : String, path : String, packageName: String) {
     var packagePath = servicePath(path, packageName)
     var withTestsDirectoryPath = "##teamcity[setParameter name='PACKAGE_PATH' value='%s/tests']".format(packagePath)
 
@@ -63,7 +63,7 @@ fun BuildSteps.RunAcceptanceTests(path : String, packageName: String) {
 
     step(ScriptBuildStep{
         name = "Pre-Sweeper"
-        scriptContent = "go test -v \"%PACKAGE_PATH%\" -sweep=\"%SWEEPER_REGIONS%\"  -sweep-allow-failures -sweep-run=\"%SWEEP_RUN%\" -timeout 30m"
+        scriptContent = "go test -v ./%s -sweep=\"%SWEEPER_REGIONS%\"  -sweep-allow-failures -sweep-run=\"%SWEEP_RUN%\" -timeout 30m".format(providerName)
     })
 
     if (useTeamCityGoTest) {
@@ -88,7 +88,7 @@ fun BuildSteps.RunAcceptanceTests(path : String, packageName: String) {
 
     step(ScriptBuildStep{
         name = "Post-Sweeper"
-        scriptContent = "go test -v \"%PACKAGE_PATH%\" -sweep=\"%SWEEPER_REGIONS%\"  -sweep-allow-failures -sweep-run=\"%SWEEP_RUN%\" -timeout 30m"
+        scriptContent = "go test -v ./%s -sweep=\"%SWEEPER_REGIONS%\"  -sweep-allow-failures -sweep-run=\"%SWEEP_RUN%\" -timeout 30m".format(providerName)
     })
 }
 
