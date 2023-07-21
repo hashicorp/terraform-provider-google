@@ -95,7 +95,7 @@
           <format>kotlin</format>
           <dstDir>target/generated-configs</dstDir>
           <contextParameters>
-            <environment>public</environment>
+            <environment>default</environment>
           </contextParameters>
         </configuration>
       </plugin>
