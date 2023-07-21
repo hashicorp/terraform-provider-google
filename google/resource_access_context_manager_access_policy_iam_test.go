@@ -52,7 +52,7 @@ func TestAccAccessContextManagerAccessPolicyIamMember(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"google_access_context_manager_access_policy_iam_member.member", "role", role),
 					resource.TestCheckResourceAttr(
-						"google_access_context_manager_access_policy_iam_member.member", "member", "serviceAccount:"+serviceAccountCanonicalEmail(account)),
+						"google_access_context_manager_access_policy_iam_member.member", "member", "serviceAccount:"+envvar.ServiceAccountCanonicalEmail(account)),
 				),
 			},
 		},
