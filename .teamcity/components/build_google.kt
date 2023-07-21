@@ -19,6 +19,9 @@ class ClientConfiguration(var custId: String,
                           val identityUser : String ) {
 }
 
+// ParametrizedWithType.ConfigureGoogleSpecificTestParameters allows build configs to be created
+// with the environment variables needed to configure the provider and/or configure test code.
+// Extension of ParametrizedWithType. For docs, see https://teamcity.jetbrains.com/app/dsl-documentation/root/parametrized-with-type/index.html
 fun ParametrizedWithType.ConfigureGoogleSpecificTestParameters(config: ClientConfiguration) {
     hiddenPasswordVariable("env.GOOGLE_CUST_ID", config.custId, "The ID of the Google Identity Customer")
     hiddenPasswordVariable("env.GOOGLE_ORG", config.org, "The Google Organization Id")
