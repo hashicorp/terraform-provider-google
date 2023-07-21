@@ -1,11 +1,8 @@
 ## 4.75.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-* fix: Update workflow_basic.tf.erb ([#15214](https://github.com/hashicorp/terraform-provider-google/pull/15214))
-
 FEATURES:
-* **New Resource:** `google_dns_response_policy_rule` (ga) ([#15146](https://github.com/hashicorp/terraform-provider-google/pull/15146))
-* **New Resource:** `google_dns_response_policy` (ga) ([#15146](https://github.com/hashicorp/terraform-provider-google/pull/15146))
+* **New Resource:** `google_dns_response_policy_rule`([#15146](https://github.com/hashicorp/terraform-provider-google/pull/15146))
+* **New Resource:** `google_dns_response_policy`([#15146](https://github.com/hashicorp/terraform-provider-google/pull/15146))
 * **New Resource:** `google_looker_instance` ([#15188](https://github.com/hashicorp/terraform-provider-google/pull/15188))
 
 IMPROVEMENTS:
@@ -13,7 +10,7 @@ IMPROVEMENTS:
 * bigquery: added `external_data_configuration.json_options` and `external_data_configuration.parquet_options` fields to `google_bigquery_table` ([#15197](https://github.com/hashicorp/terraform-provider-google/pull/15197))
 * bigtable: added `change_stream_retention` field to `google_bigtable_table.table` resource ([#15152](https://github.com/hashicorp/terraform-provider-google/pull/15152))
 * compute: added `most_recent` argument to `google_compute_image` datasource ([#15187](https://github.com/hashicorp/terraform-provider-google/pull/15187))
-* compute: added field `enableConfidentialCompute` for `google_compute_disk` resource ([#15180](https://github.com/hashicorp/terraform-provider-google/pull/15180))
+* compute: added field `enable_confidential_compute` for `google_compute_disk` resource ([#15180](https://github.com/hashicorp/terraform-provider-google/pull/15180))
 * container: added `gpu_driver_installation_config.gpu_driver_version` field to `google_container_node_pool` ([#15182](https://github.com/hashicorp/terraform-provider-google/pull/15182))
 * gkebackup: added `state` and `state_reason` output-only fields to `google_gkebackup_backupplan` resource ([#15201](https://github.com/hashicorp/terraform-provider-google/pull/15201))
 * healthcare: added `complex_data_type_reference_parsing ` field to `google_healthcare_fhir_store` resource ([#15159](https://github.com/hashicorp/terraform-provider-google/pull/15159))
@@ -21,10 +18,9 @@ IMPROVEMENTS:
 * vpcaccess: added support for updates to `google_vpc_access_connector` resource ([#15176](https://github.com/hashicorp/terraform-provider-google/pull/15176))
 
 BUG FIXES:
-* Fix automated backup policy handling of 0 start time (midnight) ([#15219](https://github.com/hashicorp/terraform-provider-google/pull/15219))
+* alloydb: fixed `google_alloydb_cluster` handling of automated backup policy midnight start time ([#15219](https://github.com/hashicorp/terraform-provider-google/pull/15219))
 * compute: fixed logic when unsetting `google_compute_instance.min_cpu_platform` and switching to a `machine_type` that does not support `min_cpu_platform` at the same time ([#15217](https://github.com/hashicorp/terraform-provider-google/pull/15217))
-* monitoring: fixed an issue which occurred when `name` field of `google_monitoring_monitored_project` was long-form ([#15190](https://github.com/hashicorp/terraform-provider-google/pull/15190))
-* tags:  Add mutex to `google_tags_location_tag_binding` ([#15189](https://github.com/hashicorp/terraform-provider-google/pull/15189))
+* tags: fixed race condition when modifying `google_tags_location_tag_binding` ([#15189](https://github.com/hashicorp/terraform-provider-google/pull/15189))
 
 ## 4.74.0 (July 18, 2023)
 
