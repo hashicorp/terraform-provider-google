@@ -32,7 +32,7 @@ class packageDetails(name: String, displayName: String, environment: String, bra
                 // - Compile Test Binary
                 // - Run via jen20/teamcity-go-test
                 // - Post-Sweeper
-                RunAcceptanceTests(providerName, path, packageName)
+                RunAcceptanceTests(path, packageName)
             }
 
             failureConditions {
