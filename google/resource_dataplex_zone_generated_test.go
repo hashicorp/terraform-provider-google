@@ -16,7 +16,7 @@
 //
 // ----------------------------------------------------------------------------
 
-package dataplex_test
+package google
 
 import (
 	"context"
@@ -33,33 +33,33 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccDataplexLake_BasicLake(t *testing.T) {
+func TestAccDataplexZone_BasicZone(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
 		"region":        envvar.GetTestRegionFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	acctest.VcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckDataplexLakeDestroyProducer(t),
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataplexZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataplexLake_BasicLake(context),
+				Config: testAccDataplexZone_BasicZone(context),
 			},
 			{
-				ResourceName:      "google_dataplex_lake.primary",
+				ResourceName:      "google_dataplex_zone.primary",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccDataplexLake_BasicLakeUpdate0(context),
+				Config: testAccDataplexZone_BasicZoneUpdate0(context),
 			},
 			{
-				ResourceName:      "google_dataplex_lake.primary",
+				ResourceName:      "google_dataplex_zone.primary",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -67,9 +67,29 @@ func TestAccDataplexLake_BasicLake(t *testing.T) {
 	})
 }
 
-func testAccDataplexLake_BasicLake(context map[string]interface{}) string {
+func testAccDataplexZone_BasicZone(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_dataplex_lake" "primary" {
+resource "google_dataplex_zone" "primary" {
+  discovery_spec {
+    enabled = false
+  }
+
+  lake     = google_dataplex_lake.basic.name
+  location = "%{region}"
+  name     = "tf-test-zone%{random_suffix}"
+
+  resource_spec {
+    location_type = "MULTI_REGION"
+  }
+
+  type         = "RAW"
+  description  = "Zone for DCL"
+  display_name = "Zone for DCL"
+  labels       = {}
+  project      = "%{project_name}"
+}
+
+resource "google_dataplex_lake" "basic" {
   location     = "%{region}"
   name         = "tf-test-lake%{random_suffix}"
   description  = "Lake for DCL"
@@ -86,12 +106,36 @@ resource "google_dataplex_lake" "primary" {
 `, context)
 }
 
-func testAccDataplexLake_BasicLakeUpdate0(context map[string]interface{}) string {
+func testAccDataplexZone_BasicZoneUpdate0(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_dataplex_lake" "primary" {
+resource "google_dataplex_zone" "primary" {
+  discovery_spec {
+    enabled = false
+  }
+
+  lake     = google_dataplex_lake.basic.name
+  location = "%{region}"
+  name     = "tf-test-zone%{random_suffix}"
+
+  resource_spec {
+    location_type = "MULTI_REGION"
+  }
+
+  type         = "RAW"
+  description  = "Zone for DCL Updated"
+  display_name = "Zone for DCL"
+
+  labels = {
+    updated_label = "exists"
+  }
+
+  project = "%{project_name}"
+}
+
+resource "google_dataplex_lake" "basic" {
   location     = "%{region}"
   name         = "tf-test-lake%{random_suffix}"
-  description  = "Updated description for lake"
+  description  = "Lake for DCL"
   display_name = "Lake for DCL"
 
   labels = {
@@ -105,40 +149,41 @@ resource "google_dataplex_lake" "primary" {
 `, context)
 }
 
-func testAccCheckDataplexLakeDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckDataplexZoneDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "rs.google_dataplex_lake" {
+			if rs.Type != "rs.google_dataplex_zone" {
 				continue
 			}
 			if strings.HasPrefix(name, "data.") {
 				continue
 			}
 
-			config := acctest.GoogleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			billingProject := ""
 			if config.BillingProject != "" {
 				billingProject = config.BillingProject
 			}
 
-			obj := &dataplex.Lake{
-				Location:       dcl.String(rs.Primary.Attributes["location"]),
-				Name:           dcl.String(rs.Primary.Attributes["name"]),
-				Description:    dcl.String(rs.Primary.Attributes["description"]),
-				DisplayName:    dcl.String(rs.Primary.Attributes["display_name"]),
-				Project:        dcl.StringOrNil(rs.Primary.Attributes["project"]),
-				CreateTime:     dcl.StringOrNil(rs.Primary.Attributes["create_time"]),
-				ServiceAccount: dcl.StringOrNil(rs.Primary.Attributes["service_account"]),
-				State:          dataplex.LakeStateEnumRef(rs.Primary.Attributes["state"]),
-				Uid:            dcl.StringOrNil(rs.Primary.Attributes["uid"]),
-				UpdateTime:     dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
+			obj := &dataplex.Zone{
+				Lake:        dcl.String(rs.Primary.Attributes["lake"]),
+				Location:    dcl.String(rs.Primary.Attributes["location"]),
+				Name:        dcl.String(rs.Primary.Attributes["name"]),
+				Type:        dataplex.ZoneTypeEnumRef(rs.Primary.Attributes["type"]),
+				Description: dcl.String(rs.Primary.Attributes["description"]),
+				DisplayName: dcl.String(rs.Primary.Attributes["display_name"]),
+				Project:     dcl.StringOrNil(rs.Primary.Attributes["project"]),
+				CreateTime:  dcl.StringOrNil(rs.Primary.Attributes["create_time"]),
+				State:       dataplex.ZoneStateEnumRef(rs.Primary.Attributes["state"]),
+				Uid:         dcl.StringOrNil(rs.Primary.Attributes["uid"]),
+				UpdateTime:  dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
 			client := transport_tpg.NewDCLDataplexClient(config, config.UserAgent, billingProject, 0)
-			_, err := client.GetLake(context.Background(), obj)
+			_, err := client.GetZone(context.Background(), obj)
 			if err == nil {
-				return fmt.Errorf("google_dataplex_lake still exists %v", obj)
+				return fmt.Errorf("google_dataplex_zone still exists %v", obj)
 			}
 		}
 		return nil
