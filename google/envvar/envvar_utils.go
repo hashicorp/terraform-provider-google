@@ -3,7 +3,6 @@
 package envvar
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -198,8 +197,4 @@ func SkipIfEnvNotSet(t *testing.T, envs ...string) {
 			t.Skipf("Environment variable %s is not set", k)
 		}
 	}
-}
-
-func ServiceAccountCanonicalEmail(account string) string {
-	return fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, GetTestProjectFromEnv())
 }
