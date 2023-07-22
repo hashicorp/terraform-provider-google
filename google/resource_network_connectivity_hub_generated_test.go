@@ -16,7 +16,7 @@
 //
 // ----------------------------------------------------------------------------
 
-package networkconnectivity_test
+package google
 
 import (
 	"context"
@@ -38,12 +38,12 @@ func TestAccNetworkConnectivityHub_BasicHub(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	acctest.VcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckNetworkConnectivityHubDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -110,7 +110,7 @@ func testAccCheckNetworkConnectivityHubDestroyProducer(t *testing.T) func(s *ter
 				continue
 			}
 
-			config := acctest.GoogleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			billingProject := ""
 			if config.BillingProject != "" {

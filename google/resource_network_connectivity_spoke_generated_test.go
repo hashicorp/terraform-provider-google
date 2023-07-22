@@ -16,7 +16,7 @@
 //
 // ----------------------------------------------------------------------------
 
-package networkconnectivity_test
+package google
 
 import (
 	"context"
@@ -40,12 +40,12 @@ func TestAccNetworkConnectivitySpoke_RouterApplianceHandWritten(t *testing.T) {
 		"project_name":  envvar.GetTestProjectFromEnv(),
 		"region":        envvar.GetTestRegionFromEnv(),
 		"zone":          envvar.GetTestZoneFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": RandString(t, 10),
 	}
 
-	acctest.VcrTest(t, resource.TestCase{
+	VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckNetworkConnectivitySpokeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -204,7 +204,7 @@ func testAccCheckNetworkConnectivitySpokeDestroyProducer(t *testing.T) func(s *t
 				continue
 			}
 
-			config := acctest.GoogleProviderConfig(t)
+			config := GoogleProviderConfig(t)
 
 			billingProject := ""
 			if config.BillingProject != "" {
