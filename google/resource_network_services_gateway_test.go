@@ -733,3 +733,86 @@ resource "google_compute_subnetwork" "proxyonlysubnet2" {
 
 `, cmName, netName, subnetName, pSubnetName, policyName, ruleName, gatewayName, gatewayScope, net2Name, subnet2Name, pSubnet2Name)
 }
+
+func TestAccNetworkServicesGateway_minimalSwp(t *testing.T) {
+	netName := fmt.Sprintf("tf-test-gateway-swp-net-%s", acctest.RandString(t, 10))
+	subnetName := fmt.Sprintf("tf-test-gateway-swp-subnet-%s", acctest.RandString(t, 10))
+	pSubnetName := fmt.Sprintf("tf-test-gateway-swp-proxyonly-%s", acctest.RandString(t, 10))
+	policyName := fmt.Sprintf("tf-test-gateway-swp-policy-%s", acctest.RandString(t, 10))
+	ruleName := fmt.Sprintf("tf-test-gateway-swp-rule-%s", acctest.RandString(t, 10))
+	gatewayName := fmt.Sprintf("tf-test-gateway-swp-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkServicesGatewayDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkServicesGateway_minimalSwp(netName, subnetName, pSubnetName, policyName, ruleName, gatewayName),
+			},
+			{
+				ResourceName:            "google_network_services_gateway.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "delete_swg_autogen_router_on_destroy"},
+			},
+		},
+	})
+}
+
+func testAccNetworkServicesGateway_minimalSwp(netName, subnetName, pSubnetName, policyName, ruleName, gatewayName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "default" {
+  name                    = "%s"
+  routing_mode            = "REGIONAL"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "proxyonlysubnet" {
+  name          = "%s"
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  ip_cidr_range = "192.168.0.0/23"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+  role          = "ACTIVE"
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%s"
+  purpose       = "PRIVATE"
+  ip_cidr_range = "10.128.0.0/20"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+  role          = "ACTIVE"
+}
+
+resource "google_network_security_gateway_security_policy" "default" {
+  name        = "%s"
+  location    = "us-central1"
+}
+
+resource "google_network_security_gateway_security_policy_rule" "default" {
+  name                    = "%s"
+  location                = "us-central1"
+  gateway_security_policy = google_network_security_gateway_security_policy.default.name
+  enabled                 = true
+  priority                = 1
+  session_matcher         = "host() == 'example.com'"
+  basic_profile           = "ALLOW"
+}
+
+resource "google_network_services_gateway" "foobar" {
+  name                                 = "%s"
+  location                             = "us-central1"
+  addresses                            = ["10.128.0.99"]
+  type                                 = "SECURE_WEB_GATEWAY"
+  ports                                = [443]
+  description                          = "my description"
+  gateway_security_policy              = google_network_security_gateway_security_policy.default.id
+  network                              = google_compute_network.default.id
+  subnetwork                           = google_compute_subnetwork.default.id
+  delete_swg_autogen_router_on_destroy = true
+  depends_on                           = [google_compute_subnetwork.proxyonlysubnet]
+}
+`, netName, subnetName, pSubnetName, policyName, ruleName, gatewayName)
+}
