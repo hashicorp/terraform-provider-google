@@ -766,9 +766,6 @@ func flattenArtifactRegistryRepositoryMavenConfig(v interface{}, d *schema.Resou
 		return nil
 	}
 	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
 	transformed := make(map[string]interface{})
 	transformed["allow_snapshot_overwrites"] =
 		flattenArtifactRegistryRepositoryMavenConfigAllowSnapshotOverwrites(original["allowSnapshotOverwrites"], d, config)
@@ -781,6 +778,10 @@ func flattenArtifactRegistryRepositoryMavenConfigAllowSnapshotOverwrites(v inter
 }
 
 func flattenArtifactRegistryRepositoryMavenConfigVersionPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil || tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
+		return "VERSION_POLICY_UNSPECIFIED"
+	}
+
 	return v
 }
 
@@ -987,8 +988,13 @@ func expandArtifactRegistryRepositoryDockerConfigImmutableTags(v interface{}, d 
 
 func expandArtifactRegistryRepositoryMavenConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
+	if len(l) == 0 {
 		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
 	}
 	raw := l[0]
 	original := raw.(map[string]interface{})
