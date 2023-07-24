@@ -121,6 +121,10 @@ preferred.
 * `addons_config` - (Optional) The configuration for addons supported by GKE.
     Structure is [documented below](#nested_addons_config).
 
+* `allow_net_admin` - (Optional) Enable NET_ADMIN for the cluster. Defaults to 
+`false`. This field should only be enabled for Autopilot clusters (`enable_autopilot`
+set to `true`).
+
 * `cluster_ipv4_cidr` - (Optional) The IP address range of the Kubernetes pods
 in this cluster in CIDR notation (e.g. `10.96.0.0/14`). Leave blank to have one
 automatically chosen or specify a `/14` block in `10.0.0.0/8`. This field will
