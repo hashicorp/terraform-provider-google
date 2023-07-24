@@ -241,13 +241,6 @@ The following arguments are supported:
   The proxy binds to the specified ports. Gateways of type 'SECURE_WEB_GATEWAY' are
   limited to 1 port. Gateways of type 'OPEN_MESH' listen on 0.0.0.0 and support multiple ports.
 
-* `scope` -
-  (Required)
-  Immutable. Scope determines how configuration across multiple Gateway instances are merged.
-  The configuration for multiple Gateway instances with the same scope will be merged as presented as
-  a single coniguration to the proxy/load balancer.
-  Max length 64 characters. Scope should start with a letter and can only have letters, numbers, hyphens.
-
 * `name` -
   (Required)
   Short name of the Gateway resource to be created.
@@ -263,6 +256,13 @@ The following arguments are supported:
 * `description` -
   (Optional)
   A free-text description of the resource. Max length 1024 characters.
+
+* `scope` -
+  (Optional)
+  Immutable. Scope determines how configuration across multiple Gateway instances are merged.
+  The configuration for multiple Gateway instances with the same scope will be merged as presented as
+  a single coniguration to the proxy/load balancer.
+  Max length 64 characters. Scope should start with a letter and can only have letters, numbers, hyphens.
 
 * `server_tls_policy` -
   (Optional)

@@ -180,15 +180,6 @@ limited to 1 port. Gateways of type 'OPEN_MESH' listen on 0.0.0.0 and support mu
 					Type: schema.TypeInt,
 				},
 			},
-			"scope": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `Immutable. Scope determines how configuration across multiple Gateway instances are merged.
-The configuration for multiple Gateway instances with the same scope will be merged as presented as
-a single coniguration to the proxy/load balancer.
-Max length 64 characters. Scope should start with a letter and can only have letters, numbers, hyphens.`,
-			},
 			"type": {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -250,6 +241,15 @@ The default value is 'global'.`,
 				Description: `The relative resource name identifying the VPC network that is using this configuration.
 For example: 'projects/*/global/networks/network-1'.
 Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY'.`,
+			},
+			"scope": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `Immutable. Scope determines how configuration across multiple Gateway instances are merged.
+The configuration for multiple Gateway instances with the same scope will be merged as presented as
+a single coniguration to the proxy/load balancer.
+Max length 64 characters. Scope should start with a letter and can only have letters, numbers, hyphens.`,
 			},
 			"server_tls_policy": {
 				Type:     schema.TypeString,
