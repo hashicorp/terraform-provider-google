@@ -96,6 +96,10 @@ resource "google_healthcare_fhir_store" "default" {
       dataset_uri = "bq://${google_bigquery_dataset.bq_dataset.project}.${google_bigquery_dataset.bq_dataset.dataset_id}"
       schema_config {
         recursive_structure_depth = 3
+        last_updated_partition_config {
+          type = "HOUR"
+          expiration_ms = 1000000
+        }
       }
     }
   }
@@ -354,6 +358,23 @@ The following arguments are supported:
   resource is a recursive structure; when the depth is 2, the CodeSystem table will have a column called
   concept.concept but not concept.concept.concept. If not specified or set to 0, the server will use the default
   value 2. The maximum depth allowed is 5.
+
+* `last_updated_partition_config` -
+  (Optional)
+  The configuration for exported BigQuery tables to be partitioned by FHIR resource's last updated time column.
+  Structure is [documented below](#nested_last_updated_partition_config).
+
+
+<a name="nested_last_updated_partition_config"></a>The `last_updated_partition_config` block supports:
+
+* `type` -
+  (Required)
+  Type of partitioning.
+  Possible values are: `PARTITION_TYPE_UNSPECIFIED`, `HOUR`, `DAY`, `MONTH`, `YEAR`.
+
+* `expiration_ms` -
+  (Optional)
+  Number of milliseconds for which to keep the storage for a partition.
 
 <a name="nested_notification_configs"></a>The `notification_configs` block supports:
 
