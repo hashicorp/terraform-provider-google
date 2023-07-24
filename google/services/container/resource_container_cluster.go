@@ -768,6 +768,12 @@ func ResourceContainerCluster() *schema.Resource {
 				// ConflictsWith: many fields, see https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview#comparison. The conflict is only set one-way, on other fields w/ this field.
 			},
 
+			"allow_net_admin": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Enable NET_ADMIN for this cluster.`,
+			},
+
 			"authenticator_groups_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -1783,6 +1789,13 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
+	var workloadPolicyConfig *container.WorkloadPolicyConfig
+	if allowed := d.Get("allow_net_admin").(bool); allowed {
+		workloadPolicyConfig = &container.WorkloadPolicyConfig{
+			AllowNetAdmin: allowed,
+		}
+	}
+
 	cluster := &container.Cluster{
 		Name:                           clusterName,
 		InitialNodeCount:               int64(d.Get("initial_node_count").(int)),
@@ -1804,8 +1817,9 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		Autoscaling:           expandClusterAutoscaling(d.Get("cluster_autoscaling"), d),
 		BinaryAuthorization:   expandBinaryAuthorization(d.Get("binary_authorization"), d.Get("enable_binary_authorization").(bool)),
 		Autopilot: &container.Autopilot{
-			Enabled:         d.Get("enable_autopilot").(bool),
-			ForceSendFields: []string{"Enabled"},
+			Enabled:              d.Get("enable_autopilot").(bool),
+			WorkloadPolicyConfig: workloadPolicyConfig,
+			ForceSendFields:      []string{"Enabled"},
 		},
 		ReleaseChannel: expandReleaseChannel(d.Get("release_channel")),
 		EnableTpu:      d.Get("enable_tpu").(bool),
@@ -2201,9 +2215,14 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 			return err
 		}
 	}
-	if cluster.Autopilot != nil {
-		if err := d.Set("enable_autopilot", cluster.Autopilot.Enabled); err != nil {
+	if autopilot := cluster.Autopilot; autopilot != nil {
+		if err := d.Set("enable_autopilot", autopilot.Enabled); err != nil {
 			return fmt.Errorf("Error setting enable_autopilot: %s", err)
+		}
+		if autopilot.WorkloadPolicyConfig != nil {
+			if err := d.Set("allow_net_admin", autopilot.WorkloadPolicyConfig.AllowNetAdmin); err != nil {
+				return fmt.Errorf("Error setting allow_net_admin: %s", err)
+			}
 		}
 	}
 	if cluster.ShieldedNodes != nil {
@@ -2428,6 +2447,25 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s's cluster-wide autoscaling has been updated", d.Id())
+	}
+
+	if d.HasChange("allow_net_admin") {
+		allowed := d.Get("allow_net_admin").(bool)
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredAutopilotWorkloadPolicyConfig: &container.WorkloadPolicyConfig{
+					AllowNetAdmin: allowed,
+				},
+			},
+		}
+
+		updateF := updateFunc(req, "updating net admin for GKE autopilot workload policy config")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s's autopilot workload policy config allow_net_admin has been set to %v", d.Id(), allowed)
 	}
 
 	if d.HasChange("enable_binary_authorization") {
