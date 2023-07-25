@@ -908,7 +908,7 @@ func ResourceContainerCluster() *schema.Resource {
 						"maintenance_exclusion": {
 							Type:        schema.TypeSet,
 							Optional:    true,
-							MaxItems:    3,
+							MaxItems:    20,
 							Description: `Exceptions to maintenance window. Non-emergency maintenance should not occur in these windows.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{

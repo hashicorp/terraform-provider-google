@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: allowed user to set up to 20 maintenance exclusions for `google_container_cluster` resource
+```

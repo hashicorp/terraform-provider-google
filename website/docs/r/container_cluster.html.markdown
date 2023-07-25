@@ -637,7 +637,7 @@ maintenance_policy {
 }
 ```
 
-* `maintenance_exclusion` - Exceptions to maintenance window. Non-emergency maintenance should not occur in these windows. A cluster can have up to three maintenance exclusions at a time [Maintenance Window and Exclusions](https://cloud.google.com/kubernetes-engine/docs/concepts/maintenance-windows-and-exclusions)
+* `maintenance_exclusion` - Exceptions to maintenance window. Non-emergency maintenance should not occur in these windows. A cluster can have up to 20 maintenance exclusions at a time [Maintenance Window and Exclusions](https://cloud.google.com/kubernetes-engine/docs/concepts/maintenance-windows-and-exclusions)
 
 <a name="nested_maintenance_exclusion"></a>The `maintenance_exclusion` block supports:
 * `exclusion_options` - (Optional) MaintenanceExclusionOptions provides maintenance exclusion related options.
