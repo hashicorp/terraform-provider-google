@@ -3431,6 +3431,9 @@ resource "google_container_cluster" "primary" {
 	config_connector_config {
 	  enabled = false
 	}
+    gcs_fuse_csi_driver_config {
+      enabled = false
+    }
   }
 }
 `, projectID, clusterName)
@@ -3483,6 +3486,9 @@ resource "google_container_cluster" "primary" {
 	config_connector_config {
 	  enabled = true
 	}
+    gcs_fuse_csi_driver_config {
+      enabled = true
+    }
   }
 }
 `, projectID, clusterName)
