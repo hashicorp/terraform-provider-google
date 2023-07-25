@@ -76,6 +76,7 @@ var (
 		"addons_config.0.gce_persistent_disk_csi_driver_config",
 		"addons_config.0.gke_backup_agent_config",
 		"addons_config.0.config_connector_config",
+		"addons_config.0.gcs_fuse_csi_driver_config",
 	}
 
 	privateClusterConfigKeys = []string{
@@ -382,6 +383,23 @@ func ResourceContainerCluster() *schema.Resource {
 							AtLeastOneOf: addonsConfigKeys,
 							MaxItems:     1,
 							Description:  `The status of the Backup for GKE Agent addon. It is disabled by default. Set enabled = true to enable.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+								},
+							},
+						},
+						"gcs_fuse_csi_driver_config": {
+							Type:          schema.TypeList,
+							Optional:      true,
+							Computed:      true,
+							AtLeastOneOf:  addonsConfigKeys,
+							MaxItems:      1,
+							Description:   `The status of the GCS Fuse CSI driver addon, which allows the usage of gcs bucket as volumes. Defaults to disabled; set enabled = true to enable.`,
+							ConflictsWith: []string{"enable_autopilot"},
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -3608,6 +3626,13 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 			ForceSendFields: []string{"Enabled"},
 		}
 	}
+	if v, ok := config["gcs_fuse_csi_driver_config"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.GcsFuseCsiDriverConfig = &container.GcsFuseCsiDriverConfig{
+			Enabled:         addon["enabled"].(bool),
+			ForceSendFields: []string{"Enabled"},
+		}
+	}
 
 	return ac
 }
@@ -4528,6 +4553,13 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 		result["config_connector_config"] = []map[string]interface{}{
 			{
 				"enabled": c.ConfigConnectorConfig.Enabled,
+			},
+		}
+	}
+	if c.GcsFuseCsiDriverConfig != nil {
+		result["gcs_fuse_csi_driver_config"] = []map[string]interface{}{
+			{
+				"enabled": c.GcsFuseCsiDriverConfig.Enabled,
 			},
 		}
 	}
