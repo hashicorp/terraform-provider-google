@@ -318,6 +318,11 @@ resource "google_cloud_run_v2_job" "default" {
       launch_stage,
     ]
   }
+
+  depends_on = [
+    google_secret_manager_secret_version.secret-version-data,
+    google_secret_manager_secret_iam_member.secret-access,
+  ]
 }
 
 data "google_project" "project" {
