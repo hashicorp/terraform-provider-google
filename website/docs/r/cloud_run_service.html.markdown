@@ -1005,6 +1005,12 @@ In addition to the arguments listed above, the following computed attributes are
   stamped out from this Service's Configuration that has had its "Ready" condition become
   "True".
 
+* `traffic` -
+  (Output)
+  Traffic specifies how to distribute traffic over a collection of Knative Revisions
+  and Configurations
+  Structure is [documented below](#nested_traffic).
+
 
 <a name="nested_conditions"></a>The `conditions` block contains:
 
@@ -1023,6 +1029,33 @@ In addition to the arguments listed above, the following computed attributes are
 * `type` -
   (Output)
   Type of domain mapping condition.
+
+<a name="nested_traffic"></a>The `traffic` block contains:
+
+* `revision_name` -
+  (Output)
+  RevisionName of a specific revision to which to send this portion of traffic.
+
+* `percent` -
+  (Output)
+  Percent specifies percent of the traffic to this Revision or Configuration.
+
+* `tag` -
+  (Output)
+  Tag is optionally used to expose a dedicated url for referencing this target exclusively.
+
+* `latest_revision` -
+  (Output)
+  LatestRevision may be optionally provided to indicate that the latest ready
+  Revision of the Configuration should be used for this traffic target. When
+  provided LatestRevision must be true if RevisionName is empty; it must be
+  false when RevisionName is non-empty.
+
+* `url` -
+  (Output)
+  URL displays the URL for accessing tagged traffic targets. URL is displayed in status,
+  and is disallowed on spec. URL must contain a scheme (e.g. http://) and a hostname,
+  but may not contain anything else (e.g. basic auth, url path, etc.)
 
 ## Timeouts
 
