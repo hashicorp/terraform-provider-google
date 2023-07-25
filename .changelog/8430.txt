@@ -1,0 +1,9 @@
+```release-note:new-resource
+google_iap_web_region_backend_service_iam_policy
+```
+```release-note:new-resource
+google_iap_web_region_backend_service_iam_binding
+```
+```release-note:new-resource
+google_iap_web_region_backend_service_iam_member
+```
