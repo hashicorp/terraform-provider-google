@@ -1,0 +1,3 @@
+```release-note:note
+docs: Update documentation about `destination` in the resource `google_logging_project_sink`
+```
