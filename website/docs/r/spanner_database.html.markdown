@@ -106,11 +106,21 @@ The following arguments are supported:
   If it is not provided, "GOOGLE_STANDARD_SQL" will be used.
   Possible values are: `GOOGLE_STANDARD_SQL`, `POSTGRESQL`.
 
+* `enable_drop_protection` -
+  (Optional)
+  Whether drop protection is enabled for this database. Defaults to false.
+  Drop protection is different from
+  the "deletion_protection" attribute in the following ways:
+  (1) "deletion_protection" only protects the database from deletions in Terraform.
+  whereas setting “enableDropProtection” to true protects the database from deletions in all interfaces.
+  (2) Setting "enableDropProtection" to true also prevents the deletion of the parent instance containing the database.
+  "deletion_protection" attribute does not provide protection against the deletion of the parent instance.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false
-in Terraform state, a `terraform destroy` or `terraform apply` that would delete the instance will fail.
+* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the database. Defaults to true. Unless this field is set to false
+in Terraform state, a `terraform destroy` or `terraform apply` that would delete the database will fail.
 
 
 <a name="nested_encryption_config"></a>The `encryption_config` block supports:

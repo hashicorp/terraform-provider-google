@@ -1,0 +1,3 @@
+```release-note:enhancement
+spanner: added `enable_drop_protection` to `google_spanner_database`
+```
