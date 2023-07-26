@@ -22,12 +22,10 @@ description: |-
 Represents a Regional SSL policy. SSL policies give you the ability to control the
 features of SSL that your SSL proxy or HTTPS load balancer negotiates.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about RegionSslPolicy, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/regionSslPolicies)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/regionSslPolicies)
 * How-to Guides
     * [Using SSL Policies](https://cloud.google.com/compute/docs/load-balancing/ssl-policies)
 
