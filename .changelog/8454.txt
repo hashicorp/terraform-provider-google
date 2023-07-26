@@ -1,0 +1,3 @@
+```release-note:bug
+monitoring: fixed an issue in `google_monitoring_monitored_project` where project numbers were not accepted for `name`
+```
