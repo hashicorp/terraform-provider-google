@@ -208,6 +208,27 @@ cluster.
 
 * `pod_range` - (Optional) The ID of the secondary range for pod IPs. If `create_pod_range` is true, this ID is used for the new range. If `create_pod_range` is false, uses an existing secondary range with this ID.
 
+* `additional_node_network_configs` - (Optional, Beta) We specify the additional node networks for this node pool using this list. Each node network corresponds to an additional interface.
+    Structure is [documented below](#nested_additional_node_network_configs)
+
+* `additional_pod_network_configs` - (Optional, Beta) We specify the additional pod networks for this node pool using this list. Each pod network corresponds to an additional alias IP range for the node.
+    Structure is [documented below](#nested_additional_pod_network_configs)
+
+
+<a name="nested_additional_node_network_configs"></a>The `additional_node_network_configs` block supports:
+
+* `network` - Name of the VPC where the additional interface belongs.
+
+* `subnetwork` - Name of the subnetwork where the additional interface belongs.
+
+<a name="nested_additional_pod_network_configs"></a>The `additional_pod_network_configs` block supports:
+
+* `subnetwork` - Name of the subnetwork where the additional pod network belongs.
+
+* `secondary_pod_range` - The name of the secondary range on the subnet which provides IP address for this pod range.
+
+* `max_pods_per_node` - The maximum number of pods per node which use this pod network.
+
 <a name="nested_upgrade_settings"></a>The `upgrade_settings` block supports:
 
 * `max_surge` - (Optional) The number of additional nodes that can be added to the node pool during
