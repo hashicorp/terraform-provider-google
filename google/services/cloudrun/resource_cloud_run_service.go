@@ -100,6 +100,27 @@ func cloudrunLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool 
 	return false
 }
 
+var cloudRunGoogleProvidedTemplateLabels = []string{
+	"run.googleapis.com/startupProbeType",
+}
+
+func cloudrunTemplateLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Suppress diffs for the labels provided by Google
+	for _, label := range cloudRunGoogleProvidedTemplateLabels {
+		if strings.Contains(k, label) && new == "" {
+			return true
+		}
+	}
+
+	// Let diff be determined by labels (above)
+	if strings.Contains(k, "labels.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
+}
+
 func ResourceCloudRunService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudRunServiceCreate,
@@ -797,8 +818,10 @@ keys to configure features on a Revision template:
 										Elem: &schema.Schema{Type: schema.TypeString},
 									},
 									"labels": {
-										Type:     schema.TypeMap,
-										Optional: true,
+										Type:             schema.TypeMap,
+										Computed:         true,
+										Optional:         true,
+										DiffSuppressFunc: cloudrunTemplateLabelDiffSuppress,
 										Description: `Map of string keys and values that can be used to organize and categorize
 (scope and select) objects.`,
 										Elem: &schema.Schema{Type: schema.TypeString},
