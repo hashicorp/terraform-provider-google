@@ -1,0 +1,3 @@
+```release-note:bug
+cloudrun: fixed the bug where default system labels set in `service.spec.template.metadata.labels` were treated as a diff.
+```
