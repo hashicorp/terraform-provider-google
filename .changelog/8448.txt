@@ -1,0 +1,3 @@
+```release-note:enhancement
+monitoring: added `condition_prometheus_query_language` field to `google_monitoring_alert_policy` resource
+```
