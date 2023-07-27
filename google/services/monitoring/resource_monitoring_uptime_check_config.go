@@ -254,7 +254,6 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 			"period": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `How often, in seconds, the uptime check is performed. Currently, the only supported values are 60s (1 minute), 300s (5 minutes), 600s (10 minutes), and 900s (15 minutes). Optional, defaults to 300s.`,
 				Default:     "300s",
 			},
@@ -576,6 +575,12 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
+	periodProp, err := expandMonitoringUptimeCheckConfigPeriod(d.Get("period"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("period"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, periodProp)) {
+		obj["period"] = periodProp
+	}
 	timeoutProp, err := expandMonitoringUptimeCheckConfigTimeout(d.Get("timeout"), d, config)
 	if err != nil {
 		return err
@@ -624,6 +629,10 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("period") {
+		updateMask = append(updateMask, "period")
 	}
 
 	if d.HasChange("timeout") {
