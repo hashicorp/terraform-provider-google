@@ -1,0 +1,6 @@
+```release-note:bug
+vpcaccess: reverted new behaviour introduced by resource `google_vpc_access_connector` in `4.75.0`. `min_throughput` and `max_throughput` fields lost their default value, and customers could not make deployment due to that change.
+```
+```release-note:note
+vpcaccess: reverted the ability to update the number of instances for resource `google_vpc_access_connector`
+```

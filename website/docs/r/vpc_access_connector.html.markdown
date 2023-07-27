@@ -39,10 +39,8 @@ To get more information about Connector, see:
 ```hcl
 resource "google_vpc_access_connector" "connector" {
   name          = "vpc-con"
-  ip_cidr_range = "10.18.0.0/28"
+  ip_cidr_range = "10.8.0.0/28"
   network       = "default"
-  min_instances  = 2
-  max_instances  = 3
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -60,8 +58,6 @@ resource "google_vpc_access_connector" "connector" {
     name = google_compute_subnetwork.custom_test.name
   }
   machine_type = "e2-standard-4"
-  min_instances = 2
-  max_instances = 3
 }
 
 resource "google_compute_subnetwork" "custom_test" {
@@ -116,7 +112,7 @@ The following arguments are supported:
 
 * `max_throughput` -
   (Optional)
-  Maximum throughput of the connector in Mbps, must be greater than `min_throughput`. Default is 1000.
+  Maximum throughput of the connector in Mbps, must be greater than `min_throughput`. Default is 300.
 
 * `subnet` -
   (Optional)
@@ -164,7 +160,6 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
-- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import

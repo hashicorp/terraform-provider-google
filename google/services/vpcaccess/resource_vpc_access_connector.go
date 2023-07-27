@@ -18,14 +18,11 @@
 package vpcaccess
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"reflect"
-	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -33,16 +30,10 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-// Are the number of min/max instances reduced?
-func AreInstancesReduced(_ context.Context, old, new, _ interface{}) bool {
-	return new.(int) < old.(int)
-}
-
 func ResourceVPCAccessConnector() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceVPCAccessConnectorCreate,
 		Read:   resourceVPCAccessConnectorRead,
-		Update: resourceVPCAccessConnectorUpdate,
 		Delete: resourceVPCAccessConnectorDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -51,13 +42,8 @@ func ResourceVPCAccessConnector() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
-			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
-
-		CustomizeDiff: customdiff.All(
-			customdiff.ForceNewIfChange("min_instances", AreInstancesReduced),
-			customdiff.ForceNewIfChange("max_instances", AreInstancesReduced)),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -76,6 +62,7 @@ func ResourceVPCAccessConnector() *schema.Resource {
 			"machine_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				ForceNew:    true,
 				Description: `Machine type of VM Instance underlying connector. Default is e2-micro`,
 				Default:     "e2-micro",
 			},
@@ -83,29 +70,31 @@ func ResourceVPCAccessConnector() *schema.Resource {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Optional:    true,
+				ForceNew:    true,
 				Description: `Maximum value of instances in autoscaling group underlying the connector.`,
 			},
 			"max_throughput": {
 				Type:         schema.TypeInt,
-				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(300, 1000),
-				Description:  `Maximum throughput of the connector in Mbps, must be greater than 'min_throughput'. Default is 1000.`,
+				ValidateFunc: validation.IntBetween(200, 1000),
+				Description:  `Maximum throughput of the connector in Mbps, must be greater than 'min_throughput'. Default is 300.`,
+				Default:      300,
 			},
 			"min_instances": {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Optional:    true,
+				ForceNew:    true,
 				Description: `Minimum value of instances in autoscaling group underlying the connector.`,
 			},
 			"min_throughput": {
 				Type:         schema.TypeInt,
-				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(200, 900),
+				ValidateFunc: validation.IntBetween(200, 1000),
 				Description:  `Minimum throughput of the connector in Mbps. Default and min is 200.`,
+				Default:      200,
 			},
 			"network": {
 				Type:             schema.TypeString,
@@ -414,104 +403,6 @@ func resourceVPCAccessConnectorRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	return nil
-}
-
-func resourceVPCAccessConnectorUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*transport_tpg.Config)
-	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
-	if err != nil {
-		return err
-	}
-
-	billingProject := ""
-
-	project, err := tpgresource.GetProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Connector: %s", err)
-	}
-	billingProject = project
-
-	obj := make(map[string]interface{})
-	machineTypeProp, err := expandVPCAccessConnectorMachineType(d.Get("machine_type"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("machine_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, machineTypeProp)) {
-		obj["machineType"] = machineTypeProp
-	}
-	minInstancesProp, err := expandVPCAccessConnectorMinInstances(d.Get("min_instances"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("min_instances"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, minInstancesProp)) {
-		obj["minInstances"] = minInstancesProp
-	}
-	maxInstancesProp, err := expandVPCAccessConnectorMaxInstances(d.Get("max_instances"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("max_instances"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maxInstancesProp)) {
-		obj["maxInstances"] = maxInstancesProp
-	}
-
-	obj, err = resourceVPCAccessConnectorEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{VPCAccessBasePath}}projects/{{project}}/locations/{{region}}/connectors/{{name}}")
-	if err != nil {
-		return err
-	}
-
-	log.Printf("[DEBUG] Updating Connector %q: %#v", d.Id(), obj)
-	updateMask := []string{}
-
-	if d.HasChange("machine_type") {
-		updateMask = append(updateMask, "machineType")
-	}
-
-	if d.HasChange("min_instances") {
-		updateMask = append(updateMask, "minInstances")
-	}
-
-	if d.HasChange("max_instances") {
-		updateMask = append(updateMask, "maxInstances")
-	}
-	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
-	// won't set it
-	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
-	if err != nil {
-		return err
-	}
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "PATCH",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutUpdate),
-	})
-
-	if err != nil {
-		return fmt.Errorf("Error updating Connector %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating Connector %q: %#v", d.Id(), res)
-	}
-
-	err = VPCAccessOperationWaitTime(
-		config, res, project, "Updating Connector", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
-
-	if err != nil {
-		return err
-	}
-
-	return resourceVPCAccessConnectorRead(d, meta)
 }
 
 func resourceVPCAccessConnectorDelete(d *schema.ResourceData, meta interface{}) error {
