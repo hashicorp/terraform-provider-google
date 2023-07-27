@@ -2705,7 +2705,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 			// Wait until it's updated
 			err = ContainerOperationWait(config, op, project, location, "updating L4", userAgent, d.Timeout(schema.TimeoutUpdate))
-			log.Println("[DEBUG] done updating enable_intranode_visibility")
+			log.Println("[DEBUG] done updating enable_l4_ilb_subsetting")
 			return err
 		}
 
