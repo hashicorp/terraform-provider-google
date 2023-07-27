@@ -2940,6 +2940,61 @@ func TestAccContainerCluster_withEnableKubernetesAlpha(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withEnableKubernetesBetaAPIs(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withEnableKubernetesBetaAPIs(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withEnableKubernetesBetaAPIsOnExistingCluster(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withoutEnableKubernetesBetaAPIs(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+			{
+				Config: testAccContainerCluster_withEnableKubernetesBetaAPIs(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withIPv4Error(t *testing.T) {
 	t.Parallel()
 
@@ -6213,6 +6268,60 @@ resource "google_container_cluster" "primary" {
   }
 }
 `, cluster, np)
+}
+
+func testAccContainerCluster_withoutEnableKubernetesBetaAPIs(clusterName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  min_master_version = data.google_container_engine_versions.central1a.release_channel_latest_version["STABLE"]
+  initial_node_count = 1
+}
+`, clusterName)
+}
+
+func testAccContainerCluster_withEnableKubernetesBetaAPIs(cluster string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "uscentral1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  min_master_version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
+  initial_node_count = 1
+
+  # This feature has been available since GKE 1.27, and currently the only
+  # supported Beta API is authentication.k8s.io/v1beta1/selfsubjectreviews.
+  # However, in the future, more Beta APIs will be supported, such as the
+  # resource.k8s.io group. At the same time, some existing Beta APIs will be
+  # deprecated as the feature will be GAed, and the Beta API will be eventually
+  # removed. In the case of the SelfSubjectReview API, it is planned to be GAed
+  # in Kubernetes as of 1.28. And, the Beta API of SelfSubjectReview will be removed
+  # after at least 3 minor version bumps, so it will be removed as of Kubernetes 1.31
+  # or later.
+  # https://pr.k8s.io/117713
+  # https://kubernetes.io/docs/reference/using-api/deprecation-guide/
+  #
+  # The new Beta APIs will be available since GKE 1.28
+  # - admissionregistration.k8s.io/v1beta1/validatingadmissionpolicies
+  # - admissionregistration.k8s.io/v1beta1/validatingadmissionpolicybindings
+  # https://pr.k8s.io/118644
+  #
+  # Removing the Beta API from Kubernetes will break the test.
+  # TODO: Replace the Beta API with one available on the version of GKE
+  # if the test is broken.
+  enable_k8s_beta_apis {
+    enabled_apis = ["authentication.k8s.io/v1beta1/selfsubjectreviews"]
+  }
+}
+`, cluster)
 }
 
 func testAccContainerCluster_withIPv4Error(name string) string {

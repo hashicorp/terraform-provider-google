@@ -164,6 +164,9 @@ for more information.
     this cluster. Note that when this option is enabled, the cluster cannot be upgraded
     and will be automatically deleted after 30 days.
 
+* `enable_k8s_beta_apis` - (Optional) Configuration for Kubernetes Beta APIs.
+    Structure is [documented below](#nested_enable_k8s_beta_apis).
+
 * `enable_tpu` - (Optional) Whether to enable Cloud TPU resources in this cluster.
     See the [official documentation](https://cloud.google.com/tpu/docs/kubernetes-engine-setup).
 
@@ -466,6 +469,10 @@ addons_config {
 * `state` - (Required) `ENCRYPTED` or `DECRYPTED`
 
 * `key_name` - (Required) the key to use to encrypt/decrypt secrets.  See the [DatabaseEncryption definition](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters#Cluster.DatabaseEncryption) for more information.
+
+<a name="nested_enable_k8s_beta_apis"></a>The `enable_k8s_beta_apis` block supports:
+
+* `enabled_apis` - (Required) Enabled Kubernetes Beta APIs. To list a Beta API resource, use the representation {group}/{version}/{resource}. The version must be a Beta version. Note that you cannot disable beta APIs that are already enabled on a cluster without recreating it. See the [Configure beta APIs](https://cloud.google.com/kubernetes-engine/docs/how-to/use-beta-apis#configure-beta-apis) for more information.
 
 <a name="nested_cloudrun_config"></a>The `cloudrun_config` block supports:
 

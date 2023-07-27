@@ -182,6 +182,7 @@ func ResourceContainerCluster() *schema.Resource {
 			containerClusterNodeVersionRemoveDefaultCustomizeDiff,
 			containerClusterNetworkPolicyEmptyCustomizeDiff,
 			containerClusterSurgeSettingsCustomizeDiff,
+			containerClusterEnableK8sBetaApisCustomizeDiff,
 		),
 
 		Timeouts: &schema.ResourceTimeout{
@@ -754,6 +755,23 @@ func ResourceContainerCluster() *schema.Resource {
 				ForceNew:    true,
 				Default:     false,
 				Description: `Whether to enable Kubernetes Alpha features for this cluster. Note that when this option is enabled, the cluster cannot be upgraded and will be automatically deleted after 30 days.`,
+			},
+
+			"enable_k8s_beta_apis": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Description: `Configuration for Kubernetes Beta APIs.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled_apis": {
+							Type:        schema.TypeSet,
+							Required:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `Enabled Kubernetes Beta APIs.`,
+						},
+					},
+				},
 			},
 
 			"enable_tpu": {
@@ -1855,6 +1873,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		ConfidentialNodes:    expandConfidentialNodes(d.Get("confidential_nodes")),
 		ResourceLabels:       tpgresource.ExpandStringMap(d, "resource_labels"),
 		CostManagementConfig: expandCostManagementConfig(d.Get("cost_management_config")),
+		EnableK8sBetaApis:    expandEnableK8sBetaApis(d.Get("enable_k8s_beta_apis"), nil),
 	}
 
 	v := d.Get("enable_shielded_nodes")
@@ -2352,6 +2371,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 	if err := d.Set("gateway_api_config", flattenGatewayApiConfig(cluster.NetworkConfig.GatewayApiConfig)); err != nil {
+		return err
+	}
+	if err := d.Set("enable_k8s_beta_apis", flattenEnableK8sBetaApis(cluster.EnableK8sBetaApis)); err != nil {
 		return err
 	}
 	if err := d.Set("logging_config", flattenContainerClusterLoggingConfig(cluster.LoggingConfig)); err != nil {
@@ -3346,6 +3368,44 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
+	if d.HasChange("enable_k8s_beta_apis") {
+		log.Print("[INFO] Enable Kubernetes Beta APIs")
+		if v, ok := d.GetOk("enable_k8s_beta_apis"); ok {
+			name := containerClusterFullName(project, location, clusterName)
+			clusterGetCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Get(name)
+			if config.UserProjectOverride {
+				clusterGetCall.Header().Add("X-Goog-User-Project", project)
+			}
+			// Fetch the cluster information to get the already enabled Beta APIs.
+			cluster, err := clusterGetCall.Do()
+			if err != nil {
+				return err
+			}
+
+			// To avoid an already enabled Beta APIs error, we need to deduplicate the requested APIs
+			// with those that are already enabled.
+			var enabledAPIs []string
+			if cluster.EnableK8sBetaApis != nil && len(cluster.EnableK8sBetaApis.EnabledApis) > 0 {
+				enabledAPIs = cluster.EnableK8sBetaApis.EnabledApis
+			}
+			enableK8sBetaAPIs := expandEnableK8sBetaApis(v, enabledAPIs)
+
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredK8sBetaApis: enableK8sBetaAPIs,
+				},
+			}
+
+			updateF := updateFunc(req, "updating enabled Kubernetes Beta APIs")
+			// Call update serially.
+			if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] GKE cluster %s enabled Kubernetes Beta APIs has been updated", d.Id())
+		}
+	}
+
 	if d.HasChange("node_pool_defaults") && d.HasChange("node_pool_defaults.0.node_config_defaults.0.logging_variant") {
 		if v, ok := d.GetOk("node_pool_defaults.0.node_config_defaults.0.logging_variant"); ok {
 			loggingVariant := v.(string)
@@ -4318,6 +4378,28 @@ func expandGatewayApiConfig(configured interface{}) *container.GatewayAPIConfig 
 	}
 }
 
+func expandEnableK8sBetaApis(configured interface{}, enabledAPIs []string) *container.K8sBetaAPIConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	config := l[0].(map[string]interface{})
+	result := &container.K8sBetaAPIConfig{}
+	if v, ok := config["enabled_apis"]; ok {
+		notEnabledAPIsSet := v.(*schema.Set)
+		for _, enabledAPI := range enabledAPIs {
+			if notEnabledAPIsSet.Contains(enabledAPI) {
+				notEnabledAPIsSet.Remove(enabledAPI)
+			}
+		}
+
+		result.EnabledApis = tpgresource.ConvertStringSet(notEnabledAPIsSet)
+	}
+
+	return result
+}
+
 func expandContainerClusterLoggingConfig(configured interface{}) *container.LoggingConfig {
 	l := configured.([]interface{})
 	if len(l) == 0 {
@@ -5012,6 +5094,17 @@ func flattenGatewayApiConfig(c *container.GatewayAPIConfig) []map[string]interfa
 	}
 }
 
+func flattenEnableK8sBetaApis(c *container.K8sBetaAPIConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"enabled_apis": c.EnabledApis,
+		},
+	}
+}
+
 func flattenContainerClusterLoggingConfig(c *container.LoggingConfig) []map[string]interface{} {
 	if c == nil {
 		return nil
@@ -5257,6 +5350,34 @@ func containerClusterSurgeSettingsCustomizeDiff(_ context.Context, d *schema.Res
 		if v != "SURGE" {
 			if _, maxSurgeIsPresent := d.GetOk("cluster_autoscaling.0.auto_provisioning_defaults.0.upgrade_settings.0.max_unavailable"); maxSurgeIsPresent {
 				return fmt.Errorf("Surge upgrade settings max_surge/max_unavailable can only be used when strategy is set to SURGE")
+			}
+		}
+	}
+
+	return nil
+}
+
+func containerClusterEnableK8sBetaApisCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	// separate func to allow unit testing
+	return containerClusterEnableK8sBetaApisCustomizeDiffFunc(d)
+}
+
+func containerClusterEnableK8sBetaApisCustomizeDiffFunc(d tpgresource.TerraformResourceDiff) error {
+	// The Kubernetes Beta APIs cannot be disabled once they have been enabled by users.
+	// The reason why we don't allow disabling is that the controller does not have the
+	// ability to clean up the Kubernetes objects created by the APIs. If the user
+	// removes the already enabled Kubernetes Beta API from the list, we need to force
+	// a new cluster.
+	if !d.HasChange("enable_k8s_beta_apis.0.enabled_apis") {
+		return nil
+	}
+	old, new := d.GetChange("enable_k8s_beta_apis.0.enabled_apis")
+	if old != "" && new != "" {
+		oldAPIsSet := old.(*schema.Set)
+		newAPIsSet := new.(*schema.Set)
+		for _, oldAPI := range oldAPIsSet.List() {
+			if !newAPIsSet.Contains(oldAPI) {
+				return d.ForceNew("enable_k8s_beta_apis.0.enabled_apis")
 			}
 		}
 	}
