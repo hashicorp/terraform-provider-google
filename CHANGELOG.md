@@ -1,5 +1,13 @@
 ## 4.76.0 (Unreleased)
 
+## 4.75.1 (July 27, 2023)
+
+BUG FIXES:
+
+* vpcaccess: reverted new behaviour introduced by resource `google_vpc_access_connector` in `4.75.0`. `min_throughput` and `max_throughput` fields lost their default value, and customers could not make deployment due to that change.
+
+* vpcaccess: reverted the ability to update the number of instances for resource `google_vpc_access_connector`
+
 ## 4.75.0 (July 24, 2023)
 
 FEATURES:
