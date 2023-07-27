@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `enable_k8s_beta_apis.enabled_apis` field to `google_container_cluster`
+```
