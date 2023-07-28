@@ -56,6 +56,7 @@ var services = mapOf(
         "dialogflowcx" to "Dialogflowcx",
         "dns" to "Dns",
         "documentai" to "Documentai",
+        "documentaiwarehouse" to "Documentaiwarehouse",
         "essentialcontacts" to "Essentialcontacts",
         "eventarc" to "Eventarc",
         "filestore" to "Filestore",
