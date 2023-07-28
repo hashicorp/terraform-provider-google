@@ -1,35 +1,27 @@
 ## 4.76.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-* Add self service labeler ([#15129](https://github.com/hashicorp/terraform-provider-google/pull/15129))
-* Move regional SSL policies to GA ([#15299](https://github.com/hashicorp/terraform-provider-google/pull/15299))
-NOTES:
-* docs: Update documentation about `destination` in the resource `google_logging_project_sink` ([#15293](https://github.com/hashicorp/terraform-provider-google/pull/15293))
-
 FEATURES:
+* **New Resource:** `google_compute_region_ssl_policy` ([#15299](https://github.com/hashicorp/terraform-provider-google/pull/15299))
 * **New Resource:** `google_dataplex_task` ([#15226](https://github.com/hashicorp/terraform-provider-google/pull/15226))
-* **New Resource:** google_iap_web_region_backend_service_iam_binding ([#15285](https://github.com/hashicorp/terraform-provider-google/pull/15285))
-* **New Resource:** google_iap_web_region_backend_service_iam_member ([#15285](https://github.com/hashicorp/terraform-provider-google/pull/15285))
-* **New Resource:** google_iap_web_region_backend_service_iam_policy ([#15285](https://github.com/hashicorp/terraform-provider-google/pull/15285))
+* **New Resource:** `google_iap_web_region_backend_service_iam_binding` ([#15285](https://github.com/hashicorp/terraform-provider-google/pull/15285))
+* **New Resource:** `google_iap_web_region_backend_service_iam_member` ([#15285](https://github.com/hashicorp/terraform-provider-google/pull/15285))
+* **New Resource:** `google_iap_web_region_backend_service_iam_policy` ([#15285](https://github.com/hashicorp/terraform-provider-google/pull/15285))
 
 IMPROVEMENTS:
-* Compute: added `security_policy` field to `google_compute_region_backend_service` resource(beta) ([#15241](https://github.com/hashicorp/terraform-provider-google/pull/15241))
-* cloud-run: added `status.traffic` output fields to `google_cloud_run_service` resource ([#15284](https://github.com/hashicorp/terraform-provider-google/pull/15284))
+* cloudrun: added `status.traffic` output fields to `google_cloud_run_service` resource ([#15284](https://github.com/hashicorp/terraform-provider-google/pull/15284))
 * cloudrunv2: added field `custom_audiences` to resource `google_cloud_run_v2_service ` ([#15268](https://github.com/hashicorp/terraform-provider-google/pull/15268))
 * composer: added support for updating `resilience_mode` in `google_composer_environment` ([#15238](https://github.com/hashicorp/terraform-provider-google/pull/15238))
 * compute: added `reconcile_connections` for `google_compute_service_attachment`. ([#15288](https://github.com/hashicorp/terraform-provider-google/pull/15288))
-* compute: replaced `ipv6CidrRange` with `internalIpv6Prefix` to `Subnetwork` resource ([#15231](https://github.com/hashicorp/terraform-provider-google/pull/15231))
 * container : added `gcs_fuse_csi_driver_config` field to `addons_config` in `google_container_cluster` resource. ([#15290](https://github.com/hashicorp/terraform-provider-google/pull/15290))
 * container: added `allow_net_admin` field to `google_container_cluster` resource ([#15275](https://github.com/hashicorp/terraform-provider-google/pull/15275))
-* container: added multi-NIC network for GKE cluster and node pool. ([#15298](https://github.com/hashicorp/terraform-provider-google/pull/15298))
 * container: allowed user to set up to 20 maintenance exclusions for `google_container_cluster` resource ([#15291](https://github.com/hashicorp/terraform-provider-google/pull/15291))
 * healthcare: added `last_updated_partition_config` field to `google_healthcare_fhir_store` resource ([#15271](https://github.com/hashicorp/terraform-provider-google/pull/15271))
 * monitoring: added `condition_prometheus_query_language` field to `google_monitoring_alert_policy` resource ([#15301](https://github.com/hashicorp/terraform-provider-google/pull/15301))
-* network_services: removing required flags from `scope` field in `google_network_services_gateway` resource ([#15273](https://github.com/hashicorp/terraform-provider-google/pull/15273))
-* spanner: added `enable_drop_protection` to `google_spanner_database` ([#15283](https://github.com/hashicorp/terraform-provider-google/pull/15283))
+* networkservices: made `scope` field optional in `google_network_services_gateway` resource ([#15273](https://github.com/hashicorp/terraform-provider-google/pull/15273))
+* spanner: added `enable_drop_protection` to `google_spanner_database` resource([#15283](https://github.com/hashicorp/terraform-provider-google/pull/15283))
 
 BUG FIXES:
-* Fix automated backup policy handling of 0 start time (midnight) ([#15219](https://github.com/hashicorp/terraform-provider-google/pull/15219))
+* alloydb: fixed permadiffs when setting 0 as start time (midnight) for `automated_backup_policy` in `google_alloydb_cluster` resource ([#15219](https://github.com/hashicorp/terraform-provider-google/pull/15219))
 * artifactregistry: fixed reading back maven_config state in `google_artifact_registry_repository` ([#15269](https://github.com/hashicorp/terraform-provider-google/pull/15269))
 * cloud_tasks: suppressed time-unit permadiffs on `google_cloud_tasks_queue` min and max backoff settings ([#15237](https://github.com/hashicorp/terraform-provider-google/pull/15237))
 * cloudrun: fixed the bug where default system labels set in `service.spec.template.metadata.labels` were treated as a diff. ([#15302](https://github.com/hashicorp/terraform-provider-google/pull/15302))
