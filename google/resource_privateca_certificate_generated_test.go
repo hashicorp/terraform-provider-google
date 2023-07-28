@@ -59,6 +59,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateConfigExample(t *testing.T)
 
 func testAccPrivatecaCertificate_privatecaCertificateConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+
 resource "google_privateca_ca_pool" "default" {
   location = "us-central1"
   name = "tf-test-my-pool%{random_suffix}"
