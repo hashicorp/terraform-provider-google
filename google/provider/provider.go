@@ -59,6 +59,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/dialogflowcx"
 	"github.com/hashicorp/terraform-provider-google/google/services/dns"
 	"github.com/hashicorp/terraform-provider-google/google/services/documentai"
+	"github.com/hashicorp/terraform-provider-google/google/services/documentaiwarehouse"
 	"github.com/hashicorp/terraform-provider-google/google/services/essentialcontacts"
 	"github.com/hashicorp/terraform-provider-google/google/services/filestore"
 	"github.com/hashicorp/terraform-provider-google/google/services/firestore"
@@ -449,6 +450,11 @@ func Provider() *schema.Provider {
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"document_ai_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
+			"document_ai_warehouse_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
@@ -947,9 +953,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 303
+// Generated resources: 305
 // Generated IAM resources: 204
-// Total generated resources: 507
+// Total generated resources: 509
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1259,6 +1265,8 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dns_response_policy_rule":                                dns.ResourceDNSResponsePolicyRule(),
 			"google_document_ai_processor":                                   documentai.ResourceDocumentAIProcessor(),
 			"google_document_ai_processor_default_version":                   documentai.ResourceDocumentAIProcessorDefaultVersion(),
+			"google_document_ai_warehouse_document_schema":                   documentaiwarehouse.ResourceDocumentAIWarehouseDocumentSchema(),
+			"google_document_ai_warehouse_location":                          documentaiwarehouse.ResourceDocumentAIWarehouseLocation(),
 			"google_essential_contacts_contact":                              essentialcontacts.ResourceEssentialContactsContact(),
 			"google_filestore_backup":                                        filestore.ResourceFilestoreBackup(),
 			"google_filestore_instance":                                      filestore.ResourceFilestoreInstance(),
@@ -1736,6 +1744,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.DialogflowCXBasePath = d.Get("dialogflow_cx_custom_endpoint").(string)
 	config.DNSBasePath = d.Get("dns_custom_endpoint").(string)
 	config.DocumentAIBasePath = d.Get("document_ai_custom_endpoint").(string)
+	config.DocumentAIWarehouseBasePath = d.Get("document_ai_warehouse_custom_endpoint").(string)
 	config.EssentialContactsBasePath = d.Get("essential_contacts_custom_endpoint").(string)
 	config.FilestoreBasePath = d.Get("filestore_custom_endpoint").(string)
 	config.FirestoreBasePath = d.Get("firestore_custom_endpoint").(string)

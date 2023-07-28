@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_document_ai_warehouse_document_schema`
+```
+```release-note:new-resource
+`google_document_ai_warehouse_location`
+```
