@@ -386,6 +386,12 @@ The following arguments are supported:
   - v1beta1: uses the push format defined in the v1beta1 Pub/Sub API.
   - v1 or v1beta2: uses the push format defined in the v1 Pub/Sub API.
 
+* `no_wrapper` -
+  (Optional)
+  When set, the payload to the push endpoint is not wrapped.Sets the
+  `data` field as the HTTP body for delivery.
+  Structure is [documented below](#nested_no_wrapper).
+
 
 <a name="nested_oidc_token"></a>The `oidc_token` block supports:
 
@@ -404,6 +410,14 @@ The following arguments are supported:
   for the audience field is not supported. More info about the OIDC JWT
   token audience here: https://tools.ietf.org/html/rfc7519#section-4.1.3
   Note: if not specified, the Push endpoint URL will be used.
+
+<a name="nested_no_wrapper"></a>The `no_wrapper` block supports:
+
+* `write_metadata` -
+  (Required)
+  When true, writes the Pub/Sub message metadata to
+  `x-goog-pubsub-<KEY>:<VAL>` headers of the HTTP request. Writes the
+  Pub/Sub message attributes to `<KEY>:<VAL>` headers of the HTTP request.
 
 <a name="nested_expiration_policy"></a>The `expiration_policy` block supports:
 
