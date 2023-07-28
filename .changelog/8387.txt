@@ -1,0 +1,5 @@
+```release-note:enhancement
+compute: added `local_ssd_recovery_timeout` field to `google_compute_instance` resource (beta)
+compute: added `local_ssd_recovery_timeout` field to `google_compute_instance_template` resource (beta)
+compute: added `local_ssd_recovery_timeout` field to `google_compute_regional_instance_template` resource (beta)
+```
