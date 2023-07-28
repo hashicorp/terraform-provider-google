@@ -48,10 +48,111 @@ func ResourceIdentityPlatformConfig() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"authorized_domains": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `List of domains authorized for OAuth redirects.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"autodelete_anonymous_users": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: `Whether anonymous users will be auto-deleted after a period of 30 days`,
+			},
+			"blocking_functions": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration related to blocking functions.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"triggers": {
+							Type:        schema.TypeSet,
+							Required:    true,
+							Description: `Map of Trigger to event type. Key should be one of the supported event types: "beforeCreate", "beforeSignIn".`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"event_type": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"function_uri": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `HTTP URI trigger for the Cloud Function.`,
+									},
+									"update_time": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `When the trigger was changed.`,
+									},
+								},
+							},
+						},
+						"forward_inbound_credentials": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The user credentials to include in the JWT payload that is sent to the registered Blocking Functions.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"access_token": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Whether to pass the user's OAuth identity provider's access token.`,
+									},
+									"id_token": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Whether to pass the user's OIDC identity provider's ID token.`,
+									},
+									"refresh_token": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Whether to pass the user's OAuth identity provider's refresh token.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"quota": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration related to quotas.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"sign_up_quota_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Quota for the Signup endpoint, if overwritten. Signup quota is measured in sign ups per project per hour per IP.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"quota": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `A sign up APIs quota that customers can override temporarily.`,
+									},
+									"quota_duration": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `How long this quota will be active for. It is measurred in seconds, e.g., Example: "9.615s".`,
+									},
+									"start_time": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `When this quota will take affect.`,
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -172,6 +273,15 @@ func resourceIdentityPlatformConfigRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("autodelete_anonymous_users", flattenIdentityPlatformConfigAutodeleteAnonymousUsers(res["autodeleteAnonymousUsers"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
+	if err := d.Set("blocking_functions", flattenIdentityPlatformConfigBlockingFunctions(res["blockingFunctions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+	if err := d.Set("quota", flattenIdentityPlatformConfigQuota(res["quota"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+	if err := d.Set("authorized_domains", flattenIdentityPlatformConfigAuthorizedDomains(res["authorizedDomains"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
 
 	return nil
 }
@@ -198,6 +308,24 @@ func resourceIdentityPlatformConfigUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("autodelete_anonymous_users"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, autodeleteAnonymousUsersProp)) {
 		obj["autodeleteAnonymousUsers"] = autodeleteAnonymousUsersProp
 	}
+	blockingFunctionsProp, err := expandIdentityPlatformConfigBlockingFunctions(d.Get("blocking_functions"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("blocking_functions"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, blockingFunctionsProp)) {
+		obj["blockingFunctions"] = blockingFunctionsProp
+	}
+	quotaProp, err := expandIdentityPlatformConfigQuota(d.Get("quota"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("quota"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, quotaProp)) {
+		obj["quota"] = quotaProp
+	}
+	authorizedDomainsProp, err := expandIdentityPlatformConfigAuthorizedDomains(d.Get("authorized_domains"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("authorized_domains"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, authorizedDomainsProp)) {
+		obj["authorizedDomains"] = authorizedDomainsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
 	if err != nil {
@@ -209,6 +337,18 @@ func resourceIdentityPlatformConfigUpdate(d *schema.ResourceData, meta interface
 
 	if d.HasChange("autodelete_anonymous_users") {
 		updateMask = append(updateMask, "autodeleteAnonymousUsers")
+	}
+
+	if d.HasChange("blocking_functions") {
+		updateMask = append(updateMask, "blockingFunctions")
+	}
+
+	if d.HasChange("quota") {
+		updateMask = append(updateMask, "quota")
+	}
+
+	if d.HasChange("authorized_domains") {
+		updateMask = append(updateMask, "authorizedDomains")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -278,6 +418,312 @@ func flattenIdentityPlatformConfigAutodeleteAnonymousUsers(v interface{}, d *sch
 	return v
 }
 
+func flattenIdentityPlatformConfigBlockingFunctions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["triggers"] =
+		flattenIdentityPlatformConfigBlockingFunctionsTriggers(original["triggers"], d, config)
+	transformed["forward_inbound_credentials"] =
+		flattenIdentityPlatformConfigBlockingFunctionsForwardInboundCredentials(original["forwardInboundCredentials"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIdentityPlatformConfigBlockingFunctionsTriggers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.(map[string]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for k, raw := range l {
+		original := raw.(map[string]interface{})
+		transformed = append(transformed, map[string]interface{}{
+			"event_type":   k,
+			"function_uri": flattenIdentityPlatformConfigBlockingFunctionsTriggersFunctionUri(original["functionUri"], d, config),
+			"update_time":  flattenIdentityPlatformConfigBlockingFunctionsTriggersUpdateTime(original["updateTime"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenIdentityPlatformConfigBlockingFunctionsTriggersFunctionUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigBlockingFunctionsTriggersUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigBlockingFunctionsForwardInboundCredentials(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["id_token"] =
+		flattenIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsIdToken(original["idToken"], d, config)
+	transformed["access_token"] =
+		flattenIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsAccessToken(original["accessToken"], d, config)
+	transformed["refresh_token"] =
+		flattenIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsRefreshToken(original["refreshToken"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsIdToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsAccessToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsRefreshToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigQuota(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["sign_up_quota_config"] =
+		flattenIdentityPlatformConfigQuotaSignUpQuotaConfig(original["signUpQuotaConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIdentityPlatformConfigQuotaSignUpQuotaConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["quota"] =
+		flattenIdentityPlatformConfigQuotaSignUpQuotaConfigQuota(original["quota"], d, config)
+	transformed["start_time"] =
+		flattenIdentityPlatformConfigQuotaSignUpQuotaConfigStartTime(original["startTime"], d, config)
+	transformed["quota_duration"] =
+		flattenIdentityPlatformConfigQuotaSignUpQuotaConfigQuotaDuration(original["quotaDuration"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIdentityPlatformConfigQuotaSignUpQuotaConfigQuota(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenIdentityPlatformConfigQuotaSignUpQuotaConfigStartTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigQuotaSignUpQuotaConfigQuotaDuration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigAuthorizedDomains(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandIdentityPlatformConfigAutodeleteAnonymousUsers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigBlockingFunctions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTriggers, err := expandIdentityPlatformConfigBlockingFunctionsTriggers(original["triggers"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTriggers); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["triggers"] = transformedTriggers
+	}
+
+	transformedForwardInboundCredentials, err := expandIdentityPlatformConfigBlockingFunctionsForwardInboundCredentials(original["forward_inbound_credentials"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedForwardInboundCredentials); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["forwardInboundCredentials"] = transformedForwardInboundCredentials
+	}
+
+	return transformed, nil
+}
+
+func expandIdentityPlatformConfigBlockingFunctionsTriggers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
+	if v == nil {
+		return map[string]interface{}{}, nil
+	}
+	m := make(map[string]interface{})
+	for _, raw := range v.(*schema.Set).List() {
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedFunctionUri, err := expandIdentityPlatformConfigBlockingFunctionsTriggersFunctionUri(original["function_uri"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFunctionUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["functionUri"] = transformedFunctionUri
+		}
+
+		transformedUpdateTime, err := expandIdentityPlatformConfigBlockingFunctionsTriggersUpdateTime(original["update_time"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedUpdateTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["updateTime"] = transformedUpdateTime
+		}
+
+		transformedEventType, err := tpgresource.ExpandString(original["event_type"], d, config)
+		if err != nil {
+			return nil, err
+		}
+		m[transformedEventType] = transformed
+	}
+	return m, nil
+}
+
+func expandIdentityPlatformConfigBlockingFunctionsTriggersFunctionUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigBlockingFunctionsTriggersUpdateTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigBlockingFunctionsForwardInboundCredentials(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIdToken, err := expandIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsIdToken(original["id_token"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIdToken); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["idToken"] = transformedIdToken
+	}
+
+	transformedAccessToken, err := expandIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsAccessToken(original["access_token"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAccessToken); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["accessToken"] = transformedAccessToken
+	}
+
+	transformedRefreshToken, err := expandIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsRefreshToken(original["refresh_token"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRefreshToken); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["refreshToken"] = transformedRefreshToken
+	}
+
+	return transformed, nil
+}
+
+func expandIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsIdToken(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsAccessToken(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigBlockingFunctionsForwardInboundCredentialsRefreshToken(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigQuota(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSignUpQuotaConfig, err := expandIdentityPlatformConfigQuotaSignUpQuotaConfig(original["sign_up_quota_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSignUpQuotaConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["signUpQuotaConfig"] = transformedSignUpQuotaConfig
+	}
+
+	return transformed, nil
+}
+
+func expandIdentityPlatformConfigQuotaSignUpQuotaConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedQuota, err := expandIdentityPlatformConfigQuotaSignUpQuotaConfigQuota(original["quota"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedQuota); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["quota"] = transformedQuota
+	}
+
+	transformedStartTime, err := expandIdentityPlatformConfigQuotaSignUpQuotaConfigStartTime(original["start_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStartTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["startTime"] = transformedStartTime
+	}
+
+	transformedQuotaDuration, err := expandIdentityPlatformConfigQuotaSignUpQuotaConfigQuotaDuration(original["quota_duration"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedQuotaDuration); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["quotaDuration"] = transformedQuotaDuration
+	}
+
+	return transformed, nil
+}
+
+func expandIdentityPlatformConfigQuotaSignUpQuotaConfigQuota(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigQuotaSignUpQuotaConfigStartTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigQuotaSignUpQuotaConfigQuotaDuration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigAuthorizedDomains(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
