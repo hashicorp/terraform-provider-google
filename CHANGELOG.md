@@ -28,6 +28,14 @@ BUG FIXES:
 * compute: fixed wrongly trigger recreation on changes of `enforce_on_key_configs` on `google_compute_security_policy` ([#15248](https://github.com/hashicorp/terraform-provider-google/pull/15248))
 * monitoring: fixed an issue in `google_monitoring_monitored_project` where project numbers were not accepted for `name` ([#15305](https://github.com/hashicorp/terraform-provider-google/pull/15305))
 
+## 4.75.1 (July 27, 2023)
+
+BUG FIXES:
+
+* vpcaccess: reverted new behaviour introduced by resource `google_vpc_access_connector` in `4.75.0`. `min_throughput` and `max_throughput` fields lost their default value, and customers could not make deployment due to that change.
+
+* vpcaccess: reverted the ability to update the number of instances for resource `google_vpc_access_connector`
+
 ## 4.75.0 (July 24, 2023)
 
 FEATURES:
