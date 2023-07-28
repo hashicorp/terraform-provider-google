@@ -23,7 +23,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * alloydb: fixed permadiffs when setting 0 as start time (midnight) for `automated_backup_policy` in `google_alloydb_cluster` resource ([#15219](https://github.com/hashicorp/terraform-provider-google/pull/15219))
 * artifactregistry: fixed reading back maven_config state in `google_artifact_registry_repository` ([#15269](https://github.com/hashicorp/terraform-provider-google/pull/15269))
-* cloud_tasks: suppressed time-unit permadiffs on `google_cloud_tasks_queue` min and max backoff settings ([#15237](https://github.com/hashicorp/terraform-provider-google/pull/15237))
+* cloudtasks: suppressed time-unit permadiffs on `google_cloud_tasks_queue` min and max backoff settings ([#15237](https://github.com/hashicorp/terraform-provider-google/pull/15237))
 * cloudrun: fixed the bug where default system labels set in `service.spec.template.metadata.labels` were treated as a diff. ([#15302](https://github.com/hashicorp/terraform-provider-google/pull/15302))
 * compute: fixed wrongly triggered recreation on changes of `enforce_on_key_configs` on `google_compute_security_policy` ([#15248](https://github.com/hashicorp/terraform-provider-google/pull/15248))
 * monitoring: fixed an issue in `google_monitoring_monitored_project` where project numbers were not accepted for `name` ([#15305](https://github.com/hashicorp/terraform-provider-google/pull/15305))
