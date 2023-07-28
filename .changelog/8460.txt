@@ -1,0 +1,3 @@
+```release-note:breaking-change
+added more input validations for BigQuery table schema
+```
