@@ -288,7 +288,7 @@ func BootstrapSharedTestADDomain(t *testing.T, testId string, networkName string
 	return sharedADDomain
 }
 
-const SharedTestNetworkPrefix = "tf-bootstrap-net-"
+const SharedTestNetworkPrefix = "tf-bootstrap-sn-net-"
 
 // BootstrapSharedTestNetwork will return a persistent compute network for a
 // test or set of tests.
