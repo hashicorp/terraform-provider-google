@@ -38,6 +38,7 @@ resource "google_project" "my_project" {
   name       = "tf-test-project"
   project_id = "ae-project"
   org_id     = "123456789"
+  billing_account = "000000-0000000-0000000-000000"
 }
 
 resource "google_app_engine_application" "app" {
