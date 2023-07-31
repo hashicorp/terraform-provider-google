@@ -1,5 +1,41 @@
 ## 4.76.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** `google_compute_region_ssl_policy` ([#15299](https://github.com/hashicorp/terraform-provider-google/pull/15299))
+* **New Resource:** `google_dataplex_task` ([#15226](https://github.com/hashicorp/terraform-provider-google/pull/15226))
+* **New Resource:** `google_iap_web_region_backend_service_iam_binding` ([#15285](https://github.com/hashicorp/terraform-provider-google/pull/15285))
+* **New Resource:** `google_iap_web_region_backend_service_iam_member` ([#15285](https://github.com/hashicorp/terraform-provider-google/pull/15285))
+* **New Resource:** `google_iap_web_region_backend_service_iam_policy` ([#15285](https://github.com/hashicorp/terraform-provider-google/pull/15285))
+
+IMPROVEMENTS:
+* cloudrun: added `status.traffic` output fields to `google_cloud_run_service` resource ([#15284](https://github.com/hashicorp/terraform-provider-google/pull/15284))
+* cloudrunv2: added field `custom_audiences` to resource `google_cloud_run_v2_service ` ([#15268](https://github.com/hashicorp/terraform-provider-google/pull/15268))
+* composer: added support for updating `resilience_mode` in `google_composer_environment` ([#15238](https://github.com/hashicorp/terraform-provider-google/pull/15238))
+* compute: added `reconcile_connections` for `google_compute_service_attachment`. ([#15288](https://github.com/hashicorp/terraform-provider-google/pull/15288))
+* container : added `gcs_fuse_csi_driver_config` field to `addons_config` in `google_container_cluster` resource. ([#15290](https://github.com/hashicorp/terraform-provider-google/pull/15290))
+* container: added `allow_net_admin` field to `google_container_cluster` resource ([#15275](https://github.com/hashicorp/terraform-provider-google/pull/15275))
+* container: allowed user to set up to 20 maintenance exclusions for `google_container_cluster` resource ([#15291](https://github.com/hashicorp/terraform-provider-google/pull/15291))
+* healthcare: added `last_updated_partition_config` field to `google_healthcare_fhir_store` resource ([#15271](https://github.com/hashicorp/terraform-provider-google/pull/15271))
+* monitoring: added `condition_prometheus_query_language` field to `google_monitoring_alert_policy` resource ([#15301](https://github.com/hashicorp/terraform-provider-google/pull/15301))
+* networkservices: made `scope` field optional in `google_network_services_gateway` resource ([#15273](https://github.com/hashicorp/terraform-provider-google/pull/15273))
+* spanner: added `enable_drop_protection` to `google_spanner_database` resource([#15283](https://github.com/hashicorp/terraform-provider-google/pull/15283))
+
+BUG FIXES:
+* alloydb: fixed permadiffs when setting 0 as start time (midnight) for `automated_backup_policy` in `google_alloydb_cluster` resource ([#15219](https://github.com/hashicorp/terraform-provider-google/pull/15219))
+* artifactregistry: fixed reading back maven_config state in `google_artifact_registry_repository` ([#15269](https://github.com/hashicorp/terraform-provider-google/pull/15269))
+* cloudtasks: suppressed time-unit permadiffs on `google_cloud_tasks_queue` min and max backoff settings ([#15237](https://github.com/hashicorp/terraform-provider-google/pull/15237))
+* cloudrun: fixed the bug where default system labels set in `service.spec.template.metadata.labels` were treated as a diff. ([#15302](https://github.com/hashicorp/terraform-provider-google/pull/15302))
+* compute: fixed wrongly triggered recreation on changes of `enforce_on_key_configs` on `google_compute_security_policy` ([#15248](https://github.com/hashicorp/terraform-provider-google/pull/15248))
+* monitoring: fixed an issue in `google_monitoring_monitored_project` where project numbers were not accepted for `name` ([#15305](https://github.com/hashicorp/terraform-provider-google/pull/15305))
+
+## 4.75.1 (July 27, 2023)
+
+BUG FIXES:
+
+* vpcaccess: reverted new behaviour introduced by resource `google_vpc_access_connector` in `4.75.0`. `min_throughput` and `max_throughput` fields lost their default value, and customers could not make deployment due to that change.
+
+* vpcaccess: reverted the ability to update the number of instances for resource `google_vpc_access_connector`
+
 ## 4.75.0 (July 24, 2023)
 
 FEATURES:
