@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) HashiCorp, Inc.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
 // this file is auto-generated with mmv1, any changes made here will be overwritten
 
 import jetbrains.buildServer.configs.kotlin.BuildType
@@ -12,6 +17,7 @@ const val providerName = "google"
 fun Google(environment: String, manualVcsRoot: AbsoluteId, branchRef: String, configuration: ClientConfiguration) : Project {
     return Project{
 
+        // Create build configs for each package defined in packages.kt
         var buildConfigs = buildConfigurationsForPackages(packages, providerName, "google", environment, manualVcsRoot, branchRef, configuration)
         buildConfigs.forEach { buildConfiguration ->
             buildType(buildConfiguration)
