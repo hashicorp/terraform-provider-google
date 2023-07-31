@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added a new type `GLOBAL_MANAGED_PROXY` for the filed `purpose` in the resource `google_compute_subnetwork`
+```
