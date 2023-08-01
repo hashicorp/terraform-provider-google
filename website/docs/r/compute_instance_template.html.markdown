@@ -581,7 +581,7 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 * `maintenance_interval` - (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Specifies the frequency of planned maintenance events. The accepted values are: `PERIODIC`. 
 <a name="nested_guest_accelerator"></a>The `guest_accelerator` block supports:
 
-* `local_ssd_recovery_timeout` -  (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Specifies the maximum amount of time a Local Ssd Vm should wait while recovery of the Local Ssd state is attempted. Its value should be in between 0 and 168 hours with hour granularity and the default value being 1 hour. Structure is [documented below](#nested_local_ssd_recovery_timeout).
+* `local_ssd_recovery_timeout` -  (Optional) (https://terraform.io/docs/providers/google/guides/provider_versions.html) Specifies the maximum amount of time a Local Ssd Vm should wait while recovery of the Local Ssd state is attempted. Its value should be in between 0 and 168 hours with hour granularity and the default value being 1 hour. Structure is [documented below](#nested_local_ssd_recovery_timeout).
 <a name="nested_local_ssd_recovery_timeout"></a>The `local_ssd_recovery_timeout` block supports:
 
 * `nanos` - (Optional) Span of time that's a fraction of a second at nanosecond

@@ -4,6 +4,7 @@ package google
 
 import (
 	"fmt"
+	"reflect"
 	"regexp"
 	"sort"
 	"strconv"
@@ -2372,6 +2373,69 @@ func TestAccComputeInstance_spotVM_update(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_localSsdRecoveryTimeout(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	var expectedLocalSsdRecoveryTimeout = compute.Duration{}
+	// Define in testAccComputeInstance_localSsdRecoveryTimeout
+	expectedLocalSsdRecoveryTimeout.Nanos = 0
+	expectedLocalSsdRecoveryTimeout.Seconds = 3600
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_localSsdRecoveryTimeout(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceLocalSsdRecoveryTimeout(&instance, expectedLocalSsdRecoveryTimeout),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+		},
+	})
+}
+
+func TestAccComputeInstance_localSsdRecoveryTimeout_update(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", RandString(t, 10))
+	// Define in testAccComputeInstance_localSsdRecoveryTimeout
+	var expectedLocalSsdRecoveryTimeout = compute.Duration{}
+	expectedLocalSsdRecoveryTimeout.Nanos = 0
+	expectedLocalSsdRecoveryTimeout.Seconds = 3600
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_scheduling(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+			{
+				Config: testAccComputeInstance_localSsdRecoveryTimeout(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceLocalSsdRecoveryTimeout(&instance, expectedLocalSsdRecoveryTimeout),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+		},
+	})
+}
+
 func TestAccComputeInstance_metadataStartupScript_update(t *testing.T) {
 	t.Parallel()
 
@@ -2584,6 +2648,23 @@ func testAccCheckComputeResourcePolicy(instance *compute.Instance, scheduleName 
 
 		if resourcePoliciesCountHave == 1 && !strings.Contains(instance.ResourcePolicies[0], scheduleName) {
 			return fmt.Errorf("got the wrong schedule: have: %s; want: %s", instance.ResourcePolicies[0], scheduleName)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceLocalSsdRecoveryTimeout(instance *compute.Instance, instanceLocalSsdRecoveryTiemoutWant compute.Duration) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance == nil {
+			return fmt.Errorf("instance is nil")
+		}
+		if instance.Scheduling == nil {
+			return fmt.Errorf("no scheduling")
+		}
+
+		if !reflect.DeepEqual(*instance.Scheduling.LocalSsdRecoveryTimeout, instanceLocalSsdRecoveryTiemoutWant) {
+			return fmt.Errorf("got the wrong instance local ssd recovery timeout action: have: %#v; want: %#v", instance.Scheduling.LocalSsdRecoveryTimeout, instanceLocalSsdRecoveryTiemoutWant)
 		}
 
 		return nil
@@ -6506,6 +6587,39 @@ resource "google_compute_instance" "foobar" {
     preemptible = true
     instance_termination_action = "DELETE"
   }
+}
+`, instance)
+}
+
+func testAccComputeInstance_localSsdRecoveryTimeout(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family    = "ubuntu-2004-lts"
+  project   = "ubuntu-os-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    local_ssd_recovery_timeout {
+        nanos = 0
+        seconds = 3600
+    }
+  }
+
 }
 `, instance)
 }
