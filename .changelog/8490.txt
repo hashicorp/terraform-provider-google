@@ -1,0 +1,3 @@
+```release-note:enhancement
+workstations: added `accelerators` field to `google_workstations_workstation_config` resource(beta)
+```
