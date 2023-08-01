@@ -1,0 +1,3 @@
+```release-note:bug
+cloudfunctions2: fixed an issue where `google_cloudfunctions2_function.build_config.source.storage_source.generation` created a diff when not set in config
+```
