@@ -573,10 +573,9 @@ The elements are of the form "KEY=VALUE" for the environment variable "KEY" bein
 										Description:  `Option to specify the logging mode, which determines if and where build logs are stored. Possible values: ["LOGGING_UNSPECIFIED", "LEGACY", "GCS_ONLY", "STACKDRIVER_ONLY", "CLOUD_LOGGING_ONLY", "NONE"]`,
 									},
 									"machine_type": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: verify.ValidateEnum([]string{"UNSPECIFIED", "N1_HIGHCPU_8", "N1_HIGHCPU_32", "E2_HIGHCPU_8", "E2_HIGHCPU_32", ""}),
-										Description:  `Compute Engine machine type on which to run the build. Possible values: ["UNSPECIFIED", "N1_HIGHCPU_8", "N1_HIGHCPU_32", "E2_HIGHCPU_8", "E2_HIGHCPU_32"]`,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Compute Engine machine type on which to run the build.`,
 									},
 									"requested_verify_option": {
 										Type:         schema.TypeString,
