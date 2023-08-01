@@ -1,0 +1,4 @@
+```release-note:enhancement
+gkeonprem: increased timeout for resources `google_gkeonprem_bare_metal_cluster` and `google_gkeonprem_bare_metal_admin_cluster`
+gkeonprem: added taint on failed resource creation for `google_gkeonprem_bare_metal_admin_cluster`
+```
