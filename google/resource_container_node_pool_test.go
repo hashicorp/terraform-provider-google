@@ -1392,6 +1392,68 @@ resource "google_container_node_pool" "np" {
 `, cluster, np, placementType)
 }
 
+func TestAccContainerNodePool_customPlacementPolicy(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	policy := fmt.Sprintf("tf-test-policy-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_customPlacementPolicy(cluster, np, policy),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.machine_type", "c2-standard-4"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "placement_policy.0.policy_name", policy),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "placement_policy.0.type", "COMPACT"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_customPlacementPolicy(cluster, np, policyName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+}
+
+resource "google_compute_resource_policy" "policy" {
+  name = "%s"
+  region = "us-central1"
+  group_placement_policy {
+    collocation = "COLLOCATED"
+  }
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 2
+
+  node_config {
+    machine_type = "c2-standard-4"
+  }
+  placement_policy {
+	type = "COMPACT"
+    policy_name = google_compute_resource_policy.policy.name
+  }
+}
+`, cluster, policyName, np)
+}
+
 func TestAccContainerNodePool_threadsPerCore(t *testing.T) {
 	t.Parallel()
 

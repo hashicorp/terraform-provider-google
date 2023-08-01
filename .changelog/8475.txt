@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `placement_policy.policy_name` field to `google_container_node_pool` resource
+```

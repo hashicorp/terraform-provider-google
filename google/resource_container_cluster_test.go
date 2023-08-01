@@ -6653,3 +6653,63 @@ resource "google_container_cluster" "primary" {
   min_master_version = 1.27
 }`, name, enabled)
 }
+
+func TestAccContainerCluster_customPlacementPolicy(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	policy := fmt.Sprintf("tf-test-policy-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_customPlacementPolicy(cluster, np, policy),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.cluster", "node_pool.0.placement_policy.0.type", "COMPACT"),
+					resource.TestCheckResourceAttr("google_container_cluster.cluster", "node_pool.0.placement_policy.0.policy_name", policy),
+					resource.TestCheckResourceAttr("google_container_cluster.cluster", "node_pool.0.node_config.0.machine_type", "c2-standard-4"),
+				),
+			},
+			{
+				ResourceName:      "google_container_cluster.cluster",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_customPlacementPolicy(cluster, np, policyName string) string {
+	return fmt.Sprintf(`
+
+resource "google_compute_resource_policy" "policy" {
+  name = "%s"
+  region = "us-central1"
+  group_placement_policy {
+    collocation = "COLLOCATED"
+  }
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  
+  node_pool {
+    name               = "%s"
+    initial_node_count = 2
+
+    node_config {
+      machine_type = "c2-standard-4"
+    }
+
+    placement_policy {
+      type = "COMPACT"
+      policy_name = google_compute_resource_policy.policy.name
+    }
+  }
+}`, policyName, cluster, np)
+}
