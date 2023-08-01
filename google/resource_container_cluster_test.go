@@ -849,6 +849,36 @@ func TestAccContainerCluster_withPrivateClusterConfigMissingCidrBlock_withAutopi
 	})
 }
 
+func TestAccContainerCluster_withPrivateClusterConfigGlobalAccessEnabledOnly(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withPrivateClusterConfigGlobalAccessEnabledOnly(clusterName, true),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_private_cluster",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_withPrivateClusterConfigGlobalAccessEnabledOnly(clusterName, false),
+			},
+			{
+				ResourceName:      "google_container_cluster.with_private_cluster",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withIntraNodeVisibility(t *testing.T) {
 	t.Parallel()
 
@@ -5921,6 +5951,22 @@ resource "google_container_cluster" "with_private_cluster" {
   }
 }
 `, containerNetName, clusterName, masterGlobalAccessEnabled)
+}
+
+func testAccContainerCluster_withPrivateClusterConfigGlobalAccessEnabledOnly(clusterName string, masterGlobalAccessEnabled bool) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_private_cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  private_cluster_config {
+    enable_private_endpoint = false
+    master_global_access_config {
+      enabled = %t
+	}
+  }
+}
+`, clusterName, masterGlobalAccessEnabled)
 }
 
 func testAccContainerCluster_withShieldedNodes(clusterName string, enabled bool) string {
