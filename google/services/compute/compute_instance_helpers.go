@@ -131,7 +131,48 @@ func expandScheduling(v interface{}) (*compute.Scheduling, error) {
 		scheduling.InstanceTerminationAction = v.(string)
 		scheduling.ForceSendFields = append(scheduling.ForceSendFields, "InstanceTerminationAction")
 	}
+	if v, ok := original["local_ssd_recovery_timeout"]; ok {
+		transformedLocalSsdRecoveryTimeout, err := expandComputeLocalSsdRecoveryTimeout(v)
+		if err != nil {
+			return nil, err
+		}
+		scheduling.LocalSsdRecoveryTimeout = transformedLocalSsdRecoveryTimeout
+		scheduling.ForceSendFields = append(scheduling.ForceSendFields, "LocalSsdRecoveryTimeout")
+	}
 	return scheduling, nil
+}
+
+func expandComputeLocalSsdRecoveryTimeout(v interface{}) (*compute.Duration, error) {
+	l := v.([]interface{})
+	duration := compute.Duration{}
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+
+	transformedNanos, err := expandComputeLocalSsdRecoveryTimeoutNanos(original["nanos"])
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		duration.Nanos = int64(transformedNanos.(int))
+	}
+
+	transformedSeconds, err := expandComputeLocalSsdRecoveryTimeoutSeconds(original["seconds"])
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		duration.Seconds = int64(transformedSeconds.(int))
+	}
+	return &duration, nil
+}
+
+func expandComputeLocalSsdRecoveryTimeoutNanos(v interface{}) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeLocalSsdRecoveryTimeoutSeconds(v interface{}) (interface{}, error) {
+	return v, nil
 }
 
 func flattenScheduling(resp *compute.Scheduling) []map[string]interface{} {
@@ -147,6 +188,10 @@ func flattenScheduling(resp *compute.Scheduling) []map[string]interface{} {
 		schedulingMap["automatic_restart"] = *resp.AutomaticRestart
 	}
 
+	if resp.LocalSsdRecoveryTimeout != nil {
+		schedulingMap["local_ssd_recovery_timeout"] = flattenComputeLocalSsdRecoveryTimeout(resp.LocalSsdRecoveryTimeout)
+	}
+
 	nodeAffinities := schema.NewSet(schema.HashResource(instanceSchedulingNodeAffinitiesElemSchema()), nil)
 	for _, na := range resp.NodeAffinities {
 		nodeAffinities.Add(map[string]interface{}{
@@ -158,6 +203,16 @@ func flattenScheduling(resp *compute.Scheduling) []map[string]interface{} {
 	schedulingMap["node_affinities"] = nodeAffinities
 
 	return []map[string]interface{}{schedulingMap}
+}
+
+func flattenComputeLocalSsdRecoveryTimeout(v *compute.Duration) []interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["nanos"] = v.Nanos
+	transformed["seconds"] = v.Seconds
+	return []interface{}{transformed}
 }
 
 func flattenAccessConfigs(accessConfigs []*compute.AccessConfig) ([]map[string]interface{}, string) {
