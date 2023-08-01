@@ -1385,7 +1385,7 @@ func ResourceContainerCluster() *schema.Resource {
 							Optional:         true,
 							AtLeastOneOf:     privateClusterConfigKeys,
 							DiffSuppressFunc: containerClusterPrivateClusterConfigSuppress,
-							Description:      `When true, the cluster's private endpoint is used as the cluster endpoint and access through the public endpoint is disabled. When false, either endpoint can be used. This field only applies to private clusters, when enable_private_nodes is true.`,
+							Description:      `When true, the cluster's private endpoint is used as the cluster endpoint and access through the public endpoint is disabled. When false, either endpoint can be used.`,
 						},
 						"enable_private_nodes": {
 							Type:             schema.TypeBool,
@@ -2002,6 +2002,13 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.SecurityPostureConfig = expandSecurityPostureConfig(v)
 	}
 
+	// For now PSC based cluster don't support `enable_private_endpoint` on `create`, but only on `update` API call.
+	// If cluster is PSC based and enable_private_endpoint is set to true we will ignore it on `create` call and update cluster right after creation.
+	enablePrivateEndpointPSCCluster := isEnablePrivateEndpointPSCCluster(cluster)
+	if enablePrivateEndpointPSCCluster {
+		cluster.PrivateClusterConfig.EnablePrivateEndpoint = false
+	}
+
 	req := &container.CreateClusterRequest{
 		Cluster: cluster,
 	}
@@ -2086,6 +2093,35 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		err = ContainerOperationWait(config, op, project, location, "removing default node pool", userAgent, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return errwrap.Wrapf("Error while waiting to delete default node pool: {{err}}", err)
+		}
+	}
+
+	if enablePrivateEndpointPSCCluster {
+		name := containerClusterFullName(project, location, clusterName)
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredEnablePrivateEndpoint: true,
+				ForceSendFields:              []string{"DesiredEnablePrivateEndpoint"},
+			},
+		}
+
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() error {
+				clusterUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Update(name, req)
+				if config.UserProjectOverride {
+					clusterUpdateCall.Header().Add("X-Goog-User-Project", project)
+				}
+				op, err = clusterUpdateCall.Do()
+				return err
+			},
+		})
+		if err != nil {
+			return errwrap.Wrapf("Error updating enable private endpoint: {{err}}", err)
+		}
+
+		err = ContainerOperationWait(config, op, project, location, "updating enable private endpoint", userAgent, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return errwrap.Wrapf("Error while waiting to enable private endpoint: {{err}}", err)
 		}
 	}
 
@@ -4181,6 +4217,22 @@ func expandNetworkPolicy(configured interface{}) *container.NetworkPolicy {
 		}
 	}
 	return result
+}
+
+func isEnablePrivateEndpointPSCCluster(cluster *container.Cluster) bool {
+	// EnablePrivateEndpoint not provided
+	if cluster == nil || cluster.PrivateClusterConfig == nil {
+		return false
+	}
+	// Not a PSC cluster
+	if cluster.PrivateClusterConfig.EnablePrivateNodes || len(cluster.PrivateClusterConfig.MasterIpv4CidrBlock) > 0 {
+		return false
+	}
+	// PSC Cluster with EnablePrivateEndpoint
+	if cluster.PrivateClusterConfig.EnablePrivateEndpoint {
+		return true
+	}
+	return false
 }
 
 func expandPrivateClusterConfig(configured interface{}) *container.PrivateClusterConfig {
