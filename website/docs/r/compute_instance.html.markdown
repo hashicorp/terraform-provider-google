@@ -331,11 +331,21 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 <a name="nested_ipv6_access_config"></a>The `ipv6_access_config` block supports:
 
-* `public_ptr_domain_name` - (Optional) The domain name to be used when creating DNSv6
-    records for the external IPv6 ranges..
+* `external_ipv6` - (Optional) The first IPv6 address of the external IPv6 range associated 
+    with this instance, prefix length is stored in externalIpv6PrefixLength in ipv6AccessConfig. 
+    To use a static external IP address, it must be unused and in the same region as the instance's zone. 
+    If not specified, Google Cloud will automatically assign an external IPv6 address from the instance's subnetwork.
+
+* `external_ipv6_prefix_length` - (Optional) The prefix length of the external IPv6 range.
+
+* `name` - (Optional) The name of this access configuration. In ipv6AccessConfigs, the recommended name 
+    is "External IPv6".
 
 * `network_tier` - (Optional) The service-level to be provided for IPv6 traffic when the
     subnet has an external subnet. Only PREMIUM or STANDARD tier is valid for IPv6.
+
+* `public_ptr_domain_name` - (Optional) The domain name to be used when creating DNSv6
+    records for the external IPv6 ranges..
 
 <a name="nested_alias_ip_range"></a>The `alias_ip_range` block supports:
 
@@ -494,12 +504,6 @@ This field is always inherited from its subnetwork.
 * `network_interface.0.network_ip` - The internal ip address of the instance, either manually or dynamically assigned.
 
 * `network_interface.0.access_config.0.nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
-
-* `network_interface.0.ipv6_access_config.0.external_ipv6` - The first IPv6 address of the external IPv6 range
-associated with this instance, prefix length is stored in externalIpv6PrefixLength in ipv6AccessConfig.
-The field is output only, an IPv6 address from a subnetwork associated with the instance will be allocated dynamically.
-
-* `network_interface.0.ipv6_access_config.0.external_ipv6_prefix_length` - The prefix length of the external IPv6 range.
 
 * `attached_disk.0.disk_encryption_key_sha256` - The [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
     encoded SHA-256 hash of the [customer-supplied encryption key]

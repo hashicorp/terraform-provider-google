@@ -320,6 +320,29 @@ func TestAccComputeInstance_IPv6(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_ipv6ExternalReservation(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_ipv6ExternalReservation(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			computeInstanceImportStep("us-west2-a", instanceName, []string{}),
+		},
+	})
+}
+
 func TestAccComputeInstance_PTRRecord(t *testing.T) {
 	t.Parallel()
 
@@ -3508,6 +3531,65 @@ resource "google_compute_instance" "foobar" {
   }
 }
 `, instance, instance, ip, instance, record)
+}
+
+func testAccComputeInstance_ipv6ExternalReservation(instance string) string {
+	return fmt.Sprintf(`
+resource "google_compute_address" "ipv6-address" {
+  region             = "us-west2"
+  name               = "%s-address"
+  address_type       = "EXTERNAL"
+  ip_version         = "IPV6"
+  network_tier       = "PREMIUM"
+  ipv6_endpoint_type = "VM"
+  subnetwork         = google_compute_subnetwork.subnetwork-ipv6.name
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_subnetwork" "subnetwork-ipv6" {
+  name          = "%s-subnetwork"
+
+  ip_cidr_range = "10.0.0.0/22"
+  region        = "us-west2"
+
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "EXTERNAL"
+
+  network       = google_compute_network.custom-test.id
+}
+
+resource "google_compute_network" "custom-test" {
+  name                    = "%s-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone         = "us-west2-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    subnetwork                    = google_compute_subnetwork.subnetwork-ipv6.name
+    stack_type                    = "IPV4_IPV6"
+    ipv6_access_config {
+      external_ipv6               = google_compute_address.ipv6-address.address
+      external_ipv6_prefix_length = 96
+      name                        = "external-ipv6-access-config"
+      network_tier                = "PREMIUM"
+    }
+  }
+}
+`, instance, instance, instance, instance)
 }
 
 func testAccComputeInstance_PTRRecord(record, instance string) string {

@@ -109,8 +109,8 @@ The following arguments are supported:
   (Optional)
   The prefix length of the IP range. If not present, it means the
   address field is a single IP address.
-  This field is not applicable to addresses with addressType=EXTERNAL,
-  or addressType=INTERNAL when purpose=PRIVATE_SERVICE_CONNECT
+  This field is not applicable to addresses with addressType=INTERNAL
+  when purpose=PRIVATE_SERVICE_CONNECT
 
 * `address_type` -
   (Optional)

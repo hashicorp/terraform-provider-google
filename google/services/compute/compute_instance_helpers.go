@@ -5,6 +5,7 @@ package compute
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -185,6 +186,8 @@ func flattenIpv6AccessConfigs(ipv6AccessConfigs []*compute.AccessConfig) []map[s
 		}
 		flattened[i]["public_ptr_domain_name"] = ac.PublicPtrDomainName
 		flattened[i]["external_ipv6"] = ac.ExternalIpv6
+		flattened[i]["external_ipv6_prefix_length"] = strconv.FormatInt(ac.ExternalIpv6PrefixLength, 10)
+		flattened[i]["name"] = ac.Name
 	}
 	return flattened
 }
@@ -257,6 +260,19 @@ func expandIpv6AccessConfigs(configs []interface{}) []*compute.AccessConfig {
 			iacs[i].NetworkTier = data["network_tier"].(string)
 			if ptr, ok := data["public_ptr_domain_name"]; ok && ptr != "" {
 				iacs[i].PublicPtrDomainName = ptr.(string)
+			}
+			if eip, ok := data["external_ipv6"]; ok && eip != "" {
+				iacs[i].ExternalIpv6 = eip.(string)
+			}
+			if eipl, ok := data["external_ipv6_prefix_length"]; ok && eipl != "" {
+				if strVal, ok := eipl.(string); ok {
+					if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+						iacs[i].ExternalIpv6PrefixLength = intVal
+					}
+				}
+			}
+			if name, ok := data["name"]; ok && name != "" {
+				iacs[i].Name = name.(string)
 			}
 			iacs[i].Type = "DIRECT_IPV6" // Currently only type supported
 		}

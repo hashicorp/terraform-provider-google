@@ -63,9 +63,8 @@ except the last character, which cannot be a dash.`,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
-				Description: `The static external IP address represented by this resource. Only
-IPv4 is supported. An address may only be specified for INTERNAL
-address types. The IP address must be inside the specified subnetwork,
+				Description: `The static external IP address represented by this resource.
+The IP address must be inside the specified subnetwork,
 if any. Set by the API if undefined.`,
 			},
 			"address_type": {
@@ -82,6 +81,23 @@ Note: if you set this argument's value as 'INTERNAL' you need to leave the 'netw
 				Optional:    true,
 				ForceNew:    true,
 				Description: `An optional description of this resource.`,
+			},
+			"ip_version": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				ValidateFunc:     verify.ValidateEnum([]string{"IPV4", "IPV6", ""}),
+				DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("IPV4"),
+				Description:      `The IP Version that will be used by this address. The default value is 'IPV4'. Possible values: ["IPV4", "IPV6"]`,
+			},
+			"ipv6_endpoint_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"VM", "NETLB", ""}),
+				Description: `The endpoint type of this address, which should be VM or NETLB. This is
+used for deciding which type of endpoint this address can be used after
+the external IPv6 address reservation. Possible values: ["VM", "NETLB"]`,
 			},
 			"network": {
 				Type:             schema.TypeString,
@@ -104,6 +120,7 @@ This argument should not be used when configuring Internal addresses, because [n
 			},
 			"prefix_length": {
 				Type:        schema.TypeInt,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `The prefix length if the resource represents an IP range.`,
@@ -244,6 +261,18 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("prefix_length"); !tpgresource.IsEmptyValue(reflect.ValueOf(prefixLengthProp)) && (ok || !reflect.DeepEqual(v, prefixLengthProp)) {
 		obj["prefixLength"] = prefixLengthProp
 	}
+	ipVersionProp, err := expandComputeAddressIpVersion(d.Get("ip_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ip_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(ipVersionProp)) && (ok || !reflect.DeepEqual(v, ipVersionProp)) {
+		obj["ipVersion"] = ipVersionProp
+	}
+	ipv6EndpointTypeProp, err := expandComputeAddressIpv6EndpointType(d.Get("ipv6_endpoint_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ipv6_endpoint_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(ipv6EndpointTypeProp)) && (ok || !reflect.DeepEqual(v, ipv6EndpointTypeProp)) {
+		obj["ipv6EndpointType"] = ipv6EndpointTypeProp
+	}
 	regionProp, err := expandComputeAddressRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
@@ -376,6 +405,12 @@ func resourceComputeAddressRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
 	if err := d.Set("prefix_length", flattenComputeAddressPrefixLength(res["prefixLength"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Address: %s", err)
+	}
+	if err := d.Set("ip_version", flattenComputeAddressIpVersion(res["ipVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Address: %s", err)
+	}
+	if err := d.Set("ipv6_endpoint_type", flattenComputeAddressIpv6EndpointType(res["ipv6EndpointType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Address: %s", err)
 	}
 	if err := d.Set("region", flattenComputeAddressRegion(res["region"], d, config)); err != nil {
@@ -529,6 +564,14 @@ func flattenComputeAddressPrefixLength(v interface{}, d *schema.ResourceData, co
 	return v // let terraform core handle it otherwise
 }
 
+func flattenComputeAddressIpVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeAddressIpv6EndpointType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeAddressRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -577,6 +620,14 @@ func expandComputeAddressNetwork(v interface{}, d tpgresource.TerraformResourceD
 }
 
 func expandComputeAddressPrefixLength(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeAddressIpVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeAddressIpv6EndpointType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
