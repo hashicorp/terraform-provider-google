@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: support master_global_access_config for flexible cluster
+```

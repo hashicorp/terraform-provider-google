@@ -5302,12 +5302,15 @@ func containerClusterPrivateClusterConfigSuppress(k, old, new string, d *schema.
 	// Do not suppress diffs when private_endpoint_subnetwork is configured
 	_, hasSubnet := d.GetOk("private_cluster_config.0.private_endpoint_subnetwork")
 
+	// Do not suppress diffs when master_global_access_config is configured
+	_, hasGlobalAccessConfig := d.GetOk("private_cluster_config.0.master_global_access_config")
+
 	if k == "private_cluster_config.0.enable_private_endpoint" {
 		return suppressEndpoint && !hasSubnet
 	} else if k == "private_cluster_config.0.enable_private_nodes" {
 		return suppressNodes && !hasSubnet
 	} else if k == "private_cluster_config.#" {
-		return suppressEndpoint && suppressNodes && !hasSubnet
+		return suppressEndpoint && suppressNodes && !hasSubnet && !hasGlobalAccessConfig
 	}
 	return false
 }
