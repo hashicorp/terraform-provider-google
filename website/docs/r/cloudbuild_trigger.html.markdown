@@ -1497,7 +1497,6 @@ The following arguments are supported:
 * `machine_type` -
   (Optional)
   Compute Engine machine type on which to run the build.
-  Possible values are: `UNSPECIFIED`, `N1_HIGHCPU_8`, `N1_HIGHCPU_32`, `E2_HIGHCPU_8`, `E2_HIGHCPU_32`.
 
 * `disk_size_gb` -
   (Optional)
