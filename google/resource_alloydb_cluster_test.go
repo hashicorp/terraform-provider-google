@@ -739,3 +739,358 @@ resource "google_kms_crypto_key_iam_binding" "crypto_key2" {
 }
 `, context)
 }
+
+// Validates continuous backups defaults to being enabled with 14d retention, even if not explicitly configured.
+func TestAccAlloydbCluster_continuousBackup_enabledByDefault(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbCluster_withoutContinuousBackupConfig(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.recovery_window_days", "14"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"initial_user", "cluster_id", "location"},
+			},
+			{
+				Config: testAccAlloydbCluster_alloydbClusterBasicExample(context),
+			},
+		},
+	})
+}
+
+// Continuous backups defaults to being enabled with 14d retention. If the same configuration is set explicitly, terraform plan
+// should return no changes.
+func TestAccAlloydbCluster_continuousBackup_update_noChangeIfDefaultsSet(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":        acctest.RandString(t, 10),
+		"enabled":              true,
+		"recovery_window_days": 14,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbCluster_withoutContinuousBackupConfig(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.recovery_window_days", "14"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"initial_user", "cluster_id", "location"},
+			},
+			{
+				Config: testAccAlloydbCluster_continuousBackupConfig(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.recovery_window_days", "14"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"initial_user", "cluster_id", "location"},
+			},
+			{
+				Config: testAccAlloydbCluster_alloydbClusterBasicExample(context),
+			},
+		},
+	})
+}
+
+// This test ensures that if you start with a terraform configuration where continuous backups are explicitly set to the default configuration
+// and then remove continuous backups and call terraform plan, no changes would be found.
+func TestAccAlloydbCluster_continuousBackup_noChangeIfRemoved(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":        acctest.RandString(t, 10),
+		"enabled":              true,
+		"recovery_window_days": 14,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbCluster_continuousBackupConfig(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.recovery_window_days", "14"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"initial_user", "cluster_id", "location"},
+			},
+			{
+				Config: testAccAlloydbCluster_alloydbClusterBasicExample(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.recovery_window_days", "14"),
+				),
+			},
+		},
+	})
+}
+
+// Ensures changes to the continuous backup config properly applies
+func TestAccAlloydbCluster_continuousBackup_update(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	context := map[string]interface{}{
+		"random_suffix":        suffix,
+		"enabled":              true,
+		"recovery_window_days": 15,
+	}
+	context2 := map[string]interface{}{
+		"random_suffix":        suffix,
+		"enabled":              false,
+		"recovery_window_days": 14,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbCluster_withoutContinuousBackupConfig(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.recovery_window_days", "14"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"initial_user", "cluster_id", "location"},
+			},
+			{
+				Config: testAccAlloydbCluster_continuousBackupConfig(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.recovery_window_days", "15"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"initial_user", "cluster_id", "location"},
+			},
+			{
+				Config: testAccAlloydbCluster_continuousBackupConfig(context2),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.enabled", "false"),
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "continuous_backup_config.0.recovery_window_days", "14"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"initial_user", "cluster_id", "location"},
+			},
+			{
+				Config: testAccAlloydbCluster_alloydbClusterBasicExample(context),
+			},
+		},
+	})
+}
+
+func testAccAlloydbCluster_withoutContinuousBackupConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+data "google_project" "project" {
+}
+
+resource "google_compute_network" "default" {
+  name = "tf-test-alloydb-cluster%{random_suffix}"
+}
+`, context)
+}
+
+func testAccAlloydbCluster_continuousBackupConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+
+  continuous_backup_config {
+    enabled              = %{enabled}
+    recovery_window_days = %{recovery_window_days}
+  }
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+data "google_project" "project" {
+}
+
+resource "google_compute_network" "default" {
+  name = "tf-test-alloydb-cluster%{random_suffix}"
+}
+`, context)
+}
+
+func TestAccAlloydbCluster_continuousBackup_CMEKIsUpdatable(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	kms := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-alloydb-key1")
+	context := map[string]interface{}{
+		"random_suffix": suffix,
+		"key_ring":      kms.KeyRing.Name,
+		"key_name":      kms.CryptoKey.Name,
+	}
+
+	kms2 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-alloydb-key2")
+	context2 := map[string]interface{}{
+		"random_suffix": suffix,
+		"key_ring":      kms2.KeyRing.Name,
+		"key_name":      kms2.CryptoKey.Name,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbCluster_usingCMEKInClusterAndContinuousBackup(context),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster_id", "location"},
+			},
+			{
+				Config: testAccAlloydbCluster_usingCMEKInClusterAndContinuousBackup(context2),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster_id", "location"},
+			},
+			{
+				Config: testAccAlloydbCluster_continuousBackupUsingCMEKAllowDeletion(context2),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccAlloydbCluster_usingCMEKInClusterAndContinuousBackup(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+  continuous_backup_config {
+    enabled       		 = true
+	recovery_window_days = 20
+    encryption_config {
+      kms_key_name = "%{key_name}"
+    }
+  }
+  lifecycle {
+	prevent_destroy = true
+  }
+  depends_on = [google_kms_crypto_key_iam_binding.crypto_key]
+}
+
+resource "google_compute_network" "default" {
+  name = "tf-test-alloydb-cluster%{random_suffix}"
+}
+
+data "google_project" "project" {}
+
+resource "google_kms_crypto_key_iam_binding" "crypto_key" {
+  crypto_key_id = "%{key_name}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  members = [
+    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-alloydb.iam.gserviceaccount.com",
+  ]
+}
+`, context)
+}
+
+func testAccAlloydbCluster_continuousBackupUsingCMEKAllowDeletion(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+  continuous_backup_config {
+    enabled       		 = true
+	recovery_window_days = 20
+    encryption_config {
+      kms_key_name = "%{key_name}"
+    }
+  }
+  depends_on = [google_kms_crypto_key_iam_binding.crypto_key]
+}
+
+resource "google_compute_network" "default" {
+  name = "tf-test-alloydb-cluster%{random_suffix}"
+}
+
+data "google_project" "project" {}
+
+resource "google_kms_crypto_key_iam_binding" "crypto_key" {
+	crypto_key_id = "%{key_name}"
+	role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+	members = [
+	  "serviceAccount:service-${data.google_project.project.number}@gcp-sa-alloydb.iam.gserviceaccount.com",
+	]
+  }
+`, context)
+}
