@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed a bug in update support for several fields in `google_bigquery_data_transfer_config`
+```
