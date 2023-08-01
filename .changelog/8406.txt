@@ -1,0 +1,3 @@
+```release-note:enhancement
+AlloyDB: added `continuous_backup_config` and `continuous_backup_info` fields to `cluster` resource
+```
