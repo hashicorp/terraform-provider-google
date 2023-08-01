@@ -388,7 +388,6 @@ func testAccCheckBigqueryDataTransferConfigDestroyProducer(t *testing.T) func(s 
 func testAccBigqueryDataTransferConfig_scheduledQuery_update_service_account(t *testing.T) {
 	random_suffix1 := acctest.RandString(t, 10)
 	random_suffix2 := acctest.RandString(t, 10)
-	transferConfigID := ""
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -397,7 +396,6 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_update_service_account(t *
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBigqueryDataTransferConfig_scheduledQuery_updateServiceAccount(random_suffix1, random_suffix1),
-				Check:  testAccCheckDataTransferConfigID("google_bigquery_data_transfer_config.query_config", &transferConfigID),
 			},
 			{
 				ResourceName:            "google_bigquery_data_transfer_config.query_config",
@@ -407,7 +405,7 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_update_service_account(t *
 			},
 			{
 				Config: testAccBigqueryDataTransferConfig_scheduledQuery_updateServiceAccount(random_suffix1, random_suffix2),
-				Check:  testAccCheckDataTransferConfigIDChange("google_bigquery_data_transfer_config.query_config", &transferConfigID),
+				Check:  testAccCheckDataTransferServiceAccountNamePrefix("google_bigquery_data_transfer_config.query_config", random_suffix2),
 			},
 			{
 				ResourceName:            "google_bigquery_data_transfer_config.query_config",
@@ -419,8 +417,8 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_update_service_account(t *
 	})
 }
 
-// Retrieve transfer config ID and stores it in transferConfigID
-func testAccCheckDataTransferConfigID(resourceName string, transferConfigID *string) resource.TestCheckFunc {
+// Check if transfer config service account name starts with given prefix
+func testAccCheckDataTransferServiceAccountNamePrefix(resourceName string, prefix string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
 		rs, ok := s.RootModule().Resources[resourceName]
@@ -428,31 +426,10 @@ func testAccCheckDataTransferConfigID(resourceName string, transferConfigID *str
 			return fmt.Errorf("Not found: %s", resourceName)
 		}
 
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("Transfer config ID is not set")
+		if !strings.HasPrefix(rs.Primary.Attributes["service_account_name"], "bqwriter"+prefix) {
+			return fmt.Errorf("Transfer config service account not updated")
 		}
 
-		*transferConfigID = rs.Primary.ID
-		return nil
-	}
-}
-
-// Check if transfer config ID matches the one stored in transferConfigID
-func testAccCheckDataTransferConfigIDChange(resourceName string, transferConfigID *string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-
-		rs, ok := s.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("Not found: %s", resourceName)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("Transfer config ID is not set")
-		}
-
-		if *transferConfigID != rs.Primary.ID {
-			return fmt.Errorf("Transfer config was recreated after changing service account")
-		}
 		return nil
 	}
 }
