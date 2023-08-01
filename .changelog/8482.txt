@@ -1,0 +1,12 @@
+```release-note:enhancement
+compute: added `network_interface.ipv6_access_config.name` to `google_compute_instance`
+```
+```release-note:enhancement
+compute: added `network_interface.ipv6_access_config.external_ipv6_prefix_length` to `google_compute_instance`
+```
+```release-note:enhancement
+compute: made `network_interface.ipv6_access_config.external_ipv6` configurable in `google_compute_instance`
+```
+```release-note:enhancement
+compute: added `ipv6EndpointType` and `ipVersion` to `google_compute_address`
+```
