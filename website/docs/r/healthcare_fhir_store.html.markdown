@@ -184,8 +184,9 @@ resource "google_healthcare_fhir_store" "default" {
   }
 
   notification_configs {
-    pubsub_topic       = "${google_pubsub_topic.topic.id}"
-    send_full_resource = true
+    pubsub_topic                     = "${google_pubsub_topic.topic.id}"
+    send_full_resource               = true
+    send_previous_resource_on_delete = true
   }
 }
 
@@ -394,6 +395,14 @@ The following arguments are supported:
   full FHIR resource. When a resource change is too large or during heavy traffic, only the resource name will be
   sent. Clients should always check the "payloadType" label from a Pub/Sub message to determine whether
   it needs to fetch the full resource as a separate operation.
+
+* `send_previous_resource_on_delete` -
+  (Optional)
+  Whether to send full FHIR resource to this Pub/Sub topic for deleting FHIR resource. Note that setting this to
+  true does not guarantee that all previous resources will be sent in the format of full FHIR resource. When a
+  resource change is too large or during heavy traffic, only the resource name will be sent. Clients should always
+  check the "payloadType" label from a Pub/Sub message to determine whether it needs to fetch the full previous
+  resource as a separate operation.
 
 ## Attributes Reference
 
