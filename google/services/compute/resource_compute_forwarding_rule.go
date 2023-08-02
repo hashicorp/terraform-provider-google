@@ -130,7 +130,11 @@ options are 'TCP', 'UDP', 'ESP',
 
 The valid IP protocols are different for different load balancing products
 as described in [Load balancing
-features](https://cloud.google.com/load-balancing/docs/features#protocols_from_the_load_balancer_to_the_backends). Possible values: ["TCP", "UDP", "ESP", "AH", "SCTP", "ICMP", "L3_DEFAULT"]`,
+features](https://cloud.google.com/load-balancing/docs/features#protocols_from_the_load_balancer_to_the_backends).
+
+A Forwarding Rule with protocol L3_DEFAULT can attach with target instance or
+backend service with UNSPECIFIED protocol.
+A forwarding rule with "L3_DEFAULT" IPProtocal cannot be attached to a backend service with TCP or UDP. Possible values: ["TCP", "UDP", "ESP", "AH", "SCTP", "ICMP", "L3_DEFAULT"]`,
 			},
 			"all_ports": {
 				Type:     schema.TypeBool,
@@ -141,6 +145,8 @@ features](https://cloud.google.com/load-balancing/docs/features#protocols_from_t
 * By internal TCP/UDP load balancers, backend service-based network load
 balancers, and internal and external protocol forwarding.
 
+This option should be set to TRUE when the Forwarding Rule
+IPProtocol is set to L3_DEFAULT.
 
 Set this field to true to allow packets addressed to any port or packets
 lacking destination port information (for example, UDP fragments after the
@@ -294,7 +300,7 @@ pair, and cannot have overlapping 'portRange's.`,
 
 * If 'IPProtocol' is one of TCP, UDP, or SCTP.
 * By internal TCP/UDP load balancers, backend service-based network load
-balancers, and internal protocol forwarding.
+balancers, internal protocol forwarding and when protocol is not L3_DEFAULT.
 
 
 You can specify a list of up to five ports by number, separated by commas.
