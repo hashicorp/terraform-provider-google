@@ -1,0 +1,4 @@
+```release-note:enhancement
+compute: added protocol type: UNSPECIFIED in `google_compute_backend_service` as per [release note](https://cloud.google.com/load-balancing/docs/release-notes#July_24_2023)
+
+```

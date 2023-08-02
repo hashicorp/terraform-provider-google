@@ -1012,10 +1012,12 @@ scheme is EXTERNAL.`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"HTTP", "HTTPS", "HTTP2", "TCP", "SSL", "GRPC", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"HTTP", "HTTPS", "HTTP2", "TCP", "SSL", "GRPC", "UNSPECIFIED", ""}),
 				Description: `The protocol this BackendService uses to communicate with backends.
 The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
-types and may result in errors if used with the GA API. Possible values: ["HTTP", "HTTPS", "HTTP2", "TCP", "SSL", "GRPC"]`,
+types and may result in errors if used with the GA API. **NOTE**: With protocol “UNSPECIFIED”,
+the backend service can be used by Layer 4 Internal Load Balancing or Network Load Balancing
+with TCP/UDP/L3_DEFAULT Forwarding Rule protocol. Possible values: ["HTTP", "HTTPS", "HTTP2", "TCP", "SSL", "GRPC", "UNSPECIFIED"]`,
 			},
 			"security_policy": {
 				Type:             schema.TypeString,
