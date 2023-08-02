@@ -256,6 +256,12 @@ region. If not provided, defaults to the same region as the function.`,
 					},
 				},
 			},
+			"kms_key_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Resource name of a KMS crypto key (managed by the user) used to encrypt/decrypt function resources.
+It must match the pattern projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}.`,
+			},
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -548,6 +554,12 @@ func resourceCloudfunctions2functionCreate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
+	kmsKeyNameProp, err := expandCloudfunctions2functionKmsKeyName(d.Get("kms_key_name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyNameProp)) && (ok || !reflect.DeepEqual(v, kmsKeyNameProp)) {
+		obj["kmsKeyName"] = kmsKeyNameProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{Cloudfunctions2BasePath}}projects/{{project}}/locations/{{location}}/functions?functionId={{name}}")
 	if err != nil {
@@ -687,6 +699,9 @@ func resourceCloudfunctions2functionRead(d *schema.ResourceData, meta interface{
 	if err := d.Set("labels", flattenCloudfunctions2functionLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading function: %s", err)
 	}
+	if err := d.Set("kms_key_name", flattenCloudfunctions2functionKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading function: %s", err)
+	}
 
 	return nil
 }
@@ -737,6 +752,12 @@ func resourceCloudfunctions2functionUpdate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
+	kmsKeyNameProp, err := expandCloudfunctions2functionKmsKeyName(d.Get("kms_key_name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, kmsKeyNameProp)) {
+		obj["kmsKeyName"] = kmsKeyNameProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{Cloudfunctions2BasePath}}projects/{{project}}/locations/{{location}}/functions/{{name}}")
 	if err != nil {
@@ -764,6 +785,10 @@ func resourceCloudfunctions2functionUpdate(d *schema.ResourceData, meta interfac
 
 	if d.HasChange("labels") {
 		updateMask = append(updateMask, "labels")
+	}
+
+	if d.HasChange("kms_key_name") {
+		updateMask = append(updateMask, "kmsKeyName")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -1426,6 +1451,10 @@ func flattenCloudfunctions2functionUpdateTime(v interface{}, d *schema.ResourceD
 }
 
 func flattenCloudfunctions2functionLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudfunctions2functionKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2181,4 +2210,8 @@ func expandCloudfunctions2functionLabels(v interface{}, d tpgresource.TerraformR
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandCloudfunctions2functionKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
