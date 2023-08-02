@@ -571,6 +571,7 @@ resource "google_compute_forwarding_rule" "default" {
   all_ports             = true
   network               = google_compute_network.default.name
   subnetwork            = google_compute_subnetwork.default.name
+  ip_version            = "IPV4"
 }
 
 resource "google_compute_region_backend_service" "backend" {
@@ -1248,6 +1249,59 @@ resource "google_compute_forwarding_rule" "external" {
   load_balancing_scheme = "EXTERNAL"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=forwarding_rule_internallb_ipv6&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Forwarding Rule Internallb Ipv6
+
+
+```hcl
+// Forwarding rule for Internal Load Balancing
+resource "google_compute_forwarding_rule" "default" {
+  name   = "ilb-ipv6-forwarding-rule"
+  region = "us-central1"
+
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.backend.id
+  all_ports             = true
+  network               = google_compute_network.default.name
+  subnetwork            = google_compute_subnetwork.default.name
+  ip_version            = "IPV6"
+}
+
+resource "google_compute_region_backend_service" "backend" {
+  name          = "ilb-ipv6-backend"
+  region        = "us-central1"
+  health_checks = [google_compute_health_check.hc.id]
+}
+
+resource "google_compute_health_check" "hc" {
+  name               = "check-ilb-ipv6-backend"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_network" "default" {
+  name                    = "net-ipv6"
+  auto_create_subnetworks = false
+  enable_ula_internal_ipv6 = true
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "subnet-internal-ipv6"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "INTERNAL"
+  network       = google_compute_network.default.id
+}
+```
 
 ## Argument Reference
 
@@ -1497,6 +1551,13 @@ The following arguments are supported:
 * `no_automate_dns_zone` -
   (Optional)
   This is used in PSC consumer ForwardingRule to control whether it should try to auto-generate a DNS zone or not. Non-PSC forwarding rules do not use this field.
+
+* `ip_version` -
+  (Optional)
+  The IP address version that will be used by this forwarding rule.
+  Valid options are IPV4 and IPV6.
+  If not set, the IPv4 address will be used by default.
+  Possible values are: `IPV4`, `IPV6`.
 
 * `region` -
   (Optional)
