@@ -69,12 +69,6 @@ var FirebaserulesEndpointEntry = &schema.Schema{
 	Optional: true,
 }
 
-var NetworkConnectivityEndpointEntryKey = "network_connectivity_custom_endpoint"
-var NetworkConnectivityEndpointEntry = &schema.Schema{
-	Type:     schema.TypeString,
-	Optional: true,
-}
-
 var OrgPolicyEndpointEntryKey = "org_policy_custom_endpoint"
 var OrgPolicyEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -95,7 +89,6 @@ type DCLConfig struct {
 	CloudResourceManagerBasePath string
 	EventarcBasePath             string
 	FirebaserulesBasePath        string
-	NetworkConnectivityBasePath  string
 	OrgPolicyBasePath            string
 	RecaptchaEnterpriseBasePath  string
 }
@@ -108,7 +101,6 @@ func ConfigureDCLProvider(provider *schema.Provider) {
 	provider.Schema[CloudResourceManagerEndpointEntryKey] = CloudResourceManagerEndpointEntry
 	provider.Schema[EventarcEndpointEntryKey] = EventarcEndpointEntry
 	provider.Schema[FirebaserulesEndpointEntryKey] = FirebaserulesEndpointEntry
-	provider.Schema[NetworkConnectivityEndpointEntryKey] = NetworkConnectivityEndpointEntry
 	provider.Schema[OrgPolicyEndpointEntryKey] = OrgPolicyEndpointEntry
 	provider.Schema[RecaptchaEnterpriseEndpointEntryKey] = RecaptchaEnterpriseEndpointEntry
 }
@@ -147,11 +139,6 @@ func HandleDCLCustomEndpointDefaults(d *schema.ResourceData) {
 	if d.Get(FirebaserulesEndpointEntryKey) == "" {
 		d.Set(FirebaserulesEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_FIREBASERULES_CUSTOM_ENDPOINT",
-		}, ""))
-	}
-	if d.Get(NetworkConnectivityEndpointEntryKey) == "" {
-		d.Set(NetworkConnectivityEndpointEntryKey, MultiEnvDefault([]string{
-			"GOOGLE_NETWORK_CONNECTIVITY_CUSTOM_ENDPOINT",
 		}, ""))
 	}
 	if d.Get(OrgPolicyEndpointEntryKey) == "" {
@@ -210,12 +197,6 @@ func ConfigureDCLCustomEndpointAttributesFramework(frameworkSchema *framework_sc
 			CustomEndpointValidator(),
 		},
 	}
-	frameworkSchema.Attributes["network_connectivity_custom_endpoint"] = framework_schema.StringAttribute{
-		Optional: true,
-		Validators: []validator.String{
-			CustomEndpointValidator(),
-		},
-	}
 	frameworkSchema.Attributes["org_policy_custom_endpoint"] = framework_schema.StringAttribute{
 		Optional: true,
 		Validators: []validator.String{
@@ -238,7 +219,6 @@ func ProviderDCLConfigure(d *schema.ResourceData, config *Config) interface{} {
 	config.CloudResourceManagerBasePath = d.Get(CloudResourceManagerEndpointEntryKey).(string)
 	config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
 	config.FirebaserulesBasePath = d.Get(FirebaserulesEndpointEntryKey).(string)
-	config.NetworkConnectivityBasePath = d.Get(NetworkConnectivityEndpointEntryKey).(string)
 	config.OrgPolicyBasePath = d.Get(OrgPolicyEndpointEntryKey).(string)
 	config.RecaptchaEnterpriseBasePath = d.Get(RecaptchaEnterpriseEndpointEntryKey).(string)
 	config.CloudBuildWorkerPoolBasePath = d.Get(CloudBuildWorkerPoolEndpointEntryKey).(string)
