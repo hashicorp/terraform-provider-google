@@ -537,8 +537,10 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
     The [service accounts documentation](https://cloud.google.com/compute/docs/access/service-accounts#accesscopesiam)
     explains that access scopes are the legacy method of specifying permissions for your instance.
-    If you are following best practices and using IAM roles to grant permissions to service accounts,
-    then you can define this field as an empty list.
+    To follow best practices you should create a dedicated service account with the minimum permissions the VM requires.
+    To use a dedicated service account this field should be configured as a list containing the `cloud-platform` scope.
+    See [Authenticate workloads using service accounts best practices](https://cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances#best_practices)
+    and [Best practices for using service accounts](https://cloud.google.com/iam/docs/best-practices-service-accounts#single-purpose).
 
 <a name="nested_scheduling"></a>The `scheduling` block supports:
 
