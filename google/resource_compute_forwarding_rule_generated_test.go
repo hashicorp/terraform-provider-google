@@ -170,6 +170,7 @@ resource "google_compute_forwarding_rule" "default" {
   all_ports             = true
   network               = google_compute_network.default.name
   subnetwork            = google_compute_subnetwork.default.name
+  ip_version            = "IPV4"
 }
 
 resource "google_compute_region_backend_service" "backend" {
@@ -500,6 +501,79 @@ resource "google_compute_forwarding_rule" "external" {
   ip_address = google_compute_address.basic.self_link
   backend_service = google_compute_region_backend_service.external.self_link
   load_balancing_scheme = "EXTERNAL"
+}
+`, context)
+}
+
+func TestAccComputeForwardingRule_forwardingRuleInternallbIpv6Example(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeForwardingRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeForwardingRule_forwardingRuleInternallbIpv6Example(context),
+			},
+			{
+				ResourceName:            "google_compute_forwarding_rule.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backend_service", "network", "subnetwork", "no_automate_dns_zone", "region", "port_range", "target"},
+			},
+		},
+	})
+}
+
+func testAccComputeForwardingRule_forwardingRuleInternallbIpv6Example(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+// Forwarding rule for Internal Load Balancing
+resource "google_compute_forwarding_rule" "default" {
+  name   = "tf-test-ilb-ipv6-forwarding-rule%{random_suffix}"
+  region = "us-central1"
+
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.backend.id
+  all_ports             = true
+  network               = google_compute_network.default.name
+  subnetwork            = google_compute_subnetwork.default.name
+  ip_version            = "IPV6"
+}
+
+resource "google_compute_region_backend_service" "backend" {
+  name          = "tf-test-ilb-ipv6-backend%{random_suffix}"
+  region        = "us-central1"
+  health_checks = [google_compute_health_check.hc.id]
+}
+
+resource "google_compute_health_check" "hc" {
+  name               = "check-tf-test-ilb-ipv6-backend%{random_suffix}"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_network" "default" {
+  name                    = "tf-test-net-ipv6%{random_suffix}"
+  auto_create_subnetworks = false
+  enable_ula_internal_ipv6 = true
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "tf-test-subnet-internal-ipv6%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "INTERNAL"
+  network       = google_compute_network.default.id
 }
 `, context)
 }

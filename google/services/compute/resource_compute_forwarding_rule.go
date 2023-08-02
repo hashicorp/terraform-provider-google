@@ -192,6 +192,17 @@ must be omitted for all other load balancer types.`,
 				Description: `An optional description of this resource. Provide this property when
 you create the resource.`,
 			},
+			"ip_version": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"IPV4", "IPV6", ""}),
+				Description: `The IP address version that will be used by this forwarding rule.
+Valid options are IPV4 and IPV6.
+
+If not set, the IPv4 address will be used by default. Possible values: ["IPV4", "IPV6"]`,
+			},
 			"is_mirroring_collector": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -608,6 +619,12 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("no_automate_dns_zone"); ok || !reflect.DeepEqual(v, noAutomateDnsZoneProp) {
 		obj["noAutomateDnsZone"] = noAutomateDnsZoneProp
 	}
+	ipVersionProp, err := expandComputeForwardingRuleIpVersion(d.Get("ip_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ip_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(ipVersionProp)) && (ok || !reflect.DeepEqual(v, ipVersionProp)) {
+		obj["ipVersion"] = ipVersionProp
+	}
 	regionProp, err := expandComputeForwardingRuleRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
@@ -831,6 +848,9 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("allow_psc_global_access", flattenComputeForwardingRuleAllowPscGlobalAccess(res["allowPscGlobalAccess"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err := d.Set("ip_version", flattenComputeForwardingRuleIpVersion(res["ipVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("region", flattenComputeForwardingRuleRegion(res["region"], d, config)); err != nil {
@@ -1216,6 +1236,10 @@ func flattenComputeForwardingRuleAllowPscGlobalAccess(v interface{}, d *schema.R
 	return v
 }
 
+func flattenComputeForwardingRuleIpVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeForwardingRuleRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1414,6 +1438,10 @@ func expandComputeForwardingRuleAllowPscGlobalAccess(v interface{}, d tpgresourc
 }
 
 func expandComputeForwardingRuleNoAutomateDnsZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeForwardingRuleIpVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
