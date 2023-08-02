@@ -79,6 +79,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/memcache"
 	"github.com/hashicorp/terraform-provider-google/google/services/mlengine"
 	"github.com/hashicorp/terraform-provider-google/google/services/monitoring"
+	"github.com/hashicorp/terraform-provider-google/google/services/networkconnectivity"
 	"github.com/hashicorp/terraform-provider-google/google/services/networkmanagement"
 	"github.com/hashicorp/terraform-provider-google/google/services/networksecurity"
 	"github.com/hashicorp/terraform-provider-google/google/services/networkservices"
@@ -554,6 +555,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"network_connectivity_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"network_management_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -953,9 +959,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 305
+// Generated resources: 306
 // Generated IAM resources: 204
-// Total generated resources: 509
+// Total generated resources: 510
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1363,6 +1369,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_monitoring_custom_service":                               monitoring.ResourceMonitoringService(),
 			"google_monitoring_slo":                                          monitoring.ResourceMonitoringSlo(),
 			"google_monitoring_uptime_check_config":                          monitoring.ResourceMonitoringUptimeCheckConfig(),
+			"google_network_connectivity_service_connection_policy":          networkconnectivity.ResourceNetworkConnectivityServiceConnectionPolicy(),
 			"google_network_management_connectivity_test":                    networkmanagement.ResourceNetworkManagementConnectivityTest(),
 			"google_network_security_address_group":                          networksecurity.ResourceNetworkSecurityAddressGroup(),
 			"google_network_security_gateway_security_policy":                networksecurity.ResourceNetworkSecurityGatewaySecurityPolicy(),
@@ -1764,6 +1771,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.MemcacheBasePath = d.Get("memcache_custom_endpoint").(string)
 	config.MLEngineBasePath = d.Get("ml_engine_custom_endpoint").(string)
 	config.MonitoringBasePath = d.Get("monitoring_custom_endpoint").(string)
+	config.NetworkConnectivityBasePath = d.Get("network_connectivity_custom_endpoint").(string)
 	config.NetworkManagementBasePath = d.Get("network_management_custom_endpoint").(string)
 	config.NetworkSecurityBasePath = d.Get("network_security_custom_endpoint").(string)
 	config.NetworkServicesBasePath = d.Get("network_services_custom_endpoint").(string)
