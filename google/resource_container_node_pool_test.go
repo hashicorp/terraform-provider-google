@@ -2797,16 +2797,16 @@ resource "google_container_node_pool" "np1" {
   location           = "us-central1-a"
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 2
-  version 		       = "1.25.10-gke.1400"
+  version            = "1.27.3-gke.1700"
 }
 
 resource "google_container_node_pool" "np2" {
-	name               = "%s"
-	location           = "us-central1-a"
-	cluster            = google_container_cluster.cluster.name
-	initial_node_count = 2
-	version 		       = "1.25.10-gke.1400"
-  }
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 2
+  version            = "1.27.3-gke.1700"
+}
 `, cluster, np1, np2)
 }
 
