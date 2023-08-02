@@ -1,0 +1,3 @@
+```release-note:none
+computeengine: Improved documentation for compute engine instance templates oauth scopes 
+```
