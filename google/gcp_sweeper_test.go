@@ -40,6 +40,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/containeranalysis"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/containerattached"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/corebilling"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/databasemigrationservice"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/datacatalog"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/datafusion"
