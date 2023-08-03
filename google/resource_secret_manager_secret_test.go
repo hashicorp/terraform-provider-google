@@ -65,6 +65,49 @@ func TestAccSecretManagerSecret_cmek(t *testing.T) {
 	})
 }
 
+func TestAccSecretManagerSecret_annotationsUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecretManagerSecretDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecretManagerSecret_annotationsBasic(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-with-annotations",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl"},
+			},
+			{
+				Config: testAccSecretManagerSecret_annotationsUpdate(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-with-annotations",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl"},
+			},
+			{
+				Config: testAccSecretManagerSecret_annotationsBasic(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-with-annotations",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl"},
+			},
+		},
+	})
+}
+
 func testAccSecretManagerSecret_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
@@ -125,6 +168,53 @@ resource "google_secret_manager_secret" "secret-basic" {
     }
   }
   project   = google_project_iam_member.kms-secret-binding.project
+}
+`, context)
+}
+
+func testAccSecretManagerSecret_annotationsBasic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_secret" "secret-with-annotations" {
+  secret_id = "tf-test-secret-%{random_suffix}"
+
+  labels = {
+    label = "my-label"
+  }
+
+  annotations = {
+    key1 = "someval"
+    key2 = "someval2"
+    key3 = "someval3"
+    key4 = "someval4"
+    key5 = "someval5"
+  }
+
+  replication {
+    automatic = true
+  }
+}
+`, context)
+}
+
+func testAccSecretManagerSecret_annotationsUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_secret" "secret-with-annotations" {
+  secret_id = "tf-test-secret-%{random_suffix}"
+
+  labels = {
+    label = "my-label"
+  }
+
+  annotations = {
+    key1 = "someval"
+    key2update = "someval2"
+    key3 = "someval3update"
+    key4update = "someval4update"
+  }
+
+  replication {
+    automatic = true
+  }
 }
 `, context)
 }
