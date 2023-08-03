@@ -1,0 +1,3 @@
+```release-note:enhancement
+add attribute type to google_cloud_identity_group_memberships
+```
