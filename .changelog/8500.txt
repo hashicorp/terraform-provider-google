@@ -1,0 +1,3 @@
+```release-note:enhancement
+secretmanager: added `annotations` field to `google_secret_manager_secret` resource
+```
