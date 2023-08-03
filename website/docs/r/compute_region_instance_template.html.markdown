@@ -573,7 +573,7 @@ specified, then this instance will have no external IPv6 Internet access. Struct
    Structure [documented below](#nested_node_affinities).
    
 * `provisioning_model` - (Optional) Describe the type of preemptible VM. This field accepts the value `STANDARD` or `SPOT`. If the value is `STANDARD`, there will be no discount. If this   is set to `SPOT`, 
-    `preemptible` should be `true` and `auto_restart` should be
+    `preemptible` should be `true` and `automatic_restart` should be
     `false`. For more info about
     `SPOT`, read [here](https://cloud.google.com/compute/docs/instances/spot)
     
