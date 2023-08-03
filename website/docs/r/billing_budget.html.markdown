@@ -107,6 +107,7 @@ resource "google_billing_budget" "budget" {
     credit_types_treatment = "INCLUDE_SPECIFIED_CREDITS"
     services               = ["services/24E6-581D-38E5"] # Bigquery
     credit_types           = ["PROMOTION", "FREE_TIER"]
+    resource_ancestors     = ["organizations/123456789"]
   }
 
   amount {
@@ -316,6 +317,13 @@ The following arguments are supported:
   included in the budget. If omitted, the report will include
   all usage for the billing account, regardless of which project
   the usage occurred on.
+
+* `resource_ancestors` -
+  (Optional)
+  A set of folder and organization names of the form folders/{folderId} or organizations/{organizationId},
+  specifying that usage from only this set of folders and organizations should be included in the budget.
+  If omitted, the budget includes all usage that the billing account pays for. If the folder or organization
+  contains projects that are paid for by a different Cloud Billing account, the budget doesn't apply to those projects.
 
 * `credit_types_treatment` -
   (Optional)
