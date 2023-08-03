@@ -45,6 +45,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/containeranalysis"
 	"github.com/hashicorp/terraform-provider-google/google/services/containerattached"
+	"github.com/hashicorp/terraform-provider-google/google/services/corebilling"
 	"github.com/hashicorp/terraform-provider-google/google/services/databasemigrationservice"
 	"github.com/hashicorp/terraform-provider-google/google/services/datacatalog"
 	"github.com/hashicorp/terraform-provider-google/google/services/datafusion"
@@ -381,6 +382,11 @@ func Provider() *schema.Provider {
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"container_attached_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
+			"core_billing_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
@@ -959,9 +965,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 306
+// Generated resources: 307
 // Generated IAM resources: 204
-// Total generated resources: 510
+// Total generated resources: 511
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1195,6 +1201,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_container_analysis_note_iam_policy":                      tpgiamresource.ResourceIamPolicy(containeranalysis.ContainerAnalysisNoteIamSchema, containeranalysis.ContainerAnalysisNoteIamUpdaterProducer, containeranalysis.ContainerAnalysisNoteIdParseFunc),
 			"google_container_analysis_occurrence":                           containeranalysis.ResourceContainerAnalysisOccurrence(),
 			"google_container_attached_cluster":                              containerattached.ResourceContainerAttachedCluster(),
+			"google_billing_project_info":                                    corebilling.ResourceCoreBillingProjectInfo(),
 			"google_database_migration_service_connection_profile":           databasemigrationservice.ResourceDatabaseMigrationServiceConnectionProfile(),
 			"google_data_catalog_entry":                                      datacatalog.ResourceDataCatalogEntry(),
 			"google_data_catalog_entry_group":                                datacatalog.ResourceDataCatalogEntryGroup(),
@@ -1737,6 +1744,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.ComputeBasePath = d.Get("compute_custom_endpoint").(string)
 	config.ContainerAnalysisBasePath = d.Get("container_analysis_custom_endpoint").(string)
 	config.ContainerAttachedBasePath = d.Get("container_attached_custom_endpoint").(string)
+	config.CoreBillingBasePath = d.Get("core_billing_custom_endpoint").(string)
 	config.DatabaseMigrationServiceBasePath = d.Get("database_migration_service_custom_endpoint").(string)
 	config.DataCatalogBasePath = d.Get("data_catalog_custom_endpoint").(string)
 	config.DataFusionBasePath = d.Get("data_fusion_custom_endpoint").(string)
