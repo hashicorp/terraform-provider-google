@@ -53,7 +53,7 @@ resource "google_compute_network" "default" {
 	name = "tf-test-my-network%{random_suffix}"
 }
 resource "google_compute_global_address" "service_range" {
-	name          = "address"
+	name          = "tf-test-address%{random_suffix}"
 	purpose       = "VPC_PEERING"
 	address_type  = "INTERNAL"
 	prefix_length = 16
@@ -82,7 +82,7 @@ resource "google_compute_network" "default" {
 	name = "tf-test-my-network%{random_suffix}"
 }
 resource "google_compute_global_address" "service_range" {
-	name          = "address"
+	name          = "tf-test-address%{random_suffix}"
 	purpose       = "VPC_PEERING"
 	address_type  = "INTERNAL"
 	prefix_length = 16

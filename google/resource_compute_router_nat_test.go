@@ -678,7 +678,7 @@ resource "google_compute_subnetwork" "foobar" {
 }
 
 resource "google_compute_address" "foobar" {
-  name   = "router-nat-%s-addr"
+  name   = "%s-router-nat-addr"
   region = google_compute_subnetwork.foobar.region
 }
 
@@ -721,7 +721,7 @@ resource "google_compute_subnetwork" "foobar" {
 }
 
 resource "google_compute_address" "foobar" {
-  name   = "router-nat-%s-addr"
+  name   = "%s-router-nat-addr"
   region = google_compute_subnetwork.foobar.region
 }
 
@@ -766,7 +766,7 @@ resource "google_compute_subnetwork" "foobar" {
 }
 
 resource "google_compute_address" "foobar" {
-  name   = "router-nat-%s-addr"
+  name   = "%s-router-nat-addr"
   region = google_compute_subnetwork.foobar.region
 }
 

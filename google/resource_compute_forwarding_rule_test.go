@@ -44,9 +44,9 @@ func TestAccComputeForwardingRule_update(t *testing.T) {
 func TestAccComputeForwardingRule_ip(t *testing.T) {
 	t.Parallel()
 
-	addrName := fmt.Sprintf("tf-%s", acctest.RandString(t, 10))
-	poolName := fmt.Sprintf("tf-%s", acctest.RandString(t, 10))
-	ruleName := fmt.Sprintf("tf-%s", acctest.RandString(t, 10))
+	addrName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	poolName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	ruleName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	addressRefFieldRaw := "address"
 	addressRefFieldID := "id"
 

@@ -92,6 +92,29 @@ func TestAccCloudTasksQueue_MaxRetryDiffSuppress0s(t *testing.T) {
 	})
 }
 
+// Make sure the diff suppression function handles the situation where an
+// unexpected time unit is used, e.g., 2.0s instead of 2s or 2.0s instead of
+// 2.000s
+func TestAccCloudTasksQueue_TimeUnitDiff(t *testing.T) {
+	t.Parallel()
+	testID := acctest.RandString(t, 10)
+	cloudTaskName := fmt.Sprintf("tf-test-%s", testID)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudtasksQueueTimeUnitDiff(cloudTaskName),
+			},
+			{
+				ResourceName:      "google_cloud_tasks_queue.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCloudTasksQueue_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_cloud_tasks_queue" "default" {
@@ -184,5 +207,22 @@ func testAccCloudtasksQueueMaxRetry0s(cloudTaskName string) string {
 							min_backoff        = "0.100s"
 		}
 	}
+`, cloudTaskName)
+}
+
+func testAccCloudtasksQueueTimeUnitDiff(cloudTaskName string) string {
+	return fmt.Sprintf(`
+resource "google_cloud_tasks_queue" "default" {
+  name     = "%s"
+  location = "us-central1"
+
+  retry_config {
+    max_attempts       = -1
+    max_backoff        = "5.000s"
+    max_doublings      = 16
+    max_retry_duration = "1.0s"
+    min_backoff        = "0.10s"
+  }
+}
 `, cloudTaskName)
 }
