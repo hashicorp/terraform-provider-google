@@ -107,6 +107,8 @@ The following arguments are supported:
 
 * `friendly_name` - (Optional) A descriptive name for the table.
 
+* `max_staleness`: (Optional) The maximum staleness of data that could be returned when the table (or stale MV) is queried. Staleness encoded as a string encoding of sql IntervalValue type.
+
 * `encryption_configuration` - (Optional) Specifies how the table should be encrypted.
     If left blank, the table will be encrypted with a Google-managed key; that process
     is transparent to the user.  Structure is [documented below](#nested_encryption_configuration).

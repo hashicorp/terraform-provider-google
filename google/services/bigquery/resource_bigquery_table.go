@@ -722,6 +722,13 @@ func ResourceBigQueryTable() *schema.Resource {
 				Description: `A descriptive name for the table.`,
 			},
 
+			// max_staleness: [Optional] The maximum staleness of data that could be returned when the table (or stale MV) is queried. Staleness encoded as a string encoding of sql IntervalValue type.
+			"max_staleness": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The maximum staleness of data that could be returned when the table (or stale MV) is queried. Staleness encoded as a string encoding of sql IntervalValue type.`,
+			},
+
 			// Labels: [Experimental] The labels associated with this table. You can
 			// use these to organize and group your tables. Label keys and values
 			// can be no longer than 63 characters, can only contain lowercase
@@ -1080,6 +1087,10 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 		table.FriendlyName = v.(string)
 	}
 
+	if v, ok := d.GetOk("max_staleness"); ok {
+		table.MaxStaleness = v.(string)
+	}
+
 	if v, ok := d.GetOk("encryption_configuration.0.kms_key_name"); ok {
 		table.EncryptionConfiguration = &bigquery.EncryptionConfiguration{
 			KmsKeyName: v.(string),
@@ -1217,6 +1228,9 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	if err := d.Set("friendly_name", res.FriendlyName); err != nil {
 		return fmt.Errorf("Error setting friendly_name: %s", err)
+	}
+	if err := d.Set("max_staleness", res.MaxStaleness); err != nil {
+		return fmt.Errorf("Error setting max_staleness: %s", err)
 	}
 	if err := d.Set("labels", res.Labels); err != nil {
 		return fmt.Errorf("Error setting labels: %s", err)
