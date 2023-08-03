@@ -68,7 +68,7 @@ resource "google_compute_network" "test" {
 }
 
 resource "google_compute_global_address" "host-private-access" {
-  name          = "private-ip-alloc-host"
+  name          = "%s-ip"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 24
@@ -118,5 +118,5 @@ data "google_service_networking_peered_dns_domain" "acceptance" {
 		google_service_networking_peered_dns_domain.acceptance,
 	]
 }
-`, project, project, org, billing, service, service, name, service, name, service)
+`, project, project, org, billing, service, project, service, name, service, name, service)
 }

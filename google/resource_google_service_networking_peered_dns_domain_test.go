@@ -17,7 +17,7 @@ func TestAccServiceNetworkingPeeredDNSDomain_basic(t *testing.T) {
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
 
 	project := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
-	name := fmt.Sprintf("test-name-%d", acctest.RandInt(t))
+	name := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 	service := "servicenetworking.googleapis.com"
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -59,7 +59,7 @@ resource "google_compute_network" "test" {
 }
 
 resource "google_compute_global_address" "host-private-access" {
-  name          = "private-ip-alloc-host"
+  name          = "%s-ip"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 24
@@ -97,5 +97,5 @@ resource "google_service_networking_peered_dns_domain" "test" {
 		google_service_networking_connection.host-private-access,
   ]
 }
-`, project, project, org, billing, service, service, name, service)
+`, project, project, org, billing, service, project, service, name, service)
 }
