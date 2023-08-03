@@ -1,0 +1,3 @@
+```release-note:enhancement
+billing_budget: added `resource_ancestors` field to `google_billing_budget` resource
+```

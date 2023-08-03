@@ -141,6 +141,7 @@ func TestAccBillingBudget_billingBudgetFilterExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"billing_acct":  envvar.GetTestMasterBillingAccountFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -180,6 +181,7 @@ resource "google_billing_budget" "budget" {
     credit_types_treatment = "INCLUDE_SPECIFIED_CREDITS"
     services               = ["services/24E6-581D-38E5"] # Bigquery
     credit_types           = ["PROMOTION", "FREE_TIER"]
+    resource_ancestors     = ["organizations/%{org_id}"]
   }
 
   amount {
