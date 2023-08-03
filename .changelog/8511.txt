@@ -1,0 +1,3 @@
+```release-note:new-resource
+google_dataform_repository_release_config (beta)
+```
