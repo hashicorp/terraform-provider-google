@@ -190,9 +190,8 @@ The following arguments are supported:
 
 * `ssl_certificates` -
   (Optional)
-  A list of SslCertificate resources that are used to authenticate
-  connections between users and the load balancer. At least one SSL
-  certificate must be specified.
+  A list of SslCertificate resource URLs or Certificate Manager certificate URLs that are used to authenticate
+  connections between users and the load balancer. At least one resource must be specified.
 
 * `certificate_map` -
   (Optional)

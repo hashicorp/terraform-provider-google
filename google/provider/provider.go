@@ -59,6 +59,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/dialogflowcx"
 	"github.com/hashicorp/terraform-provider-google/google/services/dns"
 	"github.com/hashicorp/terraform-provider-google/google/services/documentai"
+	"github.com/hashicorp/terraform-provider-google/google/services/documentaiwarehouse"
 	"github.com/hashicorp/terraform-provider-google/google/services/essentialcontacts"
 	"github.com/hashicorp/terraform-provider-google/google/services/filestore"
 	"github.com/hashicorp/terraform-provider-google/google/services/firestore"
@@ -78,6 +79,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/memcache"
 	"github.com/hashicorp/terraform-provider-google/google/services/mlengine"
 	"github.com/hashicorp/terraform-provider-google/google/services/monitoring"
+	"github.com/hashicorp/terraform-provider-google/google/services/networkconnectivity"
 	"github.com/hashicorp/terraform-provider-google/google/services/networkmanagement"
 	"github.com/hashicorp/terraform-provider-google/google/services/networksecurity"
 	"github.com/hashicorp/terraform-provider-google/google/services/networkservices"
@@ -453,6 +455,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"document_ai_warehouse_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"essential_contacts_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -544,6 +551,11 @@ func Provider() *schema.Provider {
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"monitoring_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
+			"network_connectivity_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
@@ -904,6 +916,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_iap_tunnel_instance_iam_policy":                  tpgiamresource.DataSourceIamPolicy(iap.IapTunnelInstanceIamSchema, iap.IapTunnelInstanceIamUpdaterProducer),
 			"google_iap_web_iam_policy":                              tpgiamresource.DataSourceIamPolicy(iap.IapWebIamSchema, iap.IapWebIamUpdaterProducer),
 			"google_iap_web_backend_service_iam_policy":              tpgiamresource.DataSourceIamPolicy(iap.IapWebBackendServiceIamSchema, iap.IapWebBackendServiceIamUpdaterProducer),
+			"google_iap_web_region_backend_service_iam_policy":       tpgiamresource.DataSourceIamPolicy(iap.IapWebRegionBackendServiceIamSchema, iap.IapWebRegionBackendServiceIamUpdaterProducer),
 			"google_iap_web_type_app_engine_iam_policy":              tpgiamresource.DataSourceIamPolicy(iap.IapWebTypeAppEngineIamSchema, iap.IapWebTypeAppEngineIamUpdaterProducer),
 			"google_iap_web_type_compute_iam_policy":                 tpgiamresource.DataSourceIamPolicy(iap.IapWebTypeComputeIamSchema, iap.IapWebTypeComputeIamUpdaterProducer),
 			"google_notebooks_instance_iam_policy":                   tpgiamresource.DataSourceIamPolicy(notebooks.NotebooksInstanceIamSchema, notebooks.NotebooksInstanceIamUpdaterProducer),
@@ -946,9 +959,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 302
-// Generated IAM resources: 201
-// Total generated resources: 503
+// Generated resources: 306
+// Generated IAM resources: 204
+// Total generated resources: 510
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1145,6 +1158,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_region_network_endpoint_group":                   compute.ResourceComputeRegionNetworkEndpointGroup(),
 			"google_compute_region_per_instance_config":                      compute.ResourceComputeRegionPerInstanceConfig(),
 			"google_compute_region_ssl_certificate":                          compute.ResourceComputeRegionSslCertificate(),
+			"google_compute_region_ssl_policy":                               compute.ResourceComputeRegionSslPolicy(),
 			"google_compute_region_target_http_proxy":                        compute.ResourceComputeRegionTargetHttpProxy(),
 			"google_compute_region_target_https_proxy":                       compute.ResourceComputeRegionTargetHttpsProxy(),
 			"google_compute_region_target_tcp_proxy":                         compute.ResourceComputeRegionTargetTcpProxy(),
@@ -1257,6 +1271,8 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dns_response_policy_rule":                                dns.ResourceDNSResponsePolicyRule(),
 			"google_document_ai_processor":                                   documentai.ResourceDocumentAIProcessor(),
 			"google_document_ai_processor_default_version":                   documentai.ResourceDocumentAIProcessorDefaultVersion(),
+			"google_document_ai_warehouse_document_schema":                   documentaiwarehouse.ResourceDocumentAIWarehouseDocumentSchema(),
+			"google_document_ai_warehouse_location":                          documentaiwarehouse.ResourceDocumentAIWarehouseLocation(),
 			"google_essential_contacts_contact":                              essentialcontacts.ResourceEssentialContactsContact(),
 			"google_filestore_backup":                                        filestore.ResourceFilestoreBackup(),
 			"google_filestore_instance":                                      filestore.ResourceFilestoreInstance(),
@@ -1315,6 +1331,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_iap_web_backend_service_iam_binding":                     tpgiamresource.ResourceIamBinding(iap.IapWebBackendServiceIamSchema, iap.IapWebBackendServiceIamUpdaterProducer, iap.IapWebBackendServiceIdParseFunc),
 			"google_iap_web_backend_service_iam_member":                      tpgiamresource.ResourceIamMember(iap.IapWebBackendServiceIamSchema, iap.IapWebBackendServiceIamUpdaterProducer, iap.IapWebBackendServiceIdParseFunc),
 			"google_iap_web_backend_service_iam_policy":                      tpgiamresource.ResourceIamPolicy(iap.IapWebBackendServiceIamSchema, iap.IapWebBackendServiceIamUpdaterProducer, iap.IapWebBackendServiceIdParseFunc),
+			"google_iap_web_region_backend_service_iam_binding":              tpgiamresource.ResourceIamBinding(iap.IapWebRegionBackendServiceIamSchema, iap.IapWebRegionBackendServiceIamUpdaterProducer, iap.IapWebRegionBackendServiceIdParseFunc),
+			"google_iap_web_region_backend_service_iam_member":               tpgiamresource.ResourceIamMember(iap.IapWebRegionBackendServiceIamSchema, iap.IapWebRegionBackendServiceIamUpdaterProducer, iap.IapWebRegionBackendServiceIdParseFunc),
+			"google_iap_web_region_backend_service_iam_policy":               tpgiamresource.ResourceIamPolicy(iap.IapWebRegionBackendServiceIamSchema, iap.IapWebRegionBackendServiceIamUpdaterProducer, iap.IapWebRegionBackendServiceIdParseFunc),
 			"google_iap_web_type_app_engine_iam_binding":                     tpgiamresource.ResourceIamBinding(iap.IapWebTypeAppEngineIamSchema, iap.IapWebTypeAppEngineIamUpdaterProducer, iap.IapWebTypeAppEngineIdParseFunc),
 			"google_iap_web_type_app_engine_iam_member":                      tpgiamresource.ResourceIamMember(iap.IapWebTypeAppEngineIamSchema, iap.IapWebTypeAppEngineIamUpdaterProducer, iap.IapWebTypeAppEngineIdParseFunc),
 			"google_iap_web_type_app_engine_iam_policy":                      tpgiamresource.ResourceIamPolicy(iap.IapWebTypeAppEngineIamSchema, iap.IapWebTypeAppEngineIamUpdaterProducer, iap.IapWebTypeAppEngineIdParseFunc),
@@ -1350,6 +1369,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_monitoring_custom_service":                               monitoring.ResourceMonitoringService(),
 			"google_monitoring_slo":                                          monitoring.ResourceMonitoringSlo(),
 			"google_monitoring_uptime_check_config":                          monitoring.ResourceMonitoringUptimeCheckConfig(),
+			"google_network_connectivity_service_connection_policy":          networkconnectivity.ResourceNetworkConnectivityServiceConnectionPolicy(),
 			"google_network_management_connectivity_test":                    networkmanagement.ResourceNetworkManagementConnectivityTest(),
 			"google_network_security_address_group":                          networksecurity.ResourceNetworkSecurityAddressGroup(),
 			"google_network_security_gateway_security_policy":                networksecurity.ResourceNetworkSecurityGatewaySecurityPolicy(),
@@ -1731,6 +1751,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.DialogflowCXBasePath = d.Get("dialogflow_cx_custom_endpoint").(string)
 	config.DNSBasePath = d.Get("dns_custom_endpoint").(string)
 	config.DocumentAIBasePath = d.Get("document_ai_custom_endpoint").(string)
+	config.DocumentAIWarehouseBasePath = d.Get("document_ai_warehouse_custom_endpoint").(string)
 	config.EssentialContactsBasePath = d.Get("essential_contacts_custom_endpoint").(string)
 	config.FilestoreBasePath = d.Get("filestore_custom_endpoint").(string)
 	config.FirestoreBasePath = d.Get("firestore_custom_endpoint").(string)
@@ -1750,6 +1771,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.MemcacheBasePath = d.Get("memcache_custom_endpoint").(string)
 	config.MLEngineBasePath = d.Get("ml_engine_custom_endpoint").(string)
 	config.MonitoringBasePath = d.Get("monitoring_custom_endpoint").(string)
+	config.NetworkConnectivityBasePath = d.Get("network_connectivity_custom_endpoint").(string)
 	config.NetworkManagementBasePath = d.Get("network_management_custom_endpoint").(string)
 	config.NetworkSecurityBasePath = d.Get("network_security_custom_endpoint").(string)
 	config.NetworkServicesBasePath = d.Get("network_services_custom_endpoint").(string)

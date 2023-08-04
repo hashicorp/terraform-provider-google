@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) HashiCorp, Inc.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
 // this file is auto-generated with mmv1, any changes made here will be overwritten
 
 import jetbrains.buildServer.configs.kotlin.*
@@ -12,6 +17,15 @@ import jetbrains.buildServer.configs.kotlin.triggers.schedule
 //
 // Until that changes, we'll continue to use `teamcity-go-test` to run
 // each test individually
+
+// NOTE: this file includes Extensions of Kotlin DSL classes
+// See
+// - BuildFeatures           https://teamcity.jetbrains.com/app/dsl-documentation/root/build-features/index.html
+// - BuildSteps              https://teamcity.jetbrains.com/app/dsl-documentation/root/build-steps/index.html
+// - ParametrizedWithType    https://teamcity.jetbrains.com/app/dsl-documentation/root/parametrized-with-type/index.html
+// - Triggers                https://teamcity.jetbrains.com/app/dsl-documentation/root/triggers/index.html
+
+
 const val useTeamCityGoTest = false
 
 fun BuildFeatures.Golang() {
@@ -120,10 +134,12 @@ fun ParametrizedWithType.hiddenPasswordVariable(name: String, value: String, des
     password(name, value, "", description, ParameterDisplay.HIDDEN)
 }
 
-fun Triggers.RunNightly(nightlyTestsEnabled: Boolean, startHour: Int, daysOfWeek: String, daysOfMonth: String) {
+fun Triggers.RunNightly(nightlyTestsEnabled: Boolean, startHour: Int, daysOfWeek: String, daysOfMonth: String, branchRef: String) {
+    val filter = "+:" + branchRef // e.g. "+:refs/heads/main"
+
     schedule{
         enabled = nightlyTestsEnabled
-        branchFilter = "+:refs/heads/main"
+        branchFilter = filter
 
         schedulingPolicy = cron {
             hours = startHour.toString()

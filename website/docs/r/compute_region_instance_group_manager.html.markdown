@@ -126,8 +126,9 @@ The following arguments are supported:
     is not provided, the provider project is used.
 
 * `target_size` - (Optional) The target number of running instances for this managed
-    instance group. This value should always be explicitly set unless this resource is attached to
-     an autoscaler, in which case it should never be set. Defaults to `0`.
+    instance group. This value will fight with autoscaler settings when set, and generally shouldn't be set
+    when using one. If a value is required, such as to specify a creation-time target size for the MIG,
+    `lifecycle.ignore_changes` can be used to prevent Terraform from modifying the value. Defaults to `0`.
 
 * `list_managed_instances_results` - (Optional) Pagination behavior of the `listManagedInstances` API
     method for this managed instance group. Valid values are: `PAGELESS`, `PAGINATED`.
@@ -218,7 +219,7 @@ instance_lifecycle_policy {
 }
 ```
 
-* `force_update_on_repair` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)), Specifies whether to apply the group's latest configuration when repairing a VM. Valid options are: YES, NO. If YES and you updated the group's instance template or per-instance configurations after the VM was created, then these changes are applied when VM is repaired. If NO (default), then updates are applied in accordance with the group's update policy type.
+* `force_update_on_repair` - (Optional, (https://terraform.io/docs/providers/google/guides/provider_versions.html)), Specifies whether to apply the group's latest configuration when repairing a VM. Valid options are: YES, NO. If YES and you updated the group's instance template or per-instance configurations after the VM was created, then these changes are applied when VM is repaired. If NO (default), then updates are applied in accordance with the group's update policy type.
 - - -
 
 <a name="nested_all_instances_config"></a>The `all_instances_config` block supports:

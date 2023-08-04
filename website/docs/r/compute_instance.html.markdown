@@ -239,7 +239,7 @@ is desired, you will need to modify your state file manually using
 * `labels` - (Optional) A set of key/value label pairs assigned to the disk. This  
     field is only applicable for persistent disks.
 
-* `resource_manager_tags` - (Optional) A tag is a key-value pair that can be attached to a Google Cloud resource. You can use tags to conditionally allow or deny policies based on whether a resource has a specific tag.
+* `resource_manager_tags` - (Optional) A tag is a key-value pair that can be attached to a Google Cloud resource. You can use tags to conditionally allow or deny policies based on whether a resource has a specific tag. This value is not returned by the API. In Terraform, this value cannot be updated and changing it will recreate the resource.
 
 <a name="nested_scratch_disk"></a>The `scratch_disk` block supports:
 
@@ -331,11 +331,21 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 <a name="nested_ipv6_access_config"></a>The `ipv6_access_config` block supports:
 
-* `public_ptr_domain_name` - (Optional) The domain name to be used when creating DNSv6
-    records for the external IPv6 ranges..
+* `external_ipv6` - (Optional) The first IPv6 address of the external IPv6 range associated 
+    with this instance, prefix length is stored in externalIpv6PrefixLength in ipv6AccessConfig. 
+    To use a static external IP address, it must be unused and in the same region as the instance's zone. 
+    If not specified, Google Cloud will automatically assign an external IPv6 address from the instance's subnetwork.
+
+* `external_ipv6_prefix_length` - (Optional) The prefix length of the external IPv6 range.
+
+* `name` - (Optional) The name of this access configuration. In ipv6AccessConfigs, the recommended name 
+    is "External IPv6".
 
 * `network_tier` - (Optional) The service-level to be provided for IPv6 traffic when the
     subnet has an external subnet. Only PREMIUM or STANDARD tier is valid for IPv6.
+
+* `public_ptr_domain_name` - (Optional) The domain name to be used when creating DNSv6
+    records for the external IPv6 ranges..
 
 <a name="nested_alias_ip_range"></a>The `alias_ip_range` block supports:
 
@@ -402,6 +412,18 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 * `maintenance_interval` - (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Specifies the frequency of planned maintenance events. The accepted values are: `PERIODIC`.
 <a name="nested_guest_accelerator"></a>The `guest_accelerator` block supports:
 
+* `local_ssd_recovery_timeout` -  (Optional) (https://terraform.io/docs/providers/google/guides/provider_versions.html) Specifies the maximum amount of time a Local Ssd Vm should wait while recovery of the Local Ssd state is attempted. Its value should be in between 0 and 168 hours with hour granularity and the default value being 1 hour. Structure is [documented below](#nested_local_ssd_recovery_timeout).
+<a name="nested_local_ssd_recovery_timeout"></a>The `local_ssd_recovery_timeout` block supports:
+
+* `nanos` - (Optional) Span of time that's a fraction of a second at nanosecond
+    resolution. Durations less than one second are represented with a 0
+    `seconds` field and a positive `nanos` field. Must be from 0 to
+     999,999,999 inclusive.
+
+* `seconds` - (Required) Span of time at a resolution of a second. Must be from 0 to
+   315,576,000,000 inclusive. Note: these bounds are computed from: 60
+   sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years.
+
 * `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
 
 * `count` (Required) - The number of the guest accelerator cards exposed to this instance.
@@ -417,7 +439,7 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 <a name="nested_params"></a>The `params` block supports:
 
-* `resource_manager_tags` (Optional) - A tag is a key-value pair that can be attached to a Google Cloud resource. You can use tags to conditionally allow or deny policies based on whether a resource has a specific tag.
+* `resource_manager_tags` (Optional) - A tag is a key-value pair that can be attached to a Google Cloud resource. You can use tags to conditionally allow or deny policies based on whether a resource has a specific tag. This value is not returned by the API. In Terraform, this value cannot be updated and changing it will recreate the resource.
 
 <a name="nested_shielded_instance_config"></a>The `shielded_instance_config` block supports:
 
@@ -482,12 +504,6 @@ This field is always inherited from its subnetwork.
 * `network_interface.0.network_ip` - The internal ip address of the instance, either manually or dynamically assigned.
 
 * `network_interface.0.access_config.0.nat_ip` - If the instance has an access config, either the given external ip (in the `nat_ip` field) or the ephemeral (generated) ip (if you didn't provide one).
-
-* `network_interface.0.ipv6_access_config.0.external_ipv6` - The first IPv6 address of the external IPv6 range
-associated with this instance, prefix length is stored in externalIpv6PrefixLength in ipv6AccessConfig.
-The field is output only, an IPv6 address from a subnetwork associated with the instance will be allocated dynamically.
-
-* `network_interface.0.ipv6_access_config.0.external_ipv6_prefix_length` - The prefix length of the external IPv6 range.
 
 * `attached_disk.0.disk_encryption_key_sha256` - The [RFC 4648 base64](https://tools.ietf.org/html/rfc4648#section-4)
     encoded SHA-256 hash of the [customer-supplied encryption key]

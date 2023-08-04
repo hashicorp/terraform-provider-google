@@ -205,6 +205,27 @@ resource is a recursive structure; when the depth is 2, the CodeSystem table wil
 concept.concept but not concept.concept.concept. If not specified or set to 0, the server will use the default
 value 2. The maximum depth allowed is 5.`,
 												},
+												"last_updated_partition_config": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `The configuration for exported BigQuery tables to be partitioned by FHIR resource's last updated time column.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"type": {
+																Type:         schema.TypeString,
+																Required:     true,
+																ValidateFunc: verify.ValidateEnum([]string{"PARTITION_TYPE_UNSPECIFIED", "HOUR", "DAY", "MONTH", "YEAR"}),
+																Description:  `Type of partitioning. Possible values: ["PARTITION_TYPE_UNSPECIFIED", "HOUR", "DAY", "MONTH", "YEAR"]`,
+															},
+															"expiration_ms": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Number of milliseconds for which to keep the storage for a partition.`,
+															},
+														},
+													},
+												},
 												"schema_type": {
 													Type:         schema.TypeString,
 													Optional:     true,
@@ -689,6 +710,8 @@ func flattenHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfig(v in
 		flattenHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigSchemaType(original["schemaType"], d, config)
 	transformed["recursive_structure_depth"] =
 		flattenHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigRecursiveStructureDepth(original["recursiveStructureDepth"], d, config)
+	transformed["last_updated_partition_config"] =
+		flattenHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigLastUpdatedPartitionConfig(original["lastUpdatedPartitionConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigSchemaType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -710,6 +733,29 @@ func flattenHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigRecur
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigLastUpdatedPartitionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["type"] =
+		flattenHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigLastUpdatedPartitionConfigType(original["type"], d, config)
+	transformed["expiration_ms"] =
+		flattenHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigLastUpdatedPartitionConfigExpirationMs(original["expirationMs"], d, config)
+	return []interface{}{transformed}
+}
+func flattenHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigLastUpdatedPartitionConfigType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigLastUpdatedPartitionConfigExpirationMs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandHealthcareFhirStoreName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -860,6 +906,13 @@ func expandHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfig(v int
 		transformed["recursiveStructureDepth"] = transformedRecursiveStructureDepth
 	}
 
+	transformedLastUpdatedPartitionConfig, err := expandHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigLastUpdatedPartitionConfig(original["last_updated_partition_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLastUpdatedPartitionConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["lastUpdatedPartitionConfig"] = transformedLastUpdatedPartitionConfig
+	}
+
 	return transformed, nil
 }
 
@@ -868,6 +921,40 @@ func expandHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigSchema
 }
 
 func expandHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigRecursiveStructureDepth(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigLastUpdatedPartitionConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedType, err := expandHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigLastUpdatedPartitionConfigType(original["type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["type"] = transformedType
+	}
+
+	transformedExpirationMs, err := expandHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigLastUpdatedPartitionConfigExpirationMs(original["expiration_ms"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExpirationMs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["expirationMs"] = transformedExpirationMs
+	}
+
+	return transformed, nil
+}
+
+func expandHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigLastUpdatedPartitionConfigType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigLastUpdatedPartitionConfigExpirationMs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

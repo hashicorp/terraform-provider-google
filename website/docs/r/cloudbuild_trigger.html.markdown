@@ -209,7 +209,7 @@ resource "google_cloudbuild_trigger" "include-build-logs-trigger" {
 ```hcl
 
 resource "google_pubsub_topic" "mytopic" {
-  name = "mytopic"
+  name = "my-topic"
 }
 
 resource "google_cloudbuild_trigger" "pubsub-config-trigger" {
@@ -252,7 +252,7 @@ resource "google_cloudbuild_trigger" "pubsub-config-trigger" {
 ```hcl
 
 resource "google_secret_manager_secret" "webhook_trigger_secret_key" {
-  secret_id = "webhook_trigger-secret-key-1"
+  secret_id = "webhook-trigger-secret-key"
 
   replication {
     user_managed {
@@ -320,7 +320,7 @@ resource "google_cloudbuild_trigger" "webhook-config-trigger" {
 ```hcl
 
 resource "google_cloudbuild_trigger" "manual-trigger" {
-  name        = "manual-build"
+  name        = "manual-trigger"
 
   source_to_build {
     uri       = "https://hashicorp/terraform-provider-google-beta"
@@ -350,7 +350,7 @@ resource "google_cloudbuild_trigger" "manual-trigger" {
 
 ```hcl
 resource "google_cloudbuild_trigger" "manual-ghe-trigger" {
-  name        = "terraform-manual-ghe-trigger"
+  name        = ""
 
   source_to_build {
     uri       = "https://hashicorp/terraform-provider-google-beta"
@@ -418,11 +418,11 @@ resource "google_cloudbuild_trigger" "repo-trigger" {
 
 ```hcl
 resource "google_cloudbuild_trigger" "bbs-push-trigger" {
-  name        = "terraform-bbs-push-trigger"
+  name        = "bbs-push-trigger"
   location    = "us-central1"
 
   bitbucket_server_trigger_config {
-    repo_slug = "terraform-provider-google"
+    repo_slug = "bbs-push-trigger"
     project_key = "STAG"
     bitbucket_server_config_resource = "projects/123456789/locations/us-central1/bitbucketServerConfigs/myBitbucketConfig"
     push {
@@ -444,7 +444,7 @@ resource "google_cloudbuild_trigger" "bbs-push-trigger" {
 
 ```hcl
 resource "google_cloudbuild_trigger" "bbs-pull-request-trigger" {
-  name        = "terraform-bbs-pull-request-trigger"
+  name        = "ghe-trigger"
   location    = "us-central1"
 
   bitbucket_server_trigger_config {
@@ -466,7 +466,7 @@ resource "google_cloudbuild_trigger" "bbs-pull-request-trigger" {
 
 ```hcl
 resource "google_cloudbuild_trigger" "ghe-trigger" {
-  name        = "terraform-ghe-trigger"
+  name        = "ghe-trigger"
   location    = "us-central1"
 
   github {
@@ -661,7 +661,7 @@ resource "google_cloudbuildv2_repository" "my-repository" {
 }
 
 resource "google_pubsub_topic" "mytopic" {
-  name = "mytopic"
+  name = "my-topic"
 }
 
 resource "google_cloudbuild_trigger" "pubsub-with-repo-trigger" {
@@ -1497,7 +1497,6 @@ The following arguments are supported:
 * `machine_type` -
   (Optional)
   Compute Engine machine type on which to run the build.
-  Possible values are: `UNSPECIFIED`, `N1_HIGHCPU_8`, `N1_HIGHCPU_32`, `E2_HIGHCPU_8`, `E2_HIGHCPU_32`.
 
 * `disk_size_gb` -
   (Optional)

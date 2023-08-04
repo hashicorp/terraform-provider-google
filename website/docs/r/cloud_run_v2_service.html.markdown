@@ -832,6 +832,11 @@ The following arguments are supported:
   Settings for the Binary Authorization feature.
   Structure is [documented below](#nested_binary_authorization).
 
+* `custom_audiences` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  One or more custom audiences that you want this service to support. Specify each custom audience as the full URL in a string. The custom audiences are encoded in the token and used to authenticate requests.
+  For more information, see https://cloud.google.com/run/docs/configuring/custom-audiences.
+
 * `traffic` -
   (Optional)
   Specifies how to distribute traffic over a collection of Revisions belonging to the Service. If traffic is empty or not provided, defaults to 100% traffic to the latest Ready Revision.

@@ -267,12 +267,12 @@ func testAccCloudBuildTrigger_cloudbuildTriggerPubsubConfigExample(context map[s
 	return acctest.Nprintf(`
 
 resource "google_pubsub_topic" "mytopic" {
-  name = "mytopic"
+  name = "tf-test-my-topic%{random_suffix}"
 }
 
 resource "google_cloudbuild_trigger" "pubsub-config-trigger" {
   location    = "us-central1"
-  name        = "pubsub-trigger"
+  name        = "tf-test-pubsub-trigger%{random_suffix}"
   description = "acceptance test example pubsub build trigger"
 
   pubsub_config {
@@ -330,7 +330,7 @@ func testAccCloudBuildTrigger_cloudbuildTriggerWebhookConfigExample(context map[
 	return acctest.Nprintf(`
 
 resource "google_secret_manager_secret" "webhook_trigger_secret_key" {
-  secret_id = "webhook_trigger-secret-key-1"
+  secret_id = "tf-test-webhook-trigger-secret-key%{random_suffix}"
 
   replication {
     user_managed {
@@ -366,7 +366,7 @@ resource "google_secret_manager_secret_iam_policy" "policy" {
 
 
 resource "google_cloudbuild_trigger" "webhook-config-trigger" {
-  name        = "webhook-trigger"
+  name        = "tf-test-webhook-trigger%{random_suffix}"
   description = "acceptance test example webhook build trigger"
  
  webhook_config {
@@ -418,7 +418,7 @@ func testAccCloudBuildTrigger_cloudbuildTriggerManualExample(context map[string]
 	return acctest.Nprintf(`
 
 resource "google_cloudbuild_trigger" "manual-trigger" {
-  name        = "manual-build"
+  name        = "tf-test-manual-trigger%{random_suffix}"
 
   source_to_build {
     uri       = "https://hashicorp/terraform-provider-google-beta"
@@ -477,7 +477,7 @@ func testAccCloudBuildTrigger_cloudbuildTriggerRepoExample(context map[string]in
 	return acctest.Nprintf(`
 resource "google_cloudbuildv2_connection" "my-connection" {
   location = "us-central1"
-  name = "my-connection"
+  name = "tf-test-my-connection%{random_suffix}"
 
   github_config {
     app_installation_id = %{installation_id}
@@ -488,7 +488,7 @@ resource "google_cloudbuildv2_connection" "my-connection" {
 }
 
 resource "google_cloudbuildv2_repository" "my-repository" {
-  name = "my-repo"
+  name = "tf-test-my-repo%{random_suffix}"
   parent_connection = google_cloudbuildv2_connection.my-connection.id
   remote_uri = "%{repo_uri}"
 }
@@ -536,11 +536,11 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerBitbucketServerPushExample(t *tes
 func testAccCloudBuildTrigger_cloudbuildTriggerBitbucketServerPushExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuild_trigger" "bbs-push-trigger" {
-  name        = "terraform-bbs-push-trigger"
+  name        = "bbs-push-trigger"
   location    = "us-central1"
 
   bitbucket_server_trigger_config {
-    repo_slug = "terraform-provider-google"
+    repo_slug = "tf-test-bbs-push-trigger%{random_suffix}"
     project_key = "STAG"
     bitbucket_server_config_resource = "projects/123456789/locations/us-central1/bitbucketServerConfigs/myBitbucketConfig"
     push {
@@ -582,7 +582,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerBitbucketServerPullRequestExample
 func testAccCloudBuildTrigger_cloudbuildTriggerBitbucketServerPullRequestExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuild_trigger" "bbs-pull-request-trigger" {
-  name        = "terraform-bbs-pull-request-trigger"
+  name        = "tf-test-ghe-trigger%{random_suffix}"
   location    = "us-central1"
 
   bitbucket_server_trigger_config {
@@ -825,7 +825,7 @@ func testAccCloudBuildTrigger_cloudbuildTriggerPubsubWithRepoExample(context map
 	return acctest.Nprintf(`
 resource "google_cloudbuildv2_connection" "my-connection" {
   location = "us-central1"
-  name = "my-connection"
+  name = "tf-test-my-connection%{random_suffix}"
 
   github_config {
     app_installation_id = %{installation_id}
@@ -836,17 +836,17 @@ resource "google_cloudbuildv2_connection" "my-connection" {
 }
 
 resource "google_cloudbuildv2_repository" "my-repository" {
-  name = "my-repo"
+  name = "tf-test-my-repo%{random_suffix}"
   parent_connection = google_cloudbuildv2_connection.my-connection.id
   remote_uri = "%{repo_uri}"
 }
 
 resource "google_pubsub_topic" "mytopic" {
-  name = "mytopic"
+  name = "tf-test-my-topic%{random_suffix}"
 }
 
 resource "google_cloudbuild_trigger" "pubsub-with-repo-trigger" {
-  name = "pubsub-with-repo-trigger"
+  name = "tf-test-pubsub-with-repo-trigger%{random_suffix}"
   location = "us-central1"
 
   pubsub_config {

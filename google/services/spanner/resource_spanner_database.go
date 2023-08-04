@@ -24,6 +24,7 @@ import (
 	"reflect"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -177,6 +178,18 @@ error in any statement, the database is not created.`,
 					Type: schema.TypeString,
 				},
 			},
+			"enable_drop_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Whether drop protection is enabled for this database. Defaults to false.
+Drop protection is different from
+the "deletion_protection" attribute in the following ways:
+(1) "deletion_protection" only protects the database from deletions in Terraform.
+whereas setting “enableDropProtection” to true protects the database from deletions in all interfaces.
+(2) Setting "enableDropProtection" to true also prevents the deletion of the parent instance containing the database.
+"deletion_protection" attribute does not provide protection against the deletion of the parent instance.`,
+				Default: false,
+			},
 			"encryption_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -215,8 +228,8 @@ update the database's version_retention_period.`,
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
-				Description: `Whether or not to allow Terraform to destroy the instance. Unless this field is set to false
-in Terraform state, a 'terraform destroy' or 'terraform apply' that would delete the instance will fail.`,
+				Description: `Whether or not to allow Terraform to destroy the database. Defaults to true. Unless this field is set to false
+in Terraform state, a 'terraform destroy' or 'terraform apply' that would delete the database will fail.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -266,6 +279,12 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("database_dialect"); !tpgresource.IsEmptyValue(reflect.ValueOf(databaseDialectProp)) && (ok || !reflect.DeepEqual(v, databaseDialectProp)) {
 		obj["databaseDialect"] = databaseDialectProp
+	}
+	enableDropProtectionProp, err := expandSpannerDatabaseEnableDropProtection(d.Get("enable_drop_protection"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_drop_protection"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableDropProtectionProp)) && (ok || !reflect.DeepEqual(v, enableDropProtectionProp)) {
+		obj["enableDropProtection"] = enableDropProtectionProp
 	}
 	instanceProp, err := expandSpannerDatabaseInstance(d.Get("instance"), d, config)
 	if err != nil {
@@ -426,6 +445,37 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
+	enableDropProtection, enableDropProtectionOk := d.GetOk("enable_drop_protection")
+	dropProtection := enableDropProtection.(bool)
+	if enableDropProtectionOk && dropProtection {
+		updateMask := []string{"enableDropProtection"}
+		url, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+		if err != nil {
+			return err
+		}
+		// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+		// won't set it
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+		if err != nil {
+			return err
+		}
+		obj := map[string]interface{}{"enableDropProtection": dropProtection}
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating enableDropDatabaseProtection on Database: %s", err)
+		} else {
+			log.Printf("[DEBUG] Finished updating enableDropDatabaseProtection %q: %#v", d.Id(), res)
+		}
+	}
+
 	log.Printf("[DEBUG] Finished creating Database %q: %#v", d.Id(), res)
 
 	return resourceSpannerDatabaseRead(d, meta)
@@ -504,6 +554,9 @@ func resourceSpannerDatabaseRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("database_dialect", flattenSpannerDatabaseDatabaseDialect(res["databaseDialect"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
+	if err := d.Set("enable_drop_protection", flattenSpannerDatabaseEnableDropProtection(res["enableDropProtection"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
 	if err := d.Set("instance", flattenSpannerDatabaseInstance(res["instance"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
@@ -526,6 +579,86 @@ func resourceSpannerDatabaseUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 	billingProject = project
 
+	obj := make(map[string]interface{})
+	enableDropProtectionProp, err := expandSpannerDatabaseEnableDropProtection(d.Get("enable_drop_protection"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_drop_protection"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableDropProtectionProp)) {
+		obj["enableDropProtection"] = enableDropProtectionProp
+	}
+
+	obj, err = resourceSpannerDatabaseUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating Database %q: %#v", d.Id(), obj)
+	updateMask := []string{}
+
+	if d.HasChange("enable_drop_protection") {
+		updateMask = append(updateMask, "enableDropProtection")
+	}
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	if obj["statements"] != nil {
+		if len(obj["statements"].([]string)) == 0 {
+			// Return early to avoid making an API call that errors,
+			// due to containing no DDL SQL statements
+			d.Partial(false)
+			return resourceSpannerDatabaseRead(d, meta)
+		}
+	}
+
+	if resourceSpannerDBVirtualUpdate(d, ResourceSpannerDatabase().Schema) {
+		if d.Get("deletion_protection") != nil {
+			if err := d.Set("deletion_protection", d.Get("deletion_protection")); err != nil {
+				return fmt.Errorf("Error reading Instance: %s", err)
+			}
+		}
+		return nil
+	}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
+
+		if err != nil {
+			return fmt.Errorf("Error updating Database %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Database %q: %#v", d.Id(), res)
+		}
+
+		err = SpannerOperationWaitTime(
+			config, res, project, "Updating Database", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return err
+		}
+	}
 	d.Partial(true)
 
 	if d.HasChange("version_retention_period") || d.HasChange("ddl") {
@@ -554,10 +687,13 @@ func resourceSpannerDatabaseUpdate(d *schema.ResourceData, meta interface{}) err
 			return err
 		}
 
-		if len(obj["statements"].([]string)) == 0 {
-			// Return early to avoid making an API call that errors,
-			// due to containing no DDL SQL statements
-			return resourceSpannerDatabaseRead(d, meta)
+		if obj["statements"] != nil {
+			if len(obj["statements"].([]string)) == 0 {
+				// Return early to avoid making an API call that errors,
+				// due to containing no DDL SQL statements
+				d.Partial(false)
+				return resourceSpannerDatabaseRead(d, meta)
+			}
 		}
 
 		if resourceSpannerDBVirtualUpdate(d, ResourceSpannerDatabase().Schema) {
@@ -720,6 +856,10 @@ func flattenSpannerDatabaseDatabaseDialect(v interface{}, d *schema.ResourceData
 	return v
 }
 
+func flattenSpannerDatabaseEnableDropProtection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenSpannerDatabaseInstance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -766,6 +906,10 @@ func expandSpannerDatabaseDatabaseDialect(v interface{}, d tpgresource.Terraform
 	return v, nil
 }
 
+func expandSpannerDatabaseEnableDropProtection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandSpannerDatabaseInstance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	f, err := tpgresource.ParseGlobalFieldValue("instances", v.(string), "project", d, config, true)
 	if err != nil {
@@ -790,37 +934,41 @@ func resourceSpannerDatabaseEncoder(d *schema.ResourceData, meta interface{}, ob
 
 	delete(obj, "versionRetentionPeriod")
 	delete(obj, "extraStatements")
+	delete(obj, "enableDropProtection")
 	return obj, nil
 }
 
 func resourceSpannerDatabaseUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	old, new := d.GetChange("ddl")
-	oldDdls := old.([]interface{})
-	newDdls := new.([]interface{})
-	updateDdls := []string{}
 
-	// Only new ddl statments to be add to update call
-	for i := len(oldDdls); i < len(newDdls); i++ {
-		if newDdls[i] != nil {
-			updateDdls = append(updateDdls, newDdls[i].(string))
+	if obj["versionRetentionPeriod"] != nil || obj["extraStatements"] != nil {
+		old, new := d.GetChange("ddl")
+		oldDdls := old.([]interface{})
+		newDdls := new.([]interface{})
+		updateDdls := []string{}
+
+		//Only new ddl statments to be add to update call
+		for i := len(oldDdls); i < len(newDdls); i++ {
+			if newDdls[i] != nil {
+				updateDdls = append(updateDdls, newDdls[i].(string))
+			}
 		}
-	}
 
-	// Add statement to update version_retention_period property, if needed
-	if d.HasChange("version_retention_period") {
-		dbName := d.Get("name")
-		retentionDdl := fmt.Sprintf("ALTER DATABASE `%s` SET OPTIONS (version_retention_period=\"%s\")", dbName, obj["versionRetentionPeriod"])
-		if dialect, ok := d.GetOk("database_dialect"); ok && dialect == "POSTGRESQL" {
-			retentionDdl = fmt.Sprintf("ALTER DATABASE \"%s\" SET spanner.version_retention_period TO \"%s\"", dbName, obj["versionRetentionPeriod"])
+		//Add statement to update version_retention_period property, if needed
+		if d.HasChange("version_retention_period") {
+			dbName := d.Get("name")
+			retentionDdl := fmt.Sprintf("ALTER DATABASE `%s` SET OPTIONS (version_retention_period=\"%s\")", dbName, obj["versionRetentionPeriod"])
+			if dialect, ok := d.GetOk("database_dialect"); ok && dialect == "POSTGRESQL" {
+				retentionDdl = fmt.Sprintf("ALTER DATABASE \"%s\" SET spanner.version_retention_period TO \"%s\"", dbName, obj["versionRetentionPeriod"])
+			}
+			updateDdls = append(updateDdls, retentionDdl)
 		}
-		updateDdls = append(updateDdls, retentionDdl)
-	}
 
-	obj["statements"] = updateDdls
-	delete(obj, "name")
-	delete(obj, "versionRetentionPeriod")
-	delete(obj, "instance")
-	delete(obj, "extraStatements")
+		obj["statements"] = updateDdls
+		delete(obj, "name")
+		delete(obj, "versionRetentionPeriod")
+		delete(obj, "instance")
+		delete(obj, "extraStatements")
+	}
 	return obj, nil
 }
 

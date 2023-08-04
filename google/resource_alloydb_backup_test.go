@@ -100,6 +100,7 @@ func TestAccAlloydbBackup_createBackupWithMandatoryFields(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
+		"network_name":  acctest.BootstrapSharedTestNetwork(t, "alloydbbackup-mandatory"),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -126,13 +127,13 @@ resource "google_alloydb_backup" "default" {
 resource "google_alloydb_cluster" "default" {
   location = "us-central1"
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  network    = google_compute_network.default.id
+  network    = data.google_compute_network.default.id
 }
 
 data "google_project" "project" { }
 
-resource "google_compute_network" "default" {
-  name = "tf-test-alloydb-cluster%{random_suffix}"
+data "google_compute_network" "default" {
+  name = "%{network_name}"
 }
 
 resource "google_alloydb_instance" "default" {
@@ -148,7 +149,7 @@ resource "google_compute_global_address" "private_ip_alloc" {
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 16
-  network       = google_compute_network.default.id
+  network       = data.google_compute_network.default.id
   lifecycle {
 	ignore_changes = [
 		address,
@@ -162,7 +163,7 @@ resource "google_compute_global_address" "private_ip_alloc" {
 }
 
 resource "google_service_networking_connection" "vpc_connection" {
-  network                 = google_compute_network.default.id
+  network                 = data.google_compute_network.default.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }

@@ -43,6 +43,31 @@ func TestAccCloudRunService_cloudRunServiceUpdate(t *testing.T) {
 	})
 }
 
+// test that the status fields are propagated correctly
+func TestAccCloudRunService_cloudRunServiceCreateHasStatus(t *testing.T) {
+	t.Parallel()
+
+	project := envvar.GetTestProjectFromEnv()
+	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunService_cloudRunServiceUpdate(name, project, "10", "600"),
+				Check:  resource.TestCheckResourceAttrSet("google_cloud_run_service.default", "status.0.traffic.0.revision_name"),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "status.0.conditions"},
+			},
+		},
+	})
+}
+
 // this test checks that Terraform does not fail with a 409 recreating the same service
 func TestAccCloudRunService_foregroundDeletion(t *testing.T) {
 	t.Parallel()

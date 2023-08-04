@@ -391,6 +391,82 @@ resource "google_spanner_database" "basic" {
 `, instanceName, instanceName, databaseName, databaseName, databaseName)
 }
 
+func TestAccSpannerDatabase_enableDropProtection(t *testing.T) {
+	t.Parallel()
+
+	rnd := RandString(t, 10)
+	instanceName := fmt.Sprintf("tf-test-%s", rnd)
+	databaseName := fmt.Sprintf("tfgen_%s", rnd)
+
+	VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSpannerDatabaseDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerDatabase_enableDropProtection(instanceName, databaseName),
+			},
+			{
+				ResourceName:            "google_spanner_database.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ddl", "deletion_protection"},
+			},
+			{
+				Config: testAccSpannerDatabase_enableDropProtectionUpdate(instanceName, databaseName),
+			},
+			{
+				ResourceName:            "google_spanner_database.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ddl", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccSpannerDatabase_enableDropProtection(instanceName, databaseName string) string {
+	return fmt.Sprintf(`
+resource "google_spanner_instance" "basic" {
+  name         = "%s"
+  config       = "regional-us-central1"
+  display_name = "%s-display"
+  num_nodes    = 1
+}
+
+resource "google_spanner_database" "basic" {
+  instance = google_spanner_instance.basic.name
+  name     = "%s"
+  enable_drop_protection = true
+  deletion_protection = false
+  ddl = [
+     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
+  ]
+}
+`, instanceName, instanceName, databaseName)
+}
+
+func testAccSpannerDatabase_enableDropProtectionUpdate(instanceName, databaseName string) string {
+	return fmt.Sprintf(`
+resource "google_spanner_instance" "basic" {
+  name         = "%s"
+  config       = "regional-us-central1"
+  display_name = "%s-display"
+  num_nodes    = 1
+}
+
+resource "google_spanner_database" "basic" {
+  instance = google_spanner_instance.basic.name
+  name     = "%s"
+  enable_drop_protection = false
+  deletion_protection = false
+  ddl = [
+     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
+  ]
+}
+`, instanceName, instanceName, databaseName)
+}
+
 // Unit Tests for validation of retention period argument
 func TestValidateDatabaseRetentionPeriod(t *testing.T) {
 	t.Parallel()

@@ -357,6 +357,88 @@ condition to be triggered.`,
 								},
 							},
 						},
+						"condition_prometheus_query_language": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `A Monitoring Query Language query that outputs a boolean stream
+
+A condition type that allows alert policies to be defined using
+Prometheus Query Language (PromQL).
+
+The PrometheusQueryLanguageCondition message contains information
+from a Prometheus alerting rule and its associated rule group.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"evaluation_interval": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `How often this rule should be evaluated. Must be a positive multiple
+of 30 seconds or missing. The default value is 30 seconds. If this
+PrometheusQueryLanguageCondition was generated from a Prometheus
+alerting rule, then this value should be taken from the enclosing
+rule group.`,
+									},
+									"query": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `The PromQL expression to evaluate. Every evaluation cycle this
+expression is evaluated at the current time, and all resultant time
+series become pending/firing alerts. This field must not be empty.`,
+									},
+									"alert_rule": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `The alerting rule name of this alert in the corresponding Prometheus
+configuration file.
+
+Some external tools may require this field to be populated correctly
+in order to refer to the original Prometheus configuration file.
+The rule group name and the alert name are necessary to update the
+relevant AlertPolicies in case the definition of the rule group changes
+in the future.
+
+This field is optional. If this field is not empty, then it must be a
+valid Prometheus label name.`,
+									},
+									"duration": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Alerts are considered firing once their PromQL expression evaluated
+to be "true" for this long. Alerts whose PromQL expression was not
+evaluated to be "true" for long enough are considered pending. The
+default value is zero. Must be zero or positive.`,
+									},
+									"labels": {
+										Type:     schema.TypeMap,
+										Optional: true,
+										Description: `Labels to add to or overwrite in the PromQL query result. Label names
+must be valid.
+
+Label values can be templatized by using variables. The only available
+variable names are the names of the labels in the PromQL result, including
+"__name__" and "value". "labels" may be empty. This field is intended to be
+used for organizing and identifying the AlertPolicy`,
+										Elem: &schema.Schema{Type: schema.TypeString},
+									},
+									"rule_group": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `The rule group name of this alert in the corresponding Prometheus
+configuration file.
+
+Some external tools may require this field to be populated correctly
+in order to refer to the original Prometheus configuration file.
+The rule group name and the alert name are necessary to update the
+relevant AlertPolicies in case the definition of the rule group changes
+in the future.
+
+This field is optional. If this field is not empty, then it must be a
+valid Prometheus label name.`,
+									},
+								},
+							},
+						},
 						"condition_threshold": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -1392,6 +1474,7 @@ func flattenMonitoringAlertPolicyConditions(v interface{}, d *schema.ResourceDat
 			"condition_threshold":                 flattenMonitoringAlertPolicyConditionsConditionThreshold(original["conditionThreshold"], d, config),
 			"display_name":                        flattenMonitoringAlertPolicyConditionsDisplayName(original["displayName"], d, config),
 			"condition_matched_log":               flattenMonitoringAlertPolicyConditionsConditionMatchedLog(original["conditionMatchedLog"], d, config),
+			"condition_prometheus_query_language": flattenMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguage(original["conditionPrometheusQueryLanguage"], d, config),
 		})
 	}
 	return transformed
@@ -1776,6 +1859,53 @@ func flattenMonitoringAlertPolicyConditionsConditionMatchedLogLabelExtractors(v 
 	return v
 }
 
+func flattenMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["query"] =
+		flattenMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageQuery(original["query"], d, config)
+	transformed["duration"] =
+		flattenMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageDuration(original["duration"], d, config)
+	transformed["evaluation_interval"] =
+		flattenMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageEvaluationInterval(original["evaluationInterval"], d, config)
+	transformed["labels"] =
+		flattenMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageLabels(original["labels"], d, config)
+	transformed["rule_group"] =
+		flattenMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageRuleGroup(original["ruleGroup"], d, config)
+	transformed["alert_rule"] =
+		flattenMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageAlertRule(original["alertRule"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageQuery(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageDuration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageEvaluationInterval(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageRuleGroup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageAlertRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenMonitoringAlertPolicyNotificationChannels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1934,6 +2064,13 @@ func expandMonitoringAlertPolicyConditions(v interface{}, d tpgresource.Terrafor
 			return nil, err
 		} else if val := reflect.ValueOf(transformedConditionMatchedLog); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["conditionMatchedLog"] = transformedConditionMatchedLog
+		}
+
+		transformedConditionPrometheusQueryLanguage, err := expandMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguage(original["condition_prometheus_query_language"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedConditionPrometheusQueryLanguage); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["conditionPrometheusQueryLanguage"] = transformedConditionPrometheusQueryLanguage
 		}
 
 		req = append(req, transformed)
@@ -2496,6 +2633,91 @@ func expandMonitoringAlertPolicyConditionsConditionMatchedLogLabelExtractors(v i
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedQuery, err := expandMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageQuery(original["query"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedQuery); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["query"] = transformedQuery
+	}
+
+	transformedDuration, err := expandMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageDuration(original["duration"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDuration); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["duration"] = transformedDuration
+	}
+
+	transformedEvaluationInterval, err := expandMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageEvaluationInterval(original["evaluation_interval"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEvaluationInterval); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["evaluationInterval"] = transformedEvaluationInterval
+	}
+
+	transformedLabels, err := expandMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageLabels(original["labels"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLabels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["labels"] = transformedLabels
+	}
+
+	transformedRuleGroup, err := expandMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageRuleGroup(original["rule_group"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRuleGroup); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ruleGroup"] = transformedRuleGroup
+	}
+
+	transformedAlertRule, err := expandMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageAlertRule(original["alert_rule"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAlertRule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["alertRule"] = transformedAlertRule
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageQuery(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageDuration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageEvaluationInterval(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageRuleGroup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringAlertPolicyConditionsConditionPrometheusQueryLanguageAlertRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandMonitoringAlertPolicyNotificationChannels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

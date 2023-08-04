@@ -149,6 +149,7 @@ func TestAccLookerInstance_lookerInstanceEnterpriseFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedTestNetwork(t, "looker-instance-enterprise"),
 		"kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"random_suffix": acctest.RandString(t, 10),
 	}
@@ -180,7 +181,7 @@ resource "google_looker_instance" "looker-instance" {
   private_ip_enabled = true
   public_ip_enabled  = false
   reserved_range     = "${google_compute_global_address.looker_range.name}"
-  consumer_network   = google_compute_network.looker_network.id
+  consumer_network   = data.google_compute_network.looker_network.id
   admin_settings {
     allowed_email_domains = ["google.com"]
   }
@@ -224,7 +225,7 @@ resource "google_looker_instance" "looker-instance" {
 }
 
 resource "google_service_networking_connection" "looker_vpc_connection" {
-  network                 = google_compute_network.looker_network.id
+  network                 = data.google_compute_network.looker_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.looker_range.name]
 }
@@ -234,14 +235,13 @@ resource "google_compute_global_address" "looker_range" {
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 20
-  network       = google_compute_network.looker_network.id
+  network       = data.google_compute_network.looker_network.id
 }
 
 data "google_project" "project" {}
 
-resource "google_compute_network" "looker_network" {
-  name = "tf-test-looker-network%{random_suffix}"
-  auto_create_subnetworks = false
+data "google_compute_network" "looker_network" {
+  name = "%{network_name}"
 }
 
 resource "google_kms_crypto_key_iam_member" "crypto_key" {

@@ -57,6 +57,29 @@ resource "google_project_service" "identitytoolkit" {
 resource "google_identity_platform_config" "default" {
   project = google_project.default.project_id
   autodelete_anonymous_users = true
+  blocking_functions {
+    triggers {
+      event_type = "beforeSignIn"
+      function_uri = "https://us-east1-my-project.cloudfunctions.net/before-sign-in"
+    }
+    forward_inbound_credentials {
+      refresh_token = true
+      access_token = true
+      id_token = true
+    }
+  }
+  quota {
+    sign_up_quota_config {
+      quota = 1000
+      start_time = ""
+      quota_duration = "7200s"
+    }
+  }
+  authorized_domains = [
+    "localhost",
+    "my-project.firebaseapp.com",
+    "my-project.web.app",
+  ]
 }
 ```
 
@@ -73,9 +96,84 @@ The following arguments are supported:
   (Optional)
   Whether anonymous users will be auto-deleted after a period of 30 days
 
+* `blocking_functions` -
+  (Optional)
+  Configuration related to blocking functions.
+  Structure is [documented below](#nested_blocking_functions).
+
+* `quota` -
+  (Optional)
+  Configuration related to quotas.
+  Structure is [documented below](#nested_quota).
+
+* `authorized_domains` -
+  (Optional)
+  List of domains authorized for OAuth redirects.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_blocking_functions"></a>The `blocking_functions` block supports:
+
+* `triggers` -
+  (Required)
+  Map of Trigger to event type. Key should be one of the supported event types: "beforeCreate", "beforeSignIn".
+  Structure is [documented below](#nested_triggers).
+
+* `forward_inbound_credentials` -
+  (Optional)
+  The user credentials to include in the JWT payload that is sent to the registered Blocking Functions.
+  Structure is [documented below](#nested_forward_inbound_credentials).
+
+
+<a name="nested_triggers"></a>The `triggers` block supports:
+
+* `event_type` - (Required) The identifier for this object. Format specified above.
+
+* `function_uri` -
+  (Required)
+  HTTP URI trigger for the Cloud Function.
+
+* `update_time` -
+  (Output)
+  When the trigger was changed.
+
+<a name="nested_forward_inbound_credentials"></a>The `forward_inbound_credentials` block supports:
+
+* `id_token` -
+  (Optional)
+  Whether to pass the user's OIDC identity provider's ID token.
+
+* `access_token` -
+  (Optional)
+  Whether to pass the user's OAuth identity provider's access token.
+
+* `refresh_token` -
+  (Optional)
+  Whether to pass the user's OAuth identity provider's refresh token.
+
+<a name="nested_quota"></a>The `quota` block supports:
+
+* `sign_up_quota_config` -
+  (Optional)
+  Quota for the Signup endpoint, if overwritten. Signup quota is measured in sign ups per project per hour per IP.
+  Structure is [documented below](#nested_sign_up_quota_config).
+
+
+<a name="nested_sign_up_quota_config"></a>The `sign_up_quota_config` block supports:
+
+* `quota` -
+  (Optional)
+  A sign up APIs quota that customers can override temporarily.
+
+* `start_time` -
+  (Optional)
+  When this quota will take affect.
+
+* `quota_duration` -
+  (Optional)
+  How long this quota will be active for. It is measurred in seconds, e.g., Example: "9.615s".
 
 ## Attributes Reference
 
