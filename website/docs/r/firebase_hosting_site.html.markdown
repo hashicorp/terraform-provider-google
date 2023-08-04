@@ -48,7 +48,6 @@ resource "google_firebase_web_app" "default" {
   provider = google-beta
   project  = "my-project-name"
   display_name = "Test web app for Firebase Hosting"
-  deletion_policy = "DELETE"
 }
 
 resource "google_firebase_hosting_site" "full" {
