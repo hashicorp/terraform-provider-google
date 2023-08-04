@@ -38,7 +38,7 @@ resource "google_sql_user" "users" {
 }
 ```
 
-Example creating a Cloud IAM User. (For MySQL, specify `cloudsql_iam_authentication`)
+Example using [Cloud SQL IAM database authentication](https://cloud.google.com/sql/docs/mysql/authentication).
 
 ```hcl
 resource "random_id" "db_name_suffix" {
@@ -47,7 +47,7 @@ resource "random_id" "db_name_suffix" {
 
 resource "google_sql_database_instance" "main" {
   name             = "main-instance-${random_id.db_name_suffix.hex}"
-  database_version = "POSTGRES_9_6"
+  database_version = "POSTGRES_15"
 
   settings {
     tier = "db-f1-micro"
@@ -59,10 +59,18 @@ resource "google_sql_database_instance" "main" {
   }
 }
 
-resource "google_sql_user" "users" {
+resource "google_sql_user" "iam_user" {
   name     = "me@example.com"
   instance = google_sql_database_instance.main.name
   type     = "CLOUD_IAM_USER"
+}
+
+resource "google_sql_user" "iam_service_account_user" {
+  # Note: for Postgres only, GCP requires omitting the ".gserviceaccount.com" suffix
+  # from the service account email due to length limits on database usernames.
+  name     = trimsuffix(google_service_account.service_account.email, ".gserviceaccount.com")
+  instance = google_sql_database_instance.main.name
+  type     = "CLOUD_IAM_SERVICE_ACCOUNT"
 }
 ```
 
