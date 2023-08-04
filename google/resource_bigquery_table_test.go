@@ -534,6 +534,48 @@ func TestAccBigQueryExternalDataTable_parquetOptions(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryExternalDataTable_iceberg(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName(t)
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableFromGCSIceberg(datasetID, tableID, bucketName),
+			},
+		},
+	})
+}
+
+func TestAccBigQueryExternalDataTable_parquetFileSetSpecType(t *testing.T) {
+	t.Parallel()
+
+	bucketName := testBucketName(t)
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	parquetFileName := "test.parquet"
+	manifestName := fmt.Sprintf("tf_test_%s.manifest.json", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableFromGCSParquetManifest(datasetID, tableID, bucketName, manifestName, parquetFileName),
+			},
+		},
+	})
+}
+
 func TestAccBigQueryExternalDataTable_queryAcceleration(t *testing.T) {
 	t.Parallel()
 
@@ -1767,6 +1809,104 @@ resource "google_bigquery_table" "test" {
   }
 }
 `, datasetID, bucketName, objectName, tableID, enum, list)
+}
+
+func testAccBigQueryTableFromGCSIceberg(datasetID, tableID, bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_storage_bucket" "test" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
+# Setup Empty Iceberg table in Bucket.
+// .
+// ├── data
+// └── metadata
+//     ├── 00000-1114da6b-bb88-4b5a-94bd-370f286c858a.metadata.json
+// Upload Data Files
+resource "google_storage_bucket_object" "empty_data_folder" {
+	name   = "data/"
+	content = " "
+	bucket = google_storage_bucket.test.name
+}
+// Upload Metadata File.
+resource "google_storage_bucket_object" "metadata" {
+	name    = "simple/metadata/00000-1114da6b-bb88-4b5a-94bd-370f286c858a.metadata.json"
+	source = "./test-fixtures/bigquerytable/simple/metadata/00000-1114da6b-bb88-4b5a-94bd-370f286c858a.metadata.json"
+	bucket = google_storage_bucket.test.name
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  external_data_configuration {
+    autodetect    = false
+    source_format = "ICEBERG"
+	# Point to metadata.json.
+    source_uris = [
+      "gs://${google_storage_bucket.test.name}/simple/metadata/00000-1114da6b-bb88-4b5a-94bd-370f286c858a.metadata.json",
+    ]
+  }
+  # Depends on Iceberg Table Files
+  depends_on = [
+	google_storage_bucket_object.empty_data_folder,
+	google_storage_bucket_object.metadata, 
+  ]
+}
+`, datasetID, bucketName, tableID)
+}
+
+func testAccBigQueryTableFromGCSParquetManifest(datasetID, tableID, bucketName, manifestName, parquetFileName string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_storage_bucket" "test" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
+# Upload Data File.
+resource "google_storage_bucket_object" "datafile" {
+	name = "%s"
+	source = "./test-fixtures/bigquerytable/simple/data/00000-0-4e4a11ad-368c-496b-97ae-e3ac28051a4d-00001.parquet"
+	bucket = google_storage_bucket.test.name
+}
+
+# Upload Metadata file
+resource "google_storage_bucket_object" "manifest" {
+	name = "%s" 
+	content = "gs://${google_storage_bucket.test.name}/${google_storage_bucket_object.datafile.name}"
+	bucket = google_storage_bucket.test.name
+}
+
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  external_data_configuration {
+    autodetect    = false
+    source_format = "PARQUET"
+	# Specify URI is a manifest.
+	file_set_spec_type = "FILE_SET_SPEC_TYPE_NEW_LINE_DELIMITED_MANIFEST"
+	# Point to metadata.json.
+    source_uris = [
+      "gs://${google_storage_bucket.test.name}/${google_storage_bucket_object.manifest.name}",
+    ]
+  }
+}
+`, datasetID, bucketName, manifestName, parquetFileName, tableID)
 }
 
 func testAccBigQueryTableFromGCSObjectTable(connectionID, datasetID, tableID, bucketName, objectName, maxStaleness string) string {
