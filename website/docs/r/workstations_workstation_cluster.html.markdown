@@ -187,6 +187,11 @@ The following arguments are supported:
   The service attachment is created when private endpoint is enabled.
   To access workstations in the cluster, configure access to the managed service using (Private Service Connect)[https://cloud.google.com/vpc/docs/configure-private-service-connect-services].
 
+* `allowed_projects` -
+  (Optional)
+  Additional project IDs that are allowed to attach to the workstation cluster's service attachment.
+  By default, the workstation cluster's project and the VPC host project (if different) are allowed.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
