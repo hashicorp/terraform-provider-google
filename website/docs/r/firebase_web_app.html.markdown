@@ -34,30 +34,10 @@ To get more information about WebApp, see:
 
 
 ```hcl
-resource "google_project" "default" {
-	provider = google-beta
-
-	project_id = "my-project"
-	name       = "my-project"
-	org_id     = "123456789"
-
-	labels = {
-		"firebase" = "enabled"
-	}
-}
-
-resource "google_firebase_project" "default" {
-	provider = google-beta
-	project  = google_project.default.project_id
-}
-
 resource "google_firebase_web_app" "basic" {
 	provider = google-beta
-	project = google_project.default.project_id
+	project = "my-project-name"
 	display_name = "Display Name Basic"
-	deletion_policy = "DELETE"
-
-	depends_on = [google_firebase_project.default]
 }
 
 data "google_firebase_web_app_config" "basic" {
@@ -106,7 +86,7 @@ The following arguments are supported:
 
 * `deletion_policy` - (Optional) Set to `ABANDON` to allow the WebApp to be untracked from terraform state
 rather than deleted upon `terraform destroy`. This is useful becaue the WebApp may be
-serving traffic. Set to `DELETE` to delete the WebApp. Default to `ABANDON`
+serving traffic. Set to `DELETE` to delete the WebApp. Default to `DELETE`
 
 
 ## Attributes Reference
