@@ -164,6 +164,7 @@ project ID requesting the build is assumed.`,
 												},
 												"generation": {
 													Type:     schema.TypeInt,
+													Computed: true,
 													Optional: true,
 													Description: `Google Cloud Storage generation for the object. If the generation
 is omitted, the latest generation will be used.`,

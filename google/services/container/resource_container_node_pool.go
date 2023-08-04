@@ -188,6 +188,12 @@ var schemaNodePool = map[string]*schema.Schema{
 					Required:    true,
 					Description: `Type defines the type of placement policy`,
 				},
+				"policy_name": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					ForceNew:    true,
+					Description: `If set, refers to the name of a custom resource policy supplied by the user. The resource policy must be in the same project and region as the node pool. If not found, InvalidArgument error is returned.`,
+				},
 			},
 		},
 	},
@@ -872,7 +878,8 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 		if v.([]interface{}) != nil && v.([]interface{})[0] != nil {
 			placement_policy := v.([]interface{})[0].(map[string]interface{})
 			np.PlacementPolicy = &container.PlacementPolicy{
-				Type: placement_policy["type"].(string),
+				Type:       placement_policy["type"].(string),
+				PolicyName: placement_policy["policy_name"].(string),
 			}
 		}
 	}
@@ -1063,7 +1070,8 @@ func flattenNodePool(d *schema.ResourceData, config *transport_tpg.Config, np *c
 	if np.PlacementPolicy != nil {
 		nodePool["placement_policy"] = []map[string]interface{}{
 			{
-				"type": np.PlacementPolicy.Type,
+				"type":        np.PlacementPolicy.Type,
+				"policy_name": np.PlacementPolicy.PolicyName,
 			},
 		}
 	}

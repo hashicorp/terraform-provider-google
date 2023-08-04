@@ -31,6 +31,33 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
+func ResourceMonitoringMonitoredProjectNameDiffSuppressFunc(k, old, new string, d tpgresource.TerraformResourceDataChange) bool {
+	// Don't suppress if values are empty strings
+	if old == "" || new == "" {
+		return false
+	}
+
+	oldShort := tpgresource.GetResourceNameFromSelfLink(old)
+	newShort := tpgresource.GetResourceNameFromSelfLink(new)
+
+	// Suppress if short names are equal
+	if oldShort == newShort {
+		return true
+	}
+
+	_, isOldNumErr := tpgresource.StringToFixed64(oldShort)
+	isOldNumber := isOldNumErr == nil
+	_, isNewNumErr := tpgresource.StringToFixed64(newShort)
+	isNewNumber := isNewNumErr == nil
+
+	// Suppress if comparing a project number to project id
+	return isOldNumber != isNewNumber
+}
+
+func resourceMonitoringMonitoredProjectNameDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	return ResourceMonitoringMonitoredProjectNameDiffSuppressFunc(k, old, new, d)
+}
+
 func ResourceMonitoringMonitoredProject() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMonitoringMonitoredProjectCreate,
@@ -68,7 +95,7 @@ func ResourceMonitoringMonitoredProject() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.CompareResourceNames,
+				DiffSuppressFunc: resourceMonitoringMonitoredProjectNameDiffSuppress,
 				Description:      `Immutable. The resource name of the 'MonitoredProject'. On input, the resource name includes the scoping project ID and monitored project ID. On output, it contains the equivalent project numbers. Example: 'locations/global/metricsScopes/{SCOPING_PROJECT_ID_OR_NUMBER}/projects/{MONITORED_PROJECT_ID_OR_NUMBER}'`,
 			},
 			"create_time": {
@@ -363,9 +390,18 @@ func resourceMonitoringMonitoredProjectFindNestedObjectInList(d *schema.Resource
 }
 func resourceMonitoringMonitoredProjectDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	config := meta.(*transport_tpg.Config)
+
+	expectedName, _ := expandNestedMonitoringMonitoredProjectName(d.Get("name"), d, config)
+	expectedFlattenedName := flattenNestedMonitoringMonitoredProjectName(expectedName, d, config)
+	_, isNumErr := tpgresource.StringToFixed64(expectedFlattenedName.(string))
+	expectProjectNumber := isNumErr == nil
+
 	name := res["name"].(string)
 	name = tpgresource.GetResourceNameFromSelfLink(name)
-	if name != "" {
+
+	if expectProjectNumber {
+		res["name"] = name
+	} else if name != "" {
 		project, err := config.NewResourceManagerClient(config.UserAgent).Projects.Get(name).Do()
 		if err != nil {
 			return nil, err

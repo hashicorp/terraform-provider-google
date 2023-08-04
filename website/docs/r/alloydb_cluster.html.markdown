@@ -72,6 +72,11 @@ resource "google_alloydb_cluster" "full" {
     password = "alloydb-cluster-full"
   }
 
+  continuous_backup_config {
+    enabled              = true
+    recovery_window_days = 14
+  }
+
   automated_backup_policy {
     location      = "us-central1"
     backup_window = "1800s"
@@ -149,10 +154,15 @@ The following arguments are supported:
   Initial user to setup during cluster creation.
   Structure is [documented below](#nested_initial_user).
 
+* `continuous_backup_config` -
+  (Optional)
+  The continuous backup config for this cluster.
+  If no policy is provided then the default policy will be used. The default policy takes one backup a day and retains backups for 14 days.
+  Structure is [documented below](#nested_continuous_backup_config).
+
 * `automated_backup_policy` -
   (Optional)
-  The automated backup policy for this cluster.
-  If no policy is provided then the default policy will be used. The default policy takes one backup a day, has a backup window of 1 hour, and retains backups for 14 days.
+  The automated backup policy for this cluster. AutomatedBackupPolicy is disabled by default.
   Structure is [documented below](#nested_automated_backup_policy).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
@@ -175,6 +185,29 @@ The following arguments are supported:
   (Required)
   The initial password for the user.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+<a name="nested_continuous_backup_config"></a>The `continuous_backup_config` block supports:
+
+* `enabled` -
+  (Optional)
+  Whether continuous backup recovery is enabled. If not set, defaults to true.
+
+* `recovery_window_days` -
+  (Optional)
+  The numbers of days that are eligible to restore from using PITR. To support the entire recovery window, backups and logs are retained for one day more than the recovery window.
+  If not set, defaults to 14 days.
+
+* `encryption_config` -
+  (Optional)
+  EncryptionConfig describes the encryption config of a cluster or a backup that is encrypted with a CMEK (customer-managed encryption key).
+  Structure is [documented below](#nested_encryption_config).
+
+
+<a name="nested_encryption_config"></a>The `encryption_config` block supports:
+
+* `kms_key_name` -
+  (Optional)
+  The fully-qualified resource name of the KMS key. Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].
 
 <a name="nested_automated_backup_policy"></a>The `automated_backup_policy` block supports:
 
@@ -283,6 +316,10 @@ In addition to the arguments listed above, the following computed attributes are
   EncryptionInfo describes the encryption information of a cluster or a backup.
   Structure is [documented below](#nested_encryption_info).
 
+* `continuous_backup_info` -
+  ContinuousBackupInfo describes the continuous backup properties of a cluster.
+  Structure is [documented below](#nested_continuous_backup_info).
+
 * `database_version` -
   The database engine major version. This is an output-only field and it's populated at the Cluster creation time. This field cannot be changed after cluster creation.
 
@@ -293,6 +330,36 @@ In addition to the arguments listed above, the following computed attributes are
 * `migration_source` -
   Cluster created via DMS migration.
   Structure is [documented below](#nested_migration_source).
+
+
+<a name="nested_encryption_info"></a>The `encryption_info` block contains:
+
+* `encryption_type` -
+  (Output)
+  Output only. Type of encryption.
+
+* `kms_key_versions` -
+  (Output)
+  Output only. Cloud KMS key versions that are being used to protect the database or the backup.
+
+<a name="nested_continuous_backup_info"></a>The `continuous_backup_info` block contains:
+
+* `enabled_time` -
+  (Output)
+  When ContinuousBackup was most recently enabled. Set to null if ContinuousBackup is not enabled.
+
+* `schedule` -
+  (Output)
+  Days of the week on which a continuous backup is taken. Output only field. Ignored if passed into the request.
+
+* `earliest_restorable_time` -
+  (Output)
+  The earliest restorable time that can be restored to. Output only field.
+
+* `encryption_info` -
+  (Output)
+  Output only. The encryption information for the WALs and backups required for ContinuousBackup.
+  Structure is [documented below](#nested_encryption_info).
 
 
 <a name="nested_encryption_info"></a>The `encryption_info` block contains:

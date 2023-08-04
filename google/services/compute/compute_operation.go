@@ -143,6 +143,13 @@ func writeOperationError(w io.StringWriter, opError *compute.OperationErrorError
 		if opError.Code == "QUOTA_EXCEEDED" && ed.QuotaInfo != nil {
 			w.WriteString("\tmetric name = " + ed.QuotaInfo.MetricName + "\n")
 			w.WriteString("\tlimit name = " + ed.QuotaInfo.LimitName + "\n")
+			if ed.QuotaInfo.Limit != 0 {
+				w.WriteString("\tlimit = " + fmt.Sprint(ed.QuotaInfo.Limit) + "\n")
+			}
+			if ed.QuotaInfo.FutureLimit != 0 {
+				w.WriteString("\tfuture limit = " + fmt.Sprint(ed.QuotaInfo.FutureLimit) + "\n")
+				w.WriteString("\trollout status = in progress\n")
+			}
 			if ed.QuotaInfo.Dimensions != nil {
 				w.WriteString("\tdimensions = " + fmt.Sprint(ed.QuotaInfo.Dimensions) + "\n")
 			}

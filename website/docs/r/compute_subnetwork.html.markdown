@@ -223,12 +223,13 @@ The following arguments are supported:
 
 * `purpose` -
   (Optional)
-  The purpose of the resource. This field can be either `PRIVATE_RFC_1918`, `INTERNAL_HTTPS_LOAD_BALANCER`, `REGIONAL_MANAGED_PROXY`, or `PRIVATE_SERVICE_CONNECT`.
+  The purpose of the resource. This field can be either `PRIVATE_RFC_1918`, `INTERNAL_HTTPS_LOAD_BALANCER`, `REGIONAL_MANAGED_PROXY`, `GLOBAL_MANAGED_PROXY` or `PRIVATE_SERVICE_CONNECT`.
   A subnetwork with purpose set to `INTERNAL_HTTPS_LOAD_BALANCER` is a user-created subnetwork that is reserved for Internal HTTP(S) Load Balancing.
   A subnetwork in a given region with purpose set to `REGIONAL_MANAGED_PROXY` is a proxy-only subnet and is shared between all the regional Envoy-based load balancers.
+  A subnetwork in a given region with purpose set to `GLOBAL_MANAGED_PROXY` is a proxy-only subnet and is shared between all the cross-regional Envoy-based load balancers.
   A subnetwork with purpose set to `PRIVATE_SERVICE_CONNECT` reserves the subnet for hosting a Private Service Connect published service.
   If unspecified, the purpose defaults to `PRIVATE_RFC_1918`.
-  The enableFlowLogs field isn't supported with the purpose field set to `INTERNAL_HTTPS_LOAD_BALANCER`.
+  The enableFlowLogs field isn't supported with the purpose field set to `INTERNAL_HTTPS_LOAD_BALANCER` or `REGIONAL_MANAGED_PROXY` or `GLOBAL_MANAGED_PROXY`.
 
 * `role` -
   (Optional)
@@ -269,7 +270,7 @@ The following arguments are supported:
   (Optional)
   Denotes the logging options for the subnetwork flow logs. If logging is enabled
   logs will be exported to Stackdriver. This field cannot be set if the `purpose` of this
-  subnetwork is `INTERNAL_HTTPS_LOAD_BALANCER`
+  subnetwork is `INTERNAL_HTTPS_LOAD_BALANCER` or `REGIONAL_MANAGED_PROXY` or `GLOBAL_MANAGED_PROXY`
   Structure is [documented below](#nested_log_config).
 
 * `stack_type` -
@@ -356,7 +357,7 @@ In addition to the arguments listed above, the following computed attributes are
   The gateway address for default routes to reach destination addresses
   outside this subnetwork.
 
-* `internal_ipv6_prefix` -
+* `ipv6_cidr_range` -
   The range of internal IPv6 addresses that are owned by this subnetwork.
 
 * `external_ipv6_prefix` -

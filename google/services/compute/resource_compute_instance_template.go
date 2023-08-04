@@ -31,6 +31,7 @@ var (
 		"scheduling.0.min_node_cpus",
 		"scheduling.0.provisioning_model",
 		"scheduling.0.instance_termination_action",
+		"scheduling.0.local_ssd_recovery_timeout",
 	}
 
 	shieldedInstanceTemplateConfigKeys = []string{
@@ -516,6 +517,11 @@ Google Cloud KMS.`,
 										Computed:    true,
 										Description: `The prefix length of the external IPv6 range.`,
 									},
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The name of this access configuration.`,
+									},
 								},
 							},
 						},
@@ -610,6 +616,35 @@ Google Cloud KMS.`,
 							ForceNew:     true,
 							AtLeastOneOf: schedulingInstTemplateKeys,
 							Description:  `Specifies the action GCE should take when SPOT VM is preempted.`,
+						},
+						"local_ssd_recovery_timeout": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Specifies the maximum amount of time a Local Ssd Vm should wait while
+  recovery of the Local Ssd state is attempted. Its value should be in
+  between 0 and 168 hours with hour granularity and the default value being 1
+  hour.`,
+
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"seconds": {
+										Type:     schema.TypeInt,
+										Required: true,
+										ForceNew: true,
+										Description: `Span of time at a resolution of a second.
+Must be from 0 to 315,576,000,000 inclusive.`,
+									},
+									"nanos": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										ForceNew: true,
+										Description: `Span of time that's a fraction of a second at nanosecond
+resolution. Durations less than one second are represented
+with a 0 seconds field and a positive nanos field. Must
+be from 0 to 999,999,999 inclusive.`,
+									},
+								},
+							},
 						},
 					},
 				},

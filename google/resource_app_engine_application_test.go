@@ -16,12 +16,14 @@ func TestAccAppEngineApplication_basic(t *testing.T) {
 
 	org := envvar.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	billingAccount := envvar.GetTestBillingAccountFromEnv(t)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAppEngineApplication_basic(pid, org),
+				Config: testAccAppEngineApplication_basic(pid, org, billingAccount),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("google_app_engine_application.acceptance", "url_dispatch_rule.#"),
 					resource.TestCheckResourceAttrSet("google_app_engine_application.acceptance", "name"),
@@ -36,7 +38,7 @@ func TestAccAppEngineApplication_basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccAppEngineApplication_update(pid, org),
+				Config: testAccAppEngineApplication_update(pid, org, billingAccount),
 			},
 			{
 				ResourceName:      "google_app_engine_application.acceptance",
@@ -52,13 +54,14 @@ func TestAccAppEngineApplication_withIAP(t *testing.T) {
 
 	org := envvar.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	billingAccount := envvar.GetTestBillingAccountFromEnv(t)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAppEngineApplication_withIAP(pid, org),
+				Config: testAccAppEngineApplication_withIAP(pid, org, billingAccount),
 			},
 			{
 				ResourceName:            "google_app_engine_application.acceptance",
@@ -70,12 +73,13 @@ func TestAccAppEngineApplication_withIAP(t *testing.T) {
 	})
 }
 
-func testAccAppEngineApplication_withIAP(pid, org string) string {
+func testAccAppEngineApplication_withIAP(pid, org, billingAccount string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
   org_id     = "%s"
+  billing_account = "%s"
 }
 
 resource "google_app_engine_application" "acceptance" {
@@ -90,15 +94,16 @@ resource "google_app_engine_application" "acceptance" {
     oauth2_client_secret = "test"
   }
 }
-`, pid, pid, org)
+`, pid, pid, org, billingAccount)
 }
 
-func testAccAppEngineApplication_basic(pid, org string) string {
+func testAccAppEngineApplication_basic(pid, org, billingAccount string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
   org_id     = "%s"
+  billing_account = "%s"
 }
 
 resource "google_app_engine_application" "acceptance" {
@@ -108,15 +113,16 @@ resource "google_app_engine_application" "acceptance" {
   database_type  = "CLOUD_DATASTORE_COMPATIBILITY"
   serving_status = "SERVING"
 }
-`, pid, pid, org)
+`, pid, pid, org, billingAccount)
 }
 
-func testAccAppEngineApplication_update(pid, org string) string {
+func testAccAppEngineApplication_update(pid, org, billingAccount string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
   org_id     = "%s"
+  billing_account = "%s"
 }
 
 resource "google_app_engine_application" "acceptance" {
@@ -126,5 +132,5 @@ resource "google_app_engine_application" "acceptance" {
   database_type  = "CLOUD_DATASTORE_COMPATIBILITY"
   serving_status = "USER_DISABLED"
 }
-`, pid, pid, org)
+`, pid, pid, org, billingAccount)
 }

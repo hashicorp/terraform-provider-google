@@ -19,6 +19,7 @@ package google
 
 import (
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
@@ -31,9 +32,10 @@ func TestAccIdentityPlatformConfig_identityPlatformConfigBasicExample(t *testing
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"org_id":           envvar.GetTestOrgFromEnv(t),
+		"billing_acct":     envvar.GetTestBillingAccountFromEnv(t),
+		"quota_start_time": time.Now().AddDate(0, 0, 1).Format(time.RFC3339),
+		"random_suffix":    acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -73,6 +75,29 @@ resource "google_project_service" "identitytoolkit" {
 resource "google_identity_platform_config" "default" {
   project = google_project.default.project_id
   autodelete_anonymous_users = true
+  blocking_functions {
+    triggers {
+      event_type = "beforeSignIn"
+      function_uri = "https://us-east1-tf-test-my-project%{random_suffix}.cloudfunctions.net/before-sign-in"
+    }
+    forward_inbound_credentials {
+      refresh_token = true
+      access_token = true
+      id_token = true
+    }
+  }
+  quota {
+    sign_up_quota_config {
+      quota = 1000
+      start_time = "%{quota_start_time}"
+      quota_duration = "7200s"
+    }
+  }
+  authorized_domains = [
+    "localhost",
+    "tf-test-my-project%{random_suffix}.firebaseapp.com",
+    "tf-test-my-project%{random_suffix}.web.app",
+  ]
 }
 `, context)
 }

@@ -96,6 +96,10 @@ resource "google_healthcare_fhir_store" "default" {
       dataset_uri = "bq://${google_bigquery_dataset.bq_dataset.project}.${google_bigquery_dataset.bq_dataset.dataset_id}"
       schema_config {
         recursive_structure_depth = 3
+        last_updated_partition_config {
+          type = "HOUR"
+          expiration_ms = 1000000
+        }
       }
     }
   }
@@ -180,8 +184,9 @@ resource "google_healthcare_fhir_store" "default" {
   }
 
   notification_configs {
-    pubsub_topic       = "${google_pubsub_topic.topic.id}"
-    send_full_resource = true
+    pubsub_topic                     = "${google_pubsub_topic.topic.id}"
+    send_full_resource               = true
+    send_previous_resource_on_delete = true
   }
 }
 
@@ -355,6 +360,23 @@ The following arguments are supported:
   concept.concept but not concept.concept.concept. If not specified or set to 0, the server will use the default
   value 2. The maximum depth allowed is 5.
 
+* `last_updated_partition_config` -
+  (Optional)
+  The configuration for exported BigQuery tables to be partitioned by FHIR resource's last updated time column.
+  Structure is [documented below](#nested_last_updated_partition_config).
+
+
+<a name="nested_last_updated_partition_config"></a>The `last_updated_partition_config` block supports:
+
+* `type` -
+  (Required)
+  Type of partitioning.
+  Possible values are: `PARTITION_TYPE_UNSPECIFIED`, `HOUR`, `DAY`, `MONTH`, `YEAR`.
+
+* `expiration_ms` -
+  (Optional)
+  Number of milliseconds for which to keep the storage for a partition.
+
 <a name="nested_notification_configs"></a>The `notification_configs` block supports:
 
 * `pubsub_topic` -
@@ -373,6 +395,14 @@ The following arguments are supported:
   full FHIR resource. When a resource change is too large or during heavy traffic, only the resource name will be
   sent. Clients should always check the "payloadType" label from a Pub/Sub message to determine whether
   it needs to fetch the full resource as a separate operation.
+
+* `send_previous_resource_on_delete` -
+  (Optional)
+  Whether to send full FHIR resource to this Pub/Sub topic for deleting FHIR resource. Note that setting this to
+  true does not guarantee that all previous resources will be sent in the format of full FHIR resource. When a
+  resource change is too large or during heavy traffic, only the resource name will be sent. Clients should always
+  check the "payloadType" label from a Pub/Sub message to determine whether it needs to fetch the full previous
+  resource as a separate operation.
 
 ## Attributes Reference
 

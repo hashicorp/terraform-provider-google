@@ -27,13 +27,13 @@ A Certificate corresponds to a signed X.509 certificate issued by a Certificate.
 
 
 
-## Example Usage - Privateca Certificate Config
+## Example Usage - Privateca Certificate Generated Key
 
 
 ```hcl
 resource "google_privateca_ca_pool" "default" {
   location = "us-central1"
-  name = "my-pool"
+  name = "default"
   tier = "ENTERPRISE"
 }
 
@@ -76,12 +76,16 @@ resource "google_privateca_certificate_authority" "default" {
   ignore_active_certificates_on_deletion = true
 }
 
+resource "tls_private_key" "cert_key" {
+  algorithm = "RSA"
+}
+
 resource "google_privateca_certificate" "default" {
   location = "us-central1"
   pool = google_privateca_ca_pool.default.name
   certificate_authority = google_privateca_certificate_authority.default.certificate_authority_id
   lifetime = "86000s"
-  name = "my-certificate"
+  name = "cert-1"
   config {
     subject_config  {
       subject {
@@ -105,8 +109,8 @@ resource "google_privateca_certificate" "default" {
       }
       key_usage {
         base_key_usage {
-          crl_sign = false
-          decipher_only = false
+          cert_sign = true
+          crl_sign = true
         }
         extended_key_usage {
           server_auth = false
@@ -126,7 +130,7 @@ resource "google_privateca_certificate" "default" {
     }
     public_key {
       format = "PEM"
-      key = filebase64("test-fixtures/rsa_public.pem")
+      key = base64encode(tls_private_key.cert_key.public_key_pem)
     }
   }
 }

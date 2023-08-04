@@ -326,6 +326,7 @@ resource "google_compute_region_backend_service" "default" {
     tracking_mode                                = "PER_SESSION"
     connection_persistence_on_unhealthy_backends = "NEVER_PERSIST"
     idle_timeout_sec                             = 60
+    enable_strong_affinity                       = true
   }
 }
 
@@ -1061,6 +1062,10 @@ The following arguments are supported:
   generally not recommended to use this mode overriding the default.
   Default value is `DEFAULT_FOR_PROTOCOL`.
   Possible values are: `DEFAULT_FOR_PROTOCOL`, `NEVER_PERSIST`, `ALWAYS_PERSIST`.
+
+* `enable_strong_affinity` -
+  (Optional)
+  Enable Strong Session Affinity for Network Load Balancing. This option is not available publicly.
 
 <a name="nested_log_config"></a>The `log_config` block supports:
 

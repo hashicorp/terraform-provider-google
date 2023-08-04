@@ -136,6 +136,18 @@ supported is 1.`,
 					Type: schema.TypeString,
 				},
 			},
+			"reconcile_connections": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: `This flag determines whether a consumer accept/reject list change can reconcile the statuses of existing ACCEPTED or REJECTED PSC endpoints.
+
+If false, connection policy update will only affect existing PENDING PSC endpoints. Existing ACCEPTED/REJECTED endpoints will remain untouched regardless how the connection policy is modified .
+If true, update will affect both PENDING and ACCEPTED/REJECTED PSC endpoints. For example, an ACCEPTED PSC endpoint will be moved to REJECTED if its project is added to the reject list.
+
+For newly created service attachment, this boolean defaults to true.`,
+				Default: true,
+			},
 			"region": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -253,6 +265,12 @@ func resourceComputeServiceAttachmentCreate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("consumer_accept_lists"); ok || !reflect.DeepEqual(v, consumerAcceptListsProp) {
 		obj["consumerAcceptLists"] = consumerAcceptListsProp
+	}
+	reconcileConnectionsProp, err := expandComputeServiceAttachmentReconcileConnections(d.Get("reconcile_connections"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("reconcile_connections"); ok || !reflect.DeepEqual(v, reconcileConnectionsProp) {
+		obj["reconcileConnections"] = reconcileConnectionsProp
 	}
 	regionProp, err := expandComputeServiceAttachmentRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -386,6 +404,9 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
 	if err := d.Set("consumer_accept_lists", flattenComputeServiceAttachmentConsumerAcceptLists(res["consumerAcceptLists"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err := d.Set("reconcile_connections", flattenComputeServiceAttachmentReconcileConnections(res["reconcileConnections"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
 	if err := d.Set("region", flattenComputeServiceAttachmentRegion(res["region"], d, config)); err != nil {
@@ -678,6 +699,10 @@ func flattenComputeServiceAttachmentConsumerAcceptListsConnectionLimit(v interfa
 	return v // let terraform core handle it otherwise
 }
 
+func flattenComputeServiceAttachmentReconcileConnections(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeServiceAttachmentRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -771,6 +796,10 @@ func expandComputeServiceAttachmentConsumerAcceptListsProjectIdOrNum(v interface
 }
 
 func expandComputeServiceAttachmentConsumerAcceptListsConnectionLimit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeServiceAttachmentReconcileConnections(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

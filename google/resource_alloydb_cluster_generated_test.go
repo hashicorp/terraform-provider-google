@@ -108,6 +108,11 @@ resource "google_alloydb_cluster" "full" {
     password = "tf-test-alloydb-cluster-full%{random_suffix}"
   }
 
+  continuous_backup_config {
+    enabled              = true
+    recovery_window_days = 14
+  }
+
   automated_backup_policy {
     location      = "us-central1"
     backup_window = "1800s"

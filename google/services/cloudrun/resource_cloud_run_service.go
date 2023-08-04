@@ -100,6 +100,27 @@ func cloudrunLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool 
 	return false
 }
 
+var cloudRunGoogleProvidedTemplateLabels = []string{
+	"run.googleapis.com/startupProbeType",
+}
+
+func cloudrunTemplateLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Suppress diffs for the labels provided by Google
+	for _, label := range cloudRunGoogleProvidedTemplateLabels {
+		if strings.Contains(k, label) && new == "" {
+			return true
+		}
+	}
+
+	// Let diff be determined by labels (above)
+	if strings.Contains(k, "labels.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
+}
+
 func ResourceCloudRunService() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudRunServiceCreate,
@@ -797,8 +818,10 @@ keys to configure features on a Revision template:
 										Elem: &schema.Schema{Type: schema.TypeString},
 									},
 									"labels": {
-										Type:     schema.TypeMap,
-										Optional: true,
+										Type:             schema.TypeMap,
+										Computed:         true,
+										Optional:         true,
+										DiffSuppressFunc: cloudrunTemplateLabelDiffSuppress,
 										Description: `Map of string keys and values that can be used to organize and categorize
 (scope and select) objects.`,
 										Elem: &schema.Schema{Type: schema.TypeString},
@@ -1030,6 +1053,46 @@ controller.
 
 Clients polling for completed reconciliation should poll until observedGeneration =
 metadata.generation and the Ready condition's status is True or False.`,
+						},
+						"traffic": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Description: `Traffic specifies how to distribute traffic over a collection of Knative Revisions
+and Configurations`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"latest_revision": {
+										Type:     schema.TypeBool,
+										Computed: true,
+										Description: `LatestRevision may be optionally provided to indicate that the latest ready
+Revision of the Configuration should be used for this traffic target. When
+provided LatestRevision must be true if RevisionName is empty; it must be
+false when RevisionName is non-empty.`,
+									},
+									"percent": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: `Percent specifies percent of the traffic to this Revision or Configuration.`,
+									},
+									"revision_name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `RevisionName of a specific revision to which to send this portion of traffic.`,
+									},
+									"tag": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Tag is optionally used to expose a dedicated url for referencing this target exclusively.`,
+									},
+									"url": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Description: `URL displays the URL for accessing tagged traffic targets. URL is displayed in status,
+and is disallowed on spec. URL must contain a scheme (e.g. http://) and a hostname,
+but may not contain anything else (e.g. basic auth, url path, etc.)`,
+									},
+								},
+							},
 						},
 						"url": {
 							Type:     schema.TypeString,
@@ -2518,6 +2581,8 @@ func flattenCloudRunServiceStatus(v interface{}, d *schema.ResourceData, config 
 		flattenCloudRunServiceStatusLatestCreatedRevisionName(original["latestCreatedRevisionName"], d, config)
 	transformed["latest_ready_revision_name"] =
 		flattenCloudRunServiceStatusLatestReadyRevisionName(original["latestReadyRevisionName"], d, config)
+	transformed["traffic"] =
+		flattenCloudRunServiceStatusTraffic(original["traffic"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudRunServiceStatusConditions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2583,6 +2648,61 @@ func flattenCloudRunServiceStatusLatestCreatedRevisionName(v interface{}, d *sch
 }
 
 func flattenCloudRunServiceStatusLatestReadyRevisionName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunServiceStatusTraffic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"revision_name":   flattenCloudRunServiceStatusTrafficRevisionName(original["revisionName"], d, config),
+			"percent":         flattenCloudRunServiceStatusTrafficPercent(original["percent"], d, config),
+			"tag":             flattenCloudRunServiceStatusTrafficTag(original["tag"], d, config),
+			"latest_revision": flattenCloudRunServiceStatusTrafficLatestRevision(original["latestRevision"], d, config),
+			"url":             flattenCloudRunServiceStatusTrafficUrl(original["url"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCloudRunServiceStatusTrafficRevisionName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunServiceStatusTrafficPercent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunServiceStatusTrafficTag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunServiceStatusTrafficLatestRevision(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunServiceStatusTrafficUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

@@ -553,6 +553,24 @@ func schemaNodeConfig() *schema.Schema {
 						},
 					},
 				},
+				"host_maintenance_policy": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					Description: `The maintenance policy for the hosts on which the GKE VMs run on.`,
+					ForceNew:    true,
+					MaxItems:    1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"maintenance_interval": {
+								Type:         schema.TypeString,
+								Required:     true,
+								ForceNew:     true,
+								Description:  `.`,
+								ValidateFunc: validation.StringInSlice([]string{"MAINTENANCE_INTERVAL_UNSPECIFIED", "AS_NEEDED", "PERIODIC"}, false),
+							},
+						},
+					},
+				},
 			},
 		},
 	}

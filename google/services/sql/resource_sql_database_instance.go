@@ -326,7 +326,7 @@ is set to true. Defaults to ZONAL.`,
 										Computed:     true,
 										Optional:     true,
 										AtLeastOneOf: backupConfigurationKeys,
-										Description:  `The number of days of transaction logs we retain for point in time restore, from 1-7.`,
+										Description:  `The number of days of transaction logs we retain for point in time restore, from 1-7. (For PostgreSQL Enterprise Plus instances, from 1 to 35.)`,
 									},
 									"backup_retention_settings": {
 										Type:         schema.TypeList,

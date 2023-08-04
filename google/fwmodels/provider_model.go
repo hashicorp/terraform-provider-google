@@ -71,6 +71,7 @@ type ProviderModel struct {
 	DialogflowCXCustomEndpoint             types.String `tfsdk:"dialogflow_cx_custom_endpoint"`
 	DNSCustomEndpoint                      types.String `tfsdk:"dns_custom_endpoint"`
 	DocumentAICustomEndpoint               types.String `tfsdk:"document_ai_custom_endpoint"`
+	DocumentAIWarehouseCustomEndpoint      types.String `tfsdk:"document_ai_warehouse_custom_endpoint"`
 	EssentialContactsCustomEndpoint        types.String `tfsdk:"essential_contacts_custom_endpoint"`
 	FilestoreCustomEndpoint                types.String `tfsdk:"filestore_custom_endpoint"`
 	FirestoreCustomEndpoint                types.String `tfsdk:"firestore_custom_endpoint"`
@@ -90,6 +91,7 @@ type ProviderModel struct {
 	MemcacheCustomEndpoint                 types.String `tfsdk:"memcache_custom_endpoint"`
 	MLEngineCustomEndpoint                 types.String `tfsdk:"ml_engine_custom_endpoint"`
 	MonitoringCustomEndpoint               types.String `tfsdk:"monitoring_custom_endpoint"`
+	NetworkConnectivityCustomEndpoint      types.String `tfsdk:"network_connectivity_custom_endpoint"`
 	NetworkManagementCustomEndpoint        types.String `tfsdk:"network_management_custom_endpoint"`
 	NetworkSecurityCustomEndpoint          types.String `tfsdk:"network_security_custom_endpoint"`
 	NetworkServicesCustomEndpoint          types.String `tfsdk:"network_services_custom_endpoint"`
@@ -140,7 +142,6 @@ type ProviderModel struct {
 	CloudResourceManagerCustomEndpoint types.String `tfsdk:"cloud_resource_manager_custom_endpoint"`
 	EventarcCustomEndpoint             types.String `tfsdk:"eventarc_custom_endpoint"`
 	FirebaserulesCustomEndpoint        types.String `tfsdk:"firebaserules_custom_endpoint"`
-	NetworkConnectivityCustomEndpoint  types.String `tfsdk:"network_connectivity_custom_endpoint"`
 	OrgPolicyCustomEndpoint            types.String `tfsdk:"org_policy_custom_endpoint"`
 	RecaptchaEnterpriseCustomEndpoint  types.String `tfsdk:"recaptcha_enterprise_custom_endpoint"`
 }
