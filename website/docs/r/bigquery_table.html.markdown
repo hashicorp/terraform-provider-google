@@ -210,6 +210,10 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
 * `source_uris` - (Required) A list of the fully-qualified URIs that point to
     your data in Google Cloud.
 
+* `file_set_spec_type` - (Optional) Specifies how source URIs are interpreted for constructing the file set to load.
+    By default source URIs are expanded against the underlying storage.
+    Other options include specifying manifest files. Only applicable to object storage systems. [Docs](cloud/bigquery/docs/reference/rest/v2/tables#filesetspectype)
+
 * `reference_file_schema_uri` - (Optional) When creating an external table, the user can provide a reference file with the table schema. This is enabled for the following formats: AVRO, PARQUET, ORC.
 
 * `metadata_cache_mode` - (Optional) Metadata Cache Mode for the table. Set this to enable caching of metadata from external data source. Valid values are `AUTOMATIC` and `MANUAL`.

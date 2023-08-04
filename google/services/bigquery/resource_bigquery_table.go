@@ -457,6 +457,12 @@ func ResourceBigQueryTable() *schema.Resource {
 							Description: `A list of the fully-qualified URIs that point to your data in Google Cloud.`,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
+						// FileSetSpecType: [Optional] Specifies how source URIs are interpreted for constructing the file set to load.  By default source URIs are expanded against the underlying storage.  Other options include specifying manifest files. Only applicable to object storage systems.
+						"file_set_spec_type": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Specifies how source URIs are interpreted for constructing the file set to load.  By default source URIs are expanded against the underlying storage.  Other options include specifying manifest files. Only applicable to object storage systems.`,
+						},
 						// Compression: [Optional] The compression type of the data source.
 						"compression": {
 							Type:         schema.TypeString,
@@ -1422,6 +1428,10 @@ func expandExternalDataConfiguration(cfg interface{}) (*bigquery.ExternalDataCon
 		edc.SourceUris = sourceUris
 	}
 
+	if v, ok := raw["file_set_spec_type"]; ok {
+		edc.FileSetSpecType = v.(string)
+	}
+
 	if v, ok := raw["compression"]; ok {
 		edc.Compression = v.(string)
 	}
@@ -1483,6 +1493,10 @@ func flattenExternalDataConfiguration(edc *bigquery.ExternalDataConfiguration) (
 
 	result["autodetect"] = edc.Autodetect
 	result["source_uris"] = edc.SourceUris
+
+	if edc.FileSetSpecType != "" {
+		result["file_set_spec_type"] = edc.FileSetSpecType
+	}
 
 	if edc.Compression != "" {
 		result["compression"] = edc.Compression

@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `external_data_configuration.file_set_spec_type` to `google_bigquery_table`
+```
