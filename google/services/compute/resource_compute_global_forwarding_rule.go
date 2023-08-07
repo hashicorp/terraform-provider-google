@@ -174,11 +174,11 @@ you create the resource.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"EXTERNAL", "EXTERNAL_MANAGED", "INTERNAL_SELF_MANAGED", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"EXTERNAL", "EXTERNAL_MANAGED", "INTERNAL_MANAGED", "INTERNAL_SELF_MANAGED", ""}),
 				Description: `Specifies the forwarding rule type.
 
 For more information about forwarding rules, refer to
-[Forwarding rule concepts](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts). Default value: "EXTERNAL" Possible values: ["EXTERNAL", "EXTERNAL_MANAGED", "INTERNAL_SELF_MANAGED"]`,
+[Forwarding rule concepts](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts). Default value: "EXTERNAL" Possible values: ["EXTERNAL", "EXTERNAL_MANAGED", "INTERNAL_MANAGED", "INTERNAL_SELF_MANAGED"]`,
 				Default: "EXTERNAL",
 			},
 			"metadata_filters": {
@@ -305,6 +305,20 @@ for details.
 					Type: schema.TypeString,
 				},
 			},
+			"subnetwork": {
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description: `This field identifies the subnetwork that the load balanced IP should
+belong to for this Forwarding Rule, used in internal load balancing and
+network load balancing with IPv6.
+
+If the network specified is in auto subnet mode, this field is optional.
+However, a subnetwork must be specified if the network is in custom subnet
+mode or when creating external forwarding rule with IPv6.`,
+			},
 			"base_forwarding_rule": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -414,6 +428,12 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("port_range"); !tpgresource.IsEmptyValue(reflect.ValueOf(portRangeProp)) && (ok || !reflect.DeepEqual(v, portRangeProp)) {
 		obj["portRange"] = portRangeProp
+	}
+	subnetworkProp, err := expandComputeGlobalForwardingRuleSubnetwork(d.Get("subnetwork"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("subnetwork"); !tpgresource.IsEmptyValue(reflect.ValueOf(subnetworkProp)) && (ok || !reflect.DeepEqual(v, subnetworkProp)) {
+		obj["subnetwork"] = subnetworkProp
 	}
 	targetProp, err := expandComputeGlobalForwardingRuleTarget(d.Get("target"), d, config)
 	if err != nil {
@@ -611,6 +631,9 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
 	if err := d.Set("port_range", flattenComputeGlobalForwardingRulePortRange(res["portRange"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
+	}
+	if err := d.Set("subnetwork", flattenComputeGlobalForwardingRuleSubnetwork(res["subnetwork"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
 	if err := d.Set("target", flattenComputeGlobalForwardingRuleTarget(res["target"], d, config)); err != nil {
@@ -920,6 +943,13 @@ func flattenComputeGlobalForwardingRulePortRange(v interface{}, d *schema.Resour
 	return v
 }
 
+func flattenComputeGlobalForwardingRuleSubnetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
+}
+
 func flattenComputeGlobalForwardingRuleTarget(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1051,6 +1081,14 @@ func expandComputeGlobalForwardingRuleNetwork(v interface{}, d tpgresource.Terra
 
 func expandComputeGlobalForwardingRulePortRange(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandComputeGlobalForwardingRuleSubnetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	f, err := tpgresource.ParseRegionalFieldValue("subnetworks", v.(string), "project", "region", "zone", d, config, true)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid value for subnetwork: %s", err)
+	}
+	return f.RelativeLink(), nil
 }
 
 func expandComputeGlobalForwardingRuleTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
