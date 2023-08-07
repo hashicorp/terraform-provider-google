@@ -1,0 +1,3 @@
+```release-note:enhancement
+pubsub: added `CloudStorageConfig` field to `google_pubsub_subscription` resource
+```
