@@ -1028,6 +1028,29 @@ func ResourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
+						"advanced_datapath_observability_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							MaxItems:    2,
+							Description: `Configuration of Advanced Datapath Observability features.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enable_metrics": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Whether or not the advanced datapath metrics are enabled.`,
+									},
+									"relay_mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										Description:  `Mode used to make Relay available.`,
+										ValidateFunc: validation.StringInSlice([]string{"DISABLED", "INTERNAL_VPC_LB", "EXTERNAL_LB"}, false),
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -4491,6 +4514,16 @@ func expandMonitoringConfig(configured interface{}) *container.MonitoringConfig 
 			Enabled: managed_prometheus["enabled"].(bool),
 		}
 	}
+
+	if v, ok := config["advanced_datapath_observability_config"]; ok && len(v.([]interface{})) > 0 {
+		advanced_datapath_observability_config := v.([]interface{})[0].(map[string]interface{})
+
+		mc.AdvancedDatapathObservabilityConfig = &container.AdvancedDatapathObservabilityConfig{
+			EnableMetrics: advanced_datapath_observability_config["enable_metrics"].(bool),
+			RelayMode:     advanced_datapath_observability_config["relay_mode"].(string),
+		}
+	}
+
 	return mc
 }
 
@@ -5181,7 +5214,20 @@ func flattenMonitoringConfig(c *container.MonitoringConfig) []map[string]interfa
 	if c.ManagedPrometheusConfig != nil {
 		result["managed_prometheus"] = flattenManagedPrometheusConfig(c.ManagedPrometheusConfig)
 	}
+	if c.AdvancedDatapathObservabilityConfig != nil {
+		result["advanced_datapath_observability_config"] = flattenAdvancedDatapathObservabilityConfig(c.AdvancedDatapathObservabilityConfig)
+	}
+
 	return []map[string]interface{}{result}
+}
+
+func flattenAdvancedDatapathObservabilityConfig(c *container.AdvancedDatapathObservabilityConfig) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"enable_metrics": c.EnableMetrics,
+			"relay_mode":     c.RelayMode,
+		},
+	}
 }
 
 func flattenManagedPrometheusConfig(c *container.ManagedPrometheusConfig) []map[string]interface{} {
