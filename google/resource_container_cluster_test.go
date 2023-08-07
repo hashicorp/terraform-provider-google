@@ -4066,6 +4066,82 @@ resource "google_container_cluster" "with_private_endpoint_subnetwork" {
 `, containerNetName, s1Name, s1Cidr, s2Name, s2Cidr, clusterName)
 }
 
+func TestAccContainerCluster_withPrivateClusterConfigPrivateEndpointSubnetwork(t *testing.T) {
+	t.Parallel()
+
+	r := acctest.RandString(t, 10)
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	containerNetName := fmt.Sprintf("tf-test-container-net-%s", r)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withPrivateClusterConfigPrivateEndpointSubnetwork(containerNetName, clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_private_endpoint_subnetwork",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withPrivateClusterConfigPrivateEndpointSubnetwork(containerNetName, clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "container_subnetwork" {
+  name                     = google_compute_network.container_network.name
+  network                  = google_compute_network.container_network.name
+  ip_cidr_range            = "10.0.36.0/24"
+  region                   = "us-central1"
+  private_ip_google_access = true
+
+  secondary_ip_range {
+    range_name    = "pod"
+    ip_cidr_range = "10.0.0.0/19"
+  }
+
+  secondary_ip_range {
+    range_name    = "svc"
+    ip_cidr_range = "10.0.32.0/22"
+  }
+}
+
+resource "google_container_cluster" "with_private_endpoint_subnetwork" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  networking_mode    = "VPC_NATIVE"
+
+  network    = google_compute_network.container_network.name
+  subnetwork = google_compute_subnetwork.container_subnetwork.name
+
+  private_cluster_config {
+    enable_private_nodes        = true
+    enable_private_endpoint     = true
+    private_endpoint_subnetwork = google_compute_subnetwork.container_subnetwork.name
+  }
+  master_authorized_networks_config {
+    gcp_public_cidrs_access_enabled = false
+  }
+  ip_allocation_policy {
+    cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
+    services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
+  }
+}
+`, containerNetName, clusterName)
+}
+
 func TestAccContainerCluster_withEnablePrivateEndpointToggle(t *testing.T) {
 	t.Parallel()
 
