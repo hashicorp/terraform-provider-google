@@ -1,0 +1,9 @@
+```release-note:enhancement
+compute: added support for INTERNAL_MANAGED to the filed  `load_balancing_scheme` in the resource `google_compute_backend_service` 
+```
+```release-note:enhancement
+compute: added support for INTERNAL_MANAGED to the filed  `load_balancing_scheme` in the resource `google_compute_global_forwarding_rule`
+```
+```release-note:enhancement
+compute: added `subnetwork` field to the resource `google_compute_global_forwarding_rule`
+```
