@@ -5323,6 +5323,9 @@ func validatePrivateClusterConfig(cluster *container.Cluster) error {
 		return fmt.Errorf("master_ipv4_cidr_block can only be set if enable_private_nodes is true")
 	}
 	if cluster.PrivateClusterConfig.EnablePrivateNodes && len(cluster.PrivateClusterConfig.MasterIpv4CidrBlock) == 0 {
+		if len(cluster.PrivateClusterConfig.PrivateEndpointSubnetwork) > 0 {
+			return nil
+		}
 		if cluster.Autopilot == nil || !cluster.Autopilot.Enabled {
 			return fmt.Errorf("master_ipv4_cidr_block must be set if enable_private_nodes is true")
 		}
