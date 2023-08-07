@@ -1,4 +1,5 @@
-## 4.77.0 (Unreleased)
+## 4.78.0 (Unreleased)
+## 4.77.0 (August 7, 2023)
 
 NOTES:
 * vpcaccess: reverted the ability to update the number of instances for resource `google_vpc_access_connector` ([#15313](https://github.com/hashicorp/terraform-provider-google/pull/15313))
