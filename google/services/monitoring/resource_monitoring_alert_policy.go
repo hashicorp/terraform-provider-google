@@ -370,15 +370,6 @@ from a Prometheus alerting rule and its associated rule group.`,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"evaluation_interval": {
-										Type:     schema.TypeString,
-										Required: true,
-										Description: `How often this rule should be evaluated. Must be a positive multiple
-of 30 seconds or missing. The default value is 30 seconds. If this
-PrometheusQueryLanguageCondition was generated from a Prometheus
-alerting rule, then this value should be taken from the enclosing
-rule group.`,
-									},
 									"query": {
 										Type:     schema.TypeString,
 										Required: true,
@@ -408,6 +399,15 @@ valid Prometheus label name.`,
 to be "true" for this long. Alerts whose PromQL expression was not
 evaluated to be "true" for long enough are considered pending. The
 default value is zero. Must be zero or positive.`,
+									},
+									"evaluation_interval": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `How often this rule should be evaluated. Must be a positive multiple
+of 30 seconds or missing. The default value is 30 seconds. If this
+PrometheusQueryLanguageCondition was generated from a Prometheus
+alerting rule, then this value should be taken from the enclosing
+rule group.`,
 									},
 									"labels": {
 										Type:     schema.TypeMap,

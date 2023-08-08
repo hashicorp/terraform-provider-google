@@ -432,7 +432,6 @@ resource "google_monitoring_alert_policy" "promql" {
     condition_prometheus_query_language {
       query           = "vector(1)"
       duration        = "60s"
-      evaluation_interval = "60s"
       labels = {
         "severity" = "page"
       }
