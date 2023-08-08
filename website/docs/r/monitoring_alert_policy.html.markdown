@@ -773,7 +773,7 @@ The following arguments are supported:
   default value is zero. Must be zero or positive.
 
 * `evaluation_interval` -
-  (Required)
+  (Optional)
   How often this rule should be evaluated. Must be a positive multiple
   of 30 seconds or missing. The default value is 30 seconds. If this
   PrometheusQueryLanguageCondition was generated from a Prometheus

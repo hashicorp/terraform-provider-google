@@ -1,0 +1,3 @@
+```release-note:bug
+monitoring: updated `evaluation_interval` on `condition_prometheus_query_language` to be optional
+```
