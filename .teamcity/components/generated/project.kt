@@ -18,41 +18,76 @@ fun Google(environment: String, manualVcsRoot: AbsoluteId, branchRef: String, co
     return Project{
 
         // Create build configs for each package defined in packages.kt
-        var buildConfigs = buildConfigurationsForPackages(packages, providerName, "google", environment, manualVcsRoot, branchRef, configuration)
-        buildConfigs.forEach { buildConfiguration ->
+        val packageConfigs = buildConfigurationsForPackages(packages, providerName, environment, manualVcsRoot, branchRef, configuration)
+        packageConfigs.forEach { buildConfiguration ->
+            buildType(buildConfiguration)
+        }
+
+        // Create build configs for each service package defined in services.kt
+        val servicePackageConfigs = buildConfigurationsForPackages(services, providerName, environment, manualVcsRoot, branchRef, configuration)
+        servicePackageConfigs.forEach { buildConfiguration ->
+            buildType(buildConfiguration)
+        }
+
+        // Create build configs for sweepers, including dependencies on all builds made above
+        val allDependencyIds = ArrayList<String>()
+        (packageConfigs + servicePackageConfigs).forEach { config ->
+            allDependencyIds.add(config.id.toString())
+        }
+        val sweeperPackageConfigs = buildConfigurationsForSweepers(sweepers, providerName, environment, manualVcsRoot, branchRef, configuration, allDependencyIds)
+        sweeperPackageConfigs.forEach { buildConfiguration ->
             buildType(buildConfiguration)
         }
     }
 }
 
-fun buildConfigurationsForPackages(packages: Map<String, String>, providerName : String, path : String, environment: String, manualVcsRoot: AbsoluteId, branchRef: String, config: ClientConfiguration): List<BuildType> {
+fun buildConfigurationsForPackages(packages: Map<String, Map<String, String>>, providerName : String, environment: String, manualVcsRoot: AbsoluteId, branchRef: String, environmentVariables: ClientConfiguration): List<BuildType> {
+    val triggerConfig = NightlyTriggerConfiguration(environment, branchRef)
     var list = ArrayList<BuildType>()
 
-    packages.forEach { (packageName, displayName) ->
-        if (packageName == "services") {
-            // `services` is a folder containing packages, not a package itself; call buildConfigurationsForPackages to iterate through directories found within `services`
-            var serviceList = buildConfigurationsForPackages(services, providerName, path+"/"+packageName, environment, manualVcsRoot, branchRef, config)
-            list.addAll(serviceList)
-        } else {
-            // other folders assumed to be packages
-            var testConfig = testConfiguration(environment)
+    // Create build configurations for all packages, except sweeper
+    packages.forEach { (packageName, info) ->
 
-            var pkg = packageDetails(packageName, displayName, environment, branchRef)
-            var buildConfig = pkg.buildConfiguration(providerName, path, manualVcsRoot, true, testConfig.startHour, testConfig.parallelism, testConfig.daysOfWeek, testConfig.daysOfMonth)
+        val path: String = info.getValue("path").toString()
+        val name: String = info.getValue("name").toString()
+        val displayName: String = info.getValue("displayName").toString()
 
-            buildConfig.params.ConfigureGoogleSpecificTestParameters(config)
+        val pkg = packageDetails(packageName, displayName, providerName, environment)
+        val buildConfig = pkg.buildConfiguration(path, manualVcsRoot, defaultParallelism, triggerConfig, environmentVariables)
 
-            list.add(buildConfig)
-        }
+        list.add(buildConfig)
     }
 
     return list
 }
 
-class testConfiguration(environment: String, parallelism: Int = defaultParallelism, startHour: Int = defaultStartHour, daysOfWeek: String = defaultDaysOfWeek, daysOfMonth: String = defaultDaysOfMonth) {
+fun buildConfigurationsForSweepers(packages: Map<String, Map<String, String>>, providerName : String, environment: String, manualVcsRoot: AbsoluteId, branchRef: String, environmentVariables: ClientConfiguration, dependencies: ArrayList<String> ): List<BuildType> {
 
-    // Default values are present if init doesn't change them
-    var parallelism = parallelism
+    val triggerConfig = NightlyTriggerConfiguration(environment, branchRef)
+    var list = ArrayList<BuildType>()
+
+    val sweeperPackage : Map<String, String> = packages.getValue("sweeper")
+    val sweeperPath : String = sweeperPackage.getValue("path")!!.toString()
+    val s = sweeperBuildConfigs()
+
+    // Pre-Sweeper
+    val preSweeperConfig = s.preSweeperBuildConfig(sweeperPath, manualVcsRoot, defaultParallelism, environmentVariables)
+    list.add(preSweeperConfig)
+
+    // Post-Sweeper + dependencies + trigger
+    val postSweeperConfig = s.postSweeperBuildConfig(sweeperPath, manualVcsRoot, defaultParallelism, triggerConfig, environmentVariables, dependencies)
+    list.add(postSweeperConfig)
+
+    return list
+}
+
+class NightlyTriggerConfiguration(environment: String, branchRef: String, nightlyTestsEnabled: Boolean = true, startHour: Int = defaultStartHour, daysOfWeek: String = defaultDaysOfWeek, daysOfMonth: String = defaultDaysOfMonth) {
+
+    // Default values are used below unless
+    // - alternatives passed in as arguments
+    // - logic in `init` changes them based on environment
+    var branchRef = branchRef
+    var nightlyTestsEnabled = nightlyTestsEnabled
     var startHour = startHour
     var daysOfWeek = daysOfWeek
     var daysOfMonth = daysOfMonth
@@ -61,10 +96,7 @@ class testConfiguration(environment: String, parallelism: Int = defaultParalleli
         // If the environment parameter is set to the value of MAJOR_RELEASE_TESTING, 
         // change the days of week to the day for v5.0.0 feature branch testing
         if (environment == MAJOR_RELEASE_TESTING) {
-            this.parallelism = parallelism
-            this.startHour = startHour
             this.daysOfWeek = "4" // Thursday for GA
-            this.daysOfMonth = daysOfMonth
         }
     }
 

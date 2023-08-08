@@ -8,18 +8,18 @@
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.AbsoluteId
 
-class packageDetails(name: String, displayName: String, environment: String, branchRef: String) {
-    val packageName = name
+class packageDetails(packageName: String, displayName: String, providerName: String, environment: String) {
+    val packageName = packageName
     val displayName = displayName
+    val providerName = providerName
     val environment = environment
-    val branchRef = branchRef
 
     // buildConfiguration returns a BuildType for a service package
     // For BuildType docs, see https://teamcity.jetbrains.com/app/dsl-documentation/root/build-type/index.html
-    fun buildConfiguration(providerName : String, path : String, manualVcsRoot: AbsoluteId, nightlyTestsEnabled: Boolean, startHour: Int, parallelism: Int, daysOfWeek: String, daysOfMonth: String) : BuildType {
+    fun buildConfiguration(path: String, manualVcsRoot: AbsoluteId, parallelism: Int, environmentVariables: ClientConfiguration, buildTimeout: Int = defaultBuildTimeoutDuration) : BuildType {
         return BuildType {
             // TC needs a consistent ID for dynamically generated packages
-            id(uniqueID(providerName))
+            id(uniqueID())
 
             name = "%s - Acceptance Tests".format(displayName)
 
@@ -29,15 +29,10 @@ class packageDetails(name: String, displayName: String, environment: String, bra
             }
 
             steps {
+                SetGitCommitBuildId()
                 ConfigureGoEnv()
                 DownloadTerraformBinary()
-                // Adds steps:
-                // - Determine Working Directory for this Package
-                // - Pre-Sweeper
-                // - Compile Test Binary
-                // - Run via jen20/teamcity-go-test
-                // - Post-Sweeper
-                RunAcceptanceTests(path, packageName)
+                RunAcceptanceTests()
             }
 
             failureConditions {
@@ -49,26 +44,41 @@ class packageDetails(name: String, displayName: String, environment: String, bra
             }
 
             params {
-                TerraformAcceptanceTestParameters(parallelism, "TestAcc", "12", "us-central1", "")
+                ConfigureGoogleSpecificTestParameters(environmentVariables)
+                TerraformAcceptanceTestParameters(parallelism, "TestAcc", "12", "", "")
                 TerraformAcceptanceTestsFlag()
                 TerraformCoreBinaryTesting()
                 TerraformShouldPanicForSchemaErrors()
                 ReadOnlySettings()
-                WorkingDirectory(path, packageName)
+                WorkingDirectory(path)
             }
 
-            triggers {
-                RunNightly(nightlyTestsEnabled, startHour, daysOfWeek, daysOfMonth, branchRef)
+            // triggers are not set here because the dependent Post-Sweeper build causes these builds
+            // to be triggered; if these have their own trigger as well then they will run twice.
+            // This problem can be migitated via `reuseBuilds` in dependencies on Post-Sweeper
+            // but that mitigation doesn't appear to scale well as there are more packages
+
+            dependencies {
+                // Acceptance tests need the Pre-Sweeper step to have completed first
+                snapshot(RelativeId(preSweeperBuildConfigId)) {
+                    reuseBuilds = ReuseBuilds.ANY
+                    onDependencyFailure = FailureAction.IGNORE
+                    onDependencyCancel = FailureAction.ADD_PROBLEM
+                }
+            }
+
+            failureConditions {
+                executionTimeoutMin = buildTimeout
             }
         }
     }
 
-    fun uniqueID(provider : String) : String {
+    fun uniqueID() : String {
         // Replacing chars can be necessary, due to limitations on IDs
         // "ID should start with a latin letter and contain only latin letters, digits and underscores (at most 225 characters)." 
-        var pv = provider.replace("-", "").toUpperCase()
-        var env = environment.toUpperCase().replace("-", "").replace(".", "").toUpperCase()
-        var pkg = packageName.toUpperCase()
+        var pv = this.providerName.replace("-", "").toUpperCase()
+        var env = this.environment.toUpperCase().replace("-", "").replace(".", "").toUpperCase()
+        var pkg = this.packageName.toUpperCase()
 
         return "%s_SERVICE_%s_%s".format(pv, env, pkg)
     }
