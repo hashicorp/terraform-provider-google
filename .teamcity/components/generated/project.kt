@@ -53,7 +53,7 @@ fun buildConfigurationsForPackages(packages: Map<String, Map<String, String>>, p
         val displayName: String = info.getValue("displayName").toString()
 
         val pkg = packageDetails(packageName, displayName, providerName, environment)
-        val buildConfig = pkg.buildConfiguration(path, manualVcsRoot, defaultParallelism, triggerConfig, environmentVariables)
+        val buildConfig = pkg.buildConfiguration(path, manualVcsRoot, defaultParallelism, environmentVariables)
 
         list.add(buildConfig)
     }
