@@ -154,7 +154,7 @@ fun Triggers.RunNightly(config: NightlyTriggerConfiguration) {
 
         schedulingPolicy = cron {
             hours = "22"
-            minutes = "00"
+            minutes = "5"
             timezone = "SERVER"
 
             dayOfWeek = "*"
