@@ -436,18 +436,6 @@ The following arguments are supported:
   (Optional)
   Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image.
 
-* `liveness_probe` -
-  (Optional, Deprecated)
-  Periodic probe of container liveness. Container will be restarted if the probe fails. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-  This field is not supported in Cloud Run Job currently.
-  Structure is [documented below](#nested_liveness_probe).
-
-* `startup_probe` -
-  (Optional, Deprecated)
-  Startup probe of application within the container. All other probes are disabled if a startup probe is provided, until it succeeds. Container will not be added to service endpoints if the probe fails. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-  This field is not supported in Cloud Run Job currently.
-  Structure is [documented below](#nested_startup_probe).
-
 
 <a name="nested_env"></a>The `env` block supports:
 
@@ -508,120 +496,6 @@ The following arguments are supported:
 * `mount_path` -
   (Required)
   Path within the container at which the volume should be mounted. Must not contain ':'. For Cloud SQL volumes, it can be left empty, or must otherwise be /cloudsql. All instances defined in the Volume will be available as /cloudsql/[instance]. For more information on Cloud SQL volumes, visit https://cloud.google.com/sql/docs/mysql/connect-run
-
-<a name="nested_liveness_probe"></a>The `liveness_probe` block supports:
-
-* `initial_delay_seconds` -
-  (Optional)
-  Number of seconds after the container has started before the probe is initiated. Defaults to 0 seconds. Minimum value is 0. Maximum value for liveness probe is 3600. Maximum value for startup probe is 240. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-
-* `timeout_seconds` -
-  (Optional)
-  Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. Maximum value is 3600. Must be smaller than periodSeconds. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-
-* `period_seconds` -
-  (Optional)
-  How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1. Maximum value for liveness probe is 3600. Maximum value for startup probe is 240. Must be greater or equal than timeoutSeconds
-
-* `failure_threshold` -
-  (Optional)
-  Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.
-
-* `http_get` -
-  (Optional)
-  HTTPGet specifies the http request to perform. Exactly one of HTTPGet or TCPSocket must be specified.
-  Structure is [documented below](#nested_http_get).
-
-* `tcp_socket` -
-  (Optional)
-  TCPSocket specifies an action involving a TCP port. Exactly one of HTTPGet or TCPSocket must be specified.
-  Structure is [documented below](#nested_tcp_socket).
-
-
-<a name="nested_http_get"></a>The `http_get` block supports:
-
-* `path` -
-  (Optional)
-  Path to access on the HTTP server. Defaults to '/'.
-
-* `http_headers` -
-  (Optional)
-  Custom headers to set in the request. HTTP allows repeated headers.
-  Structure is [documented below](#nested_http_headers).
-
-
-<a name="nested_http_headers"></a>The `http_headers` block supports:
-
-* `name` -
-  (Required)
-  The header field name
-
-* `value` -
-  (Optional)
-  The header field value
-
-<a name="nested_tcp_socket"></a>The `tcp_socket` block supports:
-
-* `port` -
-  (Optional)
-  Port number to access on the container. Must be in the range 1 to 65535. If not specified, defaults to 8080.
-
-<a name="nested_startup_probe"></a>The `startup_probe` block supports:
-
-* `initial_delay_seconds` -
-  (Optional)
-  Number of seconds after the container has started before the probe is initiated. Defaults to 0 seconds. Minimum value is 0. Maximum value for liveness probe is 3600. Maximum value for startup probe is 240. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-
-* `timeout_seconds` -
-  (Optional)
-  Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. Maximum value is 3600. Must be smaller than periodSeconds. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-
-* `period_seconds` -
-  (Optional)
-  How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1. Maximum value for liveness probe is 3600. Maximum value for startup probe is 240. Must be greater or equal than timeoutSeconds
-
-* `failure_threshold` -
-  (Optional)
-  Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.
-
-* `http_get` -
-  (Optional)
-  HTTPGet specifies the http request to perform. Exactly one of HTTPGet or TCPSocket must be specified.
-  Structure is [documented below](#nested_http_get).
-
-* `tcp_socket` -
-  (Optional)
-  TCPSocket specifies an action involving a TCP port. Exactly one of HTTPGet or TCPSocket must be specified.
-  Structure is [documented below](#nested_tcp_socket).
-
-
-<a name="nested_http_get"></a>The `http_get` block supports:
-
-* `path` -
-  (Optional)
-  Path to access on the HTTP server. Defaults to '/'.
-
-* `http_headers` -
-  (Optional)
-  Custom headers to set in the request. HTTP allows repeated headers.
-  Structure is [documented below](#nested_http_headers).
-
-
-<a name="nested_http_headers"></a>The `http_headers` block supports:
-
-* `name` -
-  (Required)
-  The header field name
-
-* `value` -
-  (Optional)
-  The header field value
-
-<a name="nested_tcp_socket"></a>The `tcp_socket` block supports:
-
-* `port` -
-  (Optional)
-  Port number to access on the container. Must be in the range 1 to 65535. If not specified, defaults to 8080.
 
 <a name="nested_volumes"></a>The `volumes` block supports:
 

@@ -578,11 +578,6 @@ The following arguments are supported:
   HTTPGet specifies the http request to perform.
   Structure is [documented below](#nested_http_get).
 
-* `tcp_socket` -
-  (Optional, Deprecated)
-  TCPSocket specifies an action involving a TCP port. This field is not supported in liveness probe currently.
-  Structure is [documented below](#nested_tcp_socket).
-
 * `grpc` -
   (Optional)
   GRPC specifies an action involving a GRPC port.
@@ -615,12 +610,6 @@ The following arguments are supported:
 * `value` -
   (Optional)
   The header field value
-
-<a name="nested_tcp_socket"></a>The `tcp_socket` block supports:
-
-* `port` -
-  (Optional)
-  Port number to access on the container. Must be in the range 1 to 65535. If not specified, defaults to 8080.
 
 <a name="nested_grpc"></a>The `grpc` block supports:
 
