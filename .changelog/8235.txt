@@ -1,0 +1,3 @@
+```release-note:bug
+eventarc: added field `event_data_content_type` to `google_eventarc_trigger`
+```
