@@ -42,30 +42,10 @@ var packages = mapOf(
         "displayName" to "SDK Provider",
         "path" to "./google/provider"
     ),
-    "tpgdclresource" to mapOf(
-        "name" to "tpgdclresource",
-        "displayName" to "TPG DCL Resource",
-        "path" to "./google/tpgdclresource"
-    ),
-    "tpgiamresource" to mapOf(
-        "name" to "tpgiamresource",
-        "displayName" to "TPG IAM Resource",
-        "path" to "./google/tpgiamresource"
-    ),
-    "tpgresource" to mapOf(
-        "name" to "tpgresource",
-        "displayName" to "TPG Resource",
-        "path" to "./google/tpgresource"
-    ),
     "transport" to mapOf(
         "name" to "transport",
         "displayName" to "Transport",
         "path" to "./google/transport"
-    ),
-    "verify" to mapOf(
-        "name" to "verify",
-        "displayName" to "Verify",
-        "path" to "./google/verify"
     ),
     "google" to mapOf(
         "name" to "google",
