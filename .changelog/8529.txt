@@ -1,0 +1,6 @@
+```release-note:breaking-change
+cloudrunv2: Removed deprecated fields `startup_probe` and `liveness_probe` from `google_cloud_run_v2_job` resource.
+```
+```release-note:breaking-change
+cloudrunv2: Removed deprecated field `liveness_probe.tcp_socket` from `google_cloud_run_v2_service` resource. 
+```
