@@ -6,54 +6,29 @@
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.AbsoluteId
 
-class sweeperBuildConfigs() {
+class sweeperDetails() {
 
-    fun preSweeperBuildConfig(path: String, manualVcsRoot: AbsoluteId, parallelism: Int, environmentVariables: ClientConfiguration) : BuildType {
-        val testPrefix = "TestAcc"
-        val testTimeout = "12"
-        val sweeperRegions = "us-central1"
-        val sweeperRun = "" // Empty string means all sweepers run
-
-        val configName = "Pre-Sweeper"
-        val sweeperStepName = "Pre-Sweeper"
-        val id = "PRE_SWEEPER_TESTS"
-
-        val buildConfig = createBuildConfig(manualVcsRoot, id, configName, sweeperStepName, parallelism, testPrefix, testTimeout, sweeperRegions, sweeperRun, path, environmentVariables)
-        return buildConfig
-   }
-
-    fun postSweeperBuildConfig(path: String, manualVcsRoot: AbsoluteId, parallelism: Int, environmentVariables: ClientConfiguration) : BuildType {
-        val testPrefix = "TestAcc"
-        val testTimeout = "12"
-        val sweeperRegions = "us-central1"
-        val sweeperRun = "" // Empty string means all sweepers run
-
-        val configName = "Post-Sweeper"
-        val sweeperStepName = "Post-Sweeper"
-        val id = "POST_SWEEPER_TESTS"
-
-        return createBuildConfig(manualVcsRoot, id, configName, sweeperStepName, parallelism, testPrefix, testTimeout, sweeperRegions, sweeperRun, path, environmentVariables)
-    }
-
-    fun createBuildConfig(
-        manualVcsRoot: AbsoluteId,
-        configId: String,
-        configName: String,
-        sweeperStepName: String,
-        parallelism: Int,
-        testPrefix: String,
-        testTimeout: String,
-        sweeperRegions: String,
-        sweeperRun: String,
+    fun sweeperBuildConfig(
+        sweeperName: String,
         path: String,
+        providerName: String,
+        manualVcsRoot: AbsoluteId,
+        parallelism: Int,
         environmentVariables: ClientConfiguration,
         buildTimeout: Int = defaultBuildTimeoutDuration
         ) : BuildType {
+
+        // These hardcoded values affect the sweeper CLI command's behaviour
+        val testPrefix: String = "TestAcc"
+        val testTimeout: String = "12"
+        val sweeperRegions: String = "us-central1"
+        val sweeperRun: String = "" // Empty string means all sweepers run
+        
         return BuildType {
 
-            id(configId)
+            id(createID(sweeperName))
 
-            name = configName
+            name = sweeperName
 
             vcs {
                 root(rootId = manualVcsRoot)
@@ -64,7 +39,7 @@ class sweeperBuildConfigs() {
                 SetGitCommitBuildId()
                 ConfigureGoEnv()
                 DownloadTerraformBinary()
-                RunSweepers(sweeperStepName)
+                RunSweepers(sweeperName)
             }
 
             features {
@@ -88,5 +63,11 @@ class sweeperBuildConfigs() {
 
             // NOTE: dependencies and triggers are added by methods after the BuildType object is created
         }
+    }
+
+    fun createID(name: String) : String {
+        // Replacing chars can be necessary, due to limitations on IDs
+        // "ID should start with a latin letter and contain only latin letters, digits and underscores (at most 225 characters)." 
+        return name.replace("-", "_").toUpperCase()
     }
 }

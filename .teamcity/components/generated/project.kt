@@ -14,15 +14,13 @@ const val providerName = "google"
 // See https://teamcity.jetbrains.com/app/dsl-documentation/root/project/index.html
 fun Google(environment: String, manualVcsRoot: AbsoluteId, branchRef: String, configuration: ClientConfiguration) : Project {
 
-    // Create build configs for each package defined in packages.kt
-    val packageConfigs = buildConfigurationsForPackages(packages, providerName, environment, manualVcsRoot, configuration)
-
-    // Create build configs for each service package defined in services.kt
-    val servicePackageConfigs = buildConfigurationsForPackages(services, providerName, environment, manualVcsRoot, configuration)
+    // Create build configs for each package defined in packages.kt and services.kt files
+    val allPackages = packages + services
+    val packageConfigs = buildConfigurationsForPackages(allPackages, providerName, environment, manualVcsRoot, configuration)
 
     // Create build configs for sweepers
-    val preSweeperConfig = buildConfigurationForPreSweeper(sweepers, providerName, manualVcsRoot, configuration)
-    val postSweeperConfig = buildConfigurationForPostSweeper(sweepers, providerName, manualVcsRoot, configuration)
+    val preSweeperConfig = buildConfigurationForSweeper("Pre-Sweeper", sweepers, providerName, manualVcsRoot, configuration)
+    val postSweeperConfig = buildConfigurationForSweeper("Post-Sweeper", sweepers, providerName, manualVcsRoot, configuration)
 
     // Add trigger to last step of build chain (post-sweeper)
     val triggerConfig = NightlyTriggerConfiguration(environment, branchRef)
@@ -32,7 +30,7 @@ fun Google(environment: String, manualVcsRoot: AbsoluteId, branchRef: String, co
 
         // Register build configs in the project
         buildType(preSweeperConfig)
-        (packageConfigs + servicePackageConfigs).forEach { buildConfiguration ->
+        packageConfigs.forEach { buildConfiguration ->
             buildType(buildConfiguration)
         }
         buildType(postSweeperConfig)
@@ -43,7 +41,7 @@ fun Google(environment: String, manualVcsRoot: AbsoluteId, branchRef: String, co
             buildType(preSweeperConfig)
 
             parallel{
-                (packageConfigs + servicePackageConfigs).forEach { buildConfiguration ->
+                packageConfigs.forEach { buildConfiguration ->
                     buildType(buildConfiguration)
                 }
             }
@@ -70,22 +68,12 @@ fun buildConfigurationsForPackages(packages: Map<String, Map<String, String>>, p
     return list
 }
 
-fun buildConfigurationForPreSweeper(packages: Map<String, Map<String, String>>, providerName : String, manualVcsRoot: AbsoluteId, environmentVariables: ClientConfiguration): BuildType {
+fun buildConfigurationForSweeper(sweeperName: String, packages: Map<String, Map<String, String>>, providerName: String, manualVcsRoot: AbsoluteId, environmentVariables: ClientConfiguration): BuildType {
     val sweeperPackage : Map<String, String> = packages.getValue("sweeper")
     val sweeperPath : String = sweeperPackage.getValue("path")!!.toString()
-    val s = sweeperBuildConfigs()
+    val s = sweeperDetails()
 
-    // Pre-Sweeper
-    return s.preSweeperBuildConfig(sweeperPath, manualVcsRoot, defaultParallelism, environmentVariables)
-}
-
-fun buildConfigurationForPostSweeper(packages: Map<String, Map<String, String>>, providerName : String, manualVcsRoot: AbsoluteId, environmentVariables: ClientConfiguration): BuildType {
-    val sweeperPackage : Map<String, String> = packages.getValue("sweeper")
-    val sweeperPath : String = sweeperPackage.getValue("path")!!.toString()
-    val s = sweeperBuildConfigs()
-
-    // Post-Sweeper
-    return s.postSweeperBuildConfig(sweeperPath, manualVcsRoot, defaultParallelism, environmentVariables)
+    return s.sweeperBuildConfig(sweeperName, sweeperPath, providerName, manualVcsRoot, defaultParallelism, environmentVariables)
 }
 
 class NightlyTriggerConfiguration(environment: String, branchRef: String, nightlyTestsEnabled: Boolean = true, startHour: Int = defaultStartHour, daysOfWeek: String = defaultDaysOfWeek, daysOfMonth: String = defaultDaysOfMonth) {

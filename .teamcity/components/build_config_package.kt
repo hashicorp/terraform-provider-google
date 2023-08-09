@@ -16,6 +16,12 @@ class packageDetails(packageName: String, displayName: String, providerName: Str
     // buildConfiguration returns a BuildType for a service package
     // For BuildType docs, see https://teamcity.jetbrains.com/app/dsl-documentation/root/build-type/index.html
     fun buildConfiguration(path: String, manualVcsRoot: AbsoluteId, parallelism: Int, environmentVariables: ClientConfiguration, buildTimeout: Int = defaultBuildTimeoutDuration) : BuildType {
+
+        val testPrefix: String = "TestAcc"
+        val testTimeout: String = "12"
+        val sweeperRegions: String = "" // Not used
+        val sweeperRun: String = "" // Not used
+
         return BuildType {
             // TC needs a consistent ID for dynamically generated packages
             id(uniqueID())
@@ -40,7 +46,9 @@ class packageDetails(packageName: String, displayName: String, providerName: Str
 
             params {
                 ConfigureGoogleSpecificTestParameters(environmentVariables)
-                TerraformAcceptanceTestParameters(parallelism, "TestAccCloudBuild", "12", "", "")
+                // TODO(SarahFrench) Split TerraformAcceptanceTestParameters function into 2: one that's used for all tests/sweeper commands, and one that's specific to sweepers
+                // We shouldn't be adding sweeper-specific parameters to non-sweeper builds
+                TerraformAcceptanceTestParameters(parallelism, testPrefix, testTimeout, sweeperRegions, sweeperRun)
                 TerraformAcceptanceTestsFlag()
                 TerraformCoreBinaryTesting()
                 TerraformShouldPanicForSchemaErrors()

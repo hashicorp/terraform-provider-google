@@ -105,6 +105,7 @@ fun BuildSteps.RunAcceptanceTests() {
     }
 }
 
+// TODO(SarahFrench) Split this function into 2: one that's used for all tests/sweeper commands, and one that's specific to sweepers
 fun ParametrizedWithType.TerraformAcceptanceTestParameters(parallelism : Int, prefix : String, timeout: String, sweeperRegions: String, sweepRun: String) {
     text("PARALLELISM", "%d".format(parallelism))
     text("TEST_PREFIX", prefix)
