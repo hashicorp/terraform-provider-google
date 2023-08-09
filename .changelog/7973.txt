@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed view and materialized view creation when schema is specified
+```
