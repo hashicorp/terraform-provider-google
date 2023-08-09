@@ -17,7 +17,7 @@ class packageDetails(packageName: String, displayName: String, providerName: Str
     // For BuildType docs, see https://teamcity.jetbrains.com/app/dsl-documentation/root/build-type/index.html
     fun buildConfiguration(path: String, manualVcsRoot: AbsoluteId, parallelism: Int, environmentVariables: ClientConfiguration, buildTimeout: Int = defaultBuildTimeoutDuration) : BuildType {
 
-        val testPrefix: String = "TestAcc"
+        val testPrefix: String = "TestAccCloudBuild"
         val testTimeout: String = "12"
         val sweeperRegions: String = "" // Not used
         val sweeperRun: String = "" // Not used

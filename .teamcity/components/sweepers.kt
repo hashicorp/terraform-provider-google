@@ -22,7 +22,7 @@ class sweeperDetails() {
         val testPrefix: String = "TestAcc"
         val testTimeout: String = "12"
         val sweeperRegions: String = "us-central1"
-        val sweeperRun: String = "" // Empty string means all sweepers run
+        val sweeperRun: String = "CloudBuildTrigger" // Empty string means all sweepers run
         
         return BuildType {
 
