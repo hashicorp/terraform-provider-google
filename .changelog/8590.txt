@@ -1,0 +1,3 @@
+```release-note:none
+docs: changed the subcategory to AlloyDB for datasources `google_alloydb_locations` and `google_alloydb_supported_database_flags` 
+```
