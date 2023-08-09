@@ -16,8 +16,9 @@ class sweeperBuildConfigs() {
 
         val configName = "Pre-Sweeper"
         val sweeperStepName = "Pre-Sweeper"
+        val id = "PRE_SWEEPER_TESTS"
 
-        val buildConfig = createBuildConfig(manualVcsRoot, preSweeperBuildConfigId, configName, sweeperStepName, parallelism, testPrefix, testTimeout, sweeperRegions, sweeperRun, path, environmentVariables)
+        val buildConfig = createBuildConfig(manualVcsRoot, id, configName, sweeperStepName, parallelism, testPrefix, testTimeout, sweeperRegions, sweeperRun, path, environmentVariables)
         return buildConfig
    }
 
@@ -29,8 +30,9 @@ class sweeperBuildConfigs() {
 
         val configName = "Post-Sweeper"
         val sweeperStepName = "Post-Sweeper"
+        val id = "POST_SWEEPER_TESTS"
 
-        return createBuildConfig(manualVcsRoot, postSweeperBuildConfigId, configName, sweeperStepName, parallelism, testPrefix, testTimeout, sweeperRegions, sweeperRun, path, environmentVariables)
+        return createBuildConfig(manualVcsRoot, id, configName, sweeperStepName, parallelism, testPrefix, testTimeout, sweeperRegions, sweeperRun, path, environmentVariables)
     }
 
     fun createBuildConfig(

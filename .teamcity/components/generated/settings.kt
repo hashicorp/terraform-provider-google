@@ -23,10 +23,6 @@ const val defaultDaysOfMonth = "*"
 // Value used to make long-running builds fail due to a timeout
 const val defaultBuildTimeoutDuration = 60 * 12 //12 hours in minutes
 
-// Sweeper Ids need to be globally accessible to allow setting up dependencies
-const val preSweeperBuildConfigId = "GOOGLE_PRE_SWEEPER_TESTS"
-const val postSweeperBuildConfigId = "GOOGLE_POST_SWEEPER_TESTS"
-
 // Values that `environment` parameter is checked against,
 // when deciding to change how TeamCity objects are configured
 const val MAJOR_RELEASE_TESTING = "major-release-5.0.0-testing"
