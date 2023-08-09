@@ -5,9 +5,7 @@
 
 // this file is auto-generated with mmv1, any changes made here will be overwritten
 
-import jetbrains.buildServer.configs.kotlin.BuildType
-import jetbrains.buildServer.configs.kotlin.Project
-import jetbrains.buildServer.configs.kotlin.AbsoluteId
+import jetbrains.buildServer.configs.kotlin.*
 
 const val providerName = "google"
 
@@ -15,70 +13,79 @@ const val providerName = "google"
 // which has multiple build configurations defined within it.
 // See https://teamcity.jetbrains.com/app/dsl-documentation/root/project/index.html
 fun Google(environment: String, manualVcsRoot: AbsoluteId, branchRef: String, configuration: ClientConfiguration) : Project {
+
+    // Create build configs for each package defined in packages.kt
+    val packageConfigs = buildConfigurationsForPackages(packages, providerName, environment, manualVcsRoot, configuration)
+
+    // Create build configs for each service package defined in services.kt
+    val servicePackageConfigs = buildConfigurationsForPackages(services, providerName, environment, manualVcsRoot, configuration)
+
+    // Create build configs for sweepers
+    val preSweeperConfig = buildConfigurationForPreSweeper(sweepers, providerName, manualVcsRoot, configuration)
+    val postSweeperConfig = buildConfigurationForPostSweeper(sweepers, providerName, manualVcsRoot, configuration)
+
+    // Add trigger to last step of build chain (post-sweeper)
+    val triggerConfig = NightlyTriggerConfiguration(environment, branchRef)
+    postSweeperConfig.addTrigger(triggerConfig)
+    
     return Project{
 
-        // Create build configs for each package defined in packages.kt
-        val packageConfigs = buildConfigurationsForPackages(packages, providerName, environment, manualVcsRoot, branchRef, configuration)
-        packageConfigs.forEach { buildConfiguration ->
+        // Register build configs in the project
+        buildType(preSweeperConfig)
+        (packageConfigs + servicePackageConfigs).forEach { buildConfiguration ->
             buildType(buildConfiguration)
         }
+        buildType(postSweeperConfig)
 
-        // Create build configs for each service package defined in services.kt
-        val servicePackageConfigs = buildConfigurationsForPackages(services, providerName, environment, manualVcsRoot, branchRef, configuration)
-        servicePackageConfigs.forEach { buildConfiguration ->
-            buildType(buildConfiguration)
-        }
+        // Set up dependencies between builds using `sequential` block
+        // Acc test builds run in parallel
+        sequential {
+            buildType(preSweeperConfig)
 
-        // Create build configs for sweepers, including dependencies on all builds made above
-        val allDependencyIds = ArrayList<String>()
-        (packageConfigs + servicePackageConfigs).forEach { config ->
-            allDependencyIds.add(config.id.toString())
-        }
-        val sweeperPackageConfigs = buildConfigurationsForSweepers(sweepers, providerName, environment, manualVcsRoot, branchRef, configuration, allDependencyIds)
-        sweeperPackageConfigs.forEach { buildConfiguration ->
-            buildType(buildConfiguration)
+            parallel{
+                (packageConfigs + servicePackageConfigs).forEach { buildConfiguration ->
+                    buildType(buildConfiguration)
+                }
+            }
+
+            buildType(postSweeperConfig)
         }
     }
 }
 
-fun buildConfigurationsForPackages(packages: Map<String, Map<String, String>>, providerName : String, environment: String, manualVcsRoot: AbsoluteId, branchRef: String, environmentVariables: ClientConfiguration): List<BuildType> {
-    val triggerConfig = NightlyTriggerConfiguration(environment, branchRef)
+fun buildConfigurationsForPackages(packages: Map<String, Map<String, String>>, providerName: String, environment: String, manualVcsRoot: AbsoluteId, environmentVariables: ClientConfiguration): List<BuildType> {
     var list = ArrayList<BuildType>()
 
     // Create build configurations for all packages, except sweeper
     packages.forEach { (packageName, info) ->
-
         val path: String = info.getValue("path").toString()
         val name: String = info.getValue("name").toString()
         val displayName: String = info.getValue("displayName").toString()
 
         val pkg = packageDetails(packageName, displayName, providerName, environment)
         val buildConfig = pkg.buildConfiguration(path, manualVcsRoot, defaultParallelism, environmentVariables)
-
         list.add(buildConfig)
     }
 
     return list
 }
 
-fun buildConfigurationsForSweepers(packages: Map<String, Map<String, String>>, providerName : String, environment: String, manualVcsRoot: AbsoluteId, branchRef: String, environmentVariables: ClientConfiguration, dependencies: ArrayList<String> ): List<BuildType> {
-
-    val triggerConfig = NightlyTriggerConfiguration(environment, branchRef)
-    var list = ArrayList<BuildType>()
-
+fun buildConfigurationForPreSweeper(packages: Map<String, Map<String, String>>, providerName : String, manualVcsRoot: AbsoluteId, environmentVariables: ClientConfiguration): BuildType {
     val sweeperPackage : Map<String, String> = packages.getValue("sweeper")
     val sweeperPath : String = sweeperPackage.getValue("path")!!.toString()
     val s = sweeperBuildConfigs()
 
     // Pre-Sweeper
-    val preSweeperConfig = s.preSweeperBuildConfig(sweeperPath, manualVcsRoot, defaultParallelism, environmentVariables)
-    list.add(preSweeperConfig)
+    return s.preSweeperBuildConfig(sweeperPath, manualVcsRoot, defaultParallelism, environmentVariables)
+}
 
-    // Post-Sweeper + dependencies + trigger
-    val postSweeperConfig = s.postSweeperBuildConfig(sweeperPath, manualVcsRoot, defaultParallelism, triggerConfig, environmentVariables, dependencies)
-    list.add(postSweeperConfig)
+fun buildConfigurationForPostSweeper(packages: Map<String, Map<String, String>>, providerName : String, manualVcsRoot: AbsoluteId, environmentVariables: ClientConfiguration): BuildType {
+    val sweeperPackage : Map<String, String> = packages.getValue("sweeper")
+    val sweeperPath : String = sweeperPackage.getValue("path")!!.toString()
+    val s = sweeperBuildConfigs()
 
-    return list
+    // Post-Sweeper
+    return s.postSweeperBuildConfig(sweeperPath, manualVcsRoot, defaultParallelism, environmentVariables)
 }
 
 class NightlyTriggerConfiguration(environment: String, branchRef: String, nightlyTestsEnabled: Boolean = true, startHour: Int = defaultStartHour, daysOfWeek: String = defaultDaysOfWeek, daysOfMonth: String = defaultDaysOfMonth) {
@@ -99,5 +106,4 @@ class NightlyTriggerConfiguration(environment: String, branchRef: String, nightl
             this.daysOfWeek = "4" // Thursday for GA
         }
     }
-
 }

@@ -153,24 +153,11 @@ fun Triggers.RunNightly(config: NightlyTriggerConfiguration) {
         enforceCleanCheckout = true
 
         schedulingPolicy = cron {
-            hours = "22"
-            minutes = "25"
+            hours = config.startHour.toString()
             timezone = "SERVER"
 
-            dayOfWeek = "*"
-            dayOfMonth = "*"
-        }
-    }
-}
-
-fun BuildType.addDependencies(list: ArrayList<String>){
-    dependencies {
-        list.forEach{ configId ->
-            snapshot(AbsoluteId(configId)) {
-                reuseBuilds = ReuseBuilds.ANY
-                onDependencyFailure = FailureAction.IGNORE
-                onDependencyCancel = FailureAction.ADD_PROBLEM
-            }
+            dayOfWeek = config.daysOfWeek
+            dayOfMonth = config.daysOfMonth
         }
     }
 }

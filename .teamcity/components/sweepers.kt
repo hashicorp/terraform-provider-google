@@ -17,10 +17,11 @@ class sweeperBuildConfigs() {
         val configName = "Pre-Sweeper"
         val sweeperStepName = "Pre-Sweeper"
 
-        return createBuildConfig(manualVcsRoot, preSweeperBuildConfigId, configName, sweeperStepName, parallelism, testPrefix, testTimeout, sweeperRegions, sweeperRun, path, environmentVariables)
+        val buildConfig = createBuildConfig(manualVcsRoot, preSweeperBuildConfigId, configName, sweeperStepName, parallelism, testPrefix, testTimeout, sweeperRegions, sweeperRun, path, environmentVariables)
+        return buildConfig
    }
 
-    fun postSweeperBuildConfig(path: String, manualVcsRoot: AbsoluteId, parallelism: Int, triggerConfig: NightlyTriggerConfiguration, environmentVariables: ClientConfiguration, dependencies: ArrayList<String>) : BuildType {
+    fun postSweeperBuildConfig(path: String, manualVcsRoot: AbsoluteId, parallelism: Int, environmentVariables: ClientConfiguration) : BuildType {
         val testPrefix = "TestAcc"
         val testTimeout = "12"
         val sweeperRegions = "us-central1"
@@ -29,12 +30,7 @@ class sweeperBuildConfigs() {
         val configName = "Post-Sweeper"
         val sweeperStepName = "Post-Sweeper"
 
-        val build = createBuildConfig(manualVcsRoot, postSweeperBuildConfigId, configName, sweeperStepName, parallelism, testPrefix, testTimeout, sweeperRegions, sweeperRun, path, environmentVariables)
-
-        build.addDependencies(dependencies) // Make dependent on package builds before starting
-        build.addTrigger(triggerConfig)     // Post-Sweeper is triggered by cron, and dependencies result in other builds being queued
-
-        return build
+        return createBuildConfig(manualVcsRoot, postSweeperBuildConfigId, configName, sweeperStepName, parallelism, testPrefix, testTimeout, sweeperRegions, sweeperRun, path, environmentVariables)
     }
 
     fun createBuildConfig(
@@ -90,8 +86,6 @@ class sweeperBuildConfigs() {
             failureConditions {
                 executionTimeoutMin = buildTimeout
             }
-
-            // NOTE: dependencies and triggers are added by methods after the BuildType object is created
         }
     }
 }

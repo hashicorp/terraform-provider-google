@@ -53,23 +53,12 @@ class packageDetails(packageName: String, displayName: String, providerName: Str
                 WorkingDirectory(path)
             }
 
-            // triggers are not set here because the dependent Post-Sweeper build causes these builds
-            // to be triggered; if these have their own trigger as well then they will run twice.
-            // This problem can be migitated via `reuseBuilds` in dependencies on Post-Sweeper
-            // but that mitigation doesn't appear to scale well as there are more packages
-
-            dependencies {
-                // Acceptance tests need the Pre-Sweeper step to have completed first
-                snapshot(RelativeId(preSweeperBuildConfigId)) {
-                    reuseBuilds = ReuseBuilds.ANY
-                    onDependencyFailure = FailureAction.IGNORE
-                    onDependencyCancel = FailureAction.ADD_PROBLEM
-                }
-            }
-
             failureConditions {
                 executionTimeoutMin = buildTimeout
             }
+
+            // Dependencies are not set here; instead, the `sequential` block in the Project instance creates dependencies between builds
+            // Triggers are not set here; the pre-sweeper at the start of the `sequential` block has a cron trigger.
         }
     }
 
