@@ -38,8 +38,23 @@ fun BuildFeatures.Golang() {
 
 fun BuildSteps.ConfigureGoEnv() {
     step(ScriptBuildStep {
-        name = "Configure Go Version"
+        name = "Configure Go version using .go-version file"
         scriptContent = "goenv install -s \$(goenv local) && goenv rehash"
+    })
+}
+
+fun BuildSteps.SetGitCommitBuildId() {
+    step(ScriptBuildStep {
+        name = "Set build id as shortened git commit hash"
+        scriptContent = """
+            #!/bin/bash
+            GIT_HASH=%system.build.vcs.number%
+            GIT_HASH_SHORT=${'$'}{GIT_HASH:0:7}
+            echo "##teamcity[buildNumber '${'$'}{GIT_HASH_SHORT}']"
+        """.trimIndent()
+        // ${'$'} is required to allow creating a script in TeamCity that contains
+        // parts like ${GIT_HASH_SHORT} without having Kotlin syntax issues. For more info see:
+        // https://youtrack.jetbrains.com/issue/KT-2425/Provide-a-way-for-escaping-the-dollar-sign-symbol-in-multiline-strings-and-string-templates
     })
 }
 
@@ -47,30 +62,29 @@ fun BuildSteps.DownloadTerraformBinary() {
     // https://releases.hashicorp.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
     var terraformUrl = "https://releases.hashicorp.com/terraform/%env.TERRAFORM_CORE_VERSION%/terraform_%env.TERRAFORM_CORE_VERSION%_linux_amd64.zip"
     step(ScriptBuildStep {
-        name = "Download Terraform Core v%env.TERRAFORM_CORE_VERSION%.."
-        scriptContent = "mkdir -p tools && wget -O tf.zip %s && unzip tf.zip && mv terraform tools/".format(terraformUrl)
+        name = "Download Terraform version %s".format(defaultTerraformCoreVersion)
+        scriptContent = """
+        #!/bin/bash
+        mkdir -p tools
+        wget -O tf.zip %s
+        unzip tf.zip
+        mv terraform tools/
+        """.format(terraformUrl).trimIndent()
     })
 }
 
-fun servicePath(path : String, packageName: String) : String {
-    return "./%s/%s".format(path, packageName)
-}
-
-fun BuildSteps.RunAcceptanceTests(path : String, packageName: String) {
-    var packagePath = servicePath(path, packageName)
-    var withTestsDirectoryPath = "##teamcity[setParameter name='PACKAGE_PATH' value='%s/tests']".format(packagePath)
-
-    // some packages use a ./tests folder, others don't - conditionally append that if needed
-    step(ScriptBuildStep {
-        name          = "Determine Working Directory for this Package"
-        scriptContent = "if [ -d \"%s/tests\" ]; then echo \"%s\"; fi".format(packagePath, withTestsDirectoryPath)
-    })
-
+// RunSweepers runs sweepers, and relies on set build configuration parameters
+fun BuildSteps.RunSweepers(sweeperStepName : String) {
     step(ScriptBuildStep{
-        name = "Pre-Sweeper"
-        scriptContent = "go test -v \"%PACKAGE_PATH%\" -sweep=\"%SWEEPER_REGIONS%\"  -sweep-allow-failures -sweep-run=\"%SWEEP_RUN%\" -timeout 30m"
+        name = sweeperStepName
+        scriptContent = "go test -v \"%PACKAGE_PATH%\" -sweep=\"%SWEEPER_REGIONS%\" -sweep-allow-failures -sweep-run=\"%SWEEP_RUN%\" -timeout 30m"
     })
+}
 
+// RunAcceptanceTests runs tests for a given directory, using either:
+// - TeamCity's test runner - stops remaining tests after a failure
+// - jen20/teamcity-go-test - allows tests to continue after a failure, and requires a test binary
+fun BuildSteps.RunAcceptanceTests() {
     if (useTeamCityGoTest) {
         step(ScriptBuildStep {
             name = "Run Tests"
@@ -84,17 +98,11 @@ fun BuildSteps.RunAcceptanceTests(path : String, packageName: String) {
         })
 
         step(ScriptBuildStep {
-            // ./test-binary -test.list=TestAccComputeRegionDisk_ | teamcity-go-test -test ./test-binary -timeout 1s
             name = "Run via jen20/teamcity-go-test"
             scriptContent = "./test-binary -test.list=\"%TEST_PREFIX%\" | teamcity-go-test -test ./test-binary -parallelism \"%PARALLELISM%\" -timeout \"%TIMEOUT%h\""
             workingDir = "%PACKAGE_PATH%"
         })
     }
-
-    step(ScriptBuildStep{
-        name = "Post-Sweeper"
-        scriptContent = "go test -v \"%PACKAGE_PATH%\" -sweep=\"%SWEEPER_REGIONS%\"  -sweep-allow-failures -sweep-run=\"%SWEEP_RUN%\" -timeout 30m"
-    })
 }
 
 fun ParametrizedWithType.TerraformAcceptanceTestParameters(parallelism : Int, prefix : String, timeout: String, sweeperRegions: String, sweepRun: String) {
@@ -122,8 +130,8 @@ fun ParametrizedWithType.TerraformShouldPanicForSchemaErrors() {
     hiddenVariable("env.TF_SCHEMA_PANIC_ON_ERROR", "1", "Panic if unknown/unmatched fields are set into the state")
 }
 
-fun ParametrizedWithType.WorkingDirectory(path : String, packageName: String) {
-    text("PACKAGE_PATH", servicePath(path, packageName), "", "The path at which to run - automatically updated", ParameterDisplay.HIDDEN)
+fun ParametrizedWithType.WorkingDirectory(path : String) {
+    text("PACKAGE_PATH", path, "", "The path at which to run - automatically updated", ParameterDisplay.HIDDEN)
 }
 
 fun ParametrizedWithType.hiddenVariable(name: String, value: String, description: String) {
@@ -134,19 +142,28 @@ fun ParametrizedWithType.hiddenPasswordVariable(name: String, value: String, des
     password(name, value, "", description, ParameterDisplay.HIDDEN)
 }
 
-fun Triggers.RunNightly(nightlyTestsEnabled: Boolean, startHour: Int, daysOfWeek: String, daysOfMonth: String, branchRef: String) {
-    val filter = "+:" + branchRef // e.g. "+:refs/heads/main"
+fun Triggers.RunNightly(config: NightlyTriggerConfiguration) {
+    val filter = "+:" + config.branchRef // e.g. "+:refs/heads/main"
 
     schedule{
-        enabled = nightlyTestsEnabled
+        enabled = config.nightlyTestsEnabled
         branchFilter = filter
+        triggerBuild = always() // Run build even if no new commits/pending changes
+        withPendingChangesOnly = false
+        enforceCleanCheckout = true
 
         schedulingPolicy = cron {
-            hours = startHour.toString()
+            hours = config.startHour.toString()
             timezone = "SERVER"
 
-            dayOfWeek = daysOfWeek
-            dayOfMonth = daysOfMonth
+            dayOfWeek = config.daysOfWeek
+            dayOfMonth = config.daysOfMonth
         }
+    }
+}
+
+fun BuildType.addTrigger(triggerConfig: NightlyTriggerConfiguration){
+    triggers {
+        RunNightly(triggerConfig)
     }
 }
