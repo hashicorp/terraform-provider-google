@@ -1,0 +1,3 @@
+```release-note:bug
+DNS: changed `private_visibility_config.networks` from `required` to requiring at least one of `private_visibility_config.networks` or `private_visibility_config.gke_clusters` in `google_dns_managed_zone`
+```
