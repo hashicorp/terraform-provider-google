@@ -1,0 +1,3 @@
+```release-note:bug
+alloydb: changed `backup_window`, `enabled` and `location` fields to default to API value when unset in `google_alloydb_cluster` 
+```

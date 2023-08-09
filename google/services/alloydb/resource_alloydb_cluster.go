@@ -79,6 +79,7 @@ func ResourceAlloydbCluster() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"backup_window": {
 							Type:     schema.TypeString,
+							Computed: true,
 							Optional: true,
 							Description: `The length of the time window during which a backup can be taken. If a backup does not succeed within this time window, it will be canceled and considered failed.
 
@@ -88,6 +89,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 						},
 						"enabled": {
 							Type:        schema.TypeBool,
+							Computed:    true,
 							Optional:    true,
 							Description: `Whether automated backups are enabled.`,
 						},
@@ -114,6 +116,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 						},
 						"location": {
 							Type:        schema.TypeString,
+							Computed:    true,
 							Optional:    true,
 							Description: `The location where the backup will be stored. Currently, the only supported option is to store the backup in the same region as the cluster.`,
 						},
