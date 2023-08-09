@@ -70,7 +70,7 @@ class packageDetails(packageName: String, displayName: String, providerName: Str
         // Replacing chars can be necessary, due to limitations on IDs
         // "ID should start with a latin letter and contain only latin letters, digits and underscores (at most 225 characters)." 
         var pv = this.providerName.replace("-", "").toUpperCase()
-        var pkg = this.packageName.toUpperCase()
+        var pkg = this.packageName.replace("-", "").toUpperCase()
 
         return "%s_PACKAGE_%s".format(pv, pkg)
     }
