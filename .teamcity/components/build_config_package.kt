@@ -34,10 +34,6 @@ class packageDetails(packageName: String, displayName: String, providerName: Str
                 RunAcceptanceTests()
             }
 
-            failureConditions {
-                errorMessage = true
-            }
-
             features {
                 Golang()
             }
@@ -53,6 +49,7 @@ class packageDetails(packageName: String, displayName: String, providerName: Str
             }
 
             failureConditions {
+                errorMessage = true
                 executionTimeoutMin = buildTimeout
             }
 

@@ -67,10 +67,6 @@ class sweeperBuildConfigs() {
                 RunSweepers(sweeperStepName)
             }
 
-            failureConditions {
-                errorMessage = true
-            }
-
             features {
                 Golang()
             }
@@ -86,8 +82,11 @@ class sweeperBuildConfigs() {
             }
 
             failureConditions {
+                errorMessage = true
                 executionTimeoutMin = buildTimeout
             }
+
+            // NOTE: dependencies and triggers are added by methods after the BuildType object is created
         }
     }
 }
