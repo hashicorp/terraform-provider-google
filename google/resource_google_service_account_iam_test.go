@@ -100,7 +100,7 @@ func TestAccServiceAccountIamMember(t *testing.T) {
 	t.Parallel()
 
 	account := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
-	email := serviceAccountCanonicalEmail(account)
+	email := envvar.ServiceAccountCanonicalEmail(account)
 	identity := fmt.Sprintf("serviceAccount:%s", email)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -133,7 +133,7 @@ func TestAccServiceAccountIamMember_withCondition(t *testing.T) {
 	t.Parallel()
 
 	account := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
-	identity := fmt.Sprintf("serviceAccount:%s", serviceAccountCanonicalEmail(account))
+	identity := fmt.Sprintf("serviceAccount:%s", envvar.ServiceAccountCanonicalEmail(account))
 	conditionTitle := "expires_after_2019_12_31"
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -160,7 +160,7 @@ func TestAccServiceAccountIamMember_withAndWithoutCondition(t *testing.T) {
 	t.Parallel()
 
 	account := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
-	identity := fmt.Sprintf("serviceAccount:%s", serviceAccountCanonicalEmail(account))
+	identity := fmt.Sprintf("serviceAccount:%s", envvar.ServiceAccountCanonicalEmail(account))
 	conditionTitle := "expires_after_2019_12_31"
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -252,10 +252,6 @@ func testAccCheckGoogleServiceAccountIam(t *testing.T, account string, numBindin
 
 func serviceAccountCanonicalId(account string) string {
 	return fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", envvar.GetTestProjectFromEnv(), account, envvar.GetTestProjectFromEnv())
-}
-
-func serviceAccountCanonicalEmail(account string) string {
-	return fmt.Sprintf("%s@%s.iam.gserviceaccount.com", account, envvar.GetTestProjectFromEnv())
 }
 
 func testAccServiceAccountIamBinding_basic(account string) string {
