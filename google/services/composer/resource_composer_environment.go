@@ -80,6 +80,7 @@ var (
 	}
 
 	composerPrivateEnvironmentConfig = []string{
+		"config.0.private_environment_config.0.connection_type",
 		"config.0.private_environment_config.0.enable_private_endpoint",
 		"config.0.private_environment_config.0.master_ipv4_cidr_block",
 		"config.0.private_environment_config.0.cloud_sql_ipv4_cidr_block",
@@ -438,6 +439,15 @@ func ResourceComposerEnvironment() *schema.Resource {
 							Description:  `The configuration used for the Private IP Cloud Composer environment.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"connection_type": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										AtLeastOneOf: composerPrivateEnvironmentConfig,
+										ForceNew:     true,
+										ValidateFunc: validation.StringInSlice([]string{"VPC_PEERING", "PRIVATE_SERVICE_CONNECT"}, false),
+										Description:  `Mode of internal communication within the Composer environment. Must be one of "VPC_PEERING" or "PRIVATE_SERVICE_CONNECT".`,
+									},
 									"enable_private_endpoint": {
 										Type:         schema.TypeBool,
 										Optional:     true,
@@ -1383,6 +1393,9 @@ func flattenComposerEnvironmentConfigPrivateEnvironmentConfig(envCfg *composer.P
 	}
 
 	transformed := make(map[string]interface{})
+	if envCfg.NetworkingConfig != nil {
+		transformed["connection_type"] = envCfg.NetworkingConfig.ConnectionType
+	}
 	transformed["enable_private_endpoint"] = envCfg.PrivateClusterConfig.EnablePrivateEndpoint
 	transformed["master_ipv4_cidr_block"] = envCfg.PrivateClusterConfig.MasterIpv4CidrBlock
 	transformed["cloud_sql_ipv4_cidr_block"] = envCfg.CloudSqlIpv4CidrBlock
@@ -1802,6 +1815,11 @@ func expandComposerEnvironmentConfigPrivateEnvironmentConfig(v interface{}, d *s
 	}
 
 	subBlock := &composer.PrivateClusterConfig{}
+	networkConfig := &composer.NetworkingConfig{}
+
+	if v, ok := original["connection_type"]; ok {
+		networkConfig.ConnectionType = v.(string)
+	}
 
 	if v, ok := original["enable_private_endpoint"]; ok {
 		subBlock.EnablePrivateEndpoint = v.(bool)
@@ -1830,6 +1848,7 @@ func expandComposerEnvironmentConfigPrivateEnvironmentConfig(v interface{}, d *s
 	}
 
 	transformed.PrivateClusterConfig = subBlock
+	transformed.NetworkingConfig = networkConfig
 
 	return transformed, nil
 }
