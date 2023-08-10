@@ -736,6 +736,7 @@ resource "google_compute_security_policy" "policy" {
       ]
     }
     log_level    = "VERBOSE"
+    
   }
 }
 `, spName)
